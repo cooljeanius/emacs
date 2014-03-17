@@ -9,7 +9,7 @@ dnl Test whether <stdint.h> is supported or must be substituted.
 
 AC_DEFUN_ONCE([gl_STDINT_H],
 [
-  AC_PREREQ([2.59])dnl
+  AC_PREREQ([2.69])dnl
 
   dnl Check for long long int and unsigned long long int.
   AC_REQUIRE([AC_TYPE_LONG_LONG_INT])

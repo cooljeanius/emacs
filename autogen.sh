@@ -80,26 +80,26 @@ check_version ()
 
     eval uprog=\$${uprog}
 
-    [ x"$uprog" = x ] && uprog=$1
+    [ x"${uprog}" = x ] && uprog=$1
 
     have_version=`get_version $uprog`
 
-    [ x"$have_version" = x ] && return 1
+    [ x"${have_version}" = x ] && return 1
 
-    have_maj=`major_version $have_version`
+    have_maj=`major_version ${have_version}`
     need_maj=`major_version $2`
 
-    [ x"$have_maj" != x ] && [ x"$need_maj" != x ] || return 3
+    [ x"${have_maj}" != x ] && [ x"${need_maj}" != x ] || return 3
 
-    [ $have_maj -gt $need_maj ] && return 0
-    [ $have_maj -lt $need_maj ] && return 2
+    [ ${have_maj} -gt ${need_maj} ] && return 0
+    [ ${have_maj} -lt ${need_maj} ] && return 2
 
-    have_min=`minor_version $have_version`
+    have_min=`minor_version ${have_version}`
     need_min=`minor_version $2`
 
-    [ x"$have_min" != x ] && [ x"$need_min" != x ] || return 3
+    [ x"${have_min}" != x ] && [ x"${need_min}" != x ] || return 3
 
-    [ $have_min -ge $need_min ] && return 0
+    [ ${have_min} -ge ${need_min} ] && return 0
     return 2
 }
 
@@ -112,28 +112,28 @@ EOF
 
 missing=
 
-for prog in $progs; do
+for prog in ${progs}; do
 
     eval min=\$${prog}_min
 
-    echo "Checking for $prog (need at least version $min)..."
+    echo "Checking for ${prog} (need at least version ${min})..."
 
-    check_version $prog $min
+    check_version ${prog} ${min}
 
     retval=$?
 
-    case $retval in
+    case ${retval} in
         0) stat="ok" ;;
         1) stat="missing" ;;
         2) stat="too old" ;;
         *) stat="unable to check" ;;
     esac
 
-    echo $stat
+    echo ${stat}
 
-    if [ $retval -ne 0 ]; then
-        missing="$missing $prog"
-        eval ${prog}_why=\""$stat"\"
+    if [ ${retval} -ne 0 ]; then
+        missing="${missing} ${prog}"
+        eval ${prog}_why=\""${stat}"\"
     fi
 
 done
@@ -146,10 +146,10 @@ if [ x"$missing" != x ]; then
 Building Emacs from Bzr requires the following specialized programs:
 EOF
 
-    for prog in $progs; do
+    for prog in ${progs}; do
         eval min=\$${prog}_min
 
-        echo "$prog (minimum version $min)"
+        echo "${prog} (minimum version ${min})"
     done
 
 
@@ -158,10 +158,10 @@ EOF
 Your system seems to be missing the following tool(s):
 EOF
 
-    for prog in $missing; do
+    for prog in ${missing}; do
         eval why=\$${prog}_why
 
-        echo "$prog ($why)"
+        echo "${prog} (${why})"
     done
 
     cat <<EOF
@@ -172,6 +172,8 @@ and re-run this script.
 Otherwise, please try installing them.
 On systems using rpm and yum, try: "yum install PACKAGE"
 On systems using dpkg and apt, try: "apt-get install PACKAGE"
+On systems using other package managers, try a similar command for that
+other package manager.
 Then re-run this script.
 
 If you do not have permission to do this, or if the version provided
@@ -188,7 +190,7 @@ this script.
 If you know that the required versions are in your PATH, but this
 script has made an error, then you can simply run
 
-autoreconf -i -I m4
+autoreconf -fvi -Wall -I m4
 
 instead of this script.
 
@@ -202,9 +204,9 @@ echo "Your system has the required tools, running autoreconf..."
 
 
 ## Let autoreconf figure out what, if anything, needs doing.
-autoreconf -i -I m4 || exit $?
+autoreconf -fvi -Wall -I m4 || exit $?
 
-## Create a timestamp, so that './autogen.sh; make' doesn't
+## Create a timestamp, so that './autogen.sh; make' does NOT
 ## cause 'make' to needlessly run 'autoheader'.
 echo timestamp > src/stamp-h.in || exit
 

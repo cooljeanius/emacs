@@ -1,0 +1,55 @@
+--- src/mac.c	19 Apr 2007 08:41:05 -0000	1.77
++++ src/mac.c	2 Jun 2007 16:22:08 -0000
+@@ -68,6 +68,8 @@
+ #include <unistd.h>
+ #endif
+ 
++#include <CoreFoundation/CoreFoundation.h> /* to get user locale */
++
+ /* The system script code. */
+ static int mac_system_script_code;
+ 
+@@ -4950,26 +4952,26 @@
+ 
+ #endif	/* TARGET_API_MAC_CARBON */
+ 
+-
+ static Lisp_Object
+ mac_get_system_locale ()
+ {
+-  OSStatus err;
+-  LangCode lang;
+-  RegionCode region;
+-  LocaleRef locale;
+-  Str255 str;
+-
+-  lang = GetScriptVariable (smSystemScript, smScriptLang);
+-  region = GetScriptManagerVariable (smRegionCode);
+-  err = LocaleRefFromLangOrRegionCode (lang, region, &locale);
+-  if (err == noErr)
+-    err = LocaleRefGetPartString (locale, kLocaleAllPartsMask,
+-				  sizeof (str), str);
+-  if (err == noErr)
+-    return build_string (str);
+-  else
+-    return Qnil;
++  Lisp_Object object = Qnil;
++  CFLocaleRef locale = CFLocaleCopyCurrent();
++  if (locale) {
++    CFStringRef string = CFLocaleGetValue(locale, kCFLocaleIdentifier);
++    if (string) {
++      CFDataRef data = CFStringCreateExternalRepresentation(kCFAllocatorDefault, string, kCFStringEncodingUTF8, 0);
++      if (data) {
++	const UInt8 *sdata = CFDataGetBytePtr(data);
++	if (sdata)
++	  object = build_string(sdata);
++	CFRelease(data);
++      }
++      CFRelease(string);
++    }
++    CFRelease(locale);
++  }
++  return object;
+ }
+ 
+ 

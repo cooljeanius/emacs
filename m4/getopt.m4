@@ -1,8 +1,8 @@
 # getopt.m4 serial 44
-dnl Copyright (C) 2002-2006, 2008-2014 Free Software Foundation, Inc.
-dnl This file is free software; the Free Software Foundation
-dnl gives unlimited permission to copy and/or distribute it,
-dnl with or without modifications, as long as this notice is preserved.
+dnl# Copyright (C) 2002-2006, 2008-2014 Free Software Foundation, Inc.
+dnl# This file is free software; the Free Software Foundation
+dnl# gives unlimited permission to copy and/or distribute it,
+dnl# with or without modifications, as long as this notice is preserved.
 
 # Request a POSIX compliant getopt function.
 AC_DEFUN([gl_FUNC_GETOPT_POSIX],
@@ -40,10 +40,11 @@ AC_DEFUN([gl_FUNC_GETOPT_GNU],
 # Determine whether to replace the entire getopt facility.
 AC_DEFUN([gl_GETOPT_CHECK_HEADERS],
 [
-  AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
-  AC_REQUIRE([AC_PROG_AWK]) dnl for awk that supports ENVIRON
+  AC_REQUIRE([AC_CANONICAL_HOST]) dnl# for cross-compiles
+  AC_REQUIRE([AC_PROG_AWK]) dnl# for awk that supports ENVIRON
 
-  dnl Persuade Solaris <unistd.h> to declare optarg, optind, opterr, optopt.
+  dnl# Persuade Solaris <unistd.h> to declare optarg, optind, opterr,
+  dnl# optopt.
   AC_REQUIRE([AC_USE_SYSTEM_EXTENSIONS])
 
   gl_CHECK_NEXT_HEADERS([getopt.h])
@@ -110,7 +111,8 @@ main ()
 }
 ]])],
             [gl_cv_func_getopt_posix=maybe],
-            [gl_cv_func_getopt_posix=no])
+            [gl_cv_func_getopt_posix=no],
+            [gl_cv_func_getopt_posix=maybe])
           if test $gl_cv_func_getopt_posix = maybe; then
             dnl Sanity check with '+'. Succeeds everywhere (except on MSVC,
             dnl which lacks <unistd.h> and getopt() entirely).
@@ -156,7 +158,8 @@ main ()
 }
 ]])],
               [gl_cv_func_getopt_posix=maybe],
-              [gl_cv_func_getopt_posix=no])
+              [gl_cv_func_getopt_posix=no],
+              [gl_cv_func_getopt_posix=maybe])
           fi
           if test $gl_cv_func_getopt_posix = maybe; then
             dnl Detect Mac OS X 10.5, AIX 7.1, mingw bug.
@@ -184,16 +187,17 @@ main ()
 }
 ]])],
               [gl_cv_func_getopt_posix=yes],
-              [gl_cv_func_getopt_posix=no])
+              [gl_cv_func_getopt_posix=no],
+              [gl_cv_func_getopt_posix=maybe])
           fi
         else
-          case "$host_os" in
+          case "${host_os}" in
             darwin* | aix* | mingw*) gl_cv_func_getopt_posix="guessing no";;
             *)                       gl_cv_func_getopt_posix="guessing yes";;
           esac
         fi
       ])
-    case "$gl_cv_func_getopt_posix" in
+    case "${gl_cv_func_getopt_posix}" in
       *no) gl_replace_getopt=yes ;;
     esac
   fi

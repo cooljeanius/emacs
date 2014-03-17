@@ -1,0 +1,17 @@
+--- Makefile.in	3 Feb 2007 21:49:10 -0000	1.321
++++ Makefile.in	2 Jun 2007 16:22:06 -0000
+@@ -384,8 +384,12 @@
+ 	    exec_prefix=${exec_prefix} bindir=${bindir} \
+ 	    libexecdir=${libexecdir} archlibdir=${archlibdir} \
+ 	    INSTALL_STRIP=${INSTALL_STRIP})
+-	${INSTALL_PROGRAM} $(INSTALL_STRIP) src/emacs${EXEEXT} $(DESTDIR)${bindir}/$(EMACSFULL)
+-	-chmod 1755 $(DESTDIR)${bindir}/$(EMACSFULL)
++	if [ -f src/emacs-undumped ]; then \
++		${INSTALL_PROGRAM} $(INSTALL_STRIP) src/emacs-undumped $(DESTDIR)${bindir}/; \
++	else \
++	        ${INSTALL_PROGRAM} $(INSTALL_STRIP) src/emacs${EXEEXT} $(DESTDIR)${bindir}/$(EMACSFULL); \
++	chmod 1755 $(DESTDIR)${bindir}/$(EMACSFULL); \
++	fi
+ 	rm -f $(DESTDIR)${bindir}/$(EMACS)
+ 	-ln $(DESTDIR)${bindir}/$(EMACSFULL) $(DESTDIR)${bindir}/$(EMACS)
+ 	-unset CDPATH; \

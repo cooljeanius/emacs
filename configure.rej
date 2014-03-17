@@ -1,0 +1,30 @@
+--- configure	20 May 2007 18:05:49 -0000	1.202.2.5
++++ configure	2 Jun 2007 16:22:06 -0000
+@@ -2354,15 +2354,16 @@
+   ## Apple Darwin / Mac OS X
+   *-apple-darwin* )
+     case "${canonical}" in
+-      i[3456]86-* )  machine=intel386 ;;
+-      powerpc-* )    machine=powermac ;;
++      i[3456]86-* )  machine=mac ;;
++      powerpc-* )    machine=mac ;;
++      mac-apple-darwin* ) machine=mac;;
+       * )            unported=yes ;;
+     esac
+     opsys=darwin
+     # Define CPP as follows to make autoconf work correctly.
+     CPP="${CC-cc} -E -no-cpp-precomp"
+     # Use fink packages if available.
+-    if test -d /sw/include && test -d /sw/lib; then
++    if false && test -d /sw/include && test -d /sw/lib; then
+       GCC_TEST_OPTIONS="-I/sw/include -L/sw/lib"
+       CPP="${CPP} ${GCC_TEST_OPTIONS}"
+       NON_GCC_TEST_OPTIONS=${GCC_TEST_OPTIONS}
+@@ -3103,6 +3104,7 @@
+     case "${canonical}" in
+       *-cygwin )                opsys=cygwin ;;
+       *-darwin* )               opsys=darwin
++	                        machine=mac #For univeral building
+                                 CPP="${CC-cc} -E -no-cpp-precomp"
+  				;;
+       *-isc1.* | *-isc2.[01]* )	opsys=386-ix ;;

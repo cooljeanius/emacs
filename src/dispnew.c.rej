@@ -1,0 +1,12 @@
+--- src/dispnew.c	16 Apr 2007 16:24:33 -0000	1.392
++++ src/dispnew.c	2 Jun 2007 16:22:08 -0000
+@@ -6837,7 +6837,8 @@
+ #endif /* HAVE_NTGUI */
+ 
+ #ifdef MAC_OS
+-  if (!inhibit_window_system)
++  /* treat tty /dev/stdin as emacs -nw */
++  if (!inhibit_window_system && !isatty(0))
+     {
+       Vwindow_system = intern ("mac");
+       Vwindow_system_version = make_number (1);

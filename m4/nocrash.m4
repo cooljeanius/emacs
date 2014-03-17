@@ -6,7 +6,7 @@ dnl with or without modifications, as long as this notice is preserved.
 
 dnl Based on libsigsegv, from Bruno Haible and Paolo Bonzini.
 
-AC_PREREQ([2.13])
+AC_PREREQ([2.69])
 
 dnl Expands to some code for use in .c programs that will cause the configure
 dnl test to exit instead of crashing. This is useful to avoid triggering

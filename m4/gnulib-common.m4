@@ -426,7 +426,7 @@ m4_ifndef([AC_PROG_SED],
            done
          done])
        if test -z "$ac_cv_path_SED"; then
-         AC_ERROR([no acceptable sed could be found in \$PATH])
+         AC_MSG_ERROR(no acceptable sed could be found in \$PATH)
        fi
      else
        ac_cv_path_SED=$SED

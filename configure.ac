@@ -1,33 +1,35 @@
-dnl  Autoconf script for GNU Emacs
-dnl To rebuild the `configure' script from this, execute the command
-dnl 	autoconf
-dnl in the directory containing this script.
-dnl If you changed any AC_DEFINES, also run autoheader.
-dnl
-dnl Copyright (C) 1994-1996, 1999-2014 Free Software Foundation, Inc.
-dnl
-dnl  This file is part of GNU Emacs.
-dnl
-dnl  GNU Emacs is free software: you can redistribute it and/or modify
-dnl  it under the terms of the GNU General Public License as published by
-dnl  the Free Software Foundation, either version 3 of the License, or
-dnl  (at your option) any later version.
-dnl
-dnl  GNU Emacs is distributed in the hope that it will be useful,
-dnl  but WITHOUT ANY WARRANTY; without even the implied warranty of
-dnl  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-dnl  GNU General Public License for more details.
-dnl
-dnl  You should have received a copy of the GNU General Public License
-dnl  along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
+dnl#                                               -*- Autoconf -*-
+dnl#  Autoconf script for GNU Emacs
+dnl# To rebuild the `configure' script from this, execute the command
+dnl# 	autoconf
+dnl# in the directory containing this script.
+dnl# If you changed any AC_DEFINES, also run autoheader.
+dnl#
+dnl# Copyright (C) 1994-1996, 1999-2014 Free Software Foundation, Inc.
+dnl#
+dnl#  This file is part of GNU Emacs.
+dnl#
+dnl#  GNU Emacs is free software: you can redistribute it and/or modify
+dnl#  it under the terms of the GNU General Public License as published by
+dnl#  the Free Software Foundation, either version 3 of the License, or
+dnl#  (at your option) any later version.
+dnl#
+dnl#  GNU Emacs is distributed in the hope that it will be useful,
+dnl#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+dnl#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+dnl#  GNU General Public License for more details.
+dnl#
+dnl#  You should have received a copy of the GNU General Public License
+dnl#  along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
 
-AC_PREREQ(2.65)
-AC_INIT(emacs, 24.3.50)
+AC_PREREQ([2.69])
+AC_INIT([emacs],[24.3.50],[])
 
-dnl We get MINGW64 with MSYS2
-if test "x$MSYSTEM" = "xMINGW32" -o "x$MSYSTEM" = "xMINGW64"
+dnl# We get MINGW64 with MSYS2
+if test "x${MSYSTEM}" = "xMINGW32" -o "x${MSYSTEM}" = "xMINGW64"
 then
-  . $srcdir/nt/mingw-cfg.site
+  AC_MSG_NOTICE([sourcing ${srcdir}/nt/mingw-cfg.site])
+  . ${srcdir}/nt/mingw-cfg.site
 
   case $srcdir in
     /* | ?:*)
@@ -40,42 +42,42 @@ then
   esac
 fi
 
-dnl Set emacs_config_options to the options of 'configure', quoted for the shell,
-dnl and then quoted again for a C string.  Separate options with spaces.
-dnl Add some environment variables, if they were passed via the environment
-dnl rather than on the command-line.
-emacs_config_options=
-optsep=
-dnl This is the documented way to record the args passed to configure,
-dnl rather than $ac_configure_args.
+dnl# Set emacs_config_options to the options of 'configure', quoted for
+dnl# the shell, and then quoted again for a C string. Separate options
+dnl# with spaces. Add some environment variables, if they were passed via
+dnl# the environment rather than on the command-line.
+emacs_config_options=""
+optsep=""
+dnl# This is the documented way to record the args passed to configure,
+dnl# rather than ${ac_configure_args}.
 for opt in ${1+"$@"} CFLAGS CPPFLAGS LDFLAGS; do
-  case $opt in
+  case ${opt} in
     -n | --no-create | --no-recursion)
       continue ;;
     CFLAGS | CPPFLAGS | LDFLAGS)
       eval 'test "${'$opt'+set}" = set' || continue
       case " $*" in
-	*" $opt="*) continue ;;
+	*" ${opt}="*) continue ;;
       esac
-      eval opt=$opt=\$$opt ;;
+      eval opt=${opt}=\$$opt ;;
   esac
 
   emacs_shell_specials=$IFS\''"#$&()*;<>?@<:@\\`{|~'
-  case $opt in
-    *[["$emacs_shell_specials"]]*)
-      case $opt in
+  case ${opt} in
+    *[["${emacs_shell_specials}"]]*)
+      case ${opt} in
 	*\'*)
 	  emacs_quote_apostrophes="s/'/'\\\\''/g"
-	  opt=`AS_ECHO(["$opt"]) | sed "$emacs_quote_apostrophes"` ;;
+	  opt=`AS_ECHO(["${opt}"]) | sed "${emacs_quote_apostrophes}"` ;;
       esac
-      opt="'$opt'"
-      case $opt in
+      opt="'${opt}'"
+      case ${opt} in
 	*[['"\\']]*)
 	  emacs_quote_for_c='s/[["\\]]/\\&/g; $!s/$/\\n\\/'
-	  opt=`AS_ECHO(["$opt"]) | sed "$emacs_quote_for_c"` ;;
+	  opt=`AS_ECHO(["${opt}"]) | sed "${emacs_quote_for_c}"` ;;
       esac ;;
   esac
-  AS_VAR_APPEND([emacs_config_options], ["$optsep$opt"])
+  AS_VAR_APPEND([emacs_config_options],["${optsep}${opt}"])
   optsep=' '
 done
 
@@ -83,32 +85,34 @@ AC_CONFIG_HEADERS(src/config.h:src/config.in)
 AC_CONFIG_SRCDIR(src/lisp.h)
 AC_CONFIG_AUX_DIR(build-aux)
 
-xcsdkdir=
-AC_CHECK_PROGS(XCRUN, [xcrun])
-if test -n "$XCRUN"; then
-  if test -z "$MAKE"; then
-    dnl Call the variable MAKE_PROG, not MAKE, to avoid confusion with
-    dnl SET_MAKE and with the usual MAKE variable that 'make' itself uses.
-    AC_CHECK_PROG([MAKE_PROG], [make], [yes])
-    if test -z "$MAKE_PROG"; then
-      MAKE="$XCRUN MAKE"
+xcsdkdir=""
+AC_CHECK_PROGS([XCRUN],[xcrun])
+if test -n "${XCRUN}"; then
+  if test -z "${MAKE}"; then
+    dnl# Call the variable MAKE_PROG, not MAKE, to avoid confusion with
+    dnl# SET_MAKE and with the usual MAKE variable that 'make' itself uses.
+    AC_CHECK_PROG([MAKE_PROG],[make],[yes])
+    if test -z "${MAKE_PROG}"; then
+      MAKE="${XCRUN} MAKE"
       export MAKE
-      xcsdkdir=`$XCRUN --show-sdk-path 2>/dev/null`
+      xcsdkdir=`${XCRUN} --show-sdk-path 2>/dev/null`
     fi
   fi
 fi
 
-dnl Fairly arbitrary, older versions might work too.
-AM_INIT_AUTOMAKE(1.11)
+dnl# Fairly arbitrary, older versions might work too.
+AM_INIT_AUTOMAKE([1.11])
+AM_MAINTAINER_MODE
 
-dnl Support for --program-prefix, --program-suffix and
-dnl --program-transform-name options
+dnl# Support for --program-prefix, --program-suffix and
+dnl# --program-transform-name options
+dnl# (I thought that this would already have been called?)
 AC_ARG_PROGRAM
 
-dnl It is important that variables on the RHS not be expanded here,
-dnl hence the single quotes.  This is per the GNU coding standards, see
-dnl (autoconf) Installation Directory Variables
-dnl See also epaths.h below.
+dnl# It is important that variables on the RHS not be expanded here,
+dnl# hence the single quotes.  This is per the GNU coding standards, see
+dnl# (autoconf) Installation Directory Variables
+dnl# See also epaths.h below.
 lispdir='${datadir}/emacs/${version}/lisp'
 standardlisppath='${lispdir}'
 locallisppath='${datadir}/emacs/${version}/site-lisp:'\
@@ -119,8 +123,8 @@ archlibdir='${libexecdir}/emacs/${version}/${configuration}'
 etcdocdir='${datadir}/emacs/${version}/etc'
 gamedir='${localstatedir}/games/emacs'
 
-dnl Special option to disable the most of other options.
-AC_ARG_WITH(all,
+dnl# Special option to disable the most of other options.
+AC_ARG_WITH([all],
 [AS_HELP_STRING([--without-all],
 		[omit almost all features and build
 		small executable with minimal dependencies])],
@@ -921,9 +925,10 @@ dnl Some other nice autoconf tests.
 dnl These are commented out, since gl_EARLY and/or Autoconf already does them.
 dnl AC_PROG_INSTALL
 dnl AC_PROG_MKDIR_P
-dnl if test "x$RANLIB" = x; then
+dnl if test "x${RANLIB}" = "x"; then
 dnl   AC_PROG_RANLIB
 dnl fi
+AM_PROG_AR
 
 
 dnl Sadly, AC_PROG_LN_S is too restrictive.  It also tests whether links

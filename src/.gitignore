@@ -6,3 +6,5 @@ stamp-h.in
 
 oo/
 oo-spd/
+*.o
+deps/*.d

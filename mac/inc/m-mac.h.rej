@@ -1,0 +1,25 @@
+--- mac/inc/m-mac.h	16 Jan 2007 02:34:26 -0000	1.10
++++ mac/inc/m-mac.h	2 Jun 2007 16:22:07 -0000
+@@ -27,9 +27,11 @@
+ 
+ /* Define WORDS_BIG_ENDIAN iff lowest-numbered byte in a word
+    is the most significant byte.  */
+-
++#ifdef __BIG_ENDIAN__
+ #define WORDS_BIG_ENDIAN
+-
++#else
++#undef WORDS_BIG_ENDIAN
++#endif
+ /* Define NO_ARG_ARRAY if you cannot take the address of the first of a
+  * group of arguments and treat it as an array of the arguments.  */
+ 
+@@ -70,7 +72,7 @@
+    Then the function dump-emacs will not be defined
+    and temacs will do (load "loadup") automatically unless told otherwise.  */
+ 
+-#define CANNOT_DUMP
++/* #define CANNOT_DUMP */
+ 
+ /* Define VIRT_ADDR_VARIES if the virtual addresses of
+    pure and impure space as loaded can vary, and even their

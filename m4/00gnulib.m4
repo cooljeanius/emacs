@@ -17,7 +17,7 @@ dnl m4_divert semantics.
 # m4_init, we need to undo our push just before anything wrapped within
 # the m4_init body.  The way to ensure this is to wrap both sides of
 # m4_init with a one-shot macro that does the pop at the right time.
-m4_ifndef([_m4_divert_diversion],
+m4_ifndef([KILL],
 [m4_divert_push([KILL])
 m4_define([gl_divert_fixup], [m4_divert_pop()m4_define([$0])])
 m4_define([m4_init],
