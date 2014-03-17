@@ -1,8 +1,10 @@
 buildobj.h
 config.h
 epaths.h
+globals.h
 stamp_BLD
-stamp-h.in
+stamp-h*
+*-stamp
 
 oo/
 oo-spd/

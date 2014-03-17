@@ -1,7 +1,18 @@
 DOC
+ctags
 ctags.c
+ebrowse
+emacsclient
+etags
+hexl
+make-docfile
+movemail
+profile
+test-distrib
+update-game-score
 stamp_BLD
 echolisp.tmp
 
 oo/
 oo-spd/
+*.o
