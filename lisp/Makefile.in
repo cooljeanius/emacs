@@ -484,6 +484,10 @@ distclean:
 maintainer-clean: distclean bootstrap-clean
 	rm -f TAGS
 
+extraclean:
+	-rm -f config-tmp-*
+	-rm -f *~ \#*
+
 .PHONY: check-declare
 
 check-declare:
