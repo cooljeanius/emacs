@@ -18,13 +18,13 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 /* TODO:
-   - structure the opcode space into opcode+flag.
-   - merge with glibc's regex.[ch].
-   - replace (succeed_n + jump_n + set_number_at) with something that doesn't
-     need to modify the compiled regexp so that re_match can be reentrant.
-   - get rid of on_failure_jump_smart by doing the optimization in re_comp
-     rather than at run-time, so that re_match can be reentrant.
-*/
+ *  - structure the opcode space into opcode+flag.
+ *  - merge with glibc's regex.[ch].
+ *  - replace (succeed_n + jump_n + set_number_at) with something that does NOT
+ *    need to modify the compiled regexp so that re_match can be reentrant.
+ *  - get rid of on_failure_jump_smart by doing the optimization in re_comp
+ *    rather than at run-time, so that re_match can be reentrant.
+ */
 
 /* AIX requires this to be the first thing in the file.  */
 #if defined _AIX && !defined REGEX_MALLOC
@@ -49,7 +49,13 @@
 
 #include <config.h>
 
-#include <stddef.h>
+#if defined STDC_HEADERS || defined HAVE_STDDEF_H
+# include <stddef.h>
+#else
+# ifdef __GNUC__
+#  warning "regex.c expects <stddef.h> to be included."
+# endif /* __GNUC__ */
+#endif /* STDC_HEADERS || HAVE_STDDEF_H */
 
 #ifdef emacs
 /* We need this for `regex.h', and perhaps for the Emacs include files.  */
@@ -285,7 +291,17 @@ enum syntaxcode { Swhitespace = 0, Sword = 1, Ssymbol = 2 };
 #endif
 
 /* Get the interface, including the syntax bits.  */
+#ifdef _REGEX_H
+# ifdef __GNUC__
+#  warning "it looks like regex.h was already included once."
+# endif /* __GNUC__ */
+#endif /* _REGEX_H */
 #include "regex.h"
+#ifndef _REGEX_H
+# ifdef __GNUC__
+#  warning "it looks like regex.h was not actually included."
+# endif /* __GNUC__ */
+#endif /* !_REGEX_H */
 
 /* isalpha etc. are used for the character classes.  */
 #include <ctype.h>
@@ -2936,8 +2952,9 @@ regex_compile (const_re_char *pattern, size_t size, reg_syntax_t syntax,
 			   so that the content of the syntax-table it is not
 			   hardcoded in the range_table.  SPACE and WORD are
 			   the two exceptions.  */
-			if ((1 << cc) & ((1 << RECC_SPACE) | (1 << RECC_WORD)))
-			  bufp->used_syntax = 1;
+				if ((1 << cc) & ((1 << RECC_SPACE) | (1 << RECC_WORD))) {
+					bufp->used_syntax = 1;
+				}
 
 			/* Repeat the loop. */
 			continue;

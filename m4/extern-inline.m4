@@ -1,9 +1,11 @@
-dnl 'extern inline' a la ISO C99.
+dnl# 'extern inline' a la ISO C99.
 
-dnl Copyright 2012-2014 Free Software Foundation, Inc.
-dnl This file is free software; the Free Software Foundation
-dnl gives unlimited permission to copy and/or distribute it,
-dnl with or without modifications, as long as this notice is preserved.
+dnl# Copyright 2012-2014 Free Software Foundation, Inc.
+dnl# This file is free software; the Free Software Foundation
+dnl# gives unlimited permission to copy and/or distribute it,
+dnl# with or without modifications, as long as this notice is preserved.
+
+dnl# serial 2
 
 AC_DEFUN([gl_EXTERN_INLINE],
 [
@@ -14,16 +16,20 @@ AC_DEFUN([gl_EXTERN_INLINE],
    <http://lists.gnu.org/archive/html/bug-texinfo/2013-02/msg00030.html>.
 
    Suppress extern inline with Sun C in standards-conformance mode, as it
-   mishandles inline functions that call each other.  E.g., for 'inline void f
+   mishandles inline functions that call each other. Eg, for 'inline void f
    (void) { } inline void g (void) { f (); }', c99 incorrectly complains
    'reference to static identifier "f" in extern inline function'.
    This bug was observed with Sun C 5.12 SunOS_i386 2011/11/16.
 
-   Suppress the use of extern inline on problematic Apple configurations.
-   OS X 10.8 and earlier mishandle it; see, e.g.,
+   Suppress the use of extern inline on problematic Apple configurations,
+   as Libc at least through Libc-825.26 (2013-04-09) (i.e. the version from
+   OS X 10.8 and earlier) is incompatible with it and mishandles it;
+   see, e.g.,
    <http://lists.gnu.org/archive/html/bug-gnulib/2012-12/msg00023.html>.
-   OS X 10.9 has a macro __header_inline indicating the bug is fixed for C and
-   for clang but remains for g++; see <http://trac.macports.org/ticket/41033>.
+   OS X 10.9 has a macro __header_inline indicating the bug is fixed for
+   C and for clang but remains for g++;
+   see <http://trac.macports.org/ticket/41033>.
+
    Perhaps Apple will fix this some day.  */
 #if (defined __APPLE__ \
      && (defined __header_inline \

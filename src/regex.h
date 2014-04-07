@@ -29,8 +29,8 @@ extern "C" {
    <regex.h>.  */
 
 #if !defined _POSIX_C_SOURCE && !defined _POSIX_SOURCE && defined VMS
-/* VMS doesn't have `size_t' in <sys/types.h>, even though POSIX says it
-   should be there.  */
+/* VMS does NOT have `size_t' in <sys/types.h>, even though POSIX says it
+ * should be there.  */
 # include <stddef.h>
 #endif
 
@@ -541,9 +541,9 @@ extern int re_exec (const char *);
 #  define _Restrict_
 # endif
 #endif
-/* gcc 3.1 and up support the [restrict] syntax.  Don't trust
-   sys/cdefs.h's definition of __restrict_arr, though, as it
-   mishandles gcc -ansi -pedantic.  */
+/* gcc 3.1 and up support the [restrict] syntax.  Do NOT trust
+ * sys/cdefs.h's definition of __restrict_arr, though, as it
+ * mishandles gcc -ansi -pedantic.  */
 #ifndef _Restrict_arr_
 # if ((199901L <= __STDC_VERSION__					\
        || ((3 < __GNUC__ || (3 == __GNUC__ && 1 <= __GNUC_MINOR__))	\
@@ -576,29 +576,40 @@ extern void regfree (regex_t *__preg);
 #endif	/* C++ */
 
 /* For platform which support the ISO C amendment 1 functionality we
-   support user defined character classes.  */
+ * support user defined character classes.  */
 #if WIDE_CHAR_SUPPORT
 /* Solaris 2.5 has a bug: <wchar.h> must be included before <wctype.h>.  */
 # include <wchar.h>
 # include <wctype.h>
-#endif
+#endif /* WIDE_CHAR_SUPPORT */
 
 #if WIDE_CHAR_SUPPORT
 /* The GNU C library provides support for user-defined character classes
-   and the functions from ISO C amendment 1.  */
+ * and the functions from ISO C amendment 1.  */
 # ifdef CHARCLASS_NAME_MAX
 #  define CHAR_CLASS_MAX_LENGTH CHARCLASS_NAME_MAX
 # else
-/* This shouldn't happen but some implementation might still have this
-   problem.  Use a reasonable default value.  */
+/* This should NOT happen but some implementation might still have this
+ * problem. Use a reasonable default value.  */
 #  define CHAR_CLASS_MAX_LENGTH 256
-# endif
+# endif /* CHARCLASS_NAME_MAX */
 typedef wctype_t re_wctype_t;
 typedef wchar_t re_wchar_t;
+/* Character classes.  */
+typedef enum { RECC_ERROR = 0,
+	RECC_ALNUM, RECC_ALPHA, RECC_WORD,
+	RECC_GRAPH, RECC_PRINT,
+	RECC_LOWER, RECC_UPPER,
+	RECC_PUNCT, RECC_CNTRL,
+	RECC_DIGIT, RECC_XDIGIT,
+	RECC_BLANK, RECC_SPACE,
+	RECC_MULTIBYTE, RECC_NONASCII,
+	RECC_ASCII, RECC_UNIBYTE
+} re_charclasses_enum_t;
 # define re_wctype wctype
 # define re_iswctype iswctype
 # define re_wctype_to_bit(cc) 0
-#else
+#else /* no wide char support: */
 # define CHAR_CLASS_MAX_LENGTH  9 /* Namely, `multibyte'.  */
 # define btowc(c) c
 

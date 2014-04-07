@@ -26,6 +26,7 @@ info/dir
 info/*.info
 *DS_Store*
 *.status
+*.bak
 *.orig
 *.dSYM
 *(Autosaved)*

@@ -190,7 +190,7 @@ this script.
 If you know that the required versions are in your PATH, but this
 script has made an error, then you can simply run
 
-autoreconf -fvi -Wall -I m4
+AUTOPOINT=true autoreconf -fvi -Wall -I m4
 
 instead of this script.
 
@@ -202,6 +202,8 @@ fi
 
 echo "Your system has the required tools, running autoreconf..."
 
+# keep autopoint from overwriting our modified copy of m4/extern-inline.m4:
+export AUTOPOINT=true
 
 ## Let autoreconf figure out what, if anything, needs doing.
 autoreconf -fvi -Wall -I m4 || exit $?
