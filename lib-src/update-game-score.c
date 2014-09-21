@@ -1,4 +1,4 @@
-/* update-game-score.c --- Update a score file
+/* update-game-score.c --- Update a score file -*- C -*-
 
 Copyright (C) 2002-2014 Free Software Foundation, Inc.
 
@@ -49,8 +49,8 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <getopt.h>
 
 #ifdef WINDOWSNT
-#include "ntlib.h"
-#endif
+# include "ntlib.h"
+#endif /* WINDOWSNT */
 
 #ifndef min
 # define min(a,b) ((a) < (b) ? (a) : (b))

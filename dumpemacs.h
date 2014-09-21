@@ -1,24 +1,26 @@
+/* dumpemacs.h -*- C -*- */
+
 #define kEmacsVersionMinor	"1"
-#define kEmacsBinDir		"/usr/bin"
-#define kEmacsLibExecDir       	"/usr/libexec"
-#define kEmacsShareDir		"/usr/share/emacs"
+#define kEmacsBinDir "/usr/bin"
+#define kEmacsLibExecDir "/usr/libexec"
+#define kEmacsShareDir "/usr/share/emacs"
 
 #ifdef __ppc__
-#define kEmacsArch        "ppc"
-#endif
+# define kEmacsArch "ppc"
+#endif /* __ppc__ */
 #ifdef __ppc64__
-#define kEmacsArch        "ppc64"
-#endif
+# define kEmacsArch  "ppc64"
+#endif /* __ppc64__ */
 #ifdef __i386__
-#define kEmacsArch        "i386"
-#endif
+# define kEmacsArch "i386"
+#endif /* __i386__ */
 #ifdef __x86_64__
-#define kEmacsArch        "x86_64"
-#endif
+# define kEmacsArch "x86_64"
+#endif /* __x86_64__ */
 
 #ifndef kEmacsArch
-#error "Unsupported architecture"
-#endif
+# error "Unsupported architecture"
+#endif /* !kEmacsArch */
 
 /*#define kEmacsWrapperPath	kEmacsBinDir "/emacs"*/
 #define kEmacsDumpedPath	kEmacsBinDir "/emacs"
@@ -28,3 +30,5 @@
 
 int is_emacs_valid(int debugflag);
 int runit(const char * const argv[], int dropprivs);
+
+/* EOF */

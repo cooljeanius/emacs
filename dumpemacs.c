@@ -1,3 +1,5 @@
+/* dumpemacs.c -*- C -*- */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -65,7 +67,7 @@ int main(int argc, char *argv[]) {
       errx(1, "Must be run as root unless -n is used");
   }
 
-  
+
 
   if(!verboseopt) {
     fd = open("/dev/null", O_RDWR, 0600);
@@ -75,11 +77,11 @@ int main(int argc, char *argv[]) {
     ret = dup2(fd, STDIN_FILENO);
     if(ret == -1)
       err(1, "dup2(/dev/null, stdin)");
-    
+
     ret = dup2(fd, STDOUT_FILENO);
     if(ret == -1)
       err(1, "dup2(/dev/null, stdout)");
-    
+
     ret = dup2(fd, STDERR_FILENO);
     if(ret == -1)
       err(1, "dup2(/dev/null, stderr)");
@@ -283,7 +285,7 @@ int copythintemacs(int debugflag, const char *src, const char *dst)
 
   if(fh->magic == FAT_MAGIC || fh->magic == FAT_CIGAM) {
     int i;
-    
+
     archs = (struct fat_arch *)(fh + 1);
 
     fh->magic = OSSwapBigToHostInt32(fh->magic);
@@ -358,7 +360,7 @@ int copythintemacs(int debugflag, const char *src, const char *dst)
     newargs[2] = src;
     newargs[3] = dst;
     newargs[4] = NULL;
-      
+
     if(debugflag) printf("Copying %s to %s\n", src, dst);
     ret = runit(newargs, 0);
     if(ret)
@@ -373,7 +375,7 @@ int copythintemacs(int debugflag, const char *src, const char *dst)
     newargs[4] = "-output";
     newargs[5] = dst;
     newargs[6] = NULL;
-      
+
     if(debugflag) printf("Thinning %s to %s\n", src, dst);
     ret = runit(newargs, 0);
     if(ret)
@@ -408,11 +410,11 @@ void *mmaparch(const char *filename, size_t *psize) {
     close(fd);
     return NULL;
   }
-    
+
 
   if(fh->magic == FAT_MAGIC || fh->magic == FAT_CIGAM) {
     int i;
-    
+
     archs = (struct fat_arch *)(fh + 1);
 
     fh->magic = OSSwapBigToHostInt32(fh->magic);
@@ -512,3 +514,5 @@ char *verfind(void *mem, size_t size, char marker, const char *search) {
   }
   return NULL;
 }
+
+/* EOF */

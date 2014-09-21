@@ -1,4 +1,5 @@
-configure
+# allow the configure script, so that it is easier to see what effect my
+# changes are having on it.
 configure.scan
 autoscan.log
 aclocal.m4

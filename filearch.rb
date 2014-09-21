@@ -1,4 +1,5 @@
 #!/usr/bin/ruby
+
 if ARGV.length < 1 then
   $stderr.print "usage: filearch filename\n"
   exit(1)

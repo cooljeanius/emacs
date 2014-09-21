@@ -495,11 +495,15 @@ install-arch-dep: src install-arch-indep install-etcdoc install-$(NTDIR)
 	    exec_prefix="${exec_prefix}" bindir="${bindir}" \
 	    libexecdir="${libexecdir}" archlibdir="${archlibdir}" \
 	    INSTALL_STRIP=${INSTALL_STRIP}
-	if test "${ns_self_contained}" = "no"; then \
-	  ${INSTALL_PROGRAM} $(INSTALL_STRIP) src/emacs${EXEEXT} "$(DESTDIR)${bindir}/$(EMACSFULL)" || exit 1 ; \
-	  chmod 1755 "$(DESTDIR)${bindir}/$(EMACSFULL)" || true; \
-	  if test "x${NO_BIN_LINK}" = x; then \
-	    rm -f "$(DESTDIR)${bindir}/$(EMACS)" ; \
+	if test "x${ns_self_contained}" = "xno"; then \
+	  if [ -f src/emacs-undumped ]; then \
+	    ${INSTALL_PROGRAM} $(INSTALL_STRIP) src/emacs-undumped $(DESTDIR)${bindir}/; \
+	  else \
+	    ${INSTALL_PROGRAM} $(INSTALL_STRIP) src/emacs${EXEEXT} "$(DESTDIR)${bindir}/$(EMACSFULL)" || exit 1; \
+	    chmod 1755 "$(DESTDIR)${bindir}/$(EMACSFULL)" || true; \
+	  fi; \
+	  if test "x${NO_BIN_LINK}" = "x"; then \
+	    rm -fv "$(DESTDIR)${bindir}/$(EMACS)"; \
 	    cd "$(DESTDIR)${bindir}" && $(LN_S_FILEONLY) $(EMACSFULL) $(EMACS); \
 	  fi; \
 	else \

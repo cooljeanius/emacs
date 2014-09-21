@@ -1,21 +1,21 @@
-/* Extended regular expression matching and search library, version
-   0.12.  (Implements POSIX draft P1003.2/D11.2, except for some of the
-   internationalization features.)
-
-   Copyright (C) 1993-2014 Free Software Foundation, Inc.
-
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3, or (at your option)
-   any later version.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* regex.c: Extended regular expression matching and search library,
+ * version 0.12. (Implements POSIX draft P1003.2/D11.2, except for some
+ * of the internationalization features.)
+ *
+ * Copyright (C) 1993-2014 Free Software Foundation, Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
 /* TODO:
  *  - structure the opcode space into opcode+flag.
@@ -40,7 +40,7 @@
 #  pragma GCC diagnostic ignored "-Wunused-macros"
 #  pragma GCC diagnostic ignored "-Wunused-result"
 #  pragma GCC diagnostic ignored "-Wunused-variable"
-# endif
+# endif /* !emacs */
 #endif
 
 #if 4 < __GNUC__ + (6 <= __GNUC_MINOR__) && ! defined __clang__
@@ -52,15 +52,15 @@
 #if defined STDC_HEADERS || defined HAVE_STDDEF_H
 # include <stddef.h>
 #else
-# ifdef __GNUC__
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__)
 #  warning "regex.c expects <stddef.h> to be included."
-# endif /* __GNUC__ */
+# endif /* __GNUC__ && !__STRICT_ANSI__ */
 #endif /* STDC_HEADERS || HAVE_STDDEF_H */
 
 #ifdef emacs
 /* We need this for `regex.h', and perhaps for the Emacs include files.  */
 # include <sys/types.h>
-#endif
+#endif /* emacs */
 
 /* Whether to use ISO C Amendment 1 wide char functions.
    Those should not be used for Emacs since it uses its own.  */

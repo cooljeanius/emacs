@@ -163,6 +163,9 @@ doit:
 # Nowadays these commands don't scan automatically generated files,
 # since they will never contain any useful information
 # (see finder-no-scan-regexp and custom-dependencies-no-scan-regexp).
+
+.NOTPARALLEL: # Avoid lisp autoload races
+
 $(lisp)/cus-load.el:
 	$(MAKE) $(MFLAGS) custom-deps
 custom-deps: doit

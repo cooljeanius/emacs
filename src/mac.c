@@ -1,7 +1,7 @@
-/* Unix emulation routines for GNU Emacs on the Mac OS.
-   Copyright (C) 2000, 2001, 2002, 2003, 2004,
-                 2005, 2006, 2007 Free Software Foundation, Inc.
-
+/* mac.c: Unix emulation routines for GNU Emacs on the (Classic) Mac OS.
+ * Copyright (C) 2000, 2001, 2002, 2003, 2004,
+ *************** 2005, 2006, 2007 Free Software Foundation, Inc. */
+/*
 This file is part of GNU Emacs.
 
 GNU Emacs is free software; you can redistribute it and/or modify
@@ -29,8 +29,8 @@ Boston, MA 02110-1301, USA.  */
 #include "lisp.h"
 #include "process.h"
 #ifdef MAC_OSX
-#undef select
-#endif
+# undef select
+#endif /* MAC_OSX */
 #include "systime.h"
 #include "sysselect.h"
 #include "blockinput.h"
@@ -40,20 +40,20 @@ Boston, MA 02110-1301, USA.  */
 #include "charset.h"
 #include "coding.h"
 #if !TARGET_API_MAC_CARBON
-#include <Files.h>
-#include <MacTypes.h>
-#include <TextUtils.h>
-#include <Folders.h>
-#include <Resources.h>
-#include <Aliases.h>
-#include <Timer.h>
-#include <OSA.h>
-#include <AppleScript.h>
-#include <Events.h>
-#include <Processes.h>
-#include <EPPC.h>
-#include <MacLocales.h>
-#include <Endian.h>
+# include <Files.h>
+# include <MacTypes.h>
+# include <TextUtils.h>
+# include <Folders.h>
+# include <Resources.h>
+# include <Aliases.h>
+# include <Timer.h>
+# include <OSA.h>
+# include <AppleScript.h>
+# include <Events.h>
+# include <Processes.h>
+# include <EPPC.h>
+# include <MacLocales.h>
+# include <Endian.h>
 #endif	/* not TARGET_API_MAC_CARBON */
 
 #include <utime.h>
@@ -64,9 +64,9 @@ Boston, MA 02110-1301, USA.  */
 #include <grp.h>
 #include <sys/param.h>
 #include <fcntl.h>
-#if __MWERKS__
-#include <unistd.h>
-#endif
+#if defined(__MWERKS__) && __MWERKS__
+# include <unistd.h>
+#endif /* __MWERKS__ */
 
 #include <CoreFoundation/CoreFoundation.h> /* to get user locale */
 
@@ -81,19 +81,19 @@ static ComponentInstance as_scripting_component;
 /* The single script context used for all script executions.  */
 static OSAID as_script_context;
 
-#if TARGET_API_MAC_CARBON
+#if defined(TARGET_API_MAC_CARBON) && TARGET_API_MAC_CARBON
 static int wakeup_from_rne_enabled_p = 0;
-#define ENABLE_WAKEUP_FROM_RNE (wakeup_from_rne_enabled_p = 1)
-#define DISABLE_WAKEUP_FROM_RNE (wakeup_from_rne_enabled_p = 0)
+# define ENABLE_WAKEUP_FROM_RNE (wakeup_from_rne_enabled_p = 1)
+# define DISABLE_WAKEUP_FROM_RNE (wakeup_from_rne_enabled_p = 0)
 #else
-#define ENABLE_WAKEUP_FROM_RNE 0
-#define DISABLE_WAKEUP_FROM_RNE 0
-#endif
+# define ENABLE_WAKEUP_FROM_RNE 0
+# define DISABLE_WAKEUP_FROM_RNE 0
+#endif /* TARGET_API_MAC_CARBON */
 
 #ifndef MAC_OSX
 static OSErr posix_pathname_to_fsspec P_ ((const char *, FSSpec *));
 static OSErr fsspec_to_posix_pathname P_ ((const FSSpec *, char *, int));
-#endif
+#endif /* !MAC_OSX */
 
 /* When converting from Mac to Unix pathnames, /'s in folder names are
    converted to :'s.  This function, used in copying folder names,
@@ -4952,8 +4952,7 @@ defined in the Carbon Event Manager.  */)
 
 #endif	/* TARGET_API_MAC_CARBON */
 
-static Lisp_Object
-mac_get_system_locale ()
+static Lisp_Object mac_get_system_locale(void)
 {
   Lisp_Object object = Qnil;
   CFLocaleRef locale = CFLocaleCopyCurrent();
@@ -5057,9 +5056,9 @@ select_and_poll_event (nfds, rfds, wfds, efds, timeout)
 	err = eventLoopTimedOutErr;
       else if (r == 0)
 	{
-#if USE_CG_DRAWING
+#if defined(USE_CG_DRAWING) && USE_CG_DRAWING
 	  mac_prepare_for_quickdraw (NULL);
-#endif
+#endif /* USE_CG_DRAWING */
 	  err = ReceiveNextEvent (0, NULL, timeoutval,
 				  kEventLeaveInQueue, NULL);
 	}
@@ -5273,8 +5272,7 @@ sys_select (nfds, rfds, wfds, efds, timeout)
    is changed only if it is not already set.  Presumably if the user
    sets an environment variable, he will want to use files in his path
    instead of ones in the application bundle.  */
-void
-init_mac_osx_environment ()
+void init_mac_osx_environment(void)
 {
   CFBundleRef bundle;
   CFURLRef bundleURL;
@@ -5407,7 +5405,7 @@ init_mac_osx_environment ()
 }
 #endif /* MAC_OSX */
 
-#if TARGET_API_MAC_CARBON
+#if defined(TARGET_API_MAC_CARBON) && TARGET_API_MAC_CARBON
 void
 mac_wakeup_from_rne ()
 {
@@ -5416,15 +5414,14 @@ mac_wakeup_from_rne ()
        ReceiveNextEvent.  */
     mac_post_mouse_moved_event ();
 }
-#endif
+#endif /* TARGET_API_MAC_CARBON */
 
-void
-syms_of_mac ()
+void syms_of_mac(void)
 {
   Qundecoded_file_name = intern ("undecoded-file-name");
   staticpro (&Qundecoded_file_name);
 
-#if TARGET_API_MAC_CARBON
+#if defined(TARGET_API_MAC_CARBON) && TARGET_API_MAC_CARBON
   Qstring  = intern ("string");		staticpro (&Qstring);
   Qnumber  = intern ("number");		staticpro (&Qnumber);
   Qboolean = intern ("boolean");	staticpro (&Qboolean);
@@ -5445,7 +5442,7 @@ syms_of_mac ()
   QNFKC = intern ("NFKC");		staticpro (&QNFKC);
   QHFS_plus_D = intern ("HFS+D");	staticpro (&QHFS_plus_D);
   QHFS_plus_C = intern ("HFS+C");	staticpro (&QHFS_plus_C);
-#endif
+#endif /* TARGET_API_MAC_CARBON */
 
   {
     int i;
@@ -5458,11 +5455,11 @@ syms_of_mac ()
   }
 
   defsubr (&Smac_coerce_ae_data);
-#if TARGET_API_MAC_CARBON
+#if defined(TARGET_API_MAC_CARBON) && TARGET_API_MAC_CARBON
   defsubr (&Smac_get_preference);
   defsubr (&Smac_code_convert_string);
   defsubr (&Smac_process_hi_command);
-#endif
+#endif /* TARGET_API_MAC_CARBON */
 
   defsubr (&Smac_set_file_creator);
   defsubr (&Smac_set_file_type);

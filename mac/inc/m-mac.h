@@ -28,10 +28,10 @@ Boston, MA 02110-1301, USA.  */
 /* Define WORDS_BIG_ENDIAN iff lowest-numbered byte in a word
    is the most significant byte.  */
 #ifdef __BIG_ENDIAN__
-#define WORDS_BIG_ENDIAN
+# define WORDS_BIG_ENDIAN
 #else
-#undef WORDS_BIG_ENDIAN
-#endif
+# undef WORDS_BIG_ENDIAN
+#endif /* __BIG_ENDIAN__ */
 /* Define NO_ARG_ARRAY if you cannot take the address of the first of a
  * group of arguments and treat it as an array of the arguments.  */
 

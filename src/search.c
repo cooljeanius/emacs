@@ -1,4 +1,4 @@
-/* String search routines for GNU Emacs.
+/* search.c: String search routines for GNU Emacs.
 
 Copyright (C) 1985-1987, 1993-1994, 1997-1999, 2001-2014 Free Software
 Foundation, Inc.
@@ -952,7 +952,8 @@ find_newline (ptrdiff_t start, ptrdiff_t start_byte, ptrdiff_t end,
     }
   return start;
 }
-
+
+
 /* Search for COUNT instances of a line boundary.
    Start at START.  If COUNT is negative, search backwards.
 
@@ -1014,7 +1015,8 @@ find_before_next_newline (ptrdiff_t from, ptrdiff_t to,
     }
   return pos;
 }
-
+
+
 /* Subroutines of Lisp buffer search functions. */
 
 static Lisp_Object
@@ -1054,7 +1056,7 @@ search_command (Lisp_Object string, Lisp_Object bound, Lisp_Object noerror,
 	lim_byte = CHAR_TO_BYTE (lim);
     }
 
-  /* This is so set_image_of_range_1 in regex.c can find the EQV table.  */
+  /* This is so set_image_of_range_1 in regex.c can find the EQV table. */
   set_char_table_extras (BVAR (current_buffer, case_canon_table), 2,
 			 BVAR (current_buffer, case_eqv_table));
 
@@ -1090,7 +1092,8 @@ search_command (Lisp_Object string, Lisp_Object bound, Lisp_Object noerror,
 
   return make_number (np);
 }
-
+
+
 /* Return true if REGEXP it matches just one constant string.  */
 
 static bool

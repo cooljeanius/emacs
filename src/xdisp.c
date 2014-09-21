@@ -1,4 +1,4 @@
-/* Display generation from window structure and buffer text.
+/* xdisp.c: Display generation from window structure and buffer text.
 
 Copyright (C) 1985-1988, 1993-1995, 1997-2014 Free Software Foundation,
 Inc.
@@ -21288,7 +21288,11 @@ redisplay_mode_lines (Lisp_Object window, bool force)
 
 	  /* Restore old settings.  */
 	  set_buffer_internal_1 (old);
-	  TEMP_SET_PT_BOTH (CHARPOS (lpoint), BYTEPOS (lpoint));
+      /* Avoid an abort in TEMP_SET_PT_BOTH if the buffer has become
+       * shorter. This can be caused by log truncation in *Messages*. */
+      if (CHARPOS(lpoint) <= ZV) {
+        TEMP_SET_PT_BOTH(CHARPOS(lpoint), BYTEPOS(lpoint));
+      }
 	}
 
       window = w->next;

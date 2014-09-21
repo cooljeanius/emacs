@@ -1,3 +1,5 @@
+/* runit.c -*- C -*- */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
@@ -81,3 +83,5 @@ int decreasepriv(int debugflag)
 
   return 0;
 }
+
+/* EOF */

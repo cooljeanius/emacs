@@ -1,4 +1,4 @@
-/* Tags file maker to go with GNU Emacs           -*- coding: utf-8 -*-
+/* etags.c: Tags file maker to go w/Emacs. -*- mode: C; coding: utf-8; -*-
 
 Copyright (C) 1984 The Regents of the University of California
 
@@ -1449,7 +1449,7 @@ get_language_from_filename (char *file, int case_sensitive)
   return NULL;
 }
 
-
+
 /*
  * This routine is called on each file argument.
  */
@@ -6435,8 +6435,8 @@ absolute_filename (char *file, char *dir)
   /* We don't support non-absolute file names with a drive
      letter, like `d:NAME' (it's too much hassle).  */
   else if (file[1] == ':')
-    fatal ("%s: relative file names with drive letters not supported", file);
-#endif
+    fatal("%s: relative file names with drive letters not supported", file);
+#endif /* DOS_NT */
   else
     res = concat (dir, file, "");
 
@@ -6457,17 +6457,20 @@ absolute_filename (char *file, char *dir)
 		cp = slashp;	/* the absolute name begins with "/.." */
 #ifdef DOS_NT
 	      /* Under MSDOS and NT we get `d:/NAME' as absolute
-		 file name, so the luser could say `d:/../NAME'.
-		 We silently treat this as `d:/NAME'.  */
+	       * file name, so the luser could say `d:/../NAME'.
+	       * We silently treat this as `d:/NAME'.  */
 	      else if (cp[0] != '/')
 		cp = slashp;
-#endif
+#endif /* DOS_NT */
+	      /* rejects file thought that this call to memmove() was still
+	       * a call to strcpy(): */
               memmove (cp, slashp + 3, strlen (slashp + 2));
 	      slashp = cp;
 	      continue;
 	    }
 	  else if (slashp[2] == '/' || slashp[2] == '\0')
 	    {
+	      /* as with the previous call to memmove(): */
 	      memmove (slashp, slashp + 2, strlen (slashp + 1));
 	      continue;
 	    }
@@ -6476,7 +6479,7 @@ absolute_filename (char *file, char *dir)
       slashp = etags_strchr (slashp + 1, '/');
     }
 
-  if (res[0] == '\0')		/* just a safety net: should never happen */
+  if (res[0] == '\0')	/* just a safety net: should never happen */
     {
       free (res);
       return savestr ("/");

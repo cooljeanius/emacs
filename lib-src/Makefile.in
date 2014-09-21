@@ -29,7 +29,7 @@ EMACSOPT = -batch --no-site-file --no-site-lisp
 CC=@CC@
 CFLAGS=@CFLAGS@
 version=@version@
-## Used in $archlibdir.
+## Used in ${archlibdir}.
 configuration=@configuration@
 EXEEXT=@EXEEXT@
 C_SWITCH_SYSTEM=@C_SWITCH_SYSTEM@
@@ -178,7 +178,7 @@ LIBS_MOVE = $(LIBS_MAIL) $(KRB4LIB) $(DESLIB) $(KRB5LIB) $(CRYPTOLIB) \
 ## (empty or -lcomctl32 for MinGW)
 LIBS_ECLIENT = @LIBS_ECLIENT@
 
-## Extra object files for linking for MinGW
+## Extra object files for linking for MinGW:
 NTLIB = @NTLIB@
 CLIENTRES = @CLIENTRES@
 WINDRES = @WINDRES@
