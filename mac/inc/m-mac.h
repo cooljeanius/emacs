@@ -116,8 +116,8 @@ Boston, MA 02110-1301, USA.  */
 
 /* MPW build crashes if this is not defined.  */
 #ifdef __MRC__
-#define IEEE_FLOATING_POINT 1
-#endif
+# define IEEE_FLOATING_POINT 1
+#endif /* __MRC__ */
 
 /* arch-tag: 9e759031-ab7b-4c76-99d7-3ae94a98de38
    (do not change this comment) */

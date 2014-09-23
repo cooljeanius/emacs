@@ -446,7 +446,7 @@ write_scores (const char *filename, const struct score_entry *scores,
 #ifndef WINDOWSNT
   if (fchmod (fd, 0644) != 0)
     return -1;
-#endif
+#endif /* WINDOWSNT */
   f = fdopen (fd, "w");
   if (! f)
     return -1;

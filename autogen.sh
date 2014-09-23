@@ -35,33 +35,45 @@
 progs="autoconf automake"
 
 ## Minimum versions we need:
-autoconf_min=`sed -n 's/^ *AC_PREREQ(\([0-9\.]*\)).*/\1/p' configure.ac`
+autoconf_min="`sed -n 's/^ *AC_PREREQ(\([0-9\.]*\)).*/\1/p' configure.ac`"
+if test "x${autoconf_min}" = "x"; then
+  test -z "${autoconf_min}"
+  echo "warning: failed to extract required autoconf version from configure.ac" >&2
+  autoconf_min="2.59"
+  echo "falling back to default set in $0 for autoconf (i.e. '${autoconf_min}')"
+fi
 
 ## This will need improving if more options are ever added to the
 ## AM_INIT_AUTOMAKE call.
-automake_min=`sed -n 's/^ *AM_INIT_AUTOMAKE(\([0-9\.]*\)).*/\1/p' configure.ac`
+automake_min="`sed -n 's/^ *AM_INIT_AUTOMAKE(\([0-9\.]*\)).*/\1/p' configure.ac`"
+if test "x${automake_min}" = "x"; then
+  test -z "${automake_min}"
+  echo "warning: failed to extract required automake version from configure.ac" >&2
+  automake_min="1.11"
+  echo "falling back to default set in $0 for automake (i.e. '${automake_min}')"
+fi
 
 
-## $1 = program, eg "autoconf".
-## Echo the version string, eg "2.59".
-## FIXME does not handle things like "1.4a", but AFAIK those are
+## $1 = program, e.g. "autoconf".
+## Echo the version string, e.g. "2.59".
+## FIXME: does not handle things like "1.4a", but AFAIK those are
 ## all old versions, so it is OK to fail there.
 ## Also note that we do not handle micro versions.
 get_version ()
 {
-    ## Remove eg "./autogen.sh: line 50: autoconf: command not found".
+    ## Remove e.g. "./autogen.sh: line 50: autoconf: command not found".
     $1 --version 2>&1 | sed -e '/not found/d' -n -e '1 s/.* \([1-9][0-9\.]*\).*/\1/p'
 }
 
-## $1 = version string, eg "2.59"
-## Echo the major version, eg "2".
+## $1 = version string, e.g. "2.59"
+## Echo the major version, e.g. "2".
 major_version ()
 {
     echo $1 | sed -e 's/\([0-9][0-9]*\)\..*/\1/'
 }
 
-## $1 = version string, eg "2.59"
-## Echo the minor version, eg "59".
+## $1 = version string, e.g. "2.59"
+## Echo the minor version, e.g. "59".
 minor_version ()
 {
     echo $1 | sed -e 's/[0-9][0-9]*\.\([0-9][0-9]*\).*/\1/'
@@ -72,24 +84,24 @@ minor_version ()
 ## Return 0 if program is present with version >= minimum version.
 ## Return 1 if program is missing.
 ## Return 2 if program is present but too old.
-## Return 3 for unexpected error (eg failed to parse version).
+## Return 3 for unexpected error (e.g. failed to parse version).
 check_version ()
 {
-    ## Respect eg $AUTOMAKE if it is set, like autoreconf does.
+    ## Respect e.g. ${AUTOMAKE} if it is set, like autoreconf does.
     uprog=`echo $1 | sed 'y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/'`
 
     eval uprog=\$${uprog}
 
-    [ x"${uprog}" = x ] && uprog=$1
+    [ x"${uprog}" = x"" ] && uprog=$1
 
     have_version=`get_version $uprog`
 
-    [ x"${have_version}" = x ] && return 1
+    [ x"${have_version}" = x"" ] && return 1
 
     have_maj=`major_version ${have_version}`
     need_maj=`major_version $2`
 
-    [ x"${have_maj}" != x ] && [ x"${need_maj}" != x ] || return 3
+    [ x"${have_maj}" != x"" ] && [ x"${need_maj}" != x"" ] || return 3
 
     [ ${have_maj} -gt ${need_maj} ] && return 0
     [ ${have_maj} -lt ${need_maj} ] && return 2
@@ -97,7 +109,7 @@ check_version ()
     have_min=`minor_version ${have_version}`
     need_min=`minor_version $2`
 
-    [ x"${have_min}" != x ] && [ x"${need_min}" != x ] || return 3
+    [ x"${have_min}" != x"" ] && [ x"${need_min}" != x""   ] || return 3
 
     [ ${have_min} -ge ${need_min} ] && return 0
     return 2
@@ -105,12 +117,13 @@ check_version ()
 
 
 cat <<EOF
+
 Checking whether you have the necessary tools...
 (Read INSTALL.REPO for more details on building Emacs)
 
 EOF
 
-missing=
+missing=""
 
 for prog in ${progs}; do
 
@@ -139,7 +152,7 @@ for prog in ${progs}; do
 done
 
 
-if [ x"$missing" != x ]; then
+if [ x"$missing" != x"" ]; then
 
     cat <<EOF
 
@@ -202,7 +215,8 @@ fi
 
 echo "Your system has the required tools, running autoreconf..."
 
-# keep autopoint from overwriting our modified copy of m4/extern-inline.m4:
+# keep autopoint from overwriting our modified copy of m4/extern-inline.m4,
+# at least until we check and see if a newer version of gettext is okay:
 export AUTOPOINT=true
 
 ## Let autoreconf figure out what, if anything, needs doing.
@@ -210,9 +224,10 @@ autoreconf -fvi -Wall -I m4 || exit $?
 
 ## Create a timestamp, so that './autogen.sh; make' does NOT
 ## cause 'make' to needlessly run 'autoheader'.
-echo timestamp > src/stamp-h.in || exit
+echo "timestamp: `date`" > src/stamp-h.in || echo timestamp > src/stamp-h.in || exit
 
-echo "You can now run \`./configure'."
+echo ""
+echo "You can now run \`./configure' with your favorite arguments."
 
 exit 0
 

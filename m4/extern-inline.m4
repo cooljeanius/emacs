@@ -5,7 +5,7 @@ dnl# This file is free software; the Free Software Foundation
 dnl# gives unlimited permission to copy and/or distribute it,
 dnl# with or without modifications, as long as this notice is preserved.
 
-# extern-inline.m4 serial 2 (gettext-0.18.4)
+# extern-inline.m4 serial 3 (gettext-0.19.4)
 
 AC_DEFUN([gl_EXTERN_INLINE],
 [
@@ -29,7 +29,6 @@ AC_DEFUN([gl_EXTERN_INLINE],
    OS X 10.9 has a macro __header_inline indicating the bug is fixed for
    C and for clang but remains for g++;
    see <http://trac.macports.org/ticket/41033>.
-
    Perhaps Apple will fix this some day.  */
 #if (defined __APPLE__ \
      && (defined __header_inline \

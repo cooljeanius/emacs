@@ -1,4 +1,4 @@
-/* Convert a `struct tm' to a time_t value.
+/* mktime.c: Convert a `struct tm' to a time_t value.
    Copyright (C) 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2001, 2002, 2003,
                  2004, 2005, 2006, 2007  Free Software Foundation, Inc.
    Contributed by Paul Eggert (eggert@twinsun.com).
@@ -114,7 +114,7 @@ const unsigned short int __mon_yday[2][13] =
 #ifdef _LIBC
 # define my_mktime_localtime_r __localtime_r
 #else
-/* If we're a mktime substitute in a GNU program, then prefer
+/* If we are a mktime substitute in a GNU program, then prefer
    localtime to localtime_r, since many localtime_r implementations
    are buggy.  */
 static struct tm *
@@ -172,11 +172,11 @@ ydhms_tm_diff (year, yday, hour, min, sec, tp)
    it is the nearest in-range value and then convert that.  */
 static struct tm *
 ranged_convert (convert, t, tp)
-#ifdef PROTOTYPES
+#if defined(PROTOTYPES) || defined(__PROTOTYPES)
      struct tm *(*convert) (const time_t *, struct tm *);
 #else
      struct tm *(*convert)();
-#endif
+#endif /* PROTOTYPES */
      time_t *t;
      struct tm *tp;
 {

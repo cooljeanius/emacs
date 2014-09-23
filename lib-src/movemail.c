@@ -69,11 +69,11 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <string.h>
 #include "syswait.h"
 #ifdef MAIL_USE_POP
-#include "pop.h"
+# include "pop.h"
 #endif
 
 #ifdef MSDOS
-#undef access
+# undef access
 #endif /* MSDOS */
 
 #ifdef WINDOWSNT
@@ -97,8 +97,8 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #endif /* WINDOWSNT */
 
 #ifdef WINDOWSNT
-#include <sys/locking.h>
-#endif
+# include <sys/locking.h>
+#endif /* WINDOWSNT */
 
 /* If your system uses the `flock' or `lockf' system call for mail locking,
    define MAIL_USE_SYSTEM_LOCK.  If your system type should always define
@@ -106,22 +106,22 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
    please make a bug report.  */
 
 #ifdef MAIL_USE_LOCKF
-#define MAIL_USE_SYSTEM_LOCK
-#endif
+# define MAIL_USE_SYSTEM_LOCK
+#endif /* MAIL_USE_LOCKF */
 
 #ifdef MAIL_USE_FLOCK
-#define MAIL_USE_SYSTEM_LOCK
-#endif
+# define MAIL_USE_SYSTEM_LOCK
+#endif /* MAIL_USE_FLOCK */
 
 #ifdef MAIL_USE_MMDF
-extern int lk_open (), lk_close ();
-#endif
+extern int lk_open(void), lk_close(void);
+#endif /* MAIL_USE_MMDF */
 
 #if !defined (MAIL_USE_SYSTEM_LOCK) && !defined (MAIL_USE_MMDF) && \
 	(defined (HAVE_LIBMAIL) || defined (HAVE_LIBLOCKFILE)) && \
         defined (HAVE_MAILLOCK_H)
 #include <maillock.h>
-/* We can't use maillock unless we know what directory system mail
+/* We cannot use maillock unless we know what directory system mail
    files appear in. */
 #ifdef MAILDIR
 #define MAIL_USE_MAILLOCK
@@ -139,7 +139,7 @@ static int pop_retr (popserver server, int msgno, FILE *arg);
 static int mbx_write (char *line, int len, FILE *mbf);
 static int mbx_delimit_begin (FILE *mbf);
 static int mbx_delimit_end (FILE *mbf);
-#endif
+#endif /* MAIL_USE_POP */
 
 #if (defined MAIL_USE_MAILLOCK						\
      || (!defined DISABLE_DIRECT_ACCESS && !defined MAIL_USE_MMDF	\

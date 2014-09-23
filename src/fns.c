@@ -1,4 +1,4 @@
-/* Random utility Lisp functions.
+/* fns.c: Random utility Lisp functions.
 
 Copyright (C) 1985-1987, 1993-1995, 1997-2014 Free Software Foundation,
 Inc.
@@ -4550,7 +4550,7 @@ returns nil, then (funcall TEST x1 x2) also returns nil.  */)
 
 
 /************************************************************************
-			MD5, SHA-1, and SHA-2
+ *			MD5, SHA-1, and SHA-2
  ************************************************************************/
 
 #include "md5.h"

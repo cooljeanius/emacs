@@ -12,6 +12,7 @@ inttypes.h
 signal.h
 stdalign.h
 stdint.h
+stdbool.h
 stdio.h
 stdlib.h
 string.h
