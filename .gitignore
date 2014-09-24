@@ -10,8 +10,8 @@ config.log
 depcomp
 install-sh
 missing
-# allow gnulib's automake Makefile, for same reason as allowing the
-# configure script
+# allow gnulib's automake-generated Makefile.in, for the same reason
+# as allowing the configure script
 po/Makevars
 src/config.in
 *.cache
