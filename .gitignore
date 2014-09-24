@@ -10,7 +10,8 @@ config.log
 depcomp
 install-sh
 missing
-lib/Makefile.in
+# allow gnulib's automake Makefile, for same reason as allowing the
+# configure script
 po/Makevars
 src/config.in
 *.cache
@@ -19,6 +20,7 @@ TAGS
 *~
 /README.W32
 
+# not sure why the break?
 /bin/
 /site-lisp/
 /leim/ja-dic/

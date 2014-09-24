@@ -1,11 +1,19 @@
 #!/bin/sh
 
+#FIXME: add a test to make sure that this is being run from the level above
+# maybe also move this there, too...
+
+#TODO: also add a check to make sure we are pulling from a recent enough
+# version of gnulib...
+
 if test "x`which gnulib-tool`" = "x" || test ! -x "`which gnulib-tool`"; then
   echo "Error: gnulib-tool needs to be in your path for this to work." >&2
   exit 1
 else
   # The list of gnulib modules we are importing for emacs:
-  module_list="alloca-opt byteswap \
+  module_list="\
+      alloca-opt \
+      byteswap \
       c-ctype c-strcase careadlinkat close-stream \
       count-one-bits count-trailing-zeros \
       crypto/md5 crypto/sha1 crypto/sha256 crypto/sha512 \
@@ -23,7 +31,8 @@ else
       sig2str socklen stat-time stdalign stdarg stdbool stdio \
       strftime strtoimax strtoumax symlink sys_stat sys_time \
       time timer-time timespec-add timespec-sub \
-      unsetenv update-copyright utimens warnings"
+      unsetenv update-copyright utimens \
+      warnings"
   gnulib-tool --import --dir=. --lib=libgnu --source-base=lib --m4-base=m4 \
     --doc-base=doc --tests-base=tests --aux-dir=build-aux --avoid=close \
     --avoid=dup --avoid=fchdir --avoid=malloc-posix \
