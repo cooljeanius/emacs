@@ -27,7 +27,7 @@ for file in *; do
 	*.elc | *.el | term | RCS | CVS | Old | . | .. | =* | *~ | *.orig | *.rej)
 	  ;;
 	*)
-	    if [ -d $file ]; then
+	    if [ -d "${file}" ]; then
 	      subdirs="\"$file\" $subdirs"
 	    fi
 	  ;;

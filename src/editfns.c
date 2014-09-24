@@ -1,4 +1,4 @@
-/* Lisp functions pertaining to editing.
+/* editfns.c: Lisp functions pertaining to editing.
 
 Copyright (C) 1985-1987, 1989, 1993-2014 Free Software Foundation, Inc.
 
@@ -23,15 +23,15 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <stdio.h>
 
 #ifdef HAVE_PWD_H
-#include <pwd.h>
-#include <grp.h>
-#endif
+# include <pwd.h>
+# include <grp.h>
+#endif /* HAVE_PWD_H */
 
 #include <unistd.h>
 
 #ifdef HAVE_SYS_UTSNAME_H
-#include <sys/utsname.h>
-#endif
+# include <sys/utsname.h>
+#endif /* HAVE_SYS_UTSNAME_H */
 
 #include "lisp.h"
 
@@ -41,8 +41,8 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "systime.h"
 
 #if defined HAVE_SYS_RESOURCE_H
-#include <sys/resource.h>
-#endif
+# include <sys/resource.h>
+#endif /* HAVE_SYS_RESOURCE_H */
 
 #include <float.h>
 #include <limits.h>
@@ -62,7 +62,7 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #ifdef WINDOWSNT
 extern Lisp_Object w32_get_internal_run_time (void);
-#endif
+#endif /* WINDOWSNT */
 
 static Lisp_Object format_time_string (char const *, ptrdiff_t, struct timespec,
 				       bool, struct tm *);

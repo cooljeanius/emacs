@@ -1,4 +1,4 @@
-/* Updating of data structures for redisplay.
+/* dispnew.c: Updating of data structures for redisplay.
 
 Copyright (C) 1985-1988, 1993-1995, 1997-2014 Free Software Foundation,
 Inc.
@@ -45,7 +45,7 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "tparam.h"
 
 #ifdef HAVE_WINDOW_SYSTEM
-#include TERM_HEADER
+# include TERM_HEADER
 #endif /* HAVE_WINDOW_SYSTEM */
 
 #include <errno.h>
@@ -54,8 +54,8 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <timespec.h>
 
 #ifdef WINDOWSNT
-#include "w32.h"
-#endif
+# include "w32.h"
+#endif /* WINDOWSNT */
 
 /* Structure to pass dimensions around.  Used for character bounding
    boxes, glyph matrix dimensions and alike.  */
@@ -6042,15 +6042,15 @@ init_display (void)
   if (!inhibit_window_system && display_arg)
     {
       Vinitial_window_system = Qx;
-#ifdef HAVE_X11
+# ifdef HAVE_X11
       Vwindow_system_version = make_number (11);
-#endif
-#ifdef USE_NCURSES
+# endif /* HAVE_X11 */
+# ifdef USE_NCURSES
       /* In some versions of ncurses,
 	 tputs crashes if we have not called tgetent.
 	 So call tgetent.  */
       { char b[2044]; tgetent (b, "xterm");}
-#endif
+# endif /* USE_NCURSES */
       return;
     }
 #endif /* HAVE_X_WINDOWS */
@@ -6064,18 +6064,28 @@ init_display (void)
     }
 #endif /* HAVE_NTGUI */
 
+#if defined(MAC_OS) && !defined(HAVE_NS)
+  /* treat tty /dev/stdin as emacs -nw */
+  if (!inhibit_window_system && !isatty(0))
+    {
+      Vwindow_system = intern ("mac");
+      Vwindow_system_version = make_number (1);
+      return;
+    }
+#endif /* MAC_OS && !HAVE_NS */
+
 #ifdef HAVE_NS
   if (!inhibit_window_system
-#ifndef CANNOT_DUMP
+# ifndef CANNOT_DUMP
      && initialized
-#endif
+# endif /* !CANNOT_DUMP */
       )
     {
       Vinitial_window_system = Qns;
       Vwindow_system_version = make_number (10);
       return;
     }
-#endif
+#endif /* HAVE_NS */
 
   /* If no window system has been specified, try to use the terminal.  */
   if (! isatty (0))
@@ -6085,7 +6095,7 @@ init_display (void)
   terminal_type = "w32console";
 #else
   terminal_type = getenv ("TERM");
-#endif
+#endif /* WINDOWSNT */
   if (!terminal_type)
     {
 #ifdef HAVE_WINDOW_SYSTEM
@@ -6308,7 +6318,7 @@ See `buffer-display-table' for more information.  */);
 
 #ifdef CANNOT_DUMP
   if (noninteractive)
-#endif
+#endif /* CANNOT_DUMP */
     {
       Vinitial_window_system = Qnil;
       Vwindow_system_version = Qnil;

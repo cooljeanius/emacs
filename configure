@@ -37801,14 +37801,14 @@ if test "x${HAVE_NS}" = "xyes"; then
 
 fi
 
-SUBDIR_MAKEFILES="lib/Makefile lib-src/Makefile oldXMenu/Makefile doc/emacs/Makefile doc/misc/Makefile doc/lispintro/Makefile doc/lispref/Makefile src/Makefile lwlib/Makefile lisp/Makefile leim/Makefile nextstep/Makefile nt/Makefile"
+SUBDIR_MAKEFILES="lib/Makefile lib-src/Makefile oldXMenu/Makefile doc/emacs/Makefile doc/lispintro/Makefile doc/lispref/Makefile doc/misc/Makefile src/Makefile lisp/Makefile lispintro/Makefile lispref/Makefile leim/Makefile lwlib/Makefile nextstep/Makefile nt/Makefile"
 
-ac_config_files="$ac_config_files Makefile lib/Makefile lib-src/Makefile oldXMenu/Makefile doc/emacs/Makefile doc/misc/Makefile doc/lispintro/Makefile doc/lispref/Makefile src/Makefile lwlib/Makefile lisp/Makefile leim/Makefile nextstep/Makefile nt/Makefile po/Makevars"
+ac_config_files="$ac_config_files Makefile lib/Makefile lib-src/Makefile oldXMenu/Makefile doc/emacs/Makefile doc/lispintro/Makefile doc/lispref/Makefile doc/misc/Makefile src/Makefile lisp/Makefile lispintro/Makefile lispref/Makefile leim/Makefile lwlib/Makefile nextstep/Makefile nt/Makefile po/Makevars"
 
 opt_makefile=test/automated/Makefile
 
 if test -f "${srcdir}/${opt_makefile}.in"; then
-  SUBDIR_MAKEFILES="$SUBDIR_MAKEFILES ${opt_makefile}"
+  SUBDIR_MAKEFILES="${SUBDIR_MAKEFILES} ${opt_makefile}"
       ac_config_files="$ac_config_files test/automated/Makefile"
 
 fi
@@ -38727,13 +38727,15 @@ do
     "lib-src/Makefile") CONFIG_FILES="$CONFIG_FILES lib-src/Makefile" ;;
     "oldXMenu/Makefile") CONFIG_FILES="$CONFIG_FILES oldXMenu/Makefile" ;;
     "doc/emacs/Makefile") CONFIG_FILES="$CONFIG_FILES doc/emacs/Makefile" ;;
-    "doc/misc/Makefile") CONFIG_FILES="$CONFIG_FILES doc/misc/Makefile" ;;
     "doc/lispintro/Makefile") CONFIG_FILES="$CONFIG_FILES doc/lispintro/Makefile" ;;
     "doc/lispref/Makefile") CONFIG_FILES="$CONFIG_FILES doc/lispref/Makefile" ;;
+    "doc/misc/Makefile") CONFIG_FILES="$CONFIG_FILES doc/misc/Makefile" ;;
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
-    "lwlib/Makefile") CONFIG_FILES="$CONFIG_FILES lwlib/Makefile" ;;
     "lisp/Makefile") CONFIG_FILES="$CONFIG_FILES lisp/Makefile" ;;
+    "lispintro/Makefile") CONFIG_FILES="$CONFIG_FILES lispintro/Makefile" ;;
+    "lispref/Makefile") CONFIG_FILES="$CONFIG_FILES lispref/Makefile" ;;
     "leim/Makefile") CONFIG_FILES="$CONFIG_FILES leim/Makefile" ;;
+    "lwlib/Makefile") CONFIG_FILES="$CONFIG_FILES lwlib/Makefile" ;;
     "nextstep/Makefile") CONFIG_FILES="$CONFIG_FILES nextstep/Makefile" ;;
     "nt/Makefile") CONFIG_FILES="$CONFIG_FILES nt/Makefile" ;;
     "po/Makevars") CONFIG_FILES="$CONFIG_FILES po/Makevars" ;;

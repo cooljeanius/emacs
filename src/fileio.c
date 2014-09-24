@@ -1,4 +1,4 @@
-/* File IO for GNU Emacs.
+/* fileio.c: File IO for GNU Emacs.
 
 Copyright (C) 1985-1988, 1993-2014 Free Software Foundation, Inc.
 
@@ -26,19 +26,19 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <unistd.h>
 
 #ifdef HAVE_PWD_H
-#include <pwd.h>
-#endif
+# include <pwd.h>
+#endif /* HAVE_PWD_H */
 
 #include <errno.h>
 
 #ifdef HAVE_LIBSELINUX
-#include <selinux/selinux.h>
-#include <selinux/context.h>
-#endif
+# include <selinux/selinux.h>
+# include <selinux/context.h>
+#endif /* HAVE_LIBSELINUX */
 
 #ifdef HAVE_ACL_SET_FILE
-#include <sys/acl.h>
-#endif
+# include <sys/acl.h>
+#endif /* HAVE_ACL_SET_FILE */
 
 #include <c-ctype.h>
 
@@ -54,31 +54,31 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "dispextern.h"
 
 #ifdef WINDOWSNT
-#define NOMINMAX 1
-#include <windows.h>
-#include <sys/file.h>
-#include "w32.h"
+# define NOMINMAX 1
+# include <windows.h>
+# include <sys/file.h>
+# include "w32.h"
 #endif /* not WINDOWSNT */
 
 #ifdef MSDOS
-#include "msdos.h"
-#include <sys/param.h>
-#endif
+# include "msdos.h"
+# include <sys/param.h>
+#endif /* MSDOS */
 
 #ifdef DOS_NT
 /* On Windows, drive letters must be alphabetic - on DOS, the Netware
-   redirector allows the six letters between 'Z' and 'a' as well.  */
-#ifdef MSDOS
-#define IS_DRIVE(x) ((x) >= 'A' && (x) <= 'z')
-#endif
-#ifdef WINDOWSNT
-#define IS_DRIVE(x) c_isalpha (x)
-#endif
+ * redirector allows the six letters between 'Z' and 'a' as well.  */
+# ifdef MSDOS
+#  define IS_DRIVE(x) ((x) >= 'A' && (x) <= 'z')
+# endif /* MSDOS */
+# ifdef WINDOWSNT
+#  define IS_DRIVE(x) c_isalpha (x)
+# endif /* WINDOWSNT */
 /* Need to lower-case the drive letter, or else expanded
-   filenames will sometimes compare unequal, because
-   `expand-file-name' doesn't always down-case the drive letter.  */
-#define DRIVE_LETTER(x) c_tolower (x)
-#endif
+ * filenames will sometimes compare unequal, because
+ * `expand-file-name' does NOT always down-case the drive letter.  */
+# define DRIVE_LETTER(x) c_tolower (x)
+#endif /* DOS_NT */
 
 #include "systime.h"
 #include <acl.h>
@@ -87,8 +87,8 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <stat-time.h>
 
 #ifdef HPUX
-#include <netio.h>
-#endif
+# include <netio.h>
+#endif /* HPUX */
 
 #include "commands.h"
 
@@ -3854,7 +3854,7 @@ by calling `format-decode', which see.  */)
 		   && ! CHAR_HEAD_P (FETCH_BYTE (same_at_end)))
 	      same_at_end++;
 
-	  /* Don't try to reuse the same piece of text twice.  */
+	  /* Do NOT try to reuse the same piece of text twice.  */
 	  overlap = (same_at_start - BEGV_BYTE
 		     - (same_at_end
 			+ (! NILP (end) ? end_offset : st.st_size) - ZV_BYTE));

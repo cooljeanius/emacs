@@ -5596,18 +5596,19 @@ dnl# is not quite right (see:
 dnl# http://lists.gnu.org/archive/html/bug-autoconf/2008-08/msg00028.html).
 dnl# That does NOT have any obvious consequences for Emacs, but on the
 dnl# whole it seems better to just live with the duplication.
-SUBDIR_MAKEFILES="lib/Makefile lib-src/Makefile oldXMenu/Makefile doc/emacs/Makefile doc/misc/Makefile doc/lispintro/Makefile doc/lispref/Makefile src/Makefile lwlib/Makefile lisp/Makefile leim/Makefile nextstep/Makefile nt/Makefile"
+SUBDIR_MAKEFILES="lib/Makefile lib-src/Makefile oldXMenu/Makefile doc/emacs/Makefile doc/lispintro/Makefile doc/lispref/Makefile doc/misc/Makefile src/Makefile lisp/Makefile lispintro/Makefile lispref/Makefile leim/Makefile lwlib/Makefile nextstep/Makefile nt/Makefile"
 
 AC_CONFIG_FILES([Makefile lib/Makefile lib-src/Makefile oldXMenu/Makefile \
-       doc/emacs/Makefile doc/misc/Makefile doc/lispintro/Makefile \
-       doc/lispref/Makefile src/Makefile lwlib/Makefile lisp/Makefile \
-       leim/Makefile nextstep/Makefile nt/Makefile po/Makevars])dnl
+       doc/emacs/Makefile doc/lispintro/Makefile doc/lispref/Makefile \
+       doc/misc/Makefile src/Makefile lisp/Makefile lispintro/Makefile \
+       lispref/Makefile leim/Makefile lwlib/Makefile nextstep/Makefile \
+       nt/Makefile po/Makevars])dnl
 
 dnl# test/ is not present in release tarfiles.
 opt_makefile=test/automated/Makefile
 
 if test -f "${srcdir}/${opt_makefile}.in"; then
-  SUBDIR_MAKEFILES="$SUBDIR_MAKEFILES ${opt_makefile}"
+  SUBDIR_MAKEFILES="${SUBDIR_MAKEFILES} ${opt_makefile}"
   dnl# Again, it is best not to use a variable. Though you can add
   dnl# ",[],[opt_makefile='${opt_makefile}']" and it should work.
   AC_CONFIG_FILES([test/automated/Makefile])

@@ -1,4 +1,4 @@
-/* Lisp parsing and input streams.
+/* lread.c: Lisp parsing and input streams.
 
 Copyright (C) 1985-1989, 1993-1995, 1997-2014 Free Software Foundation,
 Inc.
@@ -41,28 +41,28 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "blockinput.h"
 
 #ifdef MSDOS
-#include "msdos.h"
-#endif
+# include "msdos.h"
+#endif /* MSDOS */
 
 #ifdef HAVE_NS
-#include "nsterm.h"
-#endif
+# include "nsterm.h"
+#endif /* HAVE_NS */
 
 #include <unistd.h>
 
 #ifdef HAVE_SETLOCALE
-#include <locale.h>
+# include <locale.h>
 #endif /* HAVE_SETLOCALE */
 
 #include <fcntl.h>
 
 #ifdef HAVE_FSEEKO
-#define file_offset off_t
-#define file_tell ftello
+# define file_offset off_t
+# define file_tell ftello
 #else
-#define file_offset long
-#define file_tell ftell
-#endif
+# define file_offset long
+# define file_tell ftell
+#endif /* HAVE_FSEEKO */
 
 /* Hash table read constants.  */
 static Lisp_Object Qhash_table, Qdata;

@@ -109,7 +109,7 @@ check_version ()
     have_min=`minor_version ${have_version}`
     need_min=`minor_version $2`
 
-    [ x"${have_min}" != x"" ] && [ x"${need_min}" != x""   ] || return 3
+    [ x"${have_min}" != x"" ] && [ x"${need_min}" != x"" ] || return 3
 
     [ ${have_min} -ge ${need_min} ] && return 0
     return 2
@@ -142,7 +142,7 @@ for prog in ${progs}; do
         *) stat="unable to check" ;;
     esac
 
-    echo ${stat}
+    echo "${stat}"
 
     if [ ${retval} -ne 0 ]; then
         missing="${missing} ${prog}"
@@ -152,7 +152,7 @@ for prog in ${progs}; do
 done
 
 
-if [ x"$missing" != x"" ]; then
+if [ x"${missing}" != x"" ]; then
 
     cat <<EOF
 

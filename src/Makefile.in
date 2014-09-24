@@ -563,7 +563,7 @@ distclean: bootstrap-clean
 	rm -f Makefile
 
 maintainer-clean: distclean
-	rm -f TAGS
+	rm -f TAGS *~
 versionclean:
 	-rm -f emacs$(EXEEXT) emacs-*.*.*$(EXEEXT) ../etc/DOC*
 extraclean: distclean
