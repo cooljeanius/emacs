@@ -876,8 +876,7 @@ AC_DEFUN([gl_GCC_VERSION_IFELSE],
 
 # clang is unduly picky about some things.
 AC_CACHE_CHECK([whether the compiler is actually clang],[emacs_cv_clang],
-  [AC_COMPILE_IFELSE(
-     [AC_LANG_PROGRAM([[
+  [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 	  #ifndef __clang__
 	    #error "not clang"
 	  #endif /* !__clang__ */
@@ -3880,6 +3879,7 @@ AC_FUNC_SELECT_ARGTYPES
 AC_FUNC_SETPGRP
 AC_FUNC_SETVBUF_REVERSED
 AC_FUNC_STAT
+AC_FUNC_STRERROR_R
 AC_FUNC_STRFTIME
 AC_FUNC_STRTOD
 AC_FUNC_UTIME_NULL
