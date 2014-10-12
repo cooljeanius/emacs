@@ -65,12 +65,17 @@ SHELL = @SHELL@
 # inheriting a CDPATH not starting with the current directory.
 CDPATH=
 
-# If Make doesn't predefine MAKE, set it here.
+# If Make does NOT predefine MAKE, then set it here.
 @SET_MAKE@
 
 # Prevent submakes from outputting "Entering directory ..." and
 # "Leaving directory..." diagnostics that would mess up 'make echo-info'.
 QUIET_SUBMAKE = MAKELEVEL=0
+
+# Variables for in case we convert to automake:
+ACLOCAL_AMFLAGS = -I m4 --install
+EXTRA_DIST = m4/gnulib-cache.m4
+DISTCLEANFILES = .DS_Store *~ build-aux/*~ build-aux/snippet/*~ m4/*~
 
 # ==================== Things `configure' Might Edit ====================
 
@@ -1117,9 +1122,13 @@ check-declare:
 
 #### Apple
 
-### Targets that the AppleMakefile wants
+### Targets that the AppleMakefile wants:
 
 install_source:
 	$(MAKE) $(MFLAGS) MAKEFILE_NAME=AppleMakefile -f AppleMakefile install_source
 
 .PHONY: install_source
+
+### Targets for in case we convert to automake:
+distclean-local:
+	rm -rf autom4te.cache || rmdir autom4te.cache

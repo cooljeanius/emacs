@@ -30,6 +30,65 @@
 
 ### Code:
 
+# before we can set up portability code for 'echo', put the rest of the stuff
+# that autoconf normally puts before it:
+# Be more Bourne compatible:
+DUALCASE=1; export DUALCASE # for MKS sh
+if test -n "${ZSH_VERSION+set}" && (emulate sh) >/dev/null 2>&1; then :
+  emulate sh
+  NULLCMD=:
+  # Pre-4.2 versions of Zsh do word splitting on ${1+"$@"}, which
+  # is contrary to our usage.  Disable this feature.
+  alias -g '${1+"$@"}'='"$@"'
+  setopt NO_GLOB_SUBST
+else
+  case `(set -o) 2>/dev/null` in #(
+  *posix*) :
+    set -o posix ;; #(
+  *) :
+     ;;
+esac
+fi
+
+# Now we can steal some "echo" portability code from what autoconf generates:
+as_nl='
+'
+export as_nl
+# Printing a long string crashes Solaris 7 /usr/bin/printf.
+as_echo='\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\'
+as_echo=${as_echo}${as_echo}${as_echo}${as_echo}${as_echo}
+as_echo=${as_echo}${as_echo}${as_echo}${as_echo}${as_echo}${as_echo}
+# Prefer a ksh shell builtin over an external printf program on Solaris,
+# but without wasting forks for bash or zsh.
+if test -z "${BASH_VERSION}${ZSH_VERSION}" \
+    && (test "X`print -r -- ${as_echo}`" = "X${as_echo}") 2>/dev/null; then
+  as_echo='print -r --'
+  as_echo_n='print -rn --'
+elif (test "X`printf %s ${as_echo}`" = "X${as_echo}") 2>/dev/null; then
+  as_echo='printf %s\n'
+  as_echo_n='printf %s'
+else
+  if test "X`(/usr/ucb/echo -n -n ${as_echo}) 2>/dev/null`" = "X-n ${as_echo}"; then
+    as_echo_body='eval /usr/ucb/echo -n "$1${as_nl}"'
+    as_echo_n='/usr/ucb/echo -n'
+  else
+    as_echo_body='eval expr "X$1" : "X\\(.*\\)"'
+    as_echo_n_body='eval
+      arg=$1;
+      case ${arg} in #(
+      *"${as_nl}"*)
+	expr "X${arg}" : "X\\(.*\\)${as_nl}";
+	arg=`expr "X${arg}" : ".*${as_nl}\\(.*\\)"`;;
+      esac;
+      expr "X${arg}" : "X\\(.*\\)" | tr -d "${as_nl}"
+    '
+    export as_echo_n_body
+    as_echo_n='sh -c ${as_echo_n_body} as_echo'
+  fi
+  export as_echo_body
+  as_echo='sh -c ${as_echo_body} as_echo'
+fi
+
 ## Tools we need:
 ## Note that we respect the values of AUTOCONF etc, like autoreconf does.
 progs="autoconf automake"
@@ -129,7 +188,8 @@ for prog in ${progs}; do
 
     eval min=\$${prog}_min
 
-    echo "Checking for ${prog} (need at least version ${min})..."
+    # Eat newline by using autoconf-style compatibility variable:
+    ${as_echo_n} "Checking for ${prog} (need at least version ${min})... "
 
     check_version ${prog} ${min}
 
@@ -203,7 +263,7 @@ this script.
 If you know that the required versions are in your PATH, but this
 script has made an error, then you can simply run
 
-AUTOPOINT=true autoreconf -fvi -Wall -I m4
+AUTOPOINT=true autoreconf -fvi -Wall -Wno-cross -I m4
 
 instead of this script.
 
@@ -220,7 +280,9 @@ echo "Your system has the required tools, running autoreconf..."
 export AUTOPOINT=true
 
 ## Let autoreconf figure out what, if anything, needs doing.
-autoreconf -fvi -Wall -I m4 || exit $?
+autoreconf -fvi -Wall -Wno-cross -I m4 || exit $?
+## ('-Wno-cross' is because gnulib-tool overwrites our patched macros with ones
+## that produce warnings...)
 
 ## Create a timestamp, so that './autogen.sh; make' does NOT
 ## cause 'make' to needlessly run 'autoheader'.

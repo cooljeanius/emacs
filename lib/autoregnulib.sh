@@ -36,7 +36,7 @@ else
   gnulib-tool --import --dir=. --lib=libgnu --source-base=lib --m4-base=m4 \
     --doc-base=doc --tests-base=tests --aux-dir=build-aux --avoid=close \
     --avoid=dup --avoid=fchdir --avoid=malloc-posix \
-    --avoid=msvc-inval --avoid=msvc-nothrow --avoid=open --avoid=openat-die \
+    --avoid=msvc-nothrow --avoid=open --avoid=openat-die \
     --avoid=opendir --avoid=raise --avoid=save-cwd --avoid=select \
     --avoid=sigprocmask --avoid=threadlib --makefile-name=gnulib.mk \
     --conditional-dependencies --no-libtool --macro-prefix=gl --no-vc-files \

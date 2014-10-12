@@ -25,13 +25,13 @@ dnl#  along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
 AC_PREREQ([2.69])
 AC_INIT([emacs],[24.3.50],[bug-gnu-emacs@gnu.org])dnl
 
-dnl# We get MINGW64 with MSYS2
+dnl# We get MINGW64 with MSYS2:
 if test "x${MSYSTEM}" = "xMINGW32" -o "x${MSYSTEM}" = "xMINGW64"
 then
   AC_MSG_NOTICE([sourcing ${srcdir}/nt/mingw-cfg.site])
   . ${srcdir}/nt/mingw-cfg.site
 
-  case $srcdir in
+  case ${srcdir} in
     /* | ?:*)
       # srcdir is an absolute path.  In this case, force the format
       # "/c/foo/bar", to simplify later conversions to native Windows
@@ -86,7 +86,24 @@ AC_CONFIG_SRCDIR([src/lisp.h])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 dnl# not sure if "lib-src" would be better here:
-AC_CONFIG_LIBOBJ_DIR([lib])dnl
+AC_CONFIG_LIBOBJ_DIR([lib])
+if test "x${LIBOBJDIR}" = "x"; then
+  # The trailing slashes at the end of each of these paths are necessary:
+  if test "x${ac_abs_top_srcdir}" != "x"; then
+    test -z "${LIBOBJDIR}" && test -n "${ac_abs_top_srcdir}" && test -d "${ac_abs_top_srcdir}/lib/" && export LIBOBJDIR="${ac_abs_top_srcdir}/lib/"
+  elif test "x${ac_top_srcdir}" != "x"; then
+    test -z "${LIBOBJDIR}" && test -n "${ac_top_srcdir}" && test -d "${ac_top_srcdir}/lib/" && export LIBOBJDIR="${ac_top_srcdir}/lib/"
+  elif test "x${srcdir}" = "x."; then
+    # the check for srcdir is not to actually use it, but to verify that
+    # `pwd` will work:
+    test -z "${LIBOBJDIR}" && test -n "`pwd`" && test -d "`pwd`/lib/" && export LIBOBJDIR="`pwd`/lib/"
+  else
+    test -z "${LIBOBJDIR}"
+    AC_MSG_WARN([cannot figure out how to export a decent value for LIBOBJDIR])
+  fi
+fi
+AC_SUBST([ac_abs_top_srcdir])dnl
+AC_SUBST([ac_top_srcdir])
 AC_SUBST([LIBOBJDIR])dnl
 
 xcsdkdir=""
@@ -234,7 +251,9 @@ dnl# This should be the last --with option, because --with-x is
 dnl# added later on when we find the file name of X, and it is best to
 dnl# keep them together visually.
 AC_ARG_WITH([x-toolkit],[AS_HELP_STRING([--with-x-toolkit=KIT],
- [use an X toolkit (KIT one of: yes or gtk, gtk2, gtk3, lucid or athena, motif, no)])],
+ [use KIT as an X toolkit for the emacs GUI
+  (KIT may be one of: yes or gtk, gtk2, gtk3, lucid or athena, motif, no)
+  (this option may also have seemingly unrelated side-effects)])],
 [	  case "${withval}" in
 	    y | ye | yes )	val=gtk ;;
 	    n | no )		val=no  ;;
@@ -347,7 +366,7 @@ test "X$gameuser" = "X" && gameuser=games
 AC_ARG_WITH([gnustep-conf],dnl
 [AS_HELP_STRING([--with-gnustep-conf=FILENAME],
    [name of GNUstep.conf; default ${GNUSTEP_CONFIG_FILE}, or /etc/GNUstep/GNUstep.conf])])
-test "X${with_gnustep_conf}" != X && test "X${with_gnustep_conf}" != "Xyes" && \
+test "X${with_gnustep_conf}" != "X" && test "X${with_gnustep_conf}" != "Xyes" && \
   GNUSTEP_CONFIG_FILE="${with_gnustep_conf}"
 test "X${GNUSTEP_CONFIG_FILE}" = "X" && \
      GNUSTEP_CONFIG_FILE=/etc/GNUstep/GNUstep.conf
@@ -505,7 +524,7 @@ dnl# Just make sure the brackets remain balanced.
 dnl#
 dnl# Since Emacs cannot find matching pairs of quotes, boundaries are
 dnl# indicated by comments.
-dnl# quotation begins
+dnl# this batch of m4-quotation (block 1) begins:
 [
 
 ### If you add support for a new configuration, add code to this
@@ -580,7 +599,13 @@ case "${canonical}" in
           else
             echo "Fink's arch (${FINK_ARCH}) does not match the arch we are configuring for (${CANONICAL_ARCH}), so not using packages from it"
           fi
+        else
+          echo "A Fink-specific environment variable is set, but Fink is not installed in its default prefix (i.e. '/sw'), so not using packages from it."
         fi
+      else
+        ## (TODO: put checks for other package managers here?)
+        ## (e.g.: MacPorts, Homebrew, pkgsrc, others?)
+        echo "Fink not found, and checks for other package managers are currently unimplemented..."
       fi
   ;;
 
@@ -700,7 +725,7 @@ esac
 ### operating system is; if you know what operating systems a machine
 ### runs, it is cleaner to make it explicit in the case statement
 ### above.
-if test x"${opsys}" = x; then
+if test x"${opsys}" = x""; then
   case "${canonical}" in
     *-gnu* )				opsys=gnu ;;
     * )
@@ -710,7 +735,8 @@ if test x"${opsys}" = x; then
 fi
 
 ]
-dnl# m4-quotation ends
+dnl# this batch of m4-quotation (block 1) ends, moving to also use similar
+dnl# blocks in other places...
 
 if test "x${unported}" = "xyes"; then
   AC_MSG_ERROR([Emacs does not support `${canonical}' systems.
@@ -742,11 +768,15 @@ AC_PROG_GCC_TRADITIONAL
 AC_PROG_OBJC
 AC_PROG_OBJCPP
 
+dnl# as above with the giant gob of m4-quotation (this is block 2):
+[
 if test "x${GCC}" = "xyes"; then
   test "x${GCC_TEST_OPTIONS}" != "x" && CC="${CC} ${GCC_TEST_OPTIONS}"
 else
   test "x${NON_GCC_TEST_OPTIONS}" != "x" && CC="${CC} ${NON_GCC_TEST_OPTIONS}"
 fi
+]
+dnl# end smaller m4-quotations (block 2)
 
 dnl# This is used in lib/Makefile.am to use nt/gnulib.mk, the
 dnl# alternative to lib/gnulib.mk, so as to avoid generating header files
@@ -884,6 +914,13 @@ AC_CACHE_CHECK([whether the compiler is actually clang],[emacs_cv_clang],
      [emacs_cv_clang=yes],
      [emacs_cv_clang=no])])dnl
 
+# need this to properly check clang warning flags:
+PRE_WARNING_TESTING_CFLAGS="${CFLAGS}"
+if test "x${emacs_cv_clang}" = "xyes"; then
+  gl_UNKNOWN_WARNINGS_ARE_ERRORS
+  CFLAGS="${CFLAGS} ${gl_unknown_warnings_are_errors}"
+fi
+
 # When compiling with GCC, prefer -isystem to -I when including system
 # include files, to avoid generating useless diagnostics for the files.
 if test "x${gl_gcc_warnings}" != "xyes"; then
@@ -908,14 +945,18 @@ else
        nw="${nw} -Wwrite-strings"
        ;;
     no)
+       AC_MSG_NOTICE([not using -Werror without an X toolkit])
        nw="${nw} -Werror"
        ;;
     *)
+       AC_MSG_WARN([X toolkit unspecified, assuming safe to add -Werror])
        gl_WARN_ADD([-Werror],[WERROR_CFLAGS])
        ;;
   esac
   AC_SUBST([WERROR_CFLAGS])dnl
 
+  dnl# m4-quoted block number 3 begins
+  [
   nw="${nw} -W"                                    # redundant with -Wextra
   nw="${nw} -Wsystem-headers"  # Do NOT let system headers trigger warnings
   nw="${nw} -Woverlength-strings"                # Not a problem these days
@@ -926,12 +967,12 @@ else
   nw="${nw} -Wswitch-default"                   # Too many warnings for now
   nw="${nw} -Winline"                               # OK to ignore 'inline'
   nw="${nw} -Wjump-misses-init"       # We sometimes safely jump over init.
-  nw="${nw} -Wstrict-overflow"        # OK to optimize assuming that signed
-                                          # overflow has undefined behavior
+  nw="${nw} -Wstrict-overflow"  # OK to assume signed overflow is undefined
   nw="${nw} -Wsync-nand"       # irrelevant here, and provokes ObjC warning
-  nw="${nw} -Wunsafe-loop-optimizations"            # OK to suppress unsafe
-                                                            # optimizations
+  nw="${nw} -Wunsafe-loop-optimizations"  # OK to stop unsafe optimizations
   nw="${nw} -Wbad-function-cast"    # These casts are no worse than others.
+  nw="${nw} -Wignored-qualifiers"                        # invalid for ObjC
+  nw="${nw} -Wopenmp-simd"                               # invalid for ObjC
 
   # Emacs does NOT care about shadowing; see
   # <http://lists.gnu.org/archive/html/emacs-diffs/2011-11/msg00265.html>.
@@ -946,12 +987,27 @@ else
   # This part is merely for shortening the command line,
   # since -Wno-FOO needs to be added below regardless.
   nw="${nw} -Wmissing-field-initializers"
+  nw="${nw} -Wsign-compare"
   nw="${nw} -Wswitch"
   nw="${nw} -Wtype-limits"
   nw="${nw} -Wunused-parameter"
+  # (-Wformat-nonliteral is already added to nw above)
+  ]
+  dnl# m4-quoted block number 3 ends
 
   if test "x${emacs_cv_clang}" = "xyes"; then
+    # Prints way too many warnings for now:
     nw="${nw} -Wcast-align"
+    # Same "shorten-the-command-line" reasoning as above:
+    nw="${nw} -Wformat-extra-args"
+    nw="${nw} -Wtautological-constant-out-of-range-compare"
+    nw="${nw} -Wunused-command-line-argument"
+    nw="${nw} -Wunused-value"
+  else
+    if test "x${WERROR_CFLAGS}" = "x" && test "x${OBJC}" = "x"; then
+      dnl# m4/manywarnings.m4 is unaware of this one:
+      gl_WARN_ADD([-Wcast-qual])
+    fi
   fi
 
   gl_MANYWARN_ALL_GCC([ws])
@@ -978,6 +1034,109 @@ else
     gl_WARN_ADD([-Wno-unused-value])
   fi
 
+  dnl# these flags are all newly added, so prevent them from screwing up
+  dnl# the build:
+  if test "x${WERROR_CFLAGS}" = "x"; then
+    dnl# some Apple-specific warnings (for both apple-gcc and clang) that
+    dnl# m4/manywarnings.m4 is unaware of:
+    case ${host_vendor} in 
+      apple*)
+        gl_WARN_ADD([-Wextra-tokens])
+        gl_WARN_ADD([-Wfour-char-constants])
+        gl_WARN_ADD([-Wnewline-eof])
+        dnl# These next ones are linker warnings.
+        dnl# Need to make sure that this variable is defined first though,
+        dnl# to prevent aclocal/autoconf/autom4te/gm4 from choking on the
+        dnl# comma when it is used in arguments to a macro:
+        if test "x${acl_cv_wl}" = "x"; then
+          test -z "${acl_cv_wl}" && export acl_cv_wl='-Wl,'
+        fi
+        AC_SUBST([ac_cv_wl])
+        dnl#FIXME: get them to actually be used properly:
+        WARN_LDFLAGS=""
+        gl_WARN_ADD([${acl_cv_wl}-warn_compact_unwind],[WARN_LDFLAGS])
+        gl_WARN_ADD([${acl_cv_wl}-warn_weak_exports],[WARN_LDFLAGS])
+        gl_WARN_ADD([${acl_cv_wl}-warn_stabs],[WARN_LDFLAGS])
+        gl_WARN_ADD([${acl_cv_wl}-warn_commons],[WARN_LDFLAGS])
+        AC_SUBST([WARN_LDFLAGS])
+        ;;
+    esac
+
+    dnl# some other ones from the gcc4.2 manual that m4/manywarnings.m4
+    dnl# leaves out:
+    if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
+      test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
+      gl_WARN_ADD([-Waggregate-return])
+    else
+      test -z "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
+      nw="${nw} -Waggregate-return"
+    fi
+    if test "x${PRINT_CONVERSION_WARNINGS}" = "xyes"; then
+      test -n "${PRINT_CONVERSION_WARNINGS}"
+      gl_WARN_ADD([-Wconversion])
+    else
+      test -z "${PRINT_CONVERSION_WARNINGS}"
+      nw="${nw} -Wconversion"
+    fi
+    gl_WARN_ADD([-Wdeclaration-after-statement])
+    gl_WARN_ADD([-Wfloat-equal])
+    gl_WARN_ADD([-Wmissing-noreturn])
+    if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
+      test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
+      gl_WARN_ADD([-Wpadded])
+      gl_WARN_ADD([-Wredundant-decls])
+    else
+      test -z "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
+      nw="${nw} -Wpadded"
+      nw="${nw} -Wredundant-decls"
+    fi
+    dnl#FIXME: this will always end up in the first case, unless "${nw}" is
+    dnl# entirely empty:
+    if test -n "`echo ${nw} | grep Wswitch`"; then
+      nw="${nw} -Wswitch-enum"
+    else
+      gl_WARN_ADD([-Wswitch-enum])
+    fi
+    if test "x${emacs_cv_clang}" = "xyes"; then
+      nw="${nw} -Wunreachable-code"
+    else
+      gl_WARN_ADD([-Wunreachable-code])
+    fi
+
+    dnl# some other ones from the gcc4.9 manual that m4/manywarnings.m4
+    dnl# leaves out:
+    if test "x${CXX}" != "x" && test "x${CXX}" = "x${CC}"; then
+      gl_WARN_ADD([-Wc++-compat])
+    fi
+    if test "x${PRINT_CONVERSION_WARNINGS}" = "xyes"; then
+      dnl# leave this environment variable undocumented:
+      test -n "${PRINT_CONVERSION_WARNINGS}"
+      gl_WARN_ADD([-Wfloat-conversion])
+      gl_WARN_ADD([-Wtraditional-conversion])
+      gl_WARN_ADD([-Wsign-conversion])
+    else
+      test -z "${PRINT_CONVERSION_WARNINGS}"
+      nw="${nw} -Wfloat-conversion"
+      nw="${nw} -Wtraditional-conversion"
+      nw="${nw} -Wsign-conversion"
+    fi
+    if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
+      test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
+      gl_WARN_ADD([-Wunsuffixed-float-constants])
+    else
+      test -z "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
+      nw="${nw} -Wunsuffixed-float-constants"
+    fi
+
+    dnl# to be added in a future version of gcc:
+    gl_WARN_ADD([-Wbool-compare])
+    gl_WARN_ADD([-Wc90-c99-compat])
+    gl_WARN_ADD([-Wc99-c11-compat])
+    gl_WARN_ADD([-Wlogical-not-parentheses])
+    gl_WARN_ADD([-Wsizeof-array-argument])
+    gl_WARN_ADD([-Wswitch-bool])
+  fi
+
   AC_DEFINE([lint],[1],[Define to 1 if the compiler is checking for lint.])
   AH_VERBATIM([FORTIFY_SOURCE],
   [/* Enable compile-time and run-time bounds-checking, and some warnings,
@@ -994,10 +1153,15 @@ else
   nw=""
   nw="${nw} -Wunused-macros"
 
+  dnl# For some reason m4/manywarnings.m4 misses this one:
+  gl_WARN_ADD([-Wundef],[GNULIB_WARN_CFLAGS])dnl
+
   gl_MANYWARN_COMPLEMENT([GNULIB_WARN_CFLAGS],[${WARN_CFLAGS}],[${nw}])
   AC_SUBST([GNULIB_WARN_CFLAGS])dnl
   # end warning checks
 fi
+
+CFLAGS="${PRE_WARNING_TESTING_CFLAGS}"
 
 dnl########################################################################
 dnl# Some other nice autoconf tests.
@@ -1156,8 +1320,9 @@ else
 fi
 AC_SUBST([DOCMISC_W32])dnl
 
-dnl# Add our options to ac_link now, after it is set up.
-
+dnl# Add our options to ac_link now in an m4-quoted block (number 4),
+dnl# after our options are set up:
+[
 if test "x${GCC}" = "xyes"; then
   test "x${GCC_LINK_TEST_OPTIONS}" != "x" && \
     ac_link="${ac_link} ${GCC_LINK_TEST_OPTIONS}"
@@ -1165,6 +1330,8 @@ else
   test "x${NON_GCC_LINK_TEST_OPTIONS}" != "x" && \
     ac_link="${ac_link} ${NON_GCC_LINK_TEST_OPTIONS}"
 fi
+]
+dnl# fourth m4-quoted block ends
 
 dnl# We need -znocombreloc if we are using a relatively recent GNU ld.
 dnl# If we can link with the flag, it should NOT do any harm anyhow.
@@ -1192,7 +1359,7 @@ LDFLAGS="${LDFLAGS} ${LDFLAGS_NOCOMBRELOC}"
 AC_MSG_CHECKING([for -znocombreloc ld flag])
 AC_LINK_IFELSE([AC_LANG_PROGRAM([[]],[[]])],
   [AC_MSG_RESULT([yes])],
-  LDFLAGS_NOCOMBRELOC=""
+   LDFLAGS_NOCOMBRELOC=""
   [AC_MSG_RESULT([no])])dnl
 
 LDFLAGS="${late_LDFLAGS}"
@@ -1228,6 +1395,8 @@ fi
 
 AC_SUBST([CANNOT_DUMP])dnl
 
+dnl# m4-quotation block 5 begins:
+[
 UNEXEC_OBJ=unexelf.o
 case "${opsys}" in
   # MSDOS uses unexcoff.o
@@ -1269,8 +1438,9 @@ case "${opsys}" in
    ## The system compiler, GCC, has apparently been modified to not
    ## look there, contrary to what a stock GCC would do.
 ### It is not our place to do this.  See bug#10313#17.
-###   LD_SWITCH_SYSTEM='-L/usr/local/lib'
-      :
+      if test -d /usr/local/lib && test -z "${LD_SWITCH_SYSTEM}" && test -n "${BE_PRESUMPTUOUS}"; then
+         LD_SWITCH_SYSTEM='-L/usr/local/lib'
+      fi
    ;;
 
   gnu-linux)
@@ -1284,8 +1454,9 @@ case "${opsys}" in
 
   netbsd)
 ### It is not our place to do this.  See bug#10313#17.
-###   LD_SWITCH_SYSTEM="-Wl,-rpath,/usr/pkg/lib -L/usr/pkg/lib -Wl,-rpath,/usr/local/lib -L/usr/local/lib"
-      :
+      if test -d /usr/pkg/lib && test -d /usr/local/lib && test -z "${LD_SWITCH_SYSTEM}" && test -n "${BE_PRESUMPTUOUS}"; then
+         LD_SWITCH_SYSTEM="-Wl,-rpath,/usr/pkg/lib -L/usr/pkg/lib -Wl,-rpath,/usr/local/lib -L/usr/local/lib"
+      fi
    ;;
 
   openbsd)
@@ -1294,8 +1465,13 @@ case "${opsys}" in
    LD_SWITCH_SYSTEM="-Z"
    ;;
 esac
+]
+dnl# m4-quotation block 5 ends
+
 AC_SUBST([LD_SWITCH_SYSTEM])dnl
 
+dnl# m4-quotation block 6 begins:
+[
 ac_link="${ac_link} ${LD_SWITCH_SYSTEM}"
 
 ## This setting of LD_SWITCH_SYSTEM references LD_SWITCH_X_SITE_RPATH,
@@ -1313,6 +1489,8 @@ case "${opsys}" in
   netbsd|openbsd)
    LD_SWITCH_SYSTEM="\$(LD_SWITCH_X_SITE_RPATH) ${LD_SWITCH_SYSTEM}" ;;
 esac
+]
+dnl# m4-quotation block 6 ends
 
 dnl# system-specific flags for C compilation:
 C_SWITCH_MACHINE=""
@@ -1358,7 +1536,8 @@ fi
 ## It is redundant in glibc2, since we define _GNU_SOURCE.
 AC_SUBST([C_SWITCH_SYSTEM])dnl
 
-dnl# system-specific libraries to use:
+dnl# system-specific libraries to use (m4-quotation block 7 begins):
+[
 LIBS_SYSTEM=""
 case "${opsys}" in
   ## IBM's X11R5 uses -lIM and -liconv in AIX 3.2.2.
@@ -1373,11 +1552,21 @@ case "${opsys}" in
   ## Motif needs -lgen.
   unixware) LIBS_SYSTEM="-lsocket -lnsl -lelf -lgen" ;;
 
-  darwin) LIBS_SYSTEM="-lintl" ;;
+  darwin)
+    if test -e /usr/lib/libintl.dylib || test -e "${prefix}/lib/libintl.dylib"; then
+      LIBS_SYSTEM="-lintl"
+    elif test -e /usr/lib/libSystem.dylib; then
+      LIBS_SYSTEM="-lSystem"
+    fi
+    ;;
 esac
+]
+dnl# m4-quotation block 7 ends
 
 AC_SUBST([LIBS_SYSTEM])dnl
 
+dnl# m4-quotation block 8 begins:
+[
 ### Make sure subsequent tests use flags consistent with the build flags.
 
 if test x"${OVERRIDE_CPPFLAGS}" != x""; then
@@ -1385,6 +1574,8 @@ if test x"${OVERRIDE_CPPFLAGS}" != x""; then
 else
   CPPFLAGS="${C_SWITCH_SYSTEM} ${C_SWITCH_MACHINE} ${CPPFLAGS}"
 fi
+]
+dnl# m4-quotation block 8 ends
 
 # Suppress obsolescent Autoconf test for size_t; Emacs assumes C89 or
 # better.
@@ -1411,6 +1602,8 @@ dnl# Current possibilities handled by sed (aix4-2 -> aix,
 dnl# gnu-linux -> gnu/linux, etc.):
 dnl# gnu, gnu/linux, gnu/kfreebsd, aix, cygwin, darwin, hpux, irix.
 dnl# And special cases: berkeley-unix, usg-unix-v, ms-dos, windows-nt.
+dnl# m4-quotation block 9 begins:
+[
 SYSTEM_TYPE=`echo ${opsys} | sed -e 's/[[0-9]].*//' -e 's|-|/|'`
 
 case ${opsys} in
@@ -1432,7 +1625,7 @@ case ${opsys} in
     LIB_MATH=""
     SYSTEM_TYPE=windows-nt
     ;;
-  dnl# NB this may be adjusted below.
+  ## NB this may be adjusted below.
   netbsd | openbsd )
     SYSTEM_TYPE=berkeley-unix
     ;;
@@ -1440,6 +1633,8 @@ case ${opsys} in
     SYSTEM_TYPE=usg-unix-v
     ;;
 esac
+]
+dnl# m4-quotation block 9 ends
 
 AC_SUBST([LIB_MATH])dnl
 AC_DEFINE_UNQUOTED([SYSTEM_TYPE],["${SYSTEM_TYPE}"],
@@ -1729,7 +1924,7 @@ dnl# not really sure where else to put these:
 AC_C_VOLATILE
 
 dnl# Check for endianness.
-dnl# AC_C_BIGENDIAN is done by gnulib, so ifdef it:
+dnl# AC_C_BIGENDIAN is done by gnulib, so ifdef it out:
 m4_ifdef([gl_00GNULIB],[:],[AC_C_BIGENDIAN])dnl
 
 dnl# check for Make feature:
@@ -1809,6 +2004,8 @@ if test "x${no_x}" != "xyes"; then
 fi
 AC_SUBST([no_x])dnl
 
+dnl# m4-quotation block 10 begins:
+[
 LD_SWITCH_X_SITE_RPATH=""
 if test "x${x_libraries}" != "xNONE"; then
   if test -n "${x_libraries}"; then
@@ -1836,8 +2033,13 @@ ${x_library}/X11/%T/%N%S"
     fi
   done
 fi
+]
+dnl# m4-quotation block 10 ends
+
 AC_SUBST([LD_SWITCH_X_SITE_RPATH])dnl
 
+dnl# m4-quotation block 11 begins:
+[
 if test "x${x_includes}" != "xNONE" && test -n "${x_includes}"; then
   C_SWITCH_X_SITE="${isystem}"`echo ${x_includes} | sed -e "s/:/ ${isystem}/g"`
 fi
@@ -1869,6 +2071,8 @@ CPPFLAGS="${CPPFLAGS} -x objective-c"
 CFLAGS="${CFLAGS} -x objective-c"
 GNU_OBJC_CFLAGS=""
 LIBS_GNUSTEP=""
+]
+dnl# m4-quotation block 11 ends
 if test "x${with_ns}" != "xno"; then
   if test "x${opsys}" = "xdarwin"; then
      NS_IMPL_COCOA=yes
@@ -1876,6 +2080,17 @@ if test "x${with_ns}" != "xno"; then
      ns_appbindir="${ns_appdir}/Contents/MacOS"
      ns_appresdir="${ns_appdir}/Contents/Resources"
      ns_appsrc=Cocoa/Emacs.base
+     dnl# always use exceptions on darwin; no need to test:
+     GNU_OBJC_CFLAGS="-fobjc-exceptions"
+     dnl# check for blocks support:
+     DISPATCH_C_BLOCKS
+     GNU_OBJC_CFLAGS="${GNU_OBJC_CFLAGS} ${CBLOCKS_FLAGS}"
+     if test "x${have_cblocks}" = "xfalse"; then
+       AC_MSG_WARN([the Objective C sources need cblocks, but we do not have them.])
+     else
+       AC_DEFINE([HAVE_CBLOCKS_LANGUAGE_FEATURE],[1],
+                 [Define to 1 if we can use cblocks in our code])
+     fi
   elif test -f ${GNUSTEP_CONFIG_FILE}; then
      NS_IMPL_GNUSTEP=yes
      ns_appdir=`pwd`/nextstep/Emacs.app
@@ -1918,19 +2133,32 @@ fail;
      fi
   fi
 
+  if test "x${gl_gcc_warnings}" = "xyes" && test "x${WERROR_CFLAGS}" = "x"; then
+    AC_LANG_PUSH([Objective C])
+    gl_WARN_ADD([-Wselector],[GNU_OBJC_FLAGS])
+    gl_WARN_ADD([-Wstrict-selector-match],[GNU_OBJC_FLAGS])
+    gl_WARN_ADD([-Wundeclared-selector],[GNU_OBJC_FLAGS])
+    AC_LANG_POP
+  fi
+
   dnl# This is only used while we test the NS headers, it gets reset below.
   CFLAGS="${CFLAGS} ${GNU_OBJC_CFLAGS}"
 
   unset ac_cv_header_appkit_appkit_h
-  AC_CHECK_HEADER([AppKit/AppKit.h],[HAVE_NS=yes],
+  AC_CHECK_HEADER([AppKit/AppKit.h],
+                  [ac_cv_header_appkit_appkit_h=yes
+                   HAVE_NS=yes],
   		  [AC_MSG_ERROR([`--with-ns' was specified, but the include
   files are missing or cannot be compiled.])])dnl
 
   macfont_file=""
   if test "x${NS_IMPL_COCOA}" = "xyes"; then
     dnl# "_ONCE" causes test to jump out of the conditional and be done at
-    dnl# wrong location (check ac_cv_header_appkit_appkit_h)
-    AC_CHECK_HEADERS([AppKit/AppKit.h])
+    dnl# wrong location
+    if test "x${ac_cv_header_appkit_appkit_h}" = "x"; then
+      test -z "${ac_cv_header_appkit_appkit_h}"
+      AC_CHECK_HEADERS([AppKit/AppKit.h])
+    fi
     AC_MSG_CHECKING([for OSX 10.4 or newer])
     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <AppKit/AppKit.h>]],
                                        [[
@@ -1968,7 +2196,7 @@ fail;
     fi
   fi
   dnl# "_ONCE" causes test to jump out of the conditional and be done at
-  dnl# wrong location
+  dnl# wrong location:
   AC_CHECK_HEADERS([Foundation/NSObjCRuntime.h])
   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <Foundation/NSObjCRuntime.h>]],
@@ -1978,6 +2206,10 @@ fail;
   if test "x${ns_have_nsinteger}" = "xyes"; then
     AC_DEFINE([NS_HAVE_NSINTEGER],[1],
               [Define to 1 if `NSInteger' is defined.])
+  fi
+else
+  if test "x${opsys}" = "xdarwin" && test "x${host_vendor}" = "xapple"; then
+    AC_MSG_WARN(['--with-ns' is recommended for darwin, but it was not specified.])
   fi
 fi
 
@@ -2507,6 +2739,12 @@ if test "x${HAVE_X11}" = "xyes" || test "x${HAVE_NS}" = "xyes" || test "x${HAVE_
     IMAGEMAGICK_MODULE="Wand >= 6.2.8 Wand != 6.8.2"
     PKG_CHECK_MODULES([IMAGEMAGICK],[${IMAGEMAGICK_MODULE}],
                       [HAVE_IMAGEMAGICK=yes],[:])
+    ## imagemagick sometimes has '-fopenmp' in its CFLAGS, but the support
+    ## in clang for openmp is incomplete, so remove the flag when using
+    ## clang:
+    if test "x${emacs_cv_clang}" = "xyes"; then
+      IMAGEMAGICK_CFLAGS="`echo ${IMAGEMAGICK_CFLAGS} | sed 's|-fopenmp||g'`"
+    fi
     AC_SUBST([IMAGEMAGICK_CFLAGS])dnl
     AC_SUBST([IMAGEMAGICK_LIBS])dnl
 
@@ -2607,7 +2845,7 @@ if test x"${pkg_check_gtk}" = x"yes"; then
   if test "x${GTK_COMPILES}" != "xyes"; then
     GTK_OBJ=""
     if test "x${USE_X_TOOLKIT}" != "xmaybe"; then
-      AC_MSG_ERROR([Gtk+ wanted, but it does not compile, see config.log.  Maybe some x11-devel files missing?]);
+      AC_MSG_ERROR([Gtk+ wanted, but it does not compile, see config.log.  Maybe some x11-devel files missing?])
     fi
   else
     HAVE_GTK=yes
@@ -2616,7 +2854,7 @@ if test x"${pkg_check_gtk}" = x"yes"; then
     term_header="${gtk_term_header}"
     USE_X_TOOLKIT=none
     if "${PKG_CONFIG}" --atleast-version=2.10 gtk+-2.0; then
-      :
+      export MY_GTK_VERSION_IS_GOOD_ENOUGH="true"
     else
       AC_MSG_WARN([[Your version of Gtk+ will have problems with
        closing open displays. This is no problem if you just use
@@ -3854,12 +4092,13 @@ AC_MSG_CHECKING([functions])
 AC_MSG_RESULT([ ])
 AC_FUNC_CHOWN
 AC_FUNC_CLOSEDIR_VOID
-AC_FUNC_ERROR_AT_LINE
 dnl# ones that might be called elsewhere:
 AC_DEFUN([AC_REQUIRE_VARIOUS_FUNC_CHECKS],[
+  AC_REQUIRE([AC_FUNC_ERROR_AT_LINE])dnl
   AC_REQUIRE([AC_FUNC_GETGROUPS])dnl
   AC_REQUIRE([AC_FUNC_GETLOADAVG])dnl
   AC_REQUIRE([AC_FUNC_GETPGRP])dnl
+  AC_REQUIRE([AC_FUNC_OBSTACK])dnl
 ])dnl
 AC_REQUIRE_VARIOUS_FUNC_CHECKS
 AC_FUNC_LSTAT dnl# also checks whether it "_FOLLOWS_SLASHED_SYMLINK"
@@ -3873,7 +4112,6 @@ if test "x${emacs_cv_var_doug_lea_malloc}" = "x"; then
 fi
 AC_FUNC_MEMCMP
 AC_FUNC_MKTIME
-AC_FUNC_OBSTACK
 AC_FUNC_REALLOC
 AC_FUNC_SELECT_ARGTYPES
 AC_FUNC_SETPGRP
@@ -5323,6 +5561,17 @@ gl_INIT
 CFLAGS="${SAVE_CFLAGS}"
 LIBS="${SAVE_LIBS}"
 
+AC_PATH_PROGS([UNIQ_BIN],[uniq guniq],[])
+## uniq the stuff in LIBS:
+f=""
+for i in ${LIBS}; do
+  case " ${f} " in
+    *" ${i} "*) ;;
+    *) f="${f} ${i}" ;;
+  esac
+done
+LIBS="${f}"
+
 if test "x${opsys}" = "xmingw32"; then
   CPPFLAGS="${CPPFLAGS} -DUSE_CRT_DLL=1 -I \${abs_top_srcdir}/nt/inc"
   # Remove unneeded switches from the value of CC that goes to Makefiles
@@ -5348,6 +5597,9 @@ case "${opsys}" in
      headerpad_extra=690
    fi
    LD_SWITCH_SYSTEM_TEMACS="-fno-pie -prebind ${libs_nsgui} -Xlinker -headerpad -Xlinker ${headerpad_extra}"
+   ## (why not just use '-headerpad_max_install_names'? Would that not be
+   ## more inline with GNU policy of preferring dynamic limits over
+   ## arbitrary, hard-coded ones?)
 
    ## This is here because src/Makefile.in did some extra fiddling around
    ## with LD_SWITCH_SYSTEM. It seems cleaner to put this in
@@ -5378,10 +5630,10 @@ case "${opsys}" in
 
   openbsd) LD_SWITCH_SYSTEM_TEMACS='-nopie' ;;
 
-  *) LD_SWITCH_SYSTEM_TEMACS= ;;
+  *) LD_SWITCH_SYSTEM_TEMACS="" ;;
 esac
 
-if test "x${ac_enable_profiling}" != "x" ; then
+if test "x${ac_enable_profiling}" != "x"; then
   case ${opsys} in
     *freebsd | gnu-linux) ;;
     *) LD_SWITCH_SYSTEM_TEMACS="${LD_SWITCH_SYSTEM_TEMACS} -pg" ;;
@@ -5458,6 +5710,8 @@ End:
 */
 ])dnl
 
+dnl# begin final m4-quotation block:
+[
 #### Report on what we decided to do.
 #### Report GTK as a toolkit, even if it does NOT use Xt.
 #### It makes printing result more understandable as using GTK sets
@@ -5472,15 +5726,22 @@ else
   acl_summary=no
 fi
 
+if test "x${LDFLAGS}" = "x"; then
+  if test "x${prefix}" != "xNONE"; then
+    test -z "${LDFLAGS}" && test -n "${prefix}" && test -d "${prefix}/lib" && export LDFLAGS="-L${prefix}/lib"
+  fi
+fi
+
 ## multi-line call to 'echo'; closing quote is farther down @ end of block:
 echo "
 Configured for \`${canonical}'.
 
   Where should the build process find the source code? ${srcdir}
   What compiler should emacs be built with?            ${CC} ${CFLAGS}
+  What linker should emacs be built with?              ${LD} ${LDFLAGS}
   Should Emacs use the GNU version of malloc?          ${GNU_MALLOC}${GNU_MALLOC_reason}
   Should Emacs use a relocating allocator for buffers? ${REL_ALLOC}
-  Should Emacs use mmap(2) for buffer allocation?   ${use_mmap_for_buffers}
+  Should Emacs use mmap(2) for buffer allocation?      ${use_mmap_for_buffers}
   What window system should Emacs use?                 ${window_system}
   What toolkit should Emacs use?                       ${USE_X_TOOLKIT}"
 ## see? told ya so.
@@ -5528,7 +5789,7 @@ echo "  Does Emacs use -lotf?                       ${HAVE_LIBOTF}"
 echo "  Does Emacs use -lxft?                       ${HAVE_XFT}"
 echo "  Does Emacs directly use zlib?               ${HAVE_ZLIB}"
 ## scrollbars:
-echo "  Does Emacs use toolkit scroll bars?     ${USE_TOOLKIT_SCROLL_BARS}"
+echo "  Does Emacs use toolkit scroll bars?         ${USE_TOOLKIT_SCROLL_BARS}"
 echo ""
 
 echo "Special environment variables: "
@@ -5557,13 +5818,15 @@ run or moved from there."
 You may need to run \"${MAKE-make} install\" with sudo. The application will fail
 to run if these resources are not installed."
    fi
-   echo
+   echo ""
 fi
+]
+dnl# end final m4-quotation block
 
 if test "x${opsys}" = "xcygwin"; then
   case `uname -r` in
     1.5.*) AC_MSG_WARN([[building Emacs on Cygwin 1.5 is not supported.]])
-           echo
+           echo ""
 	   ;;
   esac
 fi

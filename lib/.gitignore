@@ -22,3 +22,7 @@ sys/time.h
 sys/types.h
 time.h
 unistd.h
+
+arg-nonnull.h
+c++defs.h
+warn-on-use.h

@@ -40,12 +40,13 @@ LDFLAGS = @LDFLAGS@
 EXEEXT = @EXEEXT@
 version = @version@
 # Substitute an assignment for the MAKE variable, because
-# BSD doesn't have it as a default.
+# BSD does NOT have it as a default.
 @SET_MAKE@
 MKDIR_P = @MKDIR_P@
-# Don't use LIBS.  configure puts stuff in it that either shouldn't be
+# Do NOT use LIBS.  configure puts stuff in it that either should NOT be
 # linked with Emacs or is duplicated by the other stuff below.
-# LIBS = @LIBS@
+BAD_LIBS_THAT_SHOULD_BE_COMMENTED_OUT = @LIBS@
+LIBOBJDIR = @LIBOBJDIR@
 LIBOBJS = @LIBOBJS@
 
 lispsource = $(srcdir)/../lisp
@@ -329,7 +330,7 @@ ALL_CFLAGS=-Demacs $(MYCPPFLAGS) -I. -I$(srcdir) \
   $(SETTINGS_CFLAGS) $(FREETYPE_CFLAGS) $(FONTCONFIG_CFLAGS) \
   $(LIBOTF_CFLAGS) $(M17N_FLT_CFLAGS) $(DEPFLAGS) \
   $(LIBGNUTLS_CFLAGS) $(GFILENOTIFY_CFLAGS) \
-  $(WARN_CFLAGS) $(WERROR_CFLAGS) $(CFLAGS)
+  $(WARN_CFLAGS) $(CFLAGS) @MAINT@ $(WERROR_CFLAGS)
 ALL_OBJC_CFLAGS=$(ALL_CFLAGS) $(GNU_OBJC_CFLAGS)
 
 .SUFFIXES: .m
