@@ -127,6 +127,9 @@ maintainer-clean: clean
 	rm -f elisp.dvi elisp.oaux
 	cd $(infodir); rm -f elisp elisp-[1-9] elisp-[1-9][0-9]
 
+extraclean: maintainer-clean
+	-rm -f *~ \#*
+
 dist: $(infodir)/elisp elisp.dvi
 	-rm -rf temp
 	-mkdir temp

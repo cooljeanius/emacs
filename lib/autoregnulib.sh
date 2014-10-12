@@ -1,13 +1,58 @@
 #!/bin/sh
 
-#FIXME: add a test to make sure that this is being run from the level above
-# maybe also move this there, too...
+# The gnulib commit ID to use for the update.
+GNULIB_COMMIT_SHA1="8a695b675d018ecfab9db14fce4b13379f5ac908"
 
-#TODO: also add a check to make sure we are pulling from a recent enough
-# version of gnulib...
+if [ $# -ne 1 ]; then
+   echo "Warning: Path to gnulib repository missing."
+   echo "Assuming you have cloned it to your home directory."
+   echo "Correct usage: ./lib/autoregnulib.sh <path-to-gnulib-repository>"
+   gnulib_prefix=~/gnulib
+else
+   gnulib_prefix=$1
+   echo "Using '${gnulib_prefix}' as initial gnulib_prefix."
+fi
 
-if test "x`which gnulib-tool`" = "x" || test ! -x "`which gnulib-tool`"; then
-  echo "Error: gnulib-tool needs to be in your path for this to work." >&2
+gnulib_tool="${gnulib_prefix}/gnulib-tool"
+
+# Verify that the gnulib directory does exist...
+if [ ! -f "${gnulib_tool}" ]; then
+   echo "Error: Invalid gnulib directory. Cannot find gnulib tool"
+   echo "       (${gnulib_tool})."
+   echo "Checking to see if it is in your path...."
+   if test "x$(which gnulib-tool)" = "x" || test ! -x "$(which gnulib-tool)"; then
+     echo "Error: gnulib-tool needs to be in your path for this to work." >&2
+     exit 1
+   else
+     gnulib_tool="$(which gnulib-tool)"
+     if test ! -d "${gnulib_prefix}"; then
+       if test -d "$(dirname "${gnulib_tool}")"; then
+         gnulib_prefix="$(dirname "${gnulib_tool}")"
+       fi
+     fi
+   fi
+else
+   echo "Found '${gnulib_tool}'."
+fi
+
+# Verify that we have the right version of gnulib...
+gnulib_head_sha1=$(cd "${gnulib_prefix}" && git rev-parse HEAD 2>/dev/null)
+if [ "${gnulib_head_sha1}" != "${GNULIB_COMMIT_SHA1}" ]; then
+   echo "Error: Wrong version of gnulib: '${gnulib_head_sha1}'"
+   echo "       (we expected it to be ${GNULIB_COMMIT_SHA1})"
+   echo "Aborting."
+   exit 1
+fi
+
+# Verify that we are in the top directory of the source tree.
+if [ ! -f ./dumpemacs.c -o ! -d lib ]; then
+   echo "Error: This script should be called from the top-level directory."
+   echo "Aborting."
+   exit 1
+fi
+
+if test -z "${gnulib_tool}" || test ! -x "${gnulib_tool}"; then
+  echo "Error: gnulib-tool is unavailable." >&2
   exit 1
 else
   # The list of gnulib modules we are importing for emacs:
@@ -25,7 +70,7 @@ else
       largefile lstat \
       manywarnings memrchr mkostemp mktime \
       obstack \
-      pipe2 pselect pthread_sigmask putenv \
+      pipe2 progname pselect pthread_sigmask putenv \
       qacl \
       readlink readlinkat \
       sig2str socklen stat-time stdalign stdarg stdbool stdio \
@@ -33,7 +78,8 @@ else
       time timer-time timespec-add timespec-sub \
       unsetenv update-copyright utimens \
       warnings"
-  gnulib-tool --import --dir=. --lib=libgnu --source-base=lib --m4-base=m4 \
+   echo "Actually beginning import now; this may take a while..."
+  "${gnulib_tool}" --import --dir=. --lib=libgnu --source-base=lib --m4-base=m4 \
     --doc-base=doc --tests-base=tests --aux-dir=build-aux --avoid=close \
     --avoid=dup --avoid=fchdir --avoid=malloc-posix \
     --avoid=msvc-nothrow --avoid=open --avoid=openat-die \
@@ -46,3 +92,5 @@ else
     exit 1
   fi
 fi
+
+#TODO: integrate with the emacs local autogen.sh script.

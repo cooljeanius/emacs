@@ -10,3 +10,4 @@ oo/
 oo-spd/
 *.o
 deps/*.d
+temacs

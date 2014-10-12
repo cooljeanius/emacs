@@ -2339,8 +2339,9 @@ Optional Features:
                           directories Emacs should search for lisp files
                           specific to this site
   --enable-checking[=LIST]
-                          enable expensive run-time checks. With LIST, enable
-                          only specific categories of checks. Categories are:
+                          enable expensive run-time checks. By supplying a
+                          comma-separated list of checks in LIST, enable only
+                          specific categories of checks. Categories are:
                           all,yes,no. Flags are: stringbytes, stringoverrun,
                           stringfreelist, xmallocoverrun, conslist, glyphs
   --enable-check-lisp-object-type
@@ -5328,7 +5329,7 @@ fi
 
 test "X${with_gameuser}" != "X" && test "X${with_gameuser}" != "Xyes" \
   && gameuser="${with_gameuser}"
-test "X$gameuser" = "X" && gameuser=games
+test "X${gameuser}" = "X" && gameuser=games
 
 
 # Check whether --with-gnustep-conf was given.
@@ -5368,7 +5369,7 @@ IFS="${IFS= 	}"; ac_save_IFS="${IFS}"; IFS="${IFS},"
 for check in ${ac_checking_flags}
 do
 	case ${check} in
-	# these set all the flags to specific states
+	# these set all the flags to specific states:
 	yes)		ac_enable_checking=1 ;;
 	no)		ac_enable_checking="" ;
 			ac_gc_check_stringbytes="" ;
@@ -5384,7 +5385,7 @@ do
 	                ac_xmalloc_overrun=1 ;
 	                ac_gc_check_cons_list=1 ;
 			ac_glyphs_debug=1 ;;
-	# these enable particular checks
+	# these enable particular checks:
 	stringbytes) 	ac_gc_check_stringbytes=1 ;;
 	stringoverrun) 	ac_gc_check_string_overrun=1 ;;
 	stringfreelist) ac_gc_check_string_free_list=1 ;;
@@ -5393,6 +5394,9 @@ do
 	glyphs)		ac_glyphs_debug=1 ;;
 	*)	as_fn_error $? "unknown check category ${check}" "$LINENO" 5 ;;
 	esac
+        # only print this message after we have had a chance to error out:
+        { $as_echo "$as_me:${as_lineno-$LINENO}: enabled runtime checks of category ${check}" >&5
+$as_echo "$as_me: enabled runtime checks of category ${check}" >&6;}
 done
 IFS="${ac_save_IFS}"
 
@@ -9159,6 +9163,7 @@ esac
   # Code from module openat-h:
   # Code from module pathmax:
   # Code from module pipe2:
+  # Code from module progname:
   # Code from module pselect:
   # Code from module pthread_sigmask:
   # Code from module putenv:
@@ -15404,7 +15409,7 @@ $as_echo "#define NS_HAVE_NSINTEGER 1" >>confdefs.h
 
   fi
 else
-  if test "x${opsys}" = "xdarwin"; then
+  if test "x${opsys}" = "xdarwin" && test "x${host_vendor}" = "xapple"; then
     { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: '--with-ns' is recommended for darwin, but it was not specified." >&5
 $as_echo "$as_me: WARNING: '--with-ns' is recommended for darwin, but it was not specified." >&2;}
   fi
@@ -20872,6 +20877,7 @@ fi
 done
 
 
+
 ## Define MAIL_USE_FLOCK (or LOCKF) if the mailer uses flock (or lockf) to
 ## interlock access to the mail spool. The alternative is a lock file named
 ## /usr/spool/mail/${USER}.lock.
@@ -20905,6 +20911,7 @@ case "${opsys}" in
   mingw32)
     mail_lock="none-needed" ;;
 esac
+
 
 BLESSMAIL_TARGET=""
 case "${mail_lock}" in
@@ -21035,7 +21042,8 @@ $as_echo "#define CLOSEDIR_VOID 1" >>confdefs.h
 
 fi
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for error_at_line" >&5
+
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for error_at_line" >&5
 $as_echo_n "checking for error_at_line... " >&6; }
 if ${ac_cv_lib_error_at_line+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -21061,14 +21069,6 @@ rm -f core conftest.err conftest.$ac_objext \
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_error_at_line" >&5
 $as_echo "$ac_cv_lib_error_at_line" >&6; }
-if test $ac_cv_lib_error_at_line = no; then
-  case " $LIBOBJS " in
-  *" error.$ac_objext "* ) ;;
-  *) LIBOBJS="$LIBOBJS error.$ac_objext"
- ;;
-esac
-
-fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking type of array argument to getgroups" >&5
 $as_echo_n "checking type of array argument to getgroups... " >&6; }
@@ -21815,6 +21815,7 @@ else
 esac
 
 fi
+
 
 
 
@@ -22986,6 +22987,44 @@ done
 
 if test "x" = "Y0"; then
   test -x `which autoscan`
+  if test "x${ac_cv_lib_error_at_line}" = "x" || test "x${ac_cv_lib_error_at_line}" = "xno"; then
+    test -z "${ac_cv_lib_error_at_line}"
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for error_at_line" >&5
+$as_echo_n "checking for error_at_line... " >&6; }
+if ${ac_cv_lib_error_at_line+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <error.h>
+int
+main ()
+{
+error_at_line (0, 0, "", 0, "an error occurred");
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_error_at_line=yes
+else
+  ac_cv_lib_error_at_line=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_error_at_line" >&5
+$as_echo "$ac_cv_lib_error_at_line" >&6; }
+if test $ac_cv_lib_error_at_line = no; then
+  case " $LIBOBJS " in
+  *" error.$ac_objext "* ) ;;
+  *) LIBOBJS="$LIBOBJS error.$ac_objext"
+ ;;
+esac
+
+fi
+
+  fi
   for ac_func in alarm gethostbyname getpagesize gettimeofday \
                   localtime_r strtoumax tzset
 do :
@@ -35439,6 +35478,30 @@ fi
 
 
 
+  ac_fn_c_check_decl "$LINENO" "program_invocation_name" "ac_cv_have_decl_program_invocation_name" "#include <errno.h>
+"
+if test "x$ac_cv_have_decl_program_invocation_name" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_PROGRAM_INVOCATION_NAME $ac_have_decl
+_ACEOF
+
+  ac_fn_c_check_decl "$LINENO" "program_invocation_short_name" "ac_cv_have_decl_program_invocation_short_name" "#include <errno.h>
+"
+if test "x$ac_cv_have_decl_program_invocation_short_name" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_PROGRAM_INVOCATION_SHORT_NAME $ac_have_decl
+_ACEOF
+
 
 
 
@@ -40054,6 +40117,7 @@ fi
   test -n "$UNIQ_BIN" && break
 done
 
+
 ## uniq the stuff in LIBS:
 f=""
 for i in ${LIBS}; do
@@ -40133,6 +40197,7 @@ if test "x${ac_enable_profiling}" != "x"; then
 fi
 
 LD_SWITCH_SYSTEM_TEMACS="${LDFLAGS_NOCOMBRELOC} ${LD_SWITCH_SYSTEM_TEMACS}"
+
 
 
 ## MinGW-specific post-link processing of temacs.

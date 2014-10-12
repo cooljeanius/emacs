@@ -131,7 +131,7 @@ AM_MAINTAINER_MODE
 
 dnl# Support for --program-prefix, --program-suffix and
 dnl# --program-transform-name options
-dnl# (I thought that this would already have been called?)
+dnl# (I thought that this would already have been called by automake?)
 AC_ARG_PROGRAM
 
 dnl# It is important that variables on the RHS not be expanded here,
@@ -361,7 +361,7 @@ AC_ARG_WITH([gameuser],dnl
                 [user for shared game score files])])
 test "X${with_gameuser}" != "X" && test "X${with_gameuser}" != "Xyes" \
   && gameuser="${with_gameuser}"
-test "X$gameuser" = "X" && gameuser=games
+test "X${gameuser}" = "X" && gameuser=games
 
 AC_ARG_WITH([gnustep-conf],dnl
 [AS_HELP_STRING([--with-gnustep-conf=FILENAME],
@@ -390,7 +390,8 @@ fi
 
 AC_ARG_ENABLE([checking],
 [AS_HELP_STRING([--enable-checking@<:@=LIST@:>@],
-		[enable expensive run-time checks.  With LIST,
+		[enable expensive run-time checks.  By supplying
+		 a comma-separated list of checks in LIST,
 		 enable only specific categories of checks.
 		 Categories are: all,yes,no.
 		 Flags are: stringbytes, stringoverrun, stringfreelist,
@@ -400,7 +401,7 @@ IFS="${IFS= 	}"; ac_save_IFS="${IFS}"; IFS="${IFS},"
 for check in ${ac_checking_flags}
 do
 	case ${check} in
-	# these set all the flags to specific states
+	# these set all the flags to specific states:
 	yes)		ac_enable_checking=1 ;;
 	no)		ac_enable_checking="" ;
 			ac_gc_check_stringbytes="" ;
@@ -416,7 +417,7 @@ do
 	                ac_xmalloc_overrun=1 ;
 	                ac_gc_check_cons_list=1 ;
 			ac_glyphs_debug=1 ;;
-	# these enable particular checks
+	# these enable particular checks:
 	stringbytes) 	ac_gc_check_stringbytes=1 ;;
 	stringoverrun) 	ac_gc_check_string_overrun=1 ;;
 	stringfreelist) ac_gc_check_string_free_list=1 ;;
@@ -425,6 +426,8 @@ do
 	glyphs)		ac_glyphs_debug=1 ;;
 	*)	AC_MSG_ERROR([unknown check category ${check}]) ;;
 	esac
+        # only print this message after we have had a chance to error out:
+        AC_MSG_NOTICE([enabled runtime checks of category ${check}])
 done
 IFS="${ac_save_IFS}"
 
@@ -4037,6 +4040,8 @@ dnl# "_ONCE" causes this test to be done at wrong location, unfortunately:
 AC_CHECK_HEADERS([maillock.h])
 AC_SUBST([LIBS_MAIL])dnl
 
+dnl# m4-quotation block number 12 begin:
+[
 ## Define MAIL_USE_FLOCK (or LOCKF) if the mailer uses flock (or lockf) to
 ## interlock access to the mail spool. The alternative is a lock file named
 ## /usr/spool/mail/${USER}.lock.
@@ -4070,6 +4075,8 @@ case "${opsys}" in
   mingw32)
     mail_lock="none-needed" ;;
 esac
+]
+dnl# m4-quotation block number 12 end
 
 BLESSMAIL_TARGET=""
 case "${mail_lock}" in
@@ -4094,7 +4101,11 @@ AC_FUNC_CHOWN
 AC_FUNC_CLOSEDIR_VOID
 dnl# ones that might be called elsewhere:
 AC_DEFUN([AC_REQUIRE_VARIOUS_FUNC_CHECKS],[
+  m4_ifdef([gl_ERROR],[
+  AC_REQUIRE([gl_ERROR])dnl
+  ],[
   AC_REQUIRE([AC_FUNC_ERROR_AT_LINE])dnl
+  ])dnl
   AC_REQUIRE([AC_FUNC_GETGROUPS])dnl
   AC_REQUIRE([AC_FUNC_GETLOADAVG])dnl
   AC_REQUIRE([AC_FUNC_GETPGRP])dnl
@@ -4141,6 +4152,10 @@ AC_CHECK_FUNCS([__fpending acl atexit btowc bzero doprnt dup2 fchdir \
 dnl# Keep autoscan happy with a dummy condition:
 if test "x" = "Y0"; then
   test -x `which autoscan`
+  if test "x${ac_cv_lib_error_at_line}" = "x" || test "x${ac_cv_lib_error_at_line}" = "xno"; then
+    test -z "${ac_cv_lib_error_at_line}"
+    AC_FUNC_ERROR_AT_LINE
+  fi
   AC_CHECK_FUNCS([alarm gethostbyname getpagesize gettimeofday \
                   localtime_r strtoumax tzset])
 fi
@@ -5101,7 +5116,7 @@ else
 fi      dnl# GCC?
 
 dnl# In a weird quirk, MS runtime uses _setjmp and longjmp.
-dnl# "_ONCE" causes test to be done at wrong location
+dnl# adding "_ONCE" to macro causes test to be done at wrong location:
 AC_CHECK_HEADERS([setjmp.h])
 AC_CACHE_CHECK([for _setjmp],[emacs_cv_func__setjmp],
   [AC_LINK_IFELSE(
@@ -5223,7 +5238,7 @@ case ${opsys} in
     ;;
 esac
 
-dnl# "_ONCE" causes test to be done at wrong location
+dnl# adding "_ONCE" to macro causes test to be done at wrong location:
 AC_CHECK_HEADERS([sys/filio.h])
 AC_CACHE_CHECK([for usable FIONREAD],[emacs_cv_usable_FIONREAD],
   [case ${opsys} in
@@ -5562,6 +5577,8 @@ CFLAGS="${SAVE_CFLAGS}"
 LIBS="${SAVE_LIBS}"
 
 AC_PATH_PROGS([UNIQ_BIN],[uniq guniq],[])
+dnl# m4-quotation block 13 begin (or 14 if you are superstitious):
+[
 ## uniq the stuff in LIBS:
 f=""
 for i in ${LIBS}; do
@@ -5641,6 +5658,8 @@ if test "x${ac_enable_profiling}" != "x"; then
 fi
 
 LD_SWITCH_SYSTEM_TEMACS="${LDFLAGS_NOCOMBRELOC} ${LD_SWITCH_SYSTEM_TEMACS}"
+]
+dnl# m4-quotation block 13 (or 14) end
 
 AC_SUBST([LD_SWITCH_SYSTEM_TEMACS])dnl
 
@@ -5671,7 +5690,7 @@ fi
 AC_SUBST([WINDOW_SYSTEM_OBJ])dnl
 
 AH_TOP([
-/* GNU Emacs site configuration template file.
+/* src/config.h: GNU Emacs site configuration template file.
  *
  * Copyright (C) 1988, 1993-1994, 1999-2002, 2004-2014
  *  Free Software Foundation, Inc.

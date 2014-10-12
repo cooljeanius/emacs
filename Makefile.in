@@ -941,7 +941,7 @@ extraclean:
 	for i in ${SUBDIR}; do (cd $$i; $(MAKE) $(MFLAGS) extraclean); done
 	${top_maintainer_clean}
 	-rm -f config-tmp-*
-	-rm -f *~ \#*
+	-rm -f *~ build-aux/*~ build-aux/snippet/*~ m4/*~ \#*
 
 # The src subdir knows how to do the right thing
 # even when the build directory and source dir are different.

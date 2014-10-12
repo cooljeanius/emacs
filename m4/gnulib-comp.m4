@@ -105,6 +105,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module openat-h:
   # Code from module pathmax:
   # Code from module pipe2:
+  # Code from module progname:
   # Code from module pselect:
   # Code from module pthread_sigmask:
   # Code from module putenv:
@@ -327,6 +328,8 @@ AC_DEFUN([gl_INIT],
   dnl Note: AC_FUNC_OBSTACK does AC_LIBSOURCES([obstack.h, obstack.c]).
   gl_FUNC_PIPE2
   gl_UNISTD_MODULE_INDICATOR([pipe2])
+  AC_CHECK_DECLS([program_invocation_name], [], [], [#include <errno.h>])
+  AC_CHECK_DECLS([program_invocation_short_name], [], [], [#include <errno.h>])
   gl_FUNC_PSELECT
   if test $HAVE_PSELECT = 0 || test $REPLACE_PSELECT = 1; then
     AC_LIBOBJ([pselect])
@@ -945,6 +948,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/openat.h
   lib/pathmax.h
   lib/pipe2.c
+  lib/progname.c
+  lib/progname.h
   lib/pselect.c
   lib/pthread_sigmask.c
   lib/putenv.c

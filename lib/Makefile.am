@@ -22,3 +22,7 @@ include gnulib.mk
 
 libgnu_a_SOURCES += openat-die.c save-cwd.c
 endif
+
+extraclean: maintainer-clean
+	-rm -f *~ \#*
+.PHONY: extraclean
