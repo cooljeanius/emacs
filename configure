@@ -659,12 +659,18 @@ gl_GNULIB_ENABLED_dbb57f49352be8fb86869629a254fb72_FALSE
 gl_GNULIB_ENABLED_dbb57f49352be8fb86869629a254fb72_TRUE
 gl_GNULIB_ENABLED_strerror_FALSE
 gl_GNULIB_ENABLED_strerror_TRUE
+gl_GNULIB_ENABLED_strchrnul_FALSE
+gl_GNULIB_ENABLED_strchrnul_TRUE
 gl_GNULIB_ENABLED_stat_FALSE
 gl_GNULIB_ENABLED_stat_TRUE
 gl_GNULIB_ENABLED_secure_getenv_FALSE
 gl_GNULIB_ENABLED_secure_getenv_TRUE
 gl_GNULIB_ENABLED_6099e9737f757db36c47fa9d9f02e88c_FALSE
 gl_GNULIB_ENABLED_6099e9737f757db36c47fa9d9f02e88c_TRUE
+gl_GNULIB_ENABLED_rawmemchr_FALSE
+gl_GNULIB_ENABLED_rawmemchr_TRUE
+gl_GNULIB_ENABLED_332607f759618fb73dfc3076748afea7_FALSE
+gl_GNULIB_ENABLED_332607f759618fb73dfc3076748afea7_TRUE
 gl_GNULIB_ENABLED_pathmax_FALSE
 gl_GNULIB_ENABLED_pathmax_TRUE
 gl_GNULIB_ENABLED_03e0aaad4cb89ca757653bd367a6ccb7_FALSE
@@ -810,8 +816,18 @@ GL_GENERATE_STDARG_H_TRUE
 STDARG_H
 NEXT_AS_FIRST_DIRECTIVE_STDARG_H
 NEXT_STDARG_H
+HAVE_SPAWN_H
+NEXT_AS_FIRST_DIRECTIVE_SPAWN_H
+NEXT_SPAWN_H
 NEXT_AS_FIRST_DIRECTIVE_SIGNAL_H
 NEXT_SIGNAL_H
+GL_GENERATE_SCHED_H_FALSE
+GL_GENERATE_SCHED_H_TRUE
+SCHED_H
+HAVE_STRUCT_SCHED_PARAM
+HAVE_SCHED_H
+NEXT_AS_FIRST_DIRECTIVE_SCHED_H
+NEXT_SCHED_H
 USE_ACL
 LIB_ACL
 LIB_PTHREAD_SIGMASK
@@ -839,6 +855,35 @@ REPLACE_PSELECT
 HAVE_PSELECT
 GNULIB_SELECT
 GNULIB_PSELECT
+LIB_POSIX_SPAWN
+REPLACE_POSIX_SPAWN_FILE_ACTIONS_ADDOPEN
+REPLACE_POSIX_SPAWN_FILE_ACTIONS_ADDDUP2
+REPLACE_POSIX_SPAWN_FILE_ACTIONS_ADDCLOSE
+REPLACE_POSIX_SPAWN
+HAVE_POSIX_SPAWN_FILE_ACTIONS_T
+HAVE_POSIX_SPAWNATTR_T
+HAVE_POSIX_SPAWN
+GNULIB_POSIX_SPAWNATTR_DESTROY
+GNULIB_POSIX_SPAWNATTR_SETSIGMASK
+GNULIB_POSIX_SPAWNATTR_GETSIGMASK
+GNULIB_POSIX_SPAWNATTR_SETSIGDEFAULT
+GNULIB_POSIX_SPAWNATTR_GETSIGDEFAULT
+GNULIB_POSIX_SPAWNATTR_SETSCHEDPOLICY
+GNULIB_POSIX_SPAWNATTR_GETSCHEDPOLICY
+GNULIB_POSIX_SPAWNATTR_SETSCHEDPARAM
+GNULIB_POSIX_SPAWNATTR_GETSCHEDPARAM
+GNULIB_POSIX_SPAWNATTR_SETPGROUP
+GNULIB_POSIX_SPAWNATTR_GETPGROUP
+GNULIB_POSIX_SPAWNATTR_SETFLAGS
+GNULIB_POSIX_SPAWNATTR_GETFLAGS
+GNULIB_POSIX_SPAWNATTR_INIT
+GNULIB_POSIX_SPAWN_FILE_ACTIONS_DESTROY
+GNULIB_POSIX_SPAWN_FILE_ACTIONS_ADDOPEN
+GNULIB_POSIX_SPAWN_FILE_ACTIONS_ADDDUP2
+GNULIB_POSIX_SPAWN_FILE_ACTIONS_ADDCLOSE
+GNULIB_POSIX_SPAWN_FILE_ACTIONS_INIT
+GNULIB_POSIX_SPAWNP
+GNULIB_POSIX_SPAWN
 UNDEFINE_STRTOK_R
 REPLACE_STRTOK_R
 REPLACE_STRSIGNAL
@@ -930,6 +975,8 @@ GNULIB_STRTOUMAX
 GNULIB_STRTOIMAX
 GNULIB_IMAXDIV
 GNULIB_IMAXABS
+GNU_MAKE_FALSE
+GNU_MAKE_TRUE
 HAVE_WINSOCK2_H
 NEXT_AS_FIRST_DIRECTIVE_SYS_TIME_H
 NEXT_SYS_TIME_H
@@ -3969,6 +4016,8 @@ as_fn_append ac_func_list " pselect"
 as_fn_append ac_func_list " pthread_sigmask"
 as_fn_append ac_func_list " fchmod"
 as_fn_append ac_func_list " readlink"
+as_fn_append ac_header_list " sched.h"
+as_fn_append ac_header_list " spawn.h"
 as_fn_append ac_func_list " strtoimax"
 as_fn_append ac_func_list " strtoumax"
 as_fn_append ac_func_list " symlink"
@@ -9402,6 +9451,9 @@ esac
   # Code from module gettext-h:
   # Code from module gettime:
   # Code from module gettimeofday:
+  # Code from module git-version-gen:
+  # Code from module gitlog-to-changelog:
+  # Code from module gnu-make:
   # Code from module group-member:
   # Code from module include_next:
   # Code from module intprops:
@@ -9420,14 +9472,18 @@ esac
   # Code from module openat-h:
   # Code from module pathmax:
   # Code from module pipe2:
+  # Code from module posix_spawn-internal:
+  # Code from module posix_spawnp:
   # Code from module progname:
   # Code from module pselect:
   # Code from module pthread_sigmask:
   # Code from module putenv:
   # Code from module qacl:
+  # Code from module rawmemchr:
   # Code from module readlink:
   # Code from module readlinkat:
   # Code from module root-uid:
+  # Code from module sched:
   # Code from module secure_getenv:
   # Code from module sig2str:
   # Code from module signal-h:
@@ -9436,6 +9492,7 @@ esac
   # Code from module snippet/c++defs:
   # Code from module snippet/warn-on-use:
   # Code from module socklen:
+  # Code from module spawn:
   # Code from module ssize_t:
   # Code from module stat:
   # Code from module stat-time:
@@ -9449,6 +9506,7 @@ esac
   # Code from module stdint:
   # Code from module stdio:
   # Code from module stdlib:
+  # Code from module strchrnul:
   # Code from module strerror:
   # Code from module strerror-override:
   # Code from module strftime:
@@ -26357,10 +26415,11 @@ done
 
 for ac_func in __fpending acl atexit btowc bzero doprnt dup2 fchdir \
                 floor ftime ftruncate getcwd getpass inet_ntoa isascii \
-                mbrlen memchr memmove memset mkdir munmap nl_langinfo pow \
-                putenv re_comp regcomp rmdir setenv socket sqrt \
-                strcasecmp strchr strcspn strdup strerror strpbrk \
-                strrchr strstr strtol strtoul uname utime utmpname
+                mbrlen memchr memmove memset mkdir munmap nl_langinfo \
+                posix_spawnp pow putenv re_comp regcomp rmdir \
+                setenv socket sqrt strcasecmp strchr strcspn strdup \
+                strerror strpbrk strrchr strstr strtol strtoul \
+                uname utime utmpname
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -33545,6 +33604,524 @@ _ACEOF
 
 
 
+  GNULIB_POSIX_SPAWN=0;
+  GNULIB_POSIX_SPAWNP=0;
+  GNULIB_POSIX_SPAWN_FILE_ACTIONS_INIT=0;
+  GNULIB_POSIX_SPAWN_FILE_ACTIONS_ADDCLOSE=0;
+  GNULIB_POSIX_SPAWN_FILE_ACTIONS_ADDDUP2=0;
+  GNULIB_POSIX_SPAWN_FILE_ACTIONS_ADDOPEN=0;
+  GNULIB_POSIX_SPAWN_FILE_ACTIONS_DESTROY=0;
+  GNULIB_POSIX_SPAWNATTR_INIT=0;
+  GNULIB_POSIX_SPAWNATTR_GETFLAGS=0;
+  GNULIB_POSIX_SPAWNATTR_SETFLAGS=0;
+  GNULIB_POSIX_SPAWNATTR_GETPGROUP=0;
+  GNULIB_POSIX_SPAWNATTR_SETPGROUP=0;
+  GNULIB_POSIX_SPAWNATTR_GETSCHEDPARAM=0;
+  GNULIB_POSIX_SPAWNATTR_SETSCHEDPARAM=0;
+  GNULIB_POSIX_SPAWNATTR_GETSCHEDPOLICY=0;
+  GNULIB_POSIX_SPAWNATTR_SETSCHEDPOLICY=0;
+  GNULIB_POSIX_SPAWNATTR_GETSIGDEFAULT=0;
+  GNULIB_POSIX_SPAWNATTR_SETSIGDEFAULT=0;
+  GNULIB_POSIX_SPAWNATTR_GETSIGMASK=0;
+  GNULIB_POSIX_SPAWNATTR_SETSIGMASK=0;
+  GNULIB_POSIX_SPAWNATTR_DESTROY=0;
+    HAVE_POSIX_SPAWN=1;
+  HAVE_POSIX_SPAWNATTR_T=1;
+  HAVE_POSIX_SPAWN_FILE_ACTIONS_T=1;
+
+  REPLACE_POSIX_SPAWN=0;
+  REPLACE_POSIX_SPAWN_FILE_ACTIONS_ADDCLOSE=0;
+
+  REPLACE_POSIX_SPAWN_FILE_ACTIONS_ADDDUP2=0;
+
+  REPLACE_POSIX_SPAWN_FILE_ACTIONS_ADDOPEN=0;
+
+
+
+
+
+  LIB_POSIX_SPAWN=
+
+  gl_saved_libs=$LIBS
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing posix_spawn" >&5
+$as_echo_n "checking for library containing posix_spawn... " >&6; }
+if ${ac_cv_search_posix_spawn+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_func_search_save_LIBS=$LIBS
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char posix_spawn ();
+int
+main ()
+{
+return posix_spawn ();
+  ;
+  return 0;
+}
+_ACEOF
+for ac_lib in '' rt; do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
+  fi
+  if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_search_posix_spawn=$ac_res
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext
+  if ${ac_cv_search_posix_spawn+:} false; then :
+  break
+fi
+done
+if ${ac_cv_search_posix_spawn+:} false; then :
+
+else
+  ac_cv_search_posix_spawn=no
+fi
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_posix_spawn" >&5
+$as_echo "$ac_cv_search_posix_spawn" >&6; }
+ac_res=$ac_cv_search_posix_spawn
+if test "$ac_res" != no; then :
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
+  test "$ac_cv_search_posix_spawn" = "none required" ||
+                    LIB_POSIX_SPAWN=$ac_cv_search_posix_spawn
+fi
+
+    for ac_func in posix_spawn
+do :
+  ac_fn_c_check_func "$LINENO" "posix_spawn" "ac_cv_func_posix_spawn"
+if test "x$ac_cv_func_posix_spawn" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_POSIX_SPAWN 1
+_ACEOF
+
+fi
+done
+
+  LIBS=$gl_saved_libs
+
+  if test $ac_cv_func_posix_spawn != yes; then
+    HAVE_POSIX_SPAWN=0
+  fi
+
+
+
+
+                                      if test $ac_cv_func_posix_spawn = yes; then
+
+
+     { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether posix_spawn works" >&5
+$as_echo_n "checking whether posix_spawn works... " >&6; }
+if ${gl_cv_func_posix_spawn_works+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test $cross_compiling = no; then
+       cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <errno.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <spawn.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+extern char **environ;
+
+#ifndef STDIN_FILENO
+# define STDIN_FILENO 0
+#endif
+#ifndef STDOUT_FILENO
+# define STDOUT_FILENO 1
+#endif
+#ifndef STDERR_FILENO
+# define STDERR_FILENO 2
+#endif
+
+#ifndef WTERMSIG
+# define WTERMSIG(x) ((x) & 0x7f)
+#endif
+#ifndef WIFEXITED
+# define WIFEXITED(x) (WTERMSIG (x) == 0)
+#endif
+#ifndef WEXITSTATUS
+# define WEXITSTATUS(x) (((x) >> 8) & 0xff)
+#endif
+
+#define CHILD_PROGRAM_FILENAME "/non/exist/ent"
+
+static int
+fd_safer (int fd)
+{
+  if (0 <= fd && fd <= 2)
+    {
+      int f = fd_safer (dup (fd));
+      int e = errno;
+      close (fd);
+      errno = e;
+      fd = f;
+    }
+
+  return fd;
+}
+
+int
+main ()
+{
+  char *argv[2] = { CHILD_PROGRAM_FILENAME, NULL };
+  int ofd[2];
+  sigset_t blocked_signals;
+  sigset_t fatal_signal_set;
+  posix_spawn_file_actions_t actions;
+  bool actions_allocated;
+  posix_spawnattr_t attrs;
+  bool attrs_allocated;
+  int err;
+  pid_t child;
+  int status;
+  int exitstatus;
+
+  setvbuf (stdout, NULL, _IOFBF, 0);
+  puts ("This should be seen only once.");
+  if (pipe (ofd) < 0 || (ofd[1] = fd_safer (ofd[1])) < 0)
+    {
+      perror ("cannot create pipe");
+      exit (1);
+    }
+  sigprocmask (SIG_SETMASK, NULL, &blocked_signals);
+  sigemptyset (&fatal_signal_set);
+  sigaddset (&fatal_signal_set, SIGINT);
+  sigaddset (&fatal_signal_set, SIGTERM);
+  sigaddset (&fatal_signal_set, SIGHUP);
+  sigaddset (&fatal_signal_set, SIGPIPE);
+  sigprocmask (SIG_BLOCK, &fatal_signal_set, NULL);
+  actions_allocated = false;
+  attrs_allocated = false;
+  if ((err = posix_spawn_file_actions_init (&actions)) != 0
+      || (actions_allocated = true,
+          (err = posix_spawn_file_actions_adddup2 (&actions, ofd[0], STDIN_FILENO)) != 0
+          || (err = posix_spawn_file_actions_addclose (&actions, ofd[0])) != 0
+          || (err = posix_spawn_file_actions_addclose (&actions, ofd[1])) != 0
+          || (err = posix_spawnattr_init (&attrs)) != 0
+          || (attrs_allocated = true,
+              (err = posix_spawnattr_setsigmask (&attrs, &blocked_signals)) != 0
+              || (err = posix_spawnattr_setflags (&attrs, POSIX_SPAWN_SETSIGMASK)) != 0)
+          || (err = posix_spawnp (&child, CHILD_PROGRAM_FILENAME, &actions, &attrs, argv, environ)) != 0))
+    {
+      if (actions_allocated)
+        posix_spawn_file_actions_destroy (&actions);
+      if (attrs_allocated)
+        posix_spawnattr_destroy (&attrs);
+      sigprocmask (SIG_UNBLOCK, &fatal_signal_set, NULL);
+      if (err == ENOENT)
+        return 0;
+      else
+        {
+          errno = err;
+          perror ("subprocess failed");
+          exit (1);
+        }
+    }
+  posix_spawn_file_actions_destroy (&actions);
+  posix_spawnattr_destroy (&attrs);
+  sigprocmask (SIG_UNBLOCK, &fatal_signal_set, NULL);
+  close (ofd[0]);
+  close (ofd[1]);
+  status = 0;
+  while (waitpid (child, &status, 0) != child)
+    ;
+  if (!WIFEXITED (status))
+    {
+      fprintf (stderr, "subprocess terminated with unexpected wait status %d\n", status);
+      exit (1);
+    }
+  exitstatus = WEXITSTATUS (status);
+  if (exitstatus != 127)
+    {
+      fprintf (stderr, "subprocess terminated with unexpected exit status %d\n", exitstatus);
+      exit (1);
+    }
+  return 0;
+}
+
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  if test -s conftest$ac_exeext \
+             && ./conftest$ac_exeext > conftest.out \
+             && echo 'This should be seen only once.' > conftest.ok \
+             && cmp conftest.out conftest.ok > /dev/null; then
+            gl_cv_func_posix_spawn_works=yes
+          else
+            gl_cv_func_posix_spawn_works=no
+          fi
+else
+  gl_cv_func_posix_spawn_works=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+       if test $gl_cv_func_posix_spawn_works = yes; then
+         if test "$cross_compiling" = yes; then :
+  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "cannot run test program while cross compiling
+See \`config.log' for more details" "$LINENO" 5; }
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Test whether posix_spawn_file_actions_addopen supports filename arguments
+   that contain special characters such as '*'.  */
+
+#include <errno.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <spawn.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+extern char **environ;
+
+#ifndef STDIN_FILENO
+# define STDIN_FILENO 0
+#endif
+#ifndef STDOUT_FILENO
+# define STDOUT_FILENO 1
+#endif
+#ifndef STDERR_FILENO
+# define STDERR_FILENO 2
+#endif
+
+#ifndef WTERMSIG
+# define WTERMSIG(x) ((x) & 0x7f)
+#endif
+#ifndef WIFEXITED
+# define WIFEXITED(x) (WTERMSIG (x) == 0)
+#endif
+#ifndef WEXITSTATUS
+# define WEXITSTATUS(x) (((x) >> 8) & 0xff)
+#endif
+
+#define CHILD_PROGRAM_FILENAME "conftest"
+#define DATA_FILENAME "conftest%=*#?"
+
+static int
+parent_main (void)
+{
+  FILE *fp;
+  char *argv[3] = { CHILD_PROGRAM_FILENAME, "-child", NULL };
+  posix_spawn_file_actions_t actions;
+  bool actions_allocated;
+  int err;
+  pid_t child;
+  int status;
+  int exitstatus;
+
+  /* Create a data file with specific contents.  */
+  fp = fopen (DATA_FILENAME, "wb");
+  if (fp == NULL)
+    {
+      perror ("cannot create data file");
+      return 1;
+    }
+  fwrite ("Halle Potta", 1, 11, fp);
+  if (fflush (fp) || fclose (fp))
+    {
+      perror ("cannot prepare data file");
+      return 2;
+    }
+
+  /* Avoid reading from our stdin, as it could block.  */
+  freopen ("/dev/null", "rb", stdin);
+
+  /* Test whether posix_spawn_file_actions_addopen with this file name
+     actually works, but spawning a child that reads from this file.  */
+  actions_allocated = false;
+  if ((err = posix_spawn_file_actions_init (&actions)) != 0
+      || (actions_allocated = true,
+          (err = posix_spawn_file_actions_addopen (&actions, STDIN_FILENO, DATA_FILENAME, O_RDONLY, 0600)) != 0
+          || (err = posix_spawn (&child, CHILD_PROGRAM_FILENAME, &actions, NULL, argv, environ)) != 0))
+    {
+      if (actions_allocated)
+        posix_spawn_file_actions_destroy (&actions);
+      errno = err;
+      perror ("subprocess failed");
+      return 3;
+    }
+  posix_spawn_file_actions_destroy (&actions);
+  status = 0;
+  while (waitpid (child, &status, 0) != child)
+    ;
+  if (!WIFEXITED (status))
+    {
+      fprintf (stderr, "subprocess terminated with unexpected wait status %d\n", status);
+      return 4;
+    }
+  exitstatus = WEXITSTATUS (status);
+  if (exitstatus != 0)
+    {
+      fprintf (stderr, "subprocess terminated with unexpected exit status %d\n", exitstatus);
+      return 5;
+    }
+  return 0;
+}
+
+static int
+child_main (void)
+{
+  char buf[1024];
+
+  /* See if reading from STDIN_FILENO yields the expected contents.  */
+  if (fread (buf, 1, sizeof (buf), stdin) == 11
+      && memcmp (buf, "Halle Potta", 11) == 0)
+    return 0;
+  else
+    return 8;
+}
+
+static void
+cleanup_then_die (int sig)
+{
+  /* Clean up data file.  */
+  unlink (DATA_FILENAME);
+
+  /* Re-raise the signal and die from it.  */
+  signal (sig, SIG_DFL);
+  raise (sig);
+}
+
+int
+main (int argc, char *argv[])
+{
+  int exitstatus;
+
+  if (!(argc > 1 && strcmp (argv[1], "-child") == 0))
+    {
+      /* This is the parent process.  */
+      signal (SIGINT, cleanup_then_die);
+      signal (SIGTERM, cleanup_then_die);
+      #ifdef SIGHUP
+      signal (SIGHUP, cleanup_then_die);
+      #endif
+
+      exitstatus = parent_main ();
+    }
+  else
+    {
+      /* This is the child process.  */
+
+      exitstatus = child_main ();
+    }
+  unlink (DATA_FILENAME);
+  return exitstatus;
+}
+
+_ACEOF
+if ac_fn_c_try_run "$LINENO"; then :
+
+else
+  gl_cv_func_posix_spawn_works=no
+fi
+rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
+  conftest.$ac_objext conftest.beam conftest.$ac_ext
+fi
+
+       fi
+     else
+       case "$host_os" in
+         aix*) gl_cv_func_posix_spawn_works="guessing no";;
+         *)    gl_cv_func_posix_spawn_works="guessing yes";;
+       esac
+     fi
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_func_posix_spawn_works" >&5
+$as_echo "$gl_cv_func_posix_spawn_works" >&6; }
+
+    case "$gl_cv_func_posix_spawn_works" in
+      *yes)
+
+$as_echo "#define HAVE_WORKING_POSIX_SPAWN 1" >>confdefs.h
+
+                                        { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether posix_spawnattr_setschedpolicy is supported" >&5
+$as_echo_n "checking whether posix_spawnattr_setschedpolicy is supported... " >&6; }
+if ${gl_cv_func_spawnattr_setschedpolicy+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <spawn.h>
+#if POSIX_SPAWN_SETSCHEDULER
+ POSIX scheduling supported
+#endif
+
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "POSIX scheduling supported" >/dev/null 2>&1; then :
+  gl_cv_func_spawnattr_setschedpolicy=yes
+else
+  gl_cv_func_spawnattr_setschedpolicy=no
+fi
+rm -f conftest*
+
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_func_spawnattr_setschedpolicy" >&5
+$as_echo "$gl_cv_func_spawnattr_setschedpolicy" >&6; }
+                                        { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether posix_spawnattr_setschedparam is supported" >&5
+$as_echo_n "checking whether posix_spawnattr_setschedparam is supported... " >&6; }
+if ${gl_cv_func_spawnattr_setschedparam+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <spawn.h>
+#if POSIX_SPAWN_SETSCHEDPARAM
+ POSIX scheduling supported
+#endif
+
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "POSIX scheduling supported" >/dev/null 2>&1; then :
+  gl_cv_func_spawnattr_setschedparam=yes
+else
+  gl_cv_func_spawnattr_setschedparam=no
+fi
+rm -f conftest*
+
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_func_spawnattr_setschedparam" >&5
+$as_echo "$gl_cv_func_spawnattr_setschedparam" >&6; }
+        ;;
+      *) REPLACE_POSIX_SPAWN=1 ;;
+    esac
+  fi
+
+
   GNULIB_PSELECT=0;
   GNULIB_SELECT=0;
     HAVE_PSELECT=1;
@@ -33781,6 +34358,8 @@ done
 
 
 
+
+
   ac_fn_c_check_type "$LINENO" "sigset_t" "ac_cv_type_sigset_t" "
       #include <signal.h>
       /* Mingw defines sigset_t not in <signal.h>, but in <sys/types.h>.  */
@@ -33801,6 +34380,8 @@ fi
   if test $gl_cv_type_sigset_t != yes; then
     HAVE_SIGSET_T=0
   fi
+
+
 
 
     REPLACE_NULL=0;
@@ -36662,6 +37243,16 @@ done
 
 
 
+   if ${MAKE-make} --version /cannot/make/this >/dev/null 2>&1; then
+  GNU_MAKE_TRUE=
+  GNU_MAKE_FALSE='#'
+else
+  GNU_MAKE_TRUE='#'
+  GNU_MAKE_FALSE=
+fi
+
+
+
 
 
 
@@ -37129,6 +37720,68 @@ fi
 
 
           GNULIB_PIPE2=1
+
+
+
+
+
+
+
+
+  if test $HAVE_POSIX_SPAWN = 0 || test $REPLACE_POSIX_SPAWN = 1; then
+
+
+
+
+
+
+
+
+  gl_LIBOBJS="$gl_LIBOBJS spawnp.$ac_objext"
+
+
+
+
+
+
+
+
+
+  gl_LIBOBJS="$gl_LIBOBJS spawni.$ac_objext"
+
+
+  for ac_header in paths.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "paths.h" "ac_cv_header_paths_h" "$ac_includes_default"
+if test "x$ac_cv_header_paths_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_PATHS_H 1
+_ACEOF
+
+fi
+
+done
+
+  for ac_func in confstr sched_setparam sched_setscheduler setegid seteuid vfork
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
+
+
+  fi
+
+
+
+
+
+          GNULIB_POSIX_SPAWNP=1
 
 
 
@@ -38263,6 +38916,138 @@ $as_echo "#define READLINK_TRAILING_SLASH_BUG 1" >>confdefs.h
 
 
 
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+       #include <sched.h>
+       struct sched_param a;
+       int b[] = { SCHED_FIFO, SCHED_RR, SCHED_OTHER };
+       pid_t t1;
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  SCHED_H=''
+else
+  SCHED_H='sched.h'
+
+
+
+
+
+
+
+
+
+
+     if test $gl_cv_have_include_next = yes; then
+       gl_cv_next_sched_h='<'sched.h'>'
+     else
+       { $as_echo "$as_me:${as_lineno-$LINENO}: checking absolute name of <sched.h>" >&5
+$as_echo_n "checking absolute name of <sched.h>... " >&6; }
+if ${gl_cv_next_sched_h+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+             if test $ac_cv_header_sched_h = yes; then
+
+
+
+
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <sched.h>
+_ACEOF
+                case "$host_os" in
+    aix*) gl_absname_cpp="$ac_cpp -C" ;;
+    *)    gl_absname_cpp="$ac_cpp" ;;
+  esac
+
+  case "$host_os" in
+    mingw*)
+                                          gl_dirsep_regex='[/\\]'
+      ;;
+    *)
+      gl_dirsep_regex='\/'
+      ;;
+  esac
+      gl_make_literal_regex_sed='s,[]$^\\.*/[],\\&,g'
+  gl_header_literal_regex=`echo 'sched.h' \
+                           | sed -e "$gl_make_literal_regex_sed"`
+  gl_absolute_header_sed="/${gl_dirsep_regex}${gl_header_literal_regex}/"'{
+      s/.*"\(.*'"${gl_dirsep_regex}${gl_header_literal_regex}"'\)".*/\1/
+      s|^/[^/]|//&|
+      p
+      q
+    }'
+
+        gl_cv_absolute_sched_h=`(eval "$gl_absname_cpp conftest.$ac_ext") 2>&5 |
+  sed -n "$gl_absolute_header_sed"`
+
+           gl_header=$gl_cv_absolute_sched_h
+           gl_cv_next_sched_h='"'$gl_header'"'
+          else
+               gl_cv_next_sched_h='<'sched.h'>'
+             fi
+
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_next_sched_h" >&5
+$as_echo "$gl_cv_next_sched_h" >&6; }
+     fi
+     NEXT_SCHED_H=$gl_cv_next_sched_h
+
+     if test $gl_cv_have_include_next = yes || test $gl_cv_have_include_next = buggy; then
+       # INCLUDE_NEXT_AS_FIRST_DIRECTIVE='include_next'
+       gl_next_as_first_directive='<'sched.h'>'
+     else
+       # INCLUDE_NEXT_AS_FIRST_DIRECTIVE='include'
+       gl_next_as_first_directive=$gl_cv_next_sched_h
+     fi
+     NEXT_AS_FIRST_DIRECTIVE_SCHED_H=$gl_next_as_first_directive
+
+
+
+
+
+     if test $ac_cv_header_sched_h = yes; then
+       HAVE_SCHED_H=1
+     else
+       HAVE_SCHED_H=0
+     fi
+
+
+     ac_fn_c_check_type "$LINENO" "struct sched_param" "ac_cv_type_struct_sched_param" "#include <sched.h>
+"
+if test "x$ac_cv_type_struct_sched_param" = xyes; then :
+  HAVE_STRUCT_SCHED_PARAM=1
+else
+  HAVE_STRUCT_SCHED_PARAM=0
+fi
+
+
+
+
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+   if test -n "$SCHED_H"; then
+  GL_GENERATE_SCHED_H_TRUE=
+  GL_GENERATE_SCHED_H_FALSE='#'
+else
+  GL_GENERATE_SCHED_H_TRUE='#'
+  GL_GENERATE_SCHED_H_FALSE=
+fi
+
+
+
   for ac_func in sig2str
 do :
   ac_fn_c_check_func "$LINENO" "sig2str" "ac_cv_func_sig2str"
@@ -38458,6 +39243,137 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 fi
+
+
+
+
+
+
+
+
+
+
+
+
+
+     if test $gl_cv_have_include_next = yes; then
+       gl_cv_next_spawn_h='<'spawn.h'>'
+     else
+       { $as_echo "$as_me:${as_lineno-$LINENO}: checking absolute name of <spawn.h>" >&5
+$as_echo_n "checking absolute name of <spawn.h>... " >&6; }
+if ${gl_cv_next_spawn_h+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+             if test $ac_cv_header_spawn_h = yes; then
+
+
+
+
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <spawn.h>
+_ACEOF
+                case "$host_os" in
+    aix*) gl_absname_cpp="$ac_cpp -C" ;;
+    *)    gl_absname_cpp="$ac_cpp" ;;
+  esac
+
+  case "$host_os" in
+    mingw*)
+                                          gl_dirsep_regex='[/\\]'
+      ;;
+    *)
+      gl_dirsep_regex='\/'
+      ;;
+  esac
+      gl_make_literal_regex_sed='s,[]$^\\.*/[],\\&,g'
+  gl_header_literal_regex=`echo 'spawn.h' \
+                           | sed -e "$gl_make_literal_regex_sed"`
+  gl_absolute_header_sed="/${gl_dirsep_regex}${gl_header_literal_regex}/"'{
+      s/.*"\(.*'"${gl_dirsep_regex}${gl_header_literal_regex}"'\)".*/\1/
+      s|^/[^/]|//&|
+      p
+      q
+    }'
+
+        gl_cv_absolute_spawn_h=`(eval "$gl_absname_cpp conftest.$ac_ext") 2>&5 |
+  sed -n "$gl_absolute_header_sed"`
+
+           gl_header=$gl_cv_absolute_spawn_h
+           gl_cv_next_spawn_h='"'$gl_header'"'
+          else
+               gl_cv_next_spawn_h='<'spawn.h'>'
+             fi
+
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_next_spawn_h" >&5
+$as_echo "$gl_cv_next_spawn_h" >&6; }
+     fi
+     NEXT_SPAWN_H=$gl_cv_next_spawn_h
+
+     if test $gl_cv_have_include_next = yes || test $gl_cv_have_include_next = buggy; then
+       # INCLUDE_NEXT_AS_FIRST_DIRECTIVE='include_next'
+       gl_next_as_first_directive='<'spawn.h'>'
+     else
+       # INCLUDE_NEXT_AS_FIRST_DIRECTIVE='include'
+       gl_next_as_first_directive=$gl_cv_next_spawn_h
+     fi
+     NEXT_AS_FIRST_DIRECTIVE_SPAWN_H=$gl_next_as_first_directive
+
+
+
+
+
+  if test $ac_cv_header_spawn_h = yes; then
+    HAVE_SPAWN_H=1
+    ac_fn_c_check_type "$LINENO" "posix_spawnattr_t" "ac_cv_type_posix_spawnattr_t" "
+#include <spawn.h>
+
+"
+if test "x$ac_cv_type_posix_spawnattr_t" = xyes; then :
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_POSIX_SPAWNATTR_T 1
+_ACEOF
+
+
+else
+  HAVE_POSIX_SPAWNATTR_T=0
+fi
+
+    ac_fn_c_check_type "$LINENO" "posix_spawn_file_actions_t" "ac_cv_type_posix_spawn_file_actions_t" "
+#include <spawn.h>
+
+"
+if test "x$ac_cv_type_posix_spawn_file_actions_t" = xyes; then :
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_POSIX_SPAWN_FILE_ACTIONS_T 1
+_ACEOF
+
+
+else
+  HAVE_POSIX_SPAWN_FILE_ACTIONS_T=0
+fi
+
+  else
+    HAVE_SPAWN_H=0
+    HAVE_POSIX_SPAWNATTR_T=0
+    HAVE_POSIX_SPAWN_FILE_ACTIONS_T=0
+  fi
+
+
+
+
+
+
+
+
+
+
+
 
 
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for ssize_t" >&5
@@ -40325,9 +41241,12 @@ $as_echo "#define FUTIMESAT_NULL_BUG 1" >>confdefs.h
   gl_gnulib_enabled_f691f076f650964c9f5598c3ee487616=false
   gl_gnulib_enabled_03e0aaad4cb89ca757653bd367a6ccb7=false
   gl_gnulib_enabled_pathmax=false
+  gl_gnulib_enabled_332607f759618fb73dfc3076748afea7=false
+  gl_gnulib_enabled_rawmemchr=false
   gl_gnulib_enabled_6099e9737f757db36c47fa9d9f02e88c=false
   gl_gnulib_enabled_secure_getenv=false
   gl_gnulib_enabled_stat=false
+  gl_gnulib_enabled_strchrnul=false
   gl_gnulib_enabled_strerror=false
   gl_gnulib_enabled_dbb57f49352be8fb86869629a254fb72=false
   gl_gnulib_enabled_strtoll=false
@@ -41003,6 +41922,62 @@ $as_echo "#define HAVE_MSVC_INVALID_PARAMETER_HANDLER 1" >>confdefs.h
       gl_gnulib_enabled_pathmax=true
     fi
   }
+  func_gl_gnulib_m4code_332607f759618fb73dfc3076748afea7 ()
+  {
+    if ! $gl_gnulib_enabled_332607f759618fb73dfc3076748afea7; then
+      gl_gnulib_enabled_332607f759618fb73dfc3076748afea7=true
+      func_gl_gnulib_m4code_strchrnul
+    fi
+  }
+  func_gl_gnulib_m4code_rawmemchr ()
+  {
+    if ! $gl_gnulib_enabled_rawmemchr; then
+
+
+
+
+  for ac_func in rawmemchr
+do :
+  ac_fn_c_check_func "$LINENO" "rawmemchr" "ac_cv_func_rawmemchr"
+if test "x$ac_cv_func_rawmemchr" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_RAWMEMCHR 1
+_ACEOF
+
+fi
+done
+
+  if test $ac_cv_func_rawmemchr = no; then
+    HAVE_RAWMEMCHR=0
+  fi
+
+      if test $HAVE_RAWMEMCHR = 0; then
+
+
+
+
+
+
+
+
+  gl_LIBOBJS="$gl_LIBOBJS rawmemchr.$ac_objext"
+
+        :
+      fi
+
+
+
+
+
+          GNULIB_RAWMEMCHR=1
+
+
+
+
+
+      gl_gnulib_enabled_rawmemchr=true
+    fi
+  }
   func_gl_gnulib_m4code_6099e9737f757db36c47fa9d9f02e88c ()
   {
     if ! $gl_gnulib_enabled_6099e9737f757db36c47fa9d9f02e88c; then
@@ -41210,6 +42185,120 @@ $as_echo "#define REPLACE_FUNC_STAT_FILE 1" >>confdefs.h
       fi
       if test $REPLACE_STAT = 1; then
         func_gl_gnulib_m4code_pathmax
+      fi
+    fi
+  }
+  func_gl_gnulib_m4code_strchrnul ()
+  {
+    if ! $gl_gnulib_enabled_strchrnul; then
+
+
+
+
+  for ac_func in strchrnul
+do :
+  ac_fn_c_check_func "$LINENO" "strchrnul" "ac_cv_func_strchrnul"
+if test "x$ac_cv_func_strchrnul" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_STRCHRNUL 1
+_ACEOF
+
+fi
+done
+
+  if test $ac_cv_func_strchrnul = no; then
+    HAVE_STRCHRNUL=0
+  else
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether strchrnul works" >&5
+$as_echo_n "checking whether strchrnul works... " >&6; }
+if ${gl_cv_func_strchrnul_works+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test "$cross_compiling" = yes; then :
+           cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#if defined __CYGWIN__
+ #include <cygwin/version.h>
+ #if CYGWIN_VERSION_DLL_COMBINED > CYGWIN_VERSION_DLL_MAKE_COMBINED (1007, 9)
+  Lucky user
+ #endif
+#else
+  Lucky user
+#endif
+
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "Lucky user" >/dev/null 2>&1; then :
+  gl_cv_func_strchrnul_works="guessing yes"
+else
+  gl_cv_func_strchrnul_works="guessing no"
+fi
+rm -f conftest*
+
+
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <string.h> /* for strchrnul */
+
+int
+main ()
+{
+const char *buf = "a";
+      return strchrnul (buf, 'b') != buf + 1;
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_run "$LINENO"; then :
+  gl_cv_func_strchrnul_works=yes
+else
+  gl_cv_func_strchrnul_works=no
+fi
+rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
+  conftest.$ac_objext conftest.beam conftest.$ac_ext
+fi
+
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_func_strchrnul_works" >&5
+$as_echo "$gl_cv_func_strchrnul_works" >&6; }
+    case "$gl_cv_func_strchrnul_works" in
+      *yes) ;;
+      *) REPLACE_STRCHRNUL=1 ;;
+    esac
+  fi
+
+      if test $HAVE_STRCHRNUL = 0 || test $REPLACE_STRCHRNUL = 1; then
+
+
+
+
+
+
+
+
+  gl_LIBOBJS="$gl_LIBOBJS strchrnul.$ac_objext"
+
+        :
+      fi
+
+
+
+
+
+          GNULIB_STRCHRNUL=1
+
+
+
+
+
+      gl_gnulib_enabled_strchrnul=true
+      if test $HAVE_STRCHRNUL = 0 || test $REPLACE_STRCHRNUL = 1; then
+        func_gl_gnulib_m4code_rawmemchr
       fi
     fi
   }
@@ -41522,6 +42611,9 @@ done
   if test $HAVE_MKOSTEMP = 0; then
     func_gl_gnulib_m4code_tempname
   fi
+  if test $HAVE_POSIX_SPAWN = 0 || test $REPLACE_POSIX_SPAWN = 1; then
+    func_gl_gnulib_m4code_332607f759618fb73dfc3076748afea7
+  fi
   if test $HAVE_READLINK = 0 || test $REPLACE_READLINK = 1; then
     func_gl_gnulib_m4code_stat
   fi
@@ -41613,6 +42705,22 @@ else
   gl_GNULIB_ENABLED_pathmax_FALSE=
 fi
 
+   if $gl_gnulib_enabled_332607f759618fb73dfc3076748afea7; then
+  gl_GNULIB_ENABLED_332607f759618fb73dfc3076748afea7_TRUE=
+  gl_GNULIB_ENABLED_332607f759618fb73dfc3076748afea7_FALSE='#'
+else
+  gl_GNULIB_ENABLED_332607f759618fb73dfc3076748afea7_TRUE='#'
+  gl_GNULIB_ENABLED_332607f759618fb73dfc3076748afea7_FALSE=
+fi
+
+   if $gl_gnulib_enabled_rawmemchr; then
+  gl_GNULIB_ENABLED_rawmemchr_TRUE=
+  gl_GNULIB_ENABLED_rawmemchr_FALSE='#'
+else
+  gl_GNULIB_ENABLED_rawmemchr_TRUE='#'
+  gl_GNULIB_ENABLED_rawmemchr_FALSE=
+fi
+
    if $gl_gnulib_enabled_6099e9737f757db36c47fa9d9f02e88c; then
   gl_GNULIB_ENABLED_6099e9737f757db36c47fa9d9f02e88c_TRUE=
   gl_GNULIB_ENABLED_6099e9737f757db36c47fa9d9f02e88c_FALSE='#'
@@ -41635,6 +42743,14 @@ fi
 else
   gl_GNULIB_ENABLED_stat_TRUE='#'
   gl_GNULIB_ENABLED_stat_FALSE=
+fi
+
+   if $gl_gnulib_enabled_strchrnul; then
+  gl_GNULIB_ENABLED_strchrnul_TRUE=
+  gl_GNULIB_ENABLED_strchrnul_FALSE='#'
+else
+  gl_GNULIB_ENABLED_strchrnul_TRUE='#'
+  gl_GNULIB_ENABLED_strchrnul_FALSE=
 fi
 
    if $gl_gnulib_enabled_strerror; then
@@ -42258,6 +43374,14 @@ if test -z "${GL_GENERATE_EXECINFO_H_TRUE}" && test -z "${GL_GENERATE_EXECINFO_H
   as_fn_error $? "conditional \"GL_GENERATE_EXECINFO_H\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
+if test -z "${GNU_MAKE_TRUE}" && test -z "${GNU_MAKE_FALSE}"; then
+  as_fn_error $? "conditional \"GNU_MAKE\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${GL_GENERATE_SCHED_H_TRUE}" && test -z "${GL_GENERATE_SCHED_H_FALSE}"; then
+  as_fn_error $? "conditional \"GL_GENERATE_SCHED_H\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
 if test -z "${GL_GENERATE_STDALIGN_H_TRUE}" && test -z "${GL_GENERATE_STDALIGN_H_FALSE}"; then
   as_fn_error $? "conditional \"GL_GENERATE_STDALIGN_H\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
@@ -42310,6 +43434,14 @@ if test -z "${gl_GNULIB_ENABLED_pathmax_TRUE}" && test -z "${gl_GNULIB_ENABLED_p
   as_fn_error $? "conditional \"gl_GNULIB_ENABLED_pathmax\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
+if test -z "${gl_GNULIB_ENABLED_332607f759618fb73dfc3076748afea7_TRUE}" && test -z "${gl_GNULIB_ENABLED_332607f759618fb73dfc3076748afea7_FALSE}"; then
+  as_fn_error $? "conditional \"gl_GNULIB_ENABLED_332607f759618fb73dfc3076748afea7\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${gl_GNULIB_ENABLED_rawmemchr_TRUE}" && test -z "${gl_GNULIB_ENABLED_rawmemchr_FALSE}"; then
+  as_fn_error $? "conditional \"gl_GNULIB_ENABLED_rawmemchr\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
 if test -z "${gl_GNULIB_ENABLED_6099e9737f757db36c47fa9d9f02e88c_TRUE}" && test -z "${gl_GNULIB_ENABLED_6099e9737f757db36c47fa9d9f02e88c_FALSE}"; then
   as_fn_error $? "conditional \"gl_GNULIB_ENABLED_6099e9737f757db36c47fa9d9f02e88c\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
@@ -42320,6 +43452,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${gl_GNULIB_ENABLED_stat_TRUE}" && test -z "${gl_GNULIB_ENABLED_stat_FALSE}"; then
   as_fn_error $? "conditional \"gl_GNULIB_ENABLED_stat\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${gl_GNULIB_ENABLED_strchrnul_TRUE}" && test -z "${gl_GNULIB_ENABLED_strchrnul_FALSE}"; then
+  as_fn_error $? "conditional \"gl_GNULIB_ENABLED_strchrnul\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${gl_GNULIB_ENABLED_strerror_TRUE}" && test -z "${gl_GNULIB_ENABLED_strerror_FALSE}"; then

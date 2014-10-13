@@ -27,7 +27,7 @@
 
 
 # Specification in the form of a command-line invocation:
-#   gnulib-tool --import --dir=. --lib=libgnu --source-base=lib --m4-base=m4 --doc-base=doc --tests-base=tests --aux-dir=build-aux --avoid=close --avoid=dup --avoid=fchdir --avoid=malloc-posix --avoid=msvc-nothrow --avoid=open --avoid=openat-die --avoid=opendir --avoid=raise --avoid=save-cwd --avoid=select --avoid=sigprocmask --avoid=threadlib --makefile-name=gnulib.mk --conditional-dependencies --no-libtool --macro-prefix=gl --no-vc-files alloca-opt byteswap c-ctype c-strcase careadlinkat close-stream count-one-bits count-trailing-zeros crypto/md5 crypto/sha1 crypto/sha256 crypto/sha512 dtoastr dtotimespec dup2 environ error execinfo faccessat fcntl fcntl-h fdatasync fdopendir filemode fstatat fsync getloadavg getopt-gnu gettime gettimeofday intprops largefile lstat manywarnings memrchr mkostemp mktime obstack pipe2 progname pselect pthread_sigmask putenv qacl readlink readlinkat sig2str socklen stat-time stdalign stdarg stdbool stdio strftime strtoimax strtoumax symlink sys_stat sys_time time timer-time timespec-add timespec-sub unsetenv update-copyright utimens warnings
+#   gnulib-tool --import --dir=. --lib=libgnu --source-base=lib --m4-base=m4 --doc-base=doc --tests-base=tests --aux-dir=build-aux --avoid=close --avoid=dup --avoid=fchdir --avoid=malloc-posix --avoid=msvc-nothrow --avoid=open --avoid=openat-die --avoid=opendir --avoid=raise --avoid=save-cwd --avoid=select --avoid=sigprocmask --avoid=threadlib --makefile-name=gnulib.mk --conditional-dependencies --no-libtool --macro-prefix=gl --no-vc-files alloca-opt byteswap c-ctype c-strcase careadlinkat close-stream count-one-bits count-trailing-zeros crypto/md5 crypto/sha1 crypto/sha256 crypto/sha512 dtoastr dtotimespec dup2 environ error execinfo faccessat fcntl fcntl-h fdatasync fdopendir filemode fstatat fsync getloadavg getopt-gnu gettime gettimeofday git-version-gen gitlog-to-changelog gnu-make intprops largefile lstat manywarnings memrchr mkostemp mktime obstack pipe2 posix_spawnp progname pselect pthread_sigmask putenv qacl readlink readlinkat sig2str snippet/warn-on-use socklen stat-time stdalign stdarg stdbool stdio strftime strtoimax strtoumax symlink sys_stat sys_time time timer-time timespec-add timespec-sub unsetenv update-copyright utimens warnings
 
 # Specification in the form of a few gnulib-tool.m4 macro invocations:
 gl_LOCAL_DIR([])
@@ -62,6 +62,9 @@ gl_MODULES([
   getopt-gnu
   gettime
   gettimeofday
+  git-version-gen
+  gitlog-to-changelog
+  gnu-make
   intprops
   largefile
   lstat
@@ -71,6 +74,7 @@ gl_MODULES([
   mktime
   obstack
   pipe2
+  posix_spawnp
   progname
   pselect
   pthread_sigmask
@@ -79,6 +83,7 @@ gl_MODULES([
   readlink
   readlinkat
   sig2str
+  snippet/warn-on-use
   socklen
   stat-time
   stdalign
