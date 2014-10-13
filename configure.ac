@@ -85,7 +85,10 @@ AC_CONFIG_HEADERS([src/config.h:src/config.in])
 AC_CONFIG_SRCDIR([src/lisp.h])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
-dnl# not sure if "lib-src" would be better here:
+dnl# "lib" is where gnulib lives, so it makes sense to put libobjs there
+dnl# with their sources, but "src" is where the libobjs are actually needed
+dnl# (and maybe in "lib-src", too), so I am not sure if either of those
+dnl# would be better here:
 AC_CONFIG_LIBOBJ_DIR([lib])
 if test "x${LIBOBJDIR}" = "x"; then
   # The trailing slashes at the end of each of these paths are necessary:
@@ -103,8 +106,25 @@ if test "x${LIBOBJDIR}" = "x"; then
   fi
 fi
 AC_SUBST([ac_abs_top_srcdir])dnl
-AC_SUBST([ac_top_srcdir])
+AC_SUBST([ac_top_srcdir])dnl
 AC_SUBST([LIBOBJDIR])dnl
+
+dnl# do similarly with SRCROOT:
+if test "x${SRCROOT}" = "x"; then
+  if test "x${ac_abs_top_srcdir}" != "x"; then
+    test -z "${SRCROOT}" && test -n "${ac_abs_top_srcdir}" && export SRCROOT="${ac_abs_top_srcdir}"
+  elif test "x${ac_top_srcdir}" != "x"; then
+    test -z "${SRCROOT}" && test -n "${ac_top_srcdir}" && export LIBOBJDIR="${SRCROOT}"
+  elif test "x${srcdir}" = "x."; then
+    # the check for srcdir is not to actually use it, but to verify that
+    # `pwd` will work:
+    test -z "${SRCROOT}" && test -n "`pwd`" && export SRCROOT="`pwd`"
+  else
+    test -z "${SRCROOT}"
+    AC_MSG_WARN([cannot figure out how to export a good value for SRCROOT])
+  fi
+fi
+AC_SUBST([SRCROOT])dnl
 
 xcsdkdir=""
 AC_CHECK_PROGS([XCRUN],[xcrun])
@@ -120,6 +140,12 @@ if test -n "${XCRUN}"; then
       AC_MSG_NOTICE([xcsdkdir is "${xcsdkdir}"])
       AC_SUBST([xcsdkdir])
     fi
+  fi
+else
+  if test -z "${MAKE}"; then
+    dnl# since we do NOT have xcrun in this case, we can check more names
+    dnl# for 'make' than xcrun knows about:
+    AC_CHECK_PROGS([MAKE_PROG],[make gmake gnumake remake])
   fi
 fi
 
@@ -156,32 +182,8 @@ AC_ARG_WITH([all],
   [with_features="${withval}"],
   [with_features=yes])dnl
 
-dnl# OPTION_DEFAULT_OFF([NAME],[HELP-STRING])
-dnl# Create a new --with option that defaults to being disabled.
-dnl# NAME is the base name of the option.  The shell variable with_NAME
-dnl#   will be set to either the user's value (if the option is
-dnl#   specified; 'yes' for a plain --with-NAME) or to 'no' (if the
-dnl#   option is not specified).  Note that the shell variable name is
-dnl#   constructed as autoconf does, by replacing non-alphanumeric
-dnl#   characters with "_".
-dnl# HELP-STRING is the help text for the option.
-AC_DEFUN([OPTION_DEFAULT_OFF],[dnl
-  AC_ARG_WITH([$1],[AS_HELP_STRING([--with-$1],[$2])],[],[dnl
-    m4_bpatsubst([with_$1],[[^0-9a-z]],[_])=no])dnl
-])dnl
-
-dnl# OPTION_DEFAULT_ON(NAME, HELP-STRING)
-dnl# Create a new --with option that defaults to ${with_features}.
-dnl# NAME is the base name of the option.  The shell variable with_NAME
-dnl#   will be set either to 'no' (for a plain --without-NAME) or to
-dnl#   'yes' (if the option is not specified).  Note that the shell
-dnl#   variable name is constructed as autoconf does, by replacing
-dnl#   non-alphanumeric characters with "_".
-dnl# HELP-STRING is the help text for the option.
-AC_DEFUN([OPTION_DEFAULT_ON],[dnl
-  AC_ARG_WITH([$1],[AS_HELP_STRING([--without-$1],[$2])],[],[dnl
-   m4_bpatsubst([with_$1],[[^0-9a-z]],[_])=${with_features}])dnl
-])dnl
+dnl# the definitions of the option checking macros have been moved to:
+m4_include([m4/options.m4])dnl
 
 OPTION_DEFAULT_ON([pop],[do NOT support POP mail retrieval with movemail])
 if test "x${with_pop}" = "xyes"; then
@@ -345,7 +347,7 @@ AC_SUBST([cache_file])dnl
 ## compressed files, nor how to test if they do so.
 OPTION_DEFAULT_ON([compress-install],
   [do NOT compress some files (.el, .info, etc.) when installing.  Equivalent to:
-make GZIP_PROG= install])dnl
+make GZIP_PROG="" install])dnl
 
 AC_ARG_WITH([pkg-config-prog],dnl
 [AS_HELP_STRING([--with-pkg-config-prog=FILENAME],
@@ -385,6 +387,15 @@ if test "x${enableval}" = "xno"; then
   locallisppath=""
 elif test "x${enableval}" != "xyes"; then
   locallisppath="${enableval}"
+else
+  m4_ifdef([AM_PATH_LISPDIR],[
+    AM_PATH_LISPDIR
+  ],[
+    test ! -z "${lispdir}" && test -d "${lispdir}"
+  ])
+  if test "x${locallisppath}" = "x"; then
+    test -z "${locallisppath}" && test -n "${lispdir}" && locallisppath="${lispdir}"
+  fi
 fi
 ])dnl
 
@@ -503,11 +514,8 @@ AC_ARG_ENABLE([gtk-deprecation-warnings],
 [ac_enable_gtk_deprecation_warnings="${enableval}"],[])dnl
 
 ### Check for grep before using it:
-AC_DEFUN([AC_REQUIRE_GREPS],[
-  AC_REQUIRE([AC_PROG_GREP])dnl
-  AC_REQUIRE([AC_PROG_EGREP])dnl
-  AC_REQUIRE([AC_PROG_FGREP])dnl
-])dnl
+dnl# The definition of the macro for it has been moved to:
+m4_include([m4/grep.m4])dnl
 AC_REQUIRE_GREPS
 
 ### Canonicalize the configuration name.
@@ -518,6 +526,21 @@ AC_MSG_RESULT([ ])dnl
 AC_CANONICAL_HOST
 canonical="${host}"
 configuration=${host_alias-${build_alias-$host}}
+
+if test -z "${HOST_ARCHITECTURE}" -a -n "${host_cpu}"; then
+  export HOST_ARCHITECTURE="${host_cpu}"
+  AC_SUBST([HOST_ARCHITECTURE])
+fi
+
+if test -z "${RC_ARCHS}"; then
+  if test -n "${HOST_ARCHITECTURE}"; then
+    export RC_ARCHS="${HOST_ARCHITECTURE}"
+  fi
+  if test -n "${TARGET_ARCHITECTURE}" -a "x${HOST_ARCHITECTURE}" != "x${TARGET_ARCHITECTURE}"; then
+    export RC_ARCHS="${RC_ARCHS} ${TARGET_ARCHITECTURE}"
+  fi
+fi
+AC_SUBST([RC_ARCHS])dnl
 
 dnl# This used to use changequote, but, apart from `changequote is evil'
 dnl# per the autoconf manual, we can speed up autoconf somewhat by quoting
@@ -770,6 +793,9 @@ AC_PROG_CXXCPP
 AC_PROG_GCC_TRADITIONAL
 AC_PROG_OBJC
 AC_PROG_OBJCPP
+dnl# This next one is new; I put it in m4/grep.m4, which should already be
+dnl# included above:
+AC_EGREP_PREPROC_SANITY
 
 dnl# as above with the giant gob of m4-quotation (this is block 2):
 [
@@ -892,20 +918,8 @@ else
 fi
 ])dnl
 
-# gl_GCC_VERSION_IFELSE([major],[minor],[run-if-found],[run-if-not-found])
-# ------------------------------------------------
-# If ${CPP} is gcc-MAJOR.MINOR or newer, then run RUN-IF-FOUND.
-# Otherwise, run RUN-IF-NOT-FOUND.
-AC_DEFUN([gl_GCC_VERSION_IFELSE],
-  [AC_PREPROC_IFELSE([AC_LANG_PROGRAM([[
-#if ($1) < __GNUC__ || (($1) == __GNUC__ && ($2) <= __GNUC_MINOR__)
-/* ok */
-#else
-# error "your version of gcc is older than $1.$2"
-#endif /* GCC version check */
-      ]]),
-    ],[$3],[$4])
-  ])dnl
+dnl# definition of macro for checking version of gcc has been moved to:
+m4_include([m4/gcc-version.m4])dnl
 
 # clang is unduly picky about some things.
 AC_CACHE_CHECK([whether the compiler is actually clang],[emacs_cv_clang],
@@ -917,9 +931,22 @@ AC_CACHE_CHECK([whether the compiler is actually clang],[emacs_cv_clang],
      [emacs_cv_clang=yes],
      [emacs_cv_clang=no])])dnl
 
+# some flags are Apple-specific:
+AC_CACHE_CHECK([if the compiler is an Apple compiler],[emacs_cv_apple],
+  [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+/* not sure if the first '||' should actually be an '&&' here: */
+#if !defined(__APPLE__) || !defined(__APPLE_CC__) || !(__APPLE_CC__ > 1) 
+  #error "not Apple"
+#endif /* !__APPLE__ || !__APPLE_CC__ || !(__APPLE_CC__ > 1) */
+        ]])],
+     [emacs_cv_apple=yes],
+     [emacs_cv_apple=no])])dnl
+dnl#TODO: move checks that currently check the value of ${host_vendor} for
+dnl# apple to use the above conftest instead.
+
 # need this to properly check clang warning flags:
 PRE_WARNING_TESTING_CFLAGS="${CFLAGS}"
-if test "x${emacs_cv_clang}" = "xyes"; then
+if test "x${emacs_cv_clang}" = "xyes" || test "x${host_vendor}" = "xapple"; then
   gl_UNKNOWN_WARNINGS_ARE_ERRORS
   CFLAGS="${CFLAGS} ${gl_unknown_warnings_are_errors}"
 fi
@@ -928,11 +955,12 @@ fi
 # include files, to avoid generating useless diagnostics for the files.
 if test "x${gl_gcc_warnings}" != "xyes"; then
   isystem='-I'
-  if test "x${emacs_cv_clang}" = "xyes"
-  then
+  if test "x${emacs_cv_clang}" = "xyes"; then
      # Turn off some warnings if supported.
      gl_WARN_ADD([-Wno-switch])
      gl_WARN_ADD([-Wno-tautological-constant-out-of-range-compare])
+     gl_WARN_ADD([-Wno-pointer-sign])
+  elif test "x${host_vendor}" = "xapple"; then
      gl_WARN_ADD([-Wno-pointer-sign])
   fi
 else
@@ -1012,6 +1040,23 @@ else
       gl_WARN_ADD([-Wcast-qual])
     fi
   fi
+
+  case ${host_vendor} in 
+    apple*)
+      ## these ones provoke warnings saying they are only valid in
+      ## C++/ObjC++ when using Apple's gcc:
+      if test "x${GCC}" = "xyes" && test "x${CC}" != "x${CXX}"; then
+        nw="${nw} -Wabi"
+        nw="${nw} -Wdeprecated"
+      fi
+      ## for some reason Apple's gcc prints way more prototype warnings
+      ## and such than normal; let us see if this is will fix it:
+      if test -n "${emacs_g3_CFLAGS}" || test "x${emacs_cv_prog_cc_g3}" = "xyes"; then
+        nw="${nw} -Wmissing-prototypes"
+        nw="${nw} -Wmissing-declarations"
+      fi
+      ;;
+  esac
 
   gl_MANYWARN_ALL_GCC([ws])
   gl_MANYWARN_COMPLEMENT([ws],[${ws}],[${nw}])
@@ -1100,7 +1145,7 @@ else
     else
       gl_WARN_ADD([-Wswitch-enum])
     fi
-    if test "x${emacs_cv_clang}" = "xyes"; then
+    if test "x${emacs_cv_clang}" = "xyes" || test "x${host_vendor}" = "xapple"; then
       nw="${nw} -Wunreachable-code"
     else
       gl_WARN_ADD([-Wunreachable-code])
@@ -1184,6 +1229,14 @@ dnl# this is ifdef-ed the other way (i.e. "in" instead of "out"):
 m4_ifdef([AM_PROG_AR],[
 AM_PROG_AR
 ],[:])dnl
+
+dnl# not sure where else to put these:
+AC_PATH_PROG([FILE_MAGIC_BIN],[file])dnl
+AC_PATH_PROG([RELPATH_BIN],[relpath])dnl
+
+dnl#TODO: might as well just add the entirety of libtool here while we are
+dnl# at it (this macro is based on it):
+EMACS_REQUIRED_DARWIN_CHECKS
 
 dnl########################################################################
 dnl# Sadly, AC_PROG_LN_S is too restrictive. It also tests whether links
@@ -1661,61 +1714,8 @@ AC_SUBST([pre_PKG_CONFIG_LIBS])dnl
 
 AC_PATH_PROG([PKG_CONFIG],[pkg-config],[no])dnl
 
-dnl# This function definition taken from Gnome 2.0
-dnl# PKG_CHECK_MODULES([GSTUFF],[gtk+-2.0 >= 1.3 glib = 1.3.4],[action-if],
-dnl#                   [action-not])
-dnl# defines GSTUFF_LIBS, GSTUFF_CFLAGS, see pkg-config man page
-dnl# also defines GSTUFF_PKG_ERRORS on error
-dnl# (why not just use the official pkg-config macros from pkg.m4?)
-AC_DEFUN([PKG_CHECK_MODULES],[
-  succeeded=no
-
-  if test "x${PKG_CONFIG}" = "xno" ; then
-     ifelse([$4],[],[AC_MSG_ERROR([
-      *** The pkg-config script could not be found. Make sure it is in your path, or give the full name of pkg-config with the PKG_CONFIG environment variable or --with-pkg-config-prog.  Or see http://www.freedesktop.org/software/pkgconfig to get pkg-config.])],[$4])
-  else
-     PKG_CONFIG_MIN_VERSION=0.9.0
-     if "${PKG_CONFIG}" --atleast-pkgconfig-version ${PKG_CONFIG_MIN_VERSION}; then
-        AC_MSG_CHECKING([for $2])dnl
-
-        if "${PKG_CONFIG}" --exists "$2" 2>&AS_MESSAGE_LOG_FD &&
-	   $1_CFLAGS=`"$PKG_CONFIG" --cflags "$2" 2>&AS_MESSAGE_LOG_FD` &&
-	   $1_LIBS=`"${PKG_CONFIG}" --libs "$2" 2>&AS_MESSAGE_LOG_FD`; then
-	    edit_cflags="
-	      s,///*,/,g
-	      s/^/ /
-	      s/ -I/ ${isystem}/g
-	      s/^ //
-	    "
-	    $1_CFLAGS=`AS_ECHO(["$$1_CFLAGS"]) | sed -e "${edit_cflags}"`
-	    $1_LIBS=`AS_ECHO(["$$1_LIBS"]) | sed -e 's,///*,/,g'`
-            AC_MSG_RESULT([yes CFLAGS='$$1_CFLAGS' LIBS='$$1_LIBS'])
-            succeeded=yes
-        else
-            AC_MSG_RESULT([no])
-            $1_CFLAGS=""
-            $1_LIBS=""
-            ## If we have a custom action on failure, do NOT print errors,
-            ## but do set a variable so people can do so. Do it in a
-            ## subshell to capture any diagnostics in invoking pkg-config.
-	    $1_PKG_ERRORS=`("${PKG_CONFIG}" --print-errors "$2") 2>&1`
-	    ifelse([$4],[],[echo "$$1_PKG_ERRORS"],[])
-        fi
-
-        AC_SUBST([$1_CFLAGS])
-        AC_SUBST([$1_LIBS])
-     else
-        echo "*** Your version of pkg-config is too old. You need version ${PKG_CONFIG_MIN_VERSION} or newer."
-        echo "*** See http://www.freedesktop.org/software/pkgconfig"
-     fi
-  fi
-
-  if test "x${succeeded}" = "xyes"; then
-     ifelse([$3],[],[:],[$3])
-  else
-     ifelse([$4],[],[AC_MSG_ERROR([Library requirements ($2) not met; consider adjusting the PKG_CONFIG_PATH environment variable if your libraries are in a nonstandard prefix so pkg-config can find them.])], [$4])
-  fi
-])dnl
+dnl# The definition of the macro for checking pkgs has moved to:
+m4_include([m4/pkg_extra.m4])dnl
 
 AC_MSG_CHECKING([for sound support])
 AC_MSG_RESULT([ ])
@@ -1838,14 +1838,8 @@ dnl# ones with specific macros for them:
 AC_HEADER_DIRENT
 AC_HEADER_MAJOR
 AC_HEADER_RESOLV
-dnl# ones that might be called elsewhere:
-AC_DEFUN([AC_REQUIRE_VARIOUS_HEADER_CHECKS],[
-  AC_REQUIRE([AC_HEADER_STAT])dnl
-  AC_REQUIRE([AC_HEADER_STDBOOL])dnl# also "_CHECK"s it
-  dnl# however, since we are require-ing, we can do both:
-  AC_REQUIRE([AC_CHECK_HEADER_STDBOOL])dnl
-  AC_REQUIRE([AC_HEADER_STDC])dnl
-])dnl
+dnl# definition of this next macro has been moved to the included file:
+m4_include([m4/headers_extra.m4])dnl
 AC_REQUIRE_VARIOUS_HEADER_CHECKS
 AC_HEADER_TIME
 dnl# not sure why these decls go in the headers section, but whatever:
@@ -1859,9 +1853,19 @@ elif test "x${ac_cv_have_decl_sys_siglist}" = "x"; then
   AC_CHECK_DECLS([sys_siglist])
 fi
 AC_CHECK_DECLS([MD5_DIGEST_SIZE])
+dnl# well this one at least is here so we can know if we need to check
+dnl# for mach headers:
+AC_CHECK_DECLS([__MACH__])
+if test "x${ac_cv_have_decl___MACH__}" = "xyes" || test -d /usr/include/mach-o; then
+  ## this is referred to as "documentation" by unexmacosx.c:
+  AC_CHECK_HEADERS([mach-o/loader.h])
+fi
+
+dnl# ...anyways:
 AC_HEADER_SYS_WAIT
 
-dnl# "_ONCE" causes test to be done at wrong location
+dnl# adding "_ONCE" causes tests to be done at wrong location, so just call
+dnl# the macros regularly:
 AC_CHECK_HEADERS([sys/socket.h])
 AC_CHECK_HEADERS([net/if.h],[],[],[AC_INCLUDES_DEFAULT
 #if HAVE_SYS_SOCKET_H
@@ -1915,12 +1919,8 @@ AC_CHECK_MEMBERS([struct ifreq.ifr_flags, struct ifreq.ifr_hwaddr,
 # endif /* __GNUC__ && !__STRICT_ANSI__ */
 #endif /* HAVE_NET_IF_H */
 ])dnl
-dnl# ones that might be called elsewhere:
-AC_DEFUN([AC_REQUIRE_TIMEZONE_STRUCTS],[
-  AC_REQUIRE([AC_STRUCT_TIMEZONE])dnl# also does the "_TM" one
-  dnl# however, since we are require-ing, we can do both:
-  AC_REQUIRE([AC_STRUCT_TM])dnl
-])dnl
+dnl# definition of macro for checking timezone structs has been moved to:
+m4_include([m4/timezone_structs.m4])dnl
 AC_REQUIRE_TIMEZONE_STRUCTS
 
 dnl# not really sure where else to put these:
@@ -1940,7 +1940,7 @@ if test "x${ac_cv_prog_make_make_set}" = "x"; then
 fi
 
 DEPFLAGS=""
-MKDEPDIR=":"
+MKDEPDIR="echo 'skipping making depdir.'"
 deps_frag=deps.mk
 dnl# check for GNU Make if we have GCC and autodepend is on.
 if test "x${GCC}" = "xyes" && test "x${ac_enable_autodepend}" = "xyes"; then
@@ -1970,7 +1970,13 @@ if test "x${GCC}" = "xyes" && test "x${ac_enable_autodepend}" = "xyes"; then
       MKDEPDIR='${MKDIR_P} ${DEPDIR}'
       deps_frag=autodeps.mk
    fi
+else
+   AC_MSG_NOTICE([skipping tests that are only relevant for autodepend])
 fi
+dnl# actually always check for GNU make:
+AX_CHECK_GNU_MAKE([])dnl
+
+dnl# now set and subst some stuff:
 deps_frag="${srcdir}/src/${deps_frag}"
 AC_SUBST([MKDEPDIR])dnl
 AC_SUBST([DEPFLAGS])dnl
@@ -2211,9 +2217,20 @@ fail;
               [Define to 1 if `NSInteger' is defined.])
   fi
 else
-  if test "x${opsys}" = "xdarwin" && test "x${host_vendor}" = "xapple"; then
+  if test "x${opsys}" = "xdarwin" && test "x${host_vendor}" = "xapple" && test "x${OBJC}" != "x"; then
+    test -n "${OBJC}"
     AC_MSG_WARN(['--with-ns' is recommended for darwin, but it was not specified.])
   fi
+fi
+
+# if we never tested these, assume the worst:
+if test -z "${HAVE_CBLOCKS_TRUE}" && test -z "${HAVE_CBLOCKS_FALSE}"; then
+  HAVE_CBLOCKS_TRUE='#'
+  HAVE_CBLOCKS_FALSE=''
+fi
+if test -z "${HAVE_CXXBLOCKS_TRUE}" && test -z "${HAVE_CXXBLOCKS_FALSE}"; then
+  HAVE_CXXBLOCKS_TRUE='#'
+  HAVE_CXXBLOCKS_FALSE=''
 fi
 
 AC_SUBST([LIBS_GNUSTEP])dnl
@@ -3998,7 +4015,10 @@ if test "x${opsys}" != "xmingw32"; then
   m4_ifdef([LT_LIB_M],[
     LT_LIB_M
   ],[
-  AC_CHECK_LIB([m],[sqrt])
+#HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+    AC_CHECK_LIB([m],[sqrt])
+    AC_CHECK_LIB([m],[fmod])
+    AC_CHECK_LIB([m],[frexp])
   ])
 fi
 
@@ -4099,18 +4119,8 @@ AC_MSG_CHECKING([functions])
 AC_MSG_RESULT([ ])
 AC_FUNC_CHOWN
 AC_FUNC_CLOSEDIR_VOID
-dnl# ones that might be called elsewhere:
-AC_DEFUN([AC_REQUIRE_VARIOUS_FUNC_CHECKS],[
-  m4_ifdef([gl_ERROR],[
-  AC_REQUIRE([gl_ERROR])dnl
-  ],[
-  AC_REQUIRE([AC_FUNC_ERROR_AT_LINE])dnl
-  ])dnl
-  AC_REQUIRE([AC_FUNC_GETGROUPS])dnl
-  AC_REQUIRE([AC_FUNC_GETLOADAVG])dnl
-  AC_REQUIRE([AC_FUNC_GETPGRP])dnl
-  AC_REQUIRE([AC_FUNC_OBSTACK])dnl
-])dnl
+dnl# definition of this next macro has been moved to the included file:
+m4_include([m4/functions_extra.m4])dnl
 AC_REQUIRE_VARIOUS_FUNC_CHECKS
 AC_FUNC_LSTAT dnl# also checks whether it "_FOLLOWS_SLASHED_SYMLINK"
 if test "x${emacs_cv_var_doug_lea_malloc}" = "x"; then
@@ -4145,10 +4155,11 @@ touchlock \
 cfmakeraw cfsetspeed copysign __executable_start log2])
 AC_CHECK_FUNCS([__fpending acl atexit btowc bzero doprnt dup2 fchdir \
                 floor ftime ftruncate getcwd getpass inet_ntoa isascii \
-                mbrlen memchr memmove memset mkdir munmap nl_langinfo pow \
-                putenv re_comp regcomp rmdir setenv socket sqrt \
-                strcasecmp strchr strcspn strdup strerror strpbrk \
-                strrchr strstr strtol strtoul uname utime utmpname])
+                mbrlen memchr memmove memset mkdir munmap nl_langinfo \
+                posix_spawnp pow putenv re_comp regcomp rmdir \
+                setenv socket sqrt strcasecmp strchr strcspn strdup \
+                strerror strpbrk strrchr strstr strtol strtoul \
+                uname utime utmpname])
 dnl# Keep autoscan happy with a dummy condition:
 if test "x" = "Y0"; then
   test -x `which autoscan`
@@ -4162,7 +4173,7 @@ fi
 
 dnl# No need to check for aligned_alloc and posix_memalign if using
 dnl# gmalloc.o, as it supplies them. Do NOT use these functions on
-dnl# Darwin as they are incompatible with unexmacosx.c.
+dnl# Darwin though, as they are incompatible with unexmacosx.c.
 if test -z "${GMALLOC_OBJ}" && test "x${opsys}" != "xdarwin"; then
   AC_CHECK_FUNCS([aligned_alloc posix_memalign],[break])
 fi
@@ -4860,9 +4871,8 @@ case ${opsys} in
 esac
 
 dnl# speaking of prototypes:
-AC_DEFUN([AC_REQUIRE_PROTOTYPES],[
-  AC_REQUIRE([AC_C_PROTOTYPES])dnl
-])dnl
+dnl# the definition of the following macro has now moved to:
+m4_include([m4/prototypes_extra.m4])dnl
 AC_REQUIRE_PROTOTYPES
 
 dnl########################################################################
@@ -5576,7 +5586,7 @@ gl_INIT
 CFLAGS="${SAVE_CFLAGS}"
 LIBS="${SAVE_LIBS}"
 
-AC_PATH_PROGS([UNIQ_BIN],[uniq guniq],[])
+AC_PATH_PROGS([UNIQ_BIN],[uniq guniq],[])dnl
 dnl# m4-quotation block 13 begin (or 14 if you are superstitious):
 [
 ## uniq the stuff in LIBS:
@@ -5616,7 +5626,25 @@ case "${opsys}" in
    LD_SWITCH_SYSTEM_TEMACS="-fno-pie -prebind ${libs_nsgui} -Xlinker -headerpad -Xlinker ${headerpad_extra}"
    ## (why not just use '-headerpad_max_install_names'? Would that not be
    ## more inline with GNU policy of preferring dynamic limits over
-   ## arbitrary, hard-coded ones?)
+   ## arbitrary, hard-coded ones? Or even using 0x1000 like Apple does
+   ## would be better, I think...)
+
+   ## Apple uses this in their Makefile, and other platforms use analogous
+   ## flags:
+   LD_SWITCH_SYSTEM_TEMACS="${LD_SWITCH_SYSTEM_TEMACS} -Wl,-no_pie"
+
+   ## check the version to see if this is ld64; the argument to `tr` should
+   ## be fine as long as this stays inside an m4-quotation block:
+   LD_IS_LD64="`${LD} -v 2>&1 | grep 'ld64' | tr -d [:blank:]`"
+   ## if so, add an ld64-specific flag that Apple uses:
+   if test "x${LD_IS_LD64}" != "x"; then
+     ## put it in a different variable though, until I find out which
+     ## versions it works with:
+     test -n "${LD_IS_LD64}" && LD64_SWITCH_SYSTEM_TEMACS="-Wl,-no_function_starts"
+     ## (subst it outside of this block)
+   else
+     test -z "${LD_IS_LD64}" && unset LD64_SWITCH_SYSTEM_TEMACS
+   fi
 
    ## This is here because src/Makefile.in did some extra fiddling around
    ## with LD_SWITCH_SYSTEM. It seems cleaner to put this in
@@ -5662,9 +5690,10 @@ LD_SWITCH_SYSTEM_TEMACS="${LDFLAGS_NOCOMBRELOC} ${LD_SWITCH_SYSTEM_TEMACS}"
 dnl# m4-quotation block 13 (or 14) end
 
 AC_SUBST([LD_SWITCH_SYSTEM_TEMACS])dnl
+AC_SUBST([LD64_SWITCH_SYSTEM_TEMACS])dnl
 
 ## MinGW-specific post-link processing of temacs.
-TEMACS_POST_LINK=":"
+TEMACS_POST_LINK="echo 'post-link processing is unnecessary here.'"
 ADDSECTION=""
 EMACS_HEAPSIZE=""
 if test "${opsys}" = "mingw32"; then
@@ -5938,7 +5967,8 @@ fi
 
 AC_OUTPUT
 
-# this is one of the longest configure.ac files that I have seen... why not
-# split some of the macros off into separate files?
+# this is one of the longest configure.ac files that I have seen,
+# even after splitting off some of the macros into separate files...
 
-# (5385 lines as of the writing of this comment...)
+# (5385 lines as of the original writing of this comment...)
+# (and overall it has ended up growing longer than that too)

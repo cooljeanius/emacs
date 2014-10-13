@@ -11,3 +11,5 @@ oo-spd/
 *.o
 deps/*.d
 temacs
+emacs
+bootstrap-emacs

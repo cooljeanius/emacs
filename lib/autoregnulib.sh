@@ -66,15 +66,16 @@ else
       environ error execinfo \
       faccessat fcntl fcntl-h fdatasync fdopendir filemode fstatat fsync \
       getloadavg getopt-gnu gettime gettimeofday \
+      git-version-gen gitlog-to-changelog gnu-make \
       intprops \
       largefile lstat \
       manywarnings memrchr mkostemp mktime \
       obstack \
-      pipe2 progname pselect pthread_sigmask putenv \
+      pipe2 posix_spawnp progname pselect pthread_sigmask putenv \
       qacl \
       readlink readlinkat \
-      sig2str socklen stat-time stdalign stdarg stdbool stdio \
-      strftime strtoimax strtoumax symlink sys_stat sys_time \
+      sig2str snippet/warn-on-use socklen stat-time stdalign stdarg stdbool \
+      stdio strftime strtoimax strtoumax symlink sys_stat sys_time \
       time timer-time timespec-add timespec-sub \
       unsetenv update-copyright utimens \
       warnings"

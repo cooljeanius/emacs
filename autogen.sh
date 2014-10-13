@@ -23,8 +23,8 @@
 
 ### Commentary:
 
-## The Emacs bzr repository does not include the configure script
-## (and associated helpers).  The first time you fetch Emacs from bzr,
+## The Emacs bzr (or git) repository does not include the configure script
+## (and associated helpers).  The first time you fetch Emacs from bzr (or git),
 ## run this script to generate the necessary files.
 ## For more details, see the file INSTALL.REPO.
 

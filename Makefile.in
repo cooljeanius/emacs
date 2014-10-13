@@ -451,11 +451,11 @@ $(srcdir)/lib/Makefile.in: $(AUTOMAKE_INPUTS)
 am--refresh: $(srcdir)/aclocal.m4 $(srcdir)/configure $(srcdir)/src/config.in
 .PHONY: am--refresh
 
+## Usually, there is no need to rebuild src/config.in just
+## because stamp-h.in has changed (since building stamp-h.in
+## refreshes config.in as well), but if config.in is missing
+## then we really need to do something more.
 $(srcdir)/src/config.in: $(srcdir)/src/stamp-h.in
-	@ # Usually, there's no need to rebuild src/config.in just
-	@ # because stamp-h.in has changed (since building stamp-h.in
-	@ # refreshes config.in as well), but if config.in is missing
-	@ # then we really need to do something more.
 	[ -r "$@" ] || ( cd ${srcdir} && autoheader )
 $(srcdir)/src/stamp-h.in: $(AUTOCONF_INPUTS)
 	cd ${srcdir} && autoheader

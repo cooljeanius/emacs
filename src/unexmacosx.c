@@ -1,6 +1,8 @@
-/* Dump Emacs in Mach-O format for use on Mac OS X.
-   Copyright (C) 2001-2014 Free Software Foundation, Inc.
-
+/* src/unexmacosx.c -*- C -*-
+ * Dump Emacs in Mach-O format for use on Mac OS X.
+ * This version should be newer than the version in the directory above us.
+ * Copyright (C) 2001-2014 Free Software Foundation, Inc. */
+/*
 This file is part of GNU Emacs.
 
 GNU Emacs is free software: you can redistribute it and/or modify
@@ -222,7 +224,7 @@ unexec_write (off_t dest, const void *src, size_t count)
   if (lseek (outfd, dest, SEEK_SET) != dest)
     return 0;
 
-  return write (outfd, src, count) == count;
+  return (write(outfd, src, count) == count);
 }
 
 /* Write COUNT bytes of zeros to outfd starting at offset DEST.
@@ -287,7 +289,7 @@ unexec_error (const char *format, ...)
   va_list ap;
 
   va_start (ap, format);
-  fprintf (stderr, "unexec: ");
+  fprintf (stderr, "%s, unexec line %d: ", __FILE__, __LINE__);
   vfprintf (stderr, format, ap);
   fprintf (stderr, "\n");
   va_end (ap);
@@ -402,7 +404,11 @@ build_region_list (void)
 	}
       else
 	{
-	  r = malloc (sizeof *r);
+#ifdef __cplusplus
+	  r = (struct region_t *)malloc(sizeof(*r));
+#else
+          r = malloc(sizeof(*r));
+#endif /* __cplusplus */
 
 	  if (!r)
 	    unexec_error ("cannot allocate region structure");
@@ -484,7 +490,7 @@ find_emacs_zone_regions (void)
 {
   num_unexec_regions = 0;
 
-  emacs_zone->introspect->enumerator (mach_task_self (), 0,
+  emacs_zone->introspect->enumerator (mach_task_self(), 0,
 				      MALLOC_PTR_REGION_RANGE_TYPE
 				      | MALLOC_ADMIN_REGION_RANGE_TYPE,
 				      (vm_address_t) emacs_zone,
@@ -513,45 +519,92 @@ static void
 unexec_regions_merge (void)
 {
   int i, n;
+  vm_address_t begin, end;
   unexec_region_info r;
+#ifdef ALLOW_UNUSED_VARIABLES
+  long total = 0L;
+#endif /* ALLOW_UNUSED_VARIABLES */
+  void *zeropage = calloc(1, pagesize);
   vm_size_t padsize;
 
   qsort (unexec_regions, num_unexec_regions, sizeof (unexec_regions[0]),
 	 &unexec_regions_sort_compare);
   n = 0;
   r = unexec_regions[0];
-  padsize = r.range.address & (pagesize - 1);
-  if (padsize)
-    {
-      r.range.address -= padsize;
-      r.range.size += padsize;
-      r.filesize += padsize;
-    }
-  for (i = 1; i < num_unexec_regions; i++)
-    {
-      if (r.range.address + r.range.size == unexec_regions[i].range.address
-	  && r.range.size - r.filesize < 2 * pagesize)
-	{
+  padsize = (r.range.address & (pagesize - 1L));
+  if (padsize) {
+	  begin = r.range.address;
+	  r.range.address -= padsize;
+	  r.range.size += padsize;
+	  r.filesize += padsize;
+  }
+  for (i = 1; i < num_unexec_regions; i++) {
+    if (((r.range.address + r.range.size) == unexec_regions[i].range.address)
+        && ((r.range.size - r.filesize) < (2 * pagesize))) {
 	  r.filesize = r.range.size + unexec_regions[i].filesize;
 	  r.range.size += unexec_regions[i].range.size;
-	}
-      else
-	{
-	  unexec_regions[n++] = r;
-	  r = unexec_regions[i];
-	  padsize = r.range.address & (pagesize - 1);
-	  if (padsize)
-	    {
-	      if ((unexec_regions[n-1].range.address
-		   + unexec_regions[n-1].range.size) == r.range.address)
-		unexec_regions[n-1].range.size -= padsize;
-
-	      r.range.address -= padsize;
-	      r.range.size += padsize;
-	      r.filesize += padsize;
+    } else {	/* All segments must be a multiple of pagesize */
+	    end = r.range.address + r.range.size;
+	    if (end & (pagesize-1L)) {
+		    end = ROUNDUP_TO_PAGE_BOUNDARY(end);
+		    printf("Page (%#8lx) aligning region @%#8lx size from %#8lx to %#8lx\n",
+			   (long)pagesize, (long)r.range.address, (long)r.range.size, (long)(end - r.range.address));
+		    r.range.size = end - r.range.address;
+		    r.filesize = r.range.size;
+		    if (end == unexec_regions[i].range.address) {
+			    r.filesize += unexec_regions[i].filesize;
+			    r.range.size += unexec_regions[i].range.size;
+			    continue;
+		    }
 	    }
-	}
+	    /* Truncate zerod pages */
+	    while (r.filesize > 0) {
+		    vm_address_t p = r.range.address + r.filesize - pagesize;
+		    if (memcmp((const void *)p, zeropage, pagesize) == 0) {
+			    r.filesize -= pagesize;
+		    } else {
+			    break;
+		    }
+	    }
+	    if (r.filesize != r.range.size) {
+		    printf("Removed %lx zerod bytes from filesize\n", r.range.size - r.filesize);
+	    }
+	    unexec_regions[n++] = r;
+	    r = unexec_regions[i];
+	    padsize = r.range.address & (pagesize - 1);
+	    if (padsize) { /* Align beginning of unmerged region */
+		    if ((unexec_regions[n-1].range.address
+                         + unexec_regions[n-1].range.size) == r.range.address) {
+                      unexec_regions[n-1].range.size -= padsize;
+		    }
+		    begin = r.range.address;
+		    r.range.address -= padsize;
+		    r.range.size += padsize;
+		    r.filesize += padsize;
+	    }
     }
+  }
+  end = r.range.address + r.range.size;
+  if (end & (pagesize-1L)) {
+     end = ROUNDUP_TO_PAGE_BOUNDARY(end);
+     printf("Page (%#8lx) aligning region @%#8lx size from %#8lx to %#8lx\n",
+	    pagesize, (long)r.range.address, (long)r.range.size, (long)(end - r.range.address));
+     r.range.size = end - r.range.address;
+     r.filesize = r.range.size;
+  }
+  /* Truncate zerod pages */
+  while (r.filesize > 0) {
+	  vm_address_t p = r.range.address + r.filesize - pagesize;
+	  if (memcmp((const void *)p, zeropage, pagesize) == 0) {
+		  r.filesize -= pagesize;
+	  } else {
+		  break;
+	  }
+  }
+  free(zeropage);
+  if (r.filesize != r.range.size) {
+	  printf("Removed %lx zerod bytes from filesize\n", r.range.size - r.filesize);
+  }
   unexec_regions[n++] = r;
   num_unexec_regions = n;
 }
@@ -566,77 +619,140 @@ print_load_command_name (int lc)
     {
     case LC_SEGMENT:
 #ifndef _LP64
-      printf ("LC_SEGMENT       ");
+      printf("LC_SEGMENT       ");
 #else
-      printf ("LC_SEGMENT_64    ");
+      printf("LC_SEGMENT_64    ");
 #endif
       break;
     case LC_LOAD_DYLINKER:
-      printf ("LC_LOAD_DYLINKER ");
+      printf("LC_LOAD_DYLINKER ");
       break;
     case LC_LOAD_DYLIB:
-      printf ("LC_LOAD_DYLIB    ");
+      printf("LC_LOAD_DYLIB    ");
+      break;
+    case LC_ID_DYLIB:
+      printf("LC_ID_DYLIB            ");
       break;
     case LC_SYMTAB:
-      printf ("LC_SYMTAB        ");
+      printf("LC_SYMTAB        ");
+      break;
+    case LC_SYMSEG:
+      printf("LC_SYMSEG              ");
       break;
     case LC_DYSYMTAB:
-      printf ("LC_DYSYMTAB      ");
+      printf("LC_DYSYMTAB      ");
       break;
     case LC_UNIXTHREAD:
-      printf ("LC_UNIXTHREAD    ");
+      printf("LC_UNIXTHREAD    ");
       break;
     case LC_PREBOUND_DYLIB:
-      printf ("LC_PREBOUND_DYLIB");
+      printf("LC_PREBOUND_DYLIB");
+      break;
+    case LC_ROUTINES:
+      printf("LC_ROUTINES            ");
+      break;
+    case LC_SUB_FRAMEWORK:
+      printf("LC_SUBFRAMEWORK        ");
+      break;
+    case LC_SUB_UMBRELLA:
+      printf("LC_SUB_UMBRELLA        ");
+      break;
+    case LC_SUB_CLIENT:
+      printf("LC_SUB_CLIENT          ");
+      break;
+    case LC_SUB_LIBRARY:
+      printf("LC_SUB_LIBRARY         ");
       break;
     case LC_TWOLEVEL_HINTS:
-      printf ("LC_TWOLEVEL_HINTS");
+      printf("LC_TWOLEVEL_HINTS");
+      break;
+    case LC_PREBIND_CKSUM:
+      printf("LC_PREBIND_CKSUM       ");
+      break;
+    case LC_LOAD_WEAK_DYLIB:
+      printf("LC_LOAD_WEAK_DYLIB     ");
+      break;
+#if !defined(_LP64) && (LC_SEGMENT != LC_SEGMENT_64)
+    case LC_SEGMENT_64:
+      printf("LC_SEGMENT_64          ");
+      break;
+#endif /* !_LP64 && (LC_SEGMENT != LC_SEGMENT_64) */
+    case LC_ROUTINES_64:
+      printf("LC_ROUTINES_64         ");
       break;
 #ifdef LC_UUID
     case LC_UUID:
-      printf ("LC_UUID          ");
+      printf("LC_UUID          ");
       break;
 #endif
+    case LC_RPATH:
+      printf("LC_RPATH               ");
+      break;
+    case LC_CODE_SIGNATURE:
+      printf("LC_CODE_SIGNATURE      ");
+      break;
+    case LC_SEGMENT_SPLIT_INFO:
+      printf("LC_SEGMENT_SPLIT_INFO  ");
+      break;
+    case LC_REEXPORT_DYLIB:
+      printf("LC_REEXPORT_DYLIB      ");
+      break;
+    case LC_LAZY_LOAD_DYLIB:
+      printf("LC_LAZY_LOAD_DYLIB     ");
+      break;
+    case LC_ENCRYPTION_INFO:
+      printf("LC_ENCRYPTION_INFO     ");
+      break;
 #ifdef LC_DYLD_INFO
     case LC_DYLD_INFO:
-      printf ("LC_DYLD_INFO     ");
+      printf("LC_DYLD_INFO     ");
       break;
     case LC_DYLD_INFO_ONLY:
-      printf ("LC_DYLD_INFO_ONLY");
+      printf("LC_DYLD_INFO_ONLY");
       break;
 #endif
+    case LC_LOAD_UPWARD_DYLIB:
+      printf("LC_LOAD_UPWARD_DYLIB   ");
+      break;
 #ifdef LC_VERSION_MIN_MACOSX
     case LC_VERSION_MIN_MACOSX:
-      printf ("LC_VERSION_MIN_MACOSX");
+      printf("LC_VERSION_MIN_MACOSX");
       break;
 #endif
+    case LC_VERSION_MIN_IPHONEOS:
+      printf("LC_VERSION_MIN_IPHONEOS");
+      break;
 #ifdef LC_FUNCTION_STARTS
     case LC_FUNCTION_STARTS:
-      printf ("LC_FUNCTION_STARTS");
+      printf("LC_FUNCTION_STARTS");
       break;
 #endif
+    case LC_DYLD_ENVIRONMENT:
+      printf("LC_DYLD_ENVIRONMENT    ");
+      break;
 #ifdef LC_MAIN
     case LC_MAIN:
-      printf ("LC_MAIN          ");
+      printf("LC_MAIN          ");
       break;
 #endif
 #ifdef LC_DATA_IN_CODE
     case LC_DATA_IN_CODE:
-      printf ("LC_DATA_IN_CODE  ");
+      printf("LC_DATA_IN_CODE  ");
       break;
 #endif
 #ifdef LC_SOURCE_VERSION
     case LC_SOURCE_VERSION:
-      printf ("LC_SOURCE_VERSION");
+      printf("LC_SOURCE_VERSION");
       break;
 #endif
 #ifdef LC_DYLIB_CODE_SIGN_DRS
     case LC_DYLIB_CODE_SIGN_DRS:
-      printf ("LC_DYLIB_CODE_SIGN_DRS");
+      printf("LC_DYLIB_CODE_SIGN_DRS");
       break;
 #endif
     default:
-      printf ("unknown          ");
+      printf("unknown(%08x)", lc);
+      break;
     }
 }
 
@@ -646,7 +762,7 @@ print_load_command (struct load_command *lc)
   print_load_command_name (lc->cmd);
   printf ("%8d", lc->cmdsize);
 
-  if (lc->cmd == LC_SEGMENT)
+  if (lc->cmd == LC_SEGMENT || lc->cmd == LC_SEGMENT_64)
     {
       struct segment_command *scp;
       struct section *sectp;
@@ -659,8 +775,8 @@ print_load_command (struct load_command *lc)
       sectp = (struct section *) (scp + 1);
       for (j = 0; j < scp->nsects; j++)
 	{
-	  printf ("                           %-16.16s %#10lx %#8lx\n",
-		  sectp->sectname, (long) (sectp->addr), (long) (sectp->size));
+	  printf ("                           %-16.16s %#10lx %#8lx (flags: %#8lx)\n",
+		  sectp->sectname, (long) (sectp->addr), (long) (sectp->size), (long) (sectp->flags));
 	  sectp++;
 	}
     }
@@ -680,7 +796,7 @@ read_load_commands (void)
     unexec_error ("cannot read mach-o header");
 
   if (mh.magic != MH_MAGIC)
-    unexec_error ("input file not in Mach-O format");
+    unexec_error ("input file not in correct Mach-O format");
 
   if (mh.filetype != MH_EXECUTE)
     unexec_error ("input Mach-O file is not an executable object file");
@@ -697,7 +813,11 @@ read_load_commands (void)
 #endif
 
   nlc = mh.ncmds;
-  lca = malloc (nlc * sizeof *lca);
+#ifdef __cplusplus
+  lca = (struct load_command **)malloc(nlc * sizeof(*lca));
+#else
+  lca = malloc(nlc * sizeof(*lca));
+#endif /* __cplusplus */
 
   for (i = 0; i < nlc; i++)
     {
@@ -706,11 +826,15 @@ read_load_commands (void)
 	 size first and then read the rest.  */
       if (!unexec_read (&lc, sizeof (struct load_command)))
         unexec_error ("cannot read load command");
-      lca[i] = malloc (lc.cmdsize);
+#ifdef __cplusplus
+      lca[i] = (struct load_command *)malloc(lc.cmdsize);
+#else
+      lca[i] = malloc(lc.cmdsize);
+#endif /* __cplusplus */
       memcpy (lca[i], &lc, sizeof (struct load_command));
       if (!unexec_read (lca[i] + 1, lc.cmdsize - sizeof (struct load_command)))
         unexec_error ("cannot read content of load command");
-      if (lc.cmd == LC_SEGMENT)
+      if (lc.cmd == LC_SEGMENT || lc.cmd == LC_SEGMENT_64)
 	{
 	  struct segment_command *scp = (struct segment_command *) lca[i];
 
@@ -798,6 +922,7 @@ copy_data_segment (struct load_command *lc)
   struct section *sectp;
   int j;
   unsigned long header_offset, old_file_offset;
+  long total;
 
   /* The new filesize of the segment is set to its vmsize because data
      blocks for segments must start at region boundaries.  Note that
@@ -817,6 +942,7 @@ copy_data_segment (struct load_command *lc)
   sectp = (struct section *) (scp + 1);
   for (j = 0; j < scp->nsects; j++)
     {
+      unsigned char sect_type;
       old_file_offset = sectp->offset;
       sectp->offset = sectp->addr - scp->vmaddr + curr_file_offset;
       /* The __data section is dumped from memory.  The __bss and
@@ -824,6 +950,60 @@ copy_data_segment (struct load_command *lc)
 	 fields require changing (from S_ZEROFILL to S_REGULAR).  The
 	 other three kinds of sections are just copied from the input
 	 file.  */
+
+      sect_type = (sectp->flags & SECTION_TYPE);
+
+      switch (sect_type) {
+      case S_LAZY_SYMBOL_POINTERS:
+      case S_NON_LAZY_SYMBOL_POINTERS:
+      case S_CSTRING_LITERALS:
+	  if (!unexec_copy (sectp->offset, old_file_offset, sectp->size))
+	    unexec_error ("cannot copy section %s", sectp->sectname);
+	  if (!unexec_write (header_offset, sectp, sizeof (struct section)))
+	    unexec_error ("cannot write section %s's header", sectp->sectname);
+	  break;
+
+      case S_REGULAR:
+	if (strncmp (sectp->sectname, "__const", 16) == 0
+              || strncmp(sectp->sectname, "__program_vars", 16) == 0) {
+            if (!unexec_copy (sectp->offset, old_file_offset, sectp->size))
+              unexec_error ("cannot copy section %s", sectp->sectname);
+	} else {
+            if (!unexec_write (sectp->offset, (void *)sectp->addr, sectp->size))
+              unexec_error ("cannot write section %s", sectp->sectname);
+	}
+	if (!unexec_write (header_offset, sectp, sizeof (struct section)))
+            unexec_error ("cannot write section %s's header", sectp->sectname);
+	break;
+
+      case S_ZEROFILL:
+          goto zerofill_entry_point;
+      default:
+          if ((strncmp(sectp->sectname, SECT_DATA, 16) == 0)
+              || (strncmp(sectp->sectname, SECT_COMMON, 16) == 0)
+              || (strncmp(sectp->sectname, SECT_BSS, 16) == 0)
+              || ((strncmp(sectp->sectname, "__la_symbol_ptr", 16) == 0)
+                  || (strncmp(sectp->sectname, "__nl_symbol_ptr", 16) == 0)
+                  || (strncmp(sectp->sectname, "__got", 16) == 0)
+                  || (strncmp(sectp->sectname, "__la_sym_ptr2", 16) == 0)
+                  || (strncmp(sectp->sectname, "__dyld", 16) == 0)
+                  || (strncmp(sectp->sectname, "__const", 16) == 0)
+                  || (strncmp(sectp->sectname, "__cfstring", 16) == 0)
+                  || (strncmp(sectp->sectname, "__gcc_except_tab", 16) == 0)
+                  || (strncmp(sectp->sectname, "__program_vars", 16) == 0)
+                  || (strncmp(sectp->sectname, "__mod_init_func", 16) == 0)
+                  || (strncmp(sectp->sectname, "__mod_term_func", 16) == 0)
+                  || (strncmp(sectp->sectname, "__static_data", 16) == 0)
+                  || (strncmp(sectp->sectname, "__objc_", 7) == 0)))
+            {
+                break;
+            }
+          else
+            {
+                goto failure_spot;
+            }
+      }
+
       if (strncmp (sectp->sectname, SECT_DATA, 16) == 0)
 	{
 	  extern char my_edata[];
@@ -858,29 +1038,63 @@ copy_data_segment (struct load_command *lc)
       else if (strncmp (sectp->sectname, SECT_BSS, 16) == 0)
 	{
 	  extern char *my_endbss_static;
-	  unsigned long my_size;
+	  unsigned long my_size = 0UL;
 
+zerofill_entry_point:
 	  sectp->flags = S_REGULAR;
 
-	  /* Clear uninitialized local variables in statically linked
-	     libraries.  In particular, function pointers stored by
-	     libSystemStub.a, which is introduced in Mac OS X 10.4 for
-	     binary compatibility with respect to long double, are
-	     cleared so that they will be reinitialized when the
-	     dumped binary is executed on other versions of OS.  */
-	  my_size = (unsigned long)my_endbss_static - sectp->addr;
-	  if (!(sectp->addr <= (unsigned long)my_endbss_static
-		&& my_size <= sectp->size))
-	    unexec_error ("my_endbss_static is not in section %.16s",
-			  sectp->sectname);
-	  if (!unexec_write (sectp->offset, (void *) sectp->addr, my_size))
-	    unexec_error ("cannot write section %.16s", sectp->sectname);
-	  if (!unexec_write_zero (sectp->offset + my_size,
-				  sectp->size - my_size))
-	    unexec_error ("cannot write section %.16s", sectp->sectname);
-	  if (!unexec_write (header_offset, sectp, sizeof (struct section)))
-	    unexec_error ("cannot write section %.16s's header", sectp->sectname);
+	  if (strncmp (sectp->sectname, SECT_BSS, 16) == 0) {
+	    extern char *my_endbss_static;
+	    unsigned long my_size;
+
+	    /* Clear uninitialized local variables in statically linked
+	       libraries.  In particular, function pointers stored by
+	       libSystemStub.a, which is introduced in Mac OS X 10.4 for
+	       binary compatibility with respect to long double, are
+	       cleared so that they will be reinitialized when the
+	       dumped binary is executed on other versions of OS.  */
+	    my_size = (unsigned long)my_endbss_static - sectp->addr;
+	    if (!(sectp->addr <= (unsigned long)my_endbss_static
+		  && my_size <= sectp->size))
+	      unexec_error ("my_endbss_static is not in section %.16s",
+			    sectp->sectname);
+	    if (!unexec_write (sectp->offset, (void *) sectp->addr, my_size))
+	      unexec_error ("cannot write section %.16s", sectp->sectname);
+	    if (!unexec_write_zero (sectp->offset + my_size,
+				    sectp->size - my_size))
+	      unexec_error ("cannot write section %.16s", sectp->sectname);
+	    if (!unexec_write (header_offset, sectp, sizeof (struct section)))
+	      unexec_error ("cannot write section %.16s's header", sectp->sectname);
+	    printf("copy SECT_BSS\n");
+	  } else {
+	    if (!unexec_write (sectp->offset, (void *) sectp->addr, sectp->size))
+	      unexec_error ("cannot write section %s", sectp->sectname);
+	    if (!unexec_write (header_offset, sectp, sizeof (struct section)))
+	      unexec_error ("cannot write section %s's header", sectp->sectname);
+	    printf("copy %s\n", sectp->sectname);
+	  }
 	}
+      else if (strncmp (sectp->sectname, "__bss", 5) == 0
+               || strncmp (sectp->sectname, "__pu_bss", 8) == 0)
+        {
+          sectp->flags = S_REGULAR;
+
+          /* These sections are produced by GCC 4.6+.
+
+             FIXME: We possibly ought to clear uninitialized local
+             variables in statically linked libraries like for
+             SECT_BSS (__bss) above, but setting up the markers we
+             need in lastfile.c would be rather messy. See
+             darwin_output_aligned_bss () in gcc/config/darwin.c for
+             the root of the problem, keeping in mind that the
+             sections are numbered by their alignment in GCC 4.6, but
+             by log2(alignment) in GCC 4.7. */
+
+          if (!unexec_write (sectp->offset, (void *) sectp->addr, sectp->size))
+            unexec_error ("cannot copy section %.16s", sectp->sectname);
+          if (!unexec_write (header_offset, sectp, sizeof (struct section)))
+            unexec_error ("cannot write section %.16s's header", sectp->sectname);
+        }
       else if (strncmp (sectp->sectname, "__la_symbol_ptr", 16) == 0
 	       || strncmp (sectp->sectname, "__nl_symbol_ptr", 16) == 0
 	       || strncmp (sectp->sectname, "__got", 16) == 0
@@ -892,6 +1106,7 @@ copy_data_segment (struct load_command *lc)
 	       || strncmp (sectp->sectname, "__program_vars", 16) == 0
 	       || strncmp (sectp->sectname, "__mod_init_func", 16) == 0
 	       || strncmp (sectp->sectname, "__mod_term_func", 16) == 0
+               || strncmp (sectp->sectname, "__static_data", 16) == 0
 	       || strncmp (sectp->sectname, "__objc_", 7) == 0)
 	{
 	  if (!unexec_copy (sectp->offset, old_file_offset, sectp->size))
@@ -900,8 +1115,10 @@ copy_data_segment (struct load_command *lc)
 	    unexec_error ("cannot write section %.16s's header", sectp->sectname);
 	}
       else
-	unexec_error ("unrecognized section %.16s in __DATA segment",
-		      sectp->sectname);
+        {
+failure_spot:
+          unexec_error("unrecognized section type '0x%x' '%s' in __DATA segment", sect_type, sectp->sectname);
+        }
 
       printf ("        section %-16.16s at %#8lx - %#8lx (sz: %#8lx)\n",
 	      sectp->sectname, (long) (sectp->offset),
@@ -921,6 +1138,7 @@ copy_data_segment (struct load_command *lc)
      list that do not corresponding to any segment load commands in
      the input file.
   */
+  total = 0L;
   for (j = 0; j < num_unexec_regions; j++)
     {
       struct segment_command sc;
@@ -936,13 +1154,13 @@ copy_data_segment (struct load_command *lc)
       sc.initprot = VM_PROT_READ | VM_PROT_WRITE;
       sc.nsects = 0;
       sc.flags = 0;
-
+      total += sc.filesize;
       printf ("Writing segment %-16.16s @ %#8lx (%#8lx/%#8lx @ %#10lx)\n",
 	      sc.segname, (long) (sc.fileoff), (long) (sc.filesize),
 	      (long) (sc.vmsize), (long) (sc.vmaddr));
 
       if (!unexec_write (sc.fileoff, (void *) sc.vmaddr, sc.filesize))
-	unexec_error ("cannot write new __DATA segment");
+        unexec_error ("cannot write new __DATA segment %#8lx (sz: %#8lx)", sc.vmaddr, sc.filesize);
       curr_file_offset += ROUNDUP_TO_PAGE_BOUNDARY (sc.filesize);
 
       if (!unexec_write (curr_header_offset, &sc, sc.cmdsize))
@@ -950,6 +1168,7 @@ copy_data_segment (struct load_command *lc)
       curr_header_offset += sc.cmdsize;
       mh.ncmds++;
     }
+  printf("Total written: %ld\n", total);
 }
 
 /* Copy a LC_SYMTAB load command from the input file to the output
@@ -966,6 +1185,34 @@ copy_symtab (struct load_command *lc, long delta)
 
   if (!unexec_write (curr_header_offset, lc, lc->cmdsize))
     unexec_error ("cannot write symtab command to header");
+
+  curr_header_offset += lc->cmdsize;
+}
+
+/* Copy a LC_DYLD_INFO_ONLY load command from the input file to the output
+   file, adjusting the file offset fields.  */
+static void
+copy_dyld_info_only (struct load_command *lc, long delta)
+{
+  struct dyld_info_command *dyld = (struct dyld_info_command *) lc;
+
+  if (dyld->rebase_size)
+    dyld->rebase_off += delta;
+  if (dyld->bind_size)
+    dyld->bind_off += delta;
+  if (dyld->weak_bind_size)
+    dyld->weak_bind_off += delta;
+  if (dyld->lazy_bind_size)
+    dyld->lazy_bind_off += delta;
+  if (dyld->export_size)
+    dyld->export_off += delta;
+
+  printf ("Writing ");
+  print_load_command_name (lc->cmd);
+  printf (" command\n");
+
+  if (!unexec_write (curr_header_offset, lc, lc->cmdsize))
+    unexec_error ("cannot write LC_DYLD_INFO_ONLY command to header");
 
   curr_header_offset += lc->cmdsize;
 }
@@ -1222,6 +1469,8 @@ copy_other (struct load_command *lc)
   print_load_command_name (lc->cmd);
   printf (" command\n");
 
+  if (lc->cmd == LC_CODE_SIGNATURE)
+    lc->cmd = 0x0;		/* Do NOT propagate signature */
   if (!unexec_write (curr_header_offset, lc, lc->cmdsize))
     unexec_error ("cannot write symtab command to header");
 
@@ -1281,10 +1530,14 @@ dump_it (void)
 	break;
 #ifdef LC_DYLD_INFO
       case LC_DYLD_INFO:
+        copy_dyld_info(lca[i], linkedit_delta);
+        break;
       case LC_DYLD_INFO_ONLY:
-	copy_dyld_info (lca[i], linkedit_delta);
+	copy_dyld_info_only(lca[i], linkedit_delta);
 	break;
 #endif
+      case LC_CODE_SIGNATURE:
+      case LC_SEGMENT_SPLIT_INFO:
 #ifdef LC_FUNCTION_STARTS
       case LC_FUNCTION_STARTS:
 #ifdef LC_DATA_IN_CODE
@@ -1429,7 +1682,11 @@ unexec_realloc (void *old_ptr, size_t new_size)
 	  size_t old_size = ((unexec_malloc_header_t *) old_ptr)[-1].u.size;
 	  size_t size = new_size > old_size ? old_size : new_size;
 
-	  p = malloc (new_size);
+#ifdef __cplusplus
+	  p = (size_t *)malloc(new_size);
+#else
+          p = malloc(new_size);
+#endif /* __cplusplus */
 	  if (size)
 	    memcpy (p, old_ptr, size);
 	}
@@ -1471,3 +1728,6 @@ unexec_free (void *ptr)
   else
     malloc_zone_free (emacs_zone, (unexec_malloc_header_t *) ptr - 1);
 }
+
+/* arch-tag: 1a784f7b-a184-4c4f-9544-da8619593d72
+   (do not change this comment) */

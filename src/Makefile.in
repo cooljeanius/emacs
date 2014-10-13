@@ -32,12 +32,18 @@ srcdir = @srcdir@
 abs_top_srcdir=@abs_top_srcdir@
 ntsource = $(srcdir)/../nt
 VPATH = $(srcdir)
+SRCROOT = @SRCROOT@
 CC = @CC@
 WINDRES = @WINDRES@
 CFLAGS = @CFLAGS@
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 EXEEXT = @EXEEXT@
+FILE_MAGIC_BIN = @FILE_MAGIC_BIN@
+GREP = @GREP@
+LIPO = @LIPO@
+RC_ARCHS = @RC_ARCHS@
+SED = @SED@
 version = @version@
 # Substitute an assignment for the MAKE variable, because
 # BSD does NOT have it as a default.
@@ -80,15 +86,15 @@ C_SWITCH_SYSTEM=@C_SWITCH_SYSTEM@
 GNUSTEP_CFLAGS=@GNUSTEP_CFLAGS@
 
 ## Define C_SWITCH_X_SITE to contain any special flags your compiler
-## may need to deal with X Windows.  For instance, if you've defined
-## HAVE_X_WINDOWS and your X include files aren't in a place that your
+## may need to deal with X Windows.  For instance, if you have defined
+## HAVE_X_WINDOWS and your X include files are NOT in a place that your
 ## compiler can find on its own, you might want to add "-I/..." or
 ## something similar.  This is normally set by configure.
 C_SWITCH_X_SITE=@C_SWITCH_X_SITE@
 
 ## Define LD_SWITCH_X_SITE to contain any special flags your loader
 ## may need to deal with X Windows.  For instance, if your X libraries
-## aren't in a place that your loader can find on its own, you might
+## are NOT in a place that your loader can find on its own, you might
 ## want to add "-L/..." or something similar.  Only used if
 ## HAVE_X_WINDOWS.
 ## FIXME? configure sets a value for this, but it has never been
@@ -295,7 +301,7 @@ GETLOADAVG_LIBS = @GETLOADAVG_LIBS@
 
 RUN_TEMACS = ./temacs
 
-## Invoke ../nt/addsection for MinGW, ":" elsewhere.
+## Invoke ../nt/addsection for MinGW, "echo" elsewhere.
 TEMACS_POST_LINK = @TEMACS_POST_LINK@
 ADDSECTION = @ADDSECTION@
 EMACS_HEAPSIZE = @EMACS_HEAPSIZE@
@@ -310,7 +316,7 @@ CANNOT_DUMP=@CANNOT_DUMP@
 DEPDIR=deps
 ## -MMD -MF $(DEPDIR)/$*.d if AUTO_DEPEND; else empty.
 DEPFLAGS=@DEPFLAGS@
-## ${MKDIR_P} ${DEPDIR} (if AUTO_DEPEND); else ':'.
+## ${MKDIR_P} ${DEPDIR} (if AUTO_DEPEND); else 'echo'.
 MKDEPDIR=@MKDEPDIR@
 
 ## DO NOT use -R.  There is a special hack described in lastfile.c
@@ -428,23 +434,24 @@ NL=-nl
 
 ## The dumped Emacs is as functional and more efficient than
 ## bootstrap-emacs, so we replace the latter with the former.
-## Strictly speaking, emacs does not depend directly on all of $lisp,
+## Strictly speaking, emacs does not depend directly on all of ${lisp},
 ## since not all pieces are used on all platforms.  But DOC depends
-## on all of $lisp, & emacs depends on DOC, so it is ok to use $lisp here.
-## FIXME: there are some interesting bits in the rejects file that I think
-## might have failed to make it into here, so keep that around until we can
-## figure out if/how to merge those parts.
+## on all of ${lisp}, and emacs depends on DOC, so it is okay to use
+## ${lisp} here.
+## I am still working on merging some things in from Makefile.in.rej;
+## need a better autoconf macro for checking for GNU make...
+#undef i386
 emacs$(EXEEXT): temacs$(EXEEXT) $(ADDSECTION) \
                 $(etc)/DOC $(lisp) $(leimdir)/leim-list.el \
                 $(lispsource)/international/charprop.el
 	if test "$(CANNOT_DUMP)" = "yes"; then \
 	  rm -f emacs$(EXEEXT); \
-	  ln temacs$(EXEEXT) emacs$(EXEEXT); \
+	  ln -v temacs$(EXEEXT) emacs$(EXEEXT); \
 	else \
 	  LC_ALL=C $(RUN_TEMACS) -batch -l loadup dump || exit 1; \
-	  test "X$(PAXCTL)" = X || $(PAXCTL) -zex emacs$(EXEEXT); \
+	  test "X$(PAXCTL)" = "X" || $(PAXCTL) -zex emacs$(EXEEXT); \
 	  rm -f bootstrap-emacs$(EXEEXT); \
-	  ln emacs$(EXEEXT) bootstrap-emacs$(EXEEXT); \
+	  ln -v emacs$(EXEEXT) bootstrap-emacs$(EXEEXT); \
 	fi
 
 ## We run make-docfile twice because the command line may get too long
@@ -465,19 +472,19 @@ $(etc)/DOC: $(libsrc)/make-docfile$(EXEEXT) $(obj) $(lisp)
 	$(MKDIR_P) $(etc)
 	-rm -f $(etc)/DOC
 	$(libsrc)/make-docfile -d $(srcdir) $(SOME_MACHINE_OBJECTS) $(obj) > $(etc)/DOC
-	$(libsrc)/make-docfile -a $(etc)/DOC -d $(lispsource) `sed -n -e 's| \\\\||' -e 's|^[ 	]*$$(lispsource)/||p' $(srcdir)/lisp.mk`
+	$(libsrc)/make-docfile -a $(etc)/DOC -d $(lispsource) `$(SED) -n -e 's| \\\\||' -e 's|^[ 	]*$$(lispsource)/||p' $(srcdir)/lisp.mk`
 
 $(libsrc)/make-docfile$(EXEEXT):
 	cd $(libsrc); $(MAKE) $(MFLAGS) make-docfile$(EXEEXT)
 
 buildobj.h: Makefile
 	for i in $(ALLOBJS); do \
-	  echo "$$i" | sed 's,.*/,,; s/\.obj$$/\.o/; s/^/"/; s/$$/",/' \
+	  echo "$${i}" | $(SED) 's,.*/,,; s/\.obj$$/\.o/; s/^/"/; s/$$/",/' \
 	    || exit; \
 	done >$@.tmp
 	mv $@.tmp $@
 
-globals.h: gl-stamp; @true
+globals.h: gl-stamp; @echo "this target, '$@', just makes its dep, '$<'"
 
 GLOBAL_SOURCES = $(base_obj:.o=.c) $(NS_OBJC_OBJ:.o=.m)
 
@@ -500,9 +507,9 @@ temacs$(EXEEXT): $(LIBXMENU) $(ALLOBJS) \
 	$(CC) $(ALL_CFLAGS) $(TEMACS_LDFLAGS) $(LDFLAGS) \
 	  -o temacs $(ALLOBJS) $(lib)/libgnu.a $(W32_RES_LINK) $(LIBES)
 	$(MKDIR_P) $(etc)
-	$(TEMACS_POST_LINK)
+	@$(TEMACS_POST_LINK)
 	test "$(CANNOT_DUMP)" = "yes" || \
-	  test "X$(PAXCTL)" = X || $(PAXCTL) -r temacs$(EXEEXT)
+	  test "X$(PAXCTL)" = "X" || $(PAXCTL) -r temacs$(EXEEXT)
 	test "$(CANNOT_DUMP)" = "yes" || test -z "$(SETFATTR)" || \
 	  $(SETFATTR) -n user.pax.flags -v r $@
 
@@ -611,7 +618,7 @@ tags: TAGS ../lisp/TAGS $(lwlibdir)/TAGS
 ## To solve the circularity, we use 2 different Emacs executables,
 ## "emacs" is the main target and "bootstrap-emacs" is the one used
 ## to build the *.elc and loaddefs.el files.
-## To solve the freshness issue, we used to use a third file "witness-emacs"
+## To solve the freshness issue, we used to use a 3rd file "witness-emacs"
 ## which was used to witness the fact that there is a bootstrap-emacs
 ## executable, and then have dependencies on witness-emacs rather than
 ## bootstrap-emacs, but that lead to problems in parallel builds (because
@@ -651,13 +658,18 @@ bootstrap-emacs$(EXEEXT): temacs$(EXEEXT)
 	cd ../lisp; $(MAKE) $(MFLAGS) update-subdirs
 	if test "$(CANNOT_DUMP)" = "yes"; then \
 	  rm -f bootstrap-emacs$(EXEEXT); \
-	  ln temacs$(EXEEXT) bootstrap-emacs$(EXEEXT); \
+	  ln -v temacs$(EXEEXT) bootstrap-emacs$(EXEEXT); \
 	else \
+	  if test -n "`$(FILE_MAGIC_BIN) temacs | $(GREP) 'Mach-O universal binary'`"; then \
+	    mv -v temacs emacs-undumped; \
+	    $(LIPO) -thin `$(SRCROOT)/filearch.rb emacs-undumped` -output temacs emacs-undumped; \
+	    rm emacs-undumped; \
+	  fi; \
 	  $(RUN_TEMACS) --batch --load loadup bootstrap || exit 1; \
-	  test "X$(PAXCTL)" = X || $(PAXCTL) -zex emacs$(EXEEXT); \
-	  mv -f emacs$(EXEEXT) bootstrap-emacs$(EXEEXT); \
+	  test "X$(PAXCTL)" = "X" || $(PAXCTL) -zex emacs$(EXEEXT); \
+	  mv -fv emacs$(EXEEXT) bootstrap-emacs$(EXEEXT); \
 	fi
-	@: Compile some files earlier to speed up further compilation.
+	@echo "Compiling some files earlier to speed up further compilation."
 	cd ../lisp; $(MAKE) $(MFLAGS) compile-first EMACS="$(bootstrap_exe)"
 
 ## Insert either autodeps.mk (if AUTO_DEPEND), else deps.mk.
