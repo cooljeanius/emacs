@@ -28,8 +28,8 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "lisp.h"
 #include "character.h"
 
-#ifdef HAVE_WINDOW_SYSTEM
-#include TERM_HEADER
+#if defined(HAVE_WINDOW_SYSTEM) && defined(TERM_HEADER)
+# include TERM_HEADER
 #endif /* HAVE_WINDOW_SYSTEM */
 
 #include "buffer.h"
@@ -44,16 +44,16 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "window.h"
 #include "font.h"
 #ifdef HAVE_WINDOW_SYSTEM
-#include "fontset.h"
-#endif
+# include "fontset.h"
+#endif /* HAVE_WINDOW_SYSTEM */
 #ifdef MSDOS
-#include "msdos.h"
-#include "dosfns.h"
-#endif
+# include "msdos.h"
+# include "dosfns.h"
+#endif /* MSDOS */
 
 #ifdef HAVE_NS
 Lisp_Object Qns_parse_geometry;
-#endif
+#endif /* HAVE_NS */
 
 Lisp_Object Qframep, Qframe_live_p;
 Lisp_Object Qicon, Qmodeline;
@@ -61,7 +61,10 @@ Lisp_Object Qonly, Qnone;
 Lisp_Object Qx, Qw32, Qpc, Qns;
 Lisp_Object Qvisible;
 Lisp_Object Qdisplay_type;
-static Lisp_Object Qbackground_mode;
+#ifndef EMACS_FRAME_H
+static
+#endif /* !EMACS_FRAME_H */
+Lisp_Object Qbackground_mode;
 Lisp_Object Qnoelisp;
 
 static Lisp_Object Qx_frame_parameter;
@@ -91,7 +94,7 @@ Lisp_Object Qwait_for_wm;
 static Lisp_Object Qwindow_id;
 #ifdef HAVE_X_WINDOWS
 static Lisp_Object Qouter_window_id;
-#endif
+#endif /* HAVE_X_WINDOWS */
 Lisp_Object Qparent_id;
 Lisp_Object Qtitle, Qname;
 static Lisp_Object Qexplicit_name;
@@ -99,7 +102,11 @@ Lisp_Object Qunsplittable;
 Lisp_Object Qmenu_bar_lines, Qtool_bar_lines, Qtool_bar_position;
 Lisp_Object Qleft_fringe, Qright_fringe;
 Lisp_Object Qbuffer_predicate;
-static Lisp_Object Qbuffer_list, Qburied_buffer_list;
+#ifndef EMACS_FRAME_H
+static
+#endif /* !EMACS_FRAME_H */
+Lisp_Object Qbuffer_list;
+static Lisp_Object Qburied_buffer_list;
 Lisp_Object Qtty_color_mode;
 Lisp_Object Qtty, Qtty_type;
 
@@ -3643,7 +3650,7 @@ x_set_alpha (struct frame *f, Lisp_Object arg, Lisp_Object oldval)
   return;
 }
 
-#ifndef HAVE_NS
+#if !defined(HAVE_NS) && (defined(Display_Info) || defined(HAVE_X_WINDOWS))
 
 /* Non-zero if mouse is grabbed on DPYINFO
    and we know the frame where it is.  */
@@ -3668,7 +3675,7 @@ x_redo_mouse_highlight (Display_Info *dpyinfo)
 			  dpyinfo->last_mouse_motion_y);
 }
 
-#endif /* HAVE_NS */
+#endif /* HAVE_NS && (Display_Info || HAVE_X_WINDOWS) */
 
 /* Subroutines of creating an X frame.  */
 
@@ -3797,7 +3804,11 @@ xrdb_get_resource (XrmDatabase rdb, Lisp_Object attribute, Lisp_Object class, Li
   strcat (name_key, ".");
   strcat (name_key, SSDATA (attribute));
 
+#if defined(HAVE_X_WINDOWS) || defined(HAVE_X_GET_STRING_RESOURCE) || defined(x_get_string_resource)
   value = x_get_string_resource (rdb, name_key, class_key);
+#else
+  value = (char *)"";
+#endif /* HAVE_X_WINDOWS || HAVE_X_GET_STRING_RESOURCE || x_get_string_resource */
 
   if (value && *value)
     return build_string (value);
@@ -3860,7 +3871,7 @@ x_get_resource_string (const char *attribute, const char *class)
   SAFE_FREE ();
   return result;
 }
-#endif
+#endif /* HAVE_X_WINDOWS && !USE_X_TOOLKIT */
 
 /* Return the value of parameter PARAM.
 
@@ -3931,7 +3942,7 @@ x_get_arg (Display_Info *dpyinfo, Lisp_Object alist, Lisp_Object param,
 	      if (!strcmp (SSDATA (tem), "on")
 #ifdef HAVE_NS
                   || !strcmp (SSDATA (tem), "yes")
-#endif
+#endif /* HAVE_NS */
 		  || !strcmp (SSDATA (tem), "true"))
 		return Qt;
 	      else
@@ -3949,13 +3960,13 @@ x_get_arg (Display_Info *dpyinfo, Lisp_Object alist, Lisp_Object param,
 		if (!strcmp (SSDATA (lower), "on")
 #ifdef HAVE_NS
                     || !strcmp (SSDATA (lower), "yes")
-#endif
+#endif /* HAVE_NS */
 		    || !strcmp (SSDATA (lower), "true"))
 		  return Qt;
 		else if (!strcmp (SSDATA (lower), "off")
 #ifdef HAVE_NS
                       || !strcmp (SSDATA (lower), "no")
-#endif
+#endif /* HAVE_NS */
 		      || !strcmp (SSDATA (lower), "false"))
 		  return Qnil;
 		else
@@ -4034,8 +4045,10 @@ x_default_parameter (struct frame *f, Lisp_Object alist, Lisp_Object prop,
  *   the corresponding argument is updated;  for each value
  *   not found, the corresponding argument is left unchanged.
  */
-
-static int
+#ifndef _EMACS_MACTERM_H
+static
+#endif /* !_EMACS_MACTERM_H */
+int
 XParseGeometry (char *string,
 		int *x, int *y,
 		unsigned int *width, unsigned int *height)
@@ -4194,7 +4207,7 @@ long
 x_figure_window_size (struct frame *f, Lisp_Object parms, bool toolbar_p)
 {
   register Lisp_Object tem0, tem1, tem2;
-  long window_prompting = 0;
+  long window_prompting = 0L;
   Display_Info *dpyinfo = FRAME_DISPLAY_INFO (f);
 
   /* Default values if we fall through.

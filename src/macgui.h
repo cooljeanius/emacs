@@ -1,4 +1,4 @@
-/* Definitions and headers for communication on the Mac OS.
+/* macgui.h: Definitions and headers for communication on the Mac OS.
    Copyright (C) 2000, 2001, 2002, 2003, 2004,
                  2005, 2006, 2007 Free Software Foundation, Inc.
 
@@ -28,94 +28,96 @@ typedef struct _XDisplay Display; /* opaque */
 
 typedef Lisp_Object XrmDatabase;
 
+#ifndef EMACS_SYSTIME_H
 typedef unsigned long Time;
+#endif /* !EMACS_SYSTIME_H */
 
 #ifdef HAVE_CARBON
-#undef Z
-#ifdef MAC_OSX
-#if ! HAVE_MKTIME || BROKEN_MKTIME
-#undef mktime
-#endif
-#undef DEBUG
-#undef free
-#undef malloc
-#undef realloc
+# undef Z
+# ifdef MAC_OSX
+#  if ! HAVE_MKTIME || BROKEN_MKTIME
+#   undef mktime
+#  endif
+#  undef DEBUG
+#  undef free
+#  undef malloc
+#  undef realloc
 /* Macros max and min defined in lisp.h conflict with those in
    precompiled header Carbon.h.  */
-#undef max
-#undef min
-#undef init_process
-#include <Carbon/Carbon.h>
-#if ! HAVE_MKTIME || BROKEN_MKTIME
-#undef mktime
-#define mktime emacs_mktime
-#endif
-#undef free
-#define free unexec_free
-#undef malloc
-#define malloc unexec_malloc
-#undef realloc
-#define realloc unexec_realloc
-#undef min
-#define min(a, b) ((a) < (b) ? (a) : (b))
-#undef max
-#define max(a, b) ((a) > (b) ? (a) : (b))
-#undef init_process
-#define init_process emacs_init_process
-#undef INFINITY
-#else  /* not MAC_OSX */
-#undef SIGHUP
-#define OLDP2C 1
-#include <Carbon.h>
-#endif  /* not MAC_OSX */
-#undef Z
-#define Z (current_buffer->text->z)
+#  undef max
+#  undef min
+#  undef init_process
+#  include <Carbon/Carbon.h>
+#  if ! HAVE_MKTIME || BROKEN_MKTIME
+#   undef mktime
+#   define mktime emacs_mktime
+#  endif
+#  undef free
+#  define free unexec_free
+#  undef malloc
+#  define malloc unexec_malloc
+#  undef realloc
+#  define realloc unexec_realloc
+#  undef min
+#  define min(a, b) ((a) < (b) ? (a) : (b))
+#  undef max
+#  define max(a, b) ((a) > (b) ? (a) : (b))
+#  undef init_process
+#  define init_process emacs_init_process
+#  undef INFINITY
+# else  /* not MAC_OSX */
+#  undef SIGHUP
+#  define OLDP2C 1
+#  include <Carbon.h>
+# endif  /* not MAC_OSX */
+# undef Z
+# define Z (current_buffer->text->z)
 #else /* not HAVE_CARBON */
-#include <QuickDraw.h>		/* for WindowPtr */
-#include <QDOffscreen.h>	/* for GWorldPtr */
-#include <Appearance.h>		/* for ThemeCursor */
-#include <Windows.h>
-#include <Controls.h>
-#include <Gestalt.h>
+# include <QuickDraw.h>		/* for WindowPtr */
+# include <QDOffscreen.h>	/* for GWorldPtr */
+# include <Appearance.h>		/* for ThemeCursor */
+# include <Windows.h>
+# include <Controls.h>
+# include <Gestalt.h>
 #endif /* not HAVE_CARBON */
 
 /* Whether to use ATSUI (Apple Type Services for Unicode Imaging) for
    text drawing.  */
 #ifndef USE_ATSUI
-#ifdef MAC_OSX
-#define USE_ATSUI 1
-#endif
-#endif
+# ifdef MAC_OSX
+#  define USE_ATSUI 1
+# endif /* MAC_OSX */
+#endif /* !USE_ATSUI */
 
 /* Whether to use low-level Quartz 2D (aka Core Graphics) text drawing
    in preference to ATSUI for ASCII and Latin-1 characters.  */
 #ifndef USE_CG_TEXT_DRAWING
-#if USE_ATSUI && MAC_OS_X_VERSION_MAX_ALLOWED >= 1030
-#define USE_CG_TEXT_DRAWING 1
-#endif
-#endif
+# if USE_ATSUI && (MAC_OS_X_VERSION_MAX_ALLOWED >= 1030)
+#  define USE_CG_TEXT_DRAWING 1
+# endif /* USE_ATSUI && 10.3+ */
+#endif /* !USE_CG_TEXT_DRAWING */
 
 /* Whether to use Quartz 2D routines for drawing operations other than
    texts.  */
 #ifndef USE_CG_DRAWING
-#if USE_ATSUI && MAC_OS_X_VERSION_MAX_ALLOWED >= 1020
-#define USE_CG_DRAWING 1
-#endif
-#endif
+# if USE_ATSUI && (MAC_OS_X_VERSION_MAX_ALLOWED >= 1020)
+#  define USE_CG_DRAWING 1
+# endif /* USE_ATSUI && 10.2+ */
+#endif /* !USE_CG_DRAWING */
 
 /* Whether to use the standard Font Panel floating dialog.  */
 #ifndef USE_MAC_FONT_PANEL
-#if USE_ATSUI && MAC_OS_X_VERSION_MAX_ALLOWED >= 1020
-#define USE_MAC_FONT_PANEL 1
-#endif
-#endif
+# if USE_ATSUI && MAC_OS_X_VERSION_MAX_ALLOWED >= 1020
+#  define USE_MAC_FONT_PANEL 1
+# endif /* USE_ATSUI && 10.2+ */
+#endif /* !USE_MAC_FONT_PANEL */
 
 /* Whether to use Text Services Manager.  */
 #ifndef USE_MAC_TSM
-#if TARGET_API_MAC_CARBON
-#define USE_MAC_TSM 1
-#endif
-#endif
+# if TARGET_API_MAC_CARBON
+#  define USE_MAC_TSM 1
+# endif /* TARGET_API_MAC_CARBON */
+#endif /* !USE_MAC_TSM */
 
 typedef WindowPtr Window;
 typedef GWorldPtr Pixmap;
@@ -126,8 +128,8 @@ typedef GWorldPtr Pixmap;
 #define FACE_DEFAULT (~0)
 
 #if !TARGET_API_MAC_CARBON
-#define GetPixDepth(pmh) ((*(pmh))->pixelSize)
-#endif
+# define GetPixDepth(pmh) ((*(pmh))->pixelSize)
+#endif /* !TARGET_API_MAC_CARBON */
 
 
 /* Emulate XCharStruct.  */
@@ -299,22 +301,22 @@ typedef struct {
 #if 0
 	int x, y;		/* obsolete for new window mgrs, but clients */
 	int width, height;	/* should set so old wm's don't mess up */
-#endif
+#endif /* 0 */
 	int min_width, min_height;
 #if 0
 	int max_width, max_height;
-#endif
+#endif /* 0 */
     	int width_inc, height_inc;
 #if 0
 	struct {
 		int x;	/* numerator */
 		int y;	/* denominator */
 	} min_aspect, max_aspect;
-#endif
+#endif /* 0 */
 	int base_width, base_height;		/* added by ICCCM version 1 */
 #if 0
 	int win_gravity;			/* added by ICCCM version 1 */
-#endif
+#endif /* 0 */
 } XSizeHints;
 
 #define USPosition	(1L << 0) /* user specified x, y */
@@ -334,7 +336,9 @@ typedef struct {
     unsigned width, height;
 } XRectangle;
 
-#define NativeRectangle Rect
+#ifndef NativeRectangle
+# define NativeRectangle Rect
+#endif /* !NativeRectangle */
 
 #define CONVERT_TO_XRECT(xr,nr)			\
   ((xr).x = (nr).left,				\

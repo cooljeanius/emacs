@@ -49,6 +49,9 @@ enum output_method
   output_x_window,
   output_msdos_raw,
   output_w32,
+#if defined(MAC_OS) || defined(HAVE_CARBON)
+  output_mac,
+#endif /* MAC_OS || HAVE_CARBON */
   output_ns
 };
 
@@ -67,7 +70,7 @@ enum event_kind
 				   which the key was typed.
 				   .timestamp gives a timestamp (in
 				   milliseconds) for the keystroke.  */
-  MULTIBYTE_CHAR_KEYSTROKE_EVENT,	/* The multibyte char code is in .code,
+  MULTIBYTE_CHAR_KEYSTROKE_EVENT, /* The multibyte char code is in .code,
 				   perhaps with modifiers applied.
 				   The others are the same as
 				   ASCII_KEYSTROKE_EVENT.  */

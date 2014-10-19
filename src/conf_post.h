@@ -66,17 +66,24 @@ typedef bool bool_bf;
 #endif
 
 #ifdef DARWIN_OS
-#ifdef emacs
-#define malloc unexec_malloc
-#define realloc unexec_realloc
-#define free unexec_free
-#endif
+/* in case "config.h" failed to define this: */
+# ifndef MAC_OSX
+#  if (defined(__APPLE__) && defined(__MACH__)) || \
+      defined(__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__)
+#   define MAC_OSX 10
+#  endif /* (__APPLE__ && __MACH__) || __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ */
+# endif /* !MAC_OSX */
+# ifdef emacs
+#  define malloc unexec_malloc
+#  define realloc unexec_realloc
+#  define free unexec_free
+# endif /* emacs */
 /* The following solves the problem that Emacs hangs when evaluating
    (make-comint "test0" "/nodir/nofile" nil "") when /nodir/nofile
    does not exist.  Also, setsid is not allowed in the vfork child's
    context as of Darwin 9/Mac OS X 10.5.  */
-#undef HAVE_WORKING_VFORK
-#define vfork fork
+# undef HAVE_WORKING_VFORK
+# define vfork fork
 #endif  /* DARWIN_OS */
 
 /* We have to go this route, rather than the old hpux9 approach of
@@ -96,48 +103,48 @@ typedef bool bool_bf;
 #endif  /* HPUX */
 
 #ifdef IRIX6_5
-#ifdef emacs
+# ifdef emacs
 char *_getpty();
-#endif
+# endif /* emacs */
 
 #endif /* IRIX6_5 */
 
 #ifdef MSDOS
-#ifndef __DJGPP__
+# ifndef __DJGPP__
 You lose; /* Emacs for DOS must be compiled with DJGPP */
-#endif
-#define _NAIVE_DOS_REGS
+# endif /* !__DJGPP__ */
+# define _NAIVE_DOS_REGS
 
 /* Start of gnulib-related stuff  */
 
 /* lib/ftoastr.c wants strtold, but DJGPP only has _strtold.  DJGPP >
    2.03 has it, but it also has _strtold as a stub that jumps to
    strtold, so use _strtold in all versions.  */
-#define strtold _strtold
+# define strtold _strtold
 
-#if __DJGPP__ > 2 || __DJGPP_MINOR__ > 3
-# define HAVE_LSTAT 1
-#else
-# define lstat stat
-#endif
+# if (__DJGPP__ > 2) || (__DJGPP_MINOR__ > 3)
+#  define HAVE_LSTAT 1
+# else
+#  define lstat stat
+# endif
 /* The "portable" definition of _GL_INLINE on config.h does not work
    with DJGPP GCC 3.4.4: it causes unresolved externals in sysdep.c,
    although lib/execinfo.h is included and the inline functions there
    are visible.  */
-#if __GNUC__ < 4
-# define _GL_EXECINFO_INLINE inline
-#endif
+# if (__GNUC__ < 4)
+#  define _GL_EXECINFO_INLINE inline
+# endif
 /* End of gnulib-related stuff.  */
 
-#define emacs_raise(sig) msdos_fatal_signal (sig)
+# define emacs_raise(sig) msdos_fatal_signal (sig)
 
 /* Define one of these for easier conditionals.  */
-#ifdef HAVE_X_WINDOWS
+# ifdef HAVE_X_WINDOWS
 /* We need a little extra space, see ../../lisp/loadup.el and the
    commentary below, in the non-X branch.  The 140KB number was
    measured on GNU/Linux and on MS-Windows.  */
-#define SYSTEM_PURESIZE_EXTRA (-170000+140000)
-#else
+#  define SYSTEM_PURESIZE_EXTRA (-170000+140000)
+# else
 /* We need a little extra space, see ../../lisp/loadup.el.
    As of 20091024, DOS-specific files use up 62KB of pure space.  But
    overall, we end up wasting 130KB of pure space, because
@@ -147,9 +154,20 @@ You lose; /* Emacs for DOS must be compiled with DJGPP */
    directory tree).  Given the unknown policy of different DPMI
    hosts regarding loading of untouched pages, I'm not going to risk
    enlarging Emacs footprint by another 100+ KBytes.  */
-#define SYSTEM_PURESIZE_EXTRA (-170000+65000)
-#endif
+#  define SYSTEM_PURESIZE_EXTRA (-170000+65000)
+# endif /* HAVE_X_WINDOWS */
 #endif  /* MSDOS */
+
+/* If we are using the Carbon API on Mac OS X, define a few more
+ * variables as well.  */
+#ifdef HAVE_CARBON
+# ifndef HAVE_WINDOW_SYSTEM
+#  define HAVE_WINDOW_SYSTEM
+# endif /* !HAVE_WINDOW_SYSTEM */
+# ifndef HAVE_MOUSE
+#  define HAVE_MOUSE
+# endif /* !HAVE_MOUSE */
+#endif /* HAVE_CARBON */
 
 /* Mac OS X / GNUstep need a bit more pure memory.  Of the existing knobs,
    SYSTEM_PURESIZE_EXTRA seems like the least likely to cause problems.  */

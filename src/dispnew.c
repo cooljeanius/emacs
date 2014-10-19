@@ -45,7 +45,13 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "tparam.h"
 
 #ifdef HAVE_WINDOW_SYSTEM
-# include TERM_HEADER
+# if defined(TERM_HEADER)
+#  include TERM_HEADER
+# else
+#  if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#   warning "TERM_HEADER should be defined if you also HAVE_WINDOW_SYSTEM"
+#  endif /* __GNUC__ && !__STRICT_ANSI__ */
+# endif /* HAVE_WINDOW_SYSTEM */
 #endif /* HAVE_WINDOW_SYSTEM */
 
 #include <errno.h>

@@ -1,8 +1,8 @@
 # darwin.m4 serial 1                                       -*- Autoconf -*-
 dnl# extracted from the libtool required darwin checks
 
-# EMACS_REQUIRED_DARWIN_CHECKS
-# -------------------------
+dnl# EMACS_REQUIRED_DARWIN_CHECKS
+dnl# -------------------------
 AC_DEFUN([EMACS_REQUIRED_DARWIN_CHECKS],[
   dnl# use this instead of requiring, because if we require it too early,
   dnl# it will mess up the flags we pass to it:

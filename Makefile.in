@@ -104,7 +104,10 @@ NTDIR=@NTDIR@
 
 # ==================== Where To Install Things ====================
 
-# Location to install Emacs.app under GNUstep / Mac OS X.
+# Location to install the Carbon Emacs.app on Mac OS X
+carbon_appdir=@carbon_appdir@
+
+# Location to install the Cocoa Emacs.app under GNUstep / Mac OS X.
 # Later values may use these.
 ns_appbindir=@ns_appbindir@
 ns_appresdir=@ns_appresdir@
@@ -515,6 +518,12 @@ install-arch-dep: src install-arch-indep install-etcdoc install-$(NTDIR)
 	  subdir=${ns_appresdir}/site-lisp; \
 	  ${write_subdir} || exit 1; \
 	  rm -rf ${ns_appresdir}/share; \
+	fi
+	if test "x${carbon_appdir}" != "x"; then \
+	  umask 022; ${MKDIR_P} $(DESTDIR)${carbon_appdir}/Emacs.app; \
+	  (cd mac/Emacs.app; (tar -chf - . | \
+		(cd $(DESTDIR)${carbon_appdir}/Emacs.app; umask 022; tar -xvf - \
+			&& cat > /dev/null))) || exit 1; \
 	fi
 
 ### Windows-specific install target for installing programs produced

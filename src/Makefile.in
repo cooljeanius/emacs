@@ -77,6 +77,7 @@ PROFILING_CFLAGS = @PROFILING_CFLAGS@
 ## Flags to pass to the compiler to enable build warnings
 WARN_CFLAGS = @WARN_CFLAGS@
 WERROR_CFLAGS = @WERROR_CFLAGS@
+WARN_LDFLAGS = @WARN_LDFLAGS@
 
 ## Machine-specific CFLAGS.
 C_SWITCH_MACHINE=@C_SWITCH_MACHINE@
@@ -113,7 +114,8 @@ LD_SWITCH_SYSTEM=@LD_SWITCH_SYSTEM@
 LD_SWITCH_SYSTEM_TEMACS=@LD_SWITCH_SYSTEM_TEMACS@
 
 ## Flags to pass to ld only for temacs.
-TEMACS_LDFLAGS = $(LD_SWITCH_SYSTEM) $(LD_SWITCH_SYSTEM_TEMACS)
+TEMACS_LDFLAGS = $(LD_SWITCH_SYSTEM) $(LD_SWITCH_SYSTEM_TEMACS) \
+  $(WARN_LDFLAGS)
 
 ## If available, the names of the paxctl and setfattr programs.
 ## On grsecurity/PaX systems, unexec will fail due to a gap between
@@ -242,6 +244,15 @@ WIDGET_OBJ=@WIDGET_OBJ@
 
 ## sheap.o if CYGWIN, otherwise empty.
 CYGWIN_OBJ=@CYGWIN_OBJ@
+
+#ifdef HAVE_CARBON
+dot = .
+dotdot = ${dot}${dot}
+mac = $(dot)$(dot)/mac/
+MAC_OBJ = mac.o macterm.o macfns.o macmenu.o macselect.o fontset.o fringe.o image.o
+emacsapp = $(PWD)/$(mac)Emacs.app/
+emacsappsrc = ${srcdir}/../mac/Emacs.app/
+#endif
 
 ## fontset.o fringe.o image.o if we have any window system
 WINDOW_SYSTEM_OBJ=@WINDOW_SYSTEM_OBJ@
@@ -438,21 +449,51 @@ NL=-nl
 ## since not all pieces are used on all platforms.  But DOC depends
 ## on all of ${lisp}, and emacs depends on DOC, so it is okay to use
 ## ${lisp} here.
-## I am still working on merging some things in from Makefile.in.rej;
-## need a better autoconf macro for checking for GNU make...
-#undef i386
+## I should be done merging now... yikes, this is confusing...
 emacs$(EXEEXT): temacs$(EXEEXT) $(ADDSECTION) \
                 $(etc)/DOC $(lisp) $(leimdir)/leim-list.el \
                 $(lispsource)/international/charprop.el
-	if test "$(CANNOT_DUMP)" = "yes"; then \
-	  rm -f emacs$(EXEEXT); \
-	  ln -v temacs$(EXEEXT) emacs$(EXEEXT); \
-	else \
-	  LC_ALL=C $(RUN_TEMACS) -batch -l loadup dump || exit 1; \
-	  test "X$(PAXCTL)" = "X" || $(PAXCTL) -zex emacs$(EXEEXT); \
-	  rm -f bootstrap-emacs$(EXEEXT); \
-	  ln -v emacs$(EXEEXT) bootstrap-emacs$(EXEEXT); \
-	fi
+@GNU_MAKE_TRUE@#ifdef CANNOT_DUMP
+@GNU_MAKE_TRUE@	if test "x$(CANNOT_DUMP)" = "xyes"; then \
+@GNU_MAKE_TRUE@	  rm -f emacs${EXEEXT}; \
+@GNU_MAKE_TRUE@	  ln -v temacs${EXEEXT} emacs${EXEEXT}; \
+@GNU_MAKE_TRUE@	fi
+@GNU_MAKE_TRUE@#else
+@GNU_MAKE_TRUE@#undef i386
+@GNU_MAKE_TRUE@	@if test "x$(CANNOT_DUMP)" = "xyes"; then \
+@GNU_MAKE_TRUE@	   echo "Warning: trying to dump even though we cannot, due to ambiguity between various kinds of conditionals." >&2; \
+@GNU_MAKE_TRUE@	 fi
+@GNU_MAKE_TRUE@ifneq (1,$(words $(RC_ARCHS)))
+@GNU_MAKE_TRUE@	mv -v temacs emacs-undumped
+@GNU_MAKE_TRUE@ifeq (i386,$(filter i386,$(RC_ARCHS)))
+@GNU_MAKE_TRUE@	$(LIPO) -thin i386 -output temacs emacs-undumped
+@GNU_MAKE_TRUE@	LC_ALL=C $(RUN_TEMACS) $(NL) -batch -l loadup dump || false
+@GNU_MAKE_TRUE@	mv -v emacs arch/emacs-i386
+@GNU_MAKE_TRUE@	rm -f emacs-[0-9]* # avoid DOC-xx incrementing
+@GNU_MAKE_TRUE@endif
+@GNU_MAKE_TRUE@ifeq (x86_64,$(filter x86_64,$(RC_ARCHS)))
+@GNU_MAKE_TRUE@	$(LIPO) -thin x86_64 -output temacs emacs-undumped
+@GNU_MAKE_TRUE@	LC_ALL=C $(RUN_TEMACS) $(NL) -batch -l loadup dump || false
+@GNU_MAKE_TRUE@	mv -v emacs arch/emacs-x86_64
+@GNU_MAKE_TRUE@	rm -f emacs-[0-9]* # avoid DOC-xx incrementing
+@GNU_MAKE_TRUE@endif
+@GNU_MAKE_TRUE@	$(LIPO) -create -output emacs "arch/"*
+@GNU_MAKE_TRUE@	cp -v emacs-undumped temacs
+@GNU_MAKE_TRUE@else
+@GNU_MAKE_TRUE@	cp -v temacs emacs-undumped
+@GNU_MAKE_TRUE@	LC_ALL=C $(RUN_TEMACS) $(NL) -batch -l loadup dump || false
+@GNU_MAKE_TRUE@endif
+@GNU_MAKE_TRUE@#endif /* ! defined (CANNOT_DUMP) */
+@GNU_MAKE_TRUE@	-./emacs -q -batch -f list-load-path-shadows
+@GNU_MAKE_FALSE@	if test "x$(CANNOT_DUMP)" = "xyes"; then \
+@GNU_MAKE_FALSE@	  rm -f emacs$(EXEEXT); \
+@GNU_MAKE_FALSE@	  ln -v temacs$(EXEEXT) emacs$(EXEEXT); \
+@GNU_MAKE_FALSE@	else \
+@GNU_MAKE_FALSE@	  LC_ALL=C $(RUN_TEMACS) -batch -l loadup dump || exit 1; \
+@GNU_MAKE_FALSE@	  test "X$(PAXCTL)" = "X" || $(PAXCTL) -zex emacs$(EXEEXT); \
+@GNU_MAKE_FALSE@	  rm -f bootstrap-emacs$(EXEEXT); \
+@GNU_MAKE_FALSE@	  ln -v emacs$(EXEEXT) bootstrap-emacs$(EXEEXT); \
+@GNU_MAKE_FALSE@	fi
 
 ## We run make-docfile twice because the command line may get too long
 ## on some systems.  The sed command operating on lisp.mk also reduces
@@ -469,7 +510,7 @@ emacs$(EXEEXT): temacs$(EXEEXT) $(ADDSECTION) \
 ## in the contents of the DOC file.
 ##
 $(etc)/DOC: $(libsrc)/make-docfile$(EXEEXT) $(obj) $(lisp)
-	$(MKDIR_P) $(etc)
+	$(MKDIR_P) -v $(etc)
 	-rm -f $(etc)/DOC
 	$(libsrc)/make-docfile -d $(srcdir) $(SOME_MACHINE_OBJECTS) $(obj) > $(etc)/DOC
 	$(libsrc)/make-docfile -a $(etc)/DOC -d $(lispsource) `$(SED) -n -e 's| \\\\||' -e 's|^[ 	]*$$(lispsource)/||p' $(srcdir)/lisp.mk`
@@ -506,7 +547,7 @@ temacs$(EXEEXT): $(LIBXMENU) $(ALLOBJS) \
 	         $(lib)/libgnu.a $(EMACSRES)
 	$(CC) $(ALL_CFLAGS) $(TEMACS_LDFLAGS) $(LDFLAGS) \
 	  -o temacs $(ALLOBJS) $(lib)/libgnu.a $(W32_RES_LINK) $(LIBES)
-	$(MKDIR_P) $(etc)
+	$(MKDIR_P) -v $(etc)
 	@$(TEMACS_POST_LINK)
 	test "$(CANNOT_DUMP)" = "yes" || \
 	  test "X$(PAXCTL)" = "X" || $(PAXCTL) -r temacs$(EXEEXT)
@@ -539,6 +580,33 @@ emacs.res: $(ntsource)/emacs.rc \
 	$(WINDRES) -O COFF --include-dir=$(srcdir)/../nt \
 	  -o $@ $(ntsource)/emacs.rc
 
+#ifdef HAVE_CARBON
+## (dependencies should now go in deps.mk)
+
+${emacsapp}Contents/Resources/English.lproj:
+	${MKDIR_P} -v $@
+
+@ifGNUmake@ifneq (${emacsapp},${emacsappsrc})
+@ifGNUmake@${emacsapp}Contents/Info.plist: ${emacsappsrc}Contents/Info.plist
+@ifGNUmake@	cp -v $< $@
+@ifGNUmake@${emacsapp}Contents/PkgInfo: ${emacsappsrc}Contents/PkgInfo
+@ifGNUmake@	cp -v $< $@
+@ifGNUmake@${emacsapp}Contents/Resources/Emacs.icns: ${emacsappsrc}Contents/Resources/Emacs.icns
+@ifGNUmake@	${MKDIR_P} -v ${emacsapp}Contents/Resources
+@ifGNUmake@	cp -v $< $@
+@ifGNUmake@${emacsapp}Contents/Resources/English.lproj/InfoPlist.strings: ${emacsappsrc}Contents/Resources/English.lproj/InfoPlist.strings
+@ifGNUmake@	cp -v $< $@
+@ifGNUmake@endif
+
+macosx-bundle: ${emacsapp}Contents/Resources/English.lproj \
+	${emacsapp}Contents/Info.plist ${emacsapp}Contents/PkgInfo \
+	${emacsapp}Contents/Resources/Emacs.icns \
+	${emacsapp}Contents/Resources/English.lproj/InfoPlist.strings
+macosx-app: macosx-bundle ${emacsapp}Contents/MacOS/Emacs
+${emacsapp}Contents/MacOS/Emacs: emacs${EXEEXT}
+	${MKDIR_P} -v ${emacsapp}Contents/MacOS/;
+	cd ${emacsapp}Contents/MacOS/; cp -v ../../../../src/emacs${EXEEXT} Emacs${EXEEXT}
+#endif
 ns-app: emacs$(EXEEXT)
 	cd ../nextstep && $(MAKE) $(MFLAGS) all
 

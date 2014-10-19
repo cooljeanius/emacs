@@ -328,11 +328,10 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/00gnulib.m4 \
 	$(top_srcdir)/m4/close-stream.m4 \
 	$(top_srcdir)/m4/count-one-bits.m4 \
 	$(top_srcdir)/m4/count-trailing-zeros.m4 \
-	$(top_srcdir)/m4/darwin.m4 $(top_srcdir)/m4/dirent_h.m4 \
-	$(top_srcdir)/m4/dup2.m4 $(top_srcdir)/m4/environ.m4 \
-	$(top_srcdir)/m4/errno_h.m4 $(top_srcdir)/m4/error.m4 \
-	$(top_srcdir)/m4/euidaccess.m4 $(top_srcdir)/m4/execinfo.m4 \
-	$(top_srcdir)/m4/extensions.m4 \
+	$(top_srcdir)/m4/dirent_h.m4 $(top_srcdir)/m4/dup2.m4 \
+	$(top_srcdir)/m4/environ.m4 $(top_srcdir)/m4/errno_h.m4 \
+	$(top_srcdir)/m4/error.m4 $(top_srcdir)/m4/euidaccess.m4 \
+	$(top_srcdir)/m4/execinfo.m4 $(top_srcdir)/m4/extensions.m4 \
 	$(top_srcdir)/m4/extern-inline.m4 \
 	$(top_srcdir)/m4/faccessat.m4 $(top_srcdir)/m4/fcntl.m4 \
 	$(top_srcdir)/m4/fcntl_h.m4 $(top_srcdir)/m4/fdatasync.m4 \
@@ -354,6 +353,8 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/00gnulib.m4 \
 	$(top_srcdir)/m4/lib-ld.m4 $(top_srcdir)/m4/lib-link.m4 \
 	$(top_srcdir)/m4/lib-prefix.m4 $(top_srcdir)/m4/libtool.m4 \
 	$(top_srcdir)/m4/longlong.m4 $(top_srcdir)/m4/lstat.m4 \
+	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
+	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
 	$(top_srcdir)/m4/manywarnings.m4 $(top_srcdir)/m4/md5.m4 \
 	$(top_srcdir)/m4/memrchr.m4 $(top_srcdir)/m4/mkostemp.m4 \
 	$(top_srcdir)/m4/mktime.m4 $(top_srcdir)/m4/msvc-inval.m4 \
@@ -509,12 +510,22 @@ am__depfiles_maybe = depfiles
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+AM_V_lt = $(am__v_lt_@AM_V@)
+am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
+am__v_lt_0 = --silent
+am__v_lt_1 = 
+LTCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) \
+	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
+	$(AM_CFLAGS) $(CFLAGS)
 AM_V_CC = $(am__v_CC_@AM_V@)
 am__v_CC_ = $(am__v_CC_@AM_DEFAULT_V@)
 am__v_CC_0 = @echo "  CC      " $@;
 am__v_CC_1 = 
 CCLD = $(CC)
-LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
@@ -600,8 +611,10 @@ DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 DEPFLAGS = @DEPFLAGS@
 DESLIB = @DESLIB@
+DLLTOOL = @DLLTOOL@
 DOCMISC_W32 = @DOCMISC_W32@
 DSYMUTIL = @DSYMUTIL@
+DUMPBIN = @DUMPBIN@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
@@ -1086,6 +1099,7 @@ INTLLIBS = @INTLLIBS@
 INTL_MACOSX_LIBS = @INTL_MACOSX_LIBS@
 KRB4LIB = @KRB4LIB@
 KRB5LIB = @KRB5LIB@
+LD = @LD@
 LD64_SWITCH_SYSTEM_TEMACS = @LD64_SWITCH_SYSTEM_TEMACS@
 LDFLAGS = @LDFLAGS@
 LD_SWITCH_SYSTEM = @LD_SWITCH_SYSTEM@
@@ -1118,6 +1132,7 @@ LIBS_MAIL = @LIBS_MAIL@
 LIBS_SYSTEM = @LIBS_SYSTEM@
 LIBS_TERMCAP = @LIBS_TERMCAP@
 LIBTIFF = @LIBTIFF@
+LIBTOOL = @LIBTOOL@
 LIBXMENU = @LIBXMENU@
 LIBXML2_CFLAGS = @LIBXML2_CFLAGS@
 LIBXML2_LIBS = @LIBXML2_LIBS@
@@ -1150,6 +1165,7 @@ M17N_FLT_LIBS = @M17N_FLT_LIBS@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 MAKE_PROG = @MAKE_PROG@
+MANIFEST_TOOL = @MANIFEST_TOOL@
 MKDEPDIR = @MKDEPDIR@
 MKDIR_P = @MKDIR_P@
 MSGFMT = @MSGFMT@
@@ -1195,6 +1211,7 @@ NEXT_SYS_TIME_H = @NEXT_SYS_TIME_H@
 NEXT_SYS_TYPES_H = @NEXT_SYS_TYPES_H@
 NEXT_TIME_H = @NEXT_TIME_H@
 NEXT_UNISTD_H = @NEXT_UNISTD_H@
+NM = @NM@
 NMEDIT = @NMEDIT@
 NOTIFY_OBJ = @NOTIFY_OBJ@
 NS_OBJ = @NS_OBJ@
@@ -1205,6 +1222,7 @@ OBJC = @OBJC@
 OBJCDEPMODE = @OBJCDEPMODE@
 OBJCFLAGS = @OBJCFLAGS@
 OBJCPP = @OBJCPP@
+OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
 OTHER_FILES = @OTHER_FILES@
 OTOOL = @OTOOL@
@@ -1440,6 +1458,7 @@ ac_abs_top_srcdir = @ac_abs_top_srcdir@
 ac_ct_AR = @ac_ct_AR@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_CXX = @ac_ct_CXX@
+ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
 ac_ct_OBJC = @ac_ct_OBJC@
 ac_cv_wl = @ac_cv_wl@
 ac_top_srcdir = @ac_top_srcdir@
@@ -1459,6 +1478,7 @@ build_vendor = @build_vendor@
 builddir = @builddir@
 cache_file = @cache_file@
 canonical = @canonical@
+carbon_appdir = @carbon_appdir@
 configuration = @configuration@
 copyright = @copyright@
 copyright_holder = @copyright_holder@
@@ -1494,6 +1514,7 @@ lisppath = @lisppath@
 localedir = @localedir@
 locallisppath = @locallisppath@
 localstatedir = @localstatedir@
+machfile = @machfile@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 no_x = @no_x@
@@ -1503,7 +1524,9 @@ ns_appresdir = @ns_appresdir@
 ns_appsrc = @ns_appsrc@
 ns_check_file = @ns_check_file@
 ns_self_contained = @ns_self_contained@
+old_srcdir_value = @old_srcdir_value@
 oldincludedir = @oldincludedir@
+opsysfile = @opsysfile@
 pdfdir = @pdfdir@
 pre_PKG_CONFIG_CFLAGS = @pre_PKG_CONFIG_CFLAGS@
 pre_PKG_CONFIG_LIBS = @pre_PKG_CONFIG_LIBS@
@@ -1634,11 +1657,14 @@ AM_CPPFLAGS = -I. -I$(top_srcdir)/lib -I../src -I$(top_srcdir)/src
 # Do not rely on a 'configure'-time test for this, since the expression
 # might appear in an installed header, which is used by some other compiler.
 @BUILDING_FOR_WINDOWSNT_FALSE@HAVE_INCLUDE_NEXT = (__GNUC__ || 60000000 <= __DECC_VER)
+@GNU_MAKE_TRUE@UserType = Developer
+@GNU_MAKE_TRUE@ToolType = Commands
+@GNU_MAKE_FALSE@NON_GNU_MAKE = true
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
-.SUFFIXES: .c .o .obj
+.SUFFIXES: .c .lo .o .obj
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/../nt/gnulib.mk $(srcdir)/gnulib.mk $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -1787,6 +1813,19 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
+.c.lo:
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LTCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
+
+mostlyclean-libtool:
+	-rm -f *.lo
+
+clean-libtool:
+	-rm -rf .libs _libs
+
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
 tags: tags-am
@@ -1911,7 +1950,8 @@ maintainer-clean-generic:
 	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 clean: clean-am
 
-clean-am: clean-generic clean-noinstLIBRARIES mostlyclean-am
+clean-am: clean-generic clean-libtool clean-noinstLIBRARIES \
+	mostlyclean-am
 
 distclean: distclean-am
 	-rm -rf ./$(DEPDIR)
@@ -1967,7 +2007,7 @@ maintainer-clean-am: distclean-am maintainer-clean-generic
 mostlyclean: mostlyclean-am
 
 mostlyclean-am: mostlyclean-compile mostlyclean-generic \
-	mostlyclean-local
+	mostlyclean-libtool mostlyclean-local
 
 pdf: pdf-am
 
@@ -1982,17 +2022,18 @@ uninstall-am:
 .MAKE: all check install install-am install-strip
 
 .PHONY: CTAGS GTAGS TAGS all all-am check check-am clean clean-generic \
-	clean-noinstLIBRARIES cscopelist-am ctags ctags-am distclean \
-	distclean-compile distclean-generic distclean-tags distdir dvi \
-	dvi-am html html-am info info-am install install-am \
-	install-data install-data-am install-dvi install-dvi-am \
-	install-exec install-exec-am install-html install-html-am \
-	install-info install-info-am install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
+	clean-libtool clean-noinstLIBRARIES cscopelist-am ctags \
+	ctags-am distclean distclean-compile distclean-generic \
+	distclean-libtool distclean-tags distdir dvi dvi-am html \
+	html-am info info-am install install-am install-data \
+	install-data-am install-dvi install-dvi-am install-exec \
+	install-exec-am install-html install-html-am install-info \
+	install-info-am install-man install-pdf install-pdf-am \
+	install-ps install-ps-am install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-local pdf pdf-am ps ps-am tags \
-	tags-am uninstall uninstall-am
+	mostlyclean-generic mostlyclean-libtool mostlyclean-local pdf \
+	pdf-am ps ps-am tags tags-am uninstall uninstall-am
 
 
 # We need the following in order to create <alloca.h> when the system
@@ -3195,6 +3236,8 @@ uninstall-am:
 extraclean: maintainer-clean
 	-rm -f *~ \#*
 .PHONY: extraclean
+
+@GNU_MAKE_TRUE@@ifGNUmake@
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

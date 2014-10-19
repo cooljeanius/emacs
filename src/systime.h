@@ -24,24 +24,54 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 INLINE_HEADER_BEGIN
 
 #ifdef emacs
-# ifdef HAVE_X_WINDOWS
+# if defined(HAVE_X_WINDOWS) || defined(HAVE_X11_X_H)
 #  include <X11/X.h>
 # else
+#  ifndef EMACS_MACGUI_H
 typedef unsigned long Time;
-# endif
-#endif
+#  endif /* !EMACS_MACGUI_H */
+# endif /* HAVE_X_WINDOWS || HAVE_X11_X_H */
+#endif /* emacs */
+
+/* this is defined by the AC_HEADER_TIME autoconf check: */
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h> /* for 'struct timeval' */
+# else
+#  include <time.h>
+# endif /* HAVE_SYS_TIME_H */
+#endif /* TIME_WITH_SYS_TIME */
+
+#ifdef HAVE_TZNAME
+# ifndef tzname		/* For SGI.  */
+extern char *tzname[];	/* RS6000 and others want it this way.  */
+# endif /* !tzname */
+#endif /* HAVE_TZNAME */
+
+/* SVr4 does NOT actually declare the 'timezone' global variable
+ * in its #include files:  */
+#if defined(USG5_4) && (defined(HAVE_TIME_T) || defined(time_t) || defined(_TIME_T))
+extern time_t timezone;
+#endif /* USG5_4 && (HAVE_TIME_T || time_t || _TIME_T) */
+
+#ifdef VMS
+# if defined(VAXC) && 0
+#  include "vmstime.h" /* (this header no longer exists) */
+# endif /* VAXC && 0 */
+#endif /* VMS */
 
 /* On some configurations (hpux8.0, X11R4), sys/time.h and X11/Xos.h
    disagree about the name of the guard symbol.  */
 #ifdef HPUX
-#ifdef _STRUCT_TIMEVAL
-#ifndef __TIMEVAL__
-#define __TIMEVAL__
-#endif
-#endif
-#endif
-
-#include <sys/time.h>	/* for 'struct timeval' */
+# ifdef _STRUCT_TIMEVAL
+#  ifndef __TIMEVAL__
+#   define __TIMEVAL__
+#  endif /* !__TIMEVAL__ */
+# endif /* _STRUCT_TIMEVAL */
+#endif /* HPUX */
 
 /* Emacs uses struct timespec to represent nonnegative temporal intervals.
 
@@ -52,47 +82,48 @@ typedef unsigned long Time;
 
 /* Return an invalid timespec.  */
 INLINE struct timespec
-invalid_timespec (void)
+invalid_timespec(void)
 {
-  return make_timespec (0, -1);
+  return make_timespec(0, -1);
 }
 
 /* Return true if TIME is a valid timespec.  This currently doesn't worry
    about whether tv_nsec is less than TIMESPEC_RESOLUTION; leap seconds
    might cause a problem if it did.  */
-INLINE bool
-timespec_valid_p (struct timespec t)
+INLINE bool timespec_valid_p(struct timespec t)
 {
-  return t.tv_nsec >= 0;
+  return (t.tv_nsec >= 0);
 }
 
 /* Return current system time.  */
-INLINE struct timespec
-current_timespec (void)
+INLINE struct timespec current_timespec(void)
 {
   struct timespec r;
-  gettime (&r);
+  gettime(&r);
   return r;
 }
 
 /* defined in sysdep.c */
-extern int set_file_times (int, const char *, struct timespec, struct timespec);
-extern struct timeval make_timeval (struct timespec) ATTRIBUTE_CONST;
+extern int set_file_times(int, const char *, struct timespec, struct timespec);
+extern struct timeval make_timeval(struct timespec) ATTRIBUTE_CONST;
 
 /* defined in keyboard.c */
-extern void set_waiting_for_input (struct timespec *);
+extern void set_waiting_for_input(struct timespec *);
 
 /* When lisp.h is not included Lisp_Object is not defined (this can
    happen when this files is used outside the src directory).
    Use GCPRO1 to determine if lisp.h was included.  */
 #ifdef GCPRO1
 /* defined in editfns.c */
-extern Lisp_Object make_lisp_time (struct timespec);
-extern bool decode_time_components (Lisp_Object, Lisp_Object, Lisp_Object,
-				    Lisp_Object, struct timespec *, double *);
-extern struct timespec lisp_time_argument (Lisp_Object);
-#endif
+extern Lisp_Object make_lisp_time(struct timespec);
+extern bool decode_time_components(Lisp_Object, Lisp_Object, Lisp_Object,
+                                   Lisp_Object, struct timespec *, double *);
+extern struct timespec lisp_time_argument(Lisp_Object);
+#endif /* GCPRO1 */
 
 INLINE_HEADER_END
 
 #endif /* EMACS_SYSTIME_H */
+
+/* arch-tag: dcb79915-cf99-4bce-9778-aade71d07651
+   (do not change this comment) */

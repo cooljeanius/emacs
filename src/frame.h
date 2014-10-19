@@ -16,7 +16,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
-/* Don't multiply include: dispextern.h includes macterm.h which
+/* Do NOT multiply include: dispextern.h includes macterm.h which
    includes frame.h some emacs source includes both dispextern.h and
    frame.h.  */
 
@@ -28,6 +28,33 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "window.h"
 
 INLINE_HEADER_BEGIN
+
+/* Miscellanea.  */
+
+/* this is now declared as a bool lower down in this header: */
+#if 0
+/* Nonzero means "Do NOT assume anything about current contents of
+   actual terminal frame": */
+extern int frame_garbaged;
+#endif /* 0 */
+
+#if 0
+/* Nonzero means that FRAME_MESSAGE_BUF (selected_frame) is being used by
+   print: */
+extern int message_buf_print;
+#endif /* 0 */
+
+/* The structure representing a frame.  */
+#ifndef EMACS_TERMHOOKS_H
+enum output_method
+{
+    output_termcap,
+    output_x_window,
+    output_msdos_raw,
+    output_w32,
+    output_mac
+};
+#endif /* !EMACS_TERMHOOKS_H */
 
 enum vertical_scroll_bar_type
 {
@@ -46,13 +73,58 @@ enum fullscreen_type
   FULLSCREEN_WAIT      = 0x100
 };
 
-/* The structure representing a frame.  */
 
+/* old: */
+#if !defined(MSDOS) && !defined(WINDOWSNT) && !defined(MAC_OS)
+# if !defined(HAVE_X_WINDOWS) && !defined(_EMACS_MACTERM_H)
+#  ifndef PIX_TYPE
+#   define PIX_TYPE unsigned long
+#  endif /* !PIX_TYPE */
+
+#  ifndef _STRUCT_X_OUTPUT_DECLARED
+#   define _STRUCT_X_OUTPUT_DECLARED 1
+/* A (mostly empty) x_output structure definition for building Emacs
+   on Unix and GNU/Linux without X support.  */
+struct x_output
+{
+    PIX_TYPE background_pixel;
+    PIX_TYPE foreground_pixel;
+};
+#  endif /* !_STRUCT_X_OUTPUT_DECLARED */
+# endif /* ! HAVE_X_WINDOWS && !_EMACS_MACTERM_H */
+
+/* these two are now defined lower down in this header: */
+# if 0
+#  ifndef FRAME_FOREGROUND_PIXEL
+#   define FRAME_FOREGROUND_PIXEL(f) ((f)->output_data.x->foreground_pixel)
+#  endif /* !FRAME_FOREGROUND_PIXEL */
+#  ifndef FRAME_BACKGROUND_PIXEL
+#   define FRAME_BACKGROUND_PIXEL(f) ((f)->output_data.x->background_pixel)
+#  endif /* !FRAME_BACKGROUND_PIXEL */
+# endif /* 0 */
+
+# ifdef _STRUCT_X_OUTPUT_DECLARED
+/* A structure describing a termcap frame display.  */
+extern struct x_output tty_display;
+# endif /* _STRUCT_X_OUTPUT_DECLARED */
+
+#endif /* ! MSDOS && ! WINDOWSNT && ! MAC_OS */
+/* (end old) */
+
+/* The actual structure representing a frame: */
 struct frame
 {
+  /* unlike the rest of the header, I feel warier about adding back members
+   * to this struct that used to be part of it, because the order
+   * of members in a struct matters, so leave old stuff ifdef-ed out
+   * for now: */
+#if defined(EMACS_INT) && 0
+  EMACS_INT size;
+#endif /* EMACS_INT && 0 */
   struct vectorlike_header header;
 
   /* All Lisp_Object components must come first.
+     (Only EMACS_INT values can be intermixed with them.) (still?)
      That ensures they are all aligned normally.  */
 
   /* Name of this frame: a Lisp string.  It is used for looking up resources,
@@ -165,7 +237,8 @@ struct frame
   struct face_cache *face_cache;
 
   /* Number of elements in `menu_bar_vector' that have meaningful data.  */
-  int menu_bar_items_used;
+  int menu_bar_items_used; /* used to be: 'EMACS_INT menu_bar_items_used;'
+                            * (and put above) */
 
   /* A buffer to hold the frame's name.  We can't use the Lisp
      string's pointer (`name', above) because it might get relocated.  */
@@ -183,24 +256,27 @@ struct frame
 
   /* Set to true in change_frame_size when size of frame changed
      Clear the frame in clear_garbaged_frames if set.  */
-  bool_bf resized_p : 1;
+  bool_bf resized_p : 1; /* used to be: 'unsigned resized_p : 1;' below */
 
   /* Set to true if the default face for the frame has been
      realized.  Reset to zero whenever the default face changes.
      Used to see the difference between a font change and face change.  */
   bool_bf default_face_done_p : 1;
+  /* (used to be: 'unsigned default_face_done_p : 1;' below) */
 
   /* Set to true if this frame has already been hscrolled during
      current redisplay.  */
   bool_bf already_hscrolled_p : 1;
+  /* (used to be: 'unsigned already_hscrolled_p : 1;' below) */
 
   /* Set to true when current redisplay has updated frame.  */
-  bool_bf updated_p : 1;
+  bool_bf updated_p : 1; /* used to be 'unsigned updated_p : 1;' below */
 
 #if defined (HAVE_WINDOW_SYSTEM) && ! defined (USE_GTK) && ! defined (HAVE_NS)
   /* Set to true to minimize tool-bar height even when
      auto-resize-tool-bar is set to grow-only.  */
   bool_bf minimize_tool_bar_window_p : 1;
+  /* (used to be 'unsigned minimize_tool_bar_window_p : 1;' below) */
 #endif
 
 #if defined (USE_GTK) || defined (HAVE_NS)
@@ -247,7 +323,13 @@ struct frame
 
   /* Total width of this frame (including fringes and scroll bars) in
      units of canonical characters.  */
-  int total_cols;
+  int /*total_lines,*/ total_cols;
+
+#if 0
+  /* New text height and width for pending size change.
+   * 0 if no change pending.  */
+  int new_text_lines, new_text_cols;
+#endif /* 0 */
 
   /* Text width of this frame (excluding fringes, scroll bars and
      internal border width) and text height (excluding internal border
@@ -296,6 +378,11 @@ struct frame
   /* Canonical X unit.  Width of default font, in pixels.  */
   int column_width;
 
+#if 0
+  /* Width of space glyph of default font, in pixels.  */
+  int space_width;
+#endif /* 0 */
+
   /* Canonical Y unit.  Height of a line, in pixels.  */
   int line_height;
 
@@ -317,6 +404,13 @@ struct frame
     struct x_output *x;         /* From xterm.h.  */
     struct w32_output *w32;     /* From w32term.h.  */
     struct ns_output *ns;       /* From nsterm.h.  */
+    /* unlike the overall struct, I feel less wary about adding back old
+     * members to this union, because it could just end up getting ignored
+     * due to how unions work.  Still put it in a preprocessor condition
+     * though, but just not an impossible one: */
+#if defined(MAC_OS) || defined(HAVE_CARBON)
+    struct mac_output *mac;
+#endif /* MAC_OS || HAVE_CARBON */
     intptr_t nothing;
   }
   output_data;
@@ -337,6 +431,13 @@ struct frame
   /* The extra width (in pixels) currently allotted for fringes.  */
   int left_fringe_width, right_fringe_width;
 
+#if defined(MULTI_KBOARD) && 0
+  /* A pointer to the kboard structure associated with this frame.
+     For termcap frames, this points to initial_kboard.  For X frames,
+     it will be the same as display.x->display_info->kboard.  */
+  struct kboard *kboard;
+#endif /* MULTI_KBOARD && 0 */
+
   /* See FULLSCREEN_ enum below.  */
   enum fullscreen_type want_fullscreen;
 
@@ -355,7 +456,15 @@ struct frame
     || defined (HAVE_NS) || defined (USE_GTK)
   /* True means using a menu bar that comes from the X toolkit.  */
   bool_bf external_menu_bar : 1;
+#elif defined (MAC_OS)
+  /* Nonzero means using a menu bar that comes from the X toolkit.  */
+  int external_menu_bar;
 #endif
+
+#if 0
+  /* Nonzero if last attempt at redisplay on this frame was preempted.  */
+  char display_preempted;
+#endif /* 0 */
 
   /* Next two bitfields are mutually exclusive.  They might both be
      zero if the frame has been made invisible without an icon.  */
@@ -369,40 +478,60 @@ struct frame
      if equal to 2, then the frame is obscured - we still consider
      it to be "visible" as seen from lisp, but we don't bother
      updating it.  */
-  unsigned visible : 2;
+  unsigned visible : 2; /* used to be: 'char visible;' */
 
   /* True if the frame is currently iconified.  Do not
      set this directly, use SET_FRAME_ICONIFIED instead.  */
-  bool_bf iconified : 1;
+  bool_bf iconified : 1; /* used to be a 'char' on the same line as
+                          * 'visible' above */
+#if 0
+  /* Asynchronous input handlers change these, and
+     FRAME_SAMPLE_VISIBILITY copies them into visible and iconified.
+     See FRAME_SAMPLE_VISIBILITY, below.  */
+  volatile char async_visible, async_iconified;
+#endif /* 0 */
 
   /* True if this frame should be redrawn.  */
-  bool_bf garbaged : 1;
+  bool_bf garbaged : 1; /* used to be: 'volatile char garbaged;' */
+
+#if 0
+  /* True if frame actually has a minibuffer window on it.
+     0 if using a minibuffer window that isn't on this frame.  */
+  char has_minibuffer;
+#endif /* 0 */
 
   /* False means, if this frame has just one window,
      show no modeline for that window.  */
-  bool_bf wants_modeline : 1;
+  bool_bf wants_modeline : 1; /* used to be: 'char wants_modeline;' */
+
+#if 0
+  /* Non-zero if the hardware device this frame is displaying on can
+     support scroll bars.  */
+  char can_have_scroll_bars;
+#endif /* 0 */
 
   /* True means raise this frame to the top of the heap when selected.  */
-  bool_bf auto_raise : 1;
+  bool_bf auto_raise : 1; /* used to be: 'char auto_raise;' below */
 
   /* True means lower this frame to the bottom of the stack when left.  */
-  bool_bf auto_lower : 1;
+  bool_bf auto_lower : 1; /* used to be: 'char auto_lower;' below */
 
   /* True if frame's root window can't be split.  */
-  bool_bf no_split : 1;
+  bool_bf no_split : 1; /* used to be: 'char no_split;' below */
 
   /* If this is set, then Emacs won't change the frame name to indicate
      the current buffer, etcetera.  If the user explicitly sets the frame
      name, this gets set.  If the user sets the name to Qnil, this is
      cleared.  */
-  bool_bf explicit_name : 1;
+  bool_bf explicit_name : 1; /* used to be: 'char explicit_name;' below */
 
   /* True if size of some window on this frame has changed.  */
-  bool_bf window_sizes_changed : 1;
+  bool_bf window_sizes_changed : 1; /* used to be:
+                                     * 'char window_sizes_changed;' */
 
   /* True if the mouse has moved on this display device
      since the last time we checked.  */
-  bool_bf mouse_moved : 1;
+  bool_bf mouse_moved : 1; /* used to be: 'char mouse_moved;' below */
 
   /* True means that the pointer is invisible.  */
   bool_bf pointer_invisible : 1;
@@ -428,6 +557,15 @@ struct frame
   /* Width of bar cursor (if we are using that) for blink-off state.  */
   int blink_off_cursor_width;
 
+#if 0
+  /* Storage for messages to this frame. */
+  char *message_buf;
+
+  /* Nonnegative if current redisplay should not do scroll computation
+     for lines beyond a certain vpos.  This is the vpos.  */
+  int scroll_bottom_vpos;
+#endif /* 0 */
+
   /* Configured width of the scroll bar, in pixels and in characters.
      config_scroll_bar_cols tracks config_scroll_bar_width if the
      latter is positive; a zero value in config_scroll_bar_width means
@@ -435,6 +573,12 @@ struct frame
      and the current font width.  */
   int config_scroll_bar_width;
   int config_scroll_bar_cols;
+
+#if 0
+  /* The size of the extra width currently allotted for vertical
+     scroll bars in this frame, in pixels.  */
+  int scroll_bar_actual_width;
+#endif /* 0 */
 
   /* The baud rate that was used to calculate costs for this frame.  */
   int cost_calculation_baud_rate;
@@ -453,10 +597,23 @@ struct frame
   /* Additional space to put between text lines on this frame.  */
   int extra_line_spacing;
 
+#if 0
+  /* Set to non-zero in when we want for force a flush_display in
+     update_frame, usually after resizing the frame.  */
+  unsigned force_flush_display_p : 1;
+#endif /* 0 */
+
   /* All display backends seem to need these two pixel values. */
   unsigned long background_pixel;
   unsigned long foreground_pixel;
 };
+
+#ifndef FRAME_PTR
+# ifndef _FRAME_PTR_DEFINED
+#  define _FRAME_PTR_DEFINED 1
+typedef struct frame *FRAME_PTR;
+# endif /* !_FRAME_PTR_DEFINED */
+#endif /* !FRAME_PTR */
 
 /* Most code should use these functions to set Lisp fields in struct frame.  */
 
@@ -611,6 +768,11 @@ default_pixels_per_inch_y (void)
 #else
 #define FRAME_MSDOS_P(f) ((f)->output_method == output_msdos_raw)
 #endif
+#if !(defined(MAC_OS) || defined(HAVE_CARBON))
+#define FRAME_MAC_P(f) false
+#else
+#define FRAME_MAC_P(f) ((f)->output_method == output_mac)
+#endif /* !(MAC_OS || HAVE_CARBON) */
 #ifndef HAVE_NS
 #define FRAME_NS_P(f) false
 #else
@@ -621,21 +783,34 @@ default_pixels_per_inch_y (void)
    defined to be the predicate for the window system being used.  */
 
 #ifdef HAVE_X_WINDOWS
-#define FRAME_WINDOW_P(f) FRAME_X_P (f)
-#endif
+# define FRAME_WINDOW_P(f) FRAME_X_P (f)
+#endif /* HAVE_X_WINDOWS */
 #ifdef HAVE_NTGUI
-#define FRAME_WINDOW_P(f) FRAME_W32_P (f)
-#endif
+# define FRAME_WINDOW_P(f) FRAME_W32_P (f)
+#endif /* HAVE_NTGUI */
 #ifdef HAVE_NS
-#define FRAME_WINDOW_P(f) FRAME_NS_P(f)
-#endif
+# define FRAME_WINDOW_P(f) FRAME_NS_P(f)
+#endif /* HAVE_NS */
+#if defined(MAC_OS) || (defined(HAVE_CARBON) && !defined(FRAME_WINDOW_P))
+# define FRAME_WINDOW_P(f) FRAME_MAC_P (f)
+#endif /* MAC_OS || (HAVE_CARBON && !FRAME_WINDOW_P) */
 #ifndef FRAME_WINDOW_P
-#define FRAME_WINDOW_P(f) ((void) (f), false)
-#endif
+# define FRAME_WINDOW_P(f) ((void) (f), false)
+#endif /* !FRAME_WINDOW_P */
 
 /* Dots per inch of the screen the frame F is on.  */
 
 #ifdef HAVE_WINDOW_SYSTEM
+
+#ifndef FRAME_DISPLAY_INFO
+# ifdef FRAME_MAC_DISPLAY_INFO
+#  define FRAME_DISPLAY_INFO FRAME_MAC_DISPLAY_INFO
+# else
+#  ifdef FRAME_X_DISPLAY_INFO
+#   define FRAME_DISPLAY_INFO FRAME_X_DISPLAY_INFO
+#  endif /* FRAME_X_DISPLAY_INFO */
+# endif /* FRAME_MAC_DISPLAY_INFO */
+#endif /* !FRAME_DISPLAY_INFO */
 
 #define FRAME_RES_X(f)						\
   (eassert (FRAME_WINDOW_P (f)), FRAME_DISPLAY_INFO (f)->resx)
@@ -734,7 +909,7 @@ default_pixels_per_inch_y (void)
 
 /* True if this frame should display a menu bar
    in a way that does not use any text lines.  */
-#if defined (USE_X_TOOLKIT) || defined (HAVE_NTGUI) \
+#if defined (USE_X_TOOLKIT) || defined (HAVE_NTGUI) || defined (MAC_OS) \
      || defined (HAVE_NS) || defined (USE_GTK)
 #define FRAME_EXTERNAL_MENU_BAR(f) (f)->external_menu_bar
 #else
@@ -895,8 +1070,22 @@ default_pixels_per_inch_y (void)
 #define FRAME_CURSOR_WIDTH(f) ((f)->cursor_width)
 #define FRAME_BLINK_OFF_CURSOR_WIDTH(f) ((f)->blink_off_cursor_width)
 
-#define FRAME_FOREGROUND_PIXEL(f) ((f)->foreground_pixel)
-#define FRAME_BACKGROUND_PIXEL(f) ((f)->background_pixel)
+#ifndef FRAME_FOREGROUND_PIXEL
+# ifndef MAC_OS
+#  define FRAME_FOREGROUND_PIXEL(f) ((f)->foreground_pixel)
+# else
+/* definition from "macterm.h": */
+#  define FRAME_FOREGROUND_PIXEL(f) ((f)->output_data.x->foreground_pixel)
+# endif /* !MAC_OS */
+#endif /* !FRAME_FOREGROUND_PIXEL */
+#ifndef FRAME_BACKGROUND_PIXEL
+# ifndef MAC_OS
+#  define FRAME_BACKGROUND_PIXEL(f) ((f)->background_pixel)
+# else
+/* definition from "macterm.h": */
+#  define FRAME_BACKGROUND_PIXEL(f) ((f)->output_data.x->background_pixel)
+# endif /* !MAC_OS */
+#endif /* !FRAME_BACKGROUND_PIXEL */
 
 /* Return a pointer to the face cache of frame F.  */
 
@@ -996,7 +1185,7 @@ extern Lisp_Object delete_frame (Lisp_Object, Lisp_Object);
 extern Lisp_Object Vframe_list;
 
 /* Value is a pointer to the selected frame.  If the selected frame
-   isn't live, abort.  */
+   is NOT live, then abort.  */
 
 #define SELECTED_FRAME()				\
      ((FRAMEP (selected_frame)				\
@@ -1193,14 +1382,16 @@ extern Lisp_Object Vframe_list;
   ((height) - 2 * FRAME_INTERNAL_BORDER_WIDTH (f))
 
 /* Value is the smallest width of any character in any font on frame F.  */
-
-#define FRAME_SMALLEST_CHAR_WIDTH(f)		\
-  FRAME_DISPLAY_INFO (f)->smallest_char_width
+#ifndef FRAME_SMALLEST_CHAR_WIDTH
+# define FRAME_SMALLEST_CHAR_WIDTH(f)		\
+   FRAME_DISPLAY_INFO (f)->smallest_char_width
+#endif /* !FRAME_SMALLEST_CHAR_WIDTH */
 
 /* Value is the smallest height of any font on frame F.  */
-
-#define FRAME_SMALLEST_FONT_HEIGHT(f)		\
-  FRAME_DISPLAY_INFO (f)->smallest_font_height
+#ifndef FRAME_SMALLEST_FONT_HEIGHT
+# define FRAME_SMALLEST_FONT_HEIGHT(f)		\
+   FRAME_DISPLAY_INFO (f)->smallest_font_height
+#endif /* !FRAME_SMALLEST_FONT_HEIGHT */
 
 /***********************************************************************
 				Frame Parameters
@@ -1208,7 +1399,7 @@ extern Lisp_Object Vframe_list;
 
 extern Lisp_Object Qauto_raise, Qauto_lower;
 extern Lisp_Object Qborder_color, Qborder_width;
-extern Lisp_Object Qbuffer_predicate;
+extern Lisp_Object Qbuffer_predicate, Qbuffer_list;
 extern Lisp_Object Qcursor_color, Qcursor_type;
 extern Lisp_Object Qfont;
 extern Lisp_Object Qbackground_color, Qforeground_color;
@@ -1235,9 +1426,11 @@ extern Lisp_Object Qalpha;
 extern Lisp_Object Qleft_fringe, Qright_fringe;
 extern Lisp_Object Qheight, Qwidth;
 extern Lisp_Object Qminibuffer, Qmodeline;
-extern Lisp_Object Qx, Qw32, Qpc, Qns;
+extern Lisp_Object Qonly;
+extern Lisp_Object Qx, Qw32, /*Qmac,*/ Qpc, Qns;
 extern Lisp_Object Qvisible;
 extern Lisp_Object Qdisplay_type;
+extern Lisp_Object Qbackground_mode;
 
 extern Lisp_Object Qx_resource_name;
 
@@ -1251,7 +1444,7 @@ extern Lisp_Object Qrun_hook_with_args;
 /* The class of this X application.  */
 #define EMACS_CLASS "Emacs"
 
-/* These are in xterm.c, w32term.c, etc.  */
+/* These are in xterm.c, w32term.c, macterm.c, etc.  */
 
 extern void x_set_scroll_bar_default_width (struct frame *);
 extern void x_set_offset (struct frame *, int, int, int);
@@ -1265,7 +1458,7 @@ extern Lisp_Object Qface_set_after_frame_default;
 #ifdef HAVE_NTGUI
 extern void x_fullscreen_adjust (struct frame *f, int *, int *,
                                  int *, int *);
-#endif
+#endif /* HAVE_NTGUI */
 
 extern void x_set_frame_parameters (struct frame *, Lisp_Object);
 
@@ -1297,11 +1490,13 @@ extern void x_set_alpha (struct frame *, Lisp_Object, Lisp_Object);
 
 extern void validate_x_resource_name (void);
 
+#if defined(Display_Info) || defined(HAVE_X_WINDOWS)
 extern Lisp_Object display_x_get_resource (Display_Info *,
 					   Lisp_Object attribute,
 					   Lisp_Object class,
 					   Lisp_Object component,
 					   Lisp_Object subclass);
+#endif /* Display_Info || HAVE_X_WINDOWS */
 
 extern void set_frame_menubar (struct frame *f, bool first_time, bool deep_p);
 extern void x_set_window_size (struct frame *f, int change_grav,
@@ -1366,8 +1561,24 @@ flush_frame (struct frame *f)
 
 #ifdef HAVE_WINDOW_SYSTEM
 
+# ifndef NativeRectangle
+#  ifdef HAVE_X_WINDOWS
+#   define NativeRectangle XRectangle
+#  else
+#   ifdef MAC_OS
+#    define NativeRectangle Rect
+#   else
+#    ifdef HAVE_NS
+#     define NativeRectangle NSRect
+#    else
+#     define NativeRectangle int
+#    endif /* HAVE_NS */
+#   endif /* MAC_OS */
+#  endif /* HAVE_X_WINDOWS */
+# endif /* !NativeRectangle */
+
 struct MonitorInfo {
-  XRectangle geom, work;
+  NativeRectangle geom, work;
   int mm_width, mm_height;
   char *name;
 };
@@ -1385,3 +1596,6 @@ extern Lisp_Object make_monitor_attribute_list (struct MonitorInfo *monitors,
 INLINE_HEADER_END
 
 #endif /* not EMACS_FRAME_H */
+
+/* arch-tag: 0df048ee-e6bf-4f48-bd56-e3cd055dd8c4
+   (do not change this comment) */

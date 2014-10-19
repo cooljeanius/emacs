@@ -1,4 +1,4 @@
-/* Display module for Mac OS.
+/* macterm.h: Display module for Mac OS.
    Copyright (C) 2000, 2001, 2002, 2003, 2004,
                  2005, 2006, 2007 Free Software Foundation, Inc.
 
@@ -21,8 +21,19 @@ Boston, MA 02110-1301, USA.  */
 
 /* Contributed by Andrew Choi (akochoi@mac.com).  */
 
+#ifndef _EMACS_MACTERM_H
+#define _EMACS_MACTERM_H 1
+
 #include "macgui.h"
 #include "frame.h"
+
+#ifndef P_
+# if defined(PROTOTYPES) || defined(__PROTOTYPES) || defined(__STDC__)
+#  define P_(args) args
+# else
+#  define P_(args) ()
+# endif  /* GCC.  */
+#endif /* P_ */
 
 #define RGB_TO_ULONG(r, g, b) (((r) << 16) | ((g) << 8) | (b))
 
@@ -39,8 +50,20 @@ Boston, MA 02110-1301, USA.  */
 #define BLACK_PIX_DEFAULT(f) RGB_TO_ULONG(0,0,0)
 #define WHITE_PIX_DEFAULT(f) RGB_TO_ULONG(255,255,255)
 
-#define FONT_WIDTH(f)	((f)->max_bounds.width)
-#define FONT_HEIGHT(f)	((f)->ascent + (f)->descent)
+#ifndef FONT_WIDTH
+# ifdef MAC_OS
+#  define FONT_WIDTH(f)	((f)->max_bounds.width) /* (what was originally in this file) */
+# else
+#  define FONT_WIDTH(f) ((f)->max_width) /* (definition in "font.h") */
+# endif /* MAC_OS */
+#endif /* !FONT_WIDTH */
+#ifndef FONT_HEIGHT
+# ifdef MAC_OS
+#  define FONT_HEIGHT(f) ((f)->ascent + (f)->descent) /* (what was originally in this file) */
+# else
+#  define FONT_HEIGHT(f) ((f)->height) /* (definition in "font.h") */
+# endif /* MAC_OS */
+#endif /* !FONT_HEIGHT */
 #define FONT_BASE(f)    ((f)->ascent)
 #define FONT_DESCENT(f) ((f)->descent)
 
@@ -91,7 +114,7 @@ struct mac_display_info
      Or -1 if none has been allocated yet.  */
   int icon_bitmap_id;
 
-#endif
+#endif /* 0 */
   /* The root window of this screen.  */
   Window root_window;
 
@@ -214,6 +237,8 @@ extern struct font_info *x_load_font P_ ((struct frame *, char *, int));
 extern struct font_info *x_query_font P_ ((struct frame *, char *));
 extern void x_find_ccl_program P_ ((struct font_info *));
 
+#ifndef _STRUCT_X_OUTPUT_DECLARED
+# define _STRUCT_X_OUTPUT_DECLARED 1
 /* When Emacs uses a tty window, tty_display in frame.c points to an
    x_output struct .  */
 struct x_output
@@ -221,6 +246,7 @@ struct x_output
   unsigned long background_pixel;
   unsigned long foreground_pixel;
 };
+#endif /* !_STRUCT_X_OUTPUT_DECLARED */
 
 /* The collection of data describing a window on the Mac.  */
 struct mac_output
@@ -276,7 +302,7 @@ struct mac_output
      default (background color of the frame for non-toolkit scroll
      bars).  */
   unsigned long scroll_bar_background_pixel;
-#endif
+#endif /* 0 */
 
   /* Descriptor for the cursor in use for this window.  */
   Cursor text_cursor;
@@ -296,13 +322,13 @@ struct mac_output
   /* Flag to set when the window needs to be completely repainted.  */
   int needs_exposure;
 
-#endif
+#endif /* 0 */
 
 #if TARGET_API_MAC_CARBON
   /* The Mac control reference for the hourglass (progress indicator)
      shown at the upper-right corner of the window.  */
   ControlRef hourglass_control;
-#endif
+#endif /* TARGET_API_MAC_CARBON */
 
   /* This is the Emacs structure for the display this frame is on.  */
   /* struct w32_display_info *display_info; */
@@ -336,7 +362,7 @@ struct mac_output
 #if USE_CG_DRAWING
   /* Quartz 2D graphics context.  */
   CGContextRef cg_context;
-#endif
+#endif /* USE_CG_DRAWING */
 };
 
 typedef struct mac_output mac_output;
@@ -348,8 +374,20 @@ typedef struct mac_output mac_output;
 #define FRAME_MAC_WINDOW(f) ((f)->output_data.mac->window_desc)
 #define FRAME_X_WINDOW(f) ((f)->output_data.mac->window_desc)
 
-#define FRAME_FOREGROUND_PIXEL(f) ((f)->output_data.x->foreground_pixel)
-#define FRAME_BACKGROUND_PIXEL(f) ((f)->output_data.x->background_pixel)
+#ifndef FRAME_FOREGROUND_PIXEL
+# ifdef MAC_OS
+#  define FRAME_FOREGROUND_PIXEL(f) ((f)->output_data.x->foreground_pixel)
+# else
+#  define FRAME_FOREGROUND_PIXEL(f) ((f)->foreground_pixel) /* (definition from "frame.h") */
+# endif /* MAC_OS */
+#endif /* !FRAME_FOREGROUND_PIXEL */
+#ifndef FRAME_BACKGROUND_PIXEL
+# ifdef MAC_OS
+#  define FRAME_BACKGROUND_PIXEL(f) ((f)->output_data.x->background_pixel)
+# else
+#  define FRAME_BACKGROUND_PIXEL(f) ((f)->background_pixel) /* (definition from "frame.h") */
+# endif /* MAC_OS */
+#endif /* !FRAME_BACKGROUND_PIXEL */
 
 #define FRAME_FONT(f) ((f)->output_data.mac->font)
 #define FRAME_FONTSET(f) ((f)->output_data.mac->fontset)
@@ -361,6 +399,9 @@ typedef struct mac_output mac_output;
 /* This gives the mac_display_info structure for the display F is on.  */
 #define FRAME_MAC_DISPLAY_INFO(f) (&one_mac_display_info)
 #define FRAME_X_DISPLAY_INFO(f) (&one_mac_display_info)
+#ifndef FRAME_DISPLAY_INFO
+# define FRAME_DISPLAY_INFO(f) (&one_mac_display_info)
+#endif /* !FRAME_DISPLAY_INFO */
 
 /* This is the `Display *' which frame F is on.  */
 #define FRAME_MAC_DISPLAY(f) (0)
@@ -370,14 +411,16 @@ typedef struct mac_output mac_output;
 #define FRAME_MAC_FONT_TABLE(f) (FRAME_MAC_DISPLAY_INFO (f)->font_table)
 
 /* Value is the smallest width of any character in any font on frame F.  */
-
-#define FRAME_SMALLEST_CHAR_WIDTH(F) \
-     FRAME_MAC_DISPLAY_INFO(F)->smallest_char_width
+#ifndef FRAME_SMALLEST_CHAR_WIDTH
+# define FRAME_SMALLEST_CHAR_WIDTH(F) \
+      FRAME_MAC_DISPLAY_INFO (F)->smallest_char_width
+#endif /* !FRAME_SMALLEST_CHAR_WIDTH */
 
 /* Value is the smallest height of any font on frame F.  */
-
-#define FRAME_SMALLEST_FONT_HEIGHT(F) \
-     FRAME_MAC_DISPLAY_INFO(F)->smallest_font_height
+#ifndef FRAME_SMALLEST_FONT_HEIGHT
+# define FRAME_SMALLEST_FONT_HEIGHT(F) \
+      FRAME_MAC_DISPLAY_INFO (F)->smallest_font_height
+#endif /* !FRAME_SMALLEST_FONT_HEIGHT */
 
 /* Return a pointer to the image cache of frame F.  */
 
@@ -442,7 +485,7 @@ struct scroll_bar {
 
   /* Minimum length of the scroll bar handle, in pixels.  */
   Lisp_Object min_handle;
-#endif
+#endif /* USE_TOOLKIT_SCROLL_BARS */
 };
 
 /* The number of elements a vector holding a struct scroll_bar needs.  */
@@ -535,6 +578,21 @@ struct scroll_bar {
 #define HOURGLASS_WIDTH (16)
 #define HOURGLASS_HEIGHT (16)
 
+#if defined(__GNUC__) && defined(__GNUC_MINOR__)
+# if (defined(__APPLE__) && defined(__APPLE_CC__) && (__APPLE_CC__ > 1))
+#  if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6))
+#   pragma GCC diagnostic push
+#  endif /* GCC 4.6 (version in which push/pop was introduced) */
+#  pragma GCC diagnostic ignored "-Wfour-char-constants"
+# endif /* Apple GCC (not sure the exact one) */
+# if (__GNUC__ >= 2)
+#  if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6))
+#   pragma GCC diagnostic push
+#  endif /* GCC 4.6 (version in which push/pop was introduced) */
+#  pragma GCC diagnostic ignored "-Wmultichar"
+# endif /* GCC 2+ (not sure the exact one) */
+#endif /* gcc */
+
 /* Some constants that are used locally.  */
 /* Creator code for Emacs on Mac OS.  */
 enum {
@@ -562,7 +620,7 @@ enum {
 enum {
   keyReplyRequestedAttr		= 'repq'
 };
-#endif
+#endif /* older than 10.3 */
 
 #if MAC_OS_X_VERSION_MAX_ALLOWED < 1040
 /* Gestalt selectors */
@@ -571,10 +629,10 @@ enum {
   gestaltSystemVersionMinor	= 'sys2',
   gestaltSystemVersionBugFix	= 'sys3'
 };
-#endif
+#endif /* older than 10.4 */
 
 #ifdef MAC_OSX
-#if MAC_OS_X_VERSION_MAX_ALLOWED < 1020
+# if MAC_OS_X_VERSION_MAX_ALLOWED < 1020
 /* Apple event descriptor types */
 enum {
   typeUTF8Text			= 'utf8'
@@ -584,8 +642,14 @@ enum {
 enum {
   kEventParamWindowMouseLocation = 'wmou'
 };
-#endif
-#endif
+# endif /* older than 10.2 */
+#endif /* MAC_OSX */
+
+#if defined(__GNUC__) && defined(__GNUC_MINOR__)
+# if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6))
+#  pragma GCC diagnostic pop
+# endif /* GCC 4.6 (version in which push/pop was introduced) */
+#endif /* gcc */
 
 struct frame;
 struct face;
@@ -604,7 +668,7 @@ extern int XParseGeometry P_ ((char *, int *, int *, unsigned int *,
 
 /* Defined in macterm.c.  */
 
-extern void x_set_window_size P_ ((struct frame *, int, int, int));
+extern void x_set_window_size P_ ((struct frame *, int, int, int, bool));
 extern void x_set_mouse_position P_ ((struct frame *, int, int));
 extern void x_set_mouse_pixel_position P_ ((struct frame *, int, int));
 extern void x_make_frame_visible P_ ((struct frame *));
@@ -612,7 +676,7 @@ extern void x_make_frame_invisible P_ ((struct frame *));
 extern void x_iconify_frame P_ ((struct frame *));
 extern void x_free_frame_resources P_ ((struct frame *));
 extern void x_destroy_window P_ ((struct frame *));
-extern void x_wm_set_size_hint P_ ((struct frame *, long, int));
+extern void x_wm_set_size_hint P_ ((struct frame *, long, bool));
 extern void x_delete_display P_ ((struct x_display_info *));
 extern void mac_initialize P_ ((void));
 extern Pixmap XCreatePixmap P_ ((Display *, WindowPtr, unsigned int,
@@ -639,10 +703,10 @@ extern void remove_window_handler P_ ((WindowPtr));
 extern OSStatus mac_post_mouse_moved_event P_ ((void));
 #if !TARGET_API_MAC_CARBON
 extern void do_apple_menu P_ ((SInt16));
-#endif
+#endif /* !TARGET_API_MAC_CARBON */
 #if USE_CG_DRAWING
 extern void mac_prepare_for_quickdraw P_ ((struct frame *));
-#endif
+#endif /* USE_CG_DRAWING */
 extern int mac_quit_char_key_p P_ ((UInt32, UInt32));
 
 #define FONT_TYPE_FOR_UNIBYTE(font, ch) 0
@@ -696,12 +760,14 @@ extern Lisp_Object cfboolean_to_lisp P_ ((CFBooleanRef));
 extern Lisp_Object cfobject_desc_to_lisp P_ ((CFTypeRef));
 extern Lisp_Object cfproperty_list_to_lisp P_ ((CFPropertyListRef, int, int));
 extern void mac_wakeup_from_rne P_ ((void));
-#endif
+#endif /* TARGET_API_MAC_CARBON */
 extern void xrm_merge_string_database P_ ((XrmDatabase, const char *));
 extern Lisp_Object xrm_get_resource P_ ((XrmDatabase, const char *,
 					 const char *));
 extern XrmDatabase xrm_get_preference_database P_ ((const char *));
 EXFUN (Fmac_get_preference, 4);
+
+#endif /* !_EMACS_MACTERM_H */
 
 /* arch-tag: 6b4ca125-5bef-476d-8ee8-31ed808b7e79
    (do not change this comment) */

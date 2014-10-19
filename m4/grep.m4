@@ -3,8 +3,8 @@ dnl# This was originally in the emacs configure.ac file.   -*- Autoconf -*-
 
 dnl# I often put something like this in my configure files, but in this
 dnl# version I have drawn inspiration from the analogous libtool macro:
-# If we do NOT have a new enough Autoconf to choose the best grep
-# available, choose the one first in the user's PATH.
+dnl# If we do NOT have a new enough Autoconf to choose the best grep
+dnl# available, then choose the one first in the user's PATH:
 AC_DEFUN([AC_REQUIRE_GREPS],[
   AC_REQUIRE([AC_PROG_GREP])dnl
   AC_REQUIRE([AC_PROG_EGREP])dnl

@@ -9,6 +9,7 @@ config.sub
 config.log
 depcomp
 install-sh
+libtool
 missing
 # allow gnulib's automake-generated Makefile.in, for the same reason
 # as allowing the configure script

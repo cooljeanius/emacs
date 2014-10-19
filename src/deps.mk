@@ -23,8 +23,8 @@
 ## This file is inserted in src/Makefile if AUTO_DEPEND=no.
 ## It defines static dependencies between the various source files.
 
-## FIXME some of these dependencies are platform-specific.
-## Eg callproc.c only depends on w32.h for WINDOWSNT builds.
+## FIXME: some of these dependencies are platform-specific.
+## E.g. callproc.c only depends on w32.h for WINDOWSNT builds.
 ## One way to fix this would be to replace w32.h (etc) by $(W32_H),
 ## a variable set by configure.  Does not seem worth the trouble.
 ## Since the w32 build does not even use this file, you might ask

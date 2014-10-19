@@ -22,7 +22,9 @@
 # error "Unsupported architecture"
 #endif /* !kEmacsArch */
 
-/*#define kEmacsWrapperPath	kEmacsBinDir "/emacs"*/
+#ifndef kEmacsWrapperPath
+# define kEmacsWrapperPath	kEmacsBinDir "/emacs"
+#endif /* !kEmacsWrapperPath */
 #define kEmacsDumpedPath	kEmacsBinDir "/emacs"
 #define kEmacsUndumpedPath	kEmacsBinDir "/emacs-undumped"
 #define kEmacsArchPath		kEmacsBinDir "/emacs-" kEmacsArch

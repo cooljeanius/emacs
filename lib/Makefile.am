@@ -30,3 +30,11 @@ endif
 extraclean: maintainer-clean
 	-rm -f *~ \#*
 .PHONY: extraclean
+
+if GNU_MAKE
+@ifGNUmake@
+UserType = Developer
+ToolType = Commands
+else
+NON_GNU_MAKE = true
+endif

@@ -236,8 +236,20 @@ enum font_property_index
 #define FONT_SET_STYLE(font, prop, val)	\
   ASET ((font), prop, make_number (font_style_to_value (prop, val, true)))
 
-#define FONT_WIDTH(f) ((f)->max_width)
-#define FONT_HEIGHT(f) ((f)->height)
+#ifndef FONT_WIDTH
+# ifndef MAC_OS
+#  define FONT_WIDTH(f) ((f)->max_width) /* (what was originally in this file) */
+# else
+#  define FONT_WIDTH(f)	((f)->max_bounds.width) /* (definition in "macterm.h") */
+# endif /* !MAC_OS */
+#endif /* !FONT_WIDTH */
+#ifndef FONT_HEIGHT
+# ifndef MAC_OS
+#  define FONT_HEIGHT(f) ((f)->height) /* (what was originally in this file) */
+# else
+#  define FONT_HEIGHT(f) ((f)->ascent + (f)->descent) /* (definition in "macterm.h") */
+# endif /* !MAC_OS */
+#endif /* !FONT_HEIGHT */
 #define FONT_BASE(f) ((f)->ascent)
 #define FONT_DESCENT(f) ((f)->descent)
 

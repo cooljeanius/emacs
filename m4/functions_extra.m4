@@ -34,7 +34,22 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_FUNC_CHECKS],[
         AC_REQUIRE([gl_FUNC_GETTIMEOFDAY])dnl
       ])dnl
     ])dnl
-  ])dnl# end replication of problematic call stack
+  ])dnl# end replication of problematic macro call stack
+  m4_ifdef([gl_FUNC_POSIX_SPAWN_FILE_ACTIONS_ADDCLOSE],[
+    AC_REQUIRE([gl_FUNC_POSIX_SPAWN_FILE_ACTIONS_ADDCLOSE])dnl
+  ])dnl
+  m4_ifdef([gl_FUNC_POSIX_SPAWN_FILE_ACTIONS_ADDDUP2],[
+    AC_REQUIRE([gl_FUNC_POSIX_SPAWN_FILE_ACTIONS_ADDDUP2])dnl
+  ])dnl
+  m4_ifdef([gl_FUNC_POSIX_SPAWN_FILE_ACTIONS_ADDOPEN],[
+    AC_REQUIRE([gl_FUNC_POSIX_SPAWN_FILE_ACTIONS_ADDOPEN])dnl
+  ])dnl
+  m4_ifdef([gl_FUNC_RAWMEMCHR],[
+    AC_REQUIRE([gl_FUNC_RAWMEMCHR])dnl
+  ])dnl
+  m4_ifdef([gl_FUNC_STRCHRNUL],[
+    AC_REQUIRE([gl_FUNC_STRCHRNUL])dnl
+  ])dnl
   m4_ifdef([gl_FUNC_GNU_STRFTIME],[
     AC_REQUIRE([gl_FUNC_GNU_STRFTIME])dnl
   ],[

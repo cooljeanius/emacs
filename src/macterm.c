@@ -1,4 +1,4 @@
-/* Implementation of GUI terminal on the Mac OS.
+/* macterm.c: Implementation of GUI terminal on the Mac OS.
    Copyright (C) 2000, 2001, 2002, 2003, 2004,
                  2005, 2006, 2007 Free Software Foundation, Inc.
 
@@ -26,14 +26,20 @@ Boston, MA 02110-1301, USA.  */
 
 #include <stdio.h>
 
+#ifndef bool
+# if defined(HAVE_STDBOOL_H)
+#  include <stdbool.h>
+# endif /* HAVE_STDBOOL_H */
+#endif /* !bool */
+
 #include "lisp.h"
 #include "blockinput.h"
 
 #include "macterm.h"
 
 #ifndef MAC_OSX
-#include <alloca.h>
-#endif
+# include <alloca.h>
+#endif /* !MAC_OSX */
 
 #if TARGET_API_MAC_CARBON
 /* USE_CARBON_EVENTS determines if the Carbon Event Manager is used to
@@ -54,12 +60,12 @@ Boston, MA 02110-1301, USA.  */
 #include <Windows.h>
 #include <Displays.h>
 #if defined (__MRC__) || (__MSL__ >= 0x6000)
-#include <ControlDefinitions.h>
+# include <ControlDefinitions.h>
 #endif
 
 #if __profile__
-#include <profiler.h>
-#endif
+# include <profiler.h>
+#endif /* __profile__ */
 #endif /* not TARGET_API_MAC_CARBON */
 
 #include "systty.h"
@@ -226,9 +232,9 @@ void x_uncatch_errors P_ ((Display *, int));
 void x_lower_frame P_ ((struct frame *));
 void x_scroll_bar_clear P_ ((struct frame *));
 int x_had_errors_p P_ ((Display *));
-void x_wm_set_size_hint P_ ((struct frame *, long, int));
+void x_wm_set_size_hint P_ ((struct frame *, long, bool));
 void x_raise_frame P_ ((struct frame *));
-void x_set_window_size P_ ((struct frame *, int, int, int));
+void x_set_window_size P_ ((struct frame *, int, int, int, bool));
 void x_wm_set_window_state P_ ((struct frame *, int));
 void x_wm_set_icon_pixmap P_ ((struct frame *, int));
 void mac_initialize P_ ((void));
@@ -5939,7 +5945,7 @@ x_new_font (f, fontname)
 	 doing it because it's done in Fx_show_tip, and it leads to
 	 problems because the tip frame has no widget.  */
       if (NILP (tip_frame) || XFRAME (tip_frame) != f)
-        x_set_window_size (f, 0, FRAME_COLS (f), FRAME_LINES (f));
+        x_set_window_size (f, 0, FRAME_COLS (f), FRAME_LINES (f), false);
     }
 
   return build_string (fontp->full_name);
@@ -6137,7 +6143,7 @@ x_set_offset (f, xoff, yoff, change_gravity)
   x_calc_absolute_position (f);
 
   BLOCK_INPUT;
-  x_wm_set_size_hint (f, (long) 0, 0);
+  x_wm_set_size_hint (f, (long)0, (bool)0);
 
 #if TARGET_API_MAC_CARBON
   MoveWindowStructure (FRAME_MAC_WINDOW (f), f->left_pos, f->top_pos);
@@ -6201,11 +6207,15 @@ x_set_offset (f, xoff, yoff, change_gravity)
    Otherwise we leave the window gravity unchanged.  */
 
 void
-x_set_window_size (f, change_gravity, cols, rows)
+x_set_window_size (f, change_gravity, cols, rows, pixelwise)
      struct frame *f;
      int change_gravity;
      int cols, rows;
+     bool pixelwise;
 {
+#if defined(__APPLE__) && defined(__APPLE_CC__) && (__APPLE_CC__ > 1)
+#pragma unused pixelwise
+#endif /* Apple compiler */
   int pixelwidth, pixelheight;
 
   BLOCK_INPUT;
@@ -6220,13 +6230,13 @@ x_set_window_size (f, change_gravity, cols, rows)
   pixelheight = FRAME_TEXT_LINES_TO_PIXEL_HEIGHT (f, rows);
 
   f->win_gravity = NorthWestGravity;
-  x_wm_set_size_hint (f, (long) 0, 0);
+  x_wm_set_size_hint (f, (long)0, (bool)0);
 
   SizeWindow (FRAME_MAC_WINDOW (f), pixelwidth, pixelheight, 0);
 
 #if USE_CARBON_EVENTS
   if (!NILP (tip_frame) && f == XFRAME (tip_frame))
-#endif
+#endif /* USE_CARBON_EVENTS */
     mac_handle_size_change (f, pixelwidth, pixelheight);
 
   if (f->output_data.mac->internal_border_width
@@ -6535,7 +6545,7 @@ x_make_frame_invisible (f)
      program-specified, so that when the window is mapped again, it will be
      placed at the same location, without forcing the user to position it
      by hand again (they have already done that once for this window.)  */
-  x_wm_set_size_hint (f, (long) 0, 1);
+  x_wm_set_size_hint (f, (long)0, (bool)1);
 
   HideWindow (FRAME_MAC_WINDOW (f));
 
@@ -6674,7 +6684,7 @@ void
 x_wm_set_size_hint (f, flags, user_position)
      struct frame *f;
      long flags;
-     int user_position;
+     bool user_position;
 {
   int base_width, base_height, width_inc, height_inc;
   int min_rows = 0, min_cols = 0;
@@ -9537,7 +9547,7 @@ do_grow_window (w, e)
       rows = FRAME_PIXEL_HEIGHT_TO_TEXT_LINES (f, height);
       columns = FRAME_PIXEL_WIDTH_TO_TEXT_COLS (f, width);
 
-      x_set_window_size (f, 0, columns, rows);
+      x_set_window_size (f, 0, columns, rows, false);
     }
 }
 
@@ -11899,21 +11909,21 @@ mac_initialize ()
 
 #if TARGET_API_MAC_CARBON
 
-#if USE_CARBON_EVENTS
-#ifdef MAC_OSX
+# if USE_CARBON_EVENTS
+#  ifdef MAC_OSX
   init_service_handler ();
-#endif	/* MAC_OSX */
+#  endif	/* MAC_OSX */
 
   init_command_handler ();
 
   init_menu_bar ();
 
-#if USE_MAC_TSM
+#  if USE_MAC_TSM
   init_tsm ();
-#endif
-#endif	/* USE_CARBON_EVENTS */
+#  endif
+# endif	/* USE_CARBON_EVENTS */
 
-#ifdef MAC_OSX
+# ifdef MAC_OSX
   init_coercion_handler ();
 
   init_apple_event_handler ();
@@ -11926,14 +11936,14 @@ mac_initialize ()
 
       SetFrontProcess (&psn);
     }
-#endif
-#endif
+# endif /* MAC_OSX */
+#endif /* TARGET_API_MAC_CARBON */
 
 #if USE_CG_DRAWING
   init_cg_color ();
 
   mac_init_fringe ();
-#endif
+#endif /* USE_CG_DRAWING */
 
   UNBLOCK_INPUT;
 }
@@ -11945,7 +11955,7 @@ syms_of_macterm ()
 #if 0
   staticpro (&x_error_message_string);
   x_error_message_string = Qnil;
-#endif
+#endif /* 0 */
 
   Qcontrol = intern ("control");	staticpro (&Qcontrol);
   Qmeta    = intern ("meta");		staticpro (&Qmeta);
@@ -11963,30 +11973,30 @@ syms_of_macterm ()
 
 #if USE_CARBON_EVENTS
   Qhi_command   = intern ("hi-command");    staticpro (&Qhi_command);
-#ifdef MAC_OSX
+# ifdef MAC_OSX
   Qtoolbar_switch_mode = intern ("toolbar-switch-mode");
   staticpro (&Qtoolbar_switch_mode);
-#if USE_MAC_FONT_PANEL
+#  if USE_MAC_FONT_PANEL
   Qpanel_closed = intern ("panel-closed");  staticpro (&Qpanel_closed);
   Qselection    = intern ("selection");     staticpro (&Qselection);
-#endif
+#  endif /* USE_MAC_FONT_PANEL */
 
   Qservice     = intern ("service");	  staticpro (&Qservice);
   Qpaste       = intern ("paste");	  staticpro (&Qpaste);
   Qperform     = intern ("perform");	  staticpro (&Qperform);
-#endif
-#if USE_MAC_TSM
+# endif /* MAC_OSX */
+# if USE_MAC_TSM
   Qtext_input = intern ("text-input");	staticpro (&Qtext_input);
   Qupdate_active_input_area = intern ("update-active-input-area");
   staticpro (&Qupdate_active_input_area);
   Qunicode_for_key_event = intern ("unicode-for-key-event");
   staticpro (&Qunicode_for_key_event);
-#endif
-#endif
+# endif /* USE_MAC_TSM */
+#endif /* USE_CARBON_EVENTS */
 
 #ifdef MAC_OSX
   Fprovide (intern ("mac-carbon"), Qnil);
-#endif
+#endif /* MAC_OSX */
 
   staticpro (&Qreverse);
   Qreverse = intern ("reverse");
@@ -12006,12 +12016,12 @@ syms_of_macterm ()
 
   staticpro (&fm_style_face_attributes_alist);
   fm_style_face_attributes_alist = Qnil;
-#endif
+#endif /* USE_ATSUI */
 
 #if USE_MAC_TSM
   staticpro (&saved_ts_script_language_on_focus);
   saved_ts_script_language_on_focus = Qnil;
-#endif
+#endif /* USE_MAC_TSM */
 
   /* We don't yet support this, but defining this here avoids whining
      from cus-start.el and other places, like "M-x set-variable".  */
@@ -12039,7 +12049,7 @@ baseline level.  The default value is nil.  */);
   Vx_toolkit_scroll_bars = Qt;
 #else
   Vx_toolkit_scroll_bars = Qnil;
-#endif
+#endif /* USE_TOOLKIT_SCROLL_BARS */
 
   staticpro (&last_mouse_motion_frame);
   last_mouse_motion_frame = Qnil;
@@ -12101,7 +12111,7 @@ button will be mouse-3.  */);
     doc: /* *Non-nil if control key presses are passed on to the Mac Toolbox.  */);
   mac_pass_control_to_system = 1;
 
-#endif
+#endif /* USE_CARBON_EVENTS */
 
   DEFVAR_BOOL ("mac-allow-anti-aliasing", &mac_use_core_graphics,
     doc: /* *If non-nil, allow anti-aliasing.
@@ -12111,7 +12121,7 @@ may anti-alias the text.  */);
   mac_use_core_graphics = 1;
 #else
   mac_use_core_graphics = 0;
-#endif
+#endif /* USE_CG_DRAWING */
 
   /* Register an entry for `mac-roman' so that it can be used when
      creating the terminal frame on Mac OS 9 before loading
@@ -12142,7 +12152,7 @@ input script and language codes, which are defined in the Script
 Manager, are set to its car and cdr parts, respectively.  Otherwise,
 Emacs doesn't set them and thus follows the system default behavior.  */);
   Vmac_ts_script_language_on_focus = Qnil;
-#endif
+#endif /* USE_MAC_TSM */
 }
 
 /* arch-tag: f2259165-4454-4c04-a029-a133c8af7b5b

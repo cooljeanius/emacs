@@ -2,6 +2,7 @@
 # Makefile for emacs
 ##
 
+App_Dir=$(DSTROOT)/AppleInternal/Applications
 Extra_CC_Flags = -Wno-pointer-sign
 Extra_LD_Flags = -Wl,-headerpad,0x1000 -Wl,-no_pie
 Extra_LD64_Flags = -Wl,-no_function_starts
@@ -13,7 +14,7 @@ GNUVersion = 22.1
 UserType = Developer
 ToolType = Commands
 CommonNoInstallSource = YES
-GnuAfterInstall = remove-dir install-dumpemacs cleanup install-plist install-default install-dsyms
+GnuAfterInstall = remove-dir install-dumpemacs install-dumpemacs-sh cleanup install-plist install-default install-dsyms
 GnuNoConfigure = YES
 GnuNoBuild = YES
 BuildDirectory = .
@@ -23,6 +24,9 @@ MAKEFILEPATH = /Developer/Makefiles
 endif
 ifndef SRCROOT
 SRCROOT = .
+endif
+ifndef SYMROOT
+SYMROOT = /tmp/$(Project)/Debug
 endif
 ifndef OBJROOT
 OBJROOT = ./objs
@@ -75,7 +79,7 @@ EXTRAEL=	emacs/lisp/cus-load.el \
 		emacs/lisp/subdirs.el
 
 installsrc_old :
-	if test ! -d $(SRCROOT) ; then mkdir -p $(SRCROOT); fi;
+	if test ! -d $(SRCROOT); then mkdir -pv $(SRCROOT); fi;
 	rsync -aC --include '*.ps' --include configure --include Resources --include index.texi ./ $(SRCROOT)/
 .PHONY: installsrc_old
 
@@ -87,13 +91,29 @@ $(OBJROOT)/bo.h:
 	hexdump -ve '1/1 "0x%02x,"' < $(OBJROOT)/src/buildobj.lst >> $@
 	printf "};\n" >> $@
 
+$(OBJROOT)/isemacsvalid.o: $(SRCROOT)/isemacsvalid.c
+	if test ! -d $(OBJROOT); then mkdir -pv $(OBJROOT); fi
+	$(CC) -c $(CFLAGS) -o $@ $^ 
+
 $(OBJROOT)/runit.o: $(SRCROOT)/runit.c
+	if test ! -d $(OBJROOT); then mkdir -pv $(OBJROOT); fi
 	$(CC) -c $(CFLAGS) -o $@ $^ 
 
 $(OBJROOT)/dumpemacs.o: $(OBJROOT)/bo.h $(OBJROOT)/src/version.h
 	$(CC) -I $(OBJROOT) -DkEmacsVersion=$(patsubst %,'"%"', $(GNUVersion)) $(CFLAGS) -o $@ -g -c $(SRCROOT)/dumpemacs.c
 
 $(SYMROOT)/dumpemacs: $(OBJROOT)/dumpemacs.o $(OBJROOT)/runit.o
+	if test ! -d $(OBJROOT); then mkdir -pv $(OBJROOT); fi
+	if test ! -d $(SYMROOT); then mkdir -pv $(SYMROOT); fi
+	$(CC) $(CFLAGS) -o $@ -g $^
+
+$(OBJROOT)/emacswrapper.o: $(SRCROOT)/emacswrapper.c
+	if test ! -d $(OBJROOT); then mkdir -pv $(OBJROOT); fi
+	$(CC) -c $(CFLAGS) -o $@ $^ 
+
+$(SYMROOT)/emacswrapper: $(OBJROOT)/emacswrapper.o $(OBJROOT)/isemacsvalid.o $(OBJROOT)/runit.o
+	if test ! -d $(OBJROOT); then mkdir -pv $(OBJROOT); fi
+	if test ! -d $(SYMROOT); then mkdir -pv $(SYMROOT); fi
 	$(CC) $(CFLAGS) -o $@ -g $^
 
 install-dumpemacs: $(SYMROOT)/dumpemacs
@@ -102,6 +122,9 @@ install-dumpemacs: $(SYMROOT)/dumpemacs
 	$(INSTALL) -d "$(DSTROOT)"/usr/share/man/man{1,8}
 	$(INSTALL) -m 444 -o root -g wheel $(SRCROOT)/dumpemacs.8 "$(DSTROOT)"/usr/share/man/man8
 	$(INSTALL) -m 444 -o root -g wheel $(SRCROOT)/emacs-undumped.1 "$(DSTROOT)"/usr/share/man/man1
+
+install-dumpemacs-sh: $(SRCROOT)/dumpemacs.sh
+	$(INSTALL) -o root -g wheel -m 555 $(SRCROOT)/dumpemacs.sh $(DSTROOT)/usr/libexec/
 
 build::
 	find "$(OBJROOT)" -name Makefile -exec $(SRCROOT)/fixMakefile {} \;

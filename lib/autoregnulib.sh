@@ -57,25 +57,27 @@ if test -z "${gnulib_tool}" || test ! -x "${gnulib_tool}"; then
 else
   # The list of gnulib modules we are importing for emacs:
   module_list="\
-      alloca-opt \
+      alloca-opt assert-h autobuild \
       byteswap \
       c-ctype c-strcase careadlinkat close-stream \
       count-one-bits count-trailing-zeros \
       crypto/md5 crypto/sha1 crypto/sha256 crypto/sha512 \
       dtoastr dtotimespec dup2 \
-      environ error execinfo \
+      environ errno error execinfo \
       faccessat fcntl fcntl-h fdatasync fdopendir filemode fstatat fsync \
-      getloadavg getopt-gnu gettime gettimeofday \
-      git-version-gen gitlog-to-changelog gnu-make \
+      getloadavg getopt-gnu gettext gettext-h gettime gettimeofday \
+      git-merge-changelog git-version-gen gitlog-to-changelog gnu-make \
+      host-cpu-c-abi host-os \
       intprops \
-      largefile lstat \
+      largefile ldd lstat \
       manywarnings memrchr mkostemp mktime \
       obstack \
       pipe2 posix_spawnp progname pselect pthread_sigmask putenv \
       qacl \
       readlink readlinkat \
-      sig2str snippet/warn-on-use socklen stat-time stdalign stdarg stdbool \
-      stdio strftime strtoimax strtoumax symlink sys_stat sys_time \
+      sig2str snippet/link-warning snippet/warn-on-use socklen stat-time \
+      stdalign stdarg stdbool stdio strftime strtoimax strtoumax symlink \
+      sys_stat sys_time \
       time timer-time timespec-add timespec-sub \
       unsetenv update-copyright utimens \
       warnings"
@@ -87,6 +89,7 @@ else
     --avoid=opendir --avoid=raise --avoid=save-cwd --avoid=select \
     --avoid=sigprocmask --avoid=threadlib --makefile-name=gnulib.mk \
     --conditional-dependencies --no-libtool --macro-prefix=gl --no-vc-files \
+    --with-obsolete --without-unportable-tests \
     "${module_list}"
   if [ $? -ne 0 ]; then
     echo "Error: gnulib import failed.  Aborting."
