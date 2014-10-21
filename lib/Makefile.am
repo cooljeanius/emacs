@@ -4,7 +4,7 @@
 BUILT_SOURCES =
 CLEANFILES =
 EXTRA_DIST =
-DISTCLEANFILES = .DS_Store *~
+DISTCLEANFILES = .DS_Store *~ glthread/*~
 MOSTLYCLEANDIRS =
 MOSTLYCLEANFILES =
 noinst_HEADERS = 
@@ -26,6 +26,10 @@ include gnulib.mk
 
 libgnu_a_SOURCES += openat-die.c save-cwd.c
 endif
+
+maintainer-clean-local:
+	rm -rf glthread || rmdir glthread
+.PHONY: maintainer-clean-local
 
 extraclean: maintainer-clean
 	-rm -f *~ \#*

@@ -44,6 +44,9 @@ info: $(INFO_TARGETS)
 
 dvi: $(DVI_TARGETS)
 
+all: info dvi
+.PHONY: all info dvi
+
 ${infodir}/eintr: ${INFO_SOURCES}
 	cd $(srcdir); $(MAKEINFO) emacs-lisp-intro.texi -o $(infodir)/eintr
 

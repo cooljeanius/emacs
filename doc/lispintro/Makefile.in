@@ -86,6 +86,9 @@ html: $(HTML_TARGETS)
 pdf: $(PDF_TARGETS)
 ps: $(PS_TARGETS)
 
+all: info dvi html pdf ps
+.PHONY: all
+
 # The file name eintr must fit within 5 characters, to allow for
 # -NN extensions to fit into DOS 8+3 limits without clashing.
 # Note: "<" is not portable in ordinary make rules.

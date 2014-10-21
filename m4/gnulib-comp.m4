@@ -39,9 +39,13 @@ AC_DEFUN([gl_EARLY],
   m4_pattern_allow([^gl_LTLIBOBJS$])dnl a variable
   AC_REQUIRE([gl_PROG_AR_RANLIB])
   # Code from module absolute-header:
+  # Code from module alloca:
   # Code from module alloca-opt:
   # Code from module allocator:
+  # Code from module assert-h:
   # Code from module at-internal:
+  # Code from module autobuild:
+  AB_INIT
   # Code from module binary-io:
   # Code from module byteswap:
   # Code from module c-ctype:
@@ -57,9 +61,11 @@ AC_DEFUN([gl_EARLY],
   # Code from module crypto/sha512:
   # Code from module dirent:
   # Code from module dosname:
+  # Code from module double-slash-root:
   # Code from module dtoastr:
   # Code from module dtotimespec:
   # Code from module dup2:
+  # Code from module dup2-obsolete:
   # Code from module environ:
   # Code from module errno:
   # Code from module error:
@@ -84,6 +90,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module getloadavg:
   # Code from module getopt-gnu:
   # Code from module getopt-posix:
+  # Code from module gettext:
   # Code from module gettext-h:
   # Code from module gettime:
   # Code from module gettimeofday:
@@ -91,11 +98,15 @@ AC_DEFUN([gl_EARLY],
   # Code from module gitlog-to-changelog:
   # Code from module gnu-make:
   # Code from module group-member:
+  # Code from module havelib:
+  # Code from module host-cpu-c-abi:
+  # Code from module host-os:
   # Code from module include_next:
   # Code from module intprops:
   # Code from module inttypes-incomplete:
   # Code from module largefile:
   AC_REQUIRE([AC_SYS_LARGEFILE])
+  # Code from module ldd:
   # Code from module lstat:
   # Code from module manywarnings:
   # Code from module memrchr:
@@ -126,6 +137,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module snippet/_Noreturn:
   # Code from module snippet/arg-nonnull:
   # Code from module snippet/c++defs:
+  # Code from module snippet/link-warning:
   # Code from module snippet/warn-on-use:
   # Code from module socklen:
   # Code from module spawn:
@@ -172,6 +184,8 @@ AC_DEFUN([gl_EARLY],
   # Code from module utimens:
   # Code from module verify:
   # Code from module warnings:
+  # Code from module xalloc:
+  # Code from module xalloc-die:
   # Code from module xalloc-oversized:
 ])
 
@@ -192,6 +206,7 @@ AC_DEFUN([gl_INIT],
   gl_COMMON
   gl_source_base='lib'
   gl_FUNC_ALLOCA
+  gl_ASSERT_H
   gl_BYTESWAP
   AC_CHECK_FUNCS_ONCE([readlinkat])
   gl_CLOCK_TIME
@@ -204,6 +219,7 @@ AC_DEFUN([gl_INIT],
   gl_SHA256
   gl_SHA512
   gl_DIRENT_H
+  gl_DOUBLE_SLASH_ROOT
   AC_REQUIRE([gl_C99_STRTOLD])
   gl_FUNC_DUP2
   if test $HAVE_DUP2 = 0 || test $REPLACE_DUP2 = 1; then
@@ -211,6 +227,7 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_DUP2
   fi
   gl_UNISTD_MODULE_INDICATOR([dup2])
+  gl_FUNC_DUP2_OBSOLETE
   gl_ENVIRON
   gl_UNISTD_MODULE_INDICATOR([environ])
   gl_HEADER_ERRNO_H
@@ -296,6 +313,8 @@ AC_DEFUN([gl_INIT],
     GNULIB_GL_UNISTD_H_GETOPT=1
   fi
   AC_SUBST([GNULIB_GL_UNISTD_H_GETOPT])
+  dnl you must add AM_GNU_GETTEXT([external]) or similar to configure.ac.
+  AM_GNU_GETTEXT_VERSION([0.18.1])
   AC_SUBST([LIBINTL])
   AC_SUBST([LTLIBINTL])
   gl_GETTIME
@@ -306,8 +325,12 @@ AC_DEFUN([gl_INIT],
   fi
   gl_SYS_TIME_MODULE_INDICATOR([gettimeofday])
   gl_GNU_MAKE
+  gl_HOST_CPU_C_ABI
+  gl_HOST_OS
   gl_INTTYPES_INCOMPLETE
   AC_REQUIRE([gl_LARGEFILE])
+  gl_LDD
+  AC_CONFIG_FILES([ldd.sh:build-aux/ldd.sh.in])
   gl_FUNC_LSTAT
   if test $REPLACE_LSTAT = 1; then
     AC_LIBOBJ([lstat])
@@ -383,6 +406,7 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_SIG2STR
   fi
   gl_SIGNAL_H
+  AC_REQUIRE([gl_FEATURES_H])
   gl_TYPE_SOCKLEN_T
   gl_SPAWN_H
   gt_TYPE_SSIZE_T
@@ -439,6 +463,7 @@ AC_DEFUN([gl_INIT],
   fi
   gl_STDLIB_MODULE_INDICATOR([unsetenv])
   gl_UTIMENS
+  gl_XALLOC
   gl_gnulib_enabled_260941c0e5dc67ec9e87d1fb321c300b=false
   gl_gnulib_enabled_dosname=false
   gl_gnulib_enabled_euidaccess=false
@@ -459,7 +484,6 @@ AC_DEFUN([gl_INIT],
   gl_gnulib_enabled_strtoll=false
   gl_gnulib_enabled_strtoull=false
   gl_gnulib_enabled_tempname=false
-  gl_gnulib_enabled_682e609604ccaac6be382e4ee3a4eaec=false
   func_gl_gnulib_m4code_260941c0e5dc67ec9e87d1fb321c300b ()
   {
     if ! $gl_gnulib_enabled_260941c0e5dc67ec9e87d1fb321c300b; then
@@ -530,9 +554,6 @@ AC_DEFUN([gl_INIT],
       gl_gnulib_enabled_a9786850e999ae65a836a6041e8e5ed1=true
       if test $HAVE_GROUP_MEMBER = 0; then
         func_gl_gnulib_m4code_getgroups
-      fi
-      if test $HAVE_GROUP_MEMBER = 0; then
-        func_gl_gnulib_m4code_682e609604ccaac6be382e4ee3a4eaec
       fi
     fi
   }
@@ -688,12 +709,6 @@ AC_DEFUN([gl_INIT],
       func_gl_gnulib_m4code_secure_getenv
     fi
   }
-  func_gl_gnulib_m4code_682e609604ccaac6be382e4ee3a4eaec ()
-  {
-    if ! $gl_gnulib_enabled_682e609604ccaac6be382e4ee3a4eaec; then
-      gl_gnulib_enabled_682e609604ccaac6be382e4ee3a4eaec=true
-    fi
-  }
   if test $HAVE_DUP2 = 0 || test $REPLACE_DUP2 = 1; then
     func_gl_gnulib_m4code_f691f076f650964c9f5598c3ee487616
   fi
@@ -781,7 +796,6 @@ AC_DEFUN([gl_INIT],
   AM_CONDITIONAL([gl_GNULIB_ENABLED_strtoll], [$gl_gnulib_enabled_strtoll])
   AM_CONDITIONAL([gl_GNULIB_ENABLED_strtoull], [$gl_gnulib_enabled_strtoull])
   AM_CONDITIONAL([gl_GNULIB_ENABLED_tempname], [$gl_gnulib_enabled_tempname])
-  AM_CONDITIONAL([gl_GNULIB_ENABLED_682e609604ccaac6be382e4ee3a4eaec], [$gl_gnulib_enabled_682e609604ccaac6be382e4ee3a4eaec])
   # End of code from modules
   m4_ifval(gl_LIBSOURCES_LIST, [
     m4_syscmd([test ! -d ]m4_defn([gl_LIBSOURCES_DIR])[ ||
@@ -828,6 +842,7 @@ changequote([, ])dnl
   AC_SUBST([gltests_WITNESS])
   gl_module_indicator_condition=$gltests_WITNESS
   m4_pushdef([gl_MODULE_INDICATOR_CONDITION], [$gl_module_indicator_condition])
+  AC_REQUIRE([gl_FEATURES_H])
   m4_pattern_allow([^gl_GNULIB_ENABLED_])
   m4_popdef([gl_MODULE_INDICATOR_CONDITION])
   m4_ifval(gltests_LIBSOURCES_LIST, [
@@ -923,20 +938,25 @@ AC_DEFUN([gltests_LIBSOURCES], [
 # This macro records the list of files which have been installed by
 # gnulib-tool and may be removed by future gnulib-tool invocations.
 AC_DEFUN([gl_FILE_LIST], [
+  build-aux/config.rpath
   build-aux/git-version-gen
   build-aux/gitlog-to-changelog
+  build-aux/ldd.sh.in
   build-aux/snippet/_Noreturn.h
   build-aux/snippet/arg-nonnull.h
   build-aux/snippet/c++defs.h
+  build-aux/snippet/link-warning.h
   build-aux/snippet/warn-on-use.h
   build-aux/update-copyright
   lib/acl-errno-valid.c
   lib/acl-internal.h
   lib/acl.h
   lib/acl_entries.c
+  lib/alloca.c
   lib/alloca.in.h
   lib/allocator.c
   lib/allocator.h
+  lib/assert.in.h
   lib/at-func.c
   lib/binary-io.c
   lib/binary-io.h
@@ -1084,18 +1104,26 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/utimens.c
   lib/utimens.h
   lib/verify.h
+  lib/xalloc-die.c
   lib/xalloc-oversized.h
+  lib/xalloc.h
+  lib/xmalloc.c
   m4/00gnulib.m4
   m4/absolute-header.m4
   m4/acl.m4
   m4/alloca.m4
+  m4/assert_h.m4
+  m4/autobuild.m4
   m4/byteswap.m4
   m4/c-strtod.m4
   m4/clock_time.m4
   m4/close-stream.m4
+  m4/codeset.m4
   m4/count-one-bits.m4
   m4/count-trailing-zeros.m4
   m4/dirent_h.m4
+  m4/double-slash-root.m4
+  m4/dup2-obsolete.m4
   m4/dup2.m4
   m4/environ.m4
   m4/errno_h.m4
@@ -1119,15 +1147,34 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/getgroups.m4
   m4/getloadavg.m4
   m4/getopt.m4
+  m4/gettext.m4
   m4/gettime.m4
   m4/gettimeofday.m4
   m4/gl-openssl.m4
+  m4/glibc2.m4
+  m4/glibc21.m4
   m4/gnu-make.m4
   m4/gnulib-common.m4
   m4/group-member.m4
+  m4/host-cpu-c-abi.m4
+  m4/host-os.m4
+  m4/iconv.m4
   m4/include_next.m4
+  m4/intdiv0.m4
+  m4/intl.m4
+  m4/intldir.m4
+  m4/intlmacosx.m4
+  m4/intmax.m4
+  m4/inttypes-pri.m4
   m4/inttypes.m4
+  m4/inttypes_h.m4
   m4/largefile.m4
+  m4/lcmessage.m4
+  m4/ldd.m4
+  m4/lib-ld.m4
+  m4/lib-link.m4
+  m4/lib-prefix.m4
+  m4/lock.m4
   m4/longlong.m4
   m4/lstat.m4
   m4/manywarnings.m4
@@ -1137,11 +1184,15 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/mktime.m4
   m4/msvc-inval.m4
   m4/multiarch.m4
+  m4/nls.m4
   m4/nocrash.m4
   m4/off_t.m4
   m4/pathmax.m4
   m4/pipe2.m4
+  m4/po.m4
   m4/posix_spawn.m4
+  m4/printf-posix.m4
+  m4/progtest.m4
   m4/pselect.m4
   m4/pthread_sigmask.m4
   m4/putenv.m4
@@ -1156,6 +1207,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/sha512.m4
   m4/sig2str.m4
   m4/signal_h.m4
+  m4/size_max.m4
   m4/socklen.m4
   m4/spawn_h.m4
   m4/ssize_t.m4
@@ -1167,6 +1219,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/stdbool.m4
   m4/stddef_h.m4
   m4/stdint.m4
+  m4/stdint_h.m4
   m4/stdio_h.m4
   m4/stdlib_h.m4
   m4/strchrnul.m4
@@ -1184,16 +1237,22 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/sys_time_h.m4
   m4/sys_types_h.m4
   m4/tempname.m4
+  m4/threadlib.m4
   m4/time_h.m4
   m4/time_r.m4
   m4/timer_time.m4
   m4/timespec.m4
   m4/tm_gmtoff.m4
+  m4/uintmax_t.m4
   m4/unistd_h.m4
   m4/utimbuf.m4
   m4/utimens.m4
   m4/utimes.m4
+  m4/visibility.m4
   m4/warn-on-use.m4
   m4/warnings.m4
   m4/wchar_t.m4
+  m4/wint_t.m4
+  m4/xalloc.m4
+  m4/xsize.m4
 ])

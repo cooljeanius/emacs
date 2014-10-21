@@ -27,12 +27,16 @@
 
 
 # Specification in the form of a command-line invocation:
-#   gnulib-tool --import --dir=. --lib=libgnu --source-base=lib --m4-base=m4 --doc-base=doc --tests-base=tests --aux-dir=build-aux --avoid=close --avoid=dup --avoid=fchdir --avoid=malloc-posix --avoid=msvc-nothrow --avoid=open --avoid=openat-die --avoid=opendir --avoid=raise --avoid=save-cwd --avoid=select --avoid=sigprocmask --avoid=threadlib --makefile-name=gnulib.mk --conditional-dependencies --no-libtool --macro-prefix=gl --no-vc-files alloca-opt byteswap c-ctype c-strcase careadlinkat close-stream count-one-bits count-trailing-zeros crypto/md5 crypto/sha1 crypto/sha256 crypto/sha512 dtoastr dtotimespec dup2 environ error execinfo faccessat fcntl fcntl-h fdatasync fdopendir filemode fstatat fsync getloadavg getopt-gnu gettime gettimeofday git-version-gen gitlog-to-changelog gnu-make intprops largefile lstat manywarnings memrchr mkostemp mktime obstack pipe2 posix_spawnp progname pselect pthread_sigmask putenv qacl readlink readlinkat sig2str snippet/warn-on-use socklen stat-time stdalign stdarg stdbool stdio strftime strtoimax strtoumax symlink sys_stat sys_time time timer-time timespec-add timespec-sub unsetenv update-copyright utimens warnings
+#   gnulib-tool --import --dir=. --lib=libgnu --source-base=lib --m4-base=m4 --doc-base=doc --tests-base=tests --aux-dir=build-aux --with-obsolete --avoid=close --avoid=dup --avoid=fchdir --avoid=fstrcmp --avoid=lock --avoid=malloc-posix --avoid=msvc-nothrow --avoid=open --avoid=openat-die --avoid=opendir --avoid=raise --avoid=save-cwd --avoid=select --avoid=sigprocmask --avoid=threadlib --avoid=tls --makefile-name=gnulib.mk --conditional-dependencies --no-libtool --macro-prefix=gl --no-vc-files alloca alloca-opt allocator assert-h autobuild byteswap c-ctype c-strcase careadlinkat close-stream count-one-bits count-trailing-zeros crypto/md5 crypto/sha1 crypto/sha256 crypto/sha512 double-slash-root dtoastr dtotimespec dup2 environ errno error execinfo faccessat fcntl fcntl-h fdatasync fdopendir filemode fstatat fsync getloadavg getopt-gnu gettext gettext-h gettime gettimeofday git-version-gen gitlog-to-changelog gnu-make host-cpu-c-abi host-os intprops largefile ldd lstat manywarnings memrchr mkostemp mktime obstack pipe2 posix_spawnp progname pselect pthread_sigmask putenv qacl readlink readlinkat sched sig2str snippet/link-warning snippet/warn-on-use socklen spawn stat-time stdalign stdarg stdbool stdio strftime strtoimax strtoumax symlink sys_stat sys_time time timer-time timespec-add timespec-sub unsetenv update-copyright utimens warnings xalloc xalloc-die
 
 # Specification in the form of a few gnulib-tool.m4 macro invocations:
 gl_LOCAL_DIR([])
 gl_MODULES([
+  alloca
   alloca-opt
+  allocator
+  assert-h
+  autobuild
   byteswap
   c-ctype
   c-strcase
@@ -44,10 +48,12 @@ gl_MODULES([
   crypto/sha1
   crypto/sha256
   crypto/sha512
+  double-slash-root
   dtoastr
   dtotimespec
   dup2
   environ
+  errno
   error
   execinfo
   faccessat
@@ -60,13 +66,18 @@ gl_MODULES([
   fsync
   getloadavg
   getopt-gnu
+  gettext
+  gettext-h
   gettime
   gettimeofday
   git-version-gen
   gitlog-to-changelog
   gnu-make
+  host-cpu-c-abi
+  host-os
   intprops
   largefile
+  ldd
   lstat
   manywarnings
   memrchr
@@ -82,9 +93,12 @@ gl_MODULES([
   qacl
   readlink
   readlinkat
+  sched
   sig2str
+  snippet/link-warning
   snippet/warn-on-use
   socklen
+  spawn
   stat-time
   stdalign
   stdarg
@@ -104,8 +118,11 @@ gl_MODULES([
   update-copyright
   utimens
   warnings
+  xalloc
+  xalloc-die
 ])
-gl_AVOID([ close dup fchdir malloc-posix msvc-nothrow open openat-die opendir raise save-cwd select sigprocmask threadlib])
+gl_WITH_OBSOLETE
+gl_AVOID([ close dup fchdir fstrcmp lock malloc-posix msvc-nothrow open openat-die opendir raise save-cwd select sigprocmask threadlib tls])
 gl_SOURCE_BASE([lib])
 gl_M4_BASE([m4])
 gl_PO_BASE([])

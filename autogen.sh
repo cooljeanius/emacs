@@ -263,7 +263,7 @@ this script.
 If you know that the required versions are in your PATH, but this
 script has made an error, then you can simply run
 
-AUTOPOINT=true autoreconf -fvi -Wall -Wno-cross -I m4
+autoreconf -fvi -Wall -Wno-cross -I m4
 
 instead of this script.
 
@@ -275,9 +275,9 @@ fi
 
 echo "Your system has the required tools, running autoreconf..."
 
-# keep autopoint from overwriting our modified copy of m4/extern-inline.m4,
-# at least until we check and see if a newer version of gettext is okay:
-export AUTOPOINT=true
+# No longer need to override autopoint; in fact, doing so would be harmful
+# because gnulib would have us use an older version of gettext if we kept
+# autopoint from overriding it...
 
 ## Let autoreconf figure out what, if anything, needs doing.
 autoreconf -fvi -Wall -Wno-cross -I m4 || exit $?

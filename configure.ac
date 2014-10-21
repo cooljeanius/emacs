@@ -3049,9 +3049,10 @@ if test "x${HAVE_CARBON}" = "xyes"; then
   window_system=mac
 fi
 
-HAVE_NS=no
-NS_IMPL_COCOA=no
-NS_IMPL_GNUSTEP=no
+HAVE_NS="no"
+NS_IMPL=""
+NS_IMPL_COCOA="no"
+NS_IMPL_GNUSTEP="no"
 tmp_CPPFLAGS="${CPPFLAGS}"
 tmp_CFLAGS="${CFLAGS}"
 CPPFLAGS="${CPPFLAGS} -x objective-c"
@@ -3060,6 +3061,7 @@ GNU_OBJC_CFLAGS=""
 LIBS_GNUSTEP=""
 if test "x${with_ns}" != "xno"; then
   if test "x${opsys}" = "xdarwin"; then
+     NS_IMPL=Cocoa
      NS_IMPL_COCOA=yes
      ns_appdir=`pwd`/nextstep/Emacs.app
      ns_appbindir="${ns_appdir}/Contents/MacOS"
@@ -3077,6 +3079,7 @@ if test "x${with_ns}" != "xno"; then
                  [Define to 1 if we can use cblocks in our code])
      fi
   elif test -f ${GNUSTEP_CONFIG_FILE}; then
+     NS_IMPL=GNUstep
      NS_IMPL_GNUSTEP=yes
      ns_appdir=`pwd`/nextstep/Emacs.app
      ns_appbindir="${ns_appdir}"
@@ -3210,6 +3213,7 @@ if test -z "${HAVE_CXXBLOCKS_TRUE}" && test -z "${HAVE_CXXBLOCKS_FALSE}"; then
 fi
 
 AC_SUBST([LIBS_GNUSTEP])dnl
+AC_SUBST([NS_IMPL])dnl
 
 INSTALL_ARCH_INDEP_EXTRA=install-etc
 ns_self_contained=no
@@ -3692,6 +3696,11 @@ if test "x${HAVE_X11}" = "xyes"; then
                   XScreenNumberOfScreen])
   dnl# and also these:
   AC_CHECK_FUNCS([check_x_display_info x_get_arg x_get_string_resource])
+  dnl# and some misc. X headers, if not yet checked:
+  if test "x${ac_cv_header_X11_X_h}" = "x"; then
+    test -z "${ac_cv_header_X11_X_h}"
+    AC_CHECK_HEADER([X11/X.h])
+  fi
 fi
 
 if test "x${window_system}" = "xx11"; then
@@ -4860,12 +4869,20 @@ if test "x${HAVE_CARBON}" = "xyes"; then
   AC_DEFINE([HAVE_CARBON],[1],
             [Define to 1 if you are using the Carbon API on Mac OS X.])
   ## Specify the install directory:
+  AC_MSG_CHECKING([directory for the Carbon app])
   carbon_appdir=""
   if test "x${carbon_appdir_x}" != "x"; then
     case ${carbon_appdir_x} in
       y | ye | yes)  carbon_appdir=/Applications ;;
       * ) carbon_appdir="${carbon_appdir_x}" ;;
     esac
+  fi
+  if test "x${carbon_appdir}" != "x"; then
+    test -n ${carbon_appdir}
+    AC_MSG_RESULT([${carbon_appdir}])
+  else
+    test -z ${carbon_appdir}
+    AC_MSG_RESULT([none])
   fi
   # We also have mouse menus.
   HAVE_MENUS=yes
@@ -4876,6 +4893,11 @@ GNUSTEP_CFLAGS=""
 if test "x${HAVE_NS}" = "xyes"; then
   AC_DEFINE([HAVE_NS],[1],
             [Define to 1 if you are using the NeXTstep API, either GNUstep or Cocoa on Mac OS X.])
+  if test "x${NS_IMPL}" != "x"; then
+    test -n "${NS_IMPL}"
+    AC_DEFINE_UNQUOTED([NS_IMPL],["${NS_IMPL}"],
+                       [Define to the string representing the NeXTstep implementation used.])
+  fi
   if test "x${NS_IMPL_COCOA}" = "xyes"; then
     AC_DEFINE([NS_IMPL_COCOA],[1],
               [Define to 1 if you are using NS windowing under MacOS X.])
@@ -5177,7 +5199,7 @@ gai_strerror getline getdelim sync \
 getpwent endpwent getgrent endgrent \
 touchlock \
 cfmakeraw cfsetspeed copysign __executable_start log2])
-AC_CHECK_FUNCS([__fpending acl atexit btowc bzero doprnt dup2 errc fchdir \
+AC_CHECK_FUNCS([__fpending acl atexit btowc bzero doprnt errc fchdir \
                 floor ftime ftruncate getcwd getpass inet_ntoa isascii \
                 mbrlen memchr memmove memset mkdir munmap nl_langinfo \
                 posix_spawnp pow putenv re_comp regcomp rmdir \
@@ -5191,7 +5213,7 @@ if test "x" = "Y0"; then
     test -z "${ac_cv_lib_error_at_line}"
     AC_FUNC_ERROR_AT_LINE
   fi
-  AC_CHECK_FUNCS([alarm gethostbyname getpagesize gettimeofday \
+  AC_CHECK_FUNCS([alarm dup2 gethostbyname getpagesize gettimeofday \
                   localtime_r strtoumax tzset])
 fi
 
@@ -6603,7 +6625,7 @@ dnl# gettext:
 AC_MSG_CHECKING([gettext])
 AC_MSG_RESULT([ ])
 AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION([0.19.2])
+AM_GNU_GETTEXT_VERSION([0.19.3])
 AC_CHECK_LIB([intl],[gettext],[:],[
   AC_CHECK_LIB([intl],[libintl_gettext],[:],[
     AC_CHECK_LIB([intl],[main])
@@ -6663,7 +6685,7 @@ case "${opsys}" in
    ## each); under Cocoa 31 commands are required.
    if test "x${HAVE_NS}" = "xyes"; then
      libs_nsgui="-framework AppKit"
-     if test "${NS_IMPL_COCOA}" = "yes"; then
+     if test "x${NS_IMPL_COCOA}" = "xyes"; then
         libs_nsgui="${libs_nsgui} -framework IOKit"
      fi
      headerpad_extra=6C8
@@ -6999,12 +7021,13 @@ dnl# is not quite right (see:
 dnl# http://lists.gnu.org/archive/html/bug-autoconf/2008-08/msg00028.html).
 dnl# That does NOT have any obvious consequences for Emacs, but on the
 dnl# whole it seems better to just live with the duplication.
-SUBDIR_MAKEFILES="lib/Makefile lib-src/Makefile oldXMenu/Makefile doc/emacs/Makefile doc/lispintro/Makefile doc/lispref/Makefile doc/misc/Makefile src/Makefile lisp/Makefile lispintro/Makefile lispref/Makefile leim/Makefile lwlib/Makefile nextstep/Makefile nt/Makefile"
+SUBDIR_MAKEFILES="lib/Makefile lib-src/Makefile oldXMenu/Makefile doc/emacs/Makefile doc/Makefile doc/lispintro/Makefile doc/lispref/Makefile doc/man/Makefile doc/misc/Makefile src/Makefile lisp/Makefile lispintro/Makefile lispref/Makefile leim/Makefile lwlib/Makefile man/Makefile nextstep/Makefile nt/Makefile"
 
 AC_CONFIG_FILES([Makefile lib/Makefile lib-src/Makefile oldXMenu/Makefile \
-       doc/emacs/Makefile doc/lispintro/Makefile doc/lispref/Makefile \
-       doc/misc/Makefile src/Makefile lisp/Makefile lispintro/Makefile \
-       lispref/Makefile leim/Makefile lwlib/Makefile nextstep/Makefile \
+       doc/Makefile doc/emacs/Makefile doc/lispintro/Makefile \
+       doc/lispref/Makefile doc/man/Makefile doc/misc/Makefile \
+       src/Makefile lisp/Makefile lispintro/Makefile lispref/Makefile \
+       leim/Makefile lwlib/Makefile man/Makefile nextstep/Makefile \
        nt/Makefile po/Makevars])dnl
 
 dnl# test/ is not present in release tarfiles.

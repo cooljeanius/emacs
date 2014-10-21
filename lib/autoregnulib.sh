@@ -1,7 +1,8 @@
 #!/bin/sh
 
 # The gnulib commit ID to use for the update.
-GNULIB_COMMIT_SHA1="8a695b675d018ecfab9db14fce4b13379f5ac908"
+# If you know your version is newer, feel free to replace:
+GNULIB_COMMIT_SHA1="b155b0649814b20e635a2db305696710fa1037ce"
 
 if [ $# -ne 1 ]; then
    echo "Warning: Path to gnulib repository missing."
@@ -57,16 +58,16 @@ if test -z "${gnulib_tool}" || test ! -x "${gnulib_tool}"; then
 else
   # The list of gnulib modules we are importing for emacs:
   module_list="\
-      alloca-opt assert-h autobuild \
+      alloca alloca-opt allocator assert-h autobuild \
       byteswap \
       c-ctype c-strcase careadlinkat close-stream \
       count-one-bits count-trailing-zeros \
       crypto/md5 crypto/sha1 crypto/sha256 crypto/sha512 \
-      dtoastr dtotimespec dup2 \
+      double-slash-root dtoastr dtotimespec dup2 \
       environ errno error execinfo \
       faccessat fcntl fcntl-h fdatasync fdopendir filemode fstatat fsync \
       getloadavg getopt-gnu gettext gettext-h gettime gettimeofday \
-      git-merge-changelog git-version-gen gitlog-to-changelog gnu-make \
+      git-version-gen gitlog-to-changelog gnu-make \
       host-cpu-c-abi host-os \
       intprops \
       largefile ldd lstat \
@@ -75,21 +76,22 @@ else
       pipe2 posix_spawnp progname pselect pthread_sigmask putenv \
       qacl \
       readlink readlinkat \
-      sig2str snippet/link-warning snippet/warn-on-use socklen stat-time \
-      stdalign stdarg stdbool stdio strftime strtoimax strtoumax symlink \
-      sys_stat sys_time \
+      sched sig2str snippet/link-warning snippet/warn-on-use socklen spawn \
+      stat-time stdalign stdarg stdbool stdio strftime strtoimax strtoumax \
+      symlink sys_stat sys_time \
       time timer-time timespec-add timespec-sub \
       unsetenv update-copyright utimens \
-      warnings"
+      warnings \
+      xalloc xalloc-die"
    echo "Actually beginning import now; this may take a while..."
-  "${gnulib_tool}" --import --dir=. --lib=libgnu --source-base=lib --m4-base=m4 \
-    --doc-base=doc --tests-base=tests --aux-dir=build-aux --avoid=close \
-    --avoid=dup --avoid=fchdir --avoid=malloc-posix \
-    --avoid=msvc-nothrow --avoid=open --avoid=openat-die \
+  "${gnulib_tool}" --import --dir=. --lib=libgnu --source-base=lib \
+    --m4-base=m4 --doc-base=doc --tests-base=tests --aux-dir=build-aux \
+    --avoid=close --avoid=dup --avoid=fchdir --avoid=fstrcmp --avoid=lock \
+    --avoid=malloc-posix --avoid=msvc-nothrow --avoid=open --avoid=openat-die \
     --avoid=opendir --avoid=raise --avoid=save-cwd --avoid=select \
-    --avoid=sigprocmask --avoid=threadlib --makefile-name=gnulib.mk \
-    --conditional-dependencies --no-libtool --macro-prefix=gl --no-vc-files \
-    --with-obsolete --without-unportable-tests \
+    --avoid=sigprocmask --avoid=threadlib --avoid=tls \
+    --makefile-name=gnulib.mk --conditional-dependencies --no-libtool \
+    --macro-prefix=gl --no-vc-files --with-obsolete \
     "${module_list}"
   if [ $? -ne 0 ]; then
     echo "Error: gnulib import failed.  Aborting."

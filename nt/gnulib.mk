@@ -978,9 +978,6 @@ EXTRA_DIST += verify.h
 
 ## begin gnulib module xalloc-oversized
 
-if gl_GNULIB_ENABLED_682e609604ccaac6be382e4ee3a4eaec
-
-endif
 EXTRA_DIST += xalloc-oversized.h
 
 ## end   gnulib module xalloc-oversized

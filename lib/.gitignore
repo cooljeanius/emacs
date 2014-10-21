@@ -3,13 +3,16 @@
 lib*.a
 
 alloca.h
+assert.h
 byteswap.h
 dirent.h
 errno.h
 fcntl.h
 getopt.h
 inttypes.h
+sched.h
 signal.h
+spawn.h
 stdalign.h
 stdint.h
 stdbool.h
@@ -25,4 +28,5 @@ unistd.h
 
 arg-nonnull.h
 c++defs.h
+link-warning.h
 warn-on-use.h

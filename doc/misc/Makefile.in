@@ -101,7 +101,7 @@ mkinfodir = @${MKDIR_P} ${buildinfodir}
 
 gfdl = ${srcdir}/doclicense.texi
 
-.PHONY: info dvi html pdf ps echo-info
+.PHONY: default info dvi html pdf ps echo-info
 ## Prevent implicit rule triggering for foo.info.
 .SUFFIXES:
 
@@ -111,6 +111,7 @@ gfdl = ${srcdir}/doclicense.texi
 	$(DVIPS) -o $@ $<
 
 # Default.
+default: info
 info: $(INFO_TARGETS)
 
 ## Used by top-level Makefile.
@@ -126,6 +127,9 @@ html: $(HTML_TARGETS)
 pdf: $(PDF_TARGETS)
 
 ps: $(PS_TARGETS)
+
+all: info dvi html pdf ps
+.PHONY: all
 
 # Note that all the Info targets build the Info files in srcdir.
 # There is no provision for Info files to exist in the build directory.

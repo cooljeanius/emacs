@@ -159,6 +159,9 @@ html: $(HTML_TARGETS)
 pdf: $(PDF_TARGETS)
 ps: $(PS_TARGETS)
 
+all: info dvi html pdf ps
+.PHONY: all
+
 # Note that all the Info targets build the Info files in srcdir.
 # There is no provision for Info files to exist in the build directory.
 # In a distribution of Emacs, the Info files should be up to date.

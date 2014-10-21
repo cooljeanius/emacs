@@ -31,11 +31,38 @@ MKDIR_P = @MKDIR_P@
 ns_appdir = @ns_appdir@
 ns_appbindir = @ns_appbindir@
 ns_appsrc = @ns_appsrc@
-ns_check_file = @ns_appdir@/@ns_check_file@
 
-${ns_check_file} ${ns_appdir}: ${srcdir}/${ns_appsrc} ${ns_appsrc}
+@ifGNUmake@ifndef ns_appdir
+@ifGNUmake@ns_appdir = Emacs.app
+@ifGNUmake@endif
+
+@ifGNUmake@ifndef ns_appbindir
+@ifGNUmake@ns_appbindir = ${ns_appdir}
+@ifGNUmake@endif
+
+@ifGNUmake@ifndef ns_appresdir
+@ifGNUmake@ns_appresdir = ${ns_appdir}/Resources
+@ifGNUmake@endif
+
+@ifGNUmake@ifndef ns_appsrc
+@ifGNUmake@ns_appsrc = ./@NS_IMPL@/Emacs.base
+@ifGNUmake@endif
+
+ns_check_file = ${ns_appdir}/@ns_check_file@
+
+@ifGNUmake@ifndef ns_check_file
+@ifGNUmake@ns_check_file = Info.plist
+@ifGNUmake@endif
+
+verify_configured_with_ns:
+	@if [ "x@NS_IMPL@" = "x" ]; then \
+	   echo "This directory needs the top-level configure script to be run with '--with-ns' for this to work." >&2; \
+	   exit 1; \
+	 fi
+
+${ns_check_file} ${ns_appdir}: verify_configured_with_ns ${srcdir}/${ns_appsrc} ${ns_appsrc}
 	rm -rf ${ns_appdir}
-	${MKDIR_P} ${ns_appdir}
+	${MKDIR_P} -v ${ns_appdir}
 	( cd ${srcdir}/${ns_appsrc} ; tar cfh - . ) | \
 	  ( cd ${ns_appdir} ; umask 022; tar xf - )
 	[ "`cd ${srcdir} && /bin/pwd`" = "`/bin/pwd`" ] || \
@@ -43,13 +70,13 @@ ${ns_check_file} ${ns_appdir}: ${srcdir}/${ns_appsrc} ${ns_appsrc}
 	    ( cd ${ns_appdir} ; umask 022; tar xf - )
 	touch ${ns_appdir}
 
-${ns_appbindir}/Emacs: ${ns_appdir} ${ns_check_file} ../src/emacs${EXEEXT}
-	${MKDIR_P} ${ns_appbindir}
-	cp -f ../src/emacs${EXEEXT} ${ns_appbindir}/Emacs
+${ns_appbindir}/Emacs: verify_configured_with_ns ${ns_appdir} ${ns_check_file} ../src/emacs${EXEEXT}
+	${MKDIR_P} -v ${ns_appbindir}
+	cp -fv ../src/emacs${EXEEXT} ${ns_appbindir}/Emacs
 
 .PHONY: all
 
-all: ${ns_appdir} ${ns_appbindir}/Emacs
+all: verify_configured_with_ns ${ns_appdir} ${ns_appbindir}/Emacs
 
 
 .PHONY: clean distclean maintainer-clean

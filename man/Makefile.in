@@ -126,6 +126,9 @@ $(top_srcdir)/info:
 
 dvi: $(DVI_TARGETS)
 
+all: info dvi emacsman
+.PHONY: all info dvi emacsman
+
 # Note that all the Info targets build the Info files
 # in srcdir.  There is no provision for Info files
 # to exist in the build directory.

@@ -140,6 +140,9 @@ html: $(HTML_TARGETS)
 pdf: $(PDF_TARGETS)
 ps: $(PS_TARGETS)
 
+all: info dvi html pdf ps
+.PHONY: all
+
 ## Note: "<" is not portable in ordinary make rules.
 $(buildinfodir)/elisp$(INFO_EXT): $(srcs)
 	$(mkinfodir)

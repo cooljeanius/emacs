@@ -7,8 +7,10 @@ compile
 config.guess
 config.sub
 config.log
+conf*/*.awk
 depcomp
 install-sh
+ldd.sh
 libtool
 missing
 # allow gnulib's automake-generated Makefile.in, for the same reason
@@ -28,6 +30,8 @@ TAGS
 etc/refcards/*.aux
 etc/refcards/*.log
 info/dir
+info/*-[0123456789]
+info/*-[0123456789][0123456789]
 info/*.info
 *DS_Store*
 *.status

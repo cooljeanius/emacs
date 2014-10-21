@@ -1,2 +1,5 @@
 DOC
-icons/
+icons/*
+images/icons/*
+*.dvi
+*.log
