@@ -4464,15 +4464,31 @@ make_monitor_attribute_list (struct MonitorInfo *monitors,
 
   for (i = 0; i < n_monitors; ++i)
     {
+      XRectangle mi_xgeom, mi_xwork;
       Lisp_Object geometry, workarea, attributes = Qnil;
       struct MonitorInfo *mi = &monitors[i];
 
+#if defined(CONVERT_TO_XRECT)
+      CONVERT_TO_XRECT(mi_xgeom, mi->geom);
+      if (mi_xgeom.width == 0) continue;
+#else
       if (mi->geom.width == 0) continue;
+#endif /* CONVERT_TO_XRECT */
 
+#if defined(CONVERT_TO_XRECT)
+      CONVERT_TO_XRECT(mi_xwork, mi->work);
+      /* (the "geom" one should have already been converted above, provided
+       * that the conditions are kept the same) */
+      workarea = list4i (mi_xwork.x, mi_xwork.y,
+			 mi_xwork.width, mi_xwork.height);
+      geometry = list4i (mi_xgeom.x, mi_xgeom.y,
+			 mi_xgeom.width, mi_xgeom.height);
+#else
       workarea = list4i (mi->work.x, mi->work.y,
 			 mi->work.width, mi->work.height);
       geometry = list4i (mi->geom.x, mi->geom.y,
 			 mi->geom.width, mi->geom.height);
+#endif /* CONVERT_TO_XRECT */
       attributes = Fcons (Fcons (Qsource, build_string (source)),
                           attributes);
       attributes = Fcons (Fcons (Qframes, AREF (monitor_frames, i)),

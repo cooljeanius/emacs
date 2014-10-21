@@ -56,7 +56,7 @@ int fns_trace_num = 1;
 #define NSTRACE(x)        fprintf (stderr, "%s:%d: [%d] " #x "\n",        \
                                   __FILE__, __LINE__, ++fns_trace_num)
 #else
-#define NSTRACE(x)
+# define NSTRACE(x)
 #endif
 
 #ifdef HAVE_NS
@@ -989,17 +989,18 @@ unwind_create_frame (Lisp_Object frame)
   /* If frame is ``official'', nothing to do.  */
   if (NILP (Fmemq (frame, Vframe_list)))
     {
-#if defined GLYPH_DEBUG && defined ENABLE_CHECKING
+#if defined(GLYPH_DEBUG) && defined(ENABLE_CHECKING)
       struct ns_display_info *dpyinfo = FRAME_DISPLAY_INFO (f);
 #endif
 
       x_free_frame_resources (f);
       free_glyphs (f);
 
-#ifdef GLYPH_DEBUG
+      /* keep condition the same as where 'dpyinfo' is declared above: */
+#if defined(GLYPH_DEBUG) && defined(ENABLE_CHECKING)
       /* Check that reference counts are indeed correct.  */
       eassert (dpyinfo->terminal->image_cache->refcount == image_cache_refcount);
-#endif
+#endif /* GLYPH_DEBUG */
     }
 }
 
@@ -1086,7 +1087,7 @@ This function is an internal primitive--use `make-frame' instead.  */)
   kb = dpyinfo->terminal->kboard;
 
   if (!dpyinfo->terminal->name)
-    error ("Terminal is not live, can't create new frames on it");
+    error ("Terminal is not live, cannot create new frames on it");
 
   name = x_get_arg (dpyinfo, parms, Qname, 0, 0, RES_TYPE_STRING);
   if (!STRINGP (name)
@@ -1947,9 +1948,11 @@ The optional argument FRAME is currently ignored.  */)
           NSString *cname;
           while ((cname = [cnames nextObject]))
             list = Fcons (build_string ([cname UTF8String]), list);
-/*           for (i = [[clist allKeys] count] - 1; i >= 0; i--)
+#if 0
+            for (i = [[clist allKeys] count] - 1; i >= 0; i--)
                list = Fcons (build_string ([[[clist allKeys] objectAtIndex: i]
-                                             UTF8String]), list); */
+                                             UTF8String]), list);
+#endif /* 0 */
         }
     }
 
@@ -2167,7 +2170,7 @@ In case the execution fails, an error is signaled. */)
   as_result = &result;
 
   /* executing apple script requires the event loop to run, otherwise
-     errors aren't returned and executeAndReturnError hangs forever.
+     errors are NOT returned and executeAndReturnError hangs forever.
      Post an event that runs applescript and then start the event loop.
      The event loop is exited when the script is done.  */
   nxev = [NSEvent otherEventWithType: NSApplicationDefined
@@ -2527,6 +2530,7 @@ Internal use only, use `display-monitor-attributes-list' instead.  */)
 
   for (i = 0; i < [screens count]; ++i)
     {
+      XRectangle m_xgeom, m_xwork;
       NSScreen *s = [screens objectAtIndex:i];
       struct MonitorInfo *m = &monitors[i];
       NSRect fr = [s frame];
@@ -2552,6 +2556,20 @@ Internal use only, use `display-monitor-attributes-list' instead.  */)
                         vfr.size.height - vfr.origin.y);
         }
 
+#if defined(CONVERT_TO_XRECT)
+      CONVERT_TO_XRECT(m_xgeom, m->geom);
+      CONVERT_TO_XRECT(m_xwork, m->work);
+      m_xgeom.x = (short)fr.origin.x;
+      m_xgeom.y = y;
+      m_xgeom.width = (unsigned short)fr.size.width;
+      m_xgeom.height = (unsigned short)fr.size.height;
+
+      m_xwork.x = (short)vfr.origin.x;
+      // see comments below, this is just duplicated...
+      m_xwork.y = ((short)(fr.size.height - vfr.size.height) - vy + y + y);
+      m_xwork.width = (unsigned short)vfr.size.width;
+      m_xwork.height = (unsigned short)vfr.size.height;
+#else
       m->geom.x = (short) fr.origin.x;
       m->geom.y = y;
       m->geom.width = (unsigned short) fr.size.width;
@@ -2566,6 +2584,7 @@ Internal use only, use `display-monitor-attributes-list' instead.  */)
       m->work.y = (short) (fr.size.height - vfr.size.height) - vy + y + y;
       m->work.width = (unsigned short) vfr.size.width;
       m->work.height = (unsigned short) vfr.size.height;
+#endif /* CONVERT_TO_XRECT */
 
 #ifdef NS_IMPL_COCOA
       m->name = ns_screen_name (did);
@@ -2991,3 +3010,5 @@ be used as the image of the icon representing the frame.  */);
   as_script = Qnil;
   as_result = 0;
 }
+
+/* EOF */

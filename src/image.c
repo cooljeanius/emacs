@@ -1,4 +1,4 @@
-/* Functions for image support on window system.
+/* image.c: Functions for image support on window system.
 
 Copyright (C) 1989, 1992-2014 Free Software Foundation, Inc.
 
@@ -22,12 +22,12 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <unistd.h>
 
 #ifdef HAVE_PNG
-#if defined HAVE_LIBPNG_PNG_H
-# include <libpng/png.h>
-#else
-# include <png.h>
-#endif
-#endif
+# if defined HAVE_LIBPNG_PNG_H
+#  include <libpng/png.h>
+# else
+#  include <png.h>
+# endif /* HAVE_LIBPNG_PNG_H */
+#endif /* HAVE_PNG */
 
 #include <setjmp.h>
 #include <c-ctype.h>
@@ -45,7 +45,7 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "font.h"
 
 #ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
+# include <sys/stat.h>
 #endif /* HAVE_SYS_STAT_H */
 
 #ifdef HAVE_SYS_TYPES_H

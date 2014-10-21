@@ -1064,11 +1064,12 @@ struct glyph_row
   /* Continuation lines width at the start of the row.  */
   int continuation_lines_width;
 
-#if defined(HAVE_WINDOW_SYSTEM) && defined(HAVE_X_WINDOWS)
+#if defined(HAVE_WINDOW_SYSTEM) && \
+    (defined(HAVE_X_WINDOWS) || defined(XRectangle) || !(defined(MAC_OS) || defined(HAVE_CARBON)))
   /* Non-NULL means the current clipping area.  This is temporarily
      set while exposing a region.  Coordinates are frame-relative.  */
   XRectangle *clip;
-#endif /* HAVE_WINDOW_SYSTEM && HAVE_X_WINDOWS */
+#endif /* HAVE_WINDOW_SYSTEM && (HAVE_X_WINDOWS || XRectangle || 1) */
 };
 
 
@@ -1359,10 +1360,12 @@ struct glyph_string
   struct window *w;
 
   /* X display and window for convenience.  */
-#if defined(HAVE_X_WINDOWS)
+#if defined(HAVE_X_WINDOWS) || defined(Display) || !(defined(MAC_OS) || defined(HAVE_CARBON))
   Display *display;
+#endif /* HAVE_X_WINDOWS || Display || 1 */
+#if defined(HAVE_X_WINDOWS) || defined(Window) || !(defined(MAC_OS) || defined(HAVE_CARBON))
   Window window;
-#endif /* HAVE_X_WINDOWS */
+#endif /* HAVE_X_WINDOWS || Window || 1 */
 
   /* The glyph row for which this string was built.  It determines the
      y-origin and height of the string.  */
@@ -1372,9 +1375,9 @@ struct glyph_string
   enum glyph_row_area area;
 
   /* Characters to be drawn, and number of characters.  */
-#if defined(HAVE_X_WINDOWS)
+#if defined(HAVE_X_WINDOWS) || defined(XChar2b) || !(defined(MAC_OS) || defined(HAVE_CARBON))
   XChar2b *char2b;
-#endif /* HAVE_X_WINDOWS */
+#endif /* HAVE_X_WINDOWS || XChar2b || 1 */
   int nchars;
 
   /* A face-override for drawing cursors, mouse face and similar.  */
@@ -1434,13 +1437,14 @@ struct glyph_string
   bool_bf padding_p : 1;
 
   /* The GC to use for drawing this glyph string.  */
-#if defined (HAVE_X_WINDOWS) || defined(MAC_OS)
+#if defined(HAVE_X_WINDOWS) || defined(MAC_OS) || defined(GC) || \
+    !(defined(HAVE_CARBON) || defined(HAVE_NTGUI))
   GC gc;
 #endif /* HAVE_X_WINDOWS || MAC_OS */
-#if defined (HAVE_NTGUI)
+#if defined(HAVE_NTGUI)
   XGCValues *gc;
   HDC hdc;
-#endif
+#endif /* HAVE_NTGUI */
 
   /* A pointer to the first glyph in the string.  This glyph
      corresponds to char2b[0].  Needed to draw rectangles if
@@ -1704,9 +1708,9 @@ struct face
 
   /* If non-zero, this is a GC that we can use without modification for
      drawing the characters in this face.  */
-# if defined(HAVE_X_WINDOWS)
+# if defined(HAVE_X_WINDOWS) || defined(GC) || !(defined(MAC_OS) || defined(HAVE_CARBON))
   GC gc;
-# endif /* HAVE_X_WINDOWS */
+# endif /* HAVE_X_WINDOWS || GC || 1 */
 
   /* Background stipple or bitmap used for this face.  This is
      an id as returned from load_pixmap.  */
@@ -1807,7 +1811,7 @@ struct face
 #ifdef HAVE_NS
   /* If non-zero, use geometric rotation (to simulate italic).  */
   bool_bf synth_ital : 1;
-#endif
+#endif /* HAVE_NS */
 
   /* The hash value of this face.  */
   unsigned hash;
@@ -2936,13 +2940,13 @@ struct redisplay_interface
    A NULL pointer if platform does not support this. */
   void (*compute_glyph_string_overhangs) (struct glyph_string *s);
 
-# if defined(HAVE_X_WINDOWS)
+# if defined(HAVE_X_WINDOWS) || !(defined(MAC_OS) || defined(HAVE_CARBON))
 /* Draw a glyph string S.  */
   void (*draw_glyph_string) (struct glyph_string *s);
 
 /* Define cursor CURSOR on frame F.  */
   void (*define_frame_cursor) (struct frame *f, Cursor cursor);
-# endif /* HAVE_X_WINDOWS */
+# endif /* HAVE_X_WINDOWS || 1 */
 
 /* Clear the area at (X,Y,WIDTH,HEIGHT) of frame F.  */
   void (*clear_frame_area) (struct frame *f, int x, int y,
@@ -2995,14 +2999,14 @@ struct image_type
      image type.  Value is true if SPEC is valid.  */
   bool (* valid_p) (Lisp_Object spec);
 
-# if defined(HAVE_X_WINDOWS)
+# if defined(HAVE_X_WINDOWS) || !(defined(MAC_OS) || defined(HAVE_CARBON))
   /* Load IMG which is used on frame F from information contained in
      IMG->spec.  Value is true if successful.  */
   bool (* load) (struct frame *f, struct image *img);
 
   /* Free resources of image IMG which is used on frame F.  */
   void (* free) (struct frame *f, struct image *img);
-#endif /* HAVE_X_WINDOWS */
+#endif /* HAVE_X_WINDOWS || 1 */
 
   /* Initialization function (used for dynamic loading of image
      libraries on Windows), or NULL if none.  */
@@ -3023,16 +3027,18 @@ struct image
      in prepare_image_for_display.  */
   struct timespec timestamp;
 
-#if defined(HAVE_X_WINDOWS)
+#if defined(HAVE_X_WINDOWS) || defined(Pixmap) || !(defined(MAC_OS) || defined(HAVE_CARBON))
   /* Pixmaps of the image.  */
   Pixmap pixmap, mask;
+#endif /* HAVE_X_WINDOWS || Pixmap || 1 */
 
+#if defined(HAVE_X_WINDOWS) || defined(XImagePtr) || !(defined(MAC_OS) || defined(HAVE_CARBON))
   /* X images of the image, corresponding to the above Pixmaps.
      Non-NULL means it and its Pixmap counterpart may be out of sync
      and the latter is outdated.  NULL means the X image has been
      synchronized to Pixmap.  */
   XImagePtr ximg, mask_img;
-#endif /* HAVE_X_WINDOWS */
+#endif /* HAVE_X_WINDOWS || XImagePtr || 1 */
 
   /* Colors allocated for this image, if any.  Allocated via xmalloc.  */
   unsigned long *colors;
@@ -3325,9 +3331,9 @@ extern int merge_glyphless_glyph_face (struct it *);
 
 #ifdef HAVE_WINDOW_SYSTEM
 
-#ifdef GLYPH_DEBUG
+# ifdef GLYPH_DEBUG
 extern void dump_glyph_string (struct glyph_string *) EXTERNALLY_VISIBLE;
-#endif
+# endif /* GLYPH_DEBUG */
 
 extern void x_get_glyph_overhangs (struct glyph *, struct frame *,
                                    int *, int *);
@@ -3365,10 +3371,10 @@ extern void handle_tool_bar_click (struct frame *,
                                    int, int, int, int);
 
 extern void expose_frame (struct frame *, int, int, int, int);
-# if defined(HAVE_X_WINDOWS)
+# if defined(HAVE_X_WINDOWS) || defined(XRectangle) || !(defined(MAC_OS) || defined(HAVE_CARBON))
 extern int x_intersect_rectangles (XRectangle *, XRectangle *,
                                    XRectangle *);
-# endif /* HAVE_X_WINDOWS */
+# endif /* HAVE_X_WINDOWS || XRectangle || 1 */
 #endif	/* HAVE_WINDOW_SYSTEM */
 
 extern void note_mouse_highlight (struct frame *, int, int);
@@ -3394,7 +3400,7 @@ void compute_fringe_widths (struct frame *, bool);
 #ifdef HAVE_NTGUI
 void w32_init_fringe (struct redisplay_interface *);
 void w32_reset_fringes (void);
-#endif
+#endif /* HAVE_NTGUI */
 #ifdef MAC_OS
 void mac_init_fringe (void);
 #endif /* MAC_OS */
@@ -3410,15 +3416,15 @@ extern void x_reference_bitmap (struct frame *, ptrdiff_t);
 extern ptrdiff_t x_create_bitmap_from_data (struct frame *, char *,
 					    unsigned int, unsigned int);
 extern ptrdiff_t x_create_bitmap_from_file (struct frame *, Lisp_Object);
-#if defined HAVE_XPM && defined HAVE_X_WINDOWS && !defined USE_GTK
+#if defined(HAVE_XPM) && defined(HAVE_X_WINDOWS) && !defined(USE_GTK)
 extern ptrdiff_t x_create_bitmap_from_xpm_data (struct frame *, const char **);
-#endif
+#endif /* HAVE_XPM && HAVE_X_WINDOWS && !USE_GTK */
 #ifndef x_destroy_bitmap
 extern void x_destroy_bitmap (struct frame *, ptrdiff_t);
-#endif
-#if defined(HAVE_X_WINDOWS)
+#endif /* !x_destroy_bitmap */
+#if defined(HAVE_X_WINDOWS) || defined(Display_Info) || !(defined(MAC_OS) || defined(HAVE_CARBON))
 extern void x_destroy_all_bitmaps (Display_Info *);
-#endif /* HAVE_X_WINDOWS */
+#endif /* HAVE_X_WINDOWS || Display_Info || 1 */
 extern void x_create_bitmap_mask (struct frame *, ptrdiff_t);
 extern Lisp_Object x_find_image_file (Lisp_Object);
 
@@ -3507,13 +3513,13 @@ extern char unspecified_fg[], unspecified_bg[];
 
 #ifdef HAVE_X_WINDOWS
 void gamma_correct (struct frame *, XColor *);
-#endif
+#endif /* HAVE_X_WINDOWS */
 #ifdef HAVE_NTGUI
 void gamma_correct (struct frame *, COLORREF *);
-#endif
+#endif /* HAVE_NTGUI */
 #ifdef MAC_OS
 void gamma_correct (struct frame *, unsigned long *);
-#endif
+#endif /* MAC_OS */
 
 #ifdef HAVE_WINDOW_SYSTEM
 
@@ -3540,18 +3546,18 @@ extern void hide_hourglass (void);
    necessary.  If non-zero, XIMG is an existing XImage object to use for
    the heuristic.  */
 
-#define IMAGE_BACKGROUND(img, f, ximg)					      \
-   ((img)->background_valid						      \
-    ? (img)->background							      \
+#define IMAGE_BACKGROUND(img, f, ximg)					  \
+   ((img)->background_valid						  \
+    ? (img)->background							  \
     : image_background (img, f, ximg))
 
 /* Returns true if IMG has a `transparent' background, using heuristics
    to decide if necessary.  If non-zero, MASK is an existing XImage
    object to use for the heuristic.  */
 
-#define IMAGE_BACKGROUND_TRANSPARENT(img, f, mask)			      \
-   ((img)->background_transparent_valid					      \
-    ? (img)->background_transparent					      \
+#define IMAGE_BACKGROUND_TRANSPARENT(img, f, mask)			  \
+   ((img)->background_transparent_valid					  \
+    ? (img)->background_transparent					  \
     : image_background_transparent (img, f, mask))
 
 #endif /* HAVE_WINDOW_SYSTEM */
@@ -3665,12 +3671,13 @@ enum resource_types
   RES_TYPE_BOOLEAN_NUMBER
 };
 
-#if defined(HAVE_X_WINDOWS) || defined(Display_Info)
+#if defined(HAVE_X_WINDOWS) || defined(Display_Info) || \
+    !(defined(MAC_OS) || defined(HAVE_CARBON))
 extern Display_Info *check_x_display_info (Lisp_Object);
 extern Lisp_Object x_get_arg (Display_Info *, Lisp_Object,
                               Lisp_Object, const char *, const char *class,
                               enum resource_types);
-#endif /* HAVE_X_WINDOWS || Display_Info */
+#endif /* HAVE_X_WINDOWS || Display_Info || 1 */
 extern Lisp_Object x_frame_get_and_record_arg (struct frame *, Lisp_Object,
                                                Lisp_Object,
                                                const char *, const char *,

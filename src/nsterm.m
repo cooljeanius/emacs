@@ -5742,7 +5742,7 @@ not_in_argv (NSString *arg)
   return NO;
 }
 
-- (void) updateFrameSize: (BOOL) delay;
+- (void) updateFrameSize: (BOOL) delay
 {
   NSWindow *window = [self window];
   NSRect wr = [window frame];
@@ -5996,7 +5996,7 @@ if (cols > 0 && rows > 0)
 }
 
 
-- initFrameFromEmacs: (struct frame *)f
+- (id)initFrameFromEmacs: (struct frame *)f
 {
   NSRect r, wr;
   Lisp_Object tem;
@@ -6020,7 +6020,9 @@ if (cols > 0 && rows > 0)
   maximized_width = maximized_height = -1;
   nonfs_window = nil;
 
-/*fprintf (stderr,"init with %d, %d\n",f->text_cols, f->text_lines); */
+#ifdef DEBUG
+  fprintf(stderr, "init with %d, %d\n", f->text_cols, f->text_lines);
+#endif /* DEBUG */
 
   ns_userRect = NSMakeRect (0, 0, 0, 0);
   r = NSMakeRect (0, 0, FRAME_TEXT_COLS_TO_PIXEL_WIDTH (f, f->text_cols),
@@ -6590,7 +6592,7 @@ if (cols > 0 && rows > 0)
 }
 
 
-- menuDown: sender
+- (id)menuDown: sender
 {
   NSTRACE (menuDown);
   if (context_menu_value == -1)
@@ -6615,7 +6617,7 @@ if (cols > 0 && rows > 0)
 
 
 /* this gets called on toolbar button click */
-- toolbarClicked: (id)item
+- (id)toolbarClicked: (id)item
 {
   NSEvent *theEvent;
   int idx = [item tag] * TOOL_BAR_ITEM_NSLOTS;
@@ -6641,7 +6643,7 @@ if (cols > 0 && rows > 0)
 }
 
 
-- toggleToolbar: (id)sender
+- (id)toggleToolbar: (id)sender
 {
   if (!emacs_event)
     return self;
@@ -6862,7 +6864,7 @@ if (cols > 0 && rows > 0)
    (gives a miniaturized version of the window); currently we use the latter for
    frames whose active buffer doesn't correspond to any file
    (e.g., '*scratch*') */
-- setMiniwindowImage: (BOOL) setMini
+- (id)setMiniwindowImage: (BOOL) setMini
 {
   id image = [[self window] miniwindowImage];
   NSTRACE (setMiniwindowImage);
@@ -6984,7 +6986,7 @@ if (cols > 0 && rows > 0)
 #endif
 #endif
 
-  for (i = 0; i < nr_screens; ++i) 
+  for (i = 0; i < nr_screens; ++i)
     {
       NSScreen *s = [screens objectAtIndex: i];
       NSRect scrrect = [s frame];
@@ -6996,7 +6998,7 @@ if (cols > 0 && rows > 0)
 
   if (nr_eff_screens == 1)
     return [super constrainFrameRect:frameRect toScreen:screen];
-  
+
   /* The default implementation does two things 1) ensure that the top
      of the rectangle is below the menu bar (or below the top of the
      screen) and 2) resizes windows larger than the screen. As we
@@ -7057,7 +7059,7 @@ if (cols > 0 && rows > 0)
 #define SCROLL_BAR_FIRST_DELAY 0.5
 #define SCROLL_BAR_CONTINUOUS_DELAY (1.0 / 15)
 
-+ (CGFloat) scrollerWidth
++ (CGFloat)scrollerWidth
 {
   /* TODO: if we want to allow variable widths, this is the place to do it,
            however neither GNUstep nor Cocoa support it very well */
@@ -7065,7 +7067,7 @@ if (cols > 0 && rows > 0)
 }
 
 
-- initFrame: (NSRect )r window: (Lisp_Object)nwin
+- (id)initFrame: (NSRect )r window: (Lisp_Object)nwin
 {
   NSTRACE (EmacsScroller_initFrame);
 
@@ -7133,7 +7135,7 @@ if (cols > 0 && rows > 0)
 }
 
 
-- condemn
+- (id)condemn
 {
   NSTRACE (condemn);
   condemned =YES;
@@ -7141,7 +7143,7 @@ if (cols > 0 && rows > 0)
 }
 
 
-- reprieve
+- (id)reprieve
 {
   NSTRACE (reprieve);
   condemned =NO;
@@ -7149,7 +7151,7 @@ if (cols > 0 && rows > 0)
 }
 
 
-- judge
+- (id)judge
 {
   NSTRACE (judge);
   if (condemned)
@@ -7187,7 +7189,7 @@ if (cols > 0 && rows > 0)
 }
 
 
-- setPosition: (int)position portion: (int)portion whole: (int)whole
+- (id)setPosition: (int)position portion: (int)portion whole: (int)whole
 {
   NSTRACE (setPosition);
 
@@ -7271,7 +7273,7 @@ if (cols > 0 && rows > 0)
 
 
 /* called manually thru timer to implement repeated button action w/hold-down */
-- repeatScroll: (NSTimer *)scrollEntry
+- (id)repeatScroll: (NSTimer *)scrollEntry
 {
   NSEvent *e = [[self window] currentEvent];
   NSPoint p =  [[self window] mouseLocationOutsideOfEventStream];
@@ -7724,14 +7726,17 @@ baseline level.  The default value is nil.  */);
   DEFSYM (Qcocoa, "cocoa");
   DEFSYM (Qgnustep, "gnustep");
 
-  syms_of_nsfont ();
+  syms_of_nsfont();
 #ifdef NS_IMPL_COCOA
-  Fprovide (Qcocoa, Qnil);
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1050
-  syms_of_macfont ();
-#endif
+  Fprovide(Qcocoa, Qnil);
+# if MAC_OS_X_VERSION_MAX_ALLOWED >= 1050
+  syms_of_macfont();
+# endif /* 10.5+ */
 #else
-  Fprovide (Qgnustep, Qnil);
-#endif
+  Fprovide(Qgnustep, Qnil);
+#endif /* NS_IMPL_COCOA */
 
+  return;
 }
+
+/* EOF */
