@@ -2040,7 +2040,7 @@ internal_equal (Lisp_Object o1, Lisp_Object o2, int depth, bool props,
 	d2 = extract_float (o2);
 	/* If d is a NaN, then d != d. Two NaNs should be `equal' even
 	   though they are not =.  */
-	return d1 == d2 || (d1 != d1 && d2 != d2);
+	return ((d1 == d2) || ((d1 != d1) && (d2 != d2)));
       }
 
     case Lisp_Cons:
@@ -3482,9 +3482,9 @@ cmpfn_eql (struct hash_table_test *ht,
 	   Lisp_Object key1,
 	   Lisp_Object key2)
 {
-  return (FLOATP (key1)
-	  && FLOATP (key2)
-	  && XFLOAT_DATA (key1) == XFLOAT_DATA (key2));
+  return (FLOATP(key1)
+	  && FLOATP(key2)
+	  && (XFLOAT_DATA(key1) == XFLOAT_DATA(key2)));
 }
 
 

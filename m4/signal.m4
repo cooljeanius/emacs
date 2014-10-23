@@ -1,10 +1,10 @@
-#signal.m4 serial 1
-# taken from autoconf2.61
-# obsolete in newer versions
+#signal.m4 serial 1                                        -*- Autoconf -*-
+dnl# taken from autoconf2.61
+dnl# obsolete in newer versions
 
-# AC_TYPE_SIGNAL
-# --------------
-# Note that identifiers starting with SIG are reserved by ANSI C.
+dnl# AC_TYPE_SIGNAL
+dnl# --------------
+dnl# Note that identifiers starting with SIG are reserved by ANSI C.
 AN_FUNCTION([signal],[AC_TYPE_SIGNAL])dnl
 AC_DEFUN([AC_TYPE_SIGNAL],[
 AC_CACHE_CHECK([return type of signal handlers],[ac_cv_type_signal],[

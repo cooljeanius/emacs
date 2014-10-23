@@ -738,18 +738,20 @@ dnl# see the `changequote' comment above.
 
   ## Acorn RISCiX:
   arm-acorn-riscix1.1* )
-    machine=acorn opsys=riscix1-1
+    machine=acorn
+    opsys=riscix1-1
     opsys_family=riscix
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   arm-acorn-riscix1.2* | arm-acorn-riscix )
     ## This name is riscix12 instead of riscix1.2
     ## to avoid a file name conflict on MSDOS.
-    machine=acorn opsys=riscix12
+    machine=acorn
+    opsys=riscix12
     opsys_family=riscix
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
 
   ## BSDI ports:
@@ -793,7 +795,8 @@ dnl# see the `changequote' comment above.
 
   ## Alpha (DEC) machines.
   alpha*-dec-osf* )
-    machine=alpha opsys=osf1
+    machine=alpha
+    opsys=osf1
     # This is needed to find X11R6.1 libraries for certain tests.
     NON_GCC_LINK_TEST_OPTIONS=-Wl,-rpath,/usr/X11R6/lib
     GCC_LINK_TEST_OPTIONS=-Wl,-rpath,/usr/X11R6/lib
@@ -808,40 +811,45 @@ dnl# see the `changequote' comment above.
     esac
     opsys_family=osf
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
 
   alpha*-*-linux-gnu* )
-    machine=alpha opsys=gnu-linux
+    machine=alpha
+    opsys=gnu-linux
     unofficially_ported=yes
-    unofficial_port_warning_reason="this case was reached in a deprecated way."
+    unofficial_port_warning_reason="this case (${opsys} on ${machine}) was reached in a deprecated way; all gnu-linux machines should have been handled at the top."
   ;;
 
   arm*-*-linux-gnu* )
-    machine=arm opsys=gnu-linux
+    machine=arm
+    opsys=gnu-linux
     unofficially_ported=yes
-    unofficial_port_warning_reason="this case was reached in a deprecated way."
+    unofficial_port_warning_reason="this case (${opsys} on ${machine}) was reached in a deprecated way; all gnu-linux machines should have been handled at the top."
   ;;
 
   ## Altos 3068:
   m68*-altos-sysv* )
-    machine=altos opsys=usg5-2
+    machine=altos
+    opsys=usg5-2
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
 
   ## Amdahl UTS:
   580-amdahl-sysv* )
-    machine=amdahl opsys=usg5-2-2
+    machine=amdahl
+    opsys=usg5-2-2
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
 
   ## Apollo, Domain/OS:
   m68*-apollo-* )
-    machine=apollo opsys=bsd4-3
+    machine=apollo
+    opsys=bsd4-3
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
 
   ## Apple Darwin / Mac OS X:
@@ -907,42 +915,47 @@ dnl# see the `changequote' comment above.
 
   ## AT&T 3b2, 3b5, 3b15, 3b20:
   we32k-att-sysv* )
-    machine=att3b opsys=usg5-2-2
+    machine=att3b
+    opsys=usg5-2-2
     opsys_family=usg
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
 
   ## AT&T 3b1 - The Mighty Unix PC!
   m68*-att-sysv* )
-    machine=7300 opsys=usg5-2-2
+    machine=7300
+    opsys=usg5-2-2
     opsys_family=usg
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
 
   ## Bull dpx20:
   rs6000-bull-bosx* )
-    machine=ibmrs6000 opsys=aix3-2
+    machine=ibmrs6000
+    opsys=aix3-2
     opsys_family=aix
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
 
   ## Bull dpx2:
   m68*-bull-sysv3* )
-    machine=dpx2 opsys=usg5-3
+    machine=dpx2
+    opsys=usg5-3
     opsys_family=usg
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
 
   ## Bull sps7:
   m68*-bull-sysv2* )
-    machine=sps7 opsys=usg5-2
+    machine=sps7
+    opsys=usg5-2
     opsys_family=usg
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
 
   ## CCI 5/32, 6/32 -- see "Tahoe".
@@ -952,7 +965,8 @@ dnl# see the `changequote' comment above.
   ## does NOT seem to know anything about it.  Hey, Celerity users, get
   ## in touch with us!
   celerity-celerity-bsd* )
-    machine=celerity opsys=bsd4-2
+    machine=celerity
+    opsys=bsd4-2
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="no one seems to know anything about Celerity, and no one ever got in touch with us about it."
@@ -971,35 +985,39 @@ dnl# see the `changequote' comment above.
 
   ## Compaq Nonstop:
   mips-compaq-nonstopux* )
-    machine=nonstopux opsys=nonstopux
+    machine=nonstopux
+    opsys=nonstopux
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
     ;;
 
   ## Convex:
   *-convex-bsd* | *-convex-convexos* )
-    machine=convex opsys=bsd4-3
+    machine=convex
+    opsys=bsd4-3
     opsys_family=bsd
     ## Prevents spurious white space in makefiles - d.m.cooke@larc.nasa.gov
     NON_GNU_CPP="cc -E -P"
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
 
   ## Cubix QBx/386:
   i[3456]86-cubix-sysv* )
-    machine=intel386 opsys=usg5-3
+    machine=intel386
+    opsys=usg5-3
     opsys_family=usg
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
 
   ## Cydra 5:
   cydra*-cydrome-sysv* )
-    machine=cydra5 opsys=usg5-3
+    machine=cydra5
+    opsys=usg5-3
     opsys_family=usg
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
 
   ## Cygwin ports:
@@ -1014,7 +1032,8 @@ dnl# see the `changequote' comment above.
   ## think were named like dgux4.*). In addition, DG had a "new" AViiONs
   ## series that uses either Motorola M88k or Intel Pentium CPUs.
   m88k-dg-dguxR4.* | m88k-dg-dgux4* )
-    machine=aviion opsys=dgux4
+    machine=aviion
+    opsys=dgux4
     opsys_family=dgux
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} is old and deprecated and has confusing naming conventions."
@@ -1022,68 +1041,78 @@ dnl# see the `changequote' comment above.
   m88k-dg-dgux5.4R3* | m88k-dg-dgux5.4.3* )
     ## This name is dgux5-4-3 instead of dgux5-4r3
     ## to avoid a file name conflict on MSDOS.
-    machine=aviion opsys=dgux5-4-3
+    machine=aviion
+    opsys=dgux5-4-3
     opsys_family=dgux
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   m88k-dg-dgux5.4R2* | m88k-dg-dgux5.4.2* )
-    machine=aviion opsys=dgux5-4r2
+    machine=aviion
+    opsys=dgux5-4r2
     opsys_family=dgux
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   m88k-dg-dgux* )
-    machine=aviion opsys=dgux
+    machine=aviion
+    opsys=dgux
     opsys_family=dgux
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
 
   ## Data General AViiON Intel (x86) Machines
   ## Exists from 5.4.3 ("current" i586-dg-dguxR4.11)
   ## Ehud Karni, 1998-may-30, ehud@unix.simonwiesel.co.il
   i[345]86-dg-dguxR4* )
-    machine=aviion-intel opsys=dgux4
+    machine=aviion-intel
+    opsys=dgux4
     opsys_family=dgux
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
 
   ## DECstations:
   mips-dec-ultrix[0-3].* | mips-dec-ultrix4.0* | mips-dec-bsd4.2* )
-    machine=pmax opsys=bsd4-2
+    machine=pmax
+    opsys=bsd4-2
     opsys_family=bsd
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   mips-dec-ultrix4.[12]* | mips-dec-bsd* )
-    machine=pmax opsys=bsd4-3
+    machine=pmax
+    opsys=bsd4-3
     opsys_family=bsd
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   mips-dec-ultrix* )
-    machine=pmax opsys=ultrix4-3
+    machine=pmax
+    opsys=ultrix4-3
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   mips-dec-osf* )
-    machine=pmax opsys=osf1
+    machine=pmax
+    opsys=osf1
     opsys_family=osf
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   mips-dec-mach_bsd4.3* )
-    machine=pmax opsys=mach-bsd4-3
+    machine=pmax
+    opsys=mach-bsd4-3
     opsys_family=bsd
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
 
   ## Motorola Delta machines:
   m68k-motorola-sysv* | m68000-motorola-sysv* )
-    machine=delta opsys=usg5-3
+    machine=delta
+    opsys=usg5-3
     if test -z "`type gnucc | grep 'not found'`"
     then
       if test -s /etc/167config
@@ -1098,51 +1127,57 @@ dnl# see the `changequote' comment above.
     fi
     opsys_family=usg
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   m88k-motorola-sysv4* )
     # jbotte@bnr.ca says that UNIX_System_V <hostName> 4.0 R40V4.3 m88k
     # mc88110 needs POSIX_SIGNALS and therefore needs usg5-4-2.
     # I hope there are not other 4.0 versions for this machine
     # which really need usg5-4 instead.
-    machine=delta88k opsys=usg5-4-2
+    machine=delta88k
+    opsys=usg5-4-2
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} is old and deprecated and caused pain for the maintainers of its port."
   ;;
   m88k-motorola-sysv* | m88k-motorola-m88kbcs* )
-    machine=delta88k opsys=usg5-3
+    machine=delta88k
+    opsys=usg5-3
     opsys_family=usg
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
 
   ## Dual machines:
   m68*-dual-sysv* )
-    machine=dual opsys=usg5-2
+    machine=dual
+    opsys=usg5-2
     opsys_family=usg
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   m68*-dual-uniplus* )
-    machine=dual opsys=unipl5-2
+    machine=dual
+    opsys=unipl5-2
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
 
   ## Elxsi 6400:
   elxsi-elxsi-sysv* )
-    machine=elxsi opsys=usg5-2
+    machine=elxsi
+    opsys=usg5-2
     opsys_family=usg
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
 
   ## Encore machines:
   ns16k-encore-bsd* )
-    machine=ns16000 opsys=umax
+    machine=ns16000
+    opsys=umax
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
 
   ## The GEC 63 - apparently, this port is NOT really finished yet.
@@ -1150,22 +1185,25 @@ dnl# see the `changequote' comment above.
 
   ## Gould Power Node and NP1:
   pn-gould-bsd4.2* )
-    machine=gould opsys=bsd4-2
+    machine=gould
+    opsys=bsd4-2
     opsys_family=bsd
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   pn-gould-bsd4.3* )
-    machine=gould opsys=bsd4-3
+    machine=gould
+    opsys=bsd4-3
     opsys_family=bsd
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   np1-gould-bsd* )
-    machine=gould-np1 opsys=bsd4-3
+    machine=gould-np1
+    opsys=bsd4-3
     opsys_family=bsd
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
 
   ## Harris Night Hawk machines running CX/UX (a 5000 looks just like a
@@ -1182,42 +1220,48 @@ dnl# see the `changequote' comment above.
   ;;
   ## Harris ecx or gcx running CX/UX (Series 1200, Series 3000):
   m68k-harris-cxux* )
-    machine=nh3000 opsys=cxux
+    machine=nh3000
+    opsys=cxux
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   ## Harris power pc NightHawk running Power UNIX (Series 6000):
   powerpc-harris-powerunix )
-    machine=nh6000 opsys=powerunix
+    machine=nh6000
+    opsys=powerunix
     NON_GNU_CPP="cc -Xo -E -P"
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   ## SR2001/SR2201 running HI-UX/MPP:
   hppa1.1-hitachi-hiuxmpp* )
-    machine=sr2k opsys=hiuxmpp
+    machine=sr2k
+    opsys=hiuxmpp
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   hppa1.1-hitachi-hiuxwe2* )
-    machine=sr2k opsys=hiuxwe2
+    machine=sr2k
+    opsys=hiuxwe2
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   ## Honeywell XPS100:
   xps*-honeywell-sysv* )
-    machine=xps100 opsys=usg5-2
+    machine=xps100
+    opsys=usg5-2
     opsys_family=usg
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
 
   ## HP 9000 series 200 or 300:
   m68*-hp-bsd* )
-    machine=hp9000s300 opsys=bsd4-3
+    machine=hp9000s300
+    opsys=bsd4-3
     opsys_family=bsd
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   ## HP/UX 7, 8, 9, and 10 were supported on these machines.
   m68*-hp-hpux* )
@@ -1232,44 +1276,50 @@ dnl# see the `changequote' comment above.
     esac
     opsys_family=hpux
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
 
   ## HP 9000 series 700 and 800, running HP/UX:
   hppa*-hp-hpux7* )
-    machine=hp800 opsys=hpux
+    machine=hp800
+    opsys=hpux
     opsys_family=hpux
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   hppa*-hp-hpux8* )
-    machine=hp800 opsys=hpux8
+    machine=hp800
+    opsys=hpux8
     opsys_family=hpux
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   hppa*-hp-hpux9shr* )
-    machine=hp800 opsys=hpux9shr
+    machine=hp800
+    opsys=hpux9shr
     opsys_family=hpux
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   hppa*-hp-hpux9* )
-    machine=hp800 opsys=hpux9
+    machine=hp800
+    opsys=hpux9
     opsys_family=hpux
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   hppa*-hp-hpux10.2* )
-    machine=hp800 opsys=hpux10-20
+    machine=hp800
+    opsys=hpux10-20
     opsys_family=hpux
     ## (this one is official though)
   ;;
   hppa*-hp-hpux10* )
-    machine=hp800 opsys=hpux10
+    machine=hp800
+    opsys=hpux10
     opsys_family=hpux
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   hppa*-hp-hpux1[1-9]* )
     machine=hp800 opsys=hpux11
@@ -1281,7 +1331,7 @@ dnl# see the `changequote' comment above.
   hppa*-*-linux-gnu* )
     machine=hp800 opsys=gnu-linux
     unofficially_ported=yes
-    unofficial_port_warning_reason="this case was reached in a deprecated way."
+    unofficial_port_warning_reason="this case (${opsys} on ${machine}) was reached in a deprecated way; all gnu-linux machines should have been handled at the top."
   ;;
 
   ## HP 9000 series 700 and 800, running HP/UX:
@@ -1297,66 +1347,100 @@ dnl# see the `changequote' comment above.
     esac
     opsys_family=hpux
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   hppa*-*-nextstep* )
-    machine=hp800 opsys=nextstep
+    machine=hp800
+    opsys=nextstep
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
 
   ## Orion machines:
   orion-orion-bsd* )
-    machine=orion opsys=bsd4-2
+    machine=orion
+    opsys=bsd4-2
     opsys_family=bsd
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   clipper-orion-bsd* )
-    machine=orion105 opsys=bsd4-2
+    machine=orion105
+    opsys=bsd4-2
     opsys_family=bsd
     unofficially_ported=yes
-    unofficial_port_warning_reason="${opsys} is old and deprecated."
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
 
   ## IBM machines:
   i[3456]86-ibm-aix1.1* )
-    machine=ibmps2-aix opsys=usg5-2-2
+    machine=ibmps2-aix
+    opsys=usg5-2-2
     opsys_family=usg
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   i[3456]86-ibm-aix1.[23]* | i[3456]86-ibm-aix* )
-    machine=ibmps2-aix opsys=usg5-3
+    machine=ibmps2-aix
+    opsys=usg5-3
     opsys_family=usg
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   i370-ibm-aix*)
-    machine=ibm370aix opsys=usg5-3
+    machine=ibm370aix
+    opsys=usg5-3
     opsys_family=usg
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   s390-*-linux-gnu* )
-    machine=ibms390 opsys=gnu-linux
+    machine=ibms390
+    opsys=gnu-linux
+    unofficially_ported=yes
+    unofficially_ported=yes
+    unofficial_port_warning_reason="this case (${opsys} on ${machine}) was reached in a deprecated way; all gnu-linux machines should have been handled at the top."
   ;;
   s390x-*-linux-gnu* )
-    machine=ibms390x opsys=gnu-linux
+    machine=ibms390x
+    opsys=gnu-linux
+    unofficially_ported=yes
+    unofficial_port_warning_reason="this case (${opsys} on ${machine}) was reached in a deprecated way; all gnu-linux machines should have been handled at the top."
   ;;
   rs6000-ibm-aix3.1* | powerpc-ibm-aix3.1*  )
-    machine=ibmrs6000 opsys=aix3-1
+    machine=ibmrs6000
+    opsys=aix3-1
     opsys_family=aix
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   rs6000-ibm-aix3.2.5 | powerpc-ibm-aix3.2.5 )
-    machine=ibmrs6000 opsys=aix3-2-5
+    machine=ibmrs6000
+    opsys=aix3-2-5
     opsys_family=aix
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   rs6000-ibm-aix4.0* | powerpc-ibm-aix4.0*  )
-    machine=ibmrs6000 opsys=aix4
+    machine=ibmrs6000
+    opsys=aix4
     opsys_family=aix
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   rs6000-ibm-aix4.1* | powerpc-ibm-aix4.1*  )
-    machine=ibmrs6000 opsys=aix4-1
+    machine=ibmrs6000
+    opsys=aix4-1
     opsys_family=aix
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   rs6000-ibm-aix4* | powerpc-ibm-aix4*  )
-    machine=ibmrs6000 opsys=aix4-1
+    machine=ibmrs6000
+    opsys=aix4-1
     opsys_family=aix
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   rs6000-ibm-aix4.[23]* )
     opsys=aix4-2
@@ -1379,30 +1463,329 @@ dnl# see the `changequote' comment above.
     ## (this IBM machine is still official)
   ;;
   rs6000-ibm-aix* | powerpc-ibm-aix* )
-    machine=ibmrs6000 opsys=aix3-2
+    machine=ibmrs6000
+    opsys=aix3-2
     opsys_family=aix
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
+  romp-ibm-bsd4.3* )
+    machine=ibmrt
+    opsys=bsd4-3
+    opsys_family=bsd
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+  romp-ibm-bsd4.2* )
+    machine=ibmrt
+    opsys=bsd4-2
+    opsys_family=bsd
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+  romp-ibm-aos4.3* )
+    machine=ibmrt
+    opsys=bsd4-3
+    opsys_family=bsd
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+  romp-ibm-aos4.2* )
+    machine=ibmrt
+    opsys=bsd4-2
+    opsys_family=bsd
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+  romp-ibm-aos* )
+    machine=ibmrt
+    opsys=bsd4-3
+    opsys_family=bsd
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+  romp-ibm-bsd* )
+    machine=ibmrt
+    opsys=bsd4-3
+    opsys_family=bsd
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+  romp-ibm-aix* )
+    machine=ibmrt-aix
+    opsys=usg5-2-2    ## (really? not an "aix" variant?)
+    opsys_family=usg
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
 
-  #### FIXME: ordering gets kind of confusing around here, come back to it
+  ## Integrated Solutions `Optimum V':
+  m68*-isi-bsd4.2* )
+    machine=isi-ov
+    opsys=bsd4-2
+    opsys_family=bsd
+    ;;
+  m68*-isi-bsd4.3* )
+    machine=isi-ov
+    opsys=bsd4-3
+    opsys_family=bsd
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+
+  ## Intel 386 machines where we DO care about the manufacturer:
+  i[3456]86-intsys-sysv* )
+    machine=is386
+    opsys=usg5-2-2
+    opsys_family=usg
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+    ## (Intel 386 machines where we do NOT care are farther down,
+    ## near the bottom of this block)
+
+  ## Prime EXL:
+  i[3456]86-prime-sysv* )
+    machine=i386
+    opsys=usg5-3
+    opsys_family=usg
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+
+  ## Sequent Symmetry running Dynix:
+  i[3456]86-sequent-bsd* )
+    machine=symmetry
+    opsys=bsd4-3
+    opsys_family=bsd
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+
+  ## Sequent Symmetry running ptx 4, which is a modified SVR4.
+  i[3456]86-sequent-ptx4* | i[3456]86-sequent-sysv4* )
+    machine=sequent-ptx
+    opsys=ptx4
+    opsys_family=ptx
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    NON_GNU_CPP=/lib/cpp
+    ;;
+
+  ## Sequent Symmetry running DYNIX/ptx.
+  ## Use the old cpp rather than the newer ANSI one.
+  i[3456]86-sequent-ptx* )
+    machine=sequent-ptx
+    opsys=ptx
+    opsys_family=ptx
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated and requires an old cpp."
+    NON_GNU_CPP="/lib/cpp"
+    ;;
+
+  ## ncr machine running svr4.3.
+  i[3456]86-ncr-sysv4.3 )
+    machine=ncr386
+    opsys=usg5-4-3
+    opsys_family=usg
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+
+  ## Unspecified sysv on an ncr machine defaults to svr4.2.
+  ## (Plain usg5-4 does NOT turn on POSIX signals, which we need.)
+  i[3456]86-ncr-sysv* )
+    machine=ncr386
+    opsys=usg5-4-2
+    opsys_family=usg
+    unofficially_ported=yes
+    unofficial_port_warning_reason="Unspecified ${opsys} on ${machine} is old and deprecated and possibly dangerous."
+    ;;
+
+  ## Intel Paragon OSF/1:
+  i860-intel-osf1* )
+    machine=paragon
+    opsys=osf1
+    opsys_family=osf
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    NON_GNU_CPP=/usr/mach/lib/cpp
+    ;;
+
+  ## Intel 860:
+  i860-*-sysv4* )
+    machine=i860
+    opsys=usg5-4
+    opsys_family=usg
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    NON_GNU_CC="/bin/cc" # I.e., not the one in /usr/ucb/cc.
+    NON_GNU_CPP="/usr/ccs/lib/cpp" # cc -E tokenizes macro expansion.
+    ;;
+
+  ## Macintosh PowerPC:
+  powerpc*-*-linux-gnu* )
+    machine=macppc        ## (why not "powermac" like above?)
+    opsys=gnu-linux
+    unofficially_ported=yes
+    unofficial_port_warning_reason="this case (${opsys} on ${machine}) was reached in a deprecated way; all gnu-linux machines should have been handled at the top."
+    ;;
+
+  ## Masscomp machines:
+  m68*-masscomp-rtu* )
+    machine=masscomp
+    opsys=rtu
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+
+  ## Megatest machines:
+  m68*-megatest-bsd* )
+    machine=mega68
+    opsys=bsd4-2
+    opsys_family=bsd
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+
+  #### FIXME: MIPS has 5 cases around here; come back to...
+
+  ## NeXT:
+  m68*-next-* | m68k-*-nextstep* )
+    machine=m68k
+    opsys=nextstep
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+
+  ## The complete machine from National Semiconductor:
+  ns32k-ns-genix* )
+    machine=ns32000
+    opsys=usg5-2
+    opsys_family=usg
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+
+  ## NCR machines:
+  m68*-ncr-sysv2* | m68*-ncr-sysvr2* )
+    machine=tower32
+    opsys=usg5-2-2
+    opsys_family=usg
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+  m68*-ncr-sysv3* | m68*-ncr-sysvr3* )
+    machine=tower32v3
+    opsys=usg5-3
+    opsys_family=usg
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+
+  ## NEC EWS4800:
+  mips-nec-sysv4*)
+    machine=ews4800
+    opsys=ux4800
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+
+  ## Nixdorf Targon 31:
+  m68*-nixdorf-sysv* )
+    machine=targon31
+    opsys=usg5-2-2
+    opsys_family=usg
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+
+  ## Nu (TI or LMI):
+  m68*-nu-sysv* )
+    machine=nu
+    opsys=usg5-2
+    opsys_family=usg
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+
+  ## Plexus:
+  m68*-plexus-sysv* )
+    machine=plexus
+    opsys=usg5-2
+    opsys_family=usg
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+
+  ## Pyramid machines.
+  ## I do NOT really have any idea what sort of processor the Pyramid has,
+  ## so I am assuming it is its own architecture.
+  pyramid-pyramid-bsd* )
+    machine=pyramid
+    opsys=bsd4-2
+    opsys_family=bsd
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated, and plus details about its architecture are scarce."
+    ;;
+
+  ## Sequent Balance:
+  ns32k-sequent-bsd4.2* )
+    machine=sequent
+    opsys=bsd4-2
+    opsys_family=bsd
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+  ns32k-sequent-bsd4.3* )
+    machine=sequent
+    opsys=bsd4-3
+    opsys_family=bsd
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+
+  ## Siemens Nixdorf:
+  mips-siemens-sysv* | mips-sni-sysv*)
+    machine=mips-siemens
+    opsys=usg5-4
+    opsys_family=usg
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    NON_GNU_CC=/usr/ccs/bin/cc
+    NON_GNU_CPP=/usr/ccs/lib/cpp
+    ;;
 
   ### Silicon Graphics machines:
   ## Iris 2500 and Iris 2500 Turbo (a.k.a. the Iris 3030):
   m68*-sgi-iris3.5* )
-    machine=irist opsys=iris3-5
+    machine=irist
+    opsys=iris3-5
     opsys_family=iri
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   m68*-sgi-iris3.6* | m68*-sgi-iris*)
-    machine=irist opsys=iris3-6
+    machine=irist
+    opsys=iris3-6
     opsys_family=iri
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   ## Iris 4D:
   mips-sgi-irix3* )
-    machine=iris4d opsys=irix3-3
+    machine=iris4d
+    opsys=irix3-3
     opsys_family=iri
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   mips-sgi-irix4* )
-    machine=iris4d opsys=irix4-0
+    machine=iris4d
+    opsys=irix4-0
     opsys_family=iri
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   mips-sgi-irix6.5 )
     opsys=irix6-5
@@ -1414,35 +1797,116 @@ dnl# see the `changequote' comment above.
     ## (this SGI machine is still official)
   ;;
   mips-sgi-irix6* )
-    machine=iris4d opsys=irix6-0
+    machine=iris4d
+    opsys=irix6-0
     opsys_family=iri
     # It is not clear whether -D_LANGUAGE_C is necessary as it is for 6.5,
     # but presumably it does no harm.
     NON_GNU_CPP="/lib/cpp -D_LANGUAGE_C"
     # -32 probably is NOT necessary in later v.6s -- anyone know which?
     NON_GCC_TEST_OPTIONS=-32
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated, and certain options for it are unclear."
   ;;
   mips-sgi-irix5.[01]* )
-    machine=iris4d opsys=irix5-0
+    machine=iris4d
+    opsys=irix5-0
     opsys_family=iri
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
   mips-sgi-irix5* | mips-sgi-irix* )
-    machine=iris4d opsys=irix5-2
+    machine=iris4d
+    opsys=irix5-2
     opsys_family=iri
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
+
+  ## SONY machines:
+  m68*-sony-bsd4.2* )
+    machine=news
+    opsys=bsd4-2
+    opsys_family=bsd
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+  m68*-sony-bsd4.3* )
+    machine=news
+    opsys=bsd4-3
+    opsys_family=bsd
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+  m68*-sony-newsos3* | m68*-sony-news3*)
+    machine=news
+    opsys=bsd4-3
+    opsys_family=bsd
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+  mips-sony-bsd* | mips-sony-newsos4* | mips-sony-news4*)
+    machine=news-risc
+    opsys=bsd4-3
+    opsys_family=bsd
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+  mips-sony-newsos6* )
+    machine=news-r6
+    opsys=newsos6
+    opsys_family=newsos
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+  mips-sony-news* )
+    machine=news-risc
+    opsys=newsos5
+    opsys_family=newsos
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+
+  ## Stride:
+  m68*-stride-sysv* )
+    machine=stride
+    opsys=usg5-2
+    opsys_family=usg
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
 
   ## Suns:
   sparc-*-linux-gnu* | sparc64-*-linux-gnu* )
-    machine=sparc opsys=gnu-linux
+    machine=sparc
+    opsys=gnu-linux
+    unofficially_ported=yes
+    unofficial_port_warning_reason="this case (${opsys} on ${machine}) was reached in a deprecated way; all gnu-linux machines should have been handled at the top."
   ;;
   *-auspex-sunos* | *-sun-sunos* | *-sun-bsd* | *-sun-solaris* \
     | i[3456]86-*-solaris2* | i[3456]86-*-sunos5* | powerpc*-*-solaris2* \
     | rs6000-*-solaris2* | x86_64-*-solaris2* | x86_64-*-sunos5*)
     case "${canonical}" in
-      m68*-sunos1* )	machine=sun1 ;;
-      m68*-sunos2* )	machine=sun2 ;;
-      m68* )		machine=sun3 ;;
-      i[3456]86-sun-sunos[34]* )	machine=sun386 ;;
+      m68*-sunos1* )
+        machine=sun1
+        unofficially_ported=yes
+        unofficial_port_warning_reason="${machine} is old and deprecated."
+      ;;
+      m68*-sunos2* )
+        machine=sun2
+        unofficially_ported=yes
+        unofficial_port_warning_reason="${machine} is old and deprecated."
+      ;;
+      m68* )
+        machine=sun3
+        unofficially_ported=yes
+        unofficial_port_warning_reason="${machine} is old and deprecated."
+      ;;
+      i[3456]86-sun-sunos[34]* )
+        machine=sun386
+        unofficially_ported=yes
+        unofficial_port_warning_reason="${machine} is old and deprecated."
+      ;;
       i[3456]86-*-* )
         machine=intel386
         ## (still official)
@@ -1451,8 +1915,16 @@ dnl# see the `changequote' comment above.
         machine=amdx86-64
         ## (still official)
       ;;
-      powerpcle* )      machine=powerpcle ;;
-      powerpc* | rs6000* )  machine=ibmrs6000 ;;
+      powerpcle* )
+        machine=powerpcle
+        unofficially_ported=yes
+        unofficial_port_warning_reason="${machine} is old and deprecated."
+      ;;
+      powerpc* | rs6000* )
+        machine=ibmrs6000
+        unofficially_ported=yes
+        unofficial_port_warning_reason="${machine} is old and deprecated."
+      ;;
       sparc* )
         machine=sparc
         ## (still official)
@@ -1465,15 +1937,21 @@ dnl# see the `changequote' comment above.
 		opsys=sunos4-0
 		## the "sun" family covers both sun and solaris:
 		opsys_family=sun
+		unofficially_ported=yes
+		unofficial_port_warning_reason="${opsys} is old."
       ;;
       *-sunos4.0*  )
 		opsys=sunos4-0
+		unofficially_ported=yes
+		unofficial_port_warning_reason="${opsys} is old."
       ;;
       *-sunos4.1.[3-9]*noshare )
 		## This name is sunos413 instead of sunos4-1-3
 		## to avoid a file name conflict on MSDOS.
 		opsys=sunos413
 		opsys_family=sun
+		unofficially_ported=yes
+		unofficial_port_warning_reason="${opsys} is old."
 		NON_GNU_CPP=/usr/lib/cpp
 		NON_GCC_TEST_OPTIONS=-Bstatic
 		GCC_TEST_OPTIONS=-static
@@ -1481,11 +1959,15 @@ dnl# see the `changequote' comment above.
       *-sunos4.1.[3-9]* | *-sunos4shr*)
 		opsys=sunos4shr
 		opsys_family=sun
+		unofficially_ported=yes
+		unofficial_port_warning_reason="${opsys} is old."
 		NON_GNU_CPP=/usr/lib/cpp
 		;;
       *-sunos4* | *-sunos )
 		opsys=sunos4-1
 		opsys_family=sun
+		unofficially_ported=yes
+		unofficial_port_warning_reason="${opsys} is old."
 		NON_GCC_TEST_OPTIONS=-Bstatic
 		GCC_TEST_OPTIONS=-static
 		;;
@@ -1498,17 +1980,23 @@ dnl# see the `changequote' comment above.
       *-sunos5.3* | *-solaris2.3* )
 		opsys=sol2-3
 		opsys_family=sun
+		unofficially_ported=yes
+		unofficial_port_warning_reason="${opsys} is old."
 		NON_GNU_CPP=/usr/ccs/lib/cpp
 		;;
       *-sunos5.4* | *-solaris2.4* )
 		opsys=sol2-4
 		opsys_family=sun
+		unofficially_ported=yes
+		unofficial_port_warning_reason="${opsys} is old."
 		NON_GNU_CPP=/usr/ccs/lib/cpp
 		RANLIB="ar -ts"
 		;;
       *-sunos5.5* | *-solaris2.5* )
 		opsys=sol2-5
 		opsys_family=sun
+		unofficially_ported=yes
+		unofficial_port_warning_reason="${opsys} is old."
 		NON_GNU_CPP=/usr/ccs/lib/cpp
 		RANLIB="ar -ts"
 		;;
@@ -1539,6 +2027,8 @@ dnl# see the `changequote' comment above.
       *	  )
 		opsys=bsd4-2
 		opsys_family=bsd
+		unofficially_ported=yes
+		unofficial_port_warning_reason="${opsys} is unhandled."
       ;;
     esac
     ## Watch out for a compiler that we know will not work.
@@ -1553,16 +2043,161 @@ dnl# see the `changequote' comment above.
       *) ;;
     esac
     ## (this outer case for Sun machines is still mostly official,
-    ## might want to check the inner ones, though...)
+    ## might want to double-check the inner ones, though...)
   ;;
   sparc-*-nextstep* )
-    machine=sparc opsys=nextstep
+    machine=sparc
+    opsys=nextstep
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
+
+  ## Tadpole 68k:
+  m68*-tadpole-sysv* )
+    machine=tad68k
+    opsys=usg5-3
+    opsys_family=usg
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+
+  ## Tahoe machines:
+  tahoe-tahoe-bsd4.2* )
+    machine=tahoe
+    opsys=bsd4-2
+    opsys_family=bsd
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+  tahoe-tahoe-bsd4.3* )
+    machine=tahoe
+    opsys=bsd4-3
+    opsys_family=bsd
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+
+  ## Tandem Integrity S2:
+  mips-tandem-sysv* )
+    machine=tandem-s2
+    opsys=usg5-3
+    opsys_family=usg
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+
+  ## Tektronix XD88:
+  m88k-tektronix-sysv3* )
+    machine=tekxd88
+    opsys=usg5-3
+    opsys_family=usg
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+
+  ## Tektronix 16000 box (6130?):
+  ns16k-tektronix-bsd* )
+    machine=ns16000
+    opsys=bsd4-2
+    opsys_family=bsd
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated, and we are unsure about its number."
+    ;;
+  ## Tektronix 4300.
+  ## src/m/tek4300.h hints that this is a m68k machine.
+  m68*-tektronix-bsd* )
+    machine=tek4300
+    opsys=bsd4-3
+    opsys_family=bsd
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated, and we can only make guesses about it based on obscure hints."
+    ;;
+
+  ## Titan P2 or P3.
+  ## We seem to have lost the machine-description file titan.h!
+  titan-titan-sysv* )
+    machine=titan
+    opsys=usg5-3
+    opsys_family=usg
+    unofficially_ported=yes
+    unofficial_port_warning_reason="the machine-description file titan.h is missing."
+    ;;
+
+  ## Ustation E30 (SS5E):
+  m68*-unisys-uniplus* )
+    machine=ustation
+    opsystem=unipl5-2
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+
+  ## Vaxen.
+  vax-dec-* )
+    machine=vax
+    case "${canonical}" in
+      *-bsd4.1* )
+        opsys=bsd4-1
+        opsys_family=bsd
+      ;;
+      *-bsd4.2* | *-ultrix[0-3].* | *-ultrix4.0* )
+        opsys=bsd4-2
+        opsys_family=bsd
+      ;;
+      *-bsd4.3* | *-ultrix* )
+        opsys=bsd4-3
+        opsys_family=bsd
+      ;;
+      *-sysv[01]* | *-sysvr[01]* )
+        opsys=usg5-0
+        opsys_family=usg
+      ;;
+      *-sysv2* | *-sysvr2* )
+        opsys=usg5-2
+        opsys_family=usg
+      ;;
+      *-vms* )
+        opsys=vms
+      ;;
+      * )
+        unported=yes
+      ;;
+    esac
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+
+  ## Whitechapel MG1:
+  ns16k-whitechapel-* )
+    machine=mg1
+    ## We do NOT know what sort of OS runs on these; we will let the
+    ## operating system guessing code below try.
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${machine} is old and deprecated, and we do not even know what operating systems run on it."
+    ;;
+
+  ## Wicat:
+  m68*-wicat-sysv* )
+    machine=wicat
+    opsys=usg5-2
+    opsys_family=usg
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+
+  ## IA-64:
+  ia64*-*-linux* )
+    machine=ia64
+    opsys=gnu-linux
+    unofficially_ported=yes
+    unofficial_port_warning_reason="this case (${opsys} on ${machine}) was reached in a deprecated way; all gnu-linux machines should have been handled at the top."
+    ;;
 
   ## Intel 386 machines where we do NOT care about the manufacturer.
   ## (why the big separation from the cases where we DO care?)
   i[3456]86-*-* )
+    machine=intel386
     case "${canonical}" in
+      ## FIXME: additional cases in here...
       *-darwin* )               opsys=darwin ;;
       *-mingw32 )
 		opsys=mingw32
@@ -1577,7 +2212,51 @@ dnl# see the `changequote' comment above.
     esac
   ;;
 
-  # MinGW64:
+  ## m68k Linux-based GNU system:
+  m68k-*-linux-gnu* )
+    machine=m68k
+    opsys=gnu-linux
+    unofficially_ported=yes
+    unofficial_port_warning_reason="this case (${opsys} on ${machine}) was reached in a deprecated way; all gnu-linux machines should have been handled at the top."
+    ;;
+
+  ## Mips Linux-based GNU system:
+  mips-*-linux-gnu* | mipsel-*-linux-gnu* )
+    machine=mips
+    opsys=gnu-linux
+    unofficially_ported=yes
+    unofficial_port_warning_reason="this case (${opsys} on ${machine}) was reached in a deprecated way; all gnu-linux machines should have been handled at the top."
+    ;;
+
+  ## UXP/DS:
+  sparc-fujitsu-sysv4* )
+    machine=sparc
+    opsys=uxpds
+    opsys_family=uxp
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    NON_GNU_CPP=/usr/ccs/lib/cpp
+    RANLIB="ar -ts"
+    ;;
+
+  ## UXP/V:
+  f301-fujitsu-uxpv4.1)
+    machine=f301
+    opsys=uxpv
+    opsys_family=uxp
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    ;;
+
+  ## AMD x86-64 Linux-based GNU system:
+  x86_64-*-linux-gnu* )
+    machine=amdx86-64
+    opsys=gnu-linux
+    unofficially_ported=yes
+    unofficial_port_warning_reason="this case (${opsys} on ${machine}) was reached in a deprecated way; all gnu-linux machines should have been handled at the top."
+    ;;
+
+  # x86-64 MinGW64:
   x86_64-*-* )
     case "${canonical}" in
       *-mingw32 )
@@ -1585,10 +2264,25 @@ dnl# see the `changequote' comment above.
 		# MinGW overrides and adds some system headers in nt/inc.
 		GCC_TEST_OPTIONS="-I ${srcdir}/nt/inc"
 		;;
+      *-mingw64 )
+		opsys=mingw64
+		# MinGW overrides and adds some system headers in nt/inc.
+		GCC_TEST_OPTIONS="-I ${srcdir}/nt/inc"
+                unofficially_ported=yes
+                unofficial_port_warning_reason="The case for MinGW64 was just copied from the one MinGW32 without testing to see if it worked the same."
+		;;
       ## Otherwise, we will fall through to the generic opsys code at the
       ## bottom.
     esac
   ;;
+
+  ## Tensilica Xtensa Linux-based GNU system:
+  xtensa-*-linux-gnu* )
+    machine=xtensa
+    opsys=gnu-linux
+    unofficially_ported=yes
+    unofficial_port_warning_reason="this case (${opsys} on ${machine}) was reached in a deprecated way; all gnu-linux machines should have been handled at the top."
+    ;;
 
   ## ...and there we are!
   * )
@@ -1608,19 +2302,42 @@ if test x"${opsys}" = x""; then
       opsys=gnu
       ## (still official)
     ;;
-    *-bsd4.[01] )			opsys=bsd4-1 ;;
-    *-bsd4.2 )				opsys=bsd4-2 ;;
-    *-bsd4.3 )				opsys=bsd4-3 ;;
-    *-sysv0 | *-sysvr0 )		opsys=usg5-0 ;;
-    *-sysv2 | *-sysvr2 )		opsys=usg5-2 ;;
-    *-sysv2.2 | *-sysvr2.2 )		opsys=usg5-2-2 ;;
-    *-sysv3* | *-sysvr3* )		opsys=usg5-3 ;;
+    *-bsd4.[01] )
+        opsys=bsd4-1
+        opsys_family=bsd
+    ;;
+    *-bsd4.2 )
+        opsys=bsd4-2
+        opsys_family=bsd
+    ;;
+    *-bsd4.3 )
+        opsys=bsd4-3
+        opsys_family=bsd
+    ;;
+    *-sysv0 | *-sysvr0 )
+        opsys=usg5-0
+        opsys_family=usg
+    ;;
+    *-sysv2 | *-sysvr2 )
+        opsys=usg5-2
+        opsys_family=usg
+    ;;
+    *-sysv2.2 | *-sysvr2.2 )
+        opsys=usg5-2-2
+        opsys_family=usg
+    ;;
+    *-sysv3* | *-sysvr3* )
+        opsys=usg5-3
+        opsys_family=usg
+    ;;
     *-sysv4.2uw* )			opsys=unixware ;;
     *-sysv5uw* )			opsys=unixware ;;
     *-sysv5OpenUNIX* )			opsys=unixware ;;
     *-sysv4.1* | *-sysvr4.1* )
-	NON_GNU_CPP=/usr/lib/cpp
-	opsys=usg5-4 ;;
+        NON_GNU_CPP=/usr/lib/cpp
+        opsys=usg5-4
+        opsys_family=usg
+    ;;
     *-sysv4.[2-9]* | *-sysvr4.[2-9]* )
 	if test "x${NON_GNU_CPP}" = "x"; then
 	  if test -f /usr/ccs/lib/cpp; then
@@ -1629,10 +2346,15 @@ if test x"${opsys}" = x""; then
 	    NON_GNU_CPP=/lib/cpp
 	  fi
 	fi
-	opsys=usg5-4-2 ;;
-    *-sysv4* | *-sysvr4* )		opsys=usg5-4 ;;
+	opsys=usg5-4-2
+	opsys_family=usg
+    ;;
+    *-sysv4* | *-sysvr4* )
+        opsys=usg5-4
+        opsys_family=usg
+    ;;
     * )
-      unported=yes
+        unported=yes
     ;;
   esac
 fi
@@ -1687,10 +2409,21 @@ m4_ifdef([AM_PROG_CC_C_O],[
 AM_PROG_CC_C_O
 ])dnl
 
+dnl# begin m4-quotation block one-and-a-half (split off from no. 2 below):
+[
 # On Suns, sometimes ${CPP} names a directory.
 if test -n "${CPP}" && test -d "${CPP}" && test "x${opsys_family}" = "xsun"; then
   CPP=""
 fi
+
+#### Some systems specify a CPP to use unless we are using GCC.
+#### Now that we know whether we are using GCC, we can decide whether
+#### to use that one.
+if test "x${NON_GNU_CPP}" != "x" && test "x${GCC}" != "xyes" && test "x${CPP}" = "x"; then
+  test -z "${CPP}" && test -n "${NON_GNU_CPP}" && export CPP="${NON_GNU_CPP}"
+fi
+]
+dnl# end m4-quotation block one-and-a-half
 
 AC_PROG_CPP
 AC_PROG_CXX
@@ -1704,6 +2437,13 @@ AC_EGREP_PREPROC_SANITY
 
 dnl# as above with the giant gob of m4-quotation (this is block 2):
 [
+#### Some systems specify a CC to use unless we are using GCC.
+#### Now that we know whether we are using GCC, we can decide whether
+#### to use that one.
+if test "x${NON_GNU_CC}" != "x" && test "x${GCC}" != "xyes" && test "x${cc_specified}" != "xyes"; then
+  test -n "${NON_GNU_CC}" && test -z "${CC}" && export CC="${NON_GNU_CC}"
+fi
+
 if test "x${GCC}" = "xyes"; then
   test "x${GCC_TEST_OPTIONS}" != "x" && CC="${CC} ${GCC_TEST_OPTIONS}"
 else
@@ -1732,6 +2472,10 @@ dnl# Amongst other things, this sets AR and ARFLAGS.
 gl_EARLY
 AC_MSG_NOTICE([done initializing gnulib, back to more compiler checks])dnl
 
+dnl# TODO: maybe use '-ggdb3' instead of just '-g3' based on the results of
+dnl# this check(?):
+AC_PATH_PROGS([GDB_BIN],[gdb ggdb gdb-apple])dnl
+
 if test "x${ac_test_CFLAGS}" != "xset"; then
   # It is helpful to have C macros available to GDB, so prefer -g3 to -g
   # if -g3 works and the user does not specify CFLAGS.
@@ -1755,7 +2499,7 @@ if test "x${ac_test_CFLAGS}" != "xset"; then
     if test "x${emacs_cv_prog_cc_g3}" != "xyes"; then
       CFLAGS="${emacs_save_CFLAGS}"
     fi
-    if test "x${opsys}" = "xmingw32"; then
+    if test "x${opsys}" = "xmingw32" && test "x${GCC}" = "xyes"; then
       CFLAGS="${CFLAGS} -gdwarf-2"
     fi
   fi
@@ -1806,7 +2550,7 @@ if test "x${enableval}" != "xno"; then
    ac_lto_supported=no
    if test "x${GCC}" = "xyes"; then
       AC_PATH_PROG([GETCONF_PROG],[getconf])
-      CPUS=`getconf _NPROCESSORS_ONLN 2>/dev/null`
+      CPUS="`getconf _NPROCESSORS_ONLN 2>/dev/null`"
       if test "x${CPUS}" != "x"; then
       	 LTO="-flto=${CPUS}"
       else
@@ -1828,37 +2572,11 @@ fi
 ])dnl
 ])dnl# end code for gcc4.5+
 
-dnl# these two are now defun-ed macros in preparation for moving to their
-dnl# own macro file:
-AC_DEFUN([EMACS_COMPILER_ID_CLANG],[
-# clang is unduly picky about some things.
-AC_CACHE_CHECK([whether the compiler is actually clang],[emacs_cv_clang],
-  [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-	  #ifndef __clang__
-	    #error "not clang"
-	  #endif /* !__clang__ */
-        ]])],
-     [emacs_cv_clang=yes],
-     [emacs_cv_clang=no])])dnl
-])dnl# end macro, now call it:
+dnl# The definitions of the macros for checking compiler ids have moved to:
+m4_include([m4/compiler_id.m4])dnl
+dnl# Now actually call them:
 EMACS_COMPILER_ID_CLANG
-
-AC_DEFUN([EMACS_COMPILER_ID_APPLE],[
-# some flags are Apple-specific:
-AC_CACHE_CHECK([if the compiler is an Apple compiler],[emacs_cv_apple],
-  [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-/* not sure if the first '||' should actually be an '&&' here: */
-#if !defined(__APPLE__) || !defined(__APPLE_CC__) || !(__APPLE_CC__ > 1) 
-  #error "not Apple"
-#endif /* !__APPLE__ || !__APPLE_CC__ || !(__APPLE_CC__ > 1) */
-        ]])],
-     [emacs_cv_apple=yes],
-     [emacs_cv_apple=no])])dnl
-])dnl# end macro, now call it:
 EMACS_COMPILER_ID_APPLE
-dnl#TODO: see if there are any remaining checks that currently check the
-dnl# value of ${host_vendor} for apple that I can move to use the above
-dnl# conftest instead.
 
 # need this to properly check clang warning flags, and maybe also those
 # for apple-gcc, and need to do it whether we have enabled gcc warnings
@@ -2140,6 +2858,7 @@ else
   # We use a slightly smaller set of warning options for lib/.
   # Remove the following and save the result in GNULIB_WARN_CFLAGS.
   nw=""
+  nw="${nw} -Wfloat-equal"
   nw="${nw} -Wunused-macros"
 
   dnl# For some reason m4/manywarnings.m4 misses this one:
@@ -2173,6 +2892,7 @@ AM_PROG_AR
 
 dnl# not sure where else to put these:
 AC_PATH_PROG([FILE_MAGIC_BIN],[file])dnl
+AC_PATH_PROGS([MACHOCHECK],[machocheck machocheck_debug])dnl
 AC_PATH_PROG([RELPATH_BIN],[relpath])dnl
 
 AC_MSG_CHECKING([libtool things])
@@ -2197,7 +2917,7 @@ dnl# hosted on AFS, both examples where simple links work, but links to
 dnl# directories fail. We use a cut-down version instead.
 dnl# Keep autoscan happy with a dummy condition though:
 if test "x" = "Y0"; then
-  test -x `which autoscan`
+  test -x "`which autoscan`"
   AC_PROG_LN_S
   unset ac_cv_prog_ln_s
 fi
@@ -2386,6 +3106,9 @@ AC_CACHE_CHECK([whether addresses are sanitized],
      [emacs_cv_sanitize_address=yes],
      [emacs_cv_sanitize_address=no])])dnl
 
+AC_ARG_VAR([CANNOT_DUMP],
+           [Set to "yes" to disable the dump-emacs function.])dnl
+
 dnl# The function dump-emacs will not be defined and temacs will do
 dnl# (load "loadup") automatically unless told otherwise.
 test "x${CANNOT_DUMP}" = "x" && export CANNOT_DUMP="no"
@@ -2402,7 +3125,7 @@ fi
 
 AC_SUBST([CANNOT_DUMP])dnl
 
-dnl# m4-quotation block 5 begins:
+dnl# m4-quotation block 5 begins (for UNEXEC_OBJ):
 [
 UNEXEC_OBJ=unexelf.o
 case "${opsys}" in
@@ -2438,6 +3161,18 @@ case "${opsys}" in
    ;;
 esac
 
+### Compute the unexec source name from the object name:
+if test "x${UNEXEC_OBJ}" != "x" && test "x${UNEXEC_SRC}" = "x"; then
+  test -n "${UNEXEC_OBJ}" && test -z "${UNEXEC_SRC}" && export UNEXEC_SRC="`echo ${UNEXEC_OBJ} | sed 's/\.o/.c/'`"
+fi
+]
+dnl# m4-quotation block 5 ends
+
+AC_SUBST([UNEXEC_OBJ])dnl
+AC_SUBST([UNEXEC_SRC])dnl
+
+dnl# m4-quotation block 6 begins (for LD_SWITCH_SYSTEM):
+[
 LD_SWITCH_SYSTEM=""
 case "${opsys}" in
   freebsd|dragonfly)
@@ -2472,13 +3207,7 @@ case "${opsys}" in
    LD_SWITCH_SYSTEM="-Z"
    ;;
 esac
-]
-dnl# m4-quotation block 5 ends
 
-AC_SUBST([LD_SWITCH_SYSTEM])dnl
-
-dnl# m4-quotation block 6 begins:
-[
 ac_link="${ac_link} ${LD_SWITCH_SYSTEM}"
 
 ## This setting of LD_SWITCH_SYSTEM references LD_SWITCH_X_SITE_RPATH,
@@ -2498,6 +3227,8 @@ case "${opsys}" in
 esac
 ]
 dnl# m4-quotation block 6 ends
+
+AC_SUBST([LD_SWITCH_SYSTEM])dnl
 
 dnl# system-specific flags for C compilation:
 C_SWITCH_MACHINE=""
@@ -2524,8 +3255,6 @@ case ${canonical} in
   ;;
 esac
 AC_SUBST([C_SWITCH_MACHINE])dnl
-
-AC_SUBST([UNEXEC_OBJ])dnl
 
 C_SWITCH_SYSTEM=""
 ## Some programs in src produce warnings saying certain subprograms
@@ -2568,7 +3297,7 @@ case "${opsys}" in
     ;;
 esac
 ]
-dnl# m4-quotation block 7 ends
+dnl# m4-quotation block 7 ends (for LIBS_SYSTEM)
 
 AC_SUBST([LIBS_SYSTEM])dnl
 
@@ -2583,6 +3312,16 @@ else
 fi
 ]
 dnl# m4-quotation block 8 ends
+
+### The standard library on x86-64 GNU/Linux distributions can 
+### be located in either /usr/lib64 or /usr/lib.
+case "${canonical}" in
+  x86_64-*-linux-gnu* )
+    if test -d /usr/lib64; then
+      AC_DEFINE([HAVE_X86_64_LIB64_DIR],[1],
+        [Define to 1 if the file /usr/lib64 exists.])
+fi
+esac
 
 # Suppress obsolescent Autoconf test for size_t; Emacs assumes C89 or
 # better.
@@ -2603,6 +3342,17 @@ AC_TYPE_UINT64_T
 AC_CHECK_TYPES([ptrdiff_t])dnl
 AC_CHECK_TYPES([time_t])dnl
 
+dnl# Check for speed_t typedef.
+AC_CACHE_CHECK([for speed_t],[emacs_cv_speed_t],
+  [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <termios.h>]],
+                                      [[speed_t x = 1;]])],
+    [emacs_cv_speed_t=yes],[emacs_cv_speed_t=no])])
+if test "x${emacs_cv_speed_t}" = "xyes"; then
+  AC_DEFINE([HAVE_SPEED_T],[1],
+            [Define to 1 if `speed_t' is declared by <termios.h>.])
+fi
+
+dnl# (a similar libm check is also done farther below)
 AC_MSG_CHECKING([for flag to link with libm])
 dnl# libm checks:
 LIB_MATH='-lm'
@@ -2617,10 +3367,12 @@ SYSTEM_TYPE=`echo ${opsys} | sed -e 's/[[0-9]].*//' -e 's|-|/|'`
 case ${opsys} in
   cygwin )
     LIB_MATH=""
+    LIBM=""
     ;;
   darwin )
     ## Adding -lm confuses the dynamic linker, so omit it.
     LIB_MATH=""
+    LIBM=""
     ;;
   freebsd | dragonfly )
     SYSTEM_TYPE=berkeley-unix
@@ -2631,6 +3383,7 @@ case ${opsys} in
     ;;
   mingw32 )
     LIB_MATH=""
+    LIBM=""
     SYSTEM_TYPE=windows-nt
     ;;
   ## NB this may be adjusted below.
@@ -2681,7 +3434,7 @@ if test "x${with_sound}" != "xno"; then
     # include <windows.h>
     #endif /* __MINGW32__ */
     ])
-  test "${with_sound}" = "oss" && test "${have_sound_header}" != "yes" && \
+  test "x${with_sound}" = "xoss" && test "x${have_sound_header}" != "xyes" && \
     AC_MSG_ERROR([OSS sound support requested but not found.])dnl
 
   if test "x${with_sound}" = "xbsd-ossaudio" || test "x${with_sound}" = "xyes"; then
@@ -2729,6 +3482,8 @@ if test "x${with_sound}" != "xno"; then
     elif test "x${with_sound}" = "xalsa"; then
       AC_MSG_ERROR([ALSA sound support requested but not found.])
     fi
+  else
+    AC_MSG_NOTICE([skipping checks for ALSA sound support])
   fi                            dnl# with_sound = alsa|yes
 
   dnl# Define HAVE_SOUND if we have sound support. We know it works and
@@ -2750,6 +3505,8 @@ if test "x${with_sound}" != "xno"; then
 
   AC_SUBST([CFLAGS_SOUND])dnl
   # end of sound support checks
+else
+  AC_MSG_NOTICE([actually skipping the sound support checks])
 fi
 
 dnl# checks for header files:
@@ -2765,12 +3522,21 @@ dnl# (normally I check <malloc/malloc.h> right after <malloc.h>, but we do
 dnl# that elsewhere in this one)
 AC_CHECK_HEADERS([OS.h arpa/inet.h err.h errno.h fcntl.h float.h \
                   langinfo.h libintl.h limits.h locale.h malloc.h \
-                  nl_types.h stddef.h sys/file.h sys/ioctl.h sys/vfs.h \
-                  termio.h termios.h timespec.h wctype.h])
+                  nl_types.h stddef.h sys/_mbstate_t.h sys/file.h \
+                  sys/ioctl.h sys/mman.h sys/timeb.h sys/vfs.h \
+                  termcap.h termio.h termios.h timespec.h])
+if test "x${ac_cv_header_wctype_h}" = "x"; then
+  test -z "${ac_cv_header_wctype_h}"
+  AC_CHECK_HEADERS([wctype.h])
+fi
 dnl# Keep autoscan happy with a dummy condition:
 if test "x" = "Y0"; then
-  test -x `which autoscan`
+  test -x "`which autoscan`"
   AC_CHECK_HEADERS([stdio_ext.h sys/param.h sys/time.h utime.h wchar.h])
+fi
+if test "x${ac_cv_header_wctype_h}" = "xyes" && test "x${ac_cv_func_wctype}" = "x"; then
+  test -n "${ac_cv_header_wctype_h}" && test -z "${ac_cv_func_wctype}"
+  AC_CHECK_FUNC([wctype])
 fi
 
 AC_CHECK_HEADERS([sys/personality.h])
@@ -2804,6 +3570,12 @@ if test "x${ac_cv_have_decl_sys_siglist}" != "xyes"; then
   # For Tru64, at least:
   AC_CHECK_DECLS([__sys_siglist],[],[],[[#include <signal.h>
 			               ]])
+  # If we have the version with underscores, but not the one without,
+  # replace the latter with the former:
+  if test "x${ac_cv_have_decl___sys_siglist}" = "xyes" && test "x${ac_cv_have_decl_sys_siglist}" = "xno"; then
+    AC_DEFINE([sys_siglist],[__sys_siglist],
+              [Define to any substitute for sys_siglist.])
+  fi
 elif test "x${ac_cv_have_decl_sys_siglist}" = "x"; then
   AC_CHECK_DECLS([sys_siglist])
 fi
@@ -2820,38 +3592,41 @@ dnl# ...anyways:
 AC_HEADER_SYS_WAIT
 
 dnl# adding "_ONCE" causes tests to be done at wrong location, so just call
-dnl# the macros regularly:
-AC_CHECK_HEADERS([sys/socket.h])
+dnl# the macros regularly, and in a conditional if necessary:
+if test "x${ac_cv_header_sys_socket_h}" = "x"; then
+  test -z "${ac_cv_header_sys_socket_h}"
+  AC_CHECK_HEADERS([sys/socket.h])
+fi
 AC_CHECK_HEADERS([net/if.h],[],[],[AC_INCLUDES_DEFAULT
-#if HAVE_SYS_SOCKET_H
+#if defined(HAVE_SYS_SOCKET_H) && HAVE_SYS_SOCKET_H
 # include <sys/socket.h>
 #else
 # if defined(__GNUC__) && !defined(__STRICT_ANSI__)
-#  warning "this conftest expects <sys/socket.h> to be included."
+#  warning "This conftest for <net/if.h> wants to include <sys/socket.h>"
 # endif /* __GNUC__ && !__STRICT_ANSI__ */
 #endif /* HAVE_SYS_SOCKET_H */
 ])
 AC_CHECK_HEADERS([ifaddrs.h],[],[],[AC_INCLUDES_DEFAULT
-#if HAVE_SYS_SOCKET_H
+#if defined(HAVE_SYS_SOCKET_H) && HAVE_SYS_SOCKET_H
 # include <sys/socket.h>
 #else
 # if defined(__GNUC__) && !defined(__STRICT_ANSI__)
-#  warning "this conftest expects <sys/socket.h> to be included."
+#  warning "This conftest for <ifaddrs.h> wants to include <sys/socket.h>"
 # endif /* __GNUC__ && !__STRICT_ANSI__ */
 #endif /* HAVE_SYS_SOCKET_H */
 ])
 AC_CHECK_HEADERS([net/if_dl.h],[],[],[AC_INCLUDES_DEFAULT
-#if HAVE_SYS_SOCKET_H
+#if defined(HAVE_SYS_SOCKET_H) && HAVE_SYS_SOCKET_H
 # include <sys/socket.h>
 #else
 # if defined(__GNUC__) && !defined(__STRICT_ANSI__)
-#  warning "this conftest expects <sys/socket.h> to be included."
+#  warning "The conftest for <net/if_dl.h> wants to include <sys/socket.h>"
 # endif /* __GNUC__ && !__STRICT_ANSI__ */
 #endif /* HAVE_SYS_SOCKET_H */
 ])dnl
 
-dnl# checks for structure members:
-AC_MSG_CHECKING([structure members])
+dnl# checks for structures and structure members:
+AC_MSG_CHECKING([structures and structure members])
 AC_MSG_RESULT([ ])
 AC_CHECK_MEMBERS([struct stat.st_rdev])
 AC_CHECK_MEMBERS([struct ifreq.ifr_flags, struct ifreq.ifr_hwaddr,
@@ -2878,11 +3653,60 @@ dnl# definition of macro for checking timezone structs has been moved to:
 m4_include([m4/timezone_structs.m4])dnl
 AC_REQUIRE_TIMEZONE_STRUCTS
 
-dnl# not really sure where else to put these:
+dnl#FIXME: I think gcc has a flag that controls this behavior:
+AC_CACHE_CHECK([for struct exception],[emacs_cv_struct_exception],[
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <math.h>]],[[
+static struct exception x;
+x.arg1 = x.arg2 = x.retval;
+x.name = ""; x.type = 1;]])],
+  [emacs_cv_struct_exception=yes],[emacs_cv_struct_exception=no])])
+HAVE_EXCEPTION="${emacs_cv_struct_exception}"
+if test "x${emacs_cv_struct_exception}" != "xyes"; then
+  AC_DEFINE([NO_MATHERR],[1],
+            [Define to 1 if you do NOT have struct exception in <math.h>.])
+fi
+
+dnl# checks for compiler characteristics:
+AC_MSG_CHECKING([the characteristics of your C compiler])
+AC_MSG_RESULT([ ])
+
+dnl# Testing __STDC__ to determine prototype support is NOT good enough.
+dnl# DEC C, for instance, does NOT define it with default options, and
+dnl# is used on 64-bit systems (OSF Alphas).  Similarly for volatile
+dnl# and void *.
+if test "x${ac_cv_c_prototypes}" = "x"; then
+  test -z "${ac_cv_c_prototypes}"
+  AC_C_PROTOTYPES
+fi
+if test "x${ac_cv_c_restrict}" = "x" && test "x${emacs_cv_c_restrict}" = "x" && test "x${emacs_cv_c_restrict_arr}" = "x"; then
+  test -z "${ac_cv_c_restrict}" && test -z "${emacs_cv_c_restrict}" test -z "${emacs_cv_c_restrict_arr}"
+  AC_C_RESTRICT
+fi
 AC_C_VOLATILE
+if test "x${ac_cv_c_const}" = "x"; then
+  test -z "${ac_cv_c_const}"
+  AC_C_CONST
+fi
+dnl# AC_C_INLINE is NOT really useful because we cannot turn on use of
+dnl# `inline' unless the compiler groks also `extern inline'. Luckily there
+dnl# is a gnulib macro for that. Also we call AC_C_INLINE later below
+dnl# anyways.
+AC_CACHE_CHECK([for void * support],[emacs_cv_void_star],
+  [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]],[[void *foo;]])],
+                     [emacs_cv_void_star=yes],[emacs_cv_void_star=no])])
+if test "x${emacs_cv_void_star}" = "xyes"; then
+  AC_DEFINE([POINTER_TYPE],[void])
+else
+  AC_DEFINE([POINTER_TYPE],[char])
+fi
+AH_TEMPLATE([POINTER_TYPE],
+	    [Define as `void' if your compiler accepts `void *'; otherwise
+	     define as `char'.])dnl
 
 dnl# Check for endianness.
-dnl# AC_C_BIGENDIAN is done by gnulib, so ifdef it out:
+dnl# This could be used for targets which can have both byte sexes.
+dnl# We could presumably replace the hardwired WORDS_BIG_ENDIAN generally.
+dnl# AC_C_BIGENDIAN is done by gnulib though, so ifdef it out:
 m4_ifdef([gl_00GNULIB],[:],[AC_C_BIGENDIAN])dnl
 
 dnl# check for Make feature:
@@ -2942,7 +3766,13 @@ lisp_frag="${srcdir}/src/lisp.mk"
 AC_SUBST_FILE([lisp_frag])dnl
 
 dnl# checks for operating system services:
+AC_MSG_CHECKING([operating system services])
+AC_MSG_RESULT([ ])
 AC_SYS_LONG_FILE_NAMES
+AC_SYS_RESTARTABLE_SYSCALLS
+AC_LANG_PUSH([Objective C])dnl
+AC_CHECK_FUNCS([NSPerformService])dnl
+AC_LANG_POP
 
 #### Choose a window system.
 
@@ -2955,7 +3785,7 @@ AC_MSG_RESULT([ ])dnl
 ## window-system-specific substs.
 
 window_system=none
-# this is originally uninitialized:
+# this would originally be uninitialized if we left it up to the macro:
 export no_x=yes
 AC_PATH_X
 # the macro never sets this if we do actually have X, so do that for it:
@@ -2965,7 +3795,7 @@ fi
 AC_PATH_XTRA
 if test "x${no_x}" != "xyes"; then
   window_system=x11
-  AC_MSG_NOTICE([using x11 for the window system])
+  AC_MSG_NOTICE([it looks like we are using x11 for the window system at this point])
 fi
 AC_SUBST([no_x])dnl
 
@@ -3047,6 +3877,7 @@ if test "x${window_system}" = "xx11" && test "x${HAVE_CARBON}" = "xyes"; then
 fi
 if test "x${HAVE_CARBON}" = "xyes"; then
   window_system=mac
+  AC_MSG_NOTICE([it looks like we are using Carbon for the window system at this point])
 fi
 
 HAVE_NS="no"
@@ -3184,7 +4015,7 @@ fail;
     fi
   fi
   dnl# "_ONCE" causes test to jump out of the conditional and be done at
-  dnl# wrong location:
+  dnl# wrong location, so leave that part off and just call it normally:
   AC_CHECK_HEADERS([Foundation/NSObjCRuntime.h])
   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <Foundation/NSObjCRuntime.h>]],
@@ -3202,7 +4033,7 @@ else
   fi
 fi
 
-# if we never tested these, assume the worst:
+# if we never tested these, then assume the worst:
 if test -z "${HAVE_CBLOCKS_TRUE}" && test -z "${HAVE_CBLOCKS_FALSE}"; then
   HAVE_CBLOCKS_TRUE='#'
   HAVE_CBLOCKS_FALSE=''
@@ -3225,7 +4056,8 @@ if test "x${HAVE_NS}" = "xyes"; then
   fi
 
   window_system=nextstep
-  # set up packaging dirs
+  AC_MSG_NOTICE([it looks like we are using a Nextstep-style window system at this point])
+  # set up packaging dirs:
   if test "x${EN_NS_SELF_CONTAINED}" = "xyes"; then
      ns_self_contained=yes
      prefix="${ns_appresdir}"
@@ -3354,11 +4186,14 @@ AC_SUBST([XARGS_LIMIT])dnl
 
 if test "x${HAVE_W32}" = "xyes"; then
   window_system=w32
+  AC_MSG_NOTICE([it looks like we are using the w32 window system at this point])
   with_xft=no
 fi
 
 ## ${window_system} is now set to the window system we will
 ## ultimately use.
+AC_MSG_CHECKING([final window system that we will ultimately use])
+AC_MSG_RESULT([${window_system}])
 
 if test "x${window_system}" = "xnone" && test "x${gl_gcc_warnings}" = "xyes"; then
    # Too many warnings for now.
@@ -3385,6 +4220,7 @@ case "${window_system}" in
     case "${with_x_toolkit}" in
       athena | lucid ) USE_X_TOOLKIT=LUCID ;;
       motif ) USE_X_TOOLKIT=MOTIF ;;
+      open-look ) USE_X_TOOLKIT=OPEN_LOOK ;;
       gtk ) with_gtk=yes
             term_header=gtkutil.h
 dnl# Do NOT set this for GTK. A lot of tests below assume Xt when
@@ -3424,6 +4260,22 @@ if test "x${HAVE_X11}" != "x"; then
   test -n "${HAVE_X11}"
   case ${HAVE_X11} in
     yes ) HAVE_MENUS=yes ;;
+  esac
+fi
+
+if test "x${opsys}" = "xhpux9"; then
+  case "${x_libraries}" in
+    *X11R4* )
+      opsysfile="s/hpux9-x11r4.h"
+      ;;
+  esac
+fi
+
+if test "x${opsys}" = "xhpux9shr"; then
+  case "${x_libraries}" in
+    *X11R4* )
+      opsysfile="s/hpux9shxr4.h"
+      ;;
   esac
 fi
 
@@ -3536,9 +4388,16 @@ if test "x${use_mmap_for_buffers}" = "xyes"; then
   REL_ALLOC=no
 fi
 
+dnl# misc. libraries section:
 AC_MSG_CHECKING([other libraries])
 AC_MSG_RESULT([ ])
 LIBS="${LIBS_SYSTEM} ${LIBS}"
+
+dnl# what AC\_ISC\_POSIX autoupdates to:
+AC_SEARCH_LIBS([strerror],[cposix])dnl
+
+dnl# part of what AC\_IRIX\_SUN autoupdates to:
+AC_CHECK_LIB([sun],[getpwnam])dnl
 
 dnl# If found, this adds -ldnet to LIBS, which Autoconf uses for checks.
 AC_CHECK_LIB([dnet],[dnet_ntoa])
@@ -3561,9 +4420,10 @@ dnl# Check if pthreads is available.
 AC_MSG_CHECKING([pthreads characteristics])
 AC_MSG_RESULT([ ])
 LIB_PTHREAD=""
-dnl# "_ONCE" causes test to be done at wrong location
+dnl# "_ONCE" causes test to be done at wrong location, so leave that off:
 AC_CHECK_HEADERS([pthread.h])
-if test "${ac_cv_header_pthread_h}"; then
+if test "x${ac_cv_header_pthread_h}" != "x" && test "x${ac_cv_header_pthread_h}" != "xno"; then
+  test -n "${ac_cv_header_pthread_h}"
   dnl# gmalloc.c uses pthread_atfork, which is not available on older-style
   dnl# hosts such as MirBSD10, so test for pthread_atfork instead of merely
   dnl# testing for pthread_self if Emacs uses gmalloc.c.
@@ -3598,6 +4458,15 @@ AC_CHECK_LIB([pthreads],[cma_open])dnl
 test "x${opsys}" = "xaix4-2" && \
   test "x${ac_cv_lib_pthreads_cma_open}" = "xyes" && \
   export LIBS_SYSTEM="${LIBS_SYSTEM} -lpthreads"
+
+AC_MSG_CHECKING([for XFree86 in /usr/X386])
+if test -d /usr/X386/include; then
+  HAVE_XFREE386=yes
+  : ${C_SWITCH_X_SITE="-I/usr/X386/include"}
+else
+  HAVE_XFREE386=no
+fi
+AC_MSG_RESULT([${HAVE_XFREE386}])
 
 dnl# Check for need for bigtoc support on IBM AIX:
 case ${host_os} in
@@ -3676,6 +4545,8 @@ if test "x${HAVE_X11}" = "xyes"; then
     else
       AC_MSG_RESULT([no])
     fi
+  else
+    AC_MSG_NOTICE([skipping X11 checks that are only relevant for GNU-Linux systems])
   fi
 
   # Reportedly, some broken Solaris systems have XKBlib.h but are missing
@@ -3693,7 +4564,7 @@ if test "x${HAVE_X11}" = "xyes"; then
 
   dnl# check some misc. X funcs:
   AC_CHECK_FUNCS([XrmSetDatabase XScreenResourceString \
-                  XScreenNumberOfScreen])
+                  XScreenNumberOfScreen XSetWMProtocols])
   dnl# and also these:
   AC_CHECK_FUNCS([check_x_display_info x_get_arg x_get_string_resource])
   dnl# and some misc. X headers, if not yet checked:
@@ -3701,6 +4572,8 @@ if test "x${HAVE_X11}" = "xyes"; then
     test -z "${ac_cv_header_X11_X_h}"
     AC_CHECK_HEADER([X11/X.h])
   fi
+else
+  AC_MSG_NOTICE([skipping miscellaneous X11 checks])
 fi
 
 if test "x${window_system}" = "xx11"; then
@@ -3719,7 +4592,8 @@ fail;
     ## inoue@ainet.or.jp says Solaris has a bug related to X11R6-style
     ## XIM support.
     case "${opsys}" in
-      sol2-*) : ;;
+      sol2-*) AC_MSG_WARN([Solaris has a bug with X11R6-style XIM support])
+         ;;
       *) AC_DEFINE([HAVE_X11R6_XIM],[1],
            [Define if you have usable X11R6-style XIM support.])
          ;;
@@ -3727,7 +4601,30 @@ fail;
   else
     AC_MSG_RESULT([before 6])
   fi
+else
+  AC_MSG_NOTICE([skipping check to see if X11 is version 6 or newer])
 fi
+
+if test "x${window_system}" = "xx11"; then
+  AC_MSG_CHECKING([X11 version 5])
+  AC_CACHE_VAL([emacs_cv_x11_version_5],
+  [AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <X11/Xlib.h>]],
+[[#if XlibSpecificationRelease < 5
+fail;
+#endif
+]])],[emacs_cv_x11_version_5=yes],[emacs_cv_x11_version_5=no])])
+  if test "x${emacs_cv_x11_version_5}" = "xyes"; then
+    AC_MSG_RESULT([5 or newer])
+    HAVE_X11R5=yes
+    AC_DEFINE([HAVE_X11R5],[1],
+	      [Define to 1 if you have the X11R5 or newer version of Xlib])
+  else
+    HAVE_X11R5=no
+    AC_MSG_RESULT([before 5])
+  fi
+else
+  AC_MSG_NOTICE([skipping check to see if X11 is version 5 or newer])
+  fi
 
 AC_MSG_CHECKING([graphics packages])
 AC_MSG_RESULT([ ])
@@ -3751,7 +4648,11 @@ if test "x${HAVE_X11}" = "xyes" || test "x${HAVE_NS}" = "xyes" || test "x${opsys
       fi
       LIBS="${RSVG_LIBS} ${LIBS}"
     fi
+  else
+    AC_MSG_NOTICE([skipping checks for librsvg])
   fi
+else
+  AC_MSG_NOTICE([skipping checks for librsvg])
 fi
 
 HAVE_IMAGEMAGICK=no
@@ -3770,6 +4671,8 @@ if test "x${HAVE_X11}" = "xyes" || test "x${HAVE_NS}" = "xyes" || test "x${HAVE_
     if test "x${emacs_cv_clang}" = "xyes"; then
       IMAGEMAGICK_CFLAGS="`echo ${IMAGEMAGICK_CFLAGS} | sed 's|-fopenmp||g'`"
     fi
+    ##TODO: might want to check for OpenMP support "the Autoconf way"
+    ## instead... (i.e. test if the flag is supported instead of assuming)
     AC_SUBST([IMAGEMAGICK_CFLAGS])dnl
     AC_SUBST([IMAGEMAGICK_LIBS])dnl
 
@@ -3778,24 +4681,40 @@ if test "x${HAVE_X11}" = "xyes" || test "x${HAVE_NS}" = "xyes" || test "x${HAVE_
       CFLAGS="${CFLAGS} ${IMAGEMAGICK_CFLAGS}"
       LIBS="${IMAGEMAGICK_LIBS} ${LIBS}"
       AC_CHECK_FUNCS([MagickExportImagePixels MagickMergeImageLayers])
+    else
+      AC_MSG_NOTICE([we do not have imagemagick so we will do no further checks for it.])
     fi
+  else
+    AC_MSG_NOTICE([skipping checks for imagemagick])
   fi
+else
+  AC_MSG_NOTICE([skipping checks for imagemagick])
 fi
 
 dnl# section for gtk environment:
 AC_MSG_CHECKING([gtk features])
 AC_MSG_RESULT([ ])
 HAVE_GTK=no
+if test "x${with_gtk}" = "xyes" && test "x${USE_X_TOOLKIT}" = "xgtk"; then
+  USE_X_TOOLKIT=none
+fi
 GTK_OBJ=""
 gtk_term_header="${term_header}"
 check_gtk2=no
 gtk3_pkg_errors=""
 if test "x${opsys}" != "xmingw32"; then
-  if test "x${with_gtk3}" = "xyes" || test "x${with_gtk}" = "xyes" || test "x${USE_X_TOOLKIT}" = "xmaybe"; then
+  if test "x${with_gtk3}" = "xyes" || test "x${with_gtk}" = "xyes" || test "x${USE_X_TOOLKIT}" = "xmaybe" || test "x${USE_X_TOOLKIT}" = "xgtk"; then
+    if test "x${USE_X_TOOLKIT}" != "xnone" && test "x${USE_X_TOOLKIT}" != "xmaybe"; then
+      AC_MSG_ERROR([Conflicting options, --with-gtk is incompatible with --with-x-toolkit=${with_x_toolkit}]);
+    fi
     GLIB_REQUIRED=2.28
     GTK_REQUIRED=3.0
     GTK_MODULES="gtk+-3.0 >= ${GTK_REQUIRED} glib-2.0 >= ${GLIB_REQUIRED}"
 
+    dnl# Check if --with-pkg-config-prog has been given.
+    if test "X${with_pkg_config_prog}" != "X" && test "X${PKG_CONFIG}" = "X"; then
+      test -n "${with_pkg_config_prog}" && test -z "${PKG_CONFIG}" && export PKG_CONFIG="${with_pkg_config_prog}"
+    fi
     dnl# Checks for libraries:
     PKG_CHECK_MODULES([GTK],[${GTK_MODULES}],
                       [pkg_check_gtk=yes],[pkg_check_gtk=no])
@@ -3814,12 +4733,18 @@ if test "x${opsys}" != "xmingw32"; then
 	   [Define to 1 to disable Glib deprecation warnings.])
        fi
     else
+       AC_MSG_NOTICE([gtk3 is unavailable so we shall try gtk2 next])
        check_gtk2=yes
        gtk3_pkg_errors="${GTK_PKG_ERRORS} "
     fi
+  else
+    AC_MSG_NOTICE([skipping initial gtk3 checks])
   fi
 
   if test "x${with_gtk2}" = "xyes" || test "x${check_gtk2}" = "xyes"; then
+    if test "x${USE_X_TOOLKIT}" != "xnone" && test "x${USE_X_TOOLKIT}" != "xmaybe"; then
+      AC_MSG_ERROR([Conflicting options, --with-gtk is incompatible with --with-x-toolkit=${with_x_toolkit}]);
+    fi
     GLIB_REQUIRED=2.10
     GTK_REQUIRED=2.10
     GTK_MODULES="gtk+-2.0 >= ${GTK_REQUIRED} glib-2.0 >= ${GLIB_REQUIRED}"
@@ -3833,7 +4758,11 @@ if test "x${opsys}" != "xmingw32"; then
       AC_MSG_ERROR([${gtk3_pkg_errors}${GTK_PKG_ERRORS}])
     fi
     test "x${pkg_check_gtk}" = "xyes" && export USE_GTK_TOOLKIT="GTK2"
+  else
+    AC_MSG_NOTICE([skipping initial gtk2 checks])
   fi
+else
+  AC_MSG_NOTICE([skipping initial gtk checks])
 fi
 
 if test x"${pkg_check_gtk}" = x"yes"; then
@@ -3845,6 +4774,7 @@ if test x"${pkg_check_gtk}" = x"yes"; then
   LIBS="${GTK_LIBS} ${LIBS}"
   dnl# Try to compile a simple GTK program.
   AC_CHECK_HEADERS([gtk/gtk.h glib-object.h])
+  AC_CHECK_FUNCS([gtk_main])
   AC_MSG_CHECKING([whether GTK compiles])
   GTK_COMPILES=no
   AC_LINK_IFELSE(
@@ -3880,6 +4810,7 @@ if test x"${pkg_check_gtk}" = x"yes"; then
     USE_X_TOOLKIT=none
     if "${PKG_CONFIG}" --atleast-version=2.10 gtk+-2.0; then
       export MY_GTK_VERSION_IS_GOOD_ENOUGH="true"
+      AC_SUBST([MY_GTK_VERSION_IS_GOOD_ENOUGH])
     else
       AC_MSG_WARN([[Your version of Gtk+ will have problems with
        closing open displays. This is no problem if you just use
@@ -3888,6 +4819,8 @@ if test x"${pkg_check_gtk}" = x"yes"; then
       sleep 3
     fi
   fi
+else
+  AC_MSG_NOTICE([skipping gtk compilation checks])
 fi
 AC_SUBST([GTK_OBJ])dnl
 
@@ -3900,6 +4833,15 @@ if test "x${HAVE_GTK}" = "xyes"; then
     with_toolkit_scroll_bars=yes
   fi
 
+  dnl# Check if we can use multiple displays with this GTK version.
+  dnl# If gdk_display_open exists, assume all others are there also.
+  HAVE_GTK_MULTIDISPLAY=no
+  AC_CHECK_FUNCS([gdk_display_open],[HAVE_GTK_MULTIDISPLAY=yes])
+  if test "x${HAVE_GTK_MULTIDISPLAY}" = "xyes"; then
+    AC_DEFINE([HAVE_GTK_MULTIDISPLAY],[1],
+              [Define to 1 if GTK can handle more than one display.])
+  fi
+
   dnl# Check if we have the old file selection dialog declared and
   dnl# in the link library. In 2.x it may be in the library,
   dnl# but not declared if deprecated featured has been selected out.
@@ -3910,6 +4852,36 @@ if test "x${HAVE_GTK}" = "xyes"; then
 #include <gtk/gtk.h>])
   if test "x${HAVE_GTK_FILE_SELECTION}" = "xyes"; then
     AC_CHECK_FUNCS([gtk_file_selection_new])
+  fi
+
+  dnl# Check if we have the new file chooser dialog.
+  dnl# If gtk_file_chooser_dialog_new exists, assume others are there too.
+  HAVE_GTK_FILE_CHOOSER=no
+  AC_CHECK_FUNCS([gtk_file_chooser_dialog_new],[HAVE_GTK_FILE_CHOOSER=yes])
+
+  if test "x${HAVE_GTK_FILE_SELECTION}" = "xyes" \
+     && test "x${HAVE_GTK_FILE_CHOOSER}" = "xyes"; then
+    AC_DEFINE([HAVE_GTK_FILE_BOTH],[1],
+              [Define to 1 if GTK has both file selection/chooser dialog])
+  fi
+
+  dnl# Check if pthreads are available.  Emacs only needs this when using
+  dnl# gtk_file_chooser under Gnome.
+  if test "x${HAVE_GTK_FILE_CHOOSER}" = "xyes"; then
+    HAVE_GTK_AND_PTHREAD=no
+    if test "x${ac_cv_header_pthread_h}" = "x"; then
+      test -z "${ac_cv_header_pthread_h}"
+      AC_CHECK_HEADERS([pthread.h])
+    fi
+    if test "x${ac_cv_header_pthread_h}" != "x" && test "x${ac_cv_header_pthread_h}" != "xno"; then
+      test -n "${ac_cv_header_pthread_h}"
+      AC_CHECK_LIB([pthread],[pthread_self],[HAVE_GTK_AND_PTHREAD=yes])
+    fi
+    if test "x${HAVE_GTK_AND_PTHREAD}" = "xyes"; then
+      GTK_LIBS="${GTK_LIBS} -lpthread"
+      AC_DEFINE([HAVE_GTK_AND_PTHREAD],[1],
+                [Define to 1 if you have GTK and pthread (-lpthread).])
+    fi
   fi
 
   dnl# Same as above for gtk_handle_box.
@@ -3939,6 +4911,8 @@ if test "x${HAVE_GTK}" = "xyes"; then
 		  gtk_window_set_has_resize_grip])dnl
 
   term_header=gtkutil.h
+else
+  AC_MSG_NOTICE([skipping even more gtk checks])
 fi
 
 AC_MSG_CHECKING([settings/configuration packages])
@@ -3963,6 +4937,8 @@ if test "x${with_dbus}" = "xyes"; then
 		     dbus_validate_member])
      DBUS_OBJ=dbusbind.o
    fi
+else
+   AC_MSG_NOTICE([skipping dbus checks])
 fi
 AC_SUBST([DBUS_OBJ])dnl
 
@@ -3976,6 +4952,8 @@ if test "x${HAVE_X11}" = "xyes" && test "x${with_gsettings}" = "xyes"; then
       SETTINGS_CFLAGS="${GSETTINGS_CFLAGS}"
       SETTINGS_LIBS="${GSETTINGS_LIBS}"
    fi
+else
+   AC_MSG_NOTICE([skipping GSettings checks])
 fi
 
 dnl# GConf has been tested under GNU/Linux only.
@@ -3991,6 +4969,8 @@ if test "x${HAVE_X11}" = "xyes" && test "x${with_gconf}" = "xyes"; then
       SETTINGS_CFLAGS="${SETTINGS_CFLAGS} ${GCONF_CFLAGS}"
       SETTINGS_LIBS="${SETTINGS_LIBS} ${GCONF_LIBS}"
    fi
+else
+   AC_MSG_NOTICE([skipping GConf checks])
 fi
 
 if test "x${HAVE_GSETTINGS}" = "xyes" || test "x${HAVE_GCONF}" = "xyes"; then
@@ -4006,6 +4986,8 @@ if test "x${HAVE_GSETTINGS}" = "xyes" || test "x${HAVE_GCONF}" = "xyes"; then
     LIBS="${SETTINGS_LIBS} ${LIBS}"
     CFLAGS="${SAVE_CFLAGS}"
     LIBS="${SAVE_LIBS}"
+else
+    AC_MSG_NOTICE([skipping gobject checks])
 fi
 AC_SUBST([SETTINGS_CFLAGS])dnl
 AC_SUBST([SETTINGS_LIBS])dnl
@@ -4023,6 +5005,8 @@ if test "x${with_selinux}" = "xyes"; then
       AC_DEFINE([HAVE_LIBSELINUX],[1],[Define to 1 if using SELinux.])
       LIBSELINUX_LIBS='-lselinux'
    fi
+else
+   AC_MSG_NOTICE([skipping SELinux checks])
 fi
 AC_SUBST([LIBSELINUX_LIBS])dnl
 
@@ -4049,20 +5033,24 @@ if test "x${with_gnutls}" = "xyes"; then
     CFLAGS="${CFLAGS} ${LIBGNUTLS_CFLAGS}"
     LIBS="${LIBGNUTLS_LIBS} ${LIBS}"
   fi
+else
+  AC_MSG_NOTICE([skipping gnutls checks])
 fi
 
 AC_SUBST([LIBGNUTLS_LIBS])dnl
 AC_SUBST([LIBGNUTLS_CFLAGS])dnl
 
+dnl# notify section:
 AC_MSG_CHECKING([notification packages])
 AC_MSG_RESULT([ ])
 NOTIFY_OBJ=""
 NOTIFY_SUMMARY=no
 
 dnl# FIXME?  Do NOT auto-detect on NS, but do allow someone to specify
-dnl# a particular library.  This does NOT make much sense?
+dnl# a particular library.  This does NOT make much sense, does it?
 if test "x${with_ns}" = "xyes" && test "x${with_file_notification}" = "xyes"; then
   with_file_notification=no
+  AC_MSG_NOTICE([file notifications disabled])
 fi
 
 dnl# MS Windows native file monitor is available for mingw32 only.
@@ -4108,7 +5096,7 @@ esac
 
 case ${with_file_notification},${NOTIFY_OBJ} in
   yes,* | no,* | *,?*) ;;
-  *) AC_MSG_ERROR([File notification `$with_file_notification' requested but requirements not found.]) ;;
+  *) AC_MSG_ERROR([File notification `${with_file_notification}' requested but requirements not found.]) ;;
 esac
 
 if test -n "${NOTIFY_OBJ}"; then
@@ -4126,6 +5114,29 @@ AC_MSG_RESULT([ ])
 HAVE_XAW3D=no
 LUCID_LIBW=""
 if test x"${USE_X_TOOLKIT}" = x"maybe" || test x"${USE_X_TOOLKIT}" = x"LUCID"; then
+  if test x"${HAVE_X11R5}" = x"yes"; then
+    AC_MSG_CHECKING([X11 version 5 with Xaw])
+    AC_CACHE_VAL([emacs_cv_x11_version_5_with_xaw],
+    [AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+#include <X11/Intrinsic.h>
+#include <X11/Xaw/Simple.h>]],
+      [[]])],
+      [emacs_cv_x11_version_5_with_xaw=yes],
+      [emacs_cv_x11_version_5_with_xaw=no])])
+    if test "x${emacs_cv_x11_version_5_with_xaw}" = "xyes"; then
+      AC_MSG_RESULT([5 or newer, with Xaw; use toolkit by default])
+      USE_X_TOOLKIT=LUCID
+    else
+      if test x"${USE_X_TOOLKIT}" = x"LUCID"; then
+        AC_MSG_ERROR([Lucid toolkit requires X11/Xaw include files])
+      else
+        AC_MSG_RESULT([before 5 or no Xaw; do not use toolkit by default])
+        USE_X_TOOLKIT=none
+      fi
+    fi
+  else
+    USE_X_TOOLKIT=none
+  fi
   if test "x${with_xaw3d}" != "xno"; then
     AC_CHECK_HEADERS([X11/Xaw3d/Simple.h])
     AC_CACHE_VAL([emacs_cv_xaw3d],
@@ -4173,6 +5184,8 @@ to configure.  Otherwise, install the development libraries for the toolkit
 that you want to use (e.g. Gtk+) and re-run configure.])
     fi
   fi
+else
+  AC_MSG_NOTICE([skipping Lucid toolkit checks for Xaw/Xaw3d])
 fi
 
 X_TOOLKIT_TYPE="${USE_X_TOOLKIT}"
@@ -4180,8 +5193,11 @@ X_TOOLKIT_TYPE="${USE_X_TOOLKIT}"
 LIBXTR6=""
 if test "x${USE_X_TOOLKIT}" != "xnone"; then
   dnl# "_ONCE" causes test to jump out of the conditional and be done at
-  dnl# wrong location (check ac_cv_header_X11_Intrinsic_h)
-  AC_CHECK_HEADERS([X11/Intrinsic.h])
+  dnl# wrong location, so check ac_cv_header_X11_Intrinsic_h instead:
+  if test "x${ac_cv_header_X11_Intrinsic_h}" = "x"; then
+    test -z "${ac_cv_header_X11_Intrinsic_h}"
+    AC_CHECK_HEADERS([X11/Intrinsic.h])
+  fi
   AC_MSG_CHECKING([X11 toolkit version])
   AC_CACHE_VAL([emacs_cv_x11_toolkit_version_6],
   [AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <X11/Intrinsic.h>]],
@@ -4216,6 +5232,8 @@ dnl# link.
   AC_CHECK_LIB([Xmu],[XmuConvertStandardSelection])
   test "x${ac_cv_lib_Xmu_XmuConvertStandardSelection}" = "xno" && export LIBS="${OLDLIBS}"
   dnl# ac_cv_lib_Xmu_XmuConvertStandardSelection is also referenced below.
+else
+  AC_MSG_NOTICE([skipping checks for Xt version])
 fi
 AC_SUBST([LIBXTR6])dnl
 
@@ -4301,7 +5319,32 @@ Motif version prior to 2.1.
   fi
   AC_CHECK_HEADER([Xm/BulletinB.h],[],
     [AC_MSG_ERROR([Motif toolkit requested, but requirements not found.])])
+else
+  AC_MSG_NOTICE([skipping checks only needed for the Motif family of toolkits])
 fi
+
+### Is -lXaw3d available?
+HAVE_XAW3D=no
+if test "x${HAVE_X11}" = "xyes"; then
+  if test "x${USE_X_TOOLKIT}" != "xnone" && test "x${with_toolkit_scroll_bars}" != "xno"; then
+    dnl# FIXME: determine what Scrollbar.h needs to avoid compilation
+    dnl# errors from the test without the `-'.
+    AC_CHECK_HEADER([X11/Xaw3d/Scrollbar.h],[
+      if test "x${emacs_cv_xaw3d}" = "x" && test "x${ac_cv_lib_Xaw3d_XawScrollbarSetThumb}" = "x"; then
+        test -z "${ac_cv_lib_Xaw3d_XawScrollbarSetThumb}"
+        AC_CHECK_LIB([Xaw3d],[XawScrollbarSetThumb],[HAVE_XAW3D=yes])
+      elif test "x${emacs_cv_xaw3d}" = "xyes"; then
+        HAVE_XAW3D=yes
+      fi
+    ],[],[-])
+    if test "x${HAVE_XAW3D}" = "xyes"; then
+	AC_DEFINE([HAVE_XAW3D],[1],
+		  [Define to 1 if you have the Xaw3d library (-lXaw3d).])
+    fi
+  fi
+else
+  AC_MSG_NOTICE([skipping checks for libXaw3d])
+  fi
 
 dnl# Use toolkit scroll bars if configured for GTK or X toolkit and either
 dnl# using Motif or Xaw3d is available, and unless
@@ -4404,6 +5447,13 @@ if test "x${HAVE_X11}" = "xyes"; then
     fi
     if test "x${with_xft}" != "xno"; then
 
+      if test "x${HAVE_GTK}" = "xyes"; then
+        dnl# Check if --with-pkg-config-prog has been given.
+        if test "X${with_pkg_config_prog}" != "X" && test "X${PKG_CONFIG}" = "X"; then
+          test -n "${with_pkg_config_prog}" && test -z "${PKG_CONFIG}" && export PKG_CONFIG="${with_pkg_config_prog}"
+        fi
+      fi
+
       PKG_CHECK_MODULES([XFT],[xft >= 0.13.0],[],[HAVE_XFT=no])
       ## Because xftfont.c uses XRenderQueryExtension, we also
       ## need to link to -lXrender.
@@ -4434,6 +5484,7 @@ if test "x${HAVE_X11}" = "xyes"; then
 	  LIBS="${OLD_LIBS}"
 	fi                        # "x${HAVE_XFT}" = "xyes"
       else
+        test -z "${ac_cv_header_X11_X_h}"
         AC_CHECK_HEADER([X11/X.h])
       fi                          # "x${HAVE_XFT}" != "xno"
     fi                            # "x${with_xft}" != "xno"
@@ -4489,6 +5540,7 @@ if test "x${HAVE_X11}" = "xyes"; then
       fi
     fi
 else
+    AC_MSG_NOTICE([X11 is unavailable, so skipping checks for X11-specific font-rendering backends])
     HAVE_XFT=no
     HAVE_FREETYPE=no
     HAVE_LIBOTF=no
@@ -4506,6 +5558,7 @@ AC_SUBST([LIBOTF_LIBS])dnl
 AC_SUBST([M17N_FLT_CFLAGS])dnl
 AC_SUBST([M17N_FLT_LIBS])dnl
 
+dnl# image formats section:
 AC_MSG_CHECKING([more graphics packages])
 AC_MSG_RESULT([ ])
 ### Use -lXpm if available, unless `--with-xpm=no'.
@@ -4519,7 +5572,16 @@ if test "x${HAVE_W32}" = "xyes" && test "x${opsys}" = "xcygwin"; then
     CPPFLAGS="${CPPFLAGS} -I/usr/include/noX"
     LDFLAGS="${LDFLAGS} -L/usr/lib/noX"
     AC_CHECK_HEADER([X11/xpm.h],
-      [AC_CHECK_LIB([Xpm],[XpmReadFileToImage],[HAVE_XPM=yes])])
+      [AC_CHECK_LIB([Xpm],[XpmReadFileToImage],[HAVE_XPM=yes],
+        [if test "x${ac_cv_lib_Xpm_XpmReadFileToPixmap}" = "x"; then
+           test -z "${ac_cv_lib_Xpm_XpmReadFileToPixmap}"
+           AC_CHECK_LIB([Xpm],[XpmReadFileToPixmap],[HAVE_XPM=yes],[],
+                        [-lX11])
+         elif test "x${ac_cv_lib_Xpm_XpmReadFileToPixmap}" = "xyes"; then
+           test -n "${ac_cv_lib_Xpm_XpmReadFileToPixmap}" && HAVE_XPM=yes
+         fi
+      ])
+    ])
     if test "x${HAVE_XPM}" = "xyes"; then
       AC_MSG_CHECKING([for XpmReturnAllocPixels preprocessor define])
       AC_EGREP_CPP([no_return_alloc_pixels],
@@ -4547,7 +5609,8 @@ no_return_alloc_pixels
   fi
 fi
 
-## this seems duplicated...
+## this seems duplicated (this is because the previous, similar-looking
+## block of code is for Windows)...
 if test "x${HAVE_X11}" = "xyes"; then
   if test "x${with_xpm}" != "xno"; then
     AC_CHECK_HEADER([X11/xpm.h],
@@ -4591,6 +5654,11 @@ if test "x${opsys}" = "xmingw32"; then
     AC_DEFINE([HAVE_XPM],[1],
               [Define to 1 if you have the Xpm library (-lXpm).])
   fi
+fi
+
+if test "x${HAVE_XPM}" = "x" && test "x${LIBXPM}" = "x"; then
+  test -z "${HAVE_XPM}" && test -z "${LIBXPM}"
+  AC_MSG_NOTICE([skipped all checks for xpm])
 fi
 
 AC_SUBST([LIBXPM])dnl
@@ -4643,17 +5711,19 @@ elif test "x${HAVE_X11}" = "xyes" || test "x${HAVE_W32}" = "xyes"; then
   AH_TEMPLATE([HAVE_JPEG],
               [Define to 1 if you have the jpeg library (-ljpeg).])dnl
   if test "x${HAVE_JPEG}" = "xyes"; then
-    AC_DEFINE(HAVE_JPEG)
+    AC_DEFINE([HAVE_JPEG],[1])
     AC_EGREP_CPP([version= *(6[2-9]|[7-9][0-9])],
 	[#include <jpeglib.h>
 	 version=JPEG_LIB_VERSION
-        ],[AC_DEFINE([HAVE_JPEG])],
+        ],[AC_DEFINE([HAVE_JPEG],[1])],
 	[AC_MSG_WARN([libjpeg found, but not version 6b or later])
 	 HAVE_JPEG=no])
   fi
   if test "x${HAVE_JPEG}" = "xyes"; then
     LIBJPEG='-ljpeg'
   fi
+else
+  AC_MSG_NOTICE([skipping checks for libjpeg])
 fi
 AC_SUBST([LIBJPEG])dnl
 
@@ -4710,6 +5780,8 @@ elif test "x${HAVE_X11}" = "xyes" || test "x${HAVE_W32}" = "xyes"; then
 	#endif /* HAVE_LIBPNG_PNG_H */
       ]])
   fi
+else
+  AC_MSG_NOTICE([skipping checks for libpng])
 fi
 AC_SUBST([LIBPNG])dnl
 
@@ -4765,6 +5837,8 @@ elif test "x${HAVE_X11}" = "xyes" || test "x${HAVE_W32}" = "xyes"; then
     dnl# FIXME -lz -lm, as per libpng?
     LIBTIFF='-ltiff'
   fi
+else
+  AC_MSG_NOTICE([skipping checks for libtiff])
 fi
 AC_SUBST([LIBTIFF])dnl
 
@@ -4809,6 +5883,8 @@ elif test "x${HAVE_X11}" = "xyes" && test "x${with_gif}" != "xno" \
     AC_DEFINE([HAVE_GIF],[1],
               [Define to 1 if you have a gif (or ungif) library.])
   fi
+else
+  AC_MSG_NOTICE([skipping checks for libgif or libungif])
 fi
 AC_SUBST([LIBGIF])dnl
 
@@ -4849,6 +5925,8 @@ if test "x${with_gpm}" != "xno"; then
               [Define to 1 if you have the gpm library (-lgpm).])
     LIBGPM='-lgpm'
   fi
+else
+  AC_MSG_NOTICE([skipping checks for libgpm])
 fi
 AC_SUBST([LIBGPM])dnl
 
@@ -4932,6 +6010,8 @@ if test "x${HAVE_X11}" = "xyes"; then
       *)      LIBS="${LIBXSM} ${LIBS}" ;;
     esac
   fi
+else
+  AC_MSG_NOTICE([skipping checks for libSM])
 fi
 AC_SUBST([LIBXSM])dnl
 
@@ -4963,6 +6043,8 @@ if test "x${HAVE_X11}" = "xyes"; then
     AC_DEFINE([HAVE_XRANDR],[1],
               [Define to 1 if you have the XRandr extension.])
   fi
+else
+  AC_MSG_NOTICE([skipping checks for XRandr])
 fi
 
 ### Use Xinerama (-lXinerama) if available:
@@ -4986,6 +6068,8 @@ if test "x${HAVE_X11}" = "xyes"; then
     AC_DEFINE([HAVE_XINERAMA],[1],
               [Define to 1 if you have the Xinerama extension.])
   fi
+else
+  AC_MSG_NOTICE([skipping checks for Xinerama])
 fi
 
 AC_MSG_CHECKING([various other libraries])
@@ -5026,6 +6110,8 @@ if test "x${with_xml2}" != "xno"; then
       LIBXML2_CFLAGS=""
     fi
   fi
+else
+  AC_MSG_NOTICE([skipping checks for libxml2])
 fi
 AC_SUBST([LIBXML2_LIBS])dnl
 AC_SUBST([LIBXML2_CFLAGS])dnl
@@ -5045,17 +6131,27 @@ if test "x${emacs_cv_netdb_declares_h_errno}" = "xyes"; then
   AC_DEFINE([HAVE_H_ERRNO],[1],[Define to 1 if netdb.h declares h_errno.])
 fi
 
-# sqrt and other floating-point functions such as fmod and frexp
+# sqrt and other floating-point functions such as fmod, logb, and frexp
 # are found in -lm on most systems, but mingw32 does NOT use -lm.
 if test "x${opsys}" != "xmingw32"; then
   m4_ifdef([LT_LIB_M],[
     LT_LIB_M
   ],[
+    # On HPUX 9.01, -lm does not contain logb, so skip it there.
+    case ${opsys} in
+      hpux9*)
+        AC_MSG_WARN([skipping check for logb in libm on HPUX 9])
+        export libm_has_logb=no
+        ;;
+      *)
+        AC_CHECK_LIB([m],[logb],[libm_has_logb=yes],[libm_has_logb=no])
+        ;;
+    esac
     AC_CHECK_LIB([m],[sqrt],[libm_has_sqrt=yes],[libm_has_sqrt=no])
     AC_CHECK_LIB([m],[fmod],[libm_has_fmod=yes],[libm_has_fmod=no])
     AC_CHECK_LIB([m],[frexp],[libm_has_frexp=yes],[libm_has_frexp=no])
     if test "x${libm_has_sqrt}" = "xyes" && test "x${libm_has_fmod}" = "xyes" && test "x${libm_has_frexp}" = "xyes"; then
-      AC_MSG_NOTICE([libm has the 3 symbols that need to be in it])
+      AC_MSG_NOTICE([libm has at least 3 symbols that need to be in it])
       export LIBM="-lm"
       AC_SUBST([LIBM])
     else
@@ -5161,6 +6257,10 @@ AC_MSG_CHECKING([functions])
 AC_MSG_RESULT([ ])
 AC_FUNC_CHOWN
 AC_FUNC_CLOSEDIR_VOID
+if test "x${ac_cv_func_closedir_void}" = "x" && test "x${ac_cv_func_closedir}" = "x"; then
+  test -z "${ac_cv_func_closedir_void}" && test -z "${ac_cv_func_closedir}"
+  AC_CHECK_FUNCS([closedir])
+fi
 dnl# definition of this next macro has been moved to the included file:
 m4_include([m4/functions_extra.m4])dnl
 AC_REQUIRE_VARIOUS_FUNC_CHECKS
@@ -5173,11 +6273,22 @@ if test "x${emacs_cv_var_doug_lea_malloc}" = "x"; then
     fi
   fi
 fi
+if test "x${ac_cv_func_mbrtowc}" = "x"; then
+  test -z "${ac_cv_func_mbrtowc}"
+  AC_FUNC_MBRTOWC
+fi
+m4_ifdef([AC_FUNC_MEMCMP],[
 AC_FUNC_MEMCMP
+],[
+AC_CHECK_FUNCS([memcmp])dnl
+])dnl
 AC_FUNC_MKTIME
 if test "x${ac_cv_func_working_mktime}" = "xno"; then
   AC_DEFINE([BROKEN_MKTIME],[1],
             [Define to 1 if the mktime function is broken.])
+elif test "x${ac_cv_func_working_mktime}" = "x" && test "x${ac_cv_func_mktime}" = "x"; then
+  test -z "${ac_cv_func_working_mktime}" && test -z "${ac_cv_func_mktime}"
+  AC_CHECK_FUNCS([mktime])
 fi
 AC_FUNC_REALLOC
 AC_FUNC_SELECT_ARGTYPES
@@ -5188,27 +6299,42 @@ AC_FUNC_STRERROR_R
 AC_FUNC_STRFTIME
 AC_FUNC_STRTOD
 AC_FUNC_UTIME_NULL
-AC_CHECK_FUNCS([accept4 gethostname \
+dnl# these ones are approximately in their historical order:
+AC_CHECK_FUNCS([accept4 gethostname getdomainname rename sysinfo \
 getrusage get_current_dir_name \
-lrand48 \
-select setlocale \
-getrlimit setrlimit shutdown getaddrinfo \
-strsignal setitimer \
-sendto recvfrom getsockname getpeername getifaddrs freeifaddrs \
-gai_strerror getline getdelim sync \
-getpwent endpwent getgrent endgrent \
+lrand48 bcopy bcmp cbrt setsid \
+fpathconf select setlocale \
+utimes getrlimit setrlimit setpgid getwd shutdown getaddrinfo \
+mblen strsignal setitimer ualarm index rindex \
+sendto recvfrom getsockopt setsockopt getsockname getpeername \
+getifaddrs freeifaddrs gai_strerror mkstemp getline getdelim mremap sync \
+difftime memcpy mempcpy getpwent endpwent getgrent endgrent \
 touchlock \
 cfmakeraw cfsetspeed copysign __executable_start log2])
+dnl# some libm funcs that might have been checked conditionally previously:
+if test "x${libm_has_logb}" = "x" && test "x${ac_cv_func_logb}" = "x"; then
+  test -z "${libm_has_logb}" && test -z "${ac_cv_func_logb}"
+  AC_CHECK_FUNCS([logb])
+fi
+if test "x${libm_has_frexp}" = "x" && test "x${ac_cv_func_frexp}" = "x"; then
+  test -z "${libm_has_frexp}" && test -z "${ac_cv_func_frexp}"
+  AC_CHECK_FUNCS([frexp])
+fi
+if test "x${libm_has_fmod}" = "x" && test "x${ac_cv_func_fmod}" = "x"; then
+  test -z "${libm_has_fmod}" && test -z "${ac_cv_func_fmod}"
+  AC_CHECK_FUNCS([fmod])
+fi
+dnl# these ones should be in alphabetical order:
 AC_CHECK_FUNCS([__fpending acl atexit btowc bzero doprnt errc fchdir \
                 floor ftime ftruncate getcwd getpass inet_ntoa isascii \
-                mbrlen memchr memmove memset mkdir munmap nl_langinfo \
-                posix_spawnp pow putenv re_comp regcomp rmdir \
+                iswprint mbrlen memchr memmove memset mkdir munmap \
+                nl_langinfo posix_spawnp pow putenv re_comp regcomp rmdir \
                 setenv socket sqrt strcasecmp strchr strcspn strdup \
                 strerror strpbrk strrchr strstr strtol strtoul \
                 uname utime utmpname])
 dnl# Keep autoscan happy with a dummy condition:
 if test "x" = "Y0"; then
-  test -x `which autoscan`
+  test -x "`which autoscan`"
   if test "x${ac_cv_lib_error_at_line}" = "x" || test "x${ac_cv_lib_error_at_line}" = "xno"; then
     test -z "${ac_cv_lib_error_at_line}"
     AC_FUNC_ERROR_AT_LINE
@@ -5222,6 +6348,8 @@ dnl# gmalloc.o, as it supplies them. Do NOT use these functions on
 dnl# Darwin though, as they are incompatible with unexmacosx.c.
 if test -z "${GMALLOC_OBJ}" && test "x${opsys}" != "xdarwin"; then
   AC_CHECK_FUNCS([aligned_alloc posix_memalign],[break])
+elif test "x${opsys}" = "xdarwin"; then
+  AC_MSG_NOTICE([skipping check for aligned_alloc() and posix_memalign() on darwin.])
 fi
 
 ## Eric Backus <ericb@lsid.hp.com> says, HP-UX 9.x on HP 700 machines
@@ -5231,7 +6359,7 @@ fi
 ## But we can fix it more reliably for Emacs by just not using rint.
 ## We also skip HAVE_RANDOM - see comments in src/conf_post.h.
 case ${opsys} in
-   hpux*) : ;;
+   hpux*) AC_MSG_WARN([skipping checks for random() and rint() on HPUX]) ;;
    *) AC_CHECK_FUNCS([random rint]) ;;
 esac
 
@@ -5250,6 +6378,22 @@ dnl# "_ONCE" causes test to be done at wrong location
 AC_CHECK_HEADERS([sys/un.h])dnl
 
 AC_FUNC_FSEEKO
+
+# Configure getopt.
+m4_include([m4/getopt.m4])dnl
+m4_ifdef([gl_GETOPT_IFELSE],[
+  gl_GETOPT_IFELSE([
+    m4_ifdef([gl_GETOPT_SUBSTITUTE_HEADER],[
+      gl_GETOPT_SUBSTITUTE_HEADER
+    ])dnl
+    m4_ifdef([gl_PREREQ_GETOPT],[
+      gl_PREREQ_GETOPT
+    ])dnl
+    ## these might be unnecessary with gnulib, but whatever:
+    GETOPTOBJS='getopt.o getopt1.o'
+  ])dnl
+])dnl
+AC_SUBST([GETOPTOBJS])dnl
 
 # UNIX98 PTYs.
 AC_CHECK_FUNCS([grantpt])dnl
@@ -5452,6 +6596,8 @@ if test "x${with_hesiod}" != "xno"; then
   if test x"${hesiod}" = x"yes"; then
     LIBHESIOD='-lhesiod'
   fi
+else
+  AC_MSG_NOTICE([skipping checks for Hesiod])
 fi
 AC_SUBST([LIBHESIOD])dnl
 
@@ -5532,6 +6678,8 @@ if test "x${with_kerberos}" != "xno"; then
                      ])
   fi
   AC_CHECK_HEADERS([com_err.h])
+else
+  AC_MSG_NOTICE([skipping kerberos checks])
 fi
 
 AC_SUBST([COM_ERRLIB])dnl
@@ -5589,6 +6737,46 @@ if test "x${emacs_cv_localtime_cache}" = "xyes"; then
 	    [Define to 1 if localtime caches TZ.])
 fi
 
+if test "x${HAVE_TIMEVAL}" = "xyes"; then
+  if test "x${ac_cv_func_gettimeofday}" = "x"; then
+    test -z "${ac_cv_func_gettimeofday}"
+    AC_CHECK_FUNCS([gettimeofday])
+  fi
+  if test "x${ac_cv_func_gettimeofday}" = "xyes"; then
+    AC_CACHE_CHECK([whether gettimeofday can accept two arguments],
+		   [emacs_cv_gettimeofday_two_arguments],
+    [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  ifdef HAVE_TIME_H
+#  include <time.h>
+#  else
+#   if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#    warning "conftest for gettimeofday args wants a time-related header."
+#   endif /* __GNUC__ && !__STRICT_ANSI__ */
+#  endif /* HAVE_TIME_H */
+# endif /* HAVE_SYS_TIME_H */
+#endif /* TIME_WITH_SYS_TIME */
+      ]],
+      [[struct timeval time;
+        gettimeofday(&time, 0);]])],
+      [emacs_cv_gettimeofday_two_arguments=yes],
+      [emacs_cv_gettimeofday_two_arguments=no])])
+    if test "x${emacs_cv_gettimeofday_two_arguments}" = "xno"; then
+      AC_DEFINE([GETTIMEOFDAY_ONE_ARGUMENT],[1],
+		[Define to 1 if gettimeofday accepts only one argument.])
+    elif test "x${emacs_cv_gettimeofday_two_arguments}" = "xyes"; then
+      AC_DEFINE([GETTIMEOFDAY_TWO_ARGUMENTS],[2],
+		[Define to 2 if gettimeofday accepts two arguments.])
+    fi
+  fi
+fi
+
 ok_so_far=yes
 unset ac_cv_func_socket
 AC_CHECK_FUNC([socket],[],[ok_so_far=no])
@@ -5606,13 +6794,29 @@ dnl# Fixme: Not used. Should this be HAVE_SOCKETS?
 	    [Define to 1 if you have inet sockets.])
 fi
 
+if test -f /usr/lpp/X11/bin/smt.exp; then
+  AC_DEFINE([HAVE_AIX_SMT_EXP],[1],
+	    [Define to 1 if the file /usr/lpp/X11/bin/smt.exp exists.])
+fi
+
 dnl# Check for a Solaris 2.4 vfork bug that Autoconf misses (through 2.69).
 dnl# This can be removed once we assume Autoconf 2.70.
 case ${canonical} in
   *-solaris2.4 | *-solaris2.4.*)
     dnl# Disable the Autoconf-generated vfork test.
-    : ${ac_cv_func_vfork_works=no};;
+    AC_MSG_WARN([disabling test for vfork])
+    : ${ac_cv_func_vfork_works=no}
+    ;;
 esac
+
+AC_MSG_CHECKING([whether system supports dynamic ptys])
+if test -d /dev/pts && ls -d /dev/ptmx > /dev/null 2>&1; then
+  AC_MSG_RESULT([yes])
+  AC_DEFINE([HAVE_DEV_PTMX],[1],
+            [Define to 1 if dynamic ptys exist and are supported.])
+else
+  AC_MSG_RESULT([no])
+fi
 
 AC_FUNC_FORK
 
@@ -5649,9 +6853,16 @@ if test "x${emacs_cv_langinfo_codeset}" = "xyes"; then
     [Define if you have <langinfo.h> and nl_langinfo(CODESET).])
 fi
 
+dnl# The test for size_t is suppressed, see above where the rest of the
+dnl# typedefs are checked. The test for mbstate_t can stay here though:
 unset ac_cv_type_mbstate_t
 AC_TYPE_MBSTATE_T
 
+dnl# Restrict could probably be used effectively other than in "regex.c".
+dnl# Note that there used to also be a hand-written test here for the
+dnl# keyword in general, but that should now be covered by the call to
+dnl# AC\_C\_RESTRICT farther above, so instead just test the usage of the
+dnl# keyword with arrays:
 AC_CACHE_CHECK([for C restricted array declarations],
                [emacs_cv_c_restrict_arr],
   [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[void fred (int x[__restrict]);]],
@@ -6389,7 +7600,26 @@ if test "x${GCC}" = "xyes" \
    AC_MSG_ERROR([GCC 4.5.0 has problems compiling Emacs; see etc/PROBLEMS'])
 fi
 
-version="${PACKAGE_VERSION}"
+#### Find out which version of Emacs this is.
+if test -e ${srcdir}/lisp/version.el; then
+[version=`grep 'defconst[	 ]*emacs-version' ${srcdir}/lisp/version.el \
+	 | sed -e 's/^[^"]*"\([^"]*\)".*$/\1/'`]
+elif test -e ./lisp/version.el; then
+[version=`grep 'defconst[	 ]*emacs-version' ./lisp/version.el \
+	 | sed -e 's/^[^"]*"\([^"]*\)".*$/\1/'`]
+fi
+if test x"${version}" = x""; then
+  if test "x${PACKAGE_VERSION}" != "x"; then
+    AC_MSG_WARN([cannot find current emacs version in `${srcdir}/lisp/version.el', using ${PACKAGE_VERSION} instead.])
+    test -z "${version}" && test -n "${PACKAGE_VERSION}" && export version="${PACKAGE_VERSION}"
+  else
+    AC_MSG_ERROR([cannot find current emacs version in `${srcdir}/lisp/version.el', and PACKAGE_VERSION is undefined.])
+  fi
+else
+  test -n "${version}"
+fi
+
+test -z "${version}" && test -n "${PACKAGE_VERSION}" && export version="${PACKAGE_VERSION}"
 
 copyright="Copyright (C) 2014 Free Software Foundation, Inc."
 copyright_holder="Free Software Foundation, Inc."
@@ -6619,13 +7849,23 @@ AH_VERBATIM([FORTIFY_SOUR],[
 ])dnl
 
 dnl# speaking of inline-ing:
-AC_C_INLINE
+if test "x${ac_cv_c_inline}" = "x"; then
+  test -z "${ac_cv_c_inline}"
+  AC_C_INLINE
+fi
 
 dnl# gettext:
 AC_MSG_CHECKING([gettext])
 AC_MSG_RESULT([ ])
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION([0.19.3])
+# Solaris requires -lintl if you want strerror (which calls dgettext)
+# to return localized messages.
+if test "x${ac_cv_func_strerror}" = "xyes" || test "x${ac_cv_search_strerror}" != "x"; then
+  test -n "${ac_cv_func_strerror}" || test -n "${ac_cv_search_strerror}" || test "x${opsys_family}" = "xsun"
+  AC_CHECK_LIB([intl],[dgettext])
+fi
+# Also check for -lintl anyways, but with different functions:
 AC_CHECK_LIB([intl],[gettext],[:],[
   AC_CHECK_LIB([intl],[libintl_gettext],[:],[
     AC_CHECK_LIB([intl],[main])
@@ -7030,6 +8270,11 @@ AC_CONFIG_FILES([Makefile lib/Makefile lib-src/Makefile oldXMenu/Makefile \
        leim/Makefile lwlib/Makefile man/Makefile nextstep/Makefile \
        nt/Makefile po/Makevars])dnl
 
+### Make the necessary directories, if they do NOT exist.
+for dir in etc lisp; do
+  test -d ${dir} || mkdir ${dir}
+done
+
 dnl# test/ is not present in release tarfiles.
 opt_makefile=test/automated/Makefile
 
@@ -7071,9 +8316,9 @@ fi
    CPPFLAGS="${CPPFLAGS}"
    opsys="${opsys}"])dnl
 
-dnl# NB we have to cheat and use the ac_... version because abs_top_srcdir
-dnl# is not yet set, sigh.  Or we could use ../${srcdir}/src/.gdbinit,
-dnl# or a symlink?
+dnl# N.B.: we have to cheat and use the ac_... version because
+dnl# abs_top_srcdir is not yet set, sigh.
+dnl# Or we could use ../${srcdir}/src/.gdbinit, or a symlink?
 AC_CONFIG_COMMANDS([src/.gdbinit],[
 if test ! -f src/.gdbinit && test -f "${srcdir}/src/.gdbinit"; then
   echo "source ${ac_abs_top_srcdir}/src/.gdbinit" > src/.gdbinit

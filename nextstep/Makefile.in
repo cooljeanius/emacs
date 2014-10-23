@@ -54,11 +54,15 @@ ns_check_file = ${ns_appdir}/@ns_check_file@
 @ifGNUmake@ns_check_file = Info.plist
 @ifGNUmake@endif
 
+NS_IMPL = @NS_IMPL@
+
 verify_configured_with_ns:
-	@if [ "x@NS_IMPL@" = "x" ]; then \
-	   echo "This directory needs the top-level configure script to be run with '--with-ns' for this to work." >&2; \
-	   exit 1; \
-	 fi
+	if [ "x$(NS_IMPL)" = "x" ]; then \
+	  echo "This directory needs the top-level configure script to be run with '--with-ns' for this to work." >&2; \
+	  exit 1; \
+	else \
+	  echo "NeXTstep implementation directory is '$(NS_IMPL)'"; \
+	fi
 
 ${ns_check_file} ${ns_appdir}: verify_configured_with_ns ${srcdir}/${ns_appsrc} ${ns_appsrc}
 	rm -rf ${ns_appdir}

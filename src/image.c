@@ -161,33 +161,33 @@ XPutPixel (XImagePtr ximage, int x, int y, unsigned long pixel)
 /* Functions to access the contents of a bitmap, given an id.  */
 
 static int
-x_bitmap_height (struct frame *f, ptrdiff_t id)
+x_bitmap_height(struct frame *f, ptrdiff_t id)
 {
-  return FRAME_DISPLAY_INFO (f)->bitmaps[id - 1].height;
+  return FRAME_DISPLAY_INFO(f)->bitmaps[id - 1].height;
 }
 
 static int
-x_bitmap_width (struct frame *f, ptrdiff_t id)
+x_bitmap_width(struct frame *f, ptrdiff_t id)
 {
-  return FRAME_DISPLAY_INFO (f)->bitmaps[id - 1].width;
+  return FRAME_DISPLAY_INFO(f)->bitmaps[id - 1].width;
 }
 
 #if defined (HAVE_X_WINDOWS) || defined (HAVE_NTGUI)
 ptrdiff_t
-x_bitmap_pixmap (struct frame *f, ptrdiff_t id)
+x_bitmap_pixmap(struct frame *f, ptrdiff_t id)
 {
   /* HAVE_NTGUI needs the explicit cast here.  */
-  return (ptrdiff_t) FRAME_DISPLAY_INFO (f)->bitmaps[id - 1].pixmap;
+  return (ptrdiff_t)FRAME_DISPLAY_INFO(f)->bitmaps[id - 1].pixmap;
 }
-#endif
+#endif /* HAVE_X_WINDOWS || HAVE_NTGUI */
 
 #ifdef HAVE_X_WINDOWS
 int
-x_bitmap_mask (struct frame *f, ptrdiff_t id)
+x_bitmap_mask(struct frame *f, ptrdiff_t id)
 {
-  return FRAME_DISPLAY_INFO (f)->bitmaps[id - 1].mask;
+  return FRAME_DISPLAY_INFO(f)->bitmaps[id - 1].mask;
 }
-#endif
+#endif /* HAVE_X_WINDOWS || HAVE_NTGUI */
 
 /* Allocate a new bitmap record.  Returns index of new record.  */
 
@@ -245,7 +245,7 @@ x_create_bitmap_from_data (struct frame *f, char *bits, unsigned int width, unsi
 #endif /* HAVE_NTGUI */
 
 #ifdef HAVE_NS
-  void *bitmap = ns_image_from_XBM (bits, width, height);
+  void *bitmap = ns_image_from_XBM((unsigned char *)bits, width, height);
   if (!bitmap)
       return -1;
 #endif
@@ -445,7 +445,7 @@ static unsigned long four_corners_best (XImagePtr ximg,
 
 
 /* Create a mask of a bitmap. Note is this not a perfect mask.
-   It's nicer with some borders in this context */
+   It is nicer with some borders in this context */
 
 void
 x_create_bitmap_mask (struct frame *f, ptrdiff_t id)
@@ -458,7 +458,7 @@ x_create_bitmap_mask (struct frame *f, ptrdiff_t id)
   unsigned long x, y, xp, xm, yp, ym;
   GC gc;
 
-  Display_Info *dpyinfo = FRAME_DISPLAY_INFO (f);
+  Display_Info *dpyinfo = FRAME_DISPLAY_INFO(f);
 
   if (!(id > 0))
     return;
@@ -522,6 +522,26 @@ x_create_bitmap_mask (struct frame *f, ptrdiff_t id)
 
   XDestroyImage (ximg);
   x_destroy_x_image (mask_img);
+}
+
+#else
+
+/* dummy function to use the x_bitmap_width() and x_bitmap_height()
+ * functions: */
+extern unsigned long x_width_by_height(struct frame *f, ptrdiff_t id);
+
+unsigned long
+x_width_by_height(struct frame *f, ptrdiff_t id)
+{
+  unsigned long width, height;
+
+  if (!(id > 0))
+    return 0UL;
+
+  width = x_bitmap_width(f, id);
+  height = x_bitmap_height(f, id);
+
+  return (width * height);
 }
 
 #endif /* HAVE_X_WINDOWS */
@@ -2668,7 +2688,7 @@ Create_Pixmap_From_Bitmap_Data (struct frame *f, struct image *img, char *data,
     convert_mono_to_color_image (f, img, fg, bg);
 
 #elif defined (HAVE_NS)
-  img->pixmap = ns_image_from_XBM (data, img->width, img->height);
+  img->pixmap = ns_image_from_XBM((unsigned char *)data, img->width, img->height);
 
 #else
   img->pixmap =
@@ -3920,7 +3940,8 @@ xpm_put_color_table_h (Lisp_Object color_table,
 {
   struct Lisp_Hash_Table *table = XHASH_TABLE (color_table);
   EMACS_UINT hash_code;
-  Lisp_Object chars = make_unibyte_string (chars_start, chars_len);
+  Lisp_Object chars = make_unibyte_string((const char *)chars_start,
+                                          chars_len);
 
   hash_lookup (table, chars, &hash_code);
   hash_put (table, chars, color, hash_code);
@@ -3933,9 +3954,10 @@ xpm_get_color_table_h (Lisp_Object color_table,
 {
   struct Lisp_Hash_Table *table = XHASH_TABLE (color_table);
   ptrdiff_t i =
-    hash_lookup (table, make_unibyte_string (chars_start, chars_len), NULL);
+    hash_lookup (table, make_unibyte_string((const char *)chars_start,
+                                            chars_len), NULL);
 
-  return i >= 0 ? HASH_VALUE (table, i) : Qnil;
+  return ((i >= 0) ? HASH_VALUE(table, i) : Qnil);
 }
 
 enum xpm_color_key {
@@ -3980,6 +4002,11 @@ xpm_load_image (struct frame *f,
   bool have_mask = false;
   XImagePtr ximg = NULL, mask_img = NULL;
 
+  if (have_mask)
+    {
+      ;
+    }
+
 #define match() \
      LA1 = xpm_scan (&s, end, &beg, &len)
 
@@ -4016,10 +4043,10 @@ xpm_load_image (struct frame *f,
     goto failure;
   memcpy (buffer, beg, len);
   buffer[len] = '\0';
-  if (sscanf (buffer, "%d %d %d %d", &width, &height,
-	      &num_colors, &chars_per_pixel) != 4
-      || width <= 0 || height <= 0
-      || num_colors <= 0 || chars_per_pixel <= 0)
+  if ((sscanf((const char *)buffer, "%d %d %d %d", &width, &height,
+              &num_colors, &chars_per_pixel) != 4)
+      || (width <= 0) || (height <= 0)
+      || (num_colors <= 0) || (chars_per_pixel <= 0))
     goto failure;
 
   if (!check_image_size (f, width, height))
@@ -4032,7 +4059,7 @@ xpm_load_image (struct frame *f,
 #ifndef HAVE_NS
       || !image_create_x_image_and_pixmap (f, img, width, height, 1,
 					   &mask_img, 1)
-#endif
+#endif /* !HAVE_NS */
       )
     {
       image_error ("Image too large", Qnil, Qnil);
@@ -4071,21 +4098,21 @@ xpm_load_image (struct frame *f,
       memcpy (buffer, beg + chars_per_pixel, len - chars_per_pixel);
       buffer[len - chars_per_pixel] = '\0';
 
-      str = strtok (buffer, " \t");
+      str = (const unsigned char *)strtok((char *)buffer, " \t");
       if (str == NULL)
 	goto failure;
-      key = xpm_str_to_color_key (str);
+      key = xpm_str_to_color_key((const char *)str);
       if (key < 0)
 	goto failure;
       do
 	{
-	  color = strtok (NULL, " \t");
+	  color = strtok(NULL, " \t");
 	  if (color == NULL)
 	    goto failure;
 
-	  while ((str = strtok (NULL, " \t")) != NULL)
+	  while ((str = (const unsigned char *)strtok(NULL, " \t")) != NULL)
 	    {
-	      next_key = xpm_str_to_color_key (str);
+	      next_key = xpm_str_to_color_key((const char *)str);
 	      if (next_key >= 0)
 		break;
 	      color[strlen (color)] = ' ';
@@ -4936,7 +4963,9 @@ x_build_heuristic_mask (struct frame *f, struct image *img, Lisp_Object how)
 {
   XImagePtr_or_DC ximg;
 #ifndef HAVE_NTGUI
-  XImagePtr mask_img;
+# ifndef HAVE_NS
+  XImagePtr mask_img = NULL; /* (same condition in which it is used) */
+# endif /* !HAVE_NS */
 #else
   HGDIOBJ prev;
   char *mask_img;
@@ -4944,18 +4973,18 @@ x_build_heuristic_mask (struct frame *f, struct image *img, Lisp_Object how)
 #endif /* HAVE_NTGUI */
   int x, y;
   bool use_img_background;
-  unsigned long bg = 0;
+  unsigned long bg = 0UL;
 
   if (img->mask)
     x_clear_image_1 (f, img, CLEAR_IMAGE_MASK);
 
 #ifndef HAVE_NTGUI
-#ifndef HAVE_NS
+# ifndef HAVE_NS
   /* Create an image and pixmap serving as mask.  */
   if (! image_create_x_image_and_pixmap (f, img, img->width, img->height, 1,
 					 &mask_img, 1))
     return;
-#endif /* !HAVE_NS */
+# endif /* !HAVE_NS */
 #else
   /* Create the bit array serving as mask.  */
   row_width = (img->width + 7) / 8;
@@ -5000,21 +5029,21 @@ x_build_heuristic_mask (struct frame *f, struct image *img, Lisp_Object how)
 #ifndef HAVE_NTGUI
   for (y = 0; y < img->height; ++y)
     for (x = 0; x < img->width; ++x)
-#ifndef HAVE_NS
+# ifndef HAVE_NS
       XPutPixel (mask_img, x, y, (XGetPixel (ximg, x, y) != bg
 				  ? PIX_MASK_DRAW : PIX_MASK_RETAIN));
-#else
+# else
       if (XGetPixel (ximg, x, y) == bg)
         ns_set_alpha (ximg, x, y, 0);
-#endif /* HAVE_NS */
-#ifndef HAVE_NS
+# endif /* HAVE_NS */
+# ifndef HAVE_NS
   /* Fill in the background_transparent field while we have the mask handy. */
   image_background_transparent (img, f, mask_img);
 
   /* Put mask_img into the image.  */
   image_put_x_image (f, img, mask_img, 1);
-#endif /* !HAVE_NS */
-#else
+# endif /* !HAVE_NS */
+#else /* do HAVE_NTGUI in this next part: */
   for (y = 0; y < img->height; ++y)
     for (x = 0; x < img->width; ++x)
       {
@@ -6264,7 +6293,7 @@ struct my_jpeg_error_mgr
     } failure_code;
 #ifdef lint
   FILE *fp;
-#endif
+#endif /* lint */
 };
 
 
@@ -6280,19 +6309,17 @@ my_error_exit (j_common_ptr cinfo)
 /* Init source method for JPEG data source manager.  Called by
    jpeg_read_header() before any data is actually read.  See
    libjpeg.doc from the JPEG lib distribution.  */
-
-static void
-our_common_init_source (j_decompress_ptr cinfo)
+static void our_common_init_source(j_decompress_ptr cinfo)
 {
+  return;
 }
 
 
 /* Method to terminate data source.  Called by
    jpeg_finish_decompress() after all data has been processed.  */
-
-static void
-our_common_term_source (j_decompress_ptr cinfo)
+static void our_common_term_source(j_decompress_ptr cinfo)
 {
+  return;
 }
 
 
@@ -8171,7 +8198,9 @@ imagemagick_load_image (struct frame *f, struct image *img,
   EMACS_INT ino;
   int desired_width, desired_height;
   double rotation;
-  int pixelwidth;
+#if defined(HAVE_MAGICKEXPORTIMAGEPIXELS) && !defined(HAVE_NS)
+  int pixelwidth = 0; /* (same condition in which it is used) */
+#endif /* HAVE_MAGICKEXPORTIMAGEPIXELS && !HAVE_NS */
   char hint_buffer[MaxTextExtent];
   char *filename_hint = NULL;
 
@@ -8242,7 +8271,7 @@ imagemagick_load_image (struct frame *f, struct image *img,
 	x_query_color (f, &bgcolor);
 #else
 	ns_query_color (FRAME_BACKGROUND_COLOR (f), &bgcolor, 1);
-#endif
+#endif /* !HAVE_NS */
       }
 
     bg_wand = NewPixelWand ();
@@ -8327,7 +8356,7 @@ imagemagick_load_image (struct frame *f, struct image *img,
     new_wand = MagickMergeImageLayers (image_wand, MergeLayer);
 #else
     new_wand = MagickFlattenImages (image_wand);
-#endif
+#endif /* HAVE_MAGICKMERGEIMAGELAYERS */
     DestroyMagickWand (image_wand);
     image_wand = new_wand;
   }
@@ -8349,7 +8378,7 @@ imagemagick_load_image (struct frame *f, struct image *img,
 
   init_color_table ();
 
-#if defined (HAVE_MAGICKEXPORTIMAGEPIXELS) && ! defined (HAVE_NS)
+#if defined(HAVE_MAGICKEXPORTIMAGEPIXELS) && !defined(HAVE_NS)
   if (imagemagick_render_type != 0)
     {
       /* Magicexportimage is normally faster than pixelpushing.  This
@@ -8361,25 +8390,30 @@ imagemagick_load_image (struct frame *f, struct image *img,
       if (!image_create_x_image_and_pixmap (f, img, width, height, imagedepth,
 					    &ximg, 0))
 	{
-#ifdef COLOR_TABLE_SUPPORT
+# ifdef COLOR_TABLE_SUPPORT
 	  free_color_table ();
-#endif
+# endif /* COLOR_TABLE_SUPPORT */
 	  image_error ("Imagemagick X bitmap allocation failure", Qnil, Qnil);
 	  goto imagemagick_error;
 	}
 
-      /* Oddly, the below code doesn't seem to work:*/
-      /* switch(ximg->bitmap_unit){ */
-      /* case 8: */
-      /*   pixelwidth=CharPixel; */
-      /*   break; */
-      /* case   16: */
-      /*   pixelwidth=ShortPixel; */
-      /*   break; */
-      /* case   32: */
-      /*   pixelwidth=LongPixel; */
-      /*   break; */
-      /* } */
+      /* Oddly, the below code does NOT seem to work: */
+# ifdef TRY_TO_BUILD_BROKEN_CODE
+      switch (ximg->bitmap_unit)
+        {
+          case 8:
+            pixelwidth = CharPixel;
+            break;
+          case 16:
+            pixelwidth = ShortPixel;
+            break;
+          case 32:
+            pixelwidth = LongPixel;
+            break;
+          default:
+            break;
+        }
+# endif /* TRY_TO_BUILD_BROKEN_CODE */
       /*
         Here im just guessing the format of the bitmap.
         happens to work fine for:
@@ -8387,12 +8421,12 @@ imagemagick_load_image (struct frame *f, struct image *img,
         on rgb display.
         seems about 3 times as fast as pixel pushing(not carefully measured)
       */
-      pixelwidth = CharPixel; /*??? TODO figure out*/
+      pixelwidth = CharPixel; /* ??? TODO: figure out */
       MagickExportImagePixels (image_wand, 0, 0, width, height,
 			       exportdepth, pixelwidth, ximg->data);
     }
   else
-#endif /* HAVE_MAGICKEXPORTIMAGEPIXELS */
+#endif /* HAVE_MAGICKEXPORTIMAGEPIXELS && !HAVE_NS */
     {
       size_t image_height;
 
@@ -8402,7 +8436,7 @@ imagemagick_load_image (struct frame *f, struct image *img,
         {
 #ifdef COLOR_TABLE_SUPPORT
 	  free_color_table ();
-#endif
+#endif /* COLOR_TABLE_SUPPORT */
           image_error ("Imagemagick X bitmap allocation failure", Qnil, Qnil);
           goto imagemagick_error;
         }
@@ -8417,7 +8451,7 @@ imagemagick_load_image (struct frame *f, struct image *img,
         {
 #ifdef COLOR_TABLE_SUPPORT
 	  free_color_table ();
-#endif
+#endif /* COLOR_TABLE_SUPPORT */
 	  x_destroy_x_image (ximg);
           image_error ("Imagemagick pixel iterator creation failed",
                        Qnil, Qnil);
@@ -8469,7 +8503,7 @@ imagemagick_load_image (struct frame *f, struct image *img,
   if (bg_wand) DestroyPixelWand (bg_wand);
 
   MagickWandTerminus ();
-  /* TODO more cleanup.  */
+  /* TODO: more cleanup.  */
   image_error ("Error parsing IMAGEMAGICK image `%s'", img->spec, Qnil);
   return 0;
 }
@@ -9430,29 +9464,29 @@ non-numeric, there is no explicit limit on the size of images.  */);
 #ifdef HAVE_NTGUI
   DEFSYM (Qlibpng_version, "libpng-version");
   Fset (Qlibpng_version,
-#if HAVE_PNG
+# if HAVE_PNG
 	make_number (PNG_LIBPNG_VER)
-#else
+# else
 	make_number (-1)
-#endif
+# endif /* HAVE_PNG */
 	);
   DEFSYM (Qlibgif_version, "libgif-version");
   Fset (Qlibgif_version,
-#ifdef HAVE_GIF
+# ifdef HAVE_GIF
 	make_number (GIFLIB_MAJOR * 10000
 		     + GIFLIB_MINOR * 100
 		     + GIFLIB_RELEASE)
-#else
+# else
 	make_number (-1)
-#endif
+# endif /* HAVE_GIF */
         );
   DEFSYM (Qlibjpeg_version, "libjpeg-version");
   Fset (Qlibjpeg_version,
-#if HAVE_JPEG
+# if HAVE_JPEG
 	make_number (JPEG_LIB_VERSION)
-#else
+# else
 	make_number (-1)
-#endif
+# endif /* HAVE_JPEG */
 	);
 #endif
 
@@ -9465,48 +9499,48 @@ non-numeric, there is no explicit limit on the size of images.  */);
 #if defined (HAVE_XPM) || defined (HAVE_NS)
   DEFSYM (Qxpm, "xpm");
   ADD_IMAGE_TYPE (Qxpm);
-#endif
+#endif /* HAVE_XPM || HAVE_NS */
 
 #if defined (HAVE_JPEG) || defined (HAVE_NS)
   DEFSYM (Qjpeg, "jpeg");
   ADD_IMAGE_TYPE (Qjpeg);
-#endif
+#endif /* HAVE_JPEG || HAVE_NS */
 
 #if defined (HAVE_TIFF) || defined (HAVE_NS)
   DEFSYM (Qtiff, "tiff");
   ADD_IMAGE_TYPE (Qtiff);
-#endif
+#endif /* HAVE_TIFF || HAVE_NS */
 
 #if defined (HAVE_GIF) || defined (HAVE_NS)
   DEFSYM (Qgif, "gif");
   ADD_IMAGE_TYPE (Qgif);
-#endif
+#endif /* HAVE_GIF || HAVE_NS */
 
 #if defined (HAVE_PNG) || defined (HAVE_NS)
   DEFSYM (Qpng, "png");
   ADD_IMAGE_TYPE (Qpng);
-#endif
+#endif /* HAVE_PNG || HAVE_NS */
 
 #if defined (HAVE_IMAGEMAGICK)
   DEFSYM (Qimagemagick, "imagemagick");
   ADD_IMAGE_TYPE (Qimagemagick);
-#endif
+#endif /* HAVE_IMAGEMAGICK */
 
 #if defined (HAVE_RSVG)
   DEFSYM (Qsvg, "svg");
   ADD_IMAGE_TYPE (Qsvg);
-#ifdef HAVE_NTGUI
+# ifdef HAVE_NTGUI
   /* Other libraries used directly by svg code.  */
   DEFSYM (Qgdk_pixbuf, "gdk-pixbuf");
   DEFSYM (Qglib, "glib");
   DEFSYM (Qgobject, "gobject");
-#endif /* HAVE_NTGUI  */
+# endif /* HAVE_NTGUI  */
 #endif /* HAVE_RSVG  */
 
   defsubr (&Sinit_image_library);
 #ifdef HAVE_IMAGEMAGICK
   defsubr (&Simagemagick_types);
-#endif
+#endif /* HAVE_IMAGEMAGICK */
   defsubr (&Sclear_image_cache);
   defsubr (&Simage_flush);
   defsubr (&Simage_size);
@@ -9516,7 +9550,7 @@ non-numeric, there is no explicit limit on the size of images.  */);
 #ifdef GLYPH_DEBUG
   defsubr (&Simagep);
   defsubr (&Slookup_image);
-#endif
+#endif /* GLYPH_DEBUG */
 
   DEFVAR_BOOL ("cross-disabled-images", cross_disabled_images,
     doc: /* Non-nil means always draw a cross over disabled images.
@@ -9549,6 +9583,9 @@ The options are:
 */);
   /* MagickExportImagePixels is in 6.4.6-9, but not 6.4.4-10.  */
   imagemagick_render_type = 0;
-#endif
+#endif /* HAVE_IMAGEMAGICK */
 
+  return;
 }
+
+/* EOF */

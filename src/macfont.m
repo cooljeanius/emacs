@@ -1,4 +1,4 @@
-/* Font driver on Mac OSX Core text.
+/* macfont.m: Font driver on Mac OSX Core text.
    Copyright (C) 2009-2014 Free Software Foundation, Inc.
 
 This file is part of GNU Emacs.
@@ -69,7 +69,7 @@ mac_font_copy_default_name_for_charset_and_languages (CFCharacterSetRef charset,
 static CGGlyph mac_ctfont_get_glyph_for_cid (CTFontRef,
 					     CTCharacterCollection,
 					     CGFontIndex);
-#endif
+#endif /* USE_CT_GLYPH_INFO */
 
 /* The font property key specifying the font design destination.  The
    value is an unsigned integer code: 0 for WYSIWYG, and 1 for Video
@@ -2740,7 +2740,7 @@ macfont_draw (struct glyph_string *s, int from, int to, int x, int y,
 
   if (with_background)
     {
-      if (s->hl == DRAW_MOUSE_FACE) 
+      if (s->hl == DRAW_MOUSE_FACE)
         {
           face = FACE_FROM_ID (s->f, MOUSE_HL_INFO (s->f)->mouse_face_face_id);
           if (!face)

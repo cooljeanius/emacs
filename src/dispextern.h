@@ -1065,7 +1065,7 @@ struct glyph_row
   int continuation_lines_width;
 
 #if defined(HAVE_WINDOW_SYSTEM) && \
-    (defined(HAVE_X_WINDOWS) || defined(XRectangle) || !(defined(MAC_OS) || defined(HAVE_CARBON)))
+    (defined(HAVE_X_WINDOWS) || defined(XRectangle) || !(defined(MAC_OS) && defined(HAVE_CARBON)))
   /* Non-NULL means the current clipping area.  This is temporarily
      set while exposing a region.  Coordinates are frame-relative.  */
   XRectangle *clip;
@@ -1360,10 +1360,10 @@ struct glyph_string
   struct window *w;
 
   /* X display and window for convenience.  */
-#if defined(HAVE_X_WINDOWS) || defined(Display) || !(defined(MAC_OS) || defined(HAVE_CARBON))
+#if defined(HAVE_X_WINDOWS) || defined(Display) || !(defined(MAC_OS) && defined(HAVE_CARBON))
   Display *display;
 #endif /* HAVE_X_WINDOWS || Display || 1 */
-#if defined(HAVE_X_WINDOWS) || defined(Window) || !(defined(MAC_OS) || defined(HAVE_CARBON))
+#if defined(HAVE_X_WINDOWS) || defined(Window) || !(defined(MAC_OS) && defined(HAVE_CARBON))
   Window window;
 #endif /* HAVE_X_WINDOWS || Window || 1 */
 
@@ -1375,7 +1375,7 @@ struct glyph_string
   enum glyph_row_area area;
 
   /* Characters to be drawn, and number of characters.  */
-#if defined(HAVE_X_WINDOWS) || defined(XChar2b) || !(defined(MAC_OS) || defined(HAVE_CARBON))
+#if defined(HAVE_X_WINDOWS) || defined(XChar2b) || !(defined(MAC_OS) && defined(HAVE_CARBON))
   XChar2b *char2b;
 #endif /* HAVE_X_WINDOWS || XChar2b || 1 */
   int nchars;
@@ -1708,7 +1708,7 @@ struct face
 
   /* If non-zero, this is a GC that we can use without modification for
      drawing the characters in this face.  */
-# if defined(HAVE_X_WINDOWS) || defined(GC) || !(defined(MAC_OS) || defined(HAVE_CARBON))
+# if defined(HAVE_X_WINDOWS) || defined(GC) || !(defined(MAC_OS) && defined(HAVE_CARBON))
   GC gc;
 # endif /* HAVE_X_WINDOWS || GC || 1 */
 
@@ -2940,7 +2940,7 @@ struct redisplay_interface
    A NULL pointer if platform does not support this. */
   void (*compute_glyph_string_overhangs) (struct glyph_string *s);
 
-# if defined(HAVE_X_WINDOWS) || !(defined(MAC_OS) || defined(HAVE_CARBON))
+# if defined(HAVE_X_WINDOWS) || !(defined(MAC_OS) && defined(HAVE_CARBON))
 /* Draw a glyph string S.  */
   void (*draw_glyph_string) (struct glyph_string *s);
 
@@ -2999,7 +2999,7 @@ struct image_type
      image type.  Value is true if SPEC is valid.  */
   bool (* valid_p) (Lisp_Object spec);
 
-# if defined(HAVE_X_WINDOWS) || !(defined(MAC_OS) || defined(HAVE_CARBON))
+# if defined(HAVE_X_WINDOWS) || !(defined(MAC_OS) && defined(HAVE_CARBON))
   /* Load IMG which is used on frame F from information contained in
      IMG->spec.  Value is true if successful.  */
   bool (* load) (struct frame *f, struct image *img);
@@ -3027,12 +3027,12 @@ struct image
      in prepare_image_for_display.  */
   struct timespec timestamp;
 
-#if defined(HAVE_X_WINDOWS) || defined(Pixmap) || !(defined(MAC_OS) || defined(HAVE_CARBON))
+#if defined(HAVE_X_WINDOWS) || defined(Pixmap) || !(defined(MAC_OS) && defined(HAVE_CARBON))
   /* Pixmaps of the image.  */
   Pixmap pixmap, mask;
 #endif /* HAVE_X_WINDOWS || Pixmap || 1 */
 
-#if defined(HAVE_X_WINDOWS) || defined(XImagePtr) || !(defined(MAC_OS) || defined(HAVE_CARBON))
+#if defined(HAVE_X_WINDOWS) || defined(XImagePtr) || !(defined(MAC_OS) && defined(HAVE_CARBON))
   /* X images of the image, corresponding to the above Pixmaps.
      Non-NULL means it and its Pixmap counterpart may be out of sync
      and the latter is outdated.  NULL means the X image has been
@@ -3371,7 +3371,7 @@ extern void handle_tool_bar_click (struct frame *,
                                    int, int, int, int);
 
 extern void expose_frame (struct frame *, int, int, int, int);
-# if defined(HAVE_X_WINDOWS) || defined(XRectangle) || !(defined(MAC_OS) || defined(HAVE_CARBON))
+# if defined(HAVE_X_WINDOWS) || defined(XRectangle) || !(defined(MAC_OS) && defined(HAVE_CARBON))
 extern int x_intersect_rectangles (XRectangle *, XRectangle *,
                                    XRectangle *);
 # endif /* HAVE_X_WINDOWS || XRectangle || 1 */
@@ -3422,7 +3422,7 @@ extern ptrdiff_t x_create_bitmap_from_xpm_data (struct frame *, const char **);
 #ifndef x_destroy_bitmap
 extern void x_destroy_bitmap (struct frame *, ptrdiff_t);
 #endif /* !x_destroy_bitmap */
-#if defined(HAVE_X_WINDOWS) || defined(Display_Info) || !(defined(MAC_OS) || defined(HAVE_CARBON))
+#if defined(HAVE_X_WINDOWS) || defined(Display_Info) || !(defined(MAC_OS) && defined(HAVE_CARBON))
 extern void x_destroy_all_bitmaps (Display_Info *);
 #endif /* HAVE_X_WINDOWS || Display_Info || 1 */
 extern void x_create_bitmap_mask (struct frame *, ptrdiff_t);
@@ -3672,7 +3672,7 @@ enum resource_types
 };
 
 #if defined(HAVE_X_WINDOWS) || defined(Display_Info) || \
-    !(defined(MAC_OS) || defined(HAVE_CARBON))
+    !(defined(MAC_OS) && defined(HAVE_CARBON))
 extern Display_Info *check_x_display_info (Lisp_Object);
 extern Lisp_Object x_get_arg (Display_Info *, Lisp_Object,
                               Lisp_Object, const char *, const char *class,

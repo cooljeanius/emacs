@@ -38,10 +38,12 @@ WINDRES = @WINDRES@
 CFLAGS = @CFLAGS@
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
+DSYMUTIL = @DSYMUTIL@
 EXEEXT = @EXEEXT@
 FILE_MAGIC_BIN = @FILE_MAGIC_BIN@
 GREP = @GREP@
 LIPO = @LIPO@
+MACHOCHECK = @MACHOCHECK@
 RC_ARCHS = @RC_ARCHS@
 SED = @SED@
 version = @version@
@@ -252,7 +254,7 @@ mac = $(dot)$(dot)/mac/
 MAC_OBJ = mac.o macterm.o macfns.o macmenu.o macselect.o fontset.o fringe.o image.o
 emacsapp = $(PWD)/$(mac)Emacs.app/
 emacsappsrc = ${srcdir}/../mac/Emacs.app/
-#endif
+#endif /* HAVE_CARBON */
 
 ## fontset.o fringe.o image.o if we have any window system
 WINDOW_SYSTEM_OBJ=@WINDOW_SYSTEM_OBJ@
@@ -317,7 +319,7 @@ TEMACS_POST_LINK = @TEMACS_POST_LINK@
 ADDSECTION = @ADDSECTION@
 EMACS_HEAPSIZE = @EMACS_HEAPSIZE@
 MINGW_TEMACS_POST_LINK = \
- mv temacs$(EXEEXT) temacs.tmp; \
+ mv -v temacs$(EXEEXT) temacs.tmp; \
  ../nt/addsection temacs.tmp temacs$(EXEEXT) EMHEAP $(EMACS_HEAPSIZE)
 
 UNEXEC_OBJ = @UNEXEC_OBJ@
@@ -441,7 +443,7 @@ $(lispsource)/international/charprop.el: bootstrap-emacs$(EXEEXT)
 
 #ifdef HAVE_SHM
 NL=-nl
-#endif
+#endif /* HAVE_SHM */
 
 ## The dumped Emacs is as functional and more efficient than
 ## bootstrap-emacs, so we replace the latter with the former.
@@ -523,7 +525,7 @@ buildobj.h: Makefile
 	  echo "$${i}" | $(SED) 's,.*/,,; s/\.obj$$/\.o/; s/^/"/; s/$$/",/' \
 	    || exit; \
 	done >$@.tmp
-	mv $@.tmp $@
+	mv -v $@.tmp $@
 
 globals.h: gl-stamp; @echo "this target, '$@', just makes its dep, '$<'"
 
@@ -549,9 +551,9 @@ temacs$(EXEEXT): $(LIBXMENU) $(ALLOBJS) \
 	  -o temacs $(ALLOBJS) $(lib)/libgnu.a $(W32_RES_LINK) $(LIBES)
 	$(MKDIR_P) -v $(etc)
 	@$(TEMACS_POST_LINK)
-	test "$(CANNOT_DUMP)" = "yes" || \
+	test "x$(CANNOT_DUMP)" = "xyes" || \
 	  test "X$(PAXCTL)" = "X" || $(PAXCTL) -r temacs$(EXEEXT)
-	test "$(CANNOT_DUMP)" = "yes" || test -z "$(SETFATTR)" || \
+	test "x$(CANNOT_DUMP)" = "xyes" || test -z "$(SETFATTR)" || \
 	  $(SETFATTR) -n user.pax.flags -v r $@
 
 ## The following oldxmenu-related rules are only (possibly) used if
@@ -606,7 +608,7 @@ macosx-app: macosx-bundle ${emacsapp}Contents/MacOS/Emacs
 ${emacsapp}Contents/MacOS/Emacs: emacs${EXEEXT}
 	${MKDIR_P} -v ${emacsapp}Contents/MacOS/;
 	cd ${emacsapp}Contents/MacOS/; cp -v ../../../../src/emacs${EXEEXT} Emacs${EXEEXT}
-#endif
+#endif /* HAVE_CARBON */
 ns-app: emacs$(EXEEXT)
 	cd ../nextstep && $(MAKE) $(MFLAGS) all
 
@@ -630,9 +632,9 @@ clean: mostlyclean
 bootstrap-clean: clean
 	rm -f epaths.h config.h config.stamp stamp-h1
 	if test -f ./.gdbinit; then \
-	  mv ./.gdbinit ./.gdbinit.save; \
+	  mv -v ./.gdbinit ./.gdbinit.save; \
 	  if test -f "$(srcdir)/.gdbinit"; then rm -f ./.gdbinit.save; \
-	  else mv ./.gdbinit.save ./.gdbinit; fi; \
+	  else mv -v ./.gdbinit.save ./.gdbinit; fi; \
 	fi
 
 distclean: bootstrap-clean
@@ -724,7 +726,7 @@ $(lispsource)/loaddefs.el: $(BOOTSTRAPEMACS) $(VCSWITNESS)
 ## files from loadup.el in source form.
 bootstrap-emacs$(EXEEXT): temacs$(EXEEXT)
 	cd ../lisp; $(MAKE) $(MFLAGS) update-subdirs
-	if test "$(CANNOT_DUMP)" = "yes"; then \
+	if test "x$(CANNOT_DUMP)" = "xyes"; then \
 	  rm -f bootstrap-emacs$(EXEEXT); \
 	  ln -v temacs$(EXEEXT) bootstrap-emacs$(EXEEXT); \
 	else \
@@ -736,6 +738,12 @@ bootstrap-emacs$(EXEEXT): temacs$(EXEEXT)
 	  $(RUN_TEMACS) --batch --load loadup bootstrap || exit 1; \
 	  test "X$(PAXCTL)" = "X" || $(PAXCTL) -zex emacs$(EXEEXT); \
 	  mv -fv emacs$(EXEEXT) bootstrap-emacs$(EXEEXT); \
+	fi
+	if test "x$(MACHOCHECK)" != "x"; then \
+	  $(MACHOCHECK) -progress bootstrap-emacs$(EXEEXT); \
+	fi
+	if test "x$(DSYMUTIL)" != "x"; then \
+	  $(DSYMUTIL) bootstrap-emacs$(EXEEXT); \
 	fi
 	@echo "Compiling some files earlier to speed up further compilation."
 	cd ../lisp; $(MAKE) $(MFLAGS) compile-first EMACS="$(bootstrap_exe)"

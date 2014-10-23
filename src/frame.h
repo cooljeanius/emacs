@@ -1490,7 +1490,7 @@ extern void x_set_alpha (struct frame *, Lisp_Object, Lisp_Object);
 
 extern void validate_x_resource_name (void);
 
-#if defined(Display_Info) || defined(HAVE_X_WINDOWS) || !(defined(MAC_OS) || defined(HAVE_CARBON))
+#if defined(Display_Info) || defined(HAVE_X_WINDOWS) || !(defined(MAC_OS) && defined(HAVE_CARBON))
 extern Lisp_Object display_x_get_resource (Display_Info *,
 					   Lisp_Object attribute,
 					   Lisp_Object class,

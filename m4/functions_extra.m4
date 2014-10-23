@@ -1,4 +1,4 @@
-# functions_extra.m4 serial 1 file starts here
+# functions_extra.m4 serial 2 file starts here
 dnl# This was originally in the emacs configure.ac file.   -*- Autoconf -*-
 
 dnl# checks for functions that might be called elsewhere:
@@ -25,7 +25,13 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_FUNC_CHECKS],[
   ],[
     AC_REQUIRE([AC_FUNC_GETLOADAVG])dnl
   ])dnl
+  AC_REQUIRE([AC_FUNC_GETMNTENT])dnl
   AC_REQUIRE([AC_FUNC_GETPGRP])dnl
+  m4_ifdef([gl_FUNC_MBRTOWC],[
+    AC_REQUIRE([gl_FUNC_MBRTOWC])dnl
+  ],[
+    AC_REQUIRE([AC_FUNC_MBRTOWC])dnl
+  ])dnl
   AC_REQUIRE([AC_FUNC_OBSTACK])dnl
   dnl# now for other gnulib function checks:
   m4_ifdef([gl_WARN_ON_USE_PREPARE],[
@@ -55,6 +61,8 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_FUNC_CHECKS],[
   ],[
     m4_ifdef([gl_FUNC_STRFTIME],[
       AC_REQUIRE([gl_FUNC_STRFTIME])dnl
+    ],[
+      AC_REQUIRE([AC_FUNC_STRFTIME])dnl
     ])dnl
   ])dnl
 ])dnl

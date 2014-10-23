@@ -346,7 +346,7 @@ rounding_driver (Lisp_Object arg, Lisp_Object divisor,
 
 	  f1 = FLOATP (arg) ? XFLOAT_DATA (arg) : XINT (arg);
 	  f2 = (FLOATP (divisor) ? XFLOAT_DATA (divisor) : XINT (divisor));
-	  if (! IEEE_FLOATING_POINT && f2 == 0)
+	  if (! IEEE_FLOATING_POINT && (f2 == 0))
 	    xsignal0 (Qarith_error);
 
 	  f1 = (*double_round) (f1 / f2);

@@ -1,9 +1,9 @@
-#setvbuf.m4 serial 1
-# taken from autoconf2.61
-# obsolete in newer versions
+#setvbuf.m4 serial 1                                       -*- Autoconf -*-
+dnl# taken from autoconf2.61
+dnl# obsolete in newer versions
 
-# AC_FUNC_SETVBUF_REVERSED
-# ------------------------
+dnl# AC_FUNC_SETVBUF_REVERSED
+dnl# ------------------------
 AN_FUNCTION([setvbuf],[AC_FUNC_SETVBUF_REVERSED])dnl
 AC_DEFUN([AC_FUNC_SETVBUF_REVERSED],
 [AC_REQUIRE([AC_C_PROTOTYPES])dnl
@@ -52,6 +52,6 @@ fi
 ])dnl# AC_FUNC_SETVBUF_REVERSED
 
 
-# AU::AC_SETVBUF_REVERSED
-# -----------------------
+dnl# AU::AC_SETVBUF_REVERSED
+dnl# -----------------------
 AU_ALIAS([AC_SETVBUF_REVERSED],[AC_FUNC_SETVBUF_REVERSED])dnl

@@ -2286,12 +2286,12 @@ arithcompare (Lisp_Object num1, Lisp_Object num2, enum Arith_Comparison comparis
   switch (comparison)
     {
     case ARITH_EQUAL:
-      if (floatp ? f1 == f2 : XINT (num1) == XINT (num2))
+      if (floatp ? (f1 == f2) : (XINT(num1) == XINT(num2)))
 	return Qt;
       return Qnil;
 
     case ARITH_NOTEQUAL:
-      if (floatp ? f1 != f2 : XINT (num1) != XINT (num2))
+      if (floatp ? (f1 != f2) : (XINT(num1) != XINT(num2)))
 	return Qt;
       return Qnil;
 
@@ -2692,7 +2692,7 @@ float_arith_driver (double accum, ptrdiff_t argnum, enum arithop code,
 
   for (; argnum < nargs; argnum++)
     {
-      val = args[argnum];    /* using args[argnum] as argument to CHECK_NUMBER_... */
+      val = args[argnum]; /* using args[argnum] as argument to CHECK_NUMBER_... */
       CHECK_NUMBER_OR_FLOAT_COERCE_MARKER (val);
 
       if (FLOATP (val))
@@ -2710,7 +2710,7 @@ float_arith_driver (double accum, ptrdiff_t argnum, enum arithop code,
 	  accum += next;
 	  break;
 	case Asub:
-	  accum = argnum ? accum - next : nargs == 1 ? - next : next;
+	  accum = (argnum ? (accum - next) : (nargs == 1) ? - next : next);
 	  break;
 	case Amult:
 	  accum *= next;
@@ -2720,7 +2720,7 @@ float_arith_driver (double accum, ptrdiff_t argnum, enum arithop code,
 	    accum = next;
 	  else
 	    {
-	      if (! IEEE_FLOATING_POINT && next == 0)
+	      if (! IEEE_FLOATING_POINT && (next == 0.0f))
 		xsignal0 (Qarith_error);
 	      accum /= next;
 	    }

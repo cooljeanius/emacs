@@ -2,9 +2,11 @@
 *.o
 lib*.a
 
+# built headers:
 alloca.h
 assert.h
 byteswap.h
+configmake.h
 dirent.h
 errno.h
 fcntl.h
@@ -18,6 +20,7 @@ stdint.h
 stdbool.h
 stdio.h
 stdlib.h
+stdnoreturn.h
 string.h
 sys/select.h
 sys/stat.h
@@ -25,8 +28,12 @@ sys/time.h
 sys/types.h
 time.h
 unistd.h
+wchar.h
+wctype.h
 
+# copied snippets:
 arg-nonnull.h
 c++defs.h
 link-warning.h
+unused-parameter.h
 warn-on-use.h

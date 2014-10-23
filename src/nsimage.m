@@ -39,10 +39,10 @@ extern Lisp_Object QCfile, QCdata;
 /* call tracing */
 #if 0
 int image_trace_num = 0;
-#define NSTRACE(x)        fprintf (stderr, "%s:%d: [%d] " #x "\n",         \
-                                __FILE__, __LINE__, ++image_trace_num)
+# define NSTRACE(x)        fprintf(stderr, "%s:%d: [%d] " #x "\n",        \
+                                   __FILE__, __LINE__, ++image_trace_num)
 #else
-#define NSTRACE(x)
+# define NSTRACE(x)
 #endif
 
 
@@ -162,7 +162,7 @@ ns_set_alpha (void *img, int x, int y, unsigned char a)
 
 static EmacsImage *ImageList = nil;
 
-+ allocInitFromFile: (Lisp_Object)file
++ (id)allocInitFromFile: (Lisp_Object)file
 {
   EmacsImage *image = ImageList;
   NSImageRep *imgRep;
@@ -212,21 +212,21 @@ static EmacsImage *ImageList = nil;
 }
 
 
-- reference
+- (id)reference
 {
   refCount++;
   return self;
 }
 
 
-- imageListSetNext: (id)arg
+- (id)imageListSetNext: (id)arg
 {
   imageListNext = arg;
   return self;
 }
 
 
-- imageListNext
+- (id)imageListNext
 {
   return imageListNext;
 }
@@ -257,15 +257,15 @@ static EmacsImage *ImageList = nil;
 }
 
 
-- initFromXBM: (unsigned char *)bits width: (int)w height: (int)h
-         flip: (BOOL)flip
+- (id)initFromXBM: (unsigned char *)bits width: (int)w height: (int)h
+             flip: (BOOL)flip
 {
   return [self initFromSkipXBM: bits width: w height: h flip: flip length: 0];
 }
 
 
-- initFromSkipXBM: (unsigned char *)bits width: (int)w height: (int)h
-             flip: (BOOL)flip length: (int)length;
+- (id)initFromSkipXBM: (unsigned char *)bits width: (int)w height: (int)h
+                 flip: (BOOL)flip length: (int)length
 {
   int bpr = (w + 7) / 8;
   unsigned char *planes[5];
@@ -330,7 +330,7 @@ static EmacsImage *ImageList = nil;
 
 /* Set color for a bitmap image (see initFromSkipXBM).  Note that the alpha
    is used as a mask, so we just memset the entire array. */
-- setXBMColor: (NSColor *)color
+- (id)setXBMColor: (NSColor *)color
 {
   NSSize s = [self size];
   unsigned char *planes[5];
@@ -368,7 +368,7 @@ static EmacsImage *ImageList = nil;
 }
 
 
-- initForXPMWithDepth: (int)depth width: (int)width height: (int)height
+- (id)initForXPMWithDepth: (int)depth width: (int)width height: (int)height
 {
   NSSize s = {width, height};
   int i;
@@ -391,8 +391,9 @@ static EmacsImage *ImageList = nil;
 }
 
 
-/* attempt to pull out pixmap data from a BitmapImageRep; returns NO if fails */
-- (void) setPixmapData
+/* attempt to pull out pixmap data from a BitmapImageRep;
+ * returns NO if fails: */
+- (void)setPixmapData
 {
   NSEnumerator *reps;
   NSImageRep *rep;
@@ -448,7 +449,7 @@ static EmacsImage *ImageList = nil;
 
 - (void) setPixelAtX: (int)x Y: (int)y toRed: (unsigned char)r
                green: (unsigned char)g blue: (unsigned char)b
-               alpha:(unsigned char)a;
+               alpha:(unsigned char)a
 {
   if (bmRep == nil)
     return;

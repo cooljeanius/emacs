@@ -171,9 +171,6 @@ EXTRA_DIST += sha512.h
 
 ## begin gnulib module dosname
 
-if gl_GNULIB_ENABLED_dosname
-
-endif
 EXTRA_DIST += dosname.h
 
 ## end   gnulib module dosname
@@ -248,9 +245,6 @@ EXTRA_libgnu_a_SOURCES += error.c
 
 ## begin gnulib module euidaccess
 
-if gl_GNULIB_ENABLED_euidaccess
-
-endif
 EXTRA_DIST += euidaccess.c
 
 EXTRA_libgnu_a_SOURCES += euidaccess.c
@@ -354,9 +348,6 @@ EXTRA_libgnu_a_SOURCES += fsync.c
 
 ## begin gnulib module getgroups
 
-if gl_GNULIB_ENABLED_getgroups
-
-endif
 EXTRA_DIST += getgroups.c
 
 EXTRA_libgnu_a_SOURCES += getgroups.c
@@ -422,9 +413,6 @@ EXTRA_libgnu_a_SOURCES += gettimeofday.c
 
 ## begin gnulib module group-member
 
-if gl_GNULIB_ENABLED_a9786850e999ae65a836a6041e8e5ed1
-
-endif
 EXTRA_DIST += group-member.c
 
 EXTRA_libgnu_a_SOURCES += group-member.c
@@ -474,9 +462,6 @@ EXTRA_libgnu_a_SOURCES += mktime.c
 
 ## begin gnulib module msvc-inval
 
-if gl_GNULIB_ENABLED_f691f076f650964c9f5598c3ee487616
-
-endif
 EXTRA_DIST += msvc-inval.c msvc-inval.h
 
 EXTRA_libgnu_a_SOURCES += msvc-inval.c
@@ -494,18 +479,12 @@ EXTRA_libgnu_a_SOURCES += obstack.c
 
 ## begin gnulib module openat-h
 
-if gl_GNULIB_ENABLED_03e0aaad4cb89ca757653bd367a6ccb7
-
-endif
 EXTRA_DIST += openat.h
 
 ## end   gnulib module openat-h
 
 ## begin gnulib module pathmax
 
-if gl_GNULIB_ENABLED_pathmax
-
-endif
 EXTRA_DIST += pathmax.h
 
 ## end   gnulib module pathmax
@@ -567,9 +546,6 @@ EXTRA_libgnu_a_SOURCES += at-func.c readlinkat.c
 
 ## begin gnulib module root-uid
 
-if gl_GNULIB_ENABLED_6099e9737f757db36c47fa9d9f02e88c
-
-endif
 EXTRA_DIST += root-uid.h
 
 ## end   gnulib module root-uid
@@ -666,9 +642,6 @@ EXTRA_DIST += $(top_srcdir)/build-aux/snippet/warn-on-use.h
 
 ## begin gnulib module stat
 
-if gl_GNULIB_ENABLED_stat
-
-endif
 EXTRA_DIST += stat.c
 
 EXTRA_libgnu_a_SOURCES += stat.c
@@ -839,9 +812,6 @@ EXTRA_DIST += stdint.in.h
 
 ## begin gnulib module strerror
 
-if gl_GNULIB_ENABLED_strerror
-
-endif
 EXTRA_DIST += strerror.c
 
 EXTRA_libgnu_a_SOURCES += strerror.c
@@ -850,9 +820,6 @@ EXTRA_libgnu_a_SOURCES += strerror.c
 
 ## begin gnulib module strerror-override
 
-if gl_GNULIB_ENABLED_dbb57f49352be8fb86869629a254fb72
-
-endif
 EXTRA_DIST += strerror-override.c strerror-override.h
 
 EXTRA_libgnu_a_SOURCES += strerror-override.c
@@ -878,9 +845,6 @@ EXTRA_libgnu_a_SOURCES += strtoimax.c
 
 ## begin gnulib module strtoll
 
-if gl_GNULIB_ENABLED_strtoll
-
-endif
 EXTRA_DIST += strtol.c strtoll.c
 
 EXTRA_libgnu_a_SOURCES += strtol.c strtoll.c
@@ -889,9 +853,6 @@ EXTRA_libgnu_a_SOURCES += strtol.c strtoll.c
 
 ## begin gnulib module strtoull
 
-if gl_GNULIB_ENABLED_strtoull
-
-endif
 EXTRA_DIST += strtol.c strtoul.c strtoull.c
 
 EXTRA_libgnu_a_SOURCES += strtol.c strtoul.c strtoull.c

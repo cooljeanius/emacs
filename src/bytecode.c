@@ -1,4 +1,4 @@
-/* Execution of byte code produced by bytecomp.el.
+/* bytecode.c: Execution of byte code produced by bytecomp.el.
    Copyright (C) 1985-1988, 1993, 2000-2014 Free Software Foundation,
    Inc.
 
@@ -1423,7 +1423,7 @@ exec_byte_code (Lisp_Object bytestr, Lisp_Object vector, Lisp_Object maxdepth,
 
 		f1 = (FLOATP (v1) ? XFLOAT_DATA (v1) : XINT (v1));
 		f2 = (FLOATP (v2) ? XFLOAT_DATA (v2) : XINT (v2));
-		TOP = (f1 == f2 ? Qt : Qnil);
+		TOP = ((f1 == f2) ? Qt : Qnil);
 	      }
 	    else
 	      TOP = (XINT (v1) == XINT (v2) ? Qt : Qnil);

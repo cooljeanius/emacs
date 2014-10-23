@@ -1,4 +1,4 @@
-/* NeXT/Open/GNUstep / MacOSX communication module.
+/* nsterm.m: NeXT/Open/GNUstep / MacOSX communication module.
 
 Copyright (C) 1989, 1993-1994, 2005-2006, 2008-2014 Free Software
 Foundation, Inc.
@@ -73,11 +73,11 @@ GNUstep port and post-20 update by Adrian Robert (arobert@cogsci.ucsd.edu)
 /* call tracing */
 #if 0
 int term_trace_num = 0;
-#define NSTRACE(x)        fprintf (stderr, "%s:%d: [%d] " #x "\n",         \
-                                __FILE__, __LINE__, ++term_trace_num)
+# define NSTRACE(x)        fprintf(stderr, "%s:%d: [%d] " #x "\n",        \
+                                   __FILE__, __LINE__, ++term_trace_num)
 #else
-#define NSTRACE(x)
-#endif
+# define NSTRACE(x)
+#endif /* 0 */
 
 /* Detailed tracing. "S" means "size" and "LL" stands for "lower left". */
 #if 0
@@ -97,9 +97,9 @@ int term_trace_num = 0;
                                    r.size.height,                       \
                                    r.size.width)
 #else
-#define NSTRACE_SIZE(str,size)
-#define NSTRACE_RECT(s,r)
-#endif
+# define NSTRACE_SIZE(str,size)
+# define NSTRACE_RECT(s,r)
+#endif /* 0 */
 
 extern NSString *NSMenuDidBeginTrackingNotification;
 
@@ -1684,7 +1684,7 @@ ns_color_to_lisp (NSColor *col)
 
     [[col colorUsingDefaultColorSpace]
         getRed: &red green: &green blue: &blue alpha: &alpha];
-  if (red == green && red == blue)
+  if ((red == green) && (red == blue))
     {
       [[col colorUsingColorSpaceName: NSCalibratedWhiteColorSpace]
             getWhite: &gray alpha: &alpha];
@@ -3892,7 +3892,7 @@ ns_set_vertical_scroll_bar (struct window *window,
       r.size.width = oldRect.size.width;
       if (FRAME_LIVE_P (f) && !NSEqualRects (oldRect, r))
         {
-          if (oldRect.origin.x != r.origin.x)
+          if ((oldRect.origin.x) != (r.origin.x))
               ns_clear_frame_area (f, sb_left, top, width, height);
           [bar setFrame: r];
         }
@@ -4824,7 +4824,9 @@ not_in_argv (NSString *arg)
      The timeout specified to ns_select has passed.
    -------------------------------------------------------------------------- */
 {
-  /*NSTRACE (timeout_handler); */
+#ifdef DEBUG
+  NSTRACE(timeout_handler);
+#endif /* DEBUG */
   ns_send_appdefined (-2);
 }
 
@@ -4833,12 +4835,12 @@ not_in_argv (NSString *arg)
 {
   ns_send_appdefined (nextappdefined);
 }
-#endif
+#endif /* NS_IMPL_GNUSTEP */
 
-- (void)fd_handler:(id)unused
-/* --------------------------------------------------------------------------
-     Check data waiting on file descriptors and terminate if so
-   -------------------------------------------------------------------------- */
+- (void) _Noreturn fd_handler:(id)unused
+/* ------------------------------------------------------------------------
+     Check data waiting on file descriptors, and terminate if so
+   --------------------------------------------------------------------- */
 {
   int result;
   int waiting = 1, nfds;
@@ -4848,7 +4850,9 @@ not_in_argv (NSString *arg)
   struct timespec timeout, *tmo;
   NSAutoreleasePool *pool = nil;
 
-  /* NSTRACE (fd_handler); */
+#ifdef DEBUG
+  NSTRACE(fd_handler);
+#endif /* DEBUG */
 
   for (;;)
     {
@@ -4860,8 +4864,8 @@ not_in_argv (NSString *arg)
           fd_set fds;
           FD_ZERO (&fds);
           FD_SET (selfds[0], &fds);
-          result = select (selfds[0]+1, &fds, NULL, NULL, NULL);
-          if (result > 0 && read (selfds[0], &c, 1) == 1 && c == 'g')
+          result = select((selfds[0] + 1), &fds, NULL, NULL, NULL);
+          if ((result > 0) && (read(selfds[0], &c, 1) == 1) && (c == 'g'))
 	    waiting = 0;
         }
       else
@@ -4892,7 +4896,7 @@ not_in_argv (NSString *arg)
           pthread_mutex_unlock (&select_mutex);
 
           FD_SET (selfds[0], &readfds);
-          if (selfds[0] >= nfds) nfds = selfds[0]+1;
+          if (selfds[0] >= nfds) nfds = (selfds[0] + 1);
 
           result = pselect (nfds, &readfds, wfds, NULL, tmo, NULL);
 
@@ -5792,8 +5796,8 @@ not_in_argv (NSString *arg)
       cancel_mouse_face (emacsframe);
 
       // Did resize increments change because of a font change?
-      if (sz.width != FRAME_COLUMN_WIDTH (emacsframe) ||
-          sz.height != FRAME_LINE_HEIGHT (emacsframe))
+      if ((sz.width != FRAME_COLUMN_WIDTH(emacsframe)) ||
+          (sz.height != FRAME_LINE_HEIGHT(emacsframe)))
         {
           sz.width = FRAME_COLUMN_WIDTH (emacsframe);
           sz.height = FRAME_LINE_HEIGHT (emacsframe);
@@ -5847,7 +5851,7 @@ not_in_argv (NSString *arg)
   {
     /* this sets window title to have size in it; the wm does this under GS */
     NSRect r = [[self window] frame];
-    if (r.size.height == frameSize.height && r.size.width == frameSize.width)
+    if ((r.size.height == frameSize.height) && (r.size.width == frameSize.width))
       {
         if (old_title != 0)
           {
@@ -5855,7 +5859,7 @@ not_in_argv (NSString *arg)
             old_title = 0;
           }
       }
-    else if (fs_state == FULLSCREEN_NONE && ! maximizing_resize)
+    else if ((fs_state == FULLSCREEN_NONE) && ! maximizing_resize)
       {
         char *size_title;
         NSWindow *window = [self window];
@@ -6016,7 +6020,7 @@ if (cols > 0 && rows > 0)
   fs_is_native = ns_use_native_fullscreen;
 #else
   fs_is_native = NO;
-#endif
+#endif /* HAVE_NATIVE_FS */
   maximized_width = maximized_height = -1;
   nonfs_window = nil;
 
@@ -6035,26 +6039,26 @@ if (cols > 0 && rows > 0)
 #ifdef NS_IMPL_COCOA
   old_title = 0;
   maximizing_resize = NO;
-#endif
+#endif /* NS_IMPL_COCOA */
 
   win = [[EmacsWindow alloc]
             initWithContentRect: r
                       styleMask: (NSResizableWindowMask |
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_7
                                   NSTitledWindowMask |
-#endif
+#endif /* 10.7+ */
                                   NSMiniaturizableWindowMask |
                                   NSClosableWindowMask)
                         backing: NSBackingStoreBuffered
                           defer: YES];
 
 #ifdef HAVE_NATIVE_FS
-    [win setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
-#endif
+  [win setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
+#endif /* HAVE_NATIVE_FS */
 
   wr = [win frame];
-  bwidth = f->border_width = wr.size.width - r.size.width;
-  tibar_height = FRAME_NS_TITLEBAR_HEIGHT (f) = wr.size.height - r.size.height;
+  bwidth = f->border_width = (wr.size.width - r.size.width);
+  tibar_height = FRAME_NS_TITLEBAR_HEIGHT(f) = (wr.size.height - r.size.height);
 
   [win setAcceptsMouseMovedEvents: YES];
   [win setDelegate: self];
@@ -6074,7 +6078,7 @@ if (cols > 0 && rows > 0)
                    NILP (tem) ? "Emacs" : SSDATA (tem)];
   [win setTitle: name];
 
-  /* toolbar support */
+  /* toolbar support: */
   toolbar = [[EmacsToolbar alloc] initForView: self withIdentifier:
                          [NSString stringWithFormat: @"Emacs Frame %d",
                                    ns_window_num]];
@@ -6083,11 +6087,11 @@ if (cols > 0 && rows > 0)
 #ifdef NS_IMPL_COCOA
   {
     NSButton *toggleButton;
-  toggleButton = [win standardWindowButton: NSWindowToolbarButton];
-  [toggleButton setTarget: self];
-  [toggleButton setAction: @selector (toggleToolbar: )];
+    toggleButton = [win standardWindowButton: NSWindowToolbarButton];
+    [toggleButton setTarget: self];
+    [toggleButton setAction: @selector (toggleToolbar: )];
   }
-#endif
+#endif /* NS_IMPL_COCOA */
   FRAME_TOOLBAR_HEIGHT (f) = 0;
 
   tem = f->icon_name;
@@ -6107,10 +6111,10 @@ if (cols > 0 && rows > 0)
 
   [win makeFirstResponder: self];
 
-  col = ns_lookup_indexed_color (NS_FACE_BACKGROUND
-                                  (FRAME_DEFAULT_FACE (emacsframe)), emacsframe);
+  col = ns_lookup_indexed_color(NS_FACE_BACKGROUND(FRAME_DEFAULT_FACE(emacsframe)),
+                                emacsframe);
   [win setBackgroundColor: col];
-  if ([col alphaComponent] != (EmacsCGFloat) 1.0)
+  if ([col alphaComponent] != (EmacsCGFloat)1.0f)
     [win setOpaque: NO];
 
   [self allocateGState];
@@ -6295,10 +6299,10 @@ if (cols > 0 && rows > 0)
     {
       BOOL tbar_visible = FRAME_EXTERNAL_TOOL_BAR (emacsframe) ? YES : NO;
 #ifdef NS_IMPL_COCOA
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_7
+# if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_7
       unsigned val = (unsigned)[NSApp presentationOptions];
 
-      // OSX 10.7 bug fix, the menu won't appear without this.
+      // OSX 10.7 bug fix, the menu will NOT appear without this.
       // val is non-zero on other OSX versions.
       if (val == 0)
         {
@@ -6310,8 +6314,8 @@ if (cols > 0 && rows > 0)
 
           [NSApp setPresentationOptions: options];
         }
-#endif
-#endif
+# endif /* 10.7+ */
+#endif /* NS_IMPL_COCOA */
       [toolbar setVisible:tbar_visible];
     }
 }
@@ -6389,7 +6393,7 @@ if (cols > 0 && rows > 0)
     {
 #ifdef HAVE_NATIVE_FS
       [[self window] toggleFullScreen:sender];
-#endif
+#endif /* HAVE_NATIVE_FS */
       return;
     }
 
@@ -6408,17 +6412,17 @@ if (cols > 0 && rows > 0)
     {
       NSScreen *screen = [w screen];
 
-#if defined (NS_IMPL_COCOA) && \
-  MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_9
+#if defined(NS_IMPL_COCOA) && \
+  (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_9)
       /* Hide ghost menu bar on secondary monitor? */
       if (! onFirstScreen)
         onFirstScreen = [NSScreen screensHaveSeparateSpaces];
-#endif
+#endif /* NS_IMPL_COCOA && 10.9+ */
       /* Hide dock and menubar if we are on the primary screen.  */
       if (onFirstScreen)
         {
-#if defined (NS_IMPL_COCOA) && \
-  MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6
+#if defined(NS_IMPL_COCOA) && \
+  (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6)
           NSApplicationPresentationOptions options
             = NSApplicationPresentationAutoHideDock
             | NSApplicationPresentationAutoHideMenuBar;
@@ -6443,7 +6447,7 @@ if (cols > 0 && rows > 0)
       [fw useOptimizedDrawing: YES];
       [fw setResizeIncrements: sz];
       [fw setBackgroundColor: col];
-      if ([col alphaComponent] != (EmacsCGFloat) 1.0)
+      if ([col alphaComponent] != (EmacsCGFloat)1.0f)
         [fw setOpaque: NO];
 
       f->border_width = 0;
@@ -6470,8 +6474,8 @@ if (cols > 0 && rows > 0)
 
       if (onFirstScreen)
         {
-#if defined (NS_IMPL_COCOA) && \
-  MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6
+#if defined(NS_IMPL_COCOA) && \
+  (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6)
           [NSApp setPresentationOptions: NSApplicationPresentationDefault];
 #else
           [NSMenu setMenuBarVisible:YES];
@@ -6481,7 +6485,7 @@ if (cols > 0 && rows > 0)
       [w setContentView:[fw contentView]];
       [w setResizeIncrements: sz];
       [w setBackgroundColor: col];
-      if ([col alphaComponent] != (EmacsCGFloat) 1.0)
+      if ([col alphaComponent] != (EmacsCGFloat)1.0f)
         [w setOpaque: NO];
 
       f->border_width = bwidth;
@@ -6971,20 +6975,25 @@ if (cols > 0 && rows > 0)
   NSTRACE (constrainFrameRect);
   NSTRACE_RECT ("input", frameRect);
 
-  if (ns_menu_bar_should_be_hidden ())
+  if (f != NULL)
+    {
+      ; //???
+    }
+
+  if (ns_menu_bar_should_be_hidden())
     return frameRect;
 
   if (nr_screens == 1)
     return [super constrainFrameRect:frameRect toScreen:screen];
 
 #ifdef NS_IMPL_COCOA
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_9
-  // If separate spaces is on, it is like each screen is independent.  There is
-  // no spanning of frames across screens.
+# if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_9
+  // If separate spaces is on, it is like each screen is independent.
+  // There is no spanning of frames across screens.
   if ([NSScreen screensHaveSeparateSpaces])
     return [super constrainFrameRect:frameRect toScreen:screen];
-#endif
-#endif
+# endif /* 10.9+ */
+#endif /* NS_IMPL_COCOA */
 
   for (i = 0; i < nr_screens; ++i)
     {
@@ -7107,7 +7116,9 @@ if (cols > 0 && rows > 0)
       [sview addSubview: self];
     }
 
-/*  [self setFrame: r]; */
+#if 0
+  [self setFrame: r];
+#endif /* 0 */
 
   return self;
 }
@@ -7116,13 +7127,17 @@ if (cols > 0 && rows > 0)
 - (void)setFrame: (NSRect)newRect
 {
   NSTRACE (EmacsScroller_setFrame);
-/*  block_input (); */
+#if 0
+  block_input();
+#endif /* 0 */
   pixel_height = NSHeight (newRect);
   if (pixel_height == 0) pixel_height = 1;
   min_portion = 20 / pixel_height;
   [super setFrame: newRect];
   [self display];
-/*  unblock_input (); */
+#if 0
+  unblock_input();
+#endif /* 0 */
 }
 
 
@@ -7158,7 +7173,7 @@ if (cols > 0 && rows > 0)
     {
       EmacsView *view;
       block_input ();
-      /* ensure other scrollbar updates after deletion */
+      /* ensure other scrollbar updates after deletion: */
       view = (EmacsView *)FRAME_NS_VIEW (frame);
       if (view != nil)
         view->scrollbarsNeedingUpdate++;
@@ -7222,7 +7237,7 @@ if (cols > 0 && rows > 0)
     }
 
   /* Events may come here even if the event loop is not running.
-     If we don't enter the event loop, the scroll bar will not update.
+     If we do NOT enter the event loop, the scroll bar will not update.
      So send SIGIO to ourselves.  */
   if (apploopnr == 0) raise (SIGIO);
 
@@ -7458,7 +7473,7 @@ if (cols > 0 && rows > 0)
 @implementation EmacsDocument
 
 @end
-#endif
+#endif /* NS_IMPL_GNUSTEP */
 
 
 /* ==========================================================================
@@ -7556,7 +7571,9 @@ ns_xlfd_to_fontname (const char *xlfd)
             name[i+1] = c_toupper (name[i+1]);
         }
     }
-/*fprintf (stderr, "converted '%s' to '%s'\n",xlfd,name);  */
+#ifdef DEBUG
+  fprintf(stderr, "converted '%s' to '%s'\n", xlfd, name);
+#endif /* DEBUG */
   ret = [[NSString stringWithUTF8String: name] UTF8String];
   xfree (name);
   return ret;
@@ -7570,7 +7587,7 @@ syms_of_nsterm (void)
 
   ns_antialias_threshold = 10.0;
 
-  /* from 23+ we need to tell emacs what modifiers there are.. */
+  /* from 23+ we need to tell emacs what modifiers there are... */
   DEFSYM (Qmodifier_value, "modifier-value");
   DEFSYM (Qalt, "alt");
   DEFSYM (Qhyper, "hyper");
@@ -7686,7 +7703,7 @@ Default is t for OSX >= 10.7, nil otherwise.  */);
   ns_use_native_fullscreen = YES;
 #else
   ns_use_native_fullscreen = NO;
-#endif
+#endif /* HAVE_NATIVE_FS */
   ns_last_use_native_fullscreen = ns_use_native_fullscreen;
 
   DEFVAR_BOOL ("ns-use-srgb-colorspace", ns_use_srgb_colorspace,

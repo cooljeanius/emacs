@@ -112,13 +112,13 @@ typedef float EmacsCGFloat;
   int nextappdefined;
 #endif /* NS_IMPL_GNUSTEP */
 }
-- (void)logNotification: (NSNotification *)notification;
-- (void)sendEvent: (NSEvent *)theEvent;
-- (void)showPreferencesWindow: (id)sender;
-- (BOOL) openFile: (NSString *)fileName;
-- (void)fd_handler: (id)unused;
-- (void)timeout_handler: (NSTimer *)timedEntry;
-- (BOOL)fulfillService: (NSString *)name withArg: (NSString *)arg;
+- (void)logNotification:(NSNotification *)notification;
+- (void)sendEvent:(NSEvent *)theEvent;
+- (void)showPreferencesWindow:(id)sender;
+- (BOOL)openFile:(NSString *)fileName;
+- (void) _Noreturn fd_handler:(id)unused;
+- (void)timeout_handler:(NSTimer *)timedEntry;
+- (BOOL)fulfillService:(NSString *)name withArg:(NSString *)arg;
 #ifdef NS_IMPL_GNUSTEP
 - (void)sendFromMainThread:(id)unused;
 #endif /* NS_IMPL_GNUSTEP */

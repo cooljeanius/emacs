@@ -1,4 +1,4 @@
-/* Interfaces to system-dependent kernel and library entries.
+/* sysdep.c: Interfaces to system-dependent kernel and library entries.
    Copyright (C) 1985-1988, 1993-1995, 1999-2014 Free Software
    Foundation, Inc.
 
@@ -22,8 +22,8 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <execinfo.h>
 #include "sysstdio.h"
 #ifdef HAVE_PWD_H
-#include <pwd.h>
-#include <grp.h>
+# include <pwd.h>
+# include <grp.h>
 #endif /* HAVE_PWD_H */
 #include <limits.h>
 #include <unistd.h>
@@ -35,9 +35,9 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "sysselect.h"
 #include "blockinput.h"
 
-#if defined DARWIN_OS || defined __FreeBSD__
+#if defined(DARWIN_OS) || defined(__FreeBSD__) || defined(HAVE_SYS_SYSCTL_H)
 # include <sys/sysctl.h>
-#endif
+#endif /* DARWIN_OS || __FreeBSD__ || HAVE_SYS_SYSCTL_H */
 
 #ifdef __FreeBSD__
 /* Sparc/ARM machine/frame.h has 'struct frame' which conflicts with Emacs's
@@ -1622,7 +1622,7 @@ static char const *sys_siglist[NSIG];
 #endif
 
 /* Handle bus errors, invalid instruction, etc.  */
-static void
+static _Noreturn void
 handle_fatal_signal (int sig)
 {
   terminate_due_to_signal (sig, 40);

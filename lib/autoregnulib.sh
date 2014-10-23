@@ -2,7 +2,7 @@
 
 # The gnulib commit ID to use for the update.
 # If you know your version is newer, feel free to replace:
-GNULIB_COMMIT_SHA1="b155b0649814b20e635a2db305696710fa1037ce"
+GNULIB_COMMIT_SHA1="032bd151051bfdcb7387af627342ae85637e3253"
 
 if [ $# -ne 1 ]; then
    echo "Warning: Path to gnulib repository missing."
@@ -58,40 +58,46 @@ if test -z "${gnulib_tool}" || test ! -x "${gnulib_tool}"; then
 else
   # The list of gnulib modules we are importing for emacs:
   module_list="\
-      alloca alloca-opt allocator assert-h autobuild \
-      byteswap \
-      c-ctype c-strcase careadlinkat close-stream \
-      count-one-bits count-trailing-zeros \
+      absolute-header alloca alloca-opt allocator assert-h autobuild \
+      binary-io byteswap \
+      c-ctype c-strcase careadlinkat clock-time close-stream \
+      configmake count-one-bits count-trailing-zeros \
       crypto/md5 crypto/sha1 crypto/sha256 crypto/sha512 \
-      double-slash-root dtoastr dtotimespec dup2 \
-      environ errno error execinfo \
-      faccessat fcntl fcntl-h fdatasync fdopendir filemode fstatat fsync \
-      getloadavg getopt-gnu gettext gettext-h gettime gettimeofday \
-      git-version-gen gitlog-to-changelog gnu-make \
-      host-cpu-c-abi host-os \
-      intprops \
-      largefile ldd lstat \
-      manywarnings memrchr mkostemp mktime \
-      obstack \
-      pipe2 posix_spawnp progname pselect pthread_sigmask putenv \
-      qacl \
-      readlink readlinkat \
-      sched sig2str snippet/link-warning snippet/warn-on-use socklen spawn \
-      stat-time stdalign stdarg stdbool stdio strftime strtoimax strtoumax \
+      dosname double-slash-root dtoastr dtotimespec dup2 dup2-obsolete \
+      environ errno error execinfo euidaccess extensions extern-inline \
+      faccessat fcntl fcntl-h fdatasync fdopendir filemode fpieee fpucw \
+      fstatat fsync func \
+      getgroups getloadavg getopt-gnu gettext gettext-h gettime gettimeofday \
+      git-version-gen gitlog-to-changelog gnu-make group-member \
+      havelib host-cpu-c-abi host-os \
+      include_next inline intprops inttypes-incomplete \
+      largefile ldd longlong lstat \
+      manywarnings memcmp memrchr mkostemp mktime multiarch \
+      nextafter no-c++ nocrash \
+      obstack openmp \
+      pathmax pipe2 posix_spawnp progname pselect pthread_sigmask putenv \
+      qacl quote \
+      readlink readlinkat root-uid \
+      sched sig2str snippet/_Noreturn snippet/link-warning \
+      snippet/unused-parameter snippet/warn-on-use socklen spawn stat-time \
+      stdalign stdarg stdbool stdio stdnoreturn strftime strtoimax strtoumax \
       symlink sys_stat sys_time \
-      time timer-time timespec-add timespec-sub \
-      unsetenv update-copyright utimens \
-      warnings \
-      xalloc xalloc-die"
+      tempname time timer-time timespec timespec-add timespec-sub \
+      u64 unsetenv update-copyright utimens \
+      va-args vc-list-files verify vma-iter \
+      warnings winsz-ioctl winsz-termios \
+      xalloc xalloc-die xalloc-oversized"
    echo "Actually beginning import now; this may take a while..."
   "${gnulib_tool}" --import --dir=. --lib=libgnu --source-base=lib \
     --m4-base=m4 --doc-base=doc --tests-base=tests --aux-dir=build-aux \
-    --avoid=close --avoid=dup --avoid=fchdir --avoid=fstrcmp --avoid=lock \
-    --avoid=malloc-posix --avoid=msvc-nothrow --avoid=open --avoid=openat-die \
-    --avoid=opendir --avoid=raise --avoid=save-cwd --avoid=select \
-    --avoid=sigprocmask --avoid=threadlib --avoid=tls \
-    --makefile-name=gnulib.mk --conditional-dependencies --no-libtool \
-    --macro-prefix=gl --no-vc-files --with-obsolete \
+    --avoid=close --avoid=dup --avoid=fchdir --avoid=fstrcmp \
+    --avoid=localcharset --avoid=lock --avoid=malloc --avoid=malloc-posix \
+    --avoid=memchr-obsolete --avoid=msvc-nothrow --avoid=open \
+    --avoid=openat-die --avoid=opendir --avoid=raise --avoid=save-cwd \
+    --avoid=select --avoid=sigprocmask --avoid=threadlib --avoid=tls \
+    --avoid=vasnprintf --avoid=vasnprintf-posix \
+    --makefile-name=gnulib.mk --conditional-dependencies \
+    --no-libtool --macro-prefix=gl --no-vc-files --with-obsolete \
     "${module_list}"
   if [ $? -ne 0 ]; then
     echo "Error: gnulib import failed.  Aborting."

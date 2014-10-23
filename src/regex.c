@@ -544,7 +544,7 @@ typedef const re_char const_re_char;
 #else
 typedef const unsigned char re_char;
 typedef re_char const_re_char;
-#endif
+#endif /* _MSC_VER */
 
 typedef char boolean;
 
@@ -2888,13 +2888,17 @@ regex_compile (const_re_char *pattern, size_t size, reg_syntax_t syntax,
 		      }
 		    str[c1] = '\0';
 
-		    /* If isn't a word bracketed by `[:' and `:]':
+		    /* If it is NOT a word bracketed by `[:' and `:]':
 		       undo the ending character, the letters, and
 		       leave the leading `:' and `[' (but set bits for
 		       them).  */
-		    if (c == ':' && *p == ']')
+		    if ((c == ':') && (*p == ']'))
 		      {
-			re_wctype_t cc = re_wctype (str);
+#if ! WIDE_CHAR_SUPPORT
+			re_wctype_t cc = re_wctype((const_re_char *)str);
+#else
+                        re_wctype_t cc = re_wctype((const char *)str);
+#endif /* !WIDE_CHAR_SUPPORT */
 
 			if (cc == 0)
 			  FREE_STACK_RETURN (REG_ECTYPE);
@@ -6660,3 +6664,5 @@ regfree (regex_t *preg)
 WEAK_ALIAS (__regfree, regfree)
 
 #endif /* not emacs  */
+
+/* EOF */

@@ -220,10 +220,20 @@ ns_directory_from_panel (NSSavePanel *panel)
 
 static Lisp_Object
 interpret_services_menu (NSMenu *menu, Lisp_Object prefix, Lisp_Object old)
-/* --------------------------------------------------------------------------
-   Turn the input menu (an NSMenu) into a lisp list for tracking on lisp side
-   -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------
+ * Turn the input menu (an NSMenu) into a lisp list for tracking on lisp side
+ * --------------------------------------------------------------------- */
 {
+#if defined(NS_IMPL_COCOA) && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6
+# if defined(__APPLE__) && defined(__APPLE_CC__) && (__APPLE_CC__ > 1)
+#  pragma unused (menu, prefix, old)
+# endif /* __APPLE__ && (__APPLE_CC__ > 1) */
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#  warning "Go back to an OS version that supports services properly to test the services menu."
+# endif /* __GNUC__ && !__STRICT_ANSI__ */
+  /* (the service menu got broken in 10.6) */
+  return Qnil;
+#else /* earlier than 10.6: */
   int i, count;
   NSMenuItem *item;
   const char *name;
@@ -233,7 +243,7 @@ interpret_services_menu (NSMenu *menu, Lisp_Object prefix, Lisp_Object old)
   Lisp_Object res;
 
   count = [menu numberOfItems];
-  for (i = 0; i<count; i++)
+  for (i = 0; i < count; i++)
     {
       item = [menu itemAtIndex: i];
       name = [[item title] UTF8String];
@@ -243,28 +253,29 @@ interpret_services_menu (NSMenu *menu, Lisp_Object prefix, Lisp_Object old)
 
       if ([item hasSubmenu])
         {
-          old = interpret_services_menu ([item submenu],
+          old = interpret_services_menu([item submenu],
                                         Fcons (nameStr, prefix), old);
         }
       else
         {
           keys = [item keyEquivalent];
-          if (keys && [keys length] )
+          if (keys && [keys length])
             {
               key = [keys characterAtIndex: 0];
-              res = make_number (key|super_modifier);
+              res = make_number(key | super_modifier);
             }
           else
             {
               res = Qundefined;
             }
-          old = Fcons (Fcons (res,
-                            Freverse (Fcons (nameStr,
+          old = Fcons(Fcons(res,
+                            Freverse(Fcons(nameStr,
                                            prefix))),
-                    old);
+                      old);
         }
     }
   return old;
+#endif /* 10.6+ || earlier */
 }
 
 
@@ -299,7 +310,9 @@ x_set_foreground_color (struct frame *f, Lisp_Object arg, Lisp_Object oldval)
   if (FRAME_NS_VIEW (f))
     {
       update_face_from_frame_parameter (f, Qforeground_color, arg);
-      /*recompute_basic_faces (f); */
+#if 0
+      recompute_basic_faces(f);
+#endif /* 0 */
       if (FRAME_VISIBLE_P (f))
         redraw_frame (f);
     }
@@ -337,7 +350,7 @@ x_set_background_color (struct frame *f, Lisp_Object arg, Lisp_Object oldval)
     {
       [[view window] setBackgroundColor: col];
 
-      if (alpha != (EmacsCGFloat) 1.0)
+      if (alpha != (EmacsCGFloat)1.0f)
           [[view window] setOpaque: NO];
       else
           [[view window] setOpaque: YES];
@@ -440,7 +453,7 @@ ns_set_name_internal (struct frame *f, Lisp_Object name)
 
   str = [NSString stringWithUTF8String: SSDATA (encoded_name)];
 
-  /* Don't change the name if it's already NAME.  */
+  /* Do NOT change the name if it is already NAME.  */
   if (! [[[view window] title] isEqualToString: str])
     [[view window] setTitle: str];
 
@@ -1966,15 +1979,18 @@ DEFUN ("ns-list-services", Fns_list_services, Sns_list_services, 0, 0, 0,
        doc: /* List available Nextstep services by querying NSApp.  */)
      (void)
 {
-#if defined (NS_IMPL_COCOA) && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6
-  /* You can't get services like this in 10.6+.  */
-  return Qnil;
-#else
-  Lisp_Object ret = Qnil;
   NSMenu *svcs;
-#ifdef NS_IMPL_COCOA
+  Lisp_Object ret = Qnil;
+#if defined(NS_IMPL_COCOA) && (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6)
+  /* You cannot get services like this in 10.6+.  */
+  svcs = NULL;
+  /* Still need to use this function, though: */
+  ret = interpret_services_menu(svcs, Qnil, ret); /* (always returns Qnil in this case) */
+  return ret;
+#else /* earlier than 10.6: */
+# ifdef NS_IMPL_COCOA
   id delegate;
-#endif
+# endif /* NS_IMPL_COCOA */
 
   check_window_system (NULL);
   svcs = [[NSMenu alloc] initWithTitle: @"Services"];
@@ -1984,7 +2000,7 @@ DEFUN ("ns-list-services", Fns_list_services, Sns_list_services, 0, 0, 0,
 
 /* On Tiger, services menu updating was made lazier (waits for user to
    actually click on the menu), so we have to force things along: */
-#ifdef NS_IMPL_COCOA
+# ifdef NS_IMPL_COCOA
   delegate = [svcs delegate];
   if (delegate != nil)
     {
@@ -1994,25 +2010,25 @@ DEFUN ("ns-list-services", Fns_list_services, Sns_list_services, 0, 0, 0,
                        @selector (menu:updateItem:atIndex:shouldCancel:)])
         {
           int i, len = [delegate numberOfItemsInMenu: svcs];
-          for (i =0; i<len; i++)
+          for (i = 0; i < len; i++)
             [svcs addItemWithTitle: @"" action: NULL keyEquivalent: @""];
-          for (i =0; i<len; i++)
+          for (i = 0; i < len; i++)
             if (![delegate menu: svcs
                      updateItem: (NSMenuItem *)[svcs itemAtIndex: i]
                         atIndex: i shouldCancel: NO])
               break;
         }
     }
-#endif
+# endif /* NS_IMPL_COCOA */
 
   [svcs setAutoenablesItems: NO];
-#ifdef NS_IMPL_COCOA
+# ifdef NS_IMPL_COCOA
   [svcs update]; /* on OS X, converts from '/' structure */
-#endif
+# endif /* NS_IMPL_COCOA */
 
   ret = interpret_services_menu (svcs, Qnil, ret);
   return ret;
-#endif
+#endif /* 10.6+ || earlier */
 }
 
 
@@ -2241,10 +2257,10 @@ x_get_string_resource (XrmDatabase rdb, const char *name, const char *class)
     /* --quick was passed, so this is a no-op.  */
     return NULL;
 
-  res = ns_get_defaults_value (toCheck);
-  return (!res ? NULL :
-	  (!c_strncasecmp (res, "YES", 3) ? "true" :
-	   (!c_strncasecmp (res, "NO", 2) ? "false" : (char *) res)));
+  res = ns_get_defaults_value(toCheck);
+  return (char *)(!res ? NULL :
+                  (!c_strncasecmp(res, "YES", 3) ? "true" :
+                   (!c_strncasecmp(res, "NO", 2) ? "false" : (char *)res)));
 }
 
 

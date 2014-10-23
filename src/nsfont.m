@@ -39,8 +39,8 @@ Author: Adrian Robert (arobert@cogsci.ucsd.edu)
 
 /* TODO: Drop once we can assume gnustep-gui 0.17.1. */
 #ifdef NS_IMPL_GNUSTEP
-#import <AppKit/NSFontDescriptor.h>
-#endif
+# import <AppKit/NSFontDescriptor.h>
+#endif /* NS_IMPL_GNUSTEP */
 
 #define NSFONT_TRACE 0
 #define LCD_SMOOTHING_MARGIN 2
@@ -133,17 +133,17 @@ ns_spec_to_descriptor (Lisp_Object font_spec)
     NSString *family = ns_get_family (font_spec);
     float n;
 
-    /* add each attr in font_spec to fdAttrs.. */
-    n = min (FONT_WEIGHT_NUMERIC (font_spec), 200);
-    if (n != -1 && n != STYLE_REF)
+    /* add each attr in font_spec to fdAttrs... */
+    n = min(FONT_WEIGHT_NUMERIC(font_spec), 200);
+    if ((n != -1) && (n != STYLE_REF))
 	[tdict setObject: [NSNumber numberWithFloat: (n - 100.0F) / 100.0F]
 		  forKey: NSFontWeightTrait];
     n = min (FONT_SLANT_NUMERIC (font_spec), 200);
-    if (n != -1 && n != STYLE_REF)
+    if ((n != -1) && (n != STYLE_REF))
 	[tdict setObject: [NSNumber numberWithFloat: (n - 100.0F) / 100.0F]
 		  forKey: NSFontSlantTrait];
     n = min (FONT_WIDTH_NUMERIC (font_spec), 200);
-    if (n > -1 && (n > STYLE_REF + 10 || n < STYLE_REF - 10))
+    if ((n > -1) && ((n > (STYLE_REF + 10)) || (n < (STYLE_REF - 10))))
 	[tdict setObject: [NSNumber numberWithFloat: (n - 100.0F) / 100.0F]
 		  forKey: NSFontWidthTrait];
     if ([tdict count] > 0)
@@ -634,7 +634,7 @@ static int nsfont_draw (struct glyph_string *s, int from, int to, int x, int y,
 
 struct font_driver nsfont_driver =
   {
-    0,				/* Qns */
+    { 0 },			/* Qns */
     1,				/* case sensitive */
     nsfont_get_cache,
     nsfont_list,
@@ -903,9 +903,10 @@ nsfont_open (struct frame *f, Lisp_Object font_entity, int pixel_size)
                 ((CFStringRef)@"Monaco", kATSOptionFlagsDefault);
             }
         }
-      font_info->cgfont = CGFontCreateWithPlatformFont ((void*)&atsFont);
+      //FIXME: deprecated:
+      font_info->cgfont = CGFontCreateWithPlatformFont((void*)&atsFont);
     }
-#endif
+#endif /* NS_IMPL_COCOA */
 
     /* set up metrics portion of font struct */
     font->ascent = lrint([sfont ascender]);
@@ -1372,7 +1373,7 @@ ns_uni_to_glyphs (struct nsfont_info *font_info, unsigned char block)
 
 #ifdef NS_IMPL_COCOA
     [allChars release];
-#endif
+#endif /* NS_IMPL_COCOA */
   }
 
   unblock_input ();
@@ -1443,12 +1444,12 @@ ns_glyph_metrics (struct nsfont_info *font_info, unsigned char block)
 /* helper for font glyph setup */
 @implementation EmacsGlyphStorage
 
-- init
+- (id)init
 {
   return [self initWithCapacity: 1024];
 }
 
-- initWithCapacity: (unsigned long) c
+- (id)initWithCapacity: (unsigned long) c
 {
   self = [super init];
   maxChar = 0;
@@ -1458,7 +1459,7 @@ ns_glyph_metrics (struct nsfont_info *font_info, unsigned char block)
   return self;
 }
 
-- (void) dealloc
+- (void)dealloc
 {
   if (attrStr != nil)
     [attrStr release];
@@ -1467,7 +1468,7 @@ ns_glyph_metrics (struct nsfont_info *font_info, unsigned char block)
   [super dealloc];
 }
 
-- (void) setString: (NSString *)str font: (NSFont *)font
+- (void)setString: (NSString *)str font: (NSFont *)font
 {
   [dict setObject: font forKey: NSFontAttributeName];
   if (attrStr != nil)
@@ -1493,7 +1494,7 @@ ns_glyph_metrics (struct nsfont_info *font_info, unsigned char block)
         characterIndex: (NSUInteger)charIndex
 {
   len = glyphIndex+length;
-  for (i =glyphIndex; i<len; i++) 
+  for (i = glyphIndex; i < len; i++)
     cglyphs[i] = glyphs[i-glyphIndex];
   if (len > maxGlyph)
     maxGlyph = len;
