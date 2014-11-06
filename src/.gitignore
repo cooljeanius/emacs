@@ -1,7 +1,10 @@
 buildobj.h
+buildobj.lst
 config.h
 epaths.h
 globals.h
+version.h
+
 stamp_BLD
 stamp-h*
 *-stamp

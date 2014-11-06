@@ -102,13 +102,13 @@ typedef XGCValues * GC;
 typedef id Pixmap;
 #else
 typedef void *Pixmap;
-#endif
+#endif /* __OBJC__ */
 
 #ifdef __OBJC__
 typedef NSCursor * Cursor;
 #else
 typedef void *Cursor;
-#endif
+#endif /* __OBJC__ */
 
 #define No_Cursor (0)
 
@@ -116,7 +116,7 @@ typedef void *Cursor;
 typedef NSColor * Color;
 #else
 typedef void * Color;
-#endif
+#endif /* __OBJC__ */
 typedef int Window;
 typedef int Display;
 

@@ -1,4 +1,4 @@
-/* Synchronous subprocess invocation for GNU Emacs.
+/* callproc.c: Synchronous subprocess invocation for GNU Emacs.
 
 Copyright (C) 1985-1988, 1993-1995, 1999-2014 Free Software Foundation,
 Inc.
@@ -651,7 +651,11 @@ call_process (ptrdiff_t nargs, Lisp_Object *args, int filefd,
     for (i = 0; i < CALLPROC_FDS; i++)
       callproc_fd_volatile[i] = callproc_fd[i];
 
+# ifndef PUMA_VFORK_ISSUES_CLEARED_UP
+    pid = fork ();
+# else
     pid = vfork ();
+# endif /* !PUMA_VFORK_ISSUES_CLEARED_UP */
 
     buffer = buffer_volatile;
     coding_systems = coding_systems_volatile;

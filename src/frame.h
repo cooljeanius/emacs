@@ -1,4 +1,4 @@
-/* Define frame-object for GNU Emacs.
+/* frame.h: Define frame-object for GNU Emacs.
    Copyright (C) 1993-1994, 1999-2014 Free Software Foundation, Inc.
 
 This file is part of GNU Emacs.
@@ -154,13 +154,13 @@ struct frame
 
   /* This frame's root window.  Every frame has one.
      If the frame has only a minibuffer window, this is it.
-     Otherwise, if the frame has a minibuffer window, this is its sibling.  */
+     Otherwise, if the frame has a minibuffer window, this is its sibling: */
   Lisp_Object root_window;
 
   /* This frame's selected window.
      Each frame has its own window hierarchy
      and one of the windows in it is selected within the frame.
-     The selected window of the selected frame is Emacs's selected window.  */
+     The selected window of the selected frame is Emacs's selected window: */
   Lisp_Object selected_window;
 
   /* This frame's minibuffer window.
@@ -188,7 +188,7 @@ struct frame
      Each item has four elements in this vector.
      They are KEY, STRING, SUBMAP, and HPOS.
      (HPOS is not used in when the X toolkit is in use.)
-     There are four additional elements of nil at the end, to terminate.  */
+     There are four additional elements of nil at the end, to terminate: */
   Lisp_Object menu_bar_items;
 
   /* Alist of elements (FACE-NAME . FACE-VECTOR-DATA).  */
@@ -205,24 +205,24 @@ struct frame
   /* List of buffers viewed in this frame, for other-buffer.  */
   Lisp_Object buffer_list;
 
-  /* List of buffers that were viewed, then buried in this frame.  The
-     most recently buried buffer is first.  For last-buffer.  */
+  /* List of buffers that were viewed, then buried in this frame.
+   * The most recently buried buffer is first.  For last-buffer.  */
   Lisp_Object buried_buffer_list;
 
-#if defined (HAVE_X_WINDOWS) && ! defined (USE_X_TOOLKIT) && ! defined (USE_GTK)
+#if defined(HAVE_X_WINDOWS) && !defined(USE_X_TOOLKIT) && !defined(USE_GTK)
   /* A dummy window used to display menu bars under X when no X
      toolkit support is available.  */
   Lisp_Object menu_bar_window;
-#endif
+#endif /* HAVE_X_WINDOWS && !USE_X_TOOLKIT && !USE_GTK */
 
-#if defined (HAVE_WINDOW_SYSTEM) && ! defined (USE_GTK) && ! defined (HAVE_NS)
+#if defined(HAVE_WINDOW_SYSTEM) && !defined(USE_GTK) && !defined(HAVE_NS)
   /* A window used to display the tool-bar of a frame.  */
   Lisp_Object tool_bar_window;
 
   /* Desired and current contents displayed in that window.  */
   Lisp_Object desired_tool_bar_string;
   Lisp_Object current_tool_bar_string;
-#endif
+#endif /* HAVE_WINDOW_SYSTEM && !USE_GTK && !HAVE_NS */
 
   /* Desired and current tool-bar items.  */
   Lisp_Object tool_bar_items;
@@ -272,17 +272,17 @@ struct frame
   /* Set to true when current redisplay has updated frame.  */
   bool_bf updated_p : 1; /* used to be 'unsigned updated_p : 1;' below */
 
-#if defined (HAVE_WINDOW_SYSTEM) && ! defined (USE_GTK) && ! defined (HAVE_NS)
+#if defined(HAVE_WINDOW_SYSTEM) && !defined(USE_GTK) && !defined(HAVE_NS)
   /* Set to true to minimize tool-bar height even when
      auto-resize-tool-bar is set to grow-only.  */
   bool_bf minimize_tool_bar_window_p : 1;
   /* (used to be 'unsigned minimize_tool_bar_window_p : 1;' below) */
-#endif
+#endif /* HAVE_WINDOW_SYSTEM && !USE_GTK && !HAVE_NS */
 
 #if defined (USE_GTK) || defined (HAVE_NS)
   /* True means using a tool bar that comes from the toolkit.  */
   bool_bf external_tool_bar : 1;
-#endif
+#endif /* USE_GTK || HAVE_NS */
 
   /* True means that fonts have been loaded since the last glyph
      matrix adjustments.  */
@@ -615,8 +615,7 @@ typedef struct frame *FRAME_PTR;
 # endif /* !_FRAME_PTR_DEFINED */
 #endif /* !FRAME_PTR */
 
-/* Most code should use these functions to set Lisp fields in struct frame.  */
-
+/* Most code should use these functions to set Lisp fields in struct frame: */
 INLINE void
 fset_buffer_list (struct frame *f, Lisp_Object val)
 {
@@ -657,13 +656,13 @@ fset_menu_bar_vector (struct frame *f, Lisp_Object val)
 {
   f->menu_bar_vector = val;
 }
-#if defined (HAVE_X_WINDOWS) && ! defined (USE_X_TOOLKIT) && ! defined (USE_GTK)
+#if defined(HAVE_X_WINDOWS) && !defined(USE_X_TOOLKIT) && !defined(USE_GTK)
 INLINE void
 fset_menu_bar_window (struct frame *f, Lisp_Object val)
 {
   f->menu_bar_window = val;
 }
-#endif
+#endif /* HAVE_X_WINDOWS && !USE_X_TOOLKIT && !USE_GTK */
 INLINE void
 fset_name (struct frame *f, Lisp_Object val)
 {
@@ -759,25 +758,25 @@ default_pixels_per_inch_y (void)
 #define FRAME_TERMCAP_P(f) ((f)->output_method == output_termcap)
 #define FRAME_X_P(f) ((f)->output_method == output_x_window)
 #ifndef HAVE_NTGUI
-#define FRAME_W32_P(f) false
+# define FRAME_W32_P(f) false
 #else
-#define FRAME_W32_P(f) ((f)->output_method == output_w32)
-#endif
+# define FRAME_W32_P(f) ((f)->output_method == output_w32)
+#endif /* !HAVE_NTGUI */
 #ifndef MSDOS
-#define FRAME_MSDOS_P(f) false
+# define FRAME_MSDOS_P(f) false
 #else
-#define FRAME_MSDOS_P(f) ((f)->output_method == output_msdos_raw)
-#endif
+# define FRAME_MSDOS_P(f) ((f)->output_method == output_msdos_raw)
+#endif /* !MSDOS */
 #if !(defined(MAC_OS) || defined(HAVE_CARBON))
-#define FRAME_MAC_P(f) false
+# define FRAME_MAC_P(f) false
 #else
-#define FRAME_MAC_P(f) ((f)->output_method == output_mac)
+# define FRAME_MAC_P(f) ((f)->output_method == output_mac)
 #endif /* !(MAC_OS || HAVE_CARBON) */
 #ifndef HAVE_NS
-#define FRAME_NS_P(f) false
+# define FRAME_NS_P(f) false
 #else
-#define FRAME_NS_P(f) ((f)->output_method == output_ns)
-#endif
+# define FRAME_NS_P(f) ((f)->output_method == output_ns)
+#endif /* !HAVE_NS */
 
 /* FRAME_WINDOW_P tests whether the frame is a window, and is
    defined to be the predicate for the window system being used.  */
@@ -798,57 +797,54 @@ default_pixels_per_inch_y (void)
 # define FRAME_WINDOW_P(f) ((void) (f), false)
 #endif /* !FRAME_WINDOW_P */
 
-/* Dots per inch of the screen the frame F is on.  */
-
+/* Dots per inch of the screen the frame F is on: */
 #ifdef HAVE_WINDOW_SYSTEM
-
-#ifndef FRAME_DISPLAY_INFO
-# ifdef FRAME_MAC_DISPLAY_INFO
-#  define FRAME_DISPLAY_INFO FRAME_MAC_DISPLAY_INFO
-# else
-#  ifdef FRAME_X_DISPLAY_INFO
-#   define FRAME_DISPLAY_INFO FRAME_X_DISPLAY_INFO
-#  endif /* FRAME_X_DISPLAY_INFO */
-# endif /* FRAME_MAC_DISPLAY_INFO */
-#endif /* !FRAME_DISPLAY_INFO */
-
-#define FRAME_RES_X(f)						\
-  (eassert (FRAME_WINDOW_P (f)), FRAME_DISPLAY_INFO (f)->resx)
-#define FRAME_RES_Y(f)						\
-  (eassert (FRAME_WINDOW_P (f)), FRAME_DISPLAY_INFO (f)->resy)
-
+# ifndef FRAME_DISPLAY_INFO
+#  ifdef FRAME_MAC_DISPLAY_INFO
+#   define FRAME_DISPLAY_INFO FRAME_MAC_DISPLAY_INFO
+#  else
+#   ifdef FRAME_X_DISPLAY_INFO
+#    define FRAME_DISPLAY_INFO FRAME_X_DISPLAY_INFO
+#   endif /* FRAME_X_DISPLAY_INFO */
+#  endif /* FRAME_MAC_DISPLAY_INFO */
+# endif /* !FRAME_DISPLAY_INFO */
+/* now use FRAME_DISPLAY_INFO now that we have it: */
+# define FRAME_RES_X(f)						\
+   (eassert (FRAME_WINDOW_P (f)), FRAME_DISPLAY_INFO (f)->resx)
+# define FRAME_RES_Y(f)						\
+   (eassert (FRAME_WINDOW_P (f)), FRAME_DISPLAY_INFO (f)->resy)
 #else /* !HAVE_WINDOW_SYSTEM */
-
-/* Defaults when no window system available.  */
-
-#define FRAME_RES_X(f) default_pixels_per_inch_x ()
-#define FRAME_RES_Y(f) default_pixels_per_inch_y ()
-
+/* Defaults when no window system available: */
+# define FRAME_RES_X(f) default_pixels_per_inch_x ()
+# define FRAME_RES_Y(f) default_pixels_per_inch_y ()
 #endif /* HAVE_WINDOW_SYSTEM */
 
 /* Return a pointer to the structure holding information about the
    region of text, if any, that is currently shown in mouse-face on
    frame F.  We need to define two versions because a TTY-only build
    does not have FRAME_DISPLAY_INFO.  */
-#ifdef HAVE_WINDOW_SYSTEM
-# define MOUSE_HL_INFO(F)					\
-  (FRAME_WINDOW_P(F)						\
-   ? &FRAME_DISPLAY_INFO(F)->mouse_highlight			\
-   : &(F)->output_data.tty->display_info->mouse_highlight)
-#else
-# define MOUSE_HL_INFO(F)					\
-  (&(F)->output_data.tty->display_info->mouse_highlight)
-#endif
+#ifndef MOUSE_HL_INFO
+# if defined(HAVE_WINDOW_SYSTEM) && \
+     (defined(FRAME_X_DISPLAY_INFO) && !defined(FRAME_MAC_DISPLAY_INFO))
+#  define MOUSE_HL_INFO(F)					\
+   (FRAME_WINDOW_P(F)						\
+    ? &FRAME_DISPLAY_INFO(F)->mouse_highlight			\
+    : &(F)->output_data.tty->display_info->mouse_highlight)
+# else
+#  define MOUSE_HL_INFO(F)					\
+   (&(F)->output_data.tty->display_info->mouse_highlight)
+# endif /* HAVE_WINDOW_SYSTEM && FRAME_X_DISPLAY_INFO && !FRAME_MAC_DISPLAY_INFO */
+#endif /* !MOUSE_HL_INFO */
 
-/* True if frame F is still alive (not deleted).  */
+/* True if frame F is still alive (not deleted): */
 #define FRAME_LIVE_P(f) ((f)->terminal != 0)
 
-/* True if frame F is a minibuffer-only frame.  */
+/* True if frame F is a minibuffer-only frame: */
 #define FRAME_MINIBUF_ONLY_P(f) \
   EQ (FRAME_ROOT_WINDOW (f), FRAME_MINIBUF_WINDOW (f))
 
-/* True if frame F contains it's own minibuffer window.  Frame always has
-   minibuffer window, but it could use minibuffer window of another frame.  */
+/* True if frame F contains its own minibuffer window.  Frame always has
+   minibuffer window, but it could use minibuffer window of another frame: */
 #define FRAME_HAS_MINIBUF_P(f)					\
   (WINDOWP (f->minibuffer_window)				\
    && XFRAME (XWINDOW (f->minibuffer_window)->frame) == f)

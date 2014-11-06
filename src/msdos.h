@@ -1,4 +1,4 @@
-/* MS-DOS specific C utilities, interface.
+/* msdos.h: MS-DOS specific C utilities, interface.
    Copyright (C) 1993, 2001-2014 Free Software Foundation, Inc.
 
 This file is part of GNU Emacs.
@@ -48,7 +48,10 @@ int readlink (const char *, char *, size_t);
 
 #ifndef HAVE_X_WINDOWS
 /* Dummy types.  */
+# ifndef _XFONTSTRUCT_DEFINED
+#  define _XFONTSTRUCT_DEFINED 1
 typedef int XFontStruct;
+# endif /* !_XFONTSTRUCT_DEFINED */
 typedef int GC;
 typedef int Pixmap;
 typedef int Display;

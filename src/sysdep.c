@@ -464,12 +464,12 @@ sys_subshell (void)
 {
 #ifdef DOS_NT	/* Demacs 1.1.2 91/10/20 Manabu Higashida */
   int st;
-#ifdef MSDOS
+# ifdef MSDOS
   char oldwd[MAXPATHLEN+1]; /* Fixed length is safe on MSDOS.  */
-#else
+# else
   char oldwd[MAX_UTF8_PATH];
-#endif
-#endif
+# endif /* MSDOS */
+#endif /* DOS_NT */
   pid_t pid;
   int status;
   struct save_signal saved_handlers[5];
@@ -480,13 +480,17 @@ sys_subshell (void)
 #else
   {
     char *volatile str_volatile = str;
+# ifndef PUMA_VFORK_ISSUES_CLEARED_UP
+    pid = fork ();
+# else
     pid = vfork ();
+# endif /* !PUMA_VFORK_ISSUES_CLEARED_UP */
     str = str_volatile;
   }
-#endif
+#endif /* DOS_NT */
 
   if (pid < 0)
-    error ("Can't spawn subshell");
+    error ("Cannot spawn subshell");
 
   saved_handlers[0].code = SIGINT;
   saved_handlers[1].code = SIGQUIT;

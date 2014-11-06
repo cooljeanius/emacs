@@ -136,7 +136,7 @@ if test -n "${XCRUN}"; then
     if test -z "${MAKE_PROG}"; then
       MAKE="${XCRUN} MAKE"
       export MAKE
-      xcsdkdir=`${XCRUN} --show-sdk-path 2>/dev/null`
+      xcsdkdir="`${XCRUN} --show-sdk-path 2>/dev/null`"
       AC_MSG_NOTICE([xcsdkdir is "${xcsdkdir}"])
       AC_SUBST([xcsdkdir])
     fi
@@ -210,7 +210,7 @@ if test "x${with_kerberos5}" != "xno"; then
 fi
 
 OPTION_DEFAULT_OFF([hesiod],[support Hesiod to get the POP server host])
-dnl# FIXME hesiod support may not be present, so it seems like an error
+dnl# FIXME: hesiod support may not be present, so it seems like an error
 dnl# to define, or at least use, this unconditionally.
 if test "x${with_hesiod}" != "xno"; then
   AC_DEFINE([HESIOD],[1],
@@ -611,7 +611,6 @@ dnl# Since Emacs cannot find matching pairs of quotes, boundaries are
 dnl# indicated by comments.
 dnl# this batch of m4-quotation (block 1) begins:
 [
-
 ### If you add support for a new configuration, add code to this
 ### switch statement to recognize your configuration name and select
 ### the appropriate opsys.
@@ -637,12 +636,11 @@ dnl# this batch of m4-quotation (block 1) begins:
 ### confusion between `system' and `release' levels'."
 
 machine='' opsys='' unported=no unofficially_ported=no
-## FIXME: still needs to bue used in more places:
+## FIXME: still needs to be used in more places:
 opsys_family=''
 ## This next string ends a sentence, and should end with a period:
 unofficial_port_warning_reason='no reason.'
 case "${canonical}" in
-
   ## GNU/Linux and similar ports:
   *-*-linux* )
     opsys=gnu-linux
@@ -874,8 +872,8 @@ dnl# see the `changequote' comment above.
         ## non-default prefix may be mis-configured:
         if test -x /sw/bin/fink; then
           echo "Found installation of Fink in its default prefix; checking to see if we should use packages from it..."
-          FINK_ARCH=`/sw/bin/fink --version --quiet | grep Distribution | cut -d\, -f3 | tr -d [:blank:]`
-          CANONICAL_ARCH=`echo ${canonical} | cut -d\- -f1`
+          FINK_ARCH="`/sw/bin/fink --version --quiet | grep Distribution | cut -d\, -f3 | tr -d [:blank:]`"
+          CANONICAL_ARCH="`echo ${canonical} | cut -d\- -f1`"
           if test "x${FINK_ARCH}" = "x${CANONICAL_ARCH}"; then
             if test -d /sw/include && test -d /sw/lib; then
               echo "configure: deciding to use Fink packages"
@@ -989,7 +987,7 @@ dnl# see the `changequote' comment above.
     opsys=nonstopux
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Convex:
   *-convex-bsd* | *-convex-convexos* )
@@ -1475,63 +1473,63 @@ dnl# see the `changequote' comment above.
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
   romp-ibm-bsd4.2* )
     machine=ibmrt
     opsys=bsd4-2
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
   romp-ibm-aos4.3* )
     machine=ibmrt
     opsys=bsd4-3
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
   romp-ibm-aos4.2* )
     machine=ibmrt
     opsys=bsd4-2
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
   romp-ibm-aos* )
     machine=ibmrt
     opsys=bsd4-3
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
   romp-ibm-bsd* )
     machine=ibmrt
     opsys=bsd4-3
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
   romp-ibm-aix* )
     machine=ibmrt-aix
     opsys=usg5-2-2    ## (really? not an "aix" variant?)
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Integrated Solutions `Optimum V':
   m68*-isi-bsd4.2* )
     machine=isi-ov
     opsys=bsd4-2
     opsys_family=bsd
-    ;;
+  ;;
   m68*-isi-bsd4.3* )
     machine=isi-ov
     opsys=bsd4-3
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Intel 386 machines where we DO care about the manufacturer:
   i[3456]86-intsys-sysv* )
@@ -1540,9 +1538,9 @@ dnl# see the `changequote' comment above.
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
-    ## (Intel 386 machines where we do NOT care are farther down,
-    ## near the bottom of this block)
+  ;;
+  ## (Intel 386 machines where we do NOT care are farther down,
+  ## near the bottom of this block)
 
   ## Prime EXL:
   i[3456]86-prime-sysv* )
@@ -1551,7 +1549,7 @@ dnl# see the `changequote' comment above.
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Sequent Symmetry running Dynix:
   i[3456]86-sequent-bsd* )
@@ -1560,7 +1558,7 @@ dnl# see the `changequote' comment above.
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Sequent Symmetry running ptx 4, which is a modified SVR4.
   i[3456]86-sequent-ptx4* | i[3456]86-sequent-sysv4* )
@@ -1570,7 +1568,7 @@ dnl# see the `changequote' comment above.
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
     NON_GNU_CPP=/lib/cpp
-    ;;
+  ;;
 
   ## Sequent Symmetry running DYNIX/ptx.
   ## Use the old cpp rather than the newer ANSI one.
@@ -1581,7 +1579,7 @@ dnl# see the `changequote' comment above.
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated and requires an old cpp."
     NON_GNU_CPP="/lib/cpp"
-    ;;
+  ;;
 
   ## ncr machine running svr4.3.
   i[3456]86-ncr-sysv4.3 )
@@ -1590,7 +1588,7 @@ dnl# see the `changequote' comment above.
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Unspecified sysv on an ncr machine defaults to svr4.2.
   ## (Plain usg5-4 does NOT turn on POSIX signals, which we need.)
@@ -1600,7 +1598,7 @@ dnl# see the `changequote' comment above.
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="Unspecified ${opsys} on ${machine} is old and deprecated and possibly dangerous."
-    ;;
+  ;;
 
   ## Intel Paragon OSF/1:
   i860-intel-osf1* )
@@ -1610,7 +1608,7 @@ dnl# see the `changequote' comment above.
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
     NON_GNU_CPP=/usr/mach/lib/cpp
-    ;;
+  ;;
 
   ## Intel 860:
   i860-*-sysv4* )
@@ -1621,7 +1619,7 @@ dnl# see the `changequote' comment above.
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
     NON_GNU_CC="/bin/cc" # I.e., not the one in /usr/ucb/cc.
     NON_GNU_CPP="/usr/ccs/lib/cpp" # cc -E tokenizes macro expansion.
-    ;;
+  ;;
 
   ## Macintosh PowerPC:
   powerpc*-*-linux-gnu* )
@@ -1629,7 +1627,7 @@ dnl# see the `changequote' comment above.
     opsys=gnu-linux
     unofficially_ported=yes
     unofficial_port_warning_reason="this case (${opsys} on ${machine}) was reached in a deprecated way; all gnu-linux machines should have been handled at the top."
-    ;;
+  ;;
 
   ## Masscomp machines:
   m68*-masscomp-rtu* )
@@ -1637,7 +1635,7 @@ dnl# see the `changequote' comment above.
     opsys=rtu
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Megatest machines:
   m68*-megatest-bsd* )
@@ -1646,9 +1644,56 @@ dnl# see the `changequote' comment above.
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
-  #### FIXME: MIPS has 5 cases around here; come back to...
+  ## Workstations sold by MIPS.
+  ## This is not necessarily all workstations using the MIPS processor:
+  ## Irises are produced by SGI, and DECstations by DEC.
+
+  ## etc/MACHINES lists mips.h and mips4.h as possible machine files,
+  ## and usg5-2-2 and bsd4-3 as possible OS files.  The only guidance
+  ## it gives for choosing between the alternatives seems to be "Use
+  ## -machine=mips4 for RISCOS version 4; use -opsystem=bsd4-3 with
+  ## the BSD world."  I will assume that these are instructions for
+  ## handling two odd situations, and that every other situation
+  ## should use mips.h and usg5-2-2, they being listed first.
+  mips-mips-usg* )
+    machine=mips4
+    ## Fall through to the general code at the bottom to decide on the OS.
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${machine} is old and deprecated, and we do not even know what operating systems run on it in this case."
+  ;;
+  mips-mips-riscos4* )
+    machine=mips4
+    opsys=bsd4-3
+    opsys_family=bsd
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    NON_GNU_CC="cc -systype bsd43"
+    NON_GNU_CPP="cc -systype bsd43 -E"
+  ;;
+  mips-mips-riscos5* )
+    machine=mips4
+    opsys=riscos5
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    NON_GNU_CC="cc -systype bsd43"
+    NON_GNU_CPP="cc -systype bsd43 -E"
+  ;;
+  mips-mips-bsd* )
+    machine=mips
+    opsys=bsd4-3
+    opsys_family=bsd
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+  ;;
+  mips-mips-* )
+    machine=mips
+    opsys=usg5-2-2
+    opsys_family=usg
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+  ;;
 
   ## NeXT:
   m68*-next-* | m68k-*-nextstep* )
@@ -1656,7 +1701,7 @@ dnl# see the `changequote' comment above.
     opsys=nextstep
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## The complete machine from National Semiconductor:
   ns32k-ns-genix* )
@@ -1665,7 +1710,7 @@ dnl# see the `changequote' comment above.
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## NCR machines:
   m68*-ncr-sysv2* | m68*-ncr-sysvr2* )
@@ -1674,14 +1719,14 @@ dnl# see the `changequote' comment above.
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
   m68*-ncr-sysv3* | m68*-ncr-sysvr3* )
     machine=tower32v3
     opsys=usg5-3
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## NEC EWS4800:
   mips-nec-sysv4*)
@@ -1689,7 +1734,7 @@ dnl# see the `changequote' comment above.
     opsys=ux4800
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Nixdorf Targon 31:
   m68*-nixdorf-sysv* )
@@ -1698,7 +1743,7 @@ dnl# see the `changequote' comment above.
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Nu (TI or LMI):
   m68*-nu-sysv* )
@@ -1707,7 +1752,7 @@ dnl# see the `changequote' comment above.
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Plexus:
   m68*-plexus-sysv* )
@@ -1716,7 +1761,7 @@ dnl# see the `changequote' comment above.
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Pyramid machines.
   ## I do NOT really have any idea what sort of processor the Pyramid has,
@@ -1727,7 +1772,7 @@ dnl# see the `changequote' comment above.
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated, and plus details about its architecture are scarce."
-    ;;
+  ;;
 
   ## Sequent Balance:
   ns32k-sequent-bsd4.2* )
@@ -1736,14 +1781,14 @@ dnl# see the `changequote' comment above.
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
   ns32k-sequent-bsd4.3* )
     machine=sequent
     opsys=bsd4-3
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Siemens Nixdorf:
   mips-siemens-sysv* | mips-sni-sysv*)
@@ -1754,7 +1799,7 @@ dnl# see the `changequote' comment above.
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
     NON_GNU_CC=/usr/ccs/bin/cc
     NON_GNU_CPP=/usr/ccs/lib/cpp
-    ;;
+  ;;
 
   ### Silicon Graphics machines:
   ## Iris 2500 and Iris 2500 Turbo (a.k.a. the Iris 3030):
@@ -1830,42 +1875,42 @@ dnl# see the `changequote' comment above.
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
   m68*-sony-bsd4.3* )
     machine=news
     opsys=bsd4-3
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
   m68*-sony-newsos3* | m68*-sony-news3*)
     machine=news
     opsys=bsd4-3
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
   mips-sony-bsd* | mips-sony-newsos4* | mips-sony-news4*)
     machine=news-risc
     opsys=bsd4-3
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
   mips-sony-newsos6* )
     machine=news-r6
     opsys=newsos6
     opsys_family=newsos
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
   mips-sony-news* )
     machine=news-risc
     opsys=newsos5
     opsys_family=newsos
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Stride:
   m68*-stride-sysv* )
@@ -1874,7 +1919,7 @@ dnl# see the `changequote' comment above.
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Suns:
   sparc-*-linux-gnu* | sparc64-*-linux-gnu* )
@@ -2059,7 +2104,7 @@ dnl# see the `changequote' comment above.
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Tahoe machines:
   tahoe-tahoe-bsd4.2* )
@@ -2068,14 +2113,14 @@ dnl# see the `changequote' comment above.
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
   tahoe-tahoe-bsd4.3* )
     machine=tahoe
     opsys=bsd4-3
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Tandem Integrity S2:
   mips-tandem-sysv* )
@@ -2084,7 +2129,7 @@ dnl# see the `changequote' comment above.
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Tektronix XD88:
   m88k-tektronix-sysv3* )
@@ -2093,7 +2138,7 @@ dnl# see the `changequote' comment above.
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Tektronix 16000 box (6130?):
   ns16k-tektronix-bsd* )
@@ -2102,7 +2147,7 @@ dnl# see the `changequote' comment above.
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated, and we are unsure about its number."
-    ;;
+  ;;
   ## Tektronix 4300.
   ## src/m/tek4300.h hints that this is a m68k machine.
   m68*-tektronix-bsd* )
@@ -2111,7 +2156,7 @@ dnl# see the `changequote' comment above.
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated, and we can only make guesses about it based on obscure hints."
-    ;;
+  ;;
 
   ## Titan P2 or P3.
   ## We seem to have lost the machine-description file titan.h!
@@ -2121,7 +2166,7 @@ dnl# see the `changequote' comment above.
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="the machine-description file titan.h is missing."
-    ;;
+  ;;
 
   ## Ustation E30 (SS5E):
   m68*-unisys-uniplus* )
@@ -2129,7 +2174,7 @@ dnl# see the `changequote' comment above.
     opsystem=unipl5-2
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Vaxen.
   vax-dec-* )
@@ -2164,7 +2209,7 @@ dnl# see the `changequote' comment above.
     esac
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Whitechapel MG1:
   ns16k-whitechapel-* )
@@ -2173,7 +2218,7 @@ dnl# see the `changequote' comment above.
     ## operating system guessing code below try.
     unofficially_ported=yes
     unofficial_port_warning_reason="${machine} is old and deprecated, and we do not even know what operating systems run on it."
-    ;;
+  ;;
 
   ## Wicat:
   m68*-wicat-sysv* )
@@ -2182,7 +2227,7 @@ dnl# see the `changequote' comment above.
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## IA-64:
   ia64*-*-linux* )
@@ -2190,7 +2235,7 @@ dnl# see the `changequote' comment above.
     opsys=gnu-linux
     unofficially_ported=yes
     unofficial_port_warning_reason="this case (${opsys} on ${machine}) was reached in a deprecated way; all gnu-linux machines should have been handled at the top."
-    ;;
+  ;;
 
   ## Intel 386 machines where we do NOT care about the manufacturer.
   ## (why the big separation from the cases where we DO care?)
@@ -2198,15 +2243,28 @@ dnl# see the `changequote' comment above.
     machine=intel386
     case "${canonical}" in
       ## FIXME: additional cases in here...
-      *-darwin* )               opsys=darwin ;;
+      *-darwin* )
+		opsys=darwin
+		## (still official)
+		;;
       *-mingw32 )
 		opsys=mingw32
 		# MinGW overrides and adds some system headers in nt/inc.
 		GCC_TEST_OPTIONS="-I ${srcdir}/nt/inc"
+		## (still official)
 		;;
-      *-sysv4.2uw* )	  	opsys=unixware ;;
-      *-sysv5uw* )	  	opsys=unixware ;;
-      *-sysv5OpenUNIX* )  	opsys=unixware ;;
+      *-sysv4.2uw* )
+		opsys=unixware
+		## (still official)
+                ;;
+      *-sysv5uw* )
+		opsys=unixware
+		## (still official)
+                ;;
+      *-sysv5OpenUNIX* )
+		opsys=unixware
+		## (still official)
+                ;;
       ## Otherwise, we will fall through to the generic opsys code at the
       ## bottom.
     esac
@@ -2218,7 +2276,7 @@ dnl# see the `changequote' comment above.
     opsys=gnu-linux
     unofficially_ported=yes
     unofficial_port_warning_reason="this case (${opsys} on ${machine}) was reached in a deprecated way; all gnu-linux machines should have been handled at the top."
-    ;;
+  ;;
 
   ## Mips Linux-based GNU system:
   mips-*-linux-gnu* | mipsel-*-linux-gnu* )
@@ -2226,7 +2284,7 @@ dnl# see the `changequote' comment above.
     opsys=gnu-linux
     unofficially_ported=yes
     unofficial_port_warning_reason="this case (${opsys} on ${machine}) was reached in a deprecated way; all gnu-linux machines should have been handled at the top."
-    ;;
+  ;;
 
   ## UXP/DS:
   sparc-fujitsu-sysv4* )
@@ -2237,7 +2295,7 @@ dnl# see the `changequote' comment above.
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
     NON_GNU_CPP=/usr/ccs/lib/cpp
     RANLIB="ar -ts"
-    ;;
+  ;;
 
   ## UXP/V:
   f301-fujitsu-uxpv4.1)
@@ -2246,7 +2304,7 @@ dnl# see the `changequote' comment above.
     opsys_family=uxp
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## AMD x86-64 Linux-based GNU system:
   x86_64-*-linux-gnu* )
@@ -2254,7 +2312,7 @@ dnl# see the `changequote' comment above.
     opsys=gnu-linux
     unofficially_ported=yes
     unofficial_port_warning_reason="this case (${opsys} on ${machine}) was reached in a deprecated way; all gnu-linux machines should have been handled at the top."
-    ;;
+  ;;
 
   # x86-64 MinGW64:
   x86_64-*-* )
@@ -2282,7 +2340,7 @@ dnl# see the `changequote' comment above.
     opsys=gnu-linux
     unofficially_ported=yes
     unofficial_port_warning_reason="this case (${opsys} on ${machine}) was reached in a deprecated way; all gnu-linux machines should have been handled at the top."
-    ;;
+  ;;
 
   ## ...and there we are!
   * )
@@ -2305,30 +2363,44 @@ if test x"${opsys}" = x""; then
     *-bsd4.[01] )
         opsys=bsd4-1
         opsys_family=bsd
+        unofficially_ported=yes
+        unofficial_port_warning_reason="${opsys} is old and deprecated, and was unhandled in the first batch, meaning that we have no idea if this is correct."
     ;;
     *-bsd4.2 )
         opsys=bsd4-2
         opsys_family=bsd
+        unofficially_ported=yes
+        unofficial_port_warning_reason="${opsys} is old and deprecated, and was unhandled in the first batch, meaning that we have no idea if this is correct."
     ;;
     *-bsd4.3 )
         opsys=bsd4-3
         opsys_family=bsd
+        unofficially_ported=yes
+        unofficial_port_warning_reason="${opsys} is old and deprecated, and was unhandled in the first batch, meaning that we have no idea if this is correct."
     ;;
     *-sysv0 | *-sysvr0 )
         opsys=usg5-0
         opsys_family=usg
+        unofficially_ported=yes
+        unofficial_port_warning_reason="${opsys} is old and deprecated, and was unhandled in the first batch, meaning that we have no idea if this is correct."
     ;;
     *-sysv2 | *-sysvr2 )
         opsys=usg5-2
         opsys_family=usg
+        unofficially_ported=yes
+        unofficial_port_warning_reason="${opsys} is old and deprecated, and was unhandled in the first batch, meaning that we have no idea if this is correct."
     ;;
     *-sysv2.2 | *-sysvr2.2 )
         opsys=usg5-2-2
         opsys_family=usg
+        unofficially_ported=yes
+        unofficial_port_warning_reason="${opsys} is old and deprecated, and was unhandled in the first batch, meaning that we have no idea if this is correct."
     ;;
     *-sysv3* | *-sysvr3* )
         opsys=usg5-3
         opsys_family=usg
+        unofficially_ported=yes
+        unofficial_port_warning_reason="${opsys} is old and deprecated, and was unhandled in the first batch, meaning that we have no idea if this is correct."
     ;;
     *-sysv4.2uw* )			opsys=unixware ;;
     *-sysv5uw* )			opsys=unixware ;;
@@ -2337,6 +2409,8 @@ if test x"${opsys}" = x""; then
         NON_GNU_CPP=/usr/lib/cpp
         opsys=usg5-4
         opsys_family=usg
+        unofficially_ported=yes
+        unofficial_port_warning_reason="${opsys} is old and deprecated, and was unhandled in the first batch, meaning that we have no idea if this is correct."
     ;;
     *-sysv4.[2-9]* | *-sysvr4.[2-9]* )
 	if test "x${NON_GNU_CPP}" = "x"; then
@@ -2348,17 +2422,20 @@ if test x"${opsys}" = x""; then
 	fi
 	opsys=usg5-4-2
 	opsys_family=usg
+        unofficially_ported=yes
+        unofficial_port_warning_reason="${opsys} is old and deprecated, and was unhandled in the first batch, meaning that we have no idea if this is correct."
     ;;
     *-sysv4* | *-sysvr4* )
         opsys=usg5-4
         opsys_family=usg
+        unofficially_ported=yes
+        unofficial_port_warning_reason="${opsys} is old and deprecated, and was unhandled in the first batch, meaning that we have no idea if this is correct."
     ;;
     * )
         unported=yes
     ;;
   esac
 fi
-
 ]
 dnl# this batch of m4-quotation (block 1) ends, moving to also use similar
 dnl# blocks in other places...
@@ -2406,7 +2483,10 @@ else
 fi
 
 m4_ifdef([AM_PROG_CC_C_O],[
-AM_PROG_CC_C_O
+  if test "x${am_cv_prog_cc_c_o}" = "x" && test "x${lt_cv_prog_compiler_c_o}" = "x"; then
+    test -z "${am_cv_prog_cc_c_o}" && test -z "${lt_cv_prog_compiler_c_o}"
+    AM_PROG_CC_C_O
+  fi
 ])dnl
 
 dnl# begin m4-quotation block one-and-a-half (split off from no. 2 below):
@@ -2525,6 +2605,105 @@ else
   AC_MSG_NOTICE([CFLAGS already set; skipping attempt to add more])
 fi
 
+dnl# now do likewise with other languages.
+dnl#FIXME: write a macro that allows looping through the languages,
+dnl# instead of duplicating the same hunk of code for each of them...
+
+AC_LANG_PUSH([Objective C])
+if test "x${ac_test_OBJCFLAGS}" != "xset"; then
+  # It is also helpful to have Objective C macros available to GDB,
+  # so prefer -g3 to -g if -g3 works & the user does not specify OBJCFLAGS.
+  case ${OBJCFLAGS} in
+    '-g')
+      emacs_g3_OBJCFLAGS='-g3';;
+    '-g -O2')
+      emacs_g3_OBJCFLAGS='-g3 -O2';;
+    *)
+      emacs_g3_OBJCFLAGS='';;
+  esac
+  if test -n "${emacs_g3_OBJCFLAGS}"; then
+    emacs_save_OBJCFLAGS="${OBJCFLAGS}"
+    OBJCFLAGS="${emacs_g3_OBJCFLAGS}"
+    AC_CACHE_CHECK([whether ${OBJC} accepts ${emacs_g3_OBJCFLAGS}],
+      [emacs_cv_prog_objc_g3],
+      [AC_LINK_IFELSE([AC_LANG_PROGRAM([[]],[[]])],
+	 [emacs_cv_prog_objc_g3=yes],
+	 [emacs_cv_prog_objc_g3=no])])
+    if test "x${emacs_cv_prog_objc_g3}" != "xyes"; then
+      OBJCFLAGS="${emacs_save_OBJCFLAGS}"
+    fi
+  fi
+
+  case ${OBJCFLAGS} in
+    *-O*) ;;
+    *)
+      # No optimization flag was inferred for this compiler, so try -O.
+      emacs_save_OBJCFLAGS="${OBJCFLAGS}"
+      test -z "${OBJCFLAGS}" || OBJCFLAGS="${OBJCFLAGS} "
+      OBJCFLAGS="${OBJCFLAGS}-O"
+      AC_CACHE_CHECK([whether ${OBJC} accepts -O],
+        [emacs_cv_prog_objc_o],
+	[AC_LINK_IFELSE([AC_LANG_PROGRAM([[]],[[]])],
+	   [emacs_cv_prog_objc_o=yes],
+	   [emacs_cv_prog_objc_o=no])])
+      if test "x${emacs_cv_prog_objc_o}" != "xyes"; then
+	OBJCFLAGS="${emacs_save_OBJCFLAGS}"
+      fi ;;
+  esac
+else
+  AC_MSG_NOTICE([OBJCFLAGS already set; skipping attempt to add more])
+fi
+AC_LANG_POP
+
+dnl# after Objective C is C++:
+
+AC_LANG_PUSH([C++])
+if test "x${ac_test_CXXFLAGS}" != "xset"; then
+  # It is also helpful to have C++ macros available to GDB, so prefer
+  # -g3 to -g if -g3 works and the user does not specify CXXFLAGS.
+  case ${CXXFLAGS} in
+    '-g')
+      emacs_g3_CXXFLAGS='-g3';;
+    '-g -O2')
+      emacs_g3_CXXFLAGS='-g3 -O2';;
+    *)
+      emacs_g3_CXXFLAGS='';;
+  esac
+  if test -n "${emacs_g3_CXXFLAGS}"; then
+    emacs_save_CXXFLAGS="${CXXFLAGS}"
+    CXXFLAGS="${emacs_g3_CXXFLAGS}"
+    AC_CACHE_CHECK([whether ${CXX} accepts ${emacs_g3_CXXFLAGS}],
+      [emacs_cv_prog_cxx_g3],
+      [AC_LINK_IFELSE([AC_LANG_PROGRAM([[]],[[]])],
+	 [emacs_cv_prog_cxx_g3=yes],
+	 [emacs_cv_prog_cxx_g3=no])])
+    if test "x${emacs_cv_prog_cxx_g3}" != "xyes"; then
+      CXXFLAGS="${emacs_save_CXXFLAGS}"
+    fi
+  fi
+
+  case ${CXXFLAGS} in
+    *-O*) ;;
+    *)
+      # No optimization flag was inferred for this compiler, so try -O.
+      emacs_save_CXXFLAGS="${CXXFLAGS}"
+      test -z "${CXXFLAGS}" || CXXFLAGS="${CXXFLAGS} "
+      CXXFLAGS="${CXXFLAGS}-O"
+      AC_CACHE_CHECK([whether ${CXX} accepts -O],
+        [emacs_cv_prog_cxx_o],
+	[AC_LINK_IFELSE([AC_LANG_PROGRAM([[]],[[]])],
+	   [emacs_cv_prog_cxx_o=yes],
+	   [emacs_cv_prog_cxx_o=no])])
+      if test "x${emacs_cv_prog_cxx_o}" != "xyes"; then
+	CXXFLAGS="${emacs_save_CXXFLAGS}"
+      fi ;;
+  esac
+else
+  AC_MSG_NOTICE([CXXFLAGS already set; skipping attempt to add more])
+fi
+AC_LANG_POP
+
+dnl# warnings section begins here:
 AC_ARG_ENABLE([gcc-warnings],
   [AS_HELP_STRING([--enable-gcc-warnings],
                   [turn on lots of GCC warnings/errors. This is meant for
@@ -2695,7 +2874,7 @@ else
     fi
     ## for some reason Apple's gcc prints way more prototype warnings
     ## and such than normal; let us see if this is will fix it:
-    if test -n "${emacs_g3_CFLAGS}" || test "x${emacs_cv_prog_cc_g3}" = "xyes"; then
+    if test -n "${emacs_g3_CFLAGS}" || test "x${emacs_cv_prog_cc_g3}" = "xyes" || test -n "${emacs_g3_OBJCFLAGS}"; then
       nw="${nw} -Wmissing-prototypes"
       nw="${nw} -Wmissing-declarations"
     fi  ##end check for g3 flags
@@ -2750,8 +2929,9 @@ else
         if test "x${acl_cv_wl}" = "x"; then
           test -z "${acl_cv_wl}" && export acl_cv_wl='-Wl,'
         fi
-        AC_SUBST([ac_cv_wl])
-        dnl#FIXME: get these flags to actually be used properly:
+        AC_SUBST([acl_cv_wl])
+        dnl#FIXME: make sure these flags are actually used properly
+        dnl# everywhere:
         WARN_LDFLAGS=""
         gl_WARN_ADD([${acl_cv_wl}-warn_compact_unwind],[WARN_LDFLAGS])
         gl_WARN_ADD([${acl_cv_wl}-warn_weak_exports],[WARN_LDFLAGS])
@@ -2834,14 +3014,14 @@ else
 
     dnl# to be added in a future version of gcc:
     gl_GCC_VERSION_IFELSE([5],[0],[
-    gl_WARN_ADD([-Wbool-compare])
-    gl_WARN_ADD([-Wc90-c99-compat])
-    gl_WARN_ADD([-Wc99-c11-compat])
-    gl_WARN_ADD([-Wlogical-not-parentheses])
-    gl_WARN_ADD([-Wsizeof-array-argument])
-    gl_WARN_ADD([-Wswitch-bool])
+      gl_WARN_ADD([-Wbool-compare])
+      gl_WARN_ADD([-Wc90-c99-compat])
+      gl_WARN_ADD([-Wc99-c11-compat])
+      gl_WARN_ADD([-Wlogical-not-parentheses])
+      gl_WARN_ADD([-Wsizeof-array-argument])
+      gl_WARN_ADD([-Wswitch-bool])
     ])dnl# end block of code for gcc trunk
-    ##...okay.
+    ##...okay, that should be it.
   fi  ##end check for werror flags
 
   AC_DEFINE([lint],[1],[Define to 1 if the compiler is checking for lint.])
@@ -3323,10 +3503,11 @@ case "${canonical}" in
 fi
 esac
 
-# Suppress obsolescent Autoconf test for size_t; Emacs assumes C89 or
-# better.
+#### Types section:
+dnl# Suppress obsolescent Autoconf test for size_t; Emacs assumes C89 or
+dnl# better.
 AC_DEFUN([AC_TYPE_SIZE_T],[:])dnl
-# Likewise for obsolescent test for uid_t, gid_t; Emacs assumes them.
+dnl# Likewise for obsolescent test for uid_t, gid_t; Emacs assumes them.
 AC_DEFUN([AC_TYPE_UID_T],[:])dnl
 
 dnl# other type tests that autoscan wants:
@@ -3362,7 +3543,7 @@ dnl# gnu, gnu/linux, gnu/kfreebsd, aix, cygwin, darwin, hpux, irix.
 dnl# And special cases: berkeley-unix, usg-unix-v, ms-dos, windows-nt.
 dnl# m4-quotation block 9 begins:
 [
-SYSTEM_TYPE=`echo ${opsys} | sed -e 's/[[0-9]].*//' -e 's|-|/|'`
+SYSTEM_TYPE="`echo ${opsys} | sed -e 's/[[0-9]].*//' -e 's|-|/|'`"
 
 case ${opsys} in
   cygwin )
@@ -3520,9 +3701,9 @@ AC_CHECK_HEADERS([ \
   sys/utsname.h pwd.h utmp.h util.h])
 dnl# (normally I check <malloc/malloc.h> right after <malloc.h>, but we do
 dnl# that elsewhere in this one)
-AC_CHECK_HEADERS([OS.h arpa/inet.h err.h errno.h fcntl.h float.h \
-                  langinfo.h libintl.h limits.h locale.h malloc.h \
-                  nl_types.h stddef.h sys/_mbstate_t.h sys/file.h \
+AC_CHECK_HEADERS([OS.h arpa/inet.h dpmi.h err.h errno.h fcntl.h float.h \
+                  langinfo.h libintl.h limits.h locale.h malloc.h paths.h \
+                  nl_types.h sgtty.h stddef.h sys/_mbstate_t.h sys/file.h \
                   sys/ioctl.h sys/mman.h sys/timeb.h sys/vfs.h \
                   termcap.h termio.h termios.h timespec.h])
 if test "x${ac_cv_header_wctype_h}" = "x"; then
@@ -3653,22 +3834,68 @@ dnl# definition of macro for checking timezone structs has been moved to:
 m4_include([m4/timezone_structs.m4])dnl
 AC_REQUIRE_TIMEZONE_STRUCTS
 
-dnl#FIXME: I think gcc has a flag that controls this behavior:
+dnl# GCC has a flag that I think might affect this behavior,
+dnl# so check that afterwards:
 AC_CACHE_CHECK([for struct exception],[emacs_cv_struct_exception],[
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <math.h>]],[[
 static struct exception x;
 x.arg1 = x.arg2 = x.retval;
-x.name = ""; x.type = 1;]])],
-  [emacs_cv_struct_exception=yes],[emacs_cv_struct_exception=no])])
+x.name = ""; x.type = 1;
+]])],[emacs_cv_struct_exception=yes],[emacs_cv_struct_exception=no])])
 HAVE_EXCEPTION="${emacs_cv_struct_exception}"
+AC_SUBST([HAVE_STRUCT_EXCEPTION],["${HAVE_EXCEPTION}"])
 if test "x${emacs_cv_struct_exception}" != "xyes"; then
   AC_DEFINE([NO_MATHERR],[1],
             [Define to 1 if you do NOT have struct exception in <math.h>.])
+  MATHLESS_CFLAGS="${CFLAGS}"
+  CFLAGS="${CFLAGS} -fmath-errno"
+  AC_CACHE_CHECK([if -fmath-errno will give us struct exception],
+                 [emacs_cv_math_errno_struct_exception],[
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+#if defined(HAVE_ERRNO_H) || defined(STDC_HEADERS) || defined(__STDC__)
+# include <errno.h>
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#  warning "This conftest expects <errno.h> to be included."
+# endif /* __GNUC__ && !__STRICT_ANSI__ */
+#endif /* HAVE_ERRNO_H || STDC_HEADERS || __STDC__ */
+#include <math.h>
+  ]],[[
+static struct exception x;
+x.arg1 = x.arg2 = x.retval;
+x.name = ""; x.type = 1;
+  ]])],[emacs_cv_math_errno_struct_exception=yes],
+       [emacs_cv_math_errno_struct_exception=no])])
+  CFLAGS="${MATHLESS_CFLAGS}"
+else
+  SAFE_MATH_CFLAGS="${CFLAGS}"
+  CFLAGS="${CFLAGS} -fno-math-errno"
+  AC_CACHE_CHECK([if struct exception still works with -fno-math-errno],
+                 [emacs_cv_no_math_errno_struct_exception],[
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+#if defined(HAVE_ERRNO_H) || defined(STDC_HEADERS) || defined(__STDC__)
+# include <errno.h>
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#  warning "This conftest expects <errno.h> to be included."
+# endif /* __GNUC__ && !__STRICT_ANSI__ */
+#endif /* HAVE_ERRNO_H || STDC_HEADERS || __STDC__ */
+#include <math.h>
+  ]],[[
+static struct exception x;
+x.arg1 = x.arg2 = x.retval;
+x.name = ""; x.type = 1;
+  ]])],[emacs_cv_no_math_errno_struct_exception=yes],
+       [emacs_cv_no_math_errno_struct_exception=no])])
+  CFLAGS="${SAFE_MATH_CFLAGS}"
 fi
 
 dnl# checks for compiler characteristics:
 AC_MSG_CHECKING([the characteristics of your C compiler])
 AC_MSG_RESULT([ ])
+
+dnl# Signedness of char can produce some warnings:
+AC_C_CHAR_UNSIGNED
 
 dnl# Testing __STDC__ to determine prototype support is NOT good enough.
 dnl# DEC C, for instance, does NOT define it with default options, and
@@ -3726,7 +3953,7 @@ dnl# check for GNU Make if we have GCC and autodepend is on.
 if test "x${GCC}" = "xyes" && test "x${ac_enable_autodepend}" = "xyes"; then
    AC_MSG_CHECKING([whether we are using GNU Make])
    HAVE_GNU_MAKE=no
-   testval=`${MAKE-make} --version 2>/dev/null | grep 'GNU Make'`
+   testval="`${MAKE-make} --version 2>/dev/null | grep 'GNU Make'`"
    if test "x${testval}" != "x"; then
       HAVE_GNU_MAKE=yes
    else
@@ -3770,8 +3997,41 @@ AC_MSG_CHECKING([operating system services])
 AC_MSG_RESULT([ ])
 AC_SYS_LONG_FILE_NAMES
 AC_SYS_RESTARTABLE_SYSCALLS
+dnl# this one is kind of a different type of "service", but whatever:
 AC_LANG_PUSH([Objective C])dnl
+ORIG_LDFLAGS="${LDFLAGS}"
+if test "x${with_ns}" != "xno"; then
+  if test "x${opsys}" = "xdarwin" && test "x${emacs_cv_apple}" = "xyes" && test "x${host_vendor}" = "xapple" && test "x${OBJC}" != "x"; then
+    test -n "${OBJC}"
+    ## FIXME: test this better:
+    LDFLAGS="${LDFLAGS} -framework AppKit"
+  elif test "x${ac_cv_header_appkit_appkit_h}" = "xyes"; then
+    APPKIT_FRAMEWORK="/System/Library/Frameworks/Appkit.framework"
+    if test "x${xcsdkdir}" != "x"; then
+      test -d "${xcsdkdir}" && export APPKIT_FRAMEWORK="${xcsdkdir}/System/Library/Frameworks/Appkit.framework"
+    elif test "x${SDKROOT}" != "x"; then
+      test -d "${SDKROOT}" && export APPKIT_FRAMEWORK="${SDKROOT}/System/Library/Frameworks/Appkit.framework"
+    else
+      APPKIT_FRAMEWORK="/System/Library/Frameworks/Appkit.framework"
+    fi
+    AC_PATH_PROGS([LOCATE_BIN],[locate glocate])
+    AC_PATH_PROGS([HEAD_BIN],[head ghead])
+    if test "x${LOCATE_BIN}" != "x" && test "x${HEAD_BIN}" != "x"; then
+      test -x "${LOCATE_BIN}" && test -x "${HEAD_BIN}" && export APPKIT_FRAMEWORK="`${LOCATE_BIN} '/Library/Frameworks/AppKit.framework' 2>/dev/null | ${HEAD_BIN} -n 1`"
+    fi
+    if test -d "${APPKIT_FRAMEWORK}"; then
+      LDFLAGS="${LDFLAGS} -framework AppKit"
+    fi
+  else
+    AC_CHECK_LIB([gnustep-gui],[main],[LDFLAGS="${LDFLAGS} -lgnustep-gui"])
+    AC_CHECK_LIB([gnustep-base],[main],
+                 [LDFLAGS="${LDFLAGS} -lgnustep-base"])
+    AC_CHECK_LIB([objc],[main],[LDFLAGS="${LDFLAGS} -lobjc"],
+      [AC_CHECK_LIB([objc-gnu],[main],[LDFLAGS="${LDFLAGS} -lobjc-gnu"])])
+  fi
+fi
 AC_CHECK_FUNCS([NSPerformService])dnl
+LDFLAGS="${ORIG_LDFLAGS}"
 AC_LANG_POP
 
 #### Choose a window system.
@@ -3799,8 +4059,8 @@ if test "x${no_x}" != "xyes"; then
 fi
 AC_SUBST([no_x])dnl
 
-dnl# m4-quotation block 10 begins:
-[
+dnl# actually it might be a bad idea to m4-quote this next block; it looks
+dnl# like it alread had some quotation in it to begin with...
 LD_SWITCH_X_SITE_RPATH=""
 if test "x${x_libraries}" != "xNONE"; then
   if test -n "${x_libraries}"; then
@@ -3828,8 +4088,7 @@ ${x_library}/X11/%T/%N%S"
     fi
   done
 fi
-]
-dnl# m4-quotation block 10 ends
+dnl# m4-quotation block 10 would end here, if we were still doing that
 
 AC_SUBST([LD_SWITCH_X_SITE_RPATH])dnl
 
@@ -3853,7 +4112,7 @@ else
     fi
   done
   if test "x${bmd_acc}" != "xdummyval"; then
-    bitmapdir=`echo ${bmd_acc} | sed -e "s/^dummyval://"`
+    bitmapdir="`echo ${bmd_acc} | sed -e "s/^dummyval://"`"
   fi
 fi
 ]
@@ -3894,7 +4153,7 @@ if test "x${with_ns}" != "xno"; then
   if test "x${opsys}" = "xdarwin"; then
      NS_IMPL=Cocoa
      NS_IMPL_COCOA=yes
-     ns_appdir=`pwd`/nextstep/Emacs.app
+     ns_appdir="`pwd`/nextstep/Emacs.app"
      ns_appbindir="${ns_appdir}/Contents/MacOS"
      ns_appresdir="${ns_appdir}/Contents/Resources"
      ns_appsrc=Cocoa/Emacs.base
@@ -3912,7 +4171,7 @@ if test "x${with_ns}" != "xno"; then
   elif test -f ${GNUSTEP_CONFIG_FILE}; then
      NS_IMPL=GNUstep
      NS_IMPL_GNUSTEP=yes
-     ns_appdir=`pwd`/nextstep/Emacs.app
+     ns_appdir="`pwd`/nextstep/Emacs.app"
      ns_appbindir="${ns_appdir}"
      ns_appresdir="${ns_appdir}/Resources"
      ns_appsrc=GNUstep/Emacs.base
@@ -3973,7 +4232,7 @@ fail;
   macfont_file=""
   if test "x${NS_IMPL_COCOA}" = "xyes"; then
     dnl# "_ONCE" causes test to jump out of the conditional and be done at
-    dnl# wrong location
+    dnl# wrong location, so instead check the cache value:
     if test "x${ac_cv_header_appkit_appkit_h}" = "x"; then
       test -z "${ac_cv_header_appkit_appkit_h}"
       AC_CHECK_HEADERS([AppKit/AppKit.h])
@@ -4102,7 +4361,7 @@ if test "x${with_w32}" != "xno"; then
                             cannot be found.])])
     ;;
     mingw32)
-    ## Using --with-w32 with MinGW is a no-op, but we allow it.
+      ## Using --with-w32 with MinGW is a no-op, but we allow it.
     ;;
     *)
       AC_MSG_ERROR([Using w32 with an autotools build is only supported for Cygwin and MinGW32.])
@@ -4193,7 +4452,7 @@ fi
 ## ${window_system} is now set to the window system we will
 ## ultimately use.
 AC_MSG_CHECKING([final window system that we will ultimately use])
-AC_MSG_RESULT([${window_system}])
+AC_MSG_RESULT([going with ${window_system} for real now])
 
 if test "x${window_system}" = "xnone" && test "x${gl_gcc_warnings}" = "xyes"; then
    # Too many warnings for now.
@@ -4611,7 +4870,7 @@ if test "x${window_system}" = "xx11"; then
   [AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <X11/Xlib.h>]],
 [[#if XlibSpecificationRelease < 5
 fail;
-#endif
+#endif /* XlibSpecificationRelease < 5 */
 ]])],[emacs_cv_x11_version_5=yes],[emacs_cv_x11_version_5=no])])
   if test "x${emacs_cv_x11_version_5}" = "xyes"; then
     AC_MSG_RESULT([5 or newer])
@@ -4624,7 +4883,7 @@ fail;
   fi
 else
   AC_MSG_NOTICE([skipping check to see if X11 is version 5 or newer])
-  fi
+fi
 
 AC_MSG_CHECKING([graphics packages])
 AC_MSG_RESULT([ ])
@@ -4665,14 +4924,17 @@ if test "x${HAVE_X11}" = "xyes" || test "x${HAVE_NS}" = "xyes" || test "x${HAVE_
     IMAGEMAGICK_MODULE="Wand >= 6.2.8 Wand != 6.8.2"
     PKG_CHECK_MODULES([IMAGEMAGICK],[${IMAGEMAGICK_MODULE}],
                       [HAVE_IMAGEMAGICK=yes],[:])
-    ## imagemagick sometimes has '-fopenmp' in its CFLAGS, but the support
-    ## in clang for openmp is incomplete, so remove the flag when using
-    ## clang:
-    if test "x${emacs_cv_clang}" = "xyes"; then
+    ## imagemagick sometimes has '-fopenmp' in its CFLAGS, but some
+    ## compilers (such as clang) cannot handle this flag, so check and then
+    ## remove it if necessary:
+    if test "x${ac_cv_prog_c_openmp}" = "x"; then
+      test -z "${ac_cv_prog_c_openmp}"
+      AC_OPENMP
+    fi
+    if test "x${emacs_cv_clang}" = "xyes" || test "x${ac_cv_prog_c_openmp}" = "xunsupported"; then
+      AC_MSG_NOTICE([removing any instances of -fopenmp from IMAGEMAGICK_CFLAGS])
       IMAGEMAGICK_CFLAGS="`echo ${IMAGEMAGICK_CFLAGS} | sed 's|-fopenmp||g'`"
     fi
-    ##TODO: might want to check for OpenMP support "the Autoconf way"
-    ## instead... (i.e. test if the flag is supported instead of assuming)
     AC_SUBST([IMAGEMAGICK_CFLAGS])dnl
     AC_SUBST([IMAGEMAGICK_LIBS])dnl
 
@@ -5344,7 +5606,7 @@ if test "x${HAVE_X11}" = "xyes"; then
   fi
 else
   AC_MSG_NOTICE([skipping checks for libXaw3d])
-  fi
+fi
 
 dnl# Use toolkit scroll bars if configured for GTK or X toolkit and either
 dnl# using Motif or Xaw3d is available, and unless
@@ -5983,8 +6245,8 @@ if test "x${HAVE_NS}" = "xyes"; then
   if test "x${NS_IMPL_GNUSTEP}" = "xyes"; then
     AC_DEFINE([NS_IMPL_GNUSTEP],[1],
               [Define to 1 if you are using NS windowing under GNUstep.])
-    # See also .m.o rule in Makefile.in */
-    # FIXME: are all these flags really needed?  Document here why.  */
+    # See also .m.o rule in Makefile.in
+    # FIXME: are all these flags really needed?  Document here why.
     GNUSTEP_CFLAGS="-D_REENTRANT -fPIC -fno-strict-aliasing -I${GNUSTEP_SYSTEM_HEADERS} ${GNUSTEP_LOCAL_HEADERS}"
     ## Extra CFLAGS applied to src/*.m files.
     GNU_OBJC_CFLAGS="${GNU_OBJC_CFLAGS} -fgnu-runtime -Wno-import -fconstant-string-class=NSConstantString -DGNUSTEP_BASE_LIBRARY=1 -DGNU_GUI_LIBRARY=1 -DGNU_RUNTIME=1 -DGSWARN -DGSDIAGNOSE"
@@ -6278,9 +6540,9 @@ if test "x${ac_cv_func_mbrtowc}" = "x"; then
   AC_FUNC_MBRTOWC
 fi
 m4_ifdef([AC_FUNC_MEMCMP],[
-AC_FUNC_MEMCMP
+  AC_FUNC_MEMCMP
 ],[
-AC_CHECK_FUNCS([memcmp])dnl
+  AC_CHECK_FUNCS([memcmp])dnl
 ])dnl
 AC_FUNC_MKTIME
 if test "x${ac_cv_func_working_mktime}" = "xno"; then
@@ -6363,7 +6625,7 @@ case ${opsys} in
    *) AC_CHECK_FUNCS([random rint]) ;;
 esac
 
-dnl# Cannot use AC_CHECK_FUNCS fo this:
+dnl# Cannot use AC_CHECK_FUNCS for this:
 AC_CACHE_CHECK([for __builtin_unwind_init],
 	       [emacs_cv_func___builtin_unwind_init],
 [AC_LINK_IFELSE([AC_LANG_PROGRAM([[]],[[__builtin_unwind_init();]])],
@@ -6374,7 +6636,7 @@ if test "x${emacs_cv_func___builtin_unwind_init}" = "xyes"; then
 	    [Define to 1 if you have the `__builtin_unwind_init' function])
 fi
 
-dnl# "_ONCE" causes test to be done at wrong location
+dnl# "_ONCE" causes test to be done at wrong location, so leave that off:
 AC_CHECK_HEADERS([sys/un.h])dnl
 
 AC_FUNC_FSEEKO
@@ -6804,8 +7066,14 @@ dnl# This can be removed once we assume Autoconf 2.70.
 case ${canonical} in
   *-solaris2.4 | *-solaris2.4.*)
     dnl# Disable the Autoconf-generated vfork test.
-    AC_MSG_WARN([disabling test for vfork])
+    AC_MSG_WARN([disabling test for vfork on Solaris 2.4])
     : ${ac_cv_func_vfork_works=no}
+    ;;
+  *-darwin5.[[012345]]*)
+    AC_MSG_WARN([vfork had issues on Mac OS X Puma.])
+    : ${ac_cv_func_vfork_works=no}
+    dnl# actually nvm, test it anyways:
+    unset ac_cv_func_vfork_works
     ;;
 esac
 
@@ -6819,6 +7087,16 @@ else
 fi
 
 AC_FUNC_FORK
+
+if test "x${ac_cv_func_vfork_works}" = "xyes"; then
+  case ${canonical} in
+    *-darwin[[56789]].* | *-darwin1[[012345]].*)
+      AC_MSG_NOTICE([looks like the darwin vfork issues have cleared up])
+      AC_DEFINE([PUMA_VFORK_ISSUES_CLEARED_UP],[1],
+                [Define to 1 on versions of Mac OS X newer than Puma with a working vfork().])
+      ;;
+  esac
+fi
 
 AC_CHECK_FUNCS([snprintf])dnl
 

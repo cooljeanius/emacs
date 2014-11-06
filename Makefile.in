@@ -91,7 +91,7 @@ EXEEXT=@EXEEXT@
 ### These help us choose version- and architecture-specific directories
 ### to install files in.
 
-### This should be the number of the Emacs version we're building,
+### This should be the number of the Emacs version we are building,
 ### like `18.59' or `19.0'.
 version=@version@
 
@@ -392,15 +392,15 @@ lib lib-src lisp nt: Makefile FRC
 # source directory of src/).
 src: Makefile FRC
 	dirstate='.bzr/checkout/dirstate';				\
-	vcswitness='$$(srcdir)/../'$$dirstate;				\
-	[ -r "$(srcdir)/$$dirstate" ] || vcswitness='';			\
+	vcswitness='$$(srcdir)/../'$${dirstate};			\
+	[ -r "$(srcdir)/$${dirstate}" ] || vcswitness='';		\
 	cd $@ || exit;							\
 	boot=bootstrap-emacs$(EXEEXT);					\
-	[ ! -x "$$boot" ] || boot='';					\
+	[ ! -x "$${boot}" ] || boot='';					\
 	$(MAKE) all $(MFLAGS)						\
 	  CC='${CC}' CFLAGS='${CFLAGS}' CPPFLAGS='${CPPFLAGS}'		\
-	  LDFLAGS='${LDFLAGS}' MAKE='${MAKE}' BOOTSTRAPEMACS="$$boot"	\
-	  VCSWITNESS="$$vcswitness"
+	  LDFLAGS='${LDFLAGS}' MAKE='${MAKE}' BOOTSTRAPEMACS="$${boot}"	\
+	  VCSWITNESS="$${vcswitness}"
 
 blessmail: Makefile src FRC
 	cd lib-src && $(MAKE) maybe-blessmail $(MFLAGS) \
@@ -441,12 +441,12 @@ $(srcdir)/configure: $(AUTOCONF_INPUTS)
 
 ACLOCAL_INPUTS = $(srcdir)/configure.ac $(srcdir)/m4/gnulib-comp.m4
 $(srcdir)/aclocal.m4: $(ACLOCAL_INPUTS)
-	cd $(srcdir) && aclocal -I m4
+	cd $(srcdir) && aclocal $(ACLOCAL_AMFLAGS)
 
 AUTOMAKE_INPUTS = $(srcdir)/aclocal.m4 $(srcdir)/lib/Makefile.am \
   $(srcdir)/lib/gnulib.mk
 $(srcdir)/lib/Makefile.in: $(AUTOMAKE_INPUTS)
-	cd $(srcdir) && automake --gnu -a -c lib/Makefile
+	cd $(srcdir) && automake --gnits -a -c lib/Makefile
 
 # Regenerate files that this makefile would have made, if this makefile
 # had been built by Automake.  The name 'am--refresh' is for
@@ -463,7 +463,7 @@ $(srcdir)/src/config.in: $(srcdir)/src/stamp-h.in
 $(srcdir)/src/stamp-h.in: $(AUTOCONF_INPUTS)
 	cd ${srcdir} && autoheader
 	rm -f $(srcdir)/src/stamp-h.in
-	echo timestamp > $(srcdir)/src/stamp-h.in
+	echo "timestamp: `date`" > $(srcdir)/src/stamp-h.in
 
 # ==================== Installation ====================
 
@@ -476,15 +476,15 @@ $(srcdir)/src/stamp-h.in: $(AUTOCONF_INPUTS)
 ## this Makefile as well.
 
 install: all install-arch-indep install-etcdoc install-arch-dep install-$(NTDIR) blessmail
-	@true
+	@echo "the install target only calls its dependencies"
 
-## Ensure that $subdir contains a subdirs.el file.
+## Ensure that $${subdir} contains a subdirs.el file.
 ## Here and elsewhere, we set the umask so that any created files are
 ## world-readable.
-## TODO it might be good to warn about non-standard permissions of
+## TODO: it might be good to warn about non-standard permissions of
 ## pre-existing directories, but that does not seem easy.
 write_subdir=if [ -f "$${subdir}/subdirs.el" ]; \
-	then true; \
+	then echo "found subdirs.el"; \
 	else \
 	  umask 022; \
 	  ${MKDIR_P} "$${subdir}"; \
@@ -836,7 +836,9 @@ mostlyclean: FRC
 	cd lib      && $(MAKE) $(MFLAGS) mostlyclean
 	cd lib-src  && $(MAKE) $(MFLAGS) mostlyclean
 	cd nt       && $(MAKE) $(MFLAGS) mostlyclean
+	-cd man     && $(MAKE) $(MFLAGS) mostlyclean
 	-cd doc/emacs     && $(MAKE) $(MFLAGS) mostlyclean
+	-cd doc/man       && $(MAKE) $(MFLAGS) mostlyclean
 	-cd doc/misc      && $(MAKE) $(MFLAGS) mostlyclean
 	-cd doc/lispref   && $(MAKE) $(MFLAGS) mostlyclean
 	-cd doc/lispintro && $(MAKE) $(MFLAGS) mostlyclean
@@ -849,7 +851,7 @@ mostlyclean: FRC
 ###      with them.
 ###
 ###      Delete `.dvi' files here if they are not part of the distribution.
-clean: FRC
+clean: FRC clean-local
 	-rm -f etc/emacs.tmpdesktop
 	cd src      && $(MAKE) $(MFLAGS) clean
 	cd oldXMenu && $(MAKE) $(MFLAGS) clean
@@ -857,7 +859,9 @@ clean: FRC
 	cd lib      && $(MAKE) $(MFLAGS) clean
 	cd lib-src  && $(MAKE) $(MFLAGS) clean
 	cd nt       && $(MAKE) $(MFLAGS) clean
+	-cd man     && $(MAKE) $(MFLAGS) clean
 	-cd doc/emacs     && $(MAKE) $(MFLAGS) clean
+	-cd doc/man       && $(MAKE) $(MFLAGS) clean
 	-cd doc/misc      && $(MAKE) $(MFLAGS) clean
 	-cd doc/lispref   && $(MAKE) $(MFLAGS) clean
 	-cd doc/lispintro && $(MAKE) $(MFLAGS) clean
@@ -876,14 +880,16 @@ top_bootclean=\
 top_distclean=\
 	${top_bootclean}; \
 	rm -f config.status config.log~ Makefile stamp-h1 ${SUBDIR_MAKEFILES}
-distclean: FRC
+distclean: FRC distclean-local
 	cd src      && $(MAKE) $(MFLAGS) distclean
 	cd oldXMenu && $(MAKE) $(MFLAGS) distclean
 	cd lwlib    && $(MAKE) $(MFLAGS) distclean
 	cd lib      && $(MAKE) $(MFLAGS) distclean
 	cd lib-src  && $(MAKE) $(MFLAGS) distclean
 	cd nt       && $(MAKE) $(MFLAGS) distclean
+	cd man      && $(MAKE) $(MFLAGS) distclean
 	cd doc/emacs     && $(MAKE) $(MFLAGS) distclean
+	cd doc/man       && $(MAKE) $(MFLAGS) distclean
 	cd doc/misc      && $(MAKE) $(MFLAGS) distclean
 	cd doc/lispref   && $(MAKE) $(MFLAGS) distclean
 	cd doc/lispintro && $(MAKE) $(MFLAGS) distclean
@@ -905,7 +911,9 @@ bootstrap-clean: FRC
 	cd lib      && $(MAKE) $(MFLAGS) maintainer-clean
 	cd lib-src  && $(MAKE) $(MFLAGS) maintainer-clean
 	cd nt       && $(MAKE) $(MFLAGS) maintainer-clean
+	-cd man     && $(MAKE) $(MFLAGS) maintainer-clean
 	-cd doc/emacs     && $(MAKE) $(MFLAGS) maintainer-clean
+	-cd doc/man       && $(MAKE) $(MFLAGS) maintainer-clean
 	-cd doc/misc      && $(MAKE) $(MFLAGS) maintainer-clean
 	-cd doc/lispref   && $(MAKE) $(MFLAGS) maintainer-clean
 	-cd doc/lispintro && $(MAKE) $(MFLAGS) maintainer-clean
@@ -913,7 +921,7 @@ bootstrap-clean: FRC
 	cd lisp     && $(MAKE) $(MFLAGS) bootstrap-clean
 	cd nextstep && $(MAKE) $(MFLAGS) maintainer-clean
 	for dir in test/automated admin/grammars admin/unidata; do \
-	  [ ! -d $$dir ] || (cd $$dir && $(MAKE) $(MFLAGS) bootstrap-clean); \
+	  [ ! -d $${dir} ] || (cd $${dir} && $(MAKE) $(MFLAGS) bootstrap-clean); \
 	done
 	[ ! -f config.log ] || mv -f config.log config.log~
 	rm -rf ${srcdir}/info
@@ -933,12 +941,12 @@ bootstrap-clean: FRC
 top_maintainer_clean=\
 	${top_distclean}; \
 	rm -fr autom4te.cache
-maintainer-clean: bootstrap-clean FRC
+maintainer-clean: bootstrap-clean FRC maintainer-clean-local
 	cd src  && $(MAKE) $(MFLAGS) maintainer-clean
 	cd leim && $(MAKE) $(MFLAGS) maintainer-clean
 	cd lisp && $(MAKE) $(MFLAGS) maintainer-clean
 	for dir in test/automated admin/grammars admin/unidata; do \
-	  [ ! -d $$dir ] || (cd $$dir && $(MAKE) $(MFLAGS) maintainer-clean); \
+	  [ ! -d $${dir} ] || (cd $${dir} && $(MAKE) $(MFLAGS) maintainer-clean); \
 	done
 	${top_maintainer_clean}
 
@@ -946,11 +954,11 @@ maintainer-clean: bootstrap-clean FRC
 ### says GCC supports it, and that is where the configuration part of
 ### the coding standards seem to come from.  It is like distclean, but
 ### it deletes backup and autosave files too.
-extraclean:
+extraclean: extraclean-local
 	for i in ${SUBDIR}; do (cd $$i; $(MAKE) $(MFLAGS) extraclean); done
 	${top_maintainer_clean}
 	-rm -f config-tmp-*
-	-rm -f *~ build-aux/*~ build-aux/snippet/*~ m4/*~ \#*
+	-rm -f *~ build-aux/*~ build-aux/snippet/*~ m4/*~ po/*~ \#*
 
 # The src subdir knows how to do the right thing
 # even when the build directory and source dir are different.
@@ -982,7 +990,7 @@ $(DOCS):
 .PHONY: $(DOCS) docs pdf ps
 .PHONY: info dvi dist check html info-real info-dir force-info check-info
 
-## TODO add etc/refcards.
+## TODO: add etc/refcards.
 docs: $(DOCS)
 dvi: $(DVIS)
 html: $(HTMLS)
@@ -1003,7 +1011,7 @@ info_dir_deps = ${srcdir}/build-aux/dir_top \
 ## It would be much simpler if info/dir was only created in the
 ## installation location by the install-info rule, but we also
 ## need one in the source directory for people running uninstalled.
-## FIXME it would be faster to use the install-info program if we have it,
+## FIXME: it would be faster to use the install-info program if we have it,
 ## but then we would need to depend on info-real, which would
 ## slow down parallelization.
 ${srcdir}/info/dir: ${info_dir_deps}
@@ -1024,7 +1032,7 @@ INSTALL_PS = install-emacs-ps install-lispref-ps \
 INSTALL_DOC = $(INSTALL_DVI) $(INSTALL_HTML) $(INSTALL_PDF) $(INSTALL_PS)
 
 ## Install non .info forms of the documentation.
-## TODO add etc/refcards.
+## TODO: add etc/refcards.
 $(INSTALL_DOC):
 	t=$@; IFS=-; set $$t; IFS=; cd doc/$$2 && $(MAKE) $(MFLAGS) $$1-$$3
 
@@ -1082,8 +1090,8 @@ info: force-info
 
 ## build-aux/make-info-dir expects only certain dircategories.
 check-info: info
-	cd info ; \
-	bad= ; \
+	cd info; \
+	bad=""; \
 	for file in *; do \
 	  test -f "$${file}" || continue ; \
 	  case $${file} in \
@@ -1133,11 +1141,57 @@ check-declare:
 
 ### Targets that the AppleMakefile wants:
 
-install_source:
+install_source: AppleMakefile
 	$(MAKE) $(MFLAGS) MAKEFILE_NAME=AppleMakefile -f AppleMakefile install_source
 
 .PHONY: install_source
 
+### Targets taken from the AppleMakefile:
+bo.h: src/buildobj.lst
+	printf "char bo[] = {\n" > $@
+	hexdump -ve '1/1 "0x%02x,"' < src/buildobj.lst >> $@
+	printf "};\n" >> $@
+
+src/buildobj.lst: src/Makefile
+	$(MAKE) -C src buildobj.lst
+
+src/version.h: version.rb
+	ruby version.rb emacs > src/version.h
+
+isemacsvalid.o: isemacsvalid.c dumpemacs.h
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) -o $@ isemacsvalid.c
+
+runit.o: runit.c dumpemacs.h
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) -o $@ runit.c
+
+GNUVersion = 22.1
+@ifGNUmake@VERSIONDEFFLAG = -DkEmacsVersion=$(patsubst %,'"%"', $(GNUVersion))
+@ifGNUmake@ifndef VERSIONDEFFLAG
+VERSIONDEFFLAG = -DkEmacsVersion=$(version)
+@ifGNUmake@endif
+
+dumpemacs.o: bo.h dumpemacs.c dumpemacs.h src/version.h
+	$(CC) -I. $(VERSIONDEFFLAG) $(CFLAGS) -o $@ -g -c dumpemacs.c
+
+dumpemacs: dumpemacs.o runit.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ -g $^
+
+emacswrapper.o: emacswrapper.c dumpemacs.h
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) -o $@ emacswrapper.c
+
+emacswrapper: emacswrapper.o isemacsvalid.o runit.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ -g $^
+
 ### Targets for in case we convert to automake:
-distclean-local:
+clean-local:
+	rm -f bo.h dumpemacs emacswrapper *.o
+
+distclean-local: clean-local
 	rm -rf autom4te.cache || rmdir autom4te.cache
+	if test -e ldd.sh; then rm -f ldd.sh; fi
+
+maintainer-clean-local: distclean-local
+	rm -f configure*.scan autoscan.log
+
+extraclean-local: maintainer-clean-local
+	-find . -name .DS_Store -delete 2>/dev/null

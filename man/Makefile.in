@@ -357,11 +357,16 @@ clean: mostlyclean
 	rm -f *.dvi
 
 distclean: clean
+	-rm -f Makefile 2>&1
 
 maintainer-clean: distclean
 	rm -f *.aux *.cps *.fns *.kys *.pgs *.vrs *.toc
 	for file in $(INFO_TARGETS); do rm -f $${file}*; done
 
+extraclean: maintainer-clean
+	-rm -f *~ \#*
+
+.PHONY: mostlyclean clean distclean maintainer-clean extraclean
 
 # Formerly this directory had texindex.c and getopt.c in it
 # and this makefile built them to make texindex.

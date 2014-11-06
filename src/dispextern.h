@@ -58,25 +58,54 @@ INLINE int xstrcasecmp(char const *a, char const *b)
 
 #ifdef HAVE_X_WINDOWS
 # include <X11/Xresource.h> /* for XrmDatabase */
+# ifndef _DISPLAY_INFO_DEFINED
+#  define _DISPLAY_INFO_DEFINED 1
 typedef struct x_display_info Display_Info;
+# endif /* !_DISPLAY_INFO_DEFINED */
+# ifndef _XIMAGEPTR_DEFINED
+#  define _XIMAGEPTR_DEFINED 1
 typedef XImage * XImagePtr;
+# endif /* !_XIMAGEPTR_DEFINED */
+# ifndef _XIMAGEPTR_OR_DC_DEFINED
+#  define _XIMAGEPTR_OR_DC_DEFINED 1
 typedef XImagePtr XImagePtr_or_DC;
-# define NativeRectangle XRectangle
+# endif /* !_XIMAGEPTR_OR_DC_DEFINED */
+# ifndef NativeRectangle
+#  define NativeRectangle XRectangle
+# endif /* !NativeRectangle */
 #endif /* HAVE_X_WINDOWS */
 
 #ifdef HAVE_NTGUI
 # include "w32gui.h"
+# ifndef _DISPLAY_INFO_DEFINED
+#  define _DISPLAY_INFO_DEFINED 1
 typedef struct w32_display_info Display_Info;
+# endif /* !_DISPLAY_INFO_DEFINED */
+# ifndef _XIMAGEPTR_DEFINED
+#  define _XIMAGEPTR_DEFINED 1
 typedef XImage *XImagePtr;
+# endif /* !_XIMAGEPTR_DEFINED */
+# ifndef _XIMAGEPTR_OR_DC_DEFINED
+#  define _XIMAGEPTR_OR_DC_DEFINED 1
 typedef HDC XImagePtr_or_DC;
+# endif /* !_XIMAGEPTR_OR_DC_DEFINED */
 #endif /* HAVE_NTGUI */
 
 #ifdef MAC_OS
 # include "macgui.h"
+# ifndef _DISPLAY_INFO_DEFINED
+#  define _DISPLAY_INFO_DEFINED 1
 typedef struct mac_display_info Display_Info;
-/* Mac equivalent of XImage.  */
+# endif /* !_DISPLAY_INFO_DEFINED */
+# ifndef _XIMAGEPTR_DEFINED
+#  define _XIMAGEPTR_DEFINED 1
+/* Mac equivalent of XImage: */
 typedef Pixmap XImagePtr;
+# endif /* !_XIMAGEPTR_DEFINED */
+# ifndef _XIMAGEPTR_OR_DC_DEFINED
+#  define _XIMAGEPTR_OR_DC_DEFINED 1
 typedef XImagePtr XImagePtr_or_DC;
+# endif /* !_XIMAGEPTR_OR_DC_DEFINED */
 # ifndef NativeRectangle
 #  define NativeRectangle Rect
 # endif /* !NativeRectangle */
@@ -84,23 +113,55 @@ typedef XImagePtr XImagePtr_or_DC;
 
 #ifdef HAVE_NS
 # include "nsgui.h"
-/* Following typedef needed to accommodate the MSDOS port, believe it or not.  */
+/* Following typedef needed to accommodate the MSDOS port,
+ * believe it or not: */
+# ifndef _DISPLAY_INFO_DEFINED
+#  define _DISPLAY_INFO_DEFINED 1
 typedef struct ns_display_info Display_Info;
+# endif /* !_DISPLAY_INFO_DEFINED */
+# ifndef _XIMAGEPTR_DEFINED
+#  define _XIMAGEPTR_DEFINED 1
 typedef Pixmap XImagePtr;
+# endif /* !_XIMAGEPTR_DEFINED */
+# ifndef _XIMAGEPTR_OR_DC_DEFINED
+#  define _XIMAGEPTR_OR_DC_DEFINED 1
 typedef XImagePtr XImagePtr_or_DC;
+# endif /* !_XIMAGEPTR_OR_DC_DEFINED */
 # ifndef NativeRectangle
 #  define NativeRectangle NSRect
 # endif /* !NativeRectangle */
+#else
+# if defined(HAVE_CARBON)
+#  if !defined(EMACS_MACGUI_H)
+#   include "macgui.h"
+#  endif /* !EMACS_MACGUI_H */
+#  ifndef _DISPLAY_INFO_DEFINED
+#   define _DISPLAY_INFO_DEFINED 1
+typedef struct mac_display_info Display_Info;
+#  endif /* !_DISPLAY_INFO_DEFINED */
+#  ifndef _XIMAGEPTR_DEFINED
+#   define _XIMAGEPTR_DEFINED 1
+/* Carbon equivalent of XImage: */
+typedef Pixmap XImagePtr;
+#  endif /* !_XIMAGEPTR_DEFINED */
+#  ifndef _XIMAGEPTR_OR_DC_DEFINED
+#   define _XIMAGEPTR_OR_DC_DEFINED 1
+typedef XImagePtr XImagePtr_or_DC;
+#  endif /* !_XIMAGEPTR_OR_DC_DEFINED */
+#  ifndef NativeRectangle
+#   define NativeRectangle Rect
+#  endif /* !NativeRectangle */
+# endif /* HAVE_CARBON */
 #endif /* HAVE_NS */
 
-#ifdef HAVE_WINDOW_SYSTEM
+#if defined(HAVE_WINDOW_SYSTEM) || defined(HAVE_TIME_H)
 # include <time.h>
-#endif
+#endif /* HAVE_WINDOW_SYSTEM || HAVE_TIME_H */
 
 #ifndef HAVE_WINDOW_SYSTEM
 typedef int Cursor;
 # define No_Cursor (0)
-#endif
+#endif /* !HAVE_WINDOW_SYSTEM */
 
 #ifndef NativeRectangle
 # define NativeRectangle int
@@ -118,8 +179,7 @@ struct glyph_pool;
 struct frame;
 struct window;
 
-/* Text cursor types.  */
-
+/* Text cursor types: */
 enum text_cursor_kinds
 {
   DEFAULT_CURSOR = -2,
@@ -130,8 +190,7 @@ enum text_cursor_kinds
   HBAR_CURSOR
 };
 
-/* Values returned from coordinates_in_window.  */
-
+/* Values returned from coordinates_in_window: */
 enum window_part
 {
   ON_NOTHING,
@@ -148,68 +207,61 @@ enum window_part
   ON_BOTTOM_DIVIDER
 };
 
-/* Number of bits allocated to store fringe bitmap numbers.  */
+/* Number of bits allocated to store fringe bitmap numbers: */
 #define FRINGE_ID_BITS  16
 
-/* Number of bits allocated to store fringe bitmap height.  */
+/* Number of bits allocated to store fringe bitmap height: */
 #define FRINGE_HEIGHT_BITS 8
 
-
+
 /***********************************************************************
 			      Debugging
  ***********************************************************************/
 
-/* If GLYPH_DEBUG is defined, additional checks are activated.  Turn
- it off by defining the macro GLYPH_DEBUG to zero. */
+/* If GLYPH_DEBUG is defined, additional checks are activated.
+ * Turn it off by defining the macro GLYPH_DEBUG to zero. */
 
 #ifndef GLYPH_DEBUG
-#define GLYPH_DEBUG 0
-#endif
+# define GLYPH_DEBUG 0
+#endif /* !GLYPH_DEBUG */
 
 /* If XASSERTS is non-zero, additional consistency checks are activated.
- Turn it off by defining the macro XASSERTS to zero.  */
+ * Turn it off by defining the macro XASSERTS to zero.  */
 
 #ifndef XASSERTS
-#define XASSERTS 0
-#endif
+# define XASSERTS 0
+#endif /* !XASSERTS */
 
-/* Macros to include code only if GLYPH_DEBUG is defined.  */
-
+/* Macros to include code only if GLYPH_DEBUG is defined: */
 #ifdef GLYPH_DEBUG
-#define IF_DEBUG(X)	((void) (X))
+# define IF_DEBUG(X)	((void) (X))
 #else
-#define IF_DEBUG(X)	((void) 0)
-#endif
+# define IF_DEBUG(X)	((void) 0)
+#endif /* GLYPH_DEBUG */
 
-#if XASSERTS
-#define xassert(X)	do {if (!(X)) abort ();} while (0)
+#if defined(XASSERTS) && XASSERTS
+# define xassert(X)	do { if (!(X)) abort(); } while (0)
 #else
-#define xassert(X)	(void) 0
-#endif
+# define xassert(X)	(void) 0
+#endif /* XASSERTS */
 
 /* Macro for displaying traces of redisplay.  If Emacs was compiled
    with GLYPH_DEBUG defined, the variable trace_redisplay_p can be set to
    a non-zero value in debugging sessions to activate traces.  */
 
 #ifdef GLYPH_DEBUG
-
 extern bool trace_redisplay_p EXTERNALLY_VISIBLE;
-#include <stdio.h>
-
-#define TRACE(X)				\
+# include <stdio.h>
+# define TRACE(X)				\
    do {						\
      if (trace_redisplay_p)			\
        fprintf X;				\
    } while (false)
-
-#else /* not GLYPH_DEBUG */
-
-#define TRACE(X)	((void) 0)
-
+#else /* not GLYPH_DEBUG: */
+# define TRACE(X)	((void) 0)
 #endif /* GLYPH_DEBUG */
 
 
-
 /***********************************************************************
 			    Text positions
  ***********************************************************************/
@@ -237,31 +289,25 @@ struct text_pos
 #define SET_TEXT_POS(POS, CHARPOS, BYTEPOS) \
      ((POS).charpos = (CHARPOS), (POS).bytepos = BYTEPOS)
 
-/* Increment text position POS.  */
-
+/* Increment text position POS: */
 #define INC_TEXT_POS(POS, MULTIBYTE_P)		\
-     do						\
-       {					\
+     do	{					\
 	 ++(POS).charpos;			\
          if (MULTIBYTE_P)			\
 	   INC_POS ((POS).bytepos);		\
 	 else					\
 	   ++(POS).bytepos;			\
-       }					\
-     while (false)
+     } while (false)
 
-/* Decrement text position POS.  */
-
+/* Decrement text position POS: */
 #define DEC_TEXT_POS(POS, MULTIBYTE_P)		\
-     do						\
-       {					\
+     do {					\
 	 --(POS).charpos;			\
          if (MULTIBYTE_P)			\
 	   DEC_POS ((POS).bytepos);		\
 	 else					\
 	   --(POS).bytepos;			\
-       }					\
-     while (false)
+     } while (false)
 
 /* Set text position POS from marker MARKER.  */
 
@@ -317,7 +363,7 @@ struct display_pos
 };
 
 
-
+
 /***********************************************************************
 				Glyphs
  ***********************************************************************/
@@ -358,17 +404,15 @@ GLYPH_CODE_FACE (Lisp_Object gc)
 }
 
 #define SET_GLYPH_FROM_GLYPH_CODE(glyph, gc)				\
-  do									\
-    {									\
+  do {									\
       if (CONSP (gc))							\
 	SET_GLYPH (glyph, XINT (XCAR (gc)), XINT (XCDR (gc)));		\
       else								\
 	SET_GLYPH (glyph, (XINT (gc) & ((1 << CHARACTERBITS)-1)),	\
 		   (XINT (gc) >> CHARACTERBITS));			\
-    }									\
-  while (false)
+  } while (false)
 
-/* The ID of the mode line highlighting face.  */
+/* The ID of the mode line highlighting face: */
 enum { GLYPH_MODE_LINE_FACE = 1 };
 
 /* Enumeration of glyph types.  Glyph structures contain a type field
@@ -1718,7 +1762,7 @@ struct face
 
 #else /* not HAVE_WINDOW_SYSTEM */
 
-    /* Dummy.  */
+    /* Dummy: */
     int stipple;
 
 #endif /* not HAVE_WINDOW_SYSTEM */
@@ -1739,7 +1783,11 @@ struct face
   unsigned long strike_through_color;
   unsigned long box_color;
 
+#if defined(_XFONTSTRUCT_DEFINED) && 0
+  XFontStruct *font; /* FIXME */
+#else
   struct font *font;
+#endif /* _XFONTSTRUCT_DEFINED && 0 */
 
   /* Fontset ID if for this face's fontset.  Non-ASCII faces derived
      from the same ASCII face have the same fontset.  */
@@ -2732,8 +2780,7 @@ struct it
 };
 
 
-/* Access to positions of iterator IT.  */
-
+/* Access to positions of iterator IT: */
 #define IT_CHARPOS(IT)		CHARPOS ((IT).current.pos)
 #define IT_BYTEPOS(IT)		BYTEPOS ((IT).current.pos)
 #define IT_STRING_CHARPOS(IT)	CHARPOS ((IT).current.string_pos)
@@ -2844,19 +2891,18 @@ reset_mouse_highlight (Mouse_HLInfo *hlinfo)
 
 struct run
 {
-  /* Source and destination y pixel position.  */
+  /* Source and destination y pixel position: */
   int desired_y, current_y;
 
-  /* Source and destination vpos in matrix.  */
+  /* Source and destination vpos in matrix: */
   int desired_vpos, current_vpos;
 
-  /* Height in pixels, number of glyph rows.  */
+  /* Height in pixels, number of glyph rows: */
   int height, nrows;
 };
 
 
-/* Handlers for setting frame parameters.  */
-
+/* Handlers for setting frame parameters: */
 typedef void (*frame_parm_handler) (struct frame *, Lisp_Object, Lisp_Object);
 
 
@@ -2980,7 +3026,7 @@ struct redisplay_interface
 #endif /* HAVE_WINDOW_SYSTEM */
 };
 
-
+
 /***********************************************************************
 				Images
  ***********************************************************************/
@@ -3020,7 +3066,6 @@ struct image_type
 /* Structure describing an image.  Specific image formats like XBM are
    converted into this form, so that display only has to deal with
    this type of image.  */
-
 struct image
 {
   /* The time in seconds at which the image was last displayed.  Set
@@ -3032,7 +3077,8 @@ struct image
   Pixmap pixmap, mask;
 #endif /* HAVE_X_WINDOWS || Pixmap || 1 */
 
-#if defined(HAVE_X_WINDOWS) || defined(XImagePtr) || !(defined(MAC_OS) && defined(HAVE_CARBON))
+#if defined(HAVE_X_WINDOWS) || defined(XImagePtr) || \
+    (!(defined(MAC_OS) && defined(HAVE_CARBON)) && defined(_XIMAGEPTR_DEFINED))
   /* X images of the image, corresponding to the above Pixmaps.
      Non-NULL means it and its Pixmap counterpart may be out of sync
      and the latter is outdated.  NULL means the X image has been
@@ -3160,7 +3206,7 @@ struct image_cache
 #endif /* HAVE_WINDOW_SYSTEM */
 
 
-
+
 /***********************************************************************
 			       Tool-bars
  ***********************************************************************/
@@ -3235,7 +3281,7 @@ enum tool_bar_item_image
 
 #define DEFAULT_TOOL_BAR_IMAGE_HEIGHT 24
 
-
+
 /***********************************************************************
 			 Terminal Capabilities
  ***********************************************************************/
@@ -3251,13 +3297,12 @@ enum tool_bar_item_image
 #define TTY_CAP_DIM		0x08
 #define TTY_CAP_ITALIC  	0x10
 
-
+
 /***********************************************************************
 			  Function Prototypes
  ***********************************************************************/
 
 /* Defined in bidi.c */
-
 extern void bidi_init_it (ptrdiff_t, ptrdiff_t, bool, struct bidi_it *);
 extern void bidi_move_to_visually_next (struct bidi_it *);
 extern void bidi_paragraph_init (bidi_dir_t, struct bidi_it *, bool);
@@ -3268,7 +3313,6 @@ extern void *bidi_shelve_cache (void);
 extern void bidi_unshelve_cache (void *, bool);
 
 /* Defined in xdisp.c */
-
 struct glyph_row *row_containing_pos (struct window *, ptrdiff_t,
                                       struct glyph_row *,
                                       struct glyph_row *, int);
@@ -3279,7 +3323,7 @@ void resize_echo_area_exactly (void);
 int resize_mini_window (struct window *, int);
 #if defined USE_TOOLKIT_SCROLL_BARS && !defined USE_GTK
 void set_vertical_scroll_bar (struct window *);
-#endif
+#endif /* USE_TOOLKIT_SCROLL_BARS && !USE_GTK */
 int try_window (Lisp_Object, struct text_pos, int);
 void window_box (struct window *, enum glyph_row_area,
 		 int *, int *, int *, int *);
@@ -3371,7 +3415,8 @@ extern void handle_tool_bar_click (struct frame *,
                                    int, int, int, int);
 
 extern void expose_frame (struct frame *, int, int, int, int);
-# if defined(HAVE_X_WINDOWS) || defined(XRectangle) || !(defined(MAC_OS) && defined(HAVE_CARBON))
+# if defined(HAVE_X_WINDOWS) || defined(XRectangle) || \
+     (!(defined(MAC_OS) && defined(HAVE_CARBON)) && defined(_DISPLAY_INFO_DEFINED))
 extern int x_intersect_rectangles (XRectangle *, XRectangle *,
                                    XRectangle *);
 # endif /* HAVE_X_WINDOWS || XRectangle || 1 */
@@ -3386,7 +3431,7 @@ extern void tty_draw_row_with_mouse_face (struct window *, struct glyph_row *,
 					  int, int, enum draw_glyphs_face);
 extern void display_tty_menu_item (const char *, int, int, int, int, int);
 
-/* Flags passed to try_window.  */
+/* Flags passed to try_window: */
 #define TRY_WINDOW_CHECK_MARGINS	(1 << 0)
 #define TRY_WINDOW_IGNORE_FONTS_CHANGE	(1 << 1)
 
@@ -3422,7 +3467,8 @@ extern ptrdiff_t x_create_bitmap_from_xpm_data (struct frame *, const char **);
 #ifndef x_destroy_bitmap
 extern void x_destroy_bitmap (struct frame *, ptrdiff_t);
 #endif /* !x_destroy_bitmap */
-#if defined(HAVE_X_WINDOWS) || defined(Display_Info) || !(defined(MAC_OS) && defined(HAVE_CARBON))
+#if defined(HAVE_X_WINDOWS) || defined(Display_Info) || \
+    (!(defined(MAC_OS) && defined(HAVE_CARBON)) && defined(_DISPLAY_INFO_DEFINED))
 extern void x_destroy_all_bitmaps (Display_Info *);
 #endif /* HAVE_X_WINDOWS || Display_Info || 1 */
 extern void x_create_bitmap_mask (struct frame *, ptrdiff_t);
@@ -3459,7 +3505,6 @@ int image_ascent (struct image *, struct face *, struct glyph_slice *);
 #endif
 
 /* Defined in sysdep.c */
-
 void get_tty_size (int, int *, int *);
 void request_sigio (void);
 void unrequest_sigio (void);
@@ -3469,7 +3514,6 @@ void init_sigio (int);
 void ignore_sigio (void);
 
 /* Defined in xfaces.c.  */
-
 #ifdef HAVE_X_WINDOWS
 void unload_color (struct frame *, unsigned long);
 void x_free_colors (struct frame *, unsigned long *, int);
@@ -3510,7 +3554,6 @@ extern Lisp_Object Qforeground_color, Qbackground_color;
 extern char unspecified_fg[], unspecified_bg[];
 
 /* Defined in xfns.c.  */
-
 #ifdef HAVE_X_WINDOWS
 void gamma_correct (struct frame *, XColor *);
 #endif /* HAVE_X_WINDOWS */
@@ -3564,11 +3607,9 @@ extern void hide_hourglass (void);
 
 
 /* Defined in xmenu.c  */
-
 int popup_activated (void);
 
 /* Defined in dispnew.c */
-
 extern Lisp_Object buffer_posn_from_coords (struct window *,
                                             int *, int *,
                                             struct display_pos *,
@@ -3613,7 +3654,6 @@ extern void spec_glyph_lookup_face (struct window *, GLYPH *);
 extern void fill_up_frame_row_with_spaces (struct glyph_row *, int);
 
 /* Defined in terminal.c */
-
 extern void ring_bell (struct frame *);
 extern void update_begin (struct frame *);
 extern void update_end (struct frame *);
@@ -3632,7 +3672,6 @@ extern struct terminal *init_initial_terminal (void);
 
 
 /* Defined in term.c */
-
 extern void tty_turn_off_insert (struct tty_display_info *);
 extern int string_cost (const char *);
 extern int per_line_cost (const char *);
@@ -3647,7 +3686,6 @@ extern void tty_append_glyph (struct it *);
 
 
 /* Defined in scroll.c */
-
 extern int scrolling_max_lines_saved (int, int, int *, int *, int *);
 extern void do_line_insertion_deletion_costs (struct frame *, const char *,
                                               const char *, const char *,
@@ -3657,10 +3695,8 @@ void scrolling_1 (struct frame *, int, int, int, int *, int *, int *,
                   int *, int);
 
 /* Defined in frame.c */
-
 #ifdef HAVE_WINDOW_SYSTEM
-
-/* Types we might convert a resource string into.  */
+/* Types we might convert a resource string into: */
 enum resource_types
 {
   RES_TYPE_NUMBER,
@@ -3671,13 +3707,13 @@ enum resource_types
   RES_TYPE_BOOLEAN_NUMBER
 };
 
-#if defined(HAVE_X_WINDOWS) || defined(Display_Info) || \
-    !(defined(MAC_OS) && defined(HAVE_CARBON))
+# if defined(HAVE_X_WINDOWS) || defined(Display_Info) || \
+     (!(defined(MAC_OS) && defined(HAVE_CARBON)) && defined(_DISPLAY_INFO_DEFINED))
 extern Display_Info *check_x_display_info (Lisp_Object);
 extern Lisp_Object x_get_arg (Display_Info *, Lisp_Object,
                               Lisp_Object, const char *, const char *class,
                               enum resource_types);
-#endif /* HAVE_X_WINDOWS || Display_Info || 1 */
+# endif /* HAVE_X_WINDOWS || Display_Info || 1 */
 extern Lisp_Object x_frame_get_and_record_arg (struct frame *, Lisp_Object,
                                                Lisp_Object,
                                                const char *, const char *,
@@ -3686,18 +3722,17 @@ extern Lisp_Object x_default_parameter (struct frame *, Lisp_Object,
                                         Lisp_Object, Lisp_Object,
                                         const char *, const char *,
                                         enum resource_types);
-#if defined(HAVE_X_WINDOWS) || defined(XrmDatabase)
+# if defined(HAVE_X_WINDOWS) || defined(XrmDatabase)
 extern char *x_get_string_resource (XrmDatabase, const char *,
                                     const char *);
-#endif /* HAVE_X_WINDOWS || XrmDatabase */
+# endif /* HAVE_X_WINDOWS || XrmDatabase */
 
 /* These both used on W32 and X only. */
-#if !defined(HAVE_NS) && \
-    (defined(NTGUI) || defined(WINDOWSNT) || defined(_WIN32) || defined(HAVE_X_WINDOWS))
+# if !defined(HAVE_NS) && \
+     (defined(NTGUI) || defined(WINDOWSNT) || defined(_WIN32) || defined(HAVE_X_WINDOWS))
 extern bool x_mouse_grabbed (Display_Info *);
 extern void x_redo_mouse_highlight (Display_Info *);
-#endif /* !HAVE_NS && (NTGUI || WINDOWSNT || _WIN32 || HAVE_X_WINDOWS */
-
+# endif /* !HAVE_NS && (NTGUI || WINDOWSNT || _WIN32 || HAVE_X_WINDOWS */
 #endif /* HAVE_WINDOW_SYSTEM */
 
 INLINE_HEADER_END

@@ -3,6 +3,7 @@
 configure*.scan
 autoscan.log
 aclocal.m4
+bo.h
 compile
 config.guess
 config.sub

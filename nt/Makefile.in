@@ -194,14 +194,14 @@ distclean: clean
 	-rm -f Makefile
 
 maintainer-clean: distclean
-	true
+	@echo "no specific maintainer-clean rules in the nt/ subdir yet"
 
 extraclean: maintainer-clean
 	-rm -f *~ \#*
 
 ## Test the contents of the directory.
 check:
-	@echo "We don't have any tests for the nt/ directory yet."
+	@echo "We do NOT have any tests for the nt/ directory yet."
 
 tags: TAGS
 TAGS: ${EXE_FILES:${EXEEXT}=.c}

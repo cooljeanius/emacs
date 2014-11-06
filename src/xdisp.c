@@ -300,12 +300,12 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "fontset.h"
 #include "blockinput.h"
 #ifdef HAVE_WINDOW_SYSTEM
-#include TERM_HEADER
+# include TERM_HEADER
 #endif /* HAVE_WINDOW_SYSTEM */
 
 #ifndef FRAME_X_OUTPUT
-#define FRAME_X_OUTPUT(f) ((f)->output_data.x)
-#endif
+# define FRAME_X_OUTPUT(f) ((f)->output_data.x)
+#endif /* !FRAME_X_OUTPUT */
 
 #define INFINITY 10000000
 
@@ -369,7 +369,7 @@ static Lisp_Object Qline_height;
    && (IT)->current_x == (IT)->last_visible_x)
 
 #else /* !HAVE_WINDOW_SYSTEM */
-#define IT_OVERFLOW_NEWLINE_INTO_FRINGE(it) 0
+# define IT_OVERFLOW_NEWLINE_INTO_FRINGE(it) 0
 #endif /* HAVE_WINDOW_SYSTEM */
 
 /* Test if the display element loaded in IT, or the underlying buffer
@@ -12610,11 +12610,10 @@ note_tool_bar_highlight (struct frame *f, int x, int y)
 
   /* Function note_mouse_highlight is called with negative X/Y
      values when mouse moves outside of the frame.  */
-  if (x <= 0 || y <= 0)
-    {
+  if ((x <= 0) || (y <= 0)) {
       clear_mouse_face (hlinfo);
       return;
-    }
+  }
 
   rc = get_tool_bar_item (f, x, y, &glyph, &hpos, &vpos, &prop_idx);
   if (rc < 0)
@@ -12631,15 +12630,15 @@ note_tool_bar_highlight (struct frame *f, int x, int y)
 
   /* Mouse is down, but on different tool-bar item?  */
   mouse_down_p = (x_mouse_grabbed (dpyinfo)
-		  && f == dpyinfo->last_mouse_frame);
+		  && (f == dpyinfo->last_mouse_frame));
 
   if (mouse_down_p
       && last_tool_bar_item != prop_idx)
     return;
 
-  draw = mouse_down_p ? DRAW_IMAGE_SUNKEN : DRAW_IMAGE_RAISED;
+  draw = (mouse_down_p ? DRAW_IMAGE_SUNKEN : DRAW_IMAGE_RAISED);
 
-  /* If tool-bar item is not enabled, don't highlight it.  */
+  /* If tool-bar item is not enabled, do NOT highlight it.  */
   enabled_p = AREF (f->tool_bar_items, prop_idx + TOOL_BAR_ITEM_ENABLED_P);
   if (!NILP (enabled_p) && !NILP (Vmouse_highlight))
     {
@@ -16534,20 +16533,19 @@ redisplay_window (Lisp_Object window, bool just_this_one_p)
         display_menu_bar (w);
 
 #ifdef HAVE_WINDOW_SYSTEM
-      if (FRAME_WINDOW_P (f))
-        {
-#if defined (USE_GTK) || defined (HAVE_NS)
+      if (FRAME_WINDOW_P (f)) {
+# if defined (USE_GTK) || defined (HAVE_NS)
 	  if (FRAME_EXTERNAL_TOOL_BAR (f))
 	    redisplay_tool_bar (f);
-#else
+# else
 	  if (WINDOWP (f->tool_bar_window)
 	      && (FRAME_TOOL_BAR_HEIGHT (f) > 0
 		  || !NILP (Vauto_resize_tool_bars))
 	      && redisplay_tool_bar (f))
 	    ignore_mouse_drag_p = 1;
-#endif
-        }
-#endif
+# endif /* USE_GTK || HAVE_NS */
+      }
+#endif /* HAVE_WINDOW_SYSTEM */
     }
 
 #ifdef HAVE_WINDOW_SYSTEM
@@ -18990,7 +18988,7 @@ extend_face_to_end_of_line (struct it *it)
       && face->background == FRAME_BACKGROUND_PIXEL (f)
 #ifdef HAVE_WINDOW_SYSTEM
       && !face->stipple
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
       && !it->glyph_row->reversed_p)
     return;
 
@@ -19052,7 +19050,11 @@ extend_face_to_end_of_line (struct it *it)
 	     right margin of the window.  The stretch glyph that will
 	     occupy the empty space, if any, to the left of the
 	     glyphs.  */
-	  struct font *font = face->font ? face->font : FRAME_FONT (f);
+# if defined(_XFONTSTRUCT_DEFINED) && 0
+          XFontStruct *font = (face->font ? face->font : FRAME_FONT (f));
+# else
+	  struct font *font = (face->font ? face->font : FRAME_FONT (f));
+# endif /* _XFONTSTRUCT_DEFINED && 0 */
 	  struct glyph *row_start = it->glyph_row->glyphs[TEXT_AREA];
 	  struct glyph *row_end = row_start + it->glyph_row->used[TEXT_AREA];
 	  struct glyph *g;
@@ -22084,37 +22086,31 @@ are the selected window and the WINDOW's buffer).  */)
 
   init_iterator (&it, w, -1, -1, NULL, face_id);
 
-  if (no_props)
-    {
+  if (no_props) {
       mode_line_target = MODE_LINE_NOPROP;
       mode_line_string_face_prop = Qnil;
       mode_line_string_list = Qnil;
       string_start = MODE_LINE_NOPROP_LEN (0);
-    }
-  else
-    {
+  } else {
       mode_line_target = MODE_LINE_STRING;
       mode_line_string_list = Qnil;
       mode_line_string_face = face;
       mode_line_string_face_prop
 	= NILP (face) ? Qnil : list2 (Qface, face);
-    }
+  }
 
   push_kboard (FRAME_KBOARD (it.f));
   display_mode_element (&it, 0, 0, 0, format, Qnil, 0);
   pop_kboard ();
 
-  if (no_props)
-    {
+  if (no_props) {
       len = MODE_LINE_NOPROP_LEN (string_start);
       str = make_string (mode_line_noprop_buf + string_start, len);
-    }
-  else
-    {
+  } else {
       mode_line_string_list = Fnreverse (mode_line_string_list);
       str = Fmapconcat (intern ("identity"), mode_line_string_list,
 			empty_unibyte_string);
-    }
+  }
 
   unbind_to (count, Qnil);
   return str;
@@ -26622,7 +26618,6 @@ set_frame_cursor_types (struct frame *f, Lisp_Object arg)
 
 
 #ifdef HAVE_WINDOW_SYSTEM
-
 /* Return the cursor we want to be displayed in window W.  Return
    width of bar/hbar cursor through WIDTH arg.  Return with
    ACTIVE_CURSOR arg set to 1 if cursor in window W is `active'
@@ -27235,19 +27230,17 @@ draw_row_with_mouse_face (struct window *w, int start_x, struct glyph_row *row,
 			  enum draw_glyphs_face draw)
 {
 #ifdef HAVE_WINDOW_SYSTEM
-  if (FRAME_WINDOW_P (XFRAME (w->frame)))
-    {
+  if (FRAME_WINDOW_P (XFRAME (w->frame))) {
       draw_glyphs (w, start_x, row, TEXT_AREA, start_hpos, end_hpos, draw, 0);
       return;
-    }
-#endif
-#if defined (HAVE_GPM) || defined (MSDOS) || defined (WINDOWSNT)
+  }
+#endif /* HAVE_WINDOW_SYSTEM */
+#if defined(HAVE_GPM) || defined(MSDOS) || defined(WINDOWSNT)
   tty_draw_row_with_mouse_face (w, row, start_hpos, end_hpos, draw);
-#endif
+#endif /* HAVE_GPM || MSDOS || WINDOWSNT */
 }
 
-/* Display the active region described by mouse_face_* according to DRAW.  */
-
+/* Display the active region described by mouse_face_* according to DRAW: */
 static void
 show_mouse_face (Mouse_HLInfo *hlinfo, enum draw_glyphs_face draw)
 {
@@ -30452,14 +30445,11 @@ display table takes effect; in this case, Emacs does not consult
 
 
 /* Initialize this module when Emacs starts.  */
-
-void
-init_xdisp (void)
+void init_xdisp (void)
 {
   CHARPOS (this_line_start_pos) = 0;
 
-  if (!noninteractive)
-    {
+  if (!noninteractive) {
       struct window *m = XWINDOW (minibuf_window);
       Lisp_Object frame = m->frame;
       struct frame *f = XFRAME (frame);
@@ -30490,7 +30480,7 @@ init_xdisp (void)
       /* The default ellipsis glyphs `...'.  */
       for (i = 0; i < 3; ++i)
 	default_invis_vector[i] = make_number ('.');
-    }
+  }
 
   {
     /* Allocate the buffer for frame titles.
@@ -30506,12 +30496,10 @@ init_xdisp (void)
 }
 
 #ifdef HAVE_WINDOW_SYSTEM
-
 /* Platform-independent portion of hourglass implementation.  */
 
 /* Cancel a currently active hourglass timer, and start a new one.  */
-void
-start_hourglass (void)
+void start_hourglass (void)
 {
   struct timespec delay;
 
@@ -30542,17 +30530,17 @@ start_hourglass (void)
 
 /* Cancel the hourglass cursor timer if active, hide a busy cursor if
    shown.  */
-void
-cancel_hourglass (void)
+void cancel_hourglass (void)
 {
-  if (hourglass_atimer)
-    {
+  if (hourglass_atimer) {
       cancel_atimer (hourglass_atimer);
       hourglass_atimer = NULL;
-    }
+  }
 
   if (hourglass_shown_p)
     hide_hourglass ();
 }
 
 #endif /* HAVE_WINDOW_SYSTEM */
+
+/* EOF (this file is way too long and needs to be split up...) */

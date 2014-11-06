@@ -39,6 +39,7 @@ AC_DEFUN([gl_EARLY],
   m4_pattern_allow([^gl_LTLIBOBJS$])dnl a variable
   AC_REQUIRE([gl_PROG_AR_RANLIB])
   # Code from module absolute-header:
+  # Code from module alignof:
   # Code from module alloca:
   # Code from module alloca-opt:
   # Code from module allocator:
@@ -938,6 +939,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/acl-internal.h
   lib/acl.h
   lib/acl_entries.c
+  lib/alignof.h
   lib/alloca.c
   lib/alloca.in.h
   lib/allocator.c

@@ -1,4 +1,4 @@
-/* Asynchronous subprocess control for GNU Emacs.
+/* process.c: Asynchronous subprocess control for GNU Emacs.
 
 Copyright (C) 1985-1988, 1993-1996, 1998-1999, 2001-2014
   Free Software Foundation, Inc.
@@ -23,7 +23,7 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #include <stdio.h>
 #include <errno.h>
-#include <sys/types.h>		/* Some typedefs are used in sys/file.h.  */
+#include <sys/types.h>	    /* Some typedefs are used in sys/file.h.  */
 #include <sys/file.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -1737,7 +1737,11 @@ create_process (Lisp_Object process, char **new_argv, Lisp_Object current_dir)
     int volatile forkout_volatile = forkout;
     struct Lisp_Process *p_volatile = p;
 
+# ifndef PUMA_VFORK_ISSUES_CLEARED_UP
+    pid = fork ();
+# else
     pid = vfork ();
+# endif /* !PUMA_VFORK_ISSUES_CLEARED_UP */
 
     current_dir = current_dir_volatile;
     lisp_pty_name = lisp_pty_name_volatile;

@@ -236,7 +236,7 @@ maybe-blessmail: $(BLESSMAIL_TARGET)
 ## update-game-score will detect at runtime that it is not setuid,
 ## and handle things accordingly.
 $(DESTDIR)${archlibdir}: all
-	@echo
+	@echo ""
 	@echo "Installing utilities run internally by Emacs."
 	umask 022; ${MKDIR_P} "$(DESTDIR)${archlibdir}"
 	exp_archlibdir=`cd "$(DESTDIR)${archlibdir}" && /bin/pwd`; \
@@ -263,7 +263,7 @@ $(DESTDIR)${archlibdir}: all
 .PHONY: extraclean check tags
 
 install: $(DESTDIR)${archlibdir}
-	@echo
+	@echo ""
 	@echo "Installing utilities for users to run."
 	umask 022; ${MKDIR_P} "$(DESTDIR)${bindir}"
 	for file in ${INSTALLABLES} ; do \
@@ -289,20 +289,21 @@ mostlyclean:
 
 clean: mostlyclean
 	-rm -f ${EXE_FILES}
+	-rm -rf *.dSYM
 
 distclean: clean
 	-rm -f TAGS
 	-rm -f Makefile blessmail
 
 maintainer-clean: distclean
-	true
+	@echo "no specific maintainer-clean rules in lib-src/ yet"
 
 extraclean: maintainer-clean
 	-rm -f *~ \#*
 
 ## Test the contents of the directory.
 check:
-	@echo "We don't have any tests for the lib-src/ directory yet."
+	@echo "We do NOT have any tests for the lib-src/ directory yet."
 
 tags: TAGS
 TAGS: etags${EXEEXT}

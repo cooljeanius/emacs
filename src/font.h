@@ -145,7 +145,7 @@ enum font_property_index
        SPACING by 3-bit (0 for proportional, 1 for dual, 2 for mono, 3
        for charcell), which is surely sufficient.  */
     FONT_METRICS_INDEX,
-#endif
+#endif /* false */
 
     /* In a font-spec, the value is an alist of extra information of a
        font such as name, OpenType features, and language coverage.
@@ -237,18 +237,18 @@ enum font_property_index
   ASET ((font), prop, make_number (font_style_to_value (prop, val, true)))
 
 #ifndef FONT_WIDTH
-# ifndef MAC_OS
+# if !defined(MAC_OS) && !defined(HAVE_CARBON)
 #  define FONT_WIDTH(f) ((f)->max_width) /* (what was originally in this file) */
 # else
 #  define FONT_WIDTH(f)	((f)->max_bounds.width) /* (definition in "macterm.h") */
-# endif /* !MAC_OS */
+# endif /* !MAC_OS && !HAVE_CARBON */
 #endif /* !FONT_WIDTH */
 #ifndef FONT_HEIGHT
-# ifndef MAC_OS
+# if !defined(MAC_OS) && !defined(HAVE_CARBON)
 #  define FONT_HEIGHT(f) ((f)->height) /* (what was originally in this file) */
 # else
 #  define FONT_HEIGHT(f) ((f)->ascent + (f)->descent) /* (definition in "macterm.h") */
-# endif /* !MAC_OS */
+# endif /* !MAC_OS && !HAVE_CARBON */
 #endif /* !FONT_HEIGHT */
 #define FONT_BASE(f) ((f)->ascent)
 #define FONT_DESCENT(f) ((f)->descent)
@@ -329,7 +329,6 @@ struct font
   /* The following members makes sense on graphic displays only.  */
 
 #if defined (HAVE_WINDOW_SYSTEM)
-
   /* Vertical pixel width of the underline.  If is zero if that
      information is not in the font.  */
   int underline_thickness;
@@ -401,7 +400,6 @@ struct font
      -1 means that the contents of the font must be looked up to
      determine it.  */
   int repertory_charset;
-
 #endif /* HAVE_WINDOW_SYSTEM */
 
   /* Font-driver for the font.  */
@@ -450,7 +448,7 @@ struct font_bitmap
 #define FONT_OBJECT_P(x)	\
   (FONTP (x) && (ASIZE (x) & PSEUDOVECTOR_SIZE_MASK) == FONT_OBJECT_MAX)
 
-/* True iff ENTITY can't be loaded.  */
+/* True iff ENTITY cannot be loaded.  */
 #define FONT_ENTITY_NOT_LOADABLE(entity)	\
   EQ (AREF (entity, FONT_OBJLIST_INDEX), Qt)
 
@@ -600,7 +598,6 @@ struct font_driver
                        struct font_metrics *metrics);
 
 #ifdef HAVE_WINDOW_SYSTEM
-
   /* Optional.
      Draw glyphs between FROM and TO of S->char2b at (X Y) pixel
      position of frame F with S->FACE and S->GC.  If WITH_BACKGROUND,
@@ -620,7 +617,6 @@ struct font_driver
   /* Optional.
      Free bitmap data in BITMAP.  */
   void (*free_bitmap) (struct font *font, struct font_bitmap *bitmap);
-
 #endif /* HAVE_WINDOW_SYSTEM */
 
   /* Optional.
@@ -809,7 +805,7 @@ valid_font_driver (struct font_driver *d)
 {
   return true;
 }
-#endif
+#endif /* ENABLE_CHECKING */
 extern Lisp_Object font_update_drivers (struct frame *f, Lisp_Object list);
 extern Lisp_Object font_range (ptrdiff_t, ptrdiff_t, ptrdiff_t *,
 			       struct window *, struct face *,
@@ -838,16 +834,16 @@ extern void syms_of_ftfont (void);
 extern struct font_driver xfont_driver;
 extern void syms_of_xfont (void);
 extern void syms_of_ftxfont (void);
-#ifdef HAVE_XFT
+# ifdef HAVE_XFT
 extern Lisp_Object Qxft;
 extern struct font_driver xftfont_driver;
 extern void syms_of_xftfont (void);
-#elif defined HAVE_FREETYPE
+# elif defined HAVE_FREETYPE
 extern struct font_driver ftxfont_driver;
-#endif
-#ifdef HAVE_BDFFONT
+# endif /* HAVE_XFT || HAVE_FREETYPE */
+# ifdef HAVE_BDFFONT
 extern void syms_of_bdffont (void);
-#endif	/* HAVE_BDFFONT */
+# endif	/* HAVE_BDFFONT */
 #endif	/* HAVE_X_WINDOWS */
 #ifdef HAVE_NTGUI
 extern struct font_driver w32font_driver;
@@ -862,8 +858,8 @@ extern void syms_of_macfont (void);
 #endif	/* HAVE_NS */
 
 #ifndef FONT_DEBUG
-#define FONT_DEBUG
-#endif
+# define FONT_DEBUG /* (nothing) */
+#endif /* !FONT_DEBUG */
 
 extern Lisp_Object QCfoundry;
 
@@ -885,3 +881,5 @@ extern void font_deferred_log (const char *, Lisp_Object, Lisp_Object);
 INLINE_HEADER_END
 
 #endif	/* not EMACS_FONT_H */
+
+/* EOF */

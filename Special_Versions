@@ -8,11 +8,32 @@ to us... or maybe it is open but just hidden? idk...)
 
 	- 39: first version available
 
+	- 41: last version with GETTING.GNU.SOFTWARE, and various files
+	in `etc/`, emacs.csh and qsort.c in `lib-src/`, a number of lisp
+	files in `lisp/`, and a bunch of sources (mostly vms-related)
+	in `src/`.
+	Also `install.sh` had not yet been renamed to `install-sh` here.
+
+	- 51: last version that shipped a bunch of generated junk files
+	in `man/`, and a few files in `nt/`.
+
 	- 56: last version with a toplevel dpkg directory
 
 	- 59: last version where dumpemacs is a shell script
 
-	- 70.1: last version with emacswrapper.c and isemacsvalid.c
+	- 60: last version with `src/unexdyld.c`, the entire `info/`
+	subdirectory, a handwritten aclocal.m4, a few files in `lib-src/`,
+	any compiled lisp bytecode files (the ones ending in `.elc`),
+	any image files in `lisp/gnus/` (or its parent directory, for that
+	matter), the `mh-*.el` batch of files being kept in `lisp/mail/`
+	instead of their own subdir, the entire `lisp/toolbar/` subdir,
+	a few files in `lwlib/`, CodeWarrior5-specific sources in `mac/`,
+	and various other sources in `src/` that might be of interest
+	in this Apple-specific branch, such as `src/m/powermacintosh.h`
+	and `src/s/rhapsody.h`.
+
+	- 70.1: last version with the emacswrapper.c and isemacsvalid.c
+	files, and a separate `unexmacosx.c.diff` patchfile
 
 	- 92: most recent version available as of October 2014
 

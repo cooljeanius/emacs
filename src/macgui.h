@@ -170,14 +170,14 @@ struct MacFontStruct {
   int mac_scriptcode;  /* Mac OS script code for font used */
 #else
   short mac_scriptcode;  /* Mac OS script code for font used */
-#endif
+#endif /* TARGET_API_MAC_CARBON */
 #if USE_ATSUI
   ATSUStyle mac_style;		/* NULL if QuickDraw Text is used */
-#if USE_CG_TEXT_DRAWING
+# if USE_CG_TEXT_DRAWING
   CGFontRef cg_font;		/* NULL if ATSUI text drawing is used */
   CGGlyph *cg_glyphs;		/* Likewise  */
-#endif
-#endif
+# endif /* USE_CG_TEXT_DRAWING */
+#endif /* USE_ATSUI */
 
 /* from Xlib.h */
 #if 0
@@ -206,7 +206,10 @@ struct MacFontStruct {
 };
 
 typedef struct MacFontStruct MacFontStruct;
+#ifndef _XFONTSTRUCT_DEFINED
+# define _XFONTSTRUCT_DEFINED 1
 typedef struct MacFontStruct XFontStruct;
+#endif /* !_XFONTSTRUCT_DEFINED */
 
 /* Structure borrowed from Xlib.h to represent two-byte characters.  */
 

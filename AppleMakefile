@@ -86,7 +86,7 @@ installsrc_old :
 remove-dir :
 	rm $(DSTROOT)/usr/share/info/dir
 
-$(OBJROOT)/bo.h:
+$(OBJROOT)/bo.h: $(OBJROOT)/src/buildobj.lst
 	printf "char bo[] = {\n" > $@
 	hexdump -ve '1/1 "0x%02x,"' < $(OBJROOT)/src/buildobj.lst >> $@
 	printf "};\n" >> $@

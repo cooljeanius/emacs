@@ -1,5 +1,8 @@
 /* dumpemacs.h -*- C -*- */
 
+#ifndef kEmacsVersion
+# define kEmacsVersion		"21.2"
+#endif /* !kEmacsVersion */
 #define kEmacsVersionMinor	"1"
 #define kEmacsBinDir "/usr/bin"
 #define kEmacsLibExecDir "/usr/libexec"

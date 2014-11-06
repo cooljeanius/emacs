@@ -862,7 +862,6 @@ REPLACE_PSELECT
 HAVE_PSELECT
 GNULIB_SELECT
 GNULIB_PSELECT
-OPENMP_CFLAGS
 NO_CXX
 NEXTAFTER_LIBM
 LDDPOSTPROC
@@ -1512,6 +1511,7 @@ GTK_OBJ
 MY_GTK_VERSION_IS_GOOD_ENOUGH
 GTK_LIBS
 GTK_CFLAGS
+OPENMP_CFLAGS
 IMAGEMAGICK_LIBS
 IMAGEMAGICK_CFLAGS
 RSVG_LIBS
@@ -1558,9 +1558,12 @@ X_LIBS
 X_PRE_LIBS
 X_CFLAGS
 XMKMF
+HEAD_BIN
+LOCATE_BIN
 DEPFLAGS
 MKDEPDIR
 ifGNUmake
+HAVE_STRUCT_EXCEPTION
 PTHREAD_H_DEFINES_STRUCT_TIMESPEC
 SYS_TIME_H_DEFINES_STRUCT_TIMESPEC
 TIME_H_DEFINES_STRUCT_TIMESPEC
@@ -1689,7 +1692,7 @@ FILE_MAGIC_BIN
 ac_ct_AR
 GNULIB_WARN_CFLAGS
 WARN_LDFLAGS
-ac_cv_wl
+acl_cv_wl
 WERROR_CFLAGS
 WARN_CFLAGS
 GETCONF_PROG
@@ -1896,11 +1899,11 @@ enable_libtool_lock
 enable_assert
 with_x
 with_blocks_runtime
+enable_openmp
 enable_nls
 enable_rpath
 with_libiconv_prefix
 with_libintl_prefix
-enable_openmp
 enable_acl
 '
       ac_precious_vars='build_alias
@@ -2594,9 +2597,9 @@ Optional Features:
                           optimize for fast installation [default=yes]
   --disable-libtool-lock  avoid locking (might break parallel builds)
   --disable-assert        turn off assertions
+  --disable-openmp        do not use OpenMP
   --disable-nls           do not use Native Language Support
   --disable-rpath         do not hardcode runtime library paths
-  --disable-openmp        do not use OpenMP
   --disable-acl           do not support ACLs
 
 Optional Packages:
@@ -3210,6 +3213,98 @@ fi
 
 } # ac_fn_c_try_link
 
+# ac_fn_objc_try_link LINENO
+# --------------------------
+# Try to link conftest.$ac_ext, and return whether this succeeded.
+ac_fn_objc_try_link ()
+{
+  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
+  rm -f conftest.$ac_objext conftest$ac_exeext
+  if { { ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:${as_lineno-$LINENO}: $ac_try_echo\""
+$as_echo "$ac_try_echo"; } >&5
+  (eval "$ac_link") 2>conftest.err
+  ac_status=$?
+  if test -s conftest.err; then
+    grep -v '^ *+' conftest.err >conftest.er1
+    cat conftest.er1 >&5
+    mv -f conftest.er1 conftest.err
+  fi
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; } && {
+	 test -z "$ac_objc_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext && {
+	 test "$cross_compiling" = yes ||
+	 test -x conftest$ac_exeext
+       }; then :
+  ac_retval=0
+else
+  $as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_retval=1
+fi
+  # Delete the IPA/IPO (Inter Procedural Analysis/Optimization) information
+  # created by the PGI compiler (conftest_ipa8_conftest.oo), as it would
+  # interfere with the next link command; also delete a directory that is
+  # left behind by Apple's compiler.  We do this before executing the actions.
+  rm -rf conftest.dSYM conftest_ipa8_conftest.oo
+  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
+  as_fn_set_status $ac_retval
+
+} # ac_fn_objc_try_link
+
+# ac_fn_cxx_try_link LINENO
+# -------------------------
+# Try to link conftest.$ac_ext, and return whether this succeeded.
+ac_fn_cxx_try_link ()
+{
+  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
+  rm -f conftest.$ac_objext conftest$ac_exeext
+  if { { ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:${as_lineno-$LINENO}: $ac_try_echo\""
+$as_echo "$ac_try_echo"; } >&5
+  (eval "$ac_link") 2>conftest.err
+  ac_status=$?
+  if test -s conftest.err; then
+    grep -v '^ *+' conftest.err >conftest.er1
+    cat conftest.er1 >&5
+    mv -f conftest.er1 conftest.err
+  fi
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; } && {
+	 test -z "$ac_cxx_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext && {
+	 test "$cross_compiling" = yes ||
+	 test -x conftest$ac_exeext
+       }; then :
+  ac_retval=0
+else
+  $as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_retval=1
+fi
+  # Delete the IPA/IPO (Inter Procedural Analysis/Optimization) information
+  # created by the PGI compiler (conftest_ipa8_conftest.oo), as it would
+  # interfere with the next link command; also delete a directory that is
+  # left behind by Apple's compiler.  We do this before executing the actions.
+  rm -rf conftest.dSYM conftest_ipa8_conftest.oo
+  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
+  as_fn_set_status $ac_retval
+
+} # ac_fn_cxx_try_link
+
 # ac_fn_c_check_func LINENO FUNC VAR
 # ----------------------------------
 # Tests whether FUNC exists, setting the cache variable VAR accordingly
@@ -3276,52 +3371,6 @@ $as_echo "$ac_res" >&6; }
   eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
 
 } # ac_fn_c_check_func
-
-# ac_fn_cxx_try_link LINENO
-# -------------------------
-# Try to link conftest.$ac_ext, and return whether this succeeded.
-ac_fn_cxx_try_link ()
-{
-  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
-  rm -f conftest.$ac_objext conftest$ac_exeext
-  if { { ac_try="$ac_link"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval ac_try_echo="\"\$as_me:${as_lineno-$LINENO}: $ac_try_echo\""
-$as_echo "$ac_try_echo"; } >&5
-  (eval "$ac_link") 2>conftest.err
-  ac_status=$?
-  if test -s conftest.err; then
-    grep -v '^ *+' conftest.err >conftest.er1
-    cat conftest.er1 >&5
-    mv -f conftest.er1 conftest.err
-  fi
-  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; } && {
-	 test -z "$ac_cxx_werror_flag" ||
-	 test ! -s conftest.err
-       } && test -s conftest$ac_exeext && {
-	 test "$cross_compiling" = yes ||
-	 test -x conftest$ac_exeext
-       }; then :
-  ac_retval=0
-else
-  $as_echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-	ac_retval=1
-fi
-  # Delete the IPA/IPO (Inter Procedural Analysis/Optimization) information
-  # created by the PGI compiler (conftest_ipa8_conftest.oo), as it would
-  # interfere with the next link command; also delete a directory that is
-  # left behind by Apple's compiler.  We do this before executing the actions.
-  rm -rf conftest.dSYM conftest_ipa8_conftest.oo
-  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
-  as_fn_set_status $ac_retval
-
-} # ac_fn_cxx_try_link
 
 # ac_fn_c_check_decl LINENO SYMBOL VAR INCLUDES
 # ---------------------------------------------
@@ -3821,52 +3870,6 @@ $as_echo "$ac_res" >&6; }
   eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
 
 } # ac_fn_c_check_member
-
-# ac_fn_objc_try_link LINENO
-# --------------------------
-# Try to link conftest.$ac_ext, and return whether this succeeded.
-ac_fn_objc_try_link ()
-{
-  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
-  rm -f conftest.$ac_objext conftest$ac_exeext
-  if { { ac_try="$ac_link"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval ac_try_echo="\"\$as_me:${as_lineno-$LINENO}: $ac_try_echo\""
-$as_echo "$ac_try_echo"; } >&5
-  (eval "$ac_link") 2>conftest.err
-  ac_status=$?
-  if test -s conftest.err; then
-    grep -v '^ *+' conftest.err >conftest.er1
-    cat conftest.er1 >&5
-    mv -f conftest.er1 conftest.err
-  fi
-  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; } && {
-	 test -z "$ac_objc_werror_flag" ||
-	 test ! -s conftest.err
-       } && test -s conftest$ac_exeext && {
-	 test "$cross_compiling" = yes ||
-	 test -x conftest$ac_exeext
-       }; then :
-  ac_retval=0
-else
-  $as_echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-	ac_retval=1
-fi
-  # Delete the IPA/IPO (Inter Procedural Analysis/Optimization) information
-  # created by the PGI compiler (conftest_ipa8_conftest.oo), as it would
-  # interfere with the next link command; also delete a directory that is
-  # left behind by Apple's compiler.  We do this before executing the actions.
-  rm -rf conftest.dSYM conftest_ipa8_conftest.oo
-  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
-  as_fn_set_status $ac_retval
-
-} # ac_fn_objc_try_link
 
 # ac_fn_objc_check_func LINENO FUNC VAR
 # -------------------------------------
@@ -4544,7 +4547,7 @@ fi
     if test -z "${MAKE_PROG}"; then
       MAKE="${XCRUN} MAKE"
       export MAKE
-      xcsdkdir=`${XCRUN} --show-sdk-path 2>/dev/null`
+      xcsdkdir="`${XCRUN} --show-sdk-path 2>/dev/null`"
       { $as_echo "$as_me:${as_lineno-$LINENO}: xcsdkdir is \"${xcsdkdir}\"" >&5
 $as_echo "$as_me: xcsdkdir is \"${xcsdkdir}\"" >&6;}
 
@@ -6325,7 +6328,6 @@ if test -z "${RC_ARCHS}"; then
 fi
 
 
-
 ### If you add support for a new configuration, add code to this
 ### switch statement to recognize your configuration name and select
 ### the appropriate opsys.
@@ -6351,12 +6353,11 @@ fi
 ### confusion between `system' and `release' levels'."
 
 machine='' opsys='' unported=no unofficially_ported=no
-## FIXME: still needs to bue used in more places:
+## FIXME: still needs to be used in more places:
 opsys_family=''
 ## This next string ends a sentence, and should end with a period:
 unofficial_port_warning_reason='no reason.'
 case "${canonical}" in
-
   ## GNU/Linux and similar ports:
   *-*-linux* )
     opsys=gnu-linux
@@ -6587,8 +6588,8 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
         ## non-default prefix may be mis-configured:
         if test -x /sw/bin/fink; then
           echo "Found installation of Fink in its default prefix; checking to see if we should use packages from it..."
-          FINK_ARCH=`/sw/bin/fink --version --quiet | grep Distribution | cut -d\, -f3 | tr -d [:blank:]`
-          CANONICAL_ARCH=`echo ${canonical} | cut -d\- -f1`
+          FINK_ARCH="`/sw/bin/fink --version --quiet | grep Distribution | cut -d\, -f3 | tr -d [:blank:]`"
+          CANONICAL_ARCH="`echo ${canonical} | cut -d\- -f1`"
           if test "x${FINK_ARCH}" = "x${CANONICAL_ARCH}"; then
             if test -d /sw/include && test -d /sw/lib; then
               echo "configure: deciding to use Fink packages"
@@ -6702,7 +6703,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys=nonstopux
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Convex:
   *-convex-bsd* | *-convex-convexos* )
@@ -7188,63 +7189,63 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
   romp-ibm-bsd4.2* )
     machine=ibmrt
     opsys=bsd4-2
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
   romp-ibm-aos4.3* )
     machine=ibmrt
     opsys=bsd4-3
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
   romp-ibm-aos4.2* )
     machine=ibmrt
     opsys=bsd4-2
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
   romp-ibm-aos* )
     machine=ibmrt
     opsys=bsd4-3
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
   romp-ibm-bsd* )
     machine=ibmrt
     opsys=bsd4-3
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
   romp-ibm-aix* )
     machine=ibmrt-aix
     opsys=usg5-2-2    ## (really? not an "aix" variant?)
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Integrated Solutions `Optimum V':
   m68*-isi-bsd4.2* )
     machine=isi-ov
     opsys=bsd4-2
     opsys_family=bsd
-    ;;
+  ;;
   m68*-isi-bsd4.3* )
     machine=isi-ov
     opsys=bsd4-3
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Intel 386 machines where we DO care about the manufacturer:
   i[3456]86-intsys-sysv* )
@@ -7253,9 +7254,9 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
-    ## (Intel 386 machines where we do NOT care are farther down,
-    ## near the bottom of this block)
+  ;;
+  ## (Intel 386 machines where we do NOT care are farther down,
+  ## near the bottom of this block)
 
   ## Prime EXL:
   i[3456]86-prime-sysv* )
@@ -7264,7 +7265,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Sequent Symmetry running Dynix:
   i[3456]86-sequent-bsd* )
@@ -7273,7 +7274,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Sequent Symmetry running ptx 4, which is a modified SVR4.
   i[3456]86-sequent-ptx4* | i[3456]86-sequent-sysv4* )
@@ -7283,7 +7284,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
     NON_GNU_CPP=/lib/cpp
-    ;;
+  ;;
 
   ## Sequent Symmetry running DYNIX/ptx.
   ## Use the old cpp rather than the newer ANSI one.
@@ -7294,7 +7295,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated and requires an old cpp."
     NON_GNU_CPP="/lib/cpp"
-    ;;
+  ;;
 
   ## ncr machine running svr4.3.
   i[3456]86-ncr-sysv4.3 )
@@ -7303,7 +7304,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Unspecified sysv on an ncr machine defaults to svr4.2.
   ## (Plain usg5-4 does NOT turn on POSIX signals, which we need.)
@@ -7313,7 +7314,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="Unspecified ${opsys} on ${machine} is old and deprecated and possibly dangerous."
-    ;;
+  ;;
 
   ## Intel Paragon OSF/1:
   i860-intel-osf1* )
@@ -7323,7 +7324,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
     NON_GNU_CPP=/usr/mach/lib/cpp
-    ;;
+  ;;
 
   ## Intel 860:
   i860-*-sysv4* )
@@ -7334,7 +7335,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
     NON_GNU_CC="/bin/cc" # I.e., not the one in /usr/ucb/cc.
     NON_GNU_CPP="/usr/ccs/lib/cpp" # cc -E tokenizes macro expansion.
-    ;;
+  ;;
 
   ## Macintosh PowerPC:
   powerpc*-*-linux-gnu* )
@@ -7342,7 +7343,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys=gnu-linux
     unofficially_ported=yes
     unofficial_port_warning_reason="this case (${opsys} on ${machine}) was reached in a deprecated way; all gnu-linux machines should have been handled at the top."
-    ;;
+  ;;
 
   ## Masscomp machines:
   m68*-masscomp-rtu* )
@@ -7350,7 +7351,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys=rtu
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Megatest machines:
   m68*-megatest-bsd* )
@@ -7359,9 +7360,56 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
-  #### FIXME: MIPS has 5 cases around here; come back to...
+  ## Workstations sold by MIPS.
+  ## This is not necessarily all workstations using the MIPS processor:
+  ## Irises are produced by SGI, and DECstations by DEC.
+
+  ## etc/MACHINES lists mips.h and mips4.h as possible machine files,
+  ## and usg5-2-2 and bsd4-3 as possible OS files.  The only guidance
+  ## it gives for choosing between the alternatives seems to be "Use
+  ## -machine=mips4 for RISCOS version 4; use -opsystem=bsd4-3 with
+  ## the BSD world."  I will assume that these are instructions for
+  ## handling two odd situations, and that every other situation
+  ## should use mips.h and usg5-2-2, they being listed first.
+  mips-mips-usg* )
+    machine=mips4
+    ## Fall through to the general code at the bottom to decide on the OS.
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${machine} is old and deprecated, and we do not even know what operating systems run on it in this case."
+  ;;
+  mips-mips-riscos4* )
+    machine=mips4
+    opsys=bsd4-3
+    opsys_family=bsd
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    NON_GNU_CC="cc -systype bsd43"
+    NON_GNU_CPP="cc -systype bsd43 -E"
+  ;;
+  mips-mips-riscos5* )
+    machine=mips4
+    opsys=riscos5
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+    NON_GNU_CC="cc -systype bsd43"
+    NON_GNU_CPP="cc -systype bsd43 -E"
+  ;;
+  mips-mips-bsd* )
+    machine=mips
+    opsys=bsd4-3
+    opsys_family=bsd
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+  ;;
+  mips-mips-* )
+    machine=mips
+    opsys=usg5-2-2
+    opsys_family=usg
+    unofficially_ported=yes
+    unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
+  ;;
 
   ## NeXT:
   m68*-next-* | m68k-*-nextstep* )
@@ -7369,7 +7417,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys=nextstep
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## The complete machine from National Semiconductor:
   ns32k-ns-genix* )
@@ -7378,7 +7426,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## NCR machines:
   m68*-ncr-sysv2* | m68*-ncr-sysvr2* )
@@ -7387,14 +7435,14 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
   m68*-ncr-sysv3* | m68*-ncr-sysvr3* )
     machine=tower32v3
     opsys=usg5-3
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## NEC EWS4800:
   mips-nec-sysv4*)
@@ -7402,7 +7450,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys=ux4800
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Nixdorf Targon 31:
   m68*-nixdorf-sysv* )
@@ -7411,7 +7459,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Nu (TI or LMI):
   m68*-nu-sysv* )
@@ -7420,7 +7468,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Plexus:
   m68*-plexus-sysv* )
@@ -7429,7 +7477,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Pyramid machines.
   ## I do NOT really have any idea what sort of processor the Pyramid has,
@@ -7440,7 +7488,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated, and plus details about its architecture are scarce."
-    ;;
+  ;;
 
   ## Sequent Balance:
   ns32k-sequent-bsd4.2* )
@@ -7449,14 +7497,14 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
   ns32k-sequent-bsd4.3* )
     machine=sequent
     opsys=bsd4-3
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Siemens Nixdorf:
   mips-siemens-sysv* | mips-sni-sysv*)
@@ -7467,7 +7515,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
     NON_GNU_CC=/usr/ccs/bin/cc
     NON_GNU_CPP=/usr/ccs/lib/cpp
-    ;;
+  ;;
 
   ### Silicon Graphics machines:
   ## Iris 2500 and Iris 2500 Turbo (a.k.a. the Iris 3030):
@@ -7543,42 +7591,42 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
   m68*-sony-bsd4.3* )
     machine=news
     opsys=bsd4-3
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
   m68*-sony-newsos3* | m68*-sony-news3*)
     machine=news
     opsys=bsd4-3
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
   mips-sony-bsd* | mips-sony-newsos4* | mips-sony-news4*)
     machine=news-risc
     opsys=bsd4-3
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
   mips-sony-newsos6* )
     machine=news-r6
     opsys=newsos6
     opsys_family=newsos
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
   mips-sony-news* )
     machine=news-risc
     opsys=newsos5
     opsys_family=newsos
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Stride:
   m68*-stride-sysv* )
@@ -7587,7 +7635,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Suns:
   sparc-*-linux-gnu* | sparc64-*-linux-gnu* )
@@ -7772,7 +7820,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Tahoe machines:
   tahoe-tahoe-bsd4.2* )
@@ -7781,14 +7829,14 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
   tahoe-tahoe-bsd4.3* )
     machine=tahoe
     opsys=bsd4-3
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Tandem Integrity S2:
   mips-tandem-sysv* )
@@ -7797,7 +7845,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Tektronix XD88:
   m88k-tektronix-sysv3* )
@@ -7806,7 +7854,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Tektronix 16000 box (6130?):
   ns16k-tektronix-bsd* )
@@ -7815,7 +7863,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated, and we are unsure about its number."
-    ;;
+  ;;
   ## Tektronix 4300.
   ## src/m/tek4300.h hints that this is a m68k machine.
   m68*-tektronix-bsd* )
@@ -7824,7 +7872,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys_family=bsd
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated, and we can only make guesses about it based on obscure hints."
-    ;;
+  ;;
 
   ## Titan P2 or P3.
   ## We seem to have lost the machine-description file titan.h!
@@ -7834,7 +7882,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="the machine-description file titan.h is missing."
-    ;;
+  ;;
 
   ## Ustation E30 (SS5E):
   m68*-unisys-uniplus* )
@@ -7842,7 +7890,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsystem=unipl5-2
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Vaxen.
   vax-dec-* )
@@ -7877,7 +7925,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     esac
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## Whitechapel MG1:
   ns16k-whitechapel-* )
@@ -7886,7 +7934,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     ## operating system guessing code below try.
     unofficially_ported=yes
     unofficial_port_warning_reason="${machine} is old and deprecated, and we do not even know what operating systems run on it."
-    ;;
+  ;;
 
   ## Wicat:
   m68*-wicat-sysv* )
@@ -7895,7 +7943,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys_family=usg
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## IA-64:
   ia64*-*-linux* )
@@ -7903,7 +7951,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys=gnu-linux
     unofficially_ported=yes
     unofficial_port_warning_reason="this case (${opsys} on ${machine}) was reached in a deprecated way; all gnu-linux machines should have been handled at the top."
-    ;;
+  ;;
 
   ## Intel 386 machines where we do NOT care about the manufacturer.
   ## (why the big separation from the cases where we DO care?)
@@ -7911,15 +7959,28 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     machine=intel386
     case "${canonical}" in
       ## FIXME: additional cases in here...
-      *-darwin* )               opsys=darwin ;;
+      *-darwin* )
+		opsys=darwin
+		## (still official)
+		;;
       *-mingw32 )
 		opsys=mingw32
 		# MinGW overrides and adds some system headers in nt/inc.
 		GCC_TEST_OPTIONS="-I ${srcdir}/nt/inc"
+		## (still official)
 		;;
-      *-sysv4.2uw* )	  	opsys=unixware ;;
-      *-sysv5uw* )	  	opsys=unixware ;;
-      *-sysv5OpenUNIX* )  	opsys=unixware ;;
+      *-sysv4.2uw* )
+		opsys=unixware
+		## (still official)
+                ;;
+      *-sysv5uw* )
+		opsys=unixware
+		## (still official)
+                ;;
+      *-sysv5OpenUNIX* )
+		opsys=unixware
+		## (still official)
+                ;;
       ## Otherwise, we will fall through to the generic opsys code at the
       ## bottom.
     esac
@@ -7931,7 +7992,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys=gnu-linux
     unofficially_ported=yes
     unofficial_port_warning_reason="this case (${opsys} on ${machine}) was reached in a deprecated way; all gnu-linux machines should have been handled at the top."
-    ;;
+  ;;
 
   ## Mips Linux-based GNU system:
   mips-*-linux-gnu* | mipsel-*-linux-gnu* )
@@ -7939,7 +8000,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys=gnu-linux
     unofficially_ported=yes
     unofficial_port_warning_reason="this case (${opsys} on ${machine}) was reached in a deprecated way; all gnu-linux machines should have been handled at the top."
-    ;;
+  ;;
 
   ## UXP/DS:
   sparc-fujitsu-sysv4* )
@@ -7950,7 +8011,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
     NON_GNU_CPP=/usr/ccs/lib/cpp
     RANLIB="ar -ts"
-    ;;
+  ;;
 
   ## UXP/V:
   f301-fujitsu-uxpv4.1)
@@ -7959,7 +8020,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys_family=uxp
     unofficially_ported=yes
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
-    ;;
+  ;;
 
   ## AMD x86-64 Linux-based GNU system:
   x86_64-*-linux-gnu* )
@@ -7967,7 +8028,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys=gnu-linux
     unofficially_ported=yes
     unofficial_port_warning_reason="this case (${opsys} on ${machine}) was reached in a deprecated way; all gnu-linux machines should have been handled at the top."
-    ;;
+  ;;
 
   # x86-64 MinGW64:
   x86_64-*-* )
@@ -7995,7 +8056,7 @@ $as_echo "#define HAVE_CRTIN 1" >>confdefs.h
     opsys=gnu-linux
     unofficially_ported=yes
     unofficial_port_warning_reason="this case (${opsys} on ${machine}) was reached in a deprecated way; all gnu-linux machines should have been handled at the top."
-    ;;
+  ;;
 
   ## ...and there we are!
   * )
@@ -8018,30 +8079,44 @@ if test x"${opsys}" = x""; then
     *-bsd4.[01] )
         opsys=bsd4-1
         opsys_family=bsd
+        unofficially_ported=yes
+        unofficial_port_warning_reason="${opsys} is old and deprecated, and was unhandled in the first batch, meaning that we have no idea if this is correct."
     ;;
     *-bsd4.2 )
         opsys=bsd4-2
         opsys_family=bsd
+        unofficially_ported=yes
+        unofficial_port_warning_reason="${opsys} is old and deprecated, and was unhandled in the first batch, meaning that we have no idea if this is correct."
     ;;
     *-bsd4.3 )
         opsys=bsd4-3
         opsys_family=bsd
+        unofficially_ported=yes
+        unofficial_port_warning_reason="${opsys} is old and deprecated, and was unhandled in the first batch, meaning that we have no idea if this is correct."
     ;;
     *-sysv0 | *-sysvr0 )
         opsys=usg5-0
         opsys_family=usg
+        unofficially_ported=yes
+        unofficial_port_warning_reason="${opsys} is old and deprecated, and was unhandled in the first batch, meaning that we have no idea if this is correct."
     ;;
     *-sysv2 | *-sysvr2 )
         opsys=usg5-2
         opsys_family=usg
+        unofficially_ported=yes
+        unofficial_port_warning_reason="${opsys} is old and deprecated, and was unhandled in the first batch, meaning that we have no idea if this is correct."
     ;;
     *-sysv2.2 | *-sysvr2.2 )
         opsys=usg5-2-2
         opsys_family=usg
+        unofficially_ported=yes
+        unofficial_port_warning_reason="${opsys} is old and deprecated, and was unhandled in the first batch, meaning that we have no idea if this is correct."
     ;;
     *-sysv3* | *-sysvr3* )
         opsys=usg5-3
         opsys_family=usg
+        unofficially_ported=yes
+        unofficial_port_warning_reason="${opsys} is old and deprecated, and was unhandled in the first batch, meaning that we have no idea if this is correct."
     ;;
     *-sysv4.2uw* )			opsys=unixware ;;
     *-sysv5uw* )			opsys=unixware ;;
@@ -8050,6 +8125,8 @@ if test x"${opsys}" = x""; then
         NON_GNU_CPP=/usr/lib/cpp
         opsys=usg5-4
         opsys_family=usg
+        unofficially_ported=yes
+        unofficial_port_warning_reason="${opsys} is old and deprecated, and was unhandled in the first batch, meaning that we have no idea if this is correct."
     ;;
     *-sysv4.[2-9]* | *-sysvr4.[2-9]* )
 	if test "x${NON_GNU_CPP}" = "x"; then
@@ -8061,17 +8138,20 @@ if test x"${opsys}" = x""; then
 	fi
 	opsys=usg5-4-2
 	opsys_family=usg
+        unofficially_ported=yes
+        unofficial_port_warning_reason="${opsys} is old and deprecated, and was unhandled in the first batch, meaning that we have no idea if this is correct."
     ;;
     *-sysv4* | *-sysvr4* )
         opsys=usg5-4
         opsys_family=usg
+        unofficially_ported=yes
+        unofficial_port_warning_reason="${opsys} is old and deprecated, and was unhandled in the first batch, meaning that we have no idea if this is correct."
     ;;
     * )
         unported=yes
     ;;
   esac
 fi
-
 
 
 if test "x${unported}" = "xyes"; then
@@ -9007,7 +9087,10 @@ else
 fi
 
 
+  if test "x${am_cv_prog_cc_c_o}" = "x" && test "x${lt_cv_prog_compiler_c_o}" = "x"; then
+    test -z "${am_cv_prog_cc_c_o}" && test -z "${lt_cv_prog_compiler_c_o}"
 
+  fi
 
 
 # On Suns, sometimes ${CPP} names a directory.
@@ -11330,6 +11413,7 @@ esac
 
 
   # Code from module absolute-header:
+  # Code from module alignof:
   # Code from module alloca:
   # Code from module alloca-opt:
   # Code from module allocator:
@@ -11675,6 +11759,208 @@ else
   { $as_echo "$as_me:${as_lineno-$LINENO}: CFLAGS already set; skipping attempt to add more" >&5
 $as_echo "$as_me: CFLAGS already set; skipping attempt to add more" >&6;}
 fi
+
+
+ac_ext=m
+ac_cpp='$OBJCPP $CPPFLAGS'
+ac_compile='$OBJC -c $OBJCFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$OBJC -o conftest$ac_exeext $OBJCFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_objc_compiler_gnu
+
+if test "x${ac_test_OBJCFLAGS}" != "xset"; then
+  # It is also helpful to have Objective C macros available to GDB,
+  # so prefer -g3 to -g if -g3 works & the user does not specify OBJCFLAGS.
+  case ${OBJCFLAGS} in
+    '-g')
+      emacs_g3_OBJCFLAGS='-g3';;
+    '-g -O2')
+      emacs_g3_OBJCFLAGS='-g3 -O2';;
+    *)
+      emacs_g3_OBJCFLAGS='';;
+  esac
+  if test -n "${emacs_g3_OBJCFLAGS}"; then
+    emacs_save_OBJCFLAGS="${OBJCFLAGS}"
+    OBJCFLAGS="${emacs_g3_OBJCFLAGS}"
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ${OBJC} accepts ${emacs_g3_OBJCFLAGS}" >&5
+$as_echo_n "checking whether ${OBJC} accepts ${emacs_g3_OBJCFLAGS}... " >&6; }
+if ${emacs_cv_prog_objc_g3+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_objc_try_link "$LINENO"; then :
+  emacs_cv_prog_objc_g3=yes
+else
+  emacs_cv_prog_objc_g3=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $emacs_cv_prog_objc_g3" >&5
+$as_echo "$emacs_cv_prog_objc_g3" >&6; }
+    if test "x${emacs_cv_prog_objc_g3}" != "xyes"; then
+      OBJCFLAGS="${emacs_save_OBJCFLAGS}"
+    fi
+  fi
+
+  case ${OBJCFLAGS} in
+    *-O*) ;;
+    *)
+      # No optimization flag was inferred for this compiler, so try -O.
+      emacs_save_OBJCFLAGS="${OBJCFLAGS}"
+      test -z "${OBJCFLAGS}" || OBJCFLAGS="${OBJCFLAGS} "
+      OBJCFLAGS="${OBJCFLAGS}-O"
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ${OBJC} accepts -O" >&5
+$as_echo_n "checking whether ${OBJC} accepts -O... " >&6; }
+if ${emacs_cv_prog_objc_o+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_objc_try_link "$LINENO"; then :
+  emacs_cv_prog_objc_o=yes
+else
+  emacs_cv_prog_objc_o=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $emacs_cv_prog_objc_o" >&5
+$as_echo "$emacs_cv_prog_objc_o" >&6; }
+      if test "x${emacs_cv_prog_objc_o}" != "xyes"; then
+	OBJCFLAGS="${emacs_save_OBJCFLAGS}"
+      fi ;;
+  esac
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: OBJCFLAGS already set; skipping attempt to add more" >&5
+$as_echo "$as_me: OBJCFLAGS already set; skipping attempt to add more" >&6;}
+fi
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+
+
+ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+if test "x${ac_test_CXXFLAGS}" != "xset"; then
+  # It is also helpful to have C++ macros available to GDB, so prefer
+  # -g3 to -g if -g3 works and the user does not specify CXXFLAGS.
+  case ${CXXFLAGS} in
+    '-g')
+      emacs_g3_CXXFLAGS='-g3';;
+    '-g -O2')
+      emacs_g3_CXXFLAGS='-g3 -O2';;
+    *)
+      emacs_g3_CXXFLAGS='';;
+  esac
+  if test -n "${emacs_g3_CXXFLAGS}"; then
+    emacs_save_CXXFLAGS="${CXXFLAGS}"
+    CXXFLAGS="${emacs_g3_CXXFLAGS}"
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ${CXX} accepts ${emacs_g3_CXXFLAGS}" >&5
+$as_echo_n "checking whether ${CXX} accepts ${emacs_g3_CXXFLAGS}... " >&6; }
+if ${emacs_cv_prog_cxx_g3+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+  emacs_cv_prog_cxx_g3=yes
+else
+  emacs_cv_prog_cxx_g3=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $emacs_cv_prog_cxx_g3" >&5
+$as_echo "$emacs_cv_prog_cxx_g3" >&6; }
+    if test "x${emacs_cv_prog_cxx_g3}" != "xyes"; then
+      CXXFLAGS="${emacs_save_CXXFLAGS}"
+    fi
+  fi
+
+  case ${CXXFLAGS} in
+    *-O*) ;;
+    *)
+      # No optimization flag was inferred for this compiler, so try -O.
+      emacs_save_CXXFLAGS="${CXXFLAGS}"
+      test -z "${CXXFLAGS}" || CXXFLAGS="${CXXFLAGS} "
+      CXXFLAGS="${CXXFLAGS}-O"
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ${CXX} accepts -O" >&5
+$as_echo_n "checking whether ${CXX} accepts -O... " >&6; }
+if ${emacs_cv_prog_cxx_o+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+  emacs_cv_prog_cxx_o=yes
+else
+  emacs_cv_prog_cxx_o=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $emacs_cv_prog_cxx_o" >&5
+$as_echo "$emacs_cv_prog_cxx_o" >&6; }
+      if test "x${emacs_cv_prog_cxx_o}" != "xyes"; then
+	CXXFLAGS="${emacs_save_CXXFLAGS}"
+      fi ;;
+  esac
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: CXXFLAGS already set; skipping attempt to add more" >&5
+$as_echo "$as_me: CXXFLAGS already set; skipping attempt to add more" >&6;}
+fi
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
 
 # Check whether --enable-gcc-warnings was given.
 if test "${enable_gcc_warnings+set}" = set; then :
@@ -12324,7 +12610,7 @@ fi
     fi
     ## for some reason Apple's gcc prints way more prototype warnings
     ## and such than normal; let us see if this is will fix it:
-    if test -n "${emacs_g3_CFLAGS}" || test "x${emacs_cv_prog_cc_g3}" = "xyes"; then
+    if test -n "${emacs_g3_CFLAGS}" || test "x${emacs_cv_prog_cc_g3}" = "xyes" || test -n "${emacs_g3_OBJCFLAGS}"; then
       nw="${nw} -Wmissing-prototypes"
       nw="${nw} -Wmissing-declarations"
     fi  ##end check for g3 flags
@@ -13205,7 +13491,7 @@ fi
           test -z "${acl_cv_wl}" && export acl_cv_wl='-Wl,'
         fi
 
-                WARN_LDFLAGS=""
+                        WARN_LDFLAGS=""
 
 as_gl_Warn=`$as_echo "gl_cv_warn_c_${acl_cv_wl}-warn_compact_unwind" | $as_tr_sh`
 gl_positive="${acl_cv_wl}-warn_compact_unwind"
@@ -14236,7 +14522,7 @@ fi
 
 
 fi
-rm -f conftest.err conftest.i conftest.$ac_ext    ##...okay.
+rm -f conftest.err conftest.i conftest.$ac_ext    ##...okay, that should be it.
   fi  ##end check for werror flags
 
 
@@ -17651,7 +17937,6 @@ _ACEOF
 fi
 
 done
-
 
 
 
@@ -25447,9 +25732,7 @@ $as_echo "#define HAVE_X86_64_LIB64_DIR 1" >>confdefs.h
 fi
 esac
 
-# Suppress obsolescent Autoconf test for size_t; Emacs assumes C89 or
-# better.
-# Likewise for obsolescent test for uid_t, gid_t; Emacs assumes them.
+#### Types section:
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking types" >&5
 $as_echo_n "checking types... " >&6; }
@@ -25618,7 +25901,7 @@ fi
 $as_echo_n "checking for flag to link with libm... " >&6; }
 LIB_MATH='-lm'
 
-SYSTEM_TYPE=`echo ${opsys} | sed -e 's/[[0-9]].*//' -e 's|-|/|'`
+SYSTEM_TYPE="`echo ${opsys} | sed -e 's/[[0-9]].*//' -e 's|-|/|'`"
 
 case ${opsys} in
   cygwin )
@@ -25970,9 +26253,9 @@ fi
 
 done
 
-for ac_header in OS.h arpa/inet.h err.h errno.h fcntl.h float.h \
-                  langinfo.h libintl.h limits.h locale.h malloc.h \
-                  nl_types.h stddef.h sys/_mbstate_t.h sys/file.h \
+for ac_header in OS.h arpa/inet.h dpmi.h err.h errno.h fcntl.h float.h \
+                  langinfo.h libintl.h limits.h locale.h malloc.h paths.h \
+                  nl_types.h sgtty.h stddef.h sys/_mbstate_t.h sys/file.h \
                   sys/ioctl.h sys/mman.h sys/timeb.h sys/vfs.h \
                   termcap.h termio.h termios.h timespec.h
 do :
@@ -29349,6 +29632,7 @@ main ()
 static struct exception x;
 x.arg1 = x.arg2 = x.retval;
 x.name = ""; x.type = 1;
+
   ;
   return 0;
 }
@@ -29363,16 +29647,137 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $emacs_cv_struct_exception" >&5
 $as_echo "$emacs_cv_struct_exception" >&6; }
 HAVE_EXCEPTION="${emacs_cv_struct_exception}"
+HAVE_STRUCT_EXCEPTION="${HAVE_EXCEPTION}"
+
 if test "x${emacs_cv_struct_exception}" != "xyes"; then
 
 $as_echo "#define NO_MATHERR 1" >>confdefs.h
 
+  MATHLESS_CFLAGS="${CFLAGS}"
+  CFLAGS="${CFLAGS} -fmath-errno"
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking if -fmath-errno will give us struct exception" >&5
+$as_echo_n "checking if -fmath-errno will give us struct exception... " >&6; }
+if ${emacs_cv_math_errno_struct_exception+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#if defined(HAVE_ERRNO_H) || defined(STDC_HEADERS) || defined(__STDC__)
+# include <errno.h>
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#  warning "This conftest expects <errno.h> to be included."
+# endif /* __GNUC__ && !__STRICT_ANSI__ */
+#endif /* HAVE_ERRNO_H || STDC_HEADERS || __STDC__ */
+#include <math.h>
+
+int
+main ()
+{
+
+static struct exception x;
+x.arg1 = x.arg2 = x.retval;
+x.name = ""; x.type = 1;
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  emacs_cv_math_errno_struct_exception=yes
+else
+  emacs_cv_math_errno_struct_exception=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $emacs_cv_math_errno_struct_exception" >&5
+$as_echo "$emacs_cv_math_errno_struct_exception" >&6; }
+  CFLAGS="${MATHLESS_CFLAGS}"
+else
+  SAFE_MATH_CFLAGS="${CFLAGS}"
+  CFLAGS="${CFLAGS} -fno-math-errno"
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking if struct exception still works with -fno-math-errno" >&5
+$as_echo_n "checking if struct exception still works with -fno-math-errno... " >&6; }
+if ${emacs_cv_no_math_errno_struct_exception+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#if defined(HAVE_ERRNO_H) || defined(STDC_HEADERS) || defined(__STDC__)
+# include <errno.h>
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#  warning "This conftest expects <errno.h> to be included."
+# endif /* __GNUC__ && !__STRICT_ANSI__ */
+#endif /* HAVE_ERRNO_H || STDC_HEADERS || __STDC__ */
+#include <math.h>
+
+int
+main ()
+{
+
+static struct exception x;
+x.arg1 = x.arg2 = x.retval;
+x.name = ""; x.type = 1;
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  emacs_cv_no_math_errno_struct_exception=yes
+else
+  emacs_cv_no_math_errno_struct_exception=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $emacs_cv_no_math_errno_struct_exception" >&5
+$as_echo "$emacs_cv_no_math_errno_struct_exception" >&6; }
+  CFLAGS="${SAFE_MATH_CFLAGS}"
 fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking the characteristics of your C compiler" >&5
 $as_echo_n "checking the characteristics of your C compiler... " >&6; }
 { $as_echo "$as_me:${as_lineno-$LINENO}: result:  " >&5
 $as_echo " " >&6; }
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether char is unsigned" >&5
+$as_echo_n "checking whether char is unsigned... " >&6; }
+if ${ac_cv_c_char_unsigned+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+$ac_includes_default
+int
+main ()
+{
+static int test_array [1 - 2 * !(((char) -1) < 0)];
+test_array [0] = 0;
+return test_array [0];
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  ac_cv_c_char_unsigned=no
+else
+  ac_cv_c_char_unsigned=yes
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_c_char_unsigned" >&5
+$as_echo "$ac_cv_c_char_unsigned" >&6; }
+if test $ac_cv_c_char_unsigned = yes && test "$GCC" != yes; then
+  $as_echo "#define __CHAR_UNSIGNED__ 1" >>confdefs.h
+
+fi
+
 
 if test "x${ac_cv_c_prototypes}" = "x"; then
   test -z "${ac_cv_c_prototypes}"
@@ -29642,7 +30047,7 @@ if test "x${GCC}" = "xyes" && test "x${ac_enable_autodepend}" = "xyes"; then
    { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether we are using GNU Make" >&5
 $as_echo_n "checking whether we are using GNU Make... " >&6; }
    HAVE_GNU_MAKE=no
-   testval=`${MAKE-make} --version 2>/dev/null | grep 'GNU Make'`
+   testval="`${MAKE-make} --version 2>/dev/null | grep 'GNU Make'`"
    if test "x${testval}" != "x"; then
       HAVE_GNU_MAKE=yes
    else
@@ -29843,7 +30248,257 @@ ac_cpp='$OBJCPP $CPPFLAGS'
 ac_compile='$OBJC -c $OBJCFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$OBJC -o conftest$ac_exeext $OBJCFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_objc_compiler_gnu
+ORIG_LDFLAGS="${LDFLAGS}"
+if test "x${with_ns}" != "xno"; then
+  if test "x${opsys}" = "xdarwin" && test "x${emacs_cv_apple}" = "xyes" && test "x${host_vendor}" = "xapple" && test "x${OBJC}" != "x"; then
+    test -n "${OBJC}"
+    ## FIXME: test this better:
+    LDFLAGS="${LDFLAGS} -framework AppKit"
+  elif test "x${ac_cv_header_appkit_appkit_h}" = "xyes"; then
+    APPKIT_FRAMEWORK="/System/Library/Frameworks/Appkit.framework"
+    if test "x${xcsdkdir}" != "x"; then
+      test -d "${xcsdkdir}" && export APPKIT_FRAMEWORK="${xcsdkdir}/System/Library/Frameworks/Appkit.framework"
+    elif test "x${SDKROOT}" != "x"; then
+      test -d "${SDKROOT}" && export APPKIT_FRAMEWORK="${SDKROOT}/System/Library/Frameworks/Appkit.framework"
+    else
+      APPKIT_FRAMEWORK="/System/Library/Frameworks/Appkit.framework"
+    fi
+    for ac_prog in locate glocate
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_LOCATE_BIN+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $LOCATE_BIN in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_LOCATE_BIN="$LOCATE_BIN" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_LOCATE_BIN="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
 
+  ;;
+esac
+fi
+LOCATE_BIN=$ac_cv_path_LOCATE_BIN
+if test -n "$LOCATE_BIN"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $LOCATE_BIN" >&5
+$as_echo "$LOCATE_BIN" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+  test -n "$LOCATE_BIN" && break
+done
+
+    for ac_prog in head ghead
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_HEAD_BIN+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $HEAD_BIN in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_HEAD_BIN="$HEAD_BIN" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_HEAD_BIN="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+HEAD_BIN=$ac_cv_path_HEAD_BIN
+if test -n "$HEAD_BIN"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $HEAD_BIN" >&5
+$as_echo "$HEAD_BIN" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+  test -n "$HEAD_BIN" && break
+done
+
+    if test "x${LOCATE_BIN}" != "x" && test "x${HEAD_BIN}" != "x"; then
+      test -x "${LOCATE_BIN}" && test -x "${HEAD_BIN}" && export APPKIT_FRAMEWORK="`${LOCATE_BIN} '/Library/Frameworks/AppKit.framework' 2>/dev/null | ${HEAD_BIN} -n 1`"
+    fi
+    if test -d "${APPKIT_FRAMEWORK}"; then
+      LDFLAGS="${LDFLAGS} -framework AppKit"
+    fi
+  else
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lgnustep-gui" >&5
+$as_echo_n "checking for main in -lgnustep-gui... " >&6; }
+if ${ac_cv_lib_gnustep_gui_main+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lgnustep-gui  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+return main ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_objc_try_link "$LINENO"; then :
+  ac_cv_lib_gnustep_gui_main=yes
+else
+  ac_cv_lib_gnustep_gui_main=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_gnustep_gui_main" >&5
+$as_echo "$ac_cv_lib_gnustep_gui_main" >&6; }
+if test "x$ac_cv_lib_gnustep_gui_main" = xyes; then :
+  LDFLAGS="${LDFLAGS} -lgnustep-gui"
+fi
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lgnustep-base" >&5
+$as_echo_n "checking for main in -lgnustep-base... " >&6; }
+if ${ac_cv_lib_gnustep_base_main+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lgnustep-base  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+return main ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_objc_try_link "$LINENO"; then :
+  ac_cv_lib_gnustep_base_main=yes
+else
+  ac_cv_lib_gnustep_base_main=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_gnustep_base_main" >&5
+$as_echo "$ac_cv_lib_gnustep_base_main" >&6; }
+if test "x$ac_cv_lib_gnustep_base_main" = xyes; then :
+  LDFLAGS="${LDFLAGS} -lgnustep-base"
+fi
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lobjc" >&5
+$as_echo_n "checking for main in -lobjc... " >&6; }
+if ${ac_cv_lib_objc_main+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lobjc  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+return main ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_objc_try_link "$LINENO"; then :
+  ac_cv_lib_objc_main=yes
+else
+  ac_cv_lib_objc_main=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_objc_main" >&5
+$as_echo "$ac_cv_lib_objc_main" >&6; }
+if test "x$ac_cv_lib_objc_main" = xyes; then :
+  LDFLAGS="${LDFLAGS} -lobjc"
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lobjc-gnu" >&5
+$as_echo_n "checking for main in -lobjc-gnu... " >&6; }
+if ${ac_cv_lib_objc_gnu_main+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lobjc-gnu  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+return main ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_objc_try_link "$LINENO"; then :
+  ac_cv_lib_objc_gnu_main=yes
+else
+  ac_cv_lib_objc_gnu_main=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_objc_gnu_main" >&5
+$as_echo "$ac_cv_lib_objc_gnu_main" >&6; }
+if test "x$ac_cv_lib_objc_gnu_main" = xyes; then :
+  LDFLAGS="${LDFLAGS} -lobjc-gnu"
+fi
+
+fi
+
+  fi
+fi
 for ac_func in NSPerformService
 do :
   ac_fn_objc_check_func "$LINENO" "NSPerformService" "ac_cv_func_NSPerformService"
@@ -29854,6 +30509,7 @@ _ACEOF
 
 fi
 done
+LDFLAGS="${ORIG_LDFLAGS}"
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -30568,7 +31224,6 @@ if test "x${no_x}" != "xyes"; then
 $as_echo "$as_me: it looks like we are using x11 for the window system at this point" >&6;}
 fi
 
-
 LD_SWITCH_X_SITE_RPATH=""
 if test "x${x_libraries}" != "xNONE"; then
   if test -n "${x_libraries}"; then
@@ -30581,7 +31236,7 @@ if test "x${x_libraries}" != "xNONE"; then
     x_search_path=/usr/lib
   fi
   for x_library in `echo ${x_search_path}: | \
-		    sed -e "s/:/ /g" -e p -e "s:/lib[[^ /]]* :/share :g"`; do
+		    sed -e "s/:/ /g" -e p -e "s:/lib[^ /]* :/share :g"`; do
     x_search_path="\
 ${x_library}/X11/%L/%T/%N%C%S:\
 ${x_library}/X11/%l/%T/%N%C%S:\
@@ -30596,7 +31251,6 @@ ${x_library}/X11/%T/%N%S"
     fi
   done
 fi
-
 
 
 
@@ -30618,7 +31272,7 @@ else
     fi
   done
   if test "x${bmd_acc}" != "xdummyval"; then
-    bitmapdir=`echo ${bmd_acc} | sed -e "s/^dummyval://"`
+    bitmapdir="`echo ${bmd_acc} | sed -e "s/^dummyval://"`"
   fi
 fi
 
@@ -30664,7 +31318,7 @@ if test "x${with_ns}" != "xno"; then
   if test "x${opsys}" = "xdarwin"; then
      NS_IMPL=Cocoa
      NS_IMPL_COCOA=yes
-     ns_appdir=`pwd`/nextstep/Emacs.app
+     ns_appdir="`pwd`/nextstep/Emacs.app"
      ns_appbindir="${ns_appdir}/Contents/MacOS"
      ns_appresdir="${ns_appdir}/Contents/Resources"
      ns_appsrc=Cocoa/Emacs.base
@@ -30941,7 +31595,7 @@ $as_echo "#define HAVE_CBLOCKS_LANGUAGE_FEATURE 1" >>confdefs.h
   elif test -f ${GNUSTEP_CONFIG_FILE}; then
      NS_IMPL=GNUstep
      NS_IMPL_GNUSTEP=yes
-     ns_appdir=`pwd`/nextstep/Emacs.app
+     ns_appdir="`pwd`/nextstep/Emacs.app"
      ns_appbindir="${ns_appdir}"
      ns_appresdir="${ns_appdir}/Resources"
      ns_appsrc=GNUstep/Emacs.base
@@ -31339,7 +31993,7 @@ fi
 
     ;;
     mingw32)
-    ## Using --with-w32 with MinGW is a no-op, but we allow it.
+      ## Using --with-w32 with MinGW is a no-op, but we allow it.
     ;;
     *)
       as_fn_error $? "Using w32 with an autotools build is only supported for Cygwin and MinGW32." "$LINENO" 5
@@ -31535,8 +32189,8 @@ fi
 ## ultimately use.
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking final window system that we will ultimately use" >&5
 $as_echo_n "checking final window system that we will ultimately use... " >&6; }
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${window_system}" >&5
-$as_echo "${window_system}" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: going with ${window_system} for real now" >&5
+$as_echo "going with ${window_system} for real now" >&6; }
 
 if test "x${window_system}" = "xnone" && test "x${gl_gcc_warnings}" = "xyes"; then
    # Too many warnings for now.
@@ -32807,7 +33461,7 @@ main ()
 {
 #if XlibSpecificationRelease < 5
 fail;
-#endif
+#endif /* XlibSpecificationRelease < 5 */
 
   ;
   return 0;
@@ -32837,7 +33491,7 @@ $as_echo "before 5" >&6; }
 else
   { $as_echo "$as_me:${as_lineno-$LINENO}: skipping check to see if X11 is version 5 or newer" >&5
 $as_echo "$as_me: skipping check to see if X11 is version 5 or newer" >&6;}
-  fi
+fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking graphics packages" >&5
 $as_echo_n "checking graphics packages... " >&6; }
@@ -32979,14 +33633,83 @@ $as_echo "no" >&6; }
      :
   fi
 
-    ## imagemagick sometimes has '-fopenmp' in its CFLAGS, but the support
-    ## in clang for openmp is incomplete, so remove the flag when using
-    ## clang:
-    if test "x${emacs_cv_clang}" = "xyes"; then
+    ## imagemagick sometimes has '-fopenmp' in its CFLAGS, but some
+    ## compilers (such as clang) cannot handle this flag, so check and then
+    ## remove it if necessary:
+    if test "x${ac_cv_prog_c_openmp}" = "x"; then
+      test -z "${ac_cv_prog_c_openmp}"
+
+  OPENMP_CFLAGS=
+  # Check whether --enable-openmp was given.
+if test "${enable_openmp+set}" = set; then :
+  enableval=$enable_openmp;
+fi
+
+  if test "$enable_openmp" != no; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $CC option to support OpenMP" >&5
+$as_echo_n "checking for $CC option to support OpenMP... " >&6; }
+if ${ac_cv_prog_c_openmp+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#ifndef _OPENMP
+ choke me
+#endif
+#include <omp.h>
+int main () { return omp_get_num_threads (); }
+
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_prog_c_openmp='none needed'
+else
+  ac_cv_prog_c_openmp='unsupported'
+	  	  	  	  	  	  	                                	  	  	  	  	  	  for ac_option in -fopenmp -xopenmp -openmp -mp -omp -qsmp=omp -homp \
+                           -Popenmp --openmp; do
+	    ac_save_CFLAGS=$CFLAGS
+	    CFLAGS="$CFLAGS $ac_option"
+	    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#ifndef _OPENMP
+ choke me
+#endif
+#include <omp.h>
+int main () { return omp_get_num_threads (); }
+
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_prog_c_openmp=$ac_option
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+	    CFLAGS=$ac_save_CFLAGS
+	    if test "$ac_cv_prog_c_openmp" != unsupported; then
+	      break
+	    fi
+	  done
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_prog_c_openmp" >&5
+$as_echo "$ac_cv_prog_c_openmp" >&6; }
+    case $ac_cv_prog_c_openmp in #(
+      "none needed" | unsupported)
+	;; #(
+      *)
+	OPENMP_CFLAGS=$ac_cv_prog_c_openmp ;;
+    esac
+  fi
+
+
+    fi
+    if test "x${emacs_cv_clang}" = "xyes" || test "x${ac_cv_prog_c_openmp}" = "xunsupported"; then
+      { $as_echo "$as_me:${as_lineno-$LINENO}: removing any instances of -fopenmp from IMAGEMAGICK_CFLAGS" >&5
+$as_echo "$as_me: removing any instances of -fopenmp from IMAGEMAGICK_CFLAGS" >&6;}
       IMAGEMAGICK_CFLAGS="`echo ${IMAGEMAGICK_CFLAGS} | sed 's|-fopenmp||g'`"
     fi
-    ##TODO: might want to check for OpenMP support "the Autoconf way"
-    ## instead... (i.e. test if the flag is supported instead of assuming)
 
     if test "x${HAVE_IMAGEMAGICK}" = "xyes"; then
 
@@ -34712,7 +35435,7 @@ $as_echo "#define HAVE_XAW3D 1" >>confdefs.h
 else
   { $as_echo "$as_me:${as_lineno-$LINENO}: skipping checks for libXaw3d" >&5
 $as_echo "$as_me: skipping checks for libXaw3d" >&6;}
-  fi
+fi
 
 
 USE_TOOLKIT_SCROLL_BARS=no
@@ -36586,8 +37309,8 @@ $as_echo "#define NS_IMPL_COCOA 1" >>confdefs.h
 
 $as_echo "#define NS_IMPL_GNUSTEP 1" >>confdefs.h
 
-    # See also .m.o rule in Makefile.in */
-    # FIXME: are all these flags really needed?  Document here why.  */
+    # See also .m.o rule in Makefile.in
+    # FIXME: are all these flags really needed?  Document here why.
     GNUSTEP_CFLAGS="-D_REENTRANT -fPIC -fno-strict-aliasing -I${GNUSTEP_SYSTEM_HEADERS} ${GNUSTEP_LOCAL_HEADERS}"
     ## Extra CFLAGS applied to src/*.m files.
     GNU_OBJC_CFLAGS="${GNU_OBJC_CFLAGS} -fgnu-runtime -Wno-import -fconstant-string-class=NSConstantString -DGNUSTEP_BASE_LIBRARY=1 -DGNU_GUI_LIBRARY=1 -DGNU_RUNTIME=1 -DGSWARN -DGSDIAGNOSE"
@@ -40927,7 +41650,7 @@ $as_echo "#define HAVE_MBRTOWC 1" >>confdefs.h
 
 fi
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for working memcmp" >&5
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for working memcmp" >&5
 $as_echo_n "checking for working memcmp... " >&6; }
 if ${ac_cv_func_memcmp_working+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -43396,9 +44119,15 @@ fi
 
 case ${canonical} in
   *-solaris2.4 | *-solaris2.4.*)
-        { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: disabling test for vfork" >&5
-$as_echo "$as_me: WARNING: disabling test for vfork" >&2;}
+        { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: disabling test for vfork on Solaris 2.4" >&5
+$as_echo "$as_me: WARNING: disabling test for vfork on Solaris 2.4" >&2;}
     : ${ac_cv_func_vfork_works=no}
+    ;;
+  *-darwin5.[012345]*)
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: vfork had issues on Mac OS X Puma." >&5
+$as_echo "$as_me: WARNING: vfork had issues on Mac OS X Puma." >&2;}
+    : ${ac_cv_func_vfork_works=no}
+        unset ac_cv_func_vfork_works
     ;;
 esac
 
@@ -43628,6 +44357,18 @@ $as_echo "#define HAVE_WORKING_FORK 1" >>confdefs.h
 
 fi
 
+
+if test "x${ac_cv_func_vfork_works}" = "xyes"; then
+  case ${canonical} in
+    *-darwin[56789].* | *-darwin1[012345].*)
+      { $as_echo "$as_me:${as_lineno-$LINENO}: looks like the darwin vfork issues have cleared up" >&5
+$as_echo "$as_me: looks like the darwin vfork issues have cleared up" >&6;}
+
+$as_echo "#define PUMA_VFORK_ISSUES_CLEARED_UP 1" >>confdefs.h
+
+      ;;
+  esac
+fi
 
 for ac_func in snprintf
 do :
@@ -46242,36 +46983,42 @@ else
       if test $am_cv_lib_iconv = yes; then
         LIBS="$LIBS $LIBICONV"
       fi
-      if test "$cross_compiling" = yes; then :
-
-         case "$host_os" in
-           aix* | hpux*) am_cv_func_iconv_works="guessing no" ;;
-           *)            am_cv_func_iconv_works="guessing yes" ;;
-         esac
-
+      am_cv_func_iconv_works=no
+      for ac_iconv_const in '' 'const'; do
+        if test "$cross_compiling" = yes; then :
+  case "$host_os" in
+             aix* | hpux*) am_cv_func_iconv_works="guessing no" ;;
+             *)            am_cv_func_iconv_works="guessing yes" ;;
+           esac
 else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
 #include <iconv.h>
 #include <string.h>
-int main ()
+
+#ifndef ICONV_CONST
+# define ICONV_CONST $ac_iconv_const
+#endif
+
+int
+main ()
 {
-  int result = 0;
+int result = 0;
   /* Test against AIX 5.1 bug: Failures are not distinguishable from successful
      returns.  */
   {
     iconv_t cd_utf8_to_88591 = iconv_open ("ISO8859-1", "UTF-8");
     if (cd_utf8_to_88591 != (iconv_t)(-1))
       {
-        static const char input[] = "\342\202\254"; /* EURO SIGN */
+        static ICONV_CONST char input[] = "\342\202\254"; /* EURO SIGN */
         char buf[10];
-        const char *inptr = input;
+        ICONV_CONST char *inptr = input;
         size_t inbytesleft = strlen (input);
         char *outptr = buf;
         size_t outbytesleft = sizeof (buf);
         size_t res = iconv (cd_utf8_to_88591,
-                            (char **) &inptr, &inbytesleft,
+                            &inptr, &inbytesleft,
                             &outptr, &outbytesleft);
         if (res == 0)
           result |= 1;
@@ -46284,14 +47031,14 @@ int main ()
     iconv_t cd_ascii_to_88591 = iconv_open ("ISO8859-1", "646");
     if (cd_ascii_to_88591 != (iconv_t)(-1))
       {
-        static const char input[] = "\263";
+        static ICONV_CONST char input[] = "\263";
         char buf[10];
-        const char *inptr = input;
+        ICONV_CONST char *inptr = input;
         size_t inbytesleft = strlen (input);
         char *outptr = buf;
         size_t outbytesleft = sizeof (buf);
         size_t res = iconv (cd_ascii_to_88591,
-                            (char **) &inptr, &inbytesleft,
+                            &inptr, &inbytesleft,
                             &outptr, &outbytesleft);
         if (res == 0)
           result |= 2;
@@ -46303,14 +47050,14 @@ int main ()
     iconv_t cd_88591_to_utf8 = iconv_open ("UTF-8", "ISO-8859-1");
     if (cd_88591_to_utf8 != (iconv_t)(-1))
       {
-        static const char input[] = "\304";
+        static ICONV_CONST char input[] = "\304";
         static char buf[2] = { (char)0xDE, (char)0xAD };
-        const char *inptr = input;
+        ICONV_CONST char *inptr = input;
         size_t inbytesleft = 1;
         char *outptr = buf;
         size_t outbytesleft = 1;
         size_t res = iconv (cd_88591_to_utf8,
-                            (char **) &inptr, &inbytesleft,
+                            &inptr, &inbytesleft,
                             &outptr, &outbytesleft);
         if (res != (size_t)(-1) || outptr - buf > 1 || buf[1] != (char)0xAD)
           result |= 4;
@@ -46323,14 +47070,14 @@ int main ()
     iconv_t cd_88591_to_utf8 = iconv_open ("utf8", "iso88591");
     if (cd_88591_to_utf8 != (iconv_t)(-1))
       {
-        static const char input[] = "\304rger mit b\366sen B\374bchen ohne Augenma\337";
+        static ICONV_CONST char input[] = "\304rger mit b\366sen B\374bchen ohne Augenma\337";
         char buf[50];
-        const char *inptr = input;
+        ICONV_CONST char *inptr = input;
         size_t inbytesleft = strlen (input);
         char *outptr = buf;
         size_t outbytesleft = sizeof (buf);
         size_t res = iconv (cd_88591_to_utf8,
-                            (char **) &inptr, &inbytesleft,
+                            &inptr, &inbytesleft,
                             &outptr, &outbytesleft);
         if ((int)res > 0)
           result |= 8;
@@ -46350,17 +47097,20 @@ int main ()
       && iconv_open ("utf8", "eucJP") == (iconv_t)(-1))
     result |= 16;
   return result;
+
+  ;
+  return 0;
 }
 _ACEOF
 if ac_fn_c_try_run "$LINENO"; then :
   am_cv_func_iconv_works=yes
-else
-  am_cv_func_iconv_works=no
 fi
 rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
   conftest.$ac_objext conftest.beam conftest.$ac_ext
 fi
 
+        test "$am_cv_func_iconv_works" = no || break
+      done
       LIBS="$am_save_LIBS"
 
 fi

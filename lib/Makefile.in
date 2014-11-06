@@ -245,8 +245,9 @@ DIST_COMMON = $(srcdir)/../nt/gnulib.mk $(srcdir)/gnulib.mk \
 #	http://www.opengroup.org/susv3/utilities/make.html
 #	for the 2004 POSIX specification]
 #endif
-@BUILDING_FOR_WINDOWSNT_FALSE@am__append_7 = alloca.c alloca.in.h \
-@BUILDING_FOR_WINDOWSNT_FALSE@	allocator.h assert.in.h verify.h \
+@BUILDING_FOR_WINDOWSNT_FALSE@am__append_7 = alignof.h alloca.c \
+@BUILDING_FOR_WINDOWSNT_FALSE@	alloca.in.h allocator.h \
+@BUILDING_FOR_WINDOWSNT_FALSE@	assert.in.h verify.h \
 @BUILDING_FOR_WINDOWSNT_FALSE@	openat-priv.h openat-proc.c \
 @BUILDING_FOR_WINDOWSNT_FALSE@	byteswap.in.h c-strcaseeq.h \
 @BUILDING_FOR_WINDOWSNT_FALSE@	careadlinkat.h close-stream.h \
@@ -1176,6 +1177,7 @@ HAVE_STRSEP = @HAVE_STRSEP@
 HAVE_STRTOD = @HAVE_STRTOD@
 HAVE_STRTOLL = @HAVE_STRTOLL@
 HAVE_STRTOULL = @HAVE_STRTOULL@
+HAVE_STRUCT_EXCEPTION = @HAVE_STRUCT_EXCEPTION@
 HAVE_STRUCT_RANDOM_DATA = @HAVE_STRUCT_RANDOM_DATA@
 HAVE_STRUCT_SCHED_PARAM = @HAVE_STRUCT_SCHED_PARAM@
 HAVE_STRUCT_SIGACTION_SA_SIGACTION = @HAVE_STRUCT_SIGACTION_SA_SIGACTION@
@@ -1241,6 +1243,7 @@ HAVE_WMEMSET = @HAVE_WMEMSET@
 HAVE_XSERVER = @HAVE_XSERVER@
 HAVE__BOOL = @HAVE__BOOL@
 HAVE__EXIT = @HAVE__EXIT@
+HEAD_BIN = @HEAD_BIN@
 HOST_ARCHITECTURE = @HOST_ARCHITECTURE@
 HOST_CPU_C_ABI = @HOST_CPU_C_ABI@
 IMAGEMAGICK_CFLAGS = @IMAGEMAGICK_CFLAGS@
@@ -1325,6 +1328,7 @@ LN_S_FILEONLY = @LN_S_FILEONLY@
 LOCALE_FR_UTF8 = @LOCALE_FR_UTF8@
 LOCALE_JA = @LOCALE_JA@
 LOCALE_ZH_CN = @LOCALE_ZH_CN@
+LOCATE_BIN = @LOCATE_BIN@
 LTLIBICONV = @LTLIBICONV@
 LTLIBINTL = @LTLIBINTL@
 LTLIBOBJS = @LTLIBOBJS@
@@ -1660,8 +1664,8 @@ ac_ct_CC = @ac_ct_CC@
 ac_ct_CXX = @ac_ct_CXX@
 ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
 ac_ct_OBJC = @ac_ct_OBJC@
-ac_cv_wl = @ac_cv_wl@
 ac_top_srcdir = @ac_top_srcdir@
+acl_cv_wl = @acl_cv_wl@
 am__include = @am__include@
 am__leading_dot = @am__leading_dot@
 am__quote = @am__quote@
