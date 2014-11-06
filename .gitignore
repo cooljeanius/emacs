@@ -30,10 +30,8 @@ TAGS
 /leim/ja-dic/
 etc/refcards/*.aux
 etc/refcards/*.log
-info/dir
-info/*-[0123456789]
-info/*-[0123456789][0123456789]
-info/*.info
+# actually the entire info subdir should be gitignored:
+info/*
 *DS_Store*
 *.status
 *.bak

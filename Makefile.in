@@ -508,7 +508,7 @@ install-arch-dep: src install-arch-indep install-etcdoc install-$(NTDIR)
 	    ${INSTALL_PROGRAM} $(INSTALL_STRIP) src/emacs-undumped $(DESTDIR)${bindir}/; \
 	  else \
 	    ${INSTALL_PROGRAM} $(INSTALL_STRIP) src/emacs${EXEEXT} "$(DESTDIR)${bindir}/$(EMACSFULL)" || exit 1; \
-	    chmod 1755 "$(DESTDIR)${bindir}/$(EMACSFULL)" || true; \
+	    chmod 1755 "$(DESTDIR)${bindir}/$(EMACSFULL)" || echo "done"; \
 	  fi; \
 	  if test "x${NO_BIN_LINK}" = "x"; then \
 	    rm -fv "$(DESTDIR)${bindir}/$(EMACS)"; \
@@ -600,7 +600,7 @@ install-arch-indep: lisp install-info install-man ${INSTALL_ARCH_INDEP_EXTRA}
 	  if [ -d "$${dest}" ]; then \
 	    exp_dest=`cd "$${dest}" && /bin/pwd`; \
 	    [ "$$exp_dest" = "`cd $${dir} && /bin/pwd`" ] && continue ; \
-	  else true; \
+	  else echo "$${dest} is not a directory"; \
 	  fi; \
 	  rm -rf "$${dest}" ; \
 	  umask 022; ${MKDIR_P} "$${dest}" ; \
@@ -612,7 +612,7 @@ install-arch-indep: lisp install-info install-man ${INSTALL_ARCH_INDEP_EXTRA}
 	      rm -f "$${dest}/DOC"* ; \
 	      rm -f "$${dest}/refcards"/*.aux "$${dest}/refcards"/*.dvi; \
 	      rm -f "$${dest}/refcards"/*.log; \
-	  else true; \
+	  else echo "$${dir} is not ${srcdir}/etc"; \
 	  fi; \
 	  (cd "$${dest}" || exit 1; \
 	    for subdir in `find . -type d -print` ; do \
@@ -635,7 +635,7 @@ install-arch-indep: lisp install-info install-man ${INSTALL_ARCH_INDEP_EXTRA}
 	subdir="$(DESTDIR)${datadir}/emacs/${version}/site-lisp" ; \
 	  ${write_subdir}
 	subdir="$(DESTDIR)${datadir}/emacs/site-lisp" ; \
-	  ${write_subdir} || true
+	  ${write_subdir} || echo "done trying to write subdir"
 	[ -z "${GZIP_PROG}" ] || { \
 	  echo "Compressing *.el ..." && \
 	  cd "$(DESTDIR)${lispdir}" && \
@@ -654,14 +654,14 @@ install-etcdoc: src install-arch-indep
 	-unset CDPATH; \
 	umask 022; ${MKDIR_P} "$(DESTDIR)${etcdocdir}" ; \
 	exp_etcdocdir=`cd "$(DESTDIR)${etcdocdir}"; /bin/pwd`; \
-	if [ "`cd ./etc; /bin/pwd`" != "$$exp_etcdocdir" ]; \
+	if [ "`cd ./etc; /bin/pwd`" != "$${exp_etcdocdir}" ]; \
 	then \
 	   docfile="DOC"; \
 	   echo "Copying etc/$${docfile} to $(DESTDIR)${etcdocdir} ..." ; \
 	   ${INSTALL_DATA} etc/$${docfile} "$(DESTDIR)${etcdocdir}/$${docfile}"; \
 	   $(set_installuser); \
-	     chown $${installuser} "$(DESTDIR)${etcdocdir}/$${docfile}" || true ; \
-	else true; fi
+	     chown $${installuser} "$(DESTDIR)${etcdocdir}/$${docfile}" || echo "done trying to chown"; \
+	else echo "done with etcdoc"; fi
 
 ## FIXME:
 ## If info/dir is missing, but we have install-info, we should let
@@ -677,7 +677,7 @@ install-info: info
 	thisdir=`/bin/pwd`; \
 	exp_infodir=`cd "$(DESTDIR)${infodir}" && /bin/pwd`; \
 	if [ "`cd ${srcdir}/info && /bin/pwd`" = "$$exp_infodir" ]; then \
-	  true; \
+	  echo "no installation of info necessary"; \
 	else \
 	   [ -f "$(DESTDIR)${infodir}/dir" ] || \
 	      [ ! -f ${srcdir}/info/dir ] || \
@@ -699,7 +699,7 @@ install-info: info
 	fi
 
 ## "gzip || true" is because some gzips exit with non-zero status
-## if compression would not reduce the file size.  Eg, the gzip in
+## if compression would not reduce the file size.  E.g., the gzip in
 ## OpenBSD 4.9 seems to do this (2013/03).  In Emacs, this can
 ## only happen with the tiny ctags.1 manpage.  We do NOT really care if
 ## ctags.1 is compressed or not.  "gzip -f" is another option here,
@@ -714,7 +714,7 @@ install-man:
 	   ${INSTALL_DATA} ${mansrcdir}/$${page} "$(DESTDIR)${man1dir}/$${dest}"); \
 	  [ -n "${GZIP_PROG}" ] || continue ; \
 	  rm -f "$(DESTDIR)${man1dir}/$${dest}.gz"; \
-	  ${GZIP_PROG} -9n "$(DESTDIR)${man1dir}/$${dest}" || true; \
+	  ${GZIP_PROG} -9n "$(DESTDIR)${man1dir}/$${dest}" || echo "OK"; \
 	done
 
 ## Install those items from etc/ that need to end up elsewhere.
@@ -786,12 +786,12 @@ uninstall: uninstall-$(NTDIR) uninstall-doc
 	     (cd "$${thisdir}"; \
 	      $(INSTALL_INFO) --remove --info-dir="$(DESTDIR)${infodir}" "$(DESTDIR)${infodir}/$$elt"); \
 	     if [ -n "${GZIP_PROG}" ]; then \
-	        ext=.gz; else ext=; fi; \
+	        ext=.gz; else ext=""; fi; \
 	     rm -f $$elt$$ext $$elt-[1-9]$$ext $$elt-[1-9][0-9]$$ext; \
 	   done; \
 	 fi)
 	(if [ -n "${GZIP_PROG}" ]; then \
-	    ext=.gz; else ext=; fi; \
+	    ext=.gz; else ext=""; fi; \
 	 if cd ${mansrcdir}; then \
 	   for page in *.1; do \
 	     rm -f "$(DESTDIR)${man1dir}"/`echo "$${page}" | sed -e 's/\.1$$//' -e '$(TRANSFORM)'`.1$$ext; done; \
@@ -948,6 +948,7 @@ maintainer-clean: bootstrap-clean FRC maintainer-clean-local
 	for dir in test/automated admin/grammars admin/unidata; do \
 	  [ ! -d $${dir} ] || (cd $${dir} && $(MAKE) $(MFLAGS) maintainer-clean); \
 	done
+	-rm -f .DS_Store
 	${top_maintainer_clean}
 
 ### This does NOT actually appear in the coding standards, but Karl
