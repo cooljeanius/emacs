@@ -43,9 +43,9 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #if defined(lint) && defined(HAVE_SYS_INODE_H)
 # include <sys/inode.h>
 #else
-# if defined(lint) && defined(__GNUC__) && !defined(__STRICT_ANSI__)
+# if defined(lint) && defined(__GNUC__) && !defined(__STRICT_ANSI__) && !defined(__APPLE__)
 #  warning "linting lread.c expects <sys/inode.h> to be included."
-# endif /* lint && __GNUC__ && !__STRICT_ANSI__ */
+# endif /* lint && __GNUC__ && !__STRICT_ANSI__ && !__APPLE__ */
 #endif /* lint && HAVE_SYS_INODE_H */
 
 #ifdef MSDOS
@@ -4169,6 +4169,41 @@ defvar_lisp (struct Lisp_Objfwd *o_fwd,
   defvar_lisp_nopro (o_fwd, namestring, address);
   staticpro (address);
 }
+
+#ifndef PROTOS_IN_EMACS_BUFFER_C
+/* Similar but define a variable whose value is the Lisp Object stored in
+ * the current buffer.  address is the address of the slot in the buffer
+ * that is current now. */
+void defvar_per_buffer(const char *namestring, Lisp_Object *address,
+                       Lisp_Object type, char *doc)
+{
+  Lisp_Object sym;
+#if 0
+  Lisp_Object val;
+#endif /* 0 */
+  int offset;
+
+  sym = intern(namestring);
+#if 0
+  val = allocate_misc();
+#endif /* 0 */
+  offset = ((char *)address - (char *)current_buffer);
+
+#if 0
+  XMISCTYPE(val) = Lisp_Misc_Buffer_Objfwd;
+  XBUFFER_OBJFWD(val)->offset = offset;
+  SET_SYMBOL_VALUE(sym, val);
+  PER_BUFFER_SYMBOL(offset) = sym;
+  PER_BUFFER_TYPE(offset) = type;
+#endif /* 0 */
+
+  if (PER_BUFFER_IDX(offset) == 0) {
+    /* Did a DEFVAR_PER_BUFFER without initializing the corresponding
+     * slot of buffer_local_flags: */
+    abort();
+  }
+}
+#endif /* !PROTOS_IN_EMACS_BUFFER_C */
 
 /* Similar but define a variable whose value is the Lisp Object stored
    at a particular offset in the current kboard object.  */

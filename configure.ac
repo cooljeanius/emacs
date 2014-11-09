@@ -4188,7 +4188,7 @@ if test "x${with_carbon}" != "xno"; then
   AC_CHECK_HEADER([Carbon/Carbon.h],[HAVE_CARBON=yes])
   AC_CHECK_HEADERS([CarbonCore/Files.h CarbonCore/MacTypes.h \
                     CarbonCore/Script.h CarbonCore/TextUtils.h \
-                    HIToolbox/Drag.h MacTypes.h])
+                    HIToolbox/Drag.h MacTypes.h QD/QuickdrawAPI.h])
 fi
 if test "x${window_system}" = "xx11" && test "x${HAVE_CARBON}" = "xyes"; then
   if test "x${with_carbon+set}" != "xset" \
@@ -6703,9 +6703,9 @@ AC_CHECK_FUNCS([__fpending acl atexit atof atoi btowc bzero doprnt errc \
                 inet_ntoa isascii iswprint mbrlen memchr memmove memset \
                 mkdir munmap nl_langinfo posix_spawnp pow putenv \
                 re_comp regcomp rmdir setenv socket sqrt strcasecmp \
-                strcasestr strchr strcspn strdup strerror strnstr \
-                strpbrk strrchr strstr strtol strtoul system \
-                uname utime utmpname])
+                strcasestr strchr strcmp strcspn strdup strerror stricmp \
+                strncmp strnicmp strnstr strpbrk strrchr strstr \
+                strtol strtoul system xstricmp uname utime utmpname])
 dnl# Keep autoscan happy with a dummy condition:
 if test "x" = "Y0"; then
   test -x "`which autoscan`"
@@ -8489,9 +8489,11 @@ AH_BOTTOM([#include <conf_post.h>
 
 /* Some other debugging defines: */
 #if defined(ENABLE_CHECKING) || defined(GLYPH_DEBUG) || defined(EMACSDEBUG)
-# ifndef DEBUG
+/* The check for the '_IN_GNULIB' macro is to prevent the gnulib mktime.c
+ * from breaking: */
+# if !defined(DEBUG) && !defined(_IN_GNULIB)
 #  define DEBUG 1
-# endif /* !DEBUG */
+# endif /* !DEBUG && !_IN_GNULIB */
 # ifndef _DEBUG
 #  define _DEBUG 1
 # endif /* !_DEBUG */

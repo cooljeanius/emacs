@@ -41,18 +41,16 @@ Boston, MA 02110-1301, USA.  */
  *  after the expansion is done.
  * The plist slot of the abbrev symbol is its usage count. */
 
+#ifndef EMACS_GLOBALS_H
 /* List of all abbrev-table name symbols:
  * symbols whose values are abbrev tables.  */
-
 Lisp_Object Vabbrev_table_name_list;
 
 /* The table of global abbrevs.  These are in effect
  * in any buffer in which abbrev mode is turned on. */
-
 Lisp_Object Vglobal_abbrev_table;
 
 /* The local abbrev table used by default (in Fundamental Mode buffers) */
-
 Lisp_Object Vfundamental_mode_abbrev_table;
 
 /* Set nonzero when an abbrev definition is changed: */
@@ -62,7 +60,6 @@ int abbrev_all_caps;
 
 /* Non-nil => use this location as the start of abbrev to expand
  * (rather than taking the word before point as the abbrev) */
-
 Lisp_Object Vabbrev_start_location;
 
 /* Buffer to which Vabbrev_start_location applies: */
@@ -78,9 +75,14 @@ Lisp_Object Vlast_abbrev_text;
 /* Character address of start of last abbrev expanded: */
 EMACS_INT last_abbrev_point;
 
-/* Hook to run before expanding any abbrev.  */
-Lisp_Object Vpre_abbrev_expand_hook, Qpre_abbrev_expand_hook;
+/* Hook to run before expanding any abbrev: */
+Lisp_Object Vpre_abbrev_expand_hook;
+#endif /* !EMACS_GLOBALS_H */
 
+/* Used to go with previous, before the ifdef split us up: */
+Lisp_Object Qpre_abbrev_expand_hook;
+
+/* These ones were always separe though: */
 Lisp_Object Qsystem_type, Qcount, Qforce;
 
 DEFUN ("make-abbrev-table", Fmake_abbrev_table, Smake_abbrev_table, 0, 0, 0,
@@ -636,8 +638,7 @@ of the form (ABBREVNAME EXPANSION HOOK USECOUNT SYSTEMFLAG).
   return Qnil;
 }
 
-void
-syms_of_abbrev (void)
+void syms_of_abbrev(void)
 {
   Qsystem_type = intern ("system-type");
   staticpro (&Qsystem_type);
@@ -692,7 +693,9 @@ Calling `expand-abbrev' sets this to nil.  */);
 Trying to expand an abbrev in any other buffer clears `abbrev-start-location'.  */);
   Vabbrev_start_location_buffer = Qnil;
 
-  DEFVAR_PER_BUFFER ("local-abbrev-table", current_buffer->INTERNAL_FIELD(abbrev_table), Qnil,
+  /* DEFVAR_PER_BUFFER is special and can continue to start its second
+   * parameter with an ampersand: */
+  DEFVAR_PER_BUFFER ("local-abbrev-table", &current_buffer->INTERNAL_FIELD(abbrev_table), Qnil,
 		     doc: /* Local (mode-specific) abbrev table of current buffer.  */);
 
   DEFVAR_BOOL ("abbrevs-changed", abbrevs_changed,

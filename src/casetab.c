@@ -1,6 +1,6 @@
-/* GNU Emacs routines to deal with case tables.
-   Copyright (C) 1993-1994, 2001-2014 Free Software Foundation, Inc.
-
+/* casetab.c: GNU Emacs routines to deal with case tables.
+ * Copyright (C) 1993-1994, 2001-2014 Free Software Foundation, Inc. */
+/*
 Author: Howard Gayle
 
 This file is part of GNU Emacs.
@@ -29,6 +29,11 @@ Lisp_Object Vascii_downcase_table;
 static Lisp_Object Vascii_upcase_table;
 Lisp_Object Vascii_canon_table;
 static Lisp_Object Vascii_eqv_table;
+
+/* Used as a temporary in DOWNCASE and other macros in lisp.h.  No
+ * need to mark it, since it is used only very temporarily: */
+int case_temp1;
+Lisp_Object case_temp2;
 
 static void set_canon (Lisp_Object case_table, Lisp_Object range, Lisp_Object elt);
 static void set_identity (Lisp_Object table, Lisp_Object c, Lisp_Object elt);

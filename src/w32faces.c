@@ -1,4 +1,4 @@
-/* "Face" primitives on the Microsoft W32 API.
+/* w32faces.c: "Face" primitives on the Microsoft W32 API.
    Copyright (C) 1993, 1994, 1995 Free Software Foundation.
 
 This file is part of GNU Emacs.
@@ -113,7 +113,7 @@ Boston, MA 02111-1307, USA.  */
    be used on any frame.
 
    Some subtleties:
-   
+
    Why do we keep param_faces and computed_faces separate?
    computed_faces contains an element for every combination of facial
    parameters we have ever displayed.  indices into param_faces have
@@ -152,9 +152,8 @@ extern Lisp_Object Qforeground_color, Qbackground_color;
 
 /* Allocating, copying, and comparing struct faces.  */
 
-/* Allocate a new face */
-static struct face *
-allocate_face ()
+/* Allocate a new face: */
+static struct face *allocate_face(void)
 {
   struct face *result = (struct face *) xmalloc (sizeof (struct face));
   bzero (result, sizeof (struct face));
@@ -166,12 +165,10 @@ allocate_face ()
   return result;
 }
 
-/* Make a new face that's a copy of an existing one.  */
-static struct face *
-copy_face (face)
-     struct face *face;
+/* Make a new face that is a copy of an existing one: */
+static struct face *copy_face(struct face *face)
 {
-  struct face *result = allocate_face ();
+  struct face *result = allocate_face();
 
   result->font = face->font;
   result->fontset = face->fontset;
@@ -286,17 +283,14 @@ load_color (f, name)
   return (unsigned long) color;
 }
 
-static void
-unload_color (f, pixel)
-     struct frame *f;
-     unsigned long pixel;
+static void unload_color(struct frame *f, unsigned long pixel)
 {
+  return;
 }
 
 DEFUN ("pixmap-spec-p", Fpixmap_spec_p, Spixmap_spec_p, 1, 1, 0,
   "Return t if OBJECT is a valid pixmap specification.")
-  (object)
-     Lisp_Object object;
+  (Lisp_Object object)
 {
   Lisp_Object height, width;
 
@@ -392,7 +386,7 @@ init_frame_faces (f)
   /* Find another frame.  */
   {
     Lisp_Object tail, frame, result;
-    
+
     result = Qnil;
     FOR_EACH_FRAME (tail, frame)
       if (FRAME_W32_P (XFRAME (frame))
@@ -603,7 +597,7 @@ frame_update_line_height (f)
 /* Modify face TO by copying from FROM all properties which have
    nondefault settings.  */
 
-static void 
+static void
 merge_faces (from, to)
      struct face *from, *to;
 {
@@ -757,7 +751,7 @@ compute_char_face (f, w, pos, region_beg, region_end, endptr, limit, mouse)
     /* First try with room for 40 overlays.  */
     len = 40;
     overlay_vec = (Lisp_Object *) alloca (len * sizeof (Lisp_Object));
-    
+
     noverlays = overlays_at (pos, 0, &overlay_vec, &len,
 			     &next_overlay, (int *) 0);
 
@@ -891,7 +885,7 @@ recompute_basic_faces (f)
 
   merge_faces (FRAME_DEFAULT_PARAM_FACE (f), FRAME_DEFAULT_FACE (f));
   merge_faces (FRAME_MODE_LINE_PARAM_FACE (f), FRAME_MODE_LINE_FACE (f));
-  
+
   intern_face (f, FRAME_DEFAULT_FACE (f));
   intern_face (f, FRAME_MODE_LINE_FACE (f));
 

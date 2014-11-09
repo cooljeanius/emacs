@@ -34,6 +34,14 @@ Boston, MA 02110-1301, USA.  */
 # include <Endian.h>
 typedef int ScrapRef;
 typedef ResType ScrapFlavorType;
+#else /* TARGET_API is actually MAC_CARBON: */
+# if defined(HAVE_CARBON) && defined(HAVE_QD_QUICKDRAWAPI_H)
+#  include <QD/QuickdrawAPI.h>
+# else
+#  if !defined(__QUICKDRAWAPI__) || defined(__LP64__)
+RgnHandle NewRgn(void);
+#  endif /* !__QUICKDRAWAPI__ || __LP64__ */
+# endif /* HAVE_CARBON && HAVE_QD_QUICKDRAWAPI_H */
 #endif /* !TARGET_API_MAC_CARBON */
 
 static OSStatus get_scrap_from_symbol P_ ((Lisp_Object, int, ScrapRef *));
@@ -51,7 +59,9 @@ static Lisp_Object x_get_local_selection P_ ((Lisp_Object, Lisp_Object, int));
 static Lisp_Object x_get_foreign_selection P_ ((Lisp_Object,
                                                 Lisp_Object,
                                                 Lisp_Object));
+#ifndef EMACS_GLOBALS_H
 EXFUN (Fx_selection_owner_p, 1);
+#endif /* !EMACS_GLOBALS_H */
 #ifdef MAC_OSX
 static OSStatus mac_handle_service_event P_ ((EventHandlerCallRef,
 					      EventRef, void *));
@@ -60,12 +70,14 @@ void init_service_handler P_ ((void));
 
 Lisp_Object QPRIMARY, QSECONDARY, QTIMESTAMP, QTARGETS;
 
+#ifndef EMACS_GLOBALS_H
 static Lisp_Object Vx_lost_selection_functions;
 /* Coding system for communicating with other programs via scrap.  */
 static Lisp_Object Vselection_coding_system;
 
 /* Coding system for the next communicating with other programs.  */
 static Lisp_Object Vnext_selection_coding_system;
+#endif /* !EMACS_GLOBALS_H */
 
 static Lisp_Object Qforeign_selection;
 
@@ -92,12 +104,14 @@ static Lisp_Object Vselection_alist;
 
 #define SCRAP_FLAVOR_TYPE_EMACS_TIMESTAMP 'Etsp'
 
+#ifndef EMACS_GLOBALS_H
 /* This is an alist whose CARs are selection-types and whose CDRs are
    the names of Lisp functions to call to convert the given Emacs
    selection value to a string representing the given selection type.
    This is for Lisp-level extension of the emacs selection
    handling.  */
 static Lisp_Object Vselection_converter_alist;
+#endif /* !EMACS_GLOBALS_H */
 
 /* A selection name (represented as a Lisp symbol) can be associated
    with a named scrap via `mac-scrap-name' property.  Likewise for a
@@ -105,8 +119,10 @@ static Lisp_Object Vselection_converter_alist;
 static Lisp_Object Qmac_scrap_name, Qmac_ostype;
 
 #ifdef MAC_OSX
-/* Selection name for communication via Services menu.  */
+# ifndef EMACS_GLOBALS_H
+/* Selection name for communication via Services menu: */
 static Lisp_Object Vmac_service_selection;
+# endif /* !EMACS_GLOBALS_H */
 #endif /* MAC_OSX */
 
 /* Get a reference to the scrap corresponding to the symbol SYM.  The
@@ -262,7 +278,7 @@ static Lisp_Object get_scrap_string(ScrapRef scrap, Lisp_Object type)
 	      if (err != noErr)
 		result = Qnil;
 	      else if (size < SBYTES (result))
-		result = make_unibyte_string (SDATA (result), size);
+		result = make_unibyte_string((const char *)SDATA(result), size);
 	    }
 	  while (STRINGP (result) && size > SBYTES (result));
 	}
@@ -891,7 +907,9 @@ and t is the same as `SECONDARY'.  */)
 			 Apple event support
 ***********************************************************************/
 int mac_ready_for_apple_events = 0;
+#ifndef EMACS_GLOBALS_H
 static Lisp_Object Vmac_apple_event_map;
+#endif /* !EMACS_GLOBALS_H */
 static Lisp_Object Qmac_apple_event_class, Qmac_apple_event_id;
 static Lisp_Object Qemacs_suspension_id;
 extern Lisp_Object Qundefined;
@@ -1094,8 +1112,7 @@ mac_handle_apple_event_1 (class, id, apple_event, reply)
   return err;
 }
 
-static pascal OSErr
-mac_handle_apple_event (apple_event, reply, refcon)
+static pascal OSErr mac_handle_apple_event(apple_event, reply, refcon)
      const AppleEvent *apple_event;
      AppleEvent *reply;
      SInt32 refcon;
@@ -1181,8 +1198,8 @@ void init_apple_event_handler(void)
   OSErr err;
   long result;
 
-  /* Make sure we have Apple events before starting.  */
-  err = Gestalt (gestaltAppleEventsAttr, &result);
+  /* Make sure we have Apple events before starting: */
+  err = Gestalt(gestaltAppleEventsAttr, (SInt32 *)&result);
   if (err != noErr)
     abort ();
 
@@ -1208,19 +1225,19 @@ static UInt32 get_suspension_id(Lisp_Object apple_event)
 
   CHECK_CONS (apple_event);
   CHECK_STRING_CAR (apple_event);
-  if (SBYTES (XCAR (apple_event)) != 4
-      || strcmp (SDATA (XCAR (apple_event)), "aevt") != 0)
+  if ((SBYTES(XCAR(apple_event)) != 4)
+      || (strcmp((const char *)SDATA(XCAR(apple_event)), "aevt") != 0))
     error ("Not an apple event");
 
   tem = assq_no_quit (Qemacs_suspension_id, XCDR (apple_event));
   if (NILP (tem))
     error ("Suspension ID not available");
 
-  tem = XCDR (tem);
-  if (!(CONSP (tem)
-	&& STRINGP (XCAR (tem)) && SBYTES (XCAR (tem)) == 4
-	&& strcmp (SDATA (XCAR (tem)), "magn") == 0
-	&& STRINGP (XCDR (tem)) && SBYTES (XCDR (tem)) == 4))
+  tem = XCDR(tem);
+  if (!(CONSP(tem)
+	&& (STRINGP(XCAR(tem)) && (SBYTES(XCAR(tem)) == 4))
+	&& (strcmp((const char *)SDATA(XCAR(tem)), "magn") == 0)
+	&& (STRINGP(XCDR(tem)) && (SBYTES(XCDR(tem)) == 4))))
     error ("Bad suspension ID format");
 
   return *((UInt32 *) SDATA (XCDR (tem)));
@@ -1390,7 +1407,9 @@ nil, which means the event is already resumed or expired.  */)
                       Drag and drop support
 ***********************************************************************/
 #if TARGET_API_MAC_CARBON
+# ifndef EMACS_GLOBALS_H
 static Lisp_Object Vmac_dnd_known_types;
+# endif /* !EMACS_GLOBALS_H */
 static pascal OSErr mac_do_track_drag P_ ((DragTrackingMessage, WindowRef,
 					   void *, DragRef));
 static pascal OSErr mac_do_receive_drag P_ ((WindowRef, void *, DragRef));
@@ -1400,8 +1419,7 @@ static DragReceiveHandlerUPP mac_do_receive_dragUPP = NULL;
 extern void mac_store_drag_event P_ ((WindowRef, Point, SInt16,
 				      const AEDesc *));
 
-static pascal OSErr
-mac_do_track_drag (message, window, refcon, drag)
+static pascal OSErr mac_do_track_drag(message, window, refcon, drag)
      DragTrackingMessage message;
      WindowRef window;
      void *refcon;
@@ -1490,7 +1508,7 @@ mac_do_track_drag (message, window, refcon, drag)
 }
 
 static pascal OSErr
-mac_do_receive_drag(WindowRef window, void *refcon, ragRef drag)
+mac_do_receive_drag(WindowRef window, void *refcon, DragRef drag)
 {
   OSErr err;
   int num_types, i;
@@ -1739,11 +1757,11 @@ mac_handle_service_event (call_ref, event, data)
 						flavor_type);
 		else	     /* event_kind == kEventServiceGetTypes */
 		  {
-		    type = CreateTypeStringWithOSType (flavor_type);
+		    type = CreateTypeStringWithOSType(flavor_type);
 		    if (type)
 		      {
-			CFArrayAppendValue (copy_types, type);
-			CFRelease (type);
+			CFArrayAppendValue(copy_types, type);
+			CFRelease(type);
 		      }
 		  }
 	      }

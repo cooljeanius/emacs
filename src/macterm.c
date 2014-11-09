@@ -47,29 +47,36 @@ Boston, MA 02110-1301, USA.  */
 
 #if TARGET_API_MAC_CARBON
 /* USE_CARBON_EVENTS determines if the Carbon Event Manager is used to
-   obtain events from the event queue.  If set to 0, WaitNextEvent is
-   used instead.  */
-#define USE_CARBON_EVENTS 1
+ * obtain events from the event queue.  If set to 0, WaitNextEvent is
+ * used instead.  */
+# define USE_CARBON_EVENTS 1
+# if defined(HAVE_CARBON) && defined(HAVE_QD_QUICKDRAWAPI_H)
+#  include <QD/QuickdrawAPI.h>
+# else
+#  if !defined(__QUICKDRAWAPI__) || defined(__LP64__)
+RgnHandle NewRgn(void);
+#  endif /* !__QUICKDRAWAPI__ || __LP64__ */
+# endif /* HAVE_CARBON && HAVE_QD_QUICKDRAWAPI_H */
 #else /* not TARGET_API_MAC_CARBON */
-#include <Quickdraw.h>
-#include <ToolUtils.h>
-#include <Sound.h>
-#include <Events.h>
-#include <Script.h>
-#include <Resources.h>
-#include <Fonts.h>
-#include <TextUtils.h>
-#include <LowMem.h>
-#include <Controls.h>
-#include <Windows.h>
-#include <Displays.h>
-#if defined (__MRC__) || (__MSL__ >= 0x6000)
-# include <ControlDefinitions.h>
-#endif
+# include <Quickdraw.h>
+# include <ToolUtils.h>
+# include <Sound.h>
+# include <Events.h>
+# include <Script.h>
+# include <Resources.h>
+# include <Fonts.h>
+# include <TextUtils.h>
+# include <LowMem.h>
+# include <Controls.h>
+# include <Windows.h>
+# include <Displays.h>
+# if defined (__MRC__) || (__MSL__ >= 0x6000)
+#  include <ControlDefinitions.h>
+# endif /* __MRC__ version */
 
-#if __profile__
-# include <profiler.h>
-#endif /* __profile__ */
+# if __profile__
+#  include <profiler.h>
+# endif /* __profile__ */
 #endif /* not TARGET_API_MAC_CARBON */
 
 #include "systty.h"
@@ -96,14 +103,20 @@ Boston, MA 02110-1301, USA.  */
 #include "atimer.h"
 #include "keymap.h"
 
+/* skip the casting to '(void *)' in this file, because it is actually
+ * used as a 'Lisp_Object' (a.k.a. 'int') in this file: */
+#ifndef NULL
+# define NULL 0
+#endif /* !NULL */
 
+#ifndef EMACS_GLOBALS_H
 /* Non-nil means Emacs uses toolkit scroll bars: */
 Lisp_Object Vx_toolkit_scroll_bars;
 
 /* If non-zero, the text will be rendered using Core Graphics text
    rendering which may anti-alias the text.  */
 int mac_use_core_graphics;
-
+#endif /* !EMACS_GLOBALS_H */
 
 /* Non-zero means that a HELP_EVENT has been generated since Emacs
    start.  */
@@ -112,12 +125,14 @@ static int any_help_event_p;
 /* Last window where we saw the mouse.  Used by mouse-autoselect-window.  */
 static Lisp_Object last_window;
 
+#ifndef EMACS_GLOBALS_H
 /* Non-zero means make use of UNDERLINE_POSITION font properties.
    (Not yet supported.)  */
 int x_use_underline_position_properties;
 
 /* Non-zero means to draw the underline at the same place as the descent line.  */
 int x_underline_at_descent_line;
+#endif /* !EMACS_GLOBALS_H */
 
 /* This is a chain of structures for all the X displays currently in
    use.  */
@@ -197,17 +212,23 @@ static int volatile input_signal_count;
 static int input_signal_count;
 #endif /* __STDC__ */
 
+#ifndef EMACS_GLOBALS_H
 extern Lisp_Object Vsystem_name;
+#endif /* !EMACS_GLOBALS_H */
 
 extern Lisp_Object Qeql;
 
+#ifndef EMACS_GLOBALS_H
 /* A mask of extra modifier bits to put into every keyboard char: */
 extern EMACS_INT extra_keyboard_modifiers;
+#endif /* !EMACS_GLOBALS_H */
 
 /* The keysyms to use for the various modifiers: */
 static Lisp_Object Qalt, Qhyper, Qsuper, Qcontrol, Qmeta, Qmodifier_value;
 
+#ifndef EMACS_LISP_H
 extern int inhibit_window_system;
+#endif /* !EMACS_LISP_H */
 
 #if __MRC__ && !TARGET_API_MAC_CARBON
 QDGlobals qd;  /* QuickDraw global information structure.  */
@@ -346,9 +367,10 @@ static void init_cg_color(void)
   if (CGColorGetTypeID != NULL)
 # endif /* 10.2 */
     {
-      float rgba[] = {0.0f, 0.0f, 0.0f, 1.0f};
+      float rgba[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
-      mac_cg_color_black = CGColorCreate (mac_cg_color_space_rgb, rgba);
+      mac_cg_color_black = CGColorCreate(mac_cg_color_space_rgb,
+                                         (const CGFloat *)rgba);
     }
 #endif /* 10.3+ */
 }
@@ -406,16 +428,14 @@ mac_prepare_for_quickdraw (f)
 
 static RgnHandle saved_port_clip_region = NULL;
 
-static void
-mac_begin_clip (gc)
-     GC gc;
+static void mac_begin_clip(GC gc)
 {
   static RgnHandle new_region = NULL;
 
   if (saved_port_clip_region == NULL)
-    saved_port_clip_region = NewRgn ();
+    saved_port_clip_region = NewRgn();
   if (new_region == NULL)
-    new_region = NewRgn ();
+    new_region = NewRgn();
 
   if (gc->n_clip_rects)
     {
@@ -2030,12 +2050,11 @@ mac_draw_vertical_window_border (w, x, y0, y1)
    glyphs in mouse-face were overwritten.  In that case we have to
    make sure that the mouse-highlight is properly redrawn.
 
-   W may be a menu bar pseudo-window in case we don't have X toolkit
-   support.  Such windows don't have a cursor, so don't display it
+   W may be a menu bar pseudo-window in case we do NOT have X toolkit
+   support.  Such windows do NOT have a cursor, so do NOT display it
    here.  */
 
-static void
-x_update_window_end (w, cursor_on_p, mouse_face_overwritten_p)
+static void x_update_window_end(w, cursor_on_p, mouse_face_overwritten_p)
      struct window *w;
      int cursor_on_p, mouse_face_overwritten_p;
 {
@@ -2371,7 +2390,7 @@ x_per_char_metric (font, char2b)
     }
   else
     {
-#endif
+#endif /* USE_ATSUI */
   if (font->bounds.per_char != NULL)
     {
       if (font->min_byte1 == 0 && font->max_byte1 == 0)
@@ -2426,13 +2445,13 @@ x_per_char_metric (font, char2b)
     }
 #if USE_ATSUI
     }
-#endif
+#endif /* USE_ATSUI */
 
   return ((pcm == NULL
 	   || (pcm->width == 0
 #if 0 /* Show hollow boxes for zero-width glyphs such as combining diacritics.  */
 	       && (pcm->rbearing - pcm->lbearing) == 0
-#endif
+#endif /* 0 */
 	       ))
 	  ? NULL : pcm);
 }
@@ -2452,15 +2471,13 @@ mac_per_char_metric (font, char2b, font_type)
 /* RIF:
    Encode CHAR2B using encoding information from FONT_INFO.  CHAR2B is
    the two-byte form of C.  Encoding is returned in *CHAR2B.  */
-
-static int
-mac_encode_char (c, char2b, font_info, two_byte_p)
+static int mac_encode_char(c, char2b, font_info, two_byte_p)
      int c;
      XChar2b *char2b;
      struct font_info *font_info;
      int *two_byte_p;
 {
-  int charset = CHAR_CHARSET (c);
+  int charset = (int)CHAR_CHARSET(c);
   XFontStruct *font = font_info->font;
 
   /* FONT_INFO may define a scheme by which to encode byte1 and byte2.
@@ -2468,11 +2485,11 @@ mac_encode_char (c, char2b, font_info, two_byte_p)
      fixed encoding.  */
   if (font_info->font_encoder)
     {
-      /* It's a program.  */
+      /* It is a program.  */
       struct ccl_program *ccl = font_info->font_encoder;
 
-      check_ccl_update (ccl);
-      if (CHARSET_DIMENSION (charset) == 1)
+      check_ccl_update(ccl);
+      if (CHARSET_DIMENSION(charset) == 1)
 	{
 	  ccl->reg[0] = charset;
 	  ccl->reg[1] = char2b->byte2;
@@ -2485,7 +2502,7 @@ mac_encode_char (c, char2b, font_info, two_byte_p)
 	  ccl->reg[2] = char2b->byte2;
 	}
 
-      ccl_driver (ccl, NULL, NULL, 0, 0, NULL);
+      ccl_driver(ccl, NULL, NULL, 0, 0, NULL);
 
       /* We assume that MSBs are appropriately set/reset by CCL
 	 program.  */

@@ -31522,7 +31522,7 @@ fi
 
   for ac_header in CarbonCore/Files.h CarbonCore/MacTypes.h \
                     CarbonCore/Script.h CarbonCore/TextUtils.h \
-                    HIToolbox/Drag.h MacTypes.h
+                    HIToolbox/Drag.h MacTypes.h QD/QuickdrawAPI.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -42965,9 +42965,9 @@ for ac_func in __fpending acl atexit atof atoi btowc bzero doprnt errc \
                 inet_ntoa isascii iswprint mbrlen memchr memmove memset \
                 mkdir munmap nl_langinfo posix_spawnp pow putenv \
                 re_comp regcomp rmdir setenv socket sqrt strcasecmp \
-                strcasestr strchr strcspn strdup strerror strnstr \
-                strpbrk strrchr strstr strtol strtoul system \
-                uname utime utmpname
+                strcasestr strchr strcmp strcspn strdup strerror stricmp \
+                strncmp strnicmp strnstr strpbrk strrchr strstr \
+                strtol strtoul system xstricmp uname utime utmpname
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"

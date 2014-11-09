@@ -23,20 +23,18 @@ Boston, MA 02110-1301, USA.  */
 #define _XOPEN_SOURCE 500	/* for cuserid */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+# include <config.h>
+#endif /* HAVE_CONFIG_H */
 
 #if defined (BSD_SYSTEM) && !defined (BSD4_1) && !defined (USE_FAKEMAIL)
-/* This program isnot used in BSD, so just avoid loader complaints.  */
-int
-main ()
+/* This program is not used in BSD, so just avoid loader complaints.  */
+int main(void)
 {
   return 0;
 }
 #else /* not BSD 4.2 (or newer) */
 #ifdef MSDOS
-int
-main ()
+int main(void)
 {
   return 0;
 }
@@ -46,12 +44,12 @@ main ()
 /* These are defined in config in some versions. */
 
 #ifdef static
-#undef static
-#endif
+# undef static
+#endif /* static */
 
 #ifdef WINDOWSNT
-#include "ntlib.h"
-#endif
+# include "ntlib.h"
+#endif /* WINDOWSNT */
 
 #include <stdio.h>
 #include <string.h>
@@ -61,8 +59,8 @@ main ()
 
 /* This is to declare cuserid.  */
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
+# include <unistd.h>
+#endif /* HAVE_UNISTD_H */
 
 /* Type definitions */
 

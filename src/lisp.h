@@ -3604,6 +3604,8 @@ extern Lisp_Object indirect_variable P_ ((Lisp_Object));
 #else
 extern struct Lisp_Symbol *indirect_variable (struct Lisp_Symbol *);
 #endif /* _USE_OLD_LISP_DATA_STRUCTURES && P_ */
+extern Lisp_Object long_to_cons (unsigned long);
+extern unsigned long cons_to_long (Lisp_Object);
 extern _Noreturn void args_out_of_range (Lisp_Object, Lisp_Object);
 extern _Noreturn void args_out_of_range_3 (Lisp_Object, Lisp_Object,
 					   Lisp_Object);
@@ -3661,6 +3663,9 @@ EMACS_UINT hash_string (char const *, ptrdiff_t);
 EMACS_UINT sxhash (Lisp_Object, int);
 Lisp_Object make_hash_table (struct hash_table_test, Lisp_Object, Lisp_Object,
                              Lisp_Object, Lisp_Object);
+Lisp_Object make_hash_table_old_way (Lisp_Object, Lisp_Object, Lisp_Object,
+                                     Lisp_Object, Lisp_Object, Lisp_Object,
+                                     Lisp_Object);
 ptrdiff_t hash_lookup (struct Lisp_Hash_Table *, Lisp_Object, EMACS_UINT *);
 ptrdiff_t hash_put (struct Lisp_Hash_Table *, Lisp_Object, Lisp_Object,
 		    EMACS_UINT);

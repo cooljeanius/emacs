@@ -25,36 +25,42 @@
    mktime.  */
 /* #define DEBUG 1 */
 
-#ifdef HAVE_CONFIG_H
+#if defined(HAVE_CONFIG_H) || defined(emacs)
 # include <config.h>
-#endif
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#  warning "mktime.c expects <config.h> to be included."
+# endif /* __GNUC__ && !__STRICT_ANSI__ */
+#endif /* HAVE_CONFIG_H */
 
 #ifdef _LIBC
 # define HAVE_LIMITS_H 1
 # define STDC_HEADERS 1
-#endif
+#endif /* _LIBC */
 
 /* Assume that leap seconds are possible, unless told otherwise.
    If the host has a `zic' command with a `-L leapsecondfilename' option,
    then it supports leap seconds; otherwise it probably doesn't.  */
 #ifndef LEAP_SECONDS_POSSIBLE
 # define LEAP_SECONDS_POSSIBLE 1
-#endif
+#endif /* !LEAP_SECONDS_POSSIBLE */
 
 #include <sys/types.h>		/* Some systems define `time_t' here.  */
 #include <time.h>
 
-#if HAVE_LIMITS_H
+#if defined(HAVE_LIMITS_H) && HAVE_LIMITS_H
 # include <limits.h>
-#endif
+#endif /* HAVE_LIMITS_H */
 
-#if DEBUG
+#if (defined(DEBUG) && DEBUG) && defined(HAVE_STDIO_H)
 # include <stdio.h>
-# if STDC_HEADERS
+# if (defined(STDC_HEADERS) && STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #  include <stdlib.h>
-# endif
-/* Make it work even if the system's libc has its own mktime routine.  */
-# define mktime my_mktime
+# endif /* STDC_HEADERS || HAVE_STDLIB_H */
+/* Make it work even if the system's libc has its own mktime routine: */
+# if !defined(mktime) && defined(HAVE_MKTIME) && defined(BROKEN_MKTIME)
+#  define mktime rpl_mktime
+# endif /* !mktime && HAVE_MKTIME && BROKEN_MKTIME */
 #endif /* DEBUG */
 
 #ifndef __P
@@ -67,7 +73,7 @@
 
 #ifndef CHAR_BIT
 # define CHAR_BIT 8
-#endif
+#endif /* !CHAR_BIT */
 
 /* The extra casts work around common compiler bugs.  */
 #define TYPE_SIGNED(t) (! ((t) 0 < (t) -1))
@@ -79,27 +85,27 @@
 
 #ifndef INT_MIN
 # define INT_MIN TYPE_MINIMUM (int)
-#endif
+#endif /* !INT_MIN */
 #ifndef INT_MAX
 # define INT_MAX TYPE_MAXIMUM (int)
-#endif
+#endif /* !INT_MAX */
 
 #ifndef TIME_T_MIN
 # define TIME_T_MIN TYPE_MINIMUM (time_t)
-#endif
+#endif /* !TIME_T_MIN */
 #ifndef TIME_T_MAX
 # define TIME_T_MAX TYPE_MAXIMUM (time_t)
-#endif
+#endif /* !TIME_T_MAX */
 
 #define TM_YEAR_BASE 1900
 #define EPOCH_YEAR 1970
 
 #ifndef __isleap
 /* Nonzero if YEAR is a leap year (every 4 years,
-   except every 100th isn't, and every 400th is).  */
+   except every 100th is NOT, and every 400th is).  */
 # define __isleap(year)	\
   ((year) % 4 == 0 && ((year) % 100 != 0 || (year) % 400 == 0))
-#endif
+#endif /* !__isleap */
 
 /* How many days come before each month (0-12).  */
 const unsigned short int __mon_yday[2][13] =
@@ -117,8 +123,7 @@ const unsigned short int __mon_yday[2][13] =
 /* If we are a mktime substitute in a GNU program, then prefer
    localtime to localtime_r, since many localtime_r implementations
    are buggy.  */
-static struct tm *
-my_mktime_localtime_r (t, tp)
+static struct tm * my_mktime_localtime_r(t, tp)
      const time_t *t;
      struct tm *tp;
 {
@@ -137,8 +142,7 @@ my_mktime_localtime_r (t, tp)
    All values are in range, except possibly YEAR.
    If TP is null, return a nonzero value.
    If overflow occurs, yield the low order bits of the correct answer.  */
-static time_t
-ydhms_tm_diff (year, yday, hour, min, sec, tp)
+static time_t ydhms_tm_diff(year, yday, hour, min, sec, tp)
      int year, yday, hour, min, sec;
      const struct tm *tp;
 {
@@ -170,13 +174,12 @@ ydhms_tm_diff (year, yday, hour, min, sec, tp)
 /* Use CONVERT to convert *T to a broken down time in *TP.
    If *T is out of range for conversion, adjust it so that
    it is the nearest in-range value and then convert that.  */
-static struct tm *
-ranged_convert (convert, t, tp)
+static struct tm *ranged_convert(convert, t, tp)
 #if defined(PROTOTYPES) || defined(__PROTOTYPES)
      struct tm *(*convert) (const time_t *, struct tm *);
 #else
      struct tm *(*convert)();
-#endif /* PROTOTYPES */
+#endif /* PROTOTYPES || __PROTOTYPES */
      time_t *t;
      struct tm *tp;
 {
@@ -224,14 +227,13 @@ ranged_convert (convert, t, tp)
    Use *OFFSET to keep track of a guess at the offset of the result,
    compared to what the result would be for UTC without leap seconds.
    If *OFFSET's guess is correct, only one CONVERT call is needed.  */
-time_t
-__mktime_internal (tp, convert, offset)
+time_t __mktime_internal(tp, convert, offset)
      struct tm *tp;
-#ifdef PROTOTYPES
+#if defined(PROTOTYPES) || defined(__PROTOTYPES)
      struct tm *(*convert) (const time_t *, struct tm *);
 #else
      struct tm *(*convert)();
-#endif
+#endif /* PROTOTYPES || __PROTOTYPES */
      time_t *offset;
 {
   time_t t, dt, t0, t1, t2;
@@ -288,7 +290,7 @@ __mktime_internal (tp, convert, offset)
     sec = 0;
   if (59 < sec)
     sec = 59;
-#endif
+#endif /* LEAP_SECONDS_POSSIBLE */
 
   /* Invert CONVERT by probing.  First assume the same offset as last time.
      Then repeatedly use the error to improve the guess.  */
@@ -326,12 +328,13 @@ __mktime_internal (tp, convert, offset)
       /* tm.tm_isdst has the wrong value.  Look for a neighboring
 	 time with the right value, and use its UTC offset.
 	 Heuristic: probe the previous three calendar quarters (approximately),
-	 looking for the desired isdst.  This isn't perfect,
-	 but it's good enough in practice.  */
+	 looking for the desired isdst.  This is NOT perfect,
+	 but it is good enough in practice.  */
       int quarter = 7889238; /* seconds per average 1/4 Gregorian year */
       int i;
 
-      /* If we're too close to the time_t limit, look in future quarters.  */
+      /* If we are too close to the time_t limit, then look in future
+       * quarters: */
       if (t < TIME_T_MIN + 3 * quarter)
 	quarter = -quarter;
 
@@ -362,7 +365,7 @@ __mktime_internal (tp, convert, offset)
       if (! (*convert) (&t, &tm))
 	return -1;
     }
-#endif
+#endif /* LEAP_SECONDS_POSSIBLE */
 
   if (TIME_T_MAX / INT_MAX / 366 / 24 / 60 / 60 < 3)
     {
@@ -403,24 +406,22 @@ __mktime_internal (tp, convert, offset)
 
 static time_t localtime_offset;
 
-/* Convert *TP to a time_t value.  */
-time_t
-mktime (tp)
-     struct tm *tp;
+/* Convert *TP to a time_t value: */
+time_t mktime(struct tm *tp)
 {
 #ifdef _LIBC
   /* POSIX.1 8.1.1 requires that whenever mktime() is called, the
      time zone names contained in the external variable `tzname' shall
      be set as if the tzset() function had been called.  */
   __tzset ();
-#endif
+#endif /* _LIBC */
 
   return __mktime_internal (tp, my_mktime_localtime_r, &localtime_offset);
 }
 
 #ifdef weak_alias
 weak_alias (mktime, timelocal)
-#endif
+#endif /* weak_alias */
 
 #if DEBUG
 
@@ -440,9 +441,7 @@ not_equal_tm (a, b)
 	  | (a->tm_isdst ^ b->tm_isdst));
 }
 
-static void
-print_tm (tp)
-     struct tm *tp;
+static void print_tm(struct tm *tp)
 {
   if (tp)
     printf ("%04d-%02d-%02d %02d:%02d:%02d yday %03d wday %d isdst %d",
@@ -453,8 +452,7 @@ print_tm (tp)
     printf ("0");
 }
 
-static int
-check_result (tk, tmk, tl, lt)
+static int check_result(tk, tmk, tl, lt)
      time_t tk;
      struct tm tmk;
      time_t tl;
@@ -473,10 +471,7 @@ check_result (tk, tmk, tl, lt)
   return 0;
 }
 
-int
-main (argc, argv)
-     int argc;
-     char **argv;
+int main(int argc, char **argv)
 {
   int status = 0;
   struct tm tm, tmk, tml;

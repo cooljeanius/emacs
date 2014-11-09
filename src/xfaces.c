@@ -1333,10 +1333,8 @@ load_face_colors (struct frame *f, struct face *face,
 
 #ifdef HAVE_X_WINDOWS
 
-/* Free color PIXEL on frame F.  */
-
-void
-unload_color (struct frame *f, unsigned long pixel)
+/* Free color PIXEL on frame F: */
+void unload_color(struct frame *f, unsigned long pixel)
 {
   if (pixel != -1)
     {

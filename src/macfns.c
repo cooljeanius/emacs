@@ -58,11 +58,10 @@ Boston, MA 02110-1301, USA.  */
 extern void free_frame_menubar();
 
 #if TARGET_API_MAC_CARBON
-
-/* Carbon version info */
-
+# ifndef EMACS_GLOBALS_H
+/* Carbon version info: */
 static Lisp_Object Vmac_carbon_version_string;
-
+# endif /* !EMACS_GLOBALS_H */
 #endif	/* TARGET_API_MAC_CARBON */
 
 #ifndef display_hourglass_p
@@ -72,34 +71,31 @@ int display_hourglass_p;
 
 /* The background and shape of the mouse pointer, and shape when not
    over text or in the modeline.  */
-
+#ifndef EMACS_GLOBALS_H
 Lisp_Object Vx_pointer_shape, Vx_nontext_pointer_shape, Vx_mode_pointer_shape;
 Lisp_Object Vx_hourglass_pointer_shape;
 
-/* The shape when over mouse-sensitive text.  */
-
+/* The shape when over mouse-sensitive text: */
 Lisp_Object Vx_sensitive_text_pointer_shape;
 
 /* If non-nil, the pointer shape to indicate that windows can be
    dragged horizontally.  */
-
 Lisp_Object Vx_window_horizontal_drag_shape;
 
-/* Color of chars displayed in cursor box.  */
-
+/* Color of chars displayed in cursor box: */
 Lisp_Object Vx_cursor_fore_pixel;
+#endif /* !EMACS_GLOBALS_H */
 
-/* Nonzero if using Windows.  */
-
+/* Nonzero if using a Mac: */
 static int mac_in_use;
 
-/* Non nil if no window manager is in use.  */
-
+#ifndef EMACS_GLOBALS_H
+/* Non nil if no window manager is in use: */
 Lisp_Object Vx_no_window_manager;
 
-/* Regexp matching a font name whose width is the same as `PIXEL_SIZE'.  */
-
+/* Regexp matching a font name whose width is the same as `PIXEL_SIZE': */
 Lisp_Object Vx_pixel_size_width_font_regexp;
+#endif /* !EMACS_GLOBALS_H */
 
 Lisp_Object Qnone;
 Lisp_Object Qsuppress_icon;
@@ -115,8 +111,9 @@ extern Lisp_Object Vwindow_system_version;
 int image_cache_refcount, dpyinfo_refcount;
 #endif /* GLYPH_DEBUG */
 
-
-#if 0 /* Use xstricmp instead.  */
+#if !defined(stricmp) && !defined(HAVE_STRICMP)
+/* Use xstricmp instead, if available: */
+# if !defined(xstricmp) && !defined(HAVE_XSTRICMP)
 /* compare two strings ignoring case: */
 static int stricmp(const char *s, const char *t)
 {
@@ -129,11 +126,14 @@ static int stricmp(const char *s, const char *t)
   }
   return (tolower(*s) - tolower(*t));
 }
-#endif /* 0 */
+#  define xstricmp(s, t) stricmp(s, t)
+# else
+#  define stricmp(s, t) xstricmp(s, t)
+# endif /* !xstricmp && !HAVE_XSTRICMP */
+#endif /* !stricmp && !HAVE_STRICMP */
 
 /* compare two strings up to n characters, ignoring case: */
-static int
-strnicmp (const char *s, const char *t, unsigned int n)
+static int strnicmp(const char *s, const char *t, unsigned int n)
 {
   int i;
   for (i = 0; (n > 0) && (tolower(*s) == tolower(*t)); n--, s++, t++) {
@@ -197,8 +197,8 @@ struct mac_display_info *check_x_display_info(Lisp_Object frame)
     dpyinfo = x_display_info_for_name (frame);
   else
     {
-      FRAME_PTR f = check_x_frame (frame);
-      dpyinfo = FRAME_MAC_DISPLAY_INFO (f);
+      FRAME_PTR f = check_x_frame(frame);
+      dpyinfo = FRAME_MAC_DISPLAY_INFO(f);
     }
 
   return dpyinfo;
@@ -1013,8 +1013,8 @@ Lisp_Object mac_color_map_lookup(const char *colorname)
 
   BLOCK_INPUT;
 
-  for (i = 0; i < sizeof (mac_color_map) / sizeof (mac_color_map[0]); i++)
-    if (xstricmp (colorname, mac_color_map[i].name) == 0)
+  for (i = 0; i < (sizeof(mac_color_map) / sizeof(mac_color_map[0])); i++)
+    if (xstricmp(colorname, mac_color_map[i].name) == 0)
       {
         ret = make_number (mac_color_map[i].color);
         break;
@@ -1265,7 +1265,20 @@ int x_decode_color(FRAME_PTR f, Lisp_Object arg, int def)
   /* defined_color failed; return an ultimate default.  */
   return def;
 }
-
+
+
+#if !defined(_WIN32) && !defined(HAVE_X_WINDOWS)
+static void unload_color(struct frame *f, unsigned long pixel)
+{
+  if (pixel != -1) {
+    BLOCK_INPUT;
+    ; /* (free colors here) */
+    UNBLOCK_INPUT;
+  }
+  return;
+}
+#endif /* !_WIN32 && !HAVE_X_WINDOWS */
+
 /* Functions called only from `x_set_frame_param'
    to set individual parameters.
 
@@ -1346,7 +1359,7 @@ void x_set_mouse_color(struct frame *f, Lisp_Object arg, Lisp_Object oldval)
   unsigned long pixel = x_decode_color (f, arg, BLACK_PIX_DEFAULT (f));
   unsigned long mask_color = x->background_pixel;
 
-  /* Don't let pointers be invisible.  */
+  /* Do NOT let pointers be invisible: */
   if (mask_color == pixel)
     pixel = x->foreground_pixel;
 
@@ -1420,8 +1433,8 @@ void x_set_mouse_color(struct frame *f, Lisp_Object arg, Lisp_Object oldval)
 
   BLOCK_INPUT;
 
-  if (FRAME_MAC_WINDOW (f) != 0)
-    rif->define_frame_cursor (f, cursor);
+  if (FRAME_MAC_WINDOW(f) != 0)
+    rif->define_frame_cursor(f, cursor);
 
   f->output_data.mac->text_cursor = cursor;
   f->output_data.mac->nontext_cursor = nontext_cursor;
@@ -1597,9 +1610,8 @@ void x_set_icon_name(struct frame *f, Lisp_Object arg, Lisp_Object oldval)
 #endif /* MAC_TODO */
 }
 
-
-void
-x_set_menu_bar_lines (f, value, oldval)
+/* x...? */
+void x_set_menu_bar_lines(f, value, oldval)
      struct frame *f;
      Lisp_Object value, oldval;
 {
@@ -1620,10 +1632,8 @@ x_set_menu_bar_lines (f, value, oldval)
    VALUE not an integer, or < 0 means set the lines to zero.  OLDVAL
    is the old number of tool bar lines.  This function changes the
    height of all windows on frame F to match the new tool bar height.
-   The frame's height doesn't change.  */
-
-void
-x_set_tool_bar_lines (f, value, oldval)
+   The height of the frame does NOT change.  */
+void x_set_tool_bar_lines(f, value, oldval)
      struct frame *f;
      Lisp_Object value, oldval;
 {
@@ -1645,10 +1655,10 @@ x_set_tool_bar_lines (f, value, oldval)
 
   delta = nlines - FRAME_TOOL_BAR_LINES (f);
 
-  /* Don't resize the tool-bar to more than we have room for.  */
+  /* Do NOT resize the tool-bar to more than we have room for.  */
   root_window = FRAME_ROOT_WINDOW (f);
   root_height = WINDOW_TOTAL_LINES (XWINDOW (root_window));
-  if (root_height - delta < 1)
+  if ((root_height - delta) < 1)
     {
       delta = root_height - 1;
       nlines = FRAME_TOOL_BAR_LINES (f) + delta;
@@ -1662,19 +1672,19 @@ x_set_tool_bar_lines (f, value, oldval)
      the frame, below the menu bar or tool bar, is redrawn when the
      tool bar disappears.  This is so because the internal border is
      below the tool bar if one is displayed, but is below the menu bar
-     if there isn't a tool bar.  The tool bar draws into the area
+     if there is NOT a tool bar.  The tool bar draws into the area
      below the menu bar.  */
-  if (FRAME_MAC_WINDOW (f) && FRAME_TOOL_BAR_LINES (f) == 0)
+  if (FRAME_MAC_WINDOW(f) && (FRAME_TOOL_BAR_LINES(f) == 0))
     {
       updating_frame = f;
-      clear_frame ();
-      clear_current_matrices (f);
+      clear_frame(f);
+      clear_current_matrices(f);
       updating_frame = NULL;
     }
 
   /* If the tool bar gets smaller, the internal border below it
      has to be cleared.  It was formerly part of the display
-     of the larger tool bar, and updating windows won't clear it.  */
+     of the larger tool bar, and updating windows will NOT clear it.  */
   if (delta < 0)
     {
       int height = FRAME_INTERNAL_BORDER_WIDTH (f);
@@ -1702,26 +1712,26 @@ static void x_set_name_internal(FRAME_PTR f, Lisp_Object name)
 	name = ENCODE_UTF_8 (name);
 #else
 	name = ENCODE_SYSTEM (name);
-#endif
+#endif /* TARGET_API_MAC_CARBON */
 
       BLOCK_INPUT;
 
       {
 #if TARGET_API_MAC_CARBON
 	CFStringRef windowTitle =
-	  cfstring_create_with_utf8_cstring (SDATA (name));
+	  cfstring_create_with_utf8_cstring((const char *)SDATA(name));
 
 	SetWindowTitleWithCFString (FRAME_MAC_WINDOW (f), windowTitle);
 	CFRelease (windowTitle);
 #else
 	Str255 windowTitle;
-	if (strlen (SDATA (name)) < 255)
+	if (strlen(SDATA(name)) < 255)
 	  {
-	    strcpy (windowTitle, SDATA (name));
-	    c2pstr (windowTitle);
-	    SetWTitle (FRAME_MAC_WINDOW (f), windowTitle);
+	    strcpy(windowTitle, SDATA(name));
+	    c2pstr(windowTitle);
+	    SetWTitle(FRAME_MAC_WINDOW(f), windowTitle);
 	  }
-#endif
+#endif /* TARGET_API_MAC_CARBON */
       }
 
       UNBLOCK_INPUT;
@@ -1738,9 +1748,7 @@ static void x_set_name_internal(FRAME_PTR f, Lisp_Object name)
    If EXPLICIT is zero, that indicates that Emacs redisplay code is
        suggesting a new name, which lisp code should override; if
        F->explicit_name is set, ignore the new name; otherwise, set it.  */
-
-void
-x_set_name (f, name, explicit)
+void x_set_name(f, name, explicit)
      struct frame *f;
      Lisp_Object name;
      int explicit;
@@ -1749,7 +1757,7 @@ x_set_name (f, name, explicit)
      Emacs redisplay code.  */
   if (explicit)
     {
-      /* If we're switching from explicit to implicit, we had better
+      /* If we are switching from explicit to implicit, we had better
 	 update the mode lines and thereby update the title.  */
       if (f->explicit_name && NILP (name))
 	update_mode_lines = 1;
@@ -1764,8 +1772,8 @@ x_set_name (f, name, explicit)
     {
       /* Check for no change needed in this very common case
 	 before we do any consing.  */
-      if (!strcmp (FRAME_MAC_DISPLAY_INFO (f)->mac_id_name,
-		   SDATA (f->name)))
+      if (!strcmp (FRAME_MAC_DISPLAY_INFO(f)->mac_id_name,
+		   (const char *)SDATA(f->name)))
 	return;
       name = build_string (FRAME_MAC_DISPLAY_INFO (f)->mac_id_name);
     }
@@ -2013,16 +2021,12 @@ mac_update_title_bar (f, save_match_data)
    The return value points to the contents of a Lisp string.  So it
    will not be valid after the next GC where string compaction will
    occur.  */
-
-char *
-x_get_string_resource (rdb, name, class)
-     XrmDatabase rdb;
-     char *name, *class;
+char *x_get_string_resource(XrmDatabase rdb, char *name, char *class)
 {
   Lisp_Object value = xrm_get_resource (rdb, name, class);
 
-  if (STRINGP (value))
-    return SDATA (value);
+  if (STRINGP(value))
+    return (char *)SDATA(value);
   else
     return NULL;
 }

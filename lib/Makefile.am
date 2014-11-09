@@ -15,6 +15,7 @@ SUFFIXES =
 ACLOCAL_AMFLAGS = -I../m4 --install
 AUTOMAKE_OPTIONS = 1.11 gnits
 
+DEFS = @DEFS@ -D_IN_GNULIB
 AM_CFLAGS = $(PROFILING_CFLAGS) $(GNULIB_WARN_CFLAGS) @MAINT@ $(WERROR_CFLAGS)
 AM_CPPFLAGS = -I. -I$(top_srcdir)/lib -I../src -I$(top_srcdir)/src
 

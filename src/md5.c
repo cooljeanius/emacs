@@ -63,7 +63,7 @@
     (((n) << 24) | (((n) & 0xff00) << 8) | (((n) >> 8) & 0xff00) | ((n) >> 24))
 #else
 # define SWAP(n) (n)
-#endif
+#endif /* WORDS_BIG_ENDIAN */
 
 
 /* This array contains the bytes used to pad the buffer to the next
@@ -73,9 +73,7 @@ static const unsigned char fillbuf[64] = { 0x80, 0 /* , 0, 0, ...  */ };
 
 /* Initialize structure containing state of computation.
    (RFC 1321, 3.3: Step 3)  */
-void
-md5_init_ctx (ctx)
-     struct md5_ctx *ctx;
+void md5_init_ctx(struct md5_ctx *ctx)
 {
   ctx->A = 0x67452301;
   ctx->B = 0xefcdab89;

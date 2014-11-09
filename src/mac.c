@@ -136,6 +136,8 @@ union CInfoPBRec {
   DirInfo dirInfo;
 };
 typedef union CInfoPBRec CInfoPBRec;
+/* making this next prototype up completely, based on use in this file: */
+int PBGetCatInfo(CInfoPBRec *paramBlock, int truth);
 #  endif /* !__FILES__ || __LP64__ */
 # endif /* HAVE_CARBON && HAVE_CARBONCORE_FILES_H */
 # if defined(HAVE_CARBON) && defined(HAVE_CARBONCORE_TEXTUTILS_H)
@@ -217,15 +219,17 @@ long GetScriptVariable(short script, short selector);
 
 #include <CoreFoundation/CoreFoundation.h> /* to get user locale */
 
-/* The system script code. */
+#ifndef EMACS_GLOBALS_H
+/* The system script code: */
 static int mac_system_script_code;
 
-/* The system locale identifier string.  */
+/* The system locale identifier string: */
 static Lisp_Object Vmac_system_locale;
+#endif /* !EMACS_GLOBALS_H */
 
-/* An instance of the AppleScript component.  */
+/* An instance of the AppleScript component: */
 static ComponentInstance as_scripting_component;
-/* The single script context used for all script executions.  */
+/* The single script context used for all script executions: */
 static OSAID as_script_context;
 
 #if defined(TARGET_API_MAC_CARBON) && TARGET_API_MAC_CARBON
@@ -273,9 +277,7 @@ string_cat_and_replace (char *s1, const char *s2, int n, char a, char b)
        if it is non-null, copy as is and then add a '/' at the end,
        otherwise, insert a "../" into the Posix pathname.
    Returns 1 if successful; 0 if fails.  */
-
-int
-mac_to_posix_pathname (const char *mfn, char *ufn, int ufnbuflen)
+int mac_to_posix_pathname(const char *mfn, char *ufn, int ufnbuflen)
 {
   const char *p, *q, *pe;
 
@@ -1386,11 +1388,10 @@ cfproperty_list_to_lisp (plist, with_tag, hash_bound)
 	}
       else
 	{
-	  result = make_hash_table (Qequal,
-				    make_number (count),
-				    make_float (DEFAULT_REHASH_SIZE),
-				    make_float (DEFAULT_REHASH_THRESHOLD),
-				    Qnil, Qnil, Qnil);
+	  result = make_hash_table_old_way(Qequal, make_number(count),
+                                           make_float(DEFAULT_REHASH_SIZE),
+                                           make_float(DEFAULT_REHASH_THRESHOLD),
+                                           Qnil, Qnil, Qnil);
 	  CFDictionaryApplyFunction (plist, cfdictionary_puthash,
 				     &context);
 	}
@@ -1614,7 +1615,7 @@ static Lisp_Object parse_value(const char **p)
   } else {
       buf = xmalloc(total_len);
       q = (buf + total_len);
-      for (loop_counter; CONSP(seq); seq = XCDR(seq)) {
+      for (loop_counter = 0; CONSP(seq); seq = XCDR(seq)) {
 	  len = SBYTES(XCAR(seq));
 	  q -= len;
 	  memcpy(q, SDATA(XCAR(seq)), len);
@@ -1678,10 +1679,11 @@ static XrmDatabase xrm_create_database(void)
 {
   XrmDatabase database;
 
-  database = make_hash_table (Qequal, make_number (DEFAULT_HASH_SIZE),
-			      make_float (DEFAULT_REHASH_SIZE),
-			      make_float (DEFAULT_REHASH_THRESHOLD),
-			      Qnil, Qnil, Qnil);
+  database = make_hash_table_old_way(Qequal,
+                                     make_number(DEFAULT_HASH_SIZE),
+                                     make_float(DEFAULT_REHASH_SIZE),
+                                     make_float(DEFAULT_REHASH_THRESHOLD),
+                                     Qnil, Qnil, Qnil);
   Fputhash (HASHKEY_MAX_NID, make_number (0), database);
   Fputhash (HASHKEY_QUERY_CACHE, Qnil, database);
 
@@ -1786,8 +1788,7 @@ xrm_q_get_resource_1(database, node_id, quark_name, quark_class)
     return Qnil;
 }
 
-static Lisp_Object
-xrm_q_get_resource(database, quark_name, quark_class)
+static Lisp_Object xrm_q_get_resource(database, quark_name, quark_class)
      XrmDatabase database;
      Lisp_Object quark_name, quark_class;
 {
@@ -1814,10 +1815,11 @@ xrm_get_resource(XrmDatabase database, const char *name, const char *class)
   query_cache = Fgethash (HASHKEY_QUERY_CACHE, database, Qnil);
   if (NILP (query_cache))
     {
-      query_cache = make_hash_table(Qequal, make_number(DEFAULT_HASH_SIZE),
-                                    make_float(DEFAULT_REHASH_SIZE),
-                                    make_float(DEFAULT_REHASH_THRESHOLD),
-                                    Qnil, Qnil, Qnil);
+      query_cache = make_hash_table_old_way(Qequal,
+                                            make_number(DEFAULT_HASH_SIZE),
+                                            make_float(DEFAULT_REHASH_SIZE),
+                                            make_float(DEFAULT_REHASH_THRESHOLD),
+                                            Qnil, Qnil, Qnil);
       Fputhash (HASHKEY_QUERY_CACHE, query_cache, database);
     }
   h = XHASH_TABLE(query_cache);
@@ -3085,7 +3087,8 @@ path_from_vol_dir_name (char *path, int man_path_len, short vol_ref_num,
       cipb.dirInfo.ioDrDirID = cipb.dirInfo.ioDrParID;
         /* go up to parent each time */
 
-      /* FIXME: I can only find suffixed versions of this function: */
+      /* FIXME: I can only find suffixed versions of this function,
+       * and neither take the correct number of arguments: */
       err = PBGetCatInfo(&cipb, false);
       if (err != noErr)
         return 0;
@@ -5019,8 +5022,7 @@ extern int noninteractive;
 #define SELECT_POLLING_PERIOD_USEC 100000
 #if SELECT_USE_CFSOCKET
 # define SELECT_TIMEOUT_THRESHOLD_RUNLOOP 0.2
-static void
-socket_callback (s, type, address, data, info)
+static void socket_callback(s, type, address, data, info)
      CFSocketRef s;
      CFSocketCallBackType type;
      CFDataRef address;
@@ -5036,8 +5038,7 @@ socket_callback (s, type, address, data, info)
 }
 #endif	/* SELECT_USE_CFSOCKET */
 
-static int
-select_and_poll_event (nfds, rfds, wfds, efds, timeout)
+static int select_and_poll_event(nfds, rfds, wfds, efds, timeout)
      int nfds;
      SELECT_TYPE *rfds, *wfds, *efds;
      EMACS_TIME *timeout;
@@ -5088,8 +5089,7 @@ select_and_poll_event (nfds, rfds, wfds, efds, timeout)
     return 0;
 }
 
-int
-sys_select (nfds, rfds, wfds, efds, timeout)
+int sys_select(nfds, rfds, wfds, efds, timeout)
      int nfds;
      SELECT_TYPE *rfds, *wfds, *efds;
      EMACS_TIME *timeout;
@@ -5153,9 +5153,10 @@ sys_select (nfds, rfds, wfds, efds, timeout)
       ENABLE_WAKEUP_FROM_RNE;
       if (!detect_input_pending ())
 	{
-	  int minfd, fd;
+	  int minfd;
+          long fd;
 	  CFRunLoopRef runloop =
-	    (CFRunLoopRef) GetCFRunLoopFromEventLoop (GetCurrentEventLoop ());
+	    (CFRunLoopRef)GetCFRunLoopFromEventLoop(GetCurrentEventLoop());
 	  static const CFSocketContext context = {0, ofds, NULL, NULL, NULL};
 	  static CFMutableDictionaryRef sources;
 
