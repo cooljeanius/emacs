@@ -26,7 +26,7 @@ Boston, MA 02110-1301, USA.  */
    option.  If an option takes an argument, we need to use -Xlinker
    twice - once for the option and once for its argument.  For
    example, to run the linker with the options "-Bstatic" "-e"
-   "_start", you'd need to pass the following options to GCC:
+   "_start", you would need to pass the following options to GCC:
 
    -Xlinker -Bstatic -Xlinker -e -Xlinker _start.
 
@@ -41,44 +41,44 @@ Boston, MA 02110-1301, USA.  */
    and 2) the whole compilation command containing this loop seems to
    exit with a non-zero status and halt the build under Ultrix.
 
-   If I can't write a completely portable program to do this in C,
-   I'm quitting and taking up gardening.  */
+   If I cannot write a completely portable program to do this in C,
+   I am quitting and taking up gardening.  */
 
-#ifdef HAVE_CONFIG_H
+#if defined(HAVE_CONFIG_H) || defined(emacs)
 # include <config.h>
-#endif
+#endif /* HAVE_CONFIG_H || emacs */
 
-#if STDC_HEADERS
+#if (defined(STDC_HEADERS) && STDC_HEADERS) || defined(HAVE_STDLIB_H)
 # include <stdlib.h>		/* for proper declaration of `exit' */
-#endif
+#endif /* STDC_HEADERS || HAVE_STDLIB_H */
 
 #include <stdio.h>
 
-int
-main (argc, argv)
-     int argc;
-     char **argv;
+int main(int argc, char **argv)
 {
   char *progname;
   char *prefix;
+  int i;
 
   progname = argv[0];
   argc--, argv++;
 
   if (argc < 1)
     {
-      fprintf (stderr, "Usage: %s PREFIX ARGS...\n\
+      fprintf(stderr, "Usage: %s PREFIX ARGS...\n\
 Echo each ARG preceded by PREFIX and a space.\n", progname);
-      exit (2);
+      exit(2);
     }
 
   prefix = argv[0];
   argc--, argv++;
 
-  for (; argc > 0; argc--, argv++)
-    printf ("%s %s%c", prefix, argv[0], (argc > 1) ? ' ' : '\n');
+  for (i = 0; argc > 0; argc--, argv++) {
+    printf("%s %s%c", prefix, argv[0], (argc > 1) ? ' ' : '\n');
+    i++;
+  }
 
-  exit (0);
+  exit(0);
 }
 
 /* arch-tag: 08136d70-e5c0-49c7-bcd8-b4850233977a

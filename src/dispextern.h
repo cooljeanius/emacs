@@ -1954,19 +1954,17 @@ struct face_cache
 
 /* Prepare face FACE for use on frame F.  This must be called before
    using X resources of FACE.  */
-
 #define PREPARE_FACE_FOR_DISPLAY(F, FACE)	\
   do {						\
      if ((FACE)->gc == 0)			\
-       prepare_face_for_display ((F), (FACE));	\
+       prepare_face_for_display((F), (FACE));	\
   } while (false)
 
 /* Return a pointer to the face with ID on frame F, or null if such a
-   face doesn't exist.  */
-
+   face does NOT exist.  */
 #define FACE_FROM_ID(F, ID)				\
-     (UNSIGNED_CMP (ID, <, FRAME_FACE_CACHE (F)->used)	\
-      ? FRAME_FACE_CACHE (F)->faces_by_id[ID]		\
+     (UNSIGNED_CMP(ID, <, FRAME_FACE_CACHE(F)->used)	\
+      ? FRAME_FACE_CACHE(F)->faces_by_id[ID]		\
       : NULL)
 
 #ifdef HAVE_WINDOW_SYSTEM
@@ -3416,9 +3414,13 @@ extern void handle_tool_bar_click (struct frame *,
 
 extern void expose_frame (struct frame *, int, int, int, int);
 # if defined(HAVE_X_WINDOWS) || defined(XRectangle) || \
-     (!(defined(MAC_OS) && defined(HAVE_CARBON)) && defined(_DISPLAY_INFO_DEFINED))
+     !(defined(MAC_OS) && defined(HAVE_CARBON))
 extern int x_intersect_rectangles (XRectangle *, XRectangle *,
                                    XRectangle *);
+# else
+#  if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#   warning "you might be missing a necessary prototype here."
+#  endif /* __GNUC__ && !__STRICT_ANSI__ */
 # endif /* HAVE_X_WINDOWS || XRectangle || 1 */
 #endif	/* HAVE_WINDOW_SYSTEM */
 
@@ -3461,22 +3463,22 @@ extern void x_reference_bitmap (struct frame *, ptrdiff_t);
 extern ptrdiff_t x_create_bitmap_from_data (struct frame *, char *,
 					    unsigned int, unsigned int);
 extern ptrdiff_t x_create_bitmap_from_file (struct frame *, Lisp_Object);
-#if defined(HAVE_XPM) && defined(HAVE_X_WINDOWS) && !defined(USE_GTK)
+# if defined(HAVE_XPM) && defined(HAVE_X_WINDOWS) && !defined(USE_GTK)
 extern ptrdiff_t x_create_bitmap_from_xpm_data (struct frame *, const char **);
-#endif /* HAVE_XPM && HAVE_X_WINDOWS && !USE_GTK */
-#ifndef x_destroy_bitmap
+# endif /* HAVE_XPM && HAVE_X_WINDOWS && !USE_GTK */
+# ifndef x_destroy_bitmap
 extern void x_destroy_bitmap (struct frame *, ptrdiff_t);
-#endif /* !x_destroy_bitmap */
-#if defined(HAVE_X_WINDOWS) || defined(Display_Info) || \
-    (!(defined(MAC_OS) && defined(HAVE_CARBON)) && defined(_DISPLAY_INFO_DEFINED))
+# endif /* !x_destroy_bitmap */
+# if defined(HAVE_X_WINDOWS) || defined(Display_Info) || \
+     (!(defined(MAC_OS) && defined(HAVE_CARBON)) && defined(_DISPLAY_INFO_DEFINED))
 extern void x_destroy_all_bitmaps (Display_Info *);
-#endif /* HAVE_X_WINDOWS || Display_Info || 1 */
+# endif /* HAVE_X_WINDOWS || Display_Info || 1 */
 extern void x_create_bitmap_mask (struct frame *, ptrdiff_t);
 extern Lisp_Object x_find_image_file (Lisp_Object);
 
-#if defined(HAVE_X_WINDOWS)
+# if defined(HAVE_X_WINDOWS)
 void x_kill_gs_process (Pixmap, struct frame *);
-#endif /* HAVE_X_WINDOWS */
+# endif /* HAVE_X_WINDOWS */
 struct image_cache *make_image_cache (void);
 void free_image_cache (struct frame *);
 void clear_image_caches (Lisp_Object);
@@ -3485,24 +3487,24 @@ bool valid_image_p (Lisp_Object);
 void prepare_image_for_display (struct frame *, struct image *);
 ptrdiff_t lookup_image (struct frame *, Lisp_Object);
 
-#if defined(HAVE_X_WINDOWS) ||  defined(HAVE_NS)
-# define RGB_PIXEL_COLOR unsigned long
-#endif /* HAVE_X_WINDOWS || HAVE_NS */
+# if defined(HAVE_X_WINDOWS) || defined(HAVE_NS)
+#  define RGB_PIXEL_COLOR unsigned long
+# endif /* HAVE_X_WINDOWS || HAVE_NS */
 
-#ifdef HAVE_NTGUI
-# define RGB_PIXEL_COLOR COLORREF
-#endif /* HAVE_NTGUI */
+# ifdef HAVE_NTGUI
+#  define RGB_PIXEL_COLOR COLORREF
+# endif /* HAVE_NTGUI */
 
-#if defined(HAVE_X_WINDOWS)
+# if defined(HAVE_X_WINDOWS)
 RGB_PIXEL_COLOR image_background (struct image *, struct frame *,
                                   XImagePtr_or_DC ximg);
 int image_background_transparent (struct image *, struct frame *,
                                   XImagePtr_or_DC mask);
-#endif /* HAVE_X_WINDOWS */
+# endif /* HAVE_X_WINDOWS */
 
 int image_ascent (struct image *, struct face *, struct glyph_slice *);
 
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
 
 /* Defined in sysdep.c */
 void get_tty_size (int, int *, int *);
@@ -3554,15 +3556,17 @@ extern Lisp_Object Qforeground_color, Qbackground_color;
 extern char unspecified_fg[], unspecified_bg[];
 
 /* Defined in xfns.c.  */
-#ifdef HAVE_X_WINDOWS
+#if defined(HAVE_X_WINDOWS) || defined(XColor)
 void gamma_correct (struct frame *, XColor *);
-#endif /* HAVE_X_WINDOWS */
-#ifdef HAVE_NTGUI
+#else
+# if defined(HAVE_NTGUI) || defined(COLORREF)
 void gamma_correct (struct frame *, COLORREF *);
-#endif /* HAVE_NTGUI */
-#ifdef MAC_OS
+# else
+#  if defined(MAC_OS) || defined(HAVE_CARBON)
 void gamma_correct (struct frame *, unsigned long *);
-#endif /* MAC_OS */
+#  endif /* MAC_OS || HAVE_CARBON */
+# endif /* HAVE_NTGUI || COLORREF */
+#endif /* HAVE_X_WINDOWS || XColor */
 
 #ifdef HAVE_WINDOW_SYSTEM
 
@@ -3713,6 +3717,10 @@ extern Display_Info *check_x_display_info (Lisp_Object);
 extern Lisp_Object x_get_arg (Display_Info *, Lisp_Object,
                               Lisp_Object, const char *, const char *class,
                               enum resource_types);
+# else
+#  if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#   warning "you might be missing some necessary prototypes here."
+#  endif /* __GNUC__ && !__STRICT_ANSI__ */
 # endif /* HAVE_X_WINDOWS || Display_Info || 1 */
 extern Lisp_Object x_frame_get_and_record_arg (struct frame *, Lisp_Object,
                                                Lisp_Object,

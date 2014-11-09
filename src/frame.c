@@ -1,4 +1,4 @@
-/* Generic frame functions.
+/* frame.c: Generic frame functions.
 
 Copyright (C) 1993-1995, 1997, 1999-2014 Free Software Foundation, Inc.
 
@@ -33,7 +33,7 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #endif /* HAVE_WINDOW_SYSTEM */
 
 #include "buffer.h"
-/* These help us bind and responding to switch-frame events.  */
+/* These help us bind and responding to switch-frame events: */
 #include "commands.h"
 #include "keyboard.h"
 #include "frame.h"
@@ -132,13 +132,12 @@ Lisp_Object selected_frame;
 
 static struct frame *last_nonminibuf_frame;
 
-/* Nonzero means there is at least one garbaged frame.  */
-
+/* Nonzero means there is at least one garbaged frame: */
 bool frame_garbaged;
 
 #ifdef HAVE_WINDOW_SYSTEM
 static void x_report_frame_params (struct frame *, Lisp_Object *);
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
 
 /* These setters are used only in this file, so they can be private.  */
 static void
@@ -180,7 +179,7 @@ window_system_available (struct frame *f)
     return x_display_list != NULL;
 #else
     return 0;
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
 }
 
 struct frame *
@@ -1410,7 +1409,7 @@ delete_frame (Lisp_Object frame, Lisp_Object force)
       kb = terminal->kboard;
   }
 
-  /* If we've deleted the last_nonminibuf_frame, then try to find
+  /* If we have deleted the last_nonminibuf_frame, then try to find
      another one.  */
   if (f == last_nonminibuf_frame)
     {
@@ -1429,8 +1428,8 @@ delete_frame (Lisp_Object frame, Lisp_Object force)
 	}
     }
 
-  /* If there's no other frame on the same kboard, get out of
-     single-kboard state if we're in it for this kboard.  */
+  /* If there is no other frame on the same kboard, then get out of
+     single-kboard state if we are in it for this kboard.  */
   if (kb != NULL)
     {
       Lisp_Object frames, this;
@@ -2966,7 +2965,7 @@ x_set_frame_parameters (struct frame *f, Lisp_Object alist)
     {
 #ifdef HAVE_X_WINDOWS
       icon_left_no_change = 1;
-#endif
+#endif /* HAVE_X_WINDOWS */
       icon_left = Fcdr (Fassq (Qicon_left, f->param_alist));
       if (NILP (icon_left))
 	XSETINT (icon_left, 0);
@@ -2975,7 +2974,7 @@ x_set_frame_parameters (struct frame *f, Lisp_Object alist)
     {
 #ifdef HAVE_X_WINDOWS
       icon_top_no_change = 1;
-#endif
+#endif /* HAVE_X_WINDOWS */
       icon_top = Fcdr (Fassq (Qicon_top, f->param_alist));
       if (NILP (icon_top))
 	XSETINT (icon_top, 0);
@@ -3247,7 +3246,7 @@ x_set_font (struct frame *f, Lisp_Object arg, Lisp_Object oldval)
   int fontset = -1;
 #ifdef HAVE_X_WINDOWS
   Lisp_Object font_param = arg;
-#endif
+#endif /* HAVE_X_WINDOWS */
 
   /* Set the frame parameter back to the old value because we may
      fail to use ARG as the new parameter value.  */
@@ -3288,14 +3287,14 @@ x_set_font (struct frame *f, Lisp_Object arg, Lisp_Object oldval)
       arg = AREF (font_object, FONT_NAME_INDEX);
 #ifdef HAVE_X_WINDOWS
       font_param = Ffont_get (font_object, QCname);
-#endif
+#endif /* HAVE_X_WINDOWS */
     }
   else if (FONT_OBJECT_P (arg))
     {
       font_object = arg;
 #ifdef HAVE_X_WINDOWS
       font_param = Ffont_get (font_object, QCname);
-#endif
+#endif /* HAVE_X_WINDOWS */
       /* This is to store the XLFD font name in the frame parameter for
 	 backward compatibility.  We should store the font-object
 	 itself in the future.  */
@@ -3325,7 +3324,7 @@ x_set_font (struct frame *f, Lisp_Object arg, Lisp_Object oldval)
   store_frame_param (f, Qfont, arg);
 #ifdef HAVE_X_WINDOWS
   store_frame_param (f, Qfont_param, font_param);
-#endif
+#endif /* HAVE_X_WINDOWS */
   /* Recalculate toolbar height.  */
   f->n_tool_bar_rows = 0;
 
@@ -3342,7 +3341,7 @@ x_set_font (struct frame *f, Lisp_Object arg, Lisp_Object oldval)
   /* We used to call face-set-after-frame-default here, but it leads to
      recursive calls (since that function can set the `default' face's
      font which in turns changes the frame's `font' parameter).
-     Also I don't know what this call is meant to do, but it seems the
+     Also I do NOT know what this call is meant to do, but it seems the
      wrong way to do it anyway (it does a lot more work than what seems
      reasonable in response to a change to `font').  */
 }
@@ -3409,10 +3408,10 @@ x_set_fringe_width (struct frame *f, Lisp_Object new_value, Lisp_Object old_valu
 {
   compute_fringe_widths (f, 1);
 #ifdef HAVE_X_WINDOWS
-  /* Must adjust this so window managers report correct number of columns.  */
+  /* Must adjust this so window managers report correct number of columns: */
   if (FRAME_X_WINDOW (f) != 0)
     x_wm_set_size_hint (f, 0, 0);
-#endif
+#endif /* HAVE_X_WINDOWS */
 }
 
 void

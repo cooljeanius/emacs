@@ -19,6 +19,9 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 
 #include <config.h>
+#ifdef HAVE_SIGNAL_H
+# include <signal.h>
+#endif /* HAVE_SIGNAL_H */
 #include <stdio.h>
 
 #include <byteswap.h>
@@ -36,6 +39,45 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "termhooks.h"  /* For FRAME_KBOARD reference in y-or-n-p.  */
 #include "font.h"
 #include "keymap.h"
+
+#if defined(STDC_HEADERS) || defined(HAVE_FLOAT_H)
+# include <float.h>
+#endif /* STDC_HEADERS || HAVE_FLOAT_H */
+
+/* If IEEE_FLOATING_POINT is NOT defined, default it from FLT_*: */
+#ifndef IEEE_FLOATING_POINT
+# if defined(FLT_RADIX) && defined(FLT_MANT_DIG) \
+     && defined(FLT_MIN_EXP) && defined(FLT_MAX_EXP)
+#  if ((FLT_RADIX == 2) && (FLT_MANT_DIG == 24) \
+       && (FLT_MIN_EXP == -125) && (FLT_MAX_EXP == 128))
+#   define IEEE_FLOATING_POINT 1
+#  else
+#   define IEEE_FLOATING_POINT 0
+#  endif /* floating point defines values check */
+# endif /* FLT_RADIX && FLT_MANT_DIG && FLT_MIN_EXP && FLT_MAX_EXP */
+#endif /* !IEEE_FLOATING_POINT */
+
+/* Work around a problem that happens because math.h on hpux 7
+ * defines two static variables--which, in Emacs, are not really static,
+ * because `static' is defined as nothing.  The problem is that they are
+ * here, in floatfns.c, and in lread.c.
+ * These macros prevent the name conflict.  */
+#if defined(HPUX) && !defined(HPUX8)
+# ifndef _MAXLDBL
+#  define _MAXLDBL data_c_maxldbl
+# endif /* !_MAXLDBL */
+# ifndef _NMAXLDBL
+#  define _NMAXLDBL data_c_nmaxldbl
+# endif /* !_NMAXLDBL */
+#endif /* HPUX && !HPUX8 */
+
+#if defined(HAVE_MATH_H)
+# include <math.h>
+#endif /* HAVE_MATH_H */
+
+#if !defined(_STDLIB_H_) && !defined(HAVE_ATOF) && !defined(atof)
+extern double atof(const char *str);
+#endif /* !_STDLIB_H_ && !HAVE_ATOF && !atof */
 
 Lisp_Object Qnil, Qt, Qquote, Qlambda, Qunbound;
 static Lisp_Object Qsubr;
@@ -3634,7 +3676,7 @@ syms_of_data (void)
 #if 0                           /* XXX Remove this. --lorentey */
   defsubr (&Sterminal_local_value);
   defsubr (&Sset_terminal_local_value);
-#endif
+#endif /* 0 */
   defsubr (&Saref);
   defsubr (&Saset);
   defsubr (&Snumber_to_string);
@@ -3687,3 +3729,6 @@ syms_of_data (void)
   Vmost_negative_fixnum = make_number (MOST_NEGATIVE_FIXNUM);
   XSYMBOL (intern_c_string ("most-negative-fixnum"))->constant = 1;
 }
+
+/* arch-tag: 25879798-b84d-479a-9c89-7d148e2109f7
+   (do not change this comment) */

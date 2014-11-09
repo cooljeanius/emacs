@@ -46,15 +46,13 @@ NSString *NXSecondaryPboard;
 
 
 
-/* ==========================================================================
+/* ========================================================================
 
     Internal utility functions
 
-   ========================================================================== */
+   ===================================================================== */
 
-
-static NSString *
-symbol_to_nsstring (Lisp_Object sym)
+static NSString *symbol_to_nsstring(Lisp_Object sym)
 {
   CHECK_SYMBOL (sym);
   if (EQ (sym, QCLIPBOARD))   return NSGeneralPboard;
@@ -64,14 +62,12 @@ symbol_to_nsstring (Lisp_Object sym)
   return [NSString stringWithUTF8String: SSDATA (SYMBOL_NAME (sym))];
 }
 
-static NSPasteboard *
-ns_symbol_to_pb (Lisp_Object symbol)
+static NSPasteboard *ns_symbol_to_pb(Lisp_Object symbol)
 {
   return [NSPasteboard pasteboardWithName: symbol_to_nsstring (symbol)];
 }
 
-static Lisp_Object
-ns_string_to_symbol (NSString *t)
+static Lisp_Object ns_string_to_symbol(NSString *t)
 {
   if ([t isEqualToString: NSGeneralPboard])
     return QCLIPBOARD;
@@ -89,8 +85,7 @@ ns_string_to_symbol (NSString *t)
 }
 
 
-static Lisp_Object
-clean_local_selection_data (Lisp_Object obj)
+static Lisp_Object clean_local_selection_data(Lisp_Object obj)
 {
   if (CONSP (obj)
       && INTEGERP (XCAR (obj))
@@ -127,22 +122,20 @@ clean_local_selection_data (Lisp_Object obj)
 }
 
 
-static void
-ns_declare_pasteboard (id pb)
+static void ns_declare_pasteboard(id pb)
 {
   [pb declareTypes: ns_send_types owner: NSApp];
 }
 
 
-static void
-ns_undeclare_pasteboard (id pb)
+static void ns_undeclare_pasteboard(id pb)
 {
   [pb declareTypes: [NSArray array] owner: nil];
 }
 
 
 static void
-ns_string_to_pasteboard_internal (id pb, Lisp_Object str, NSString *gtype)
+ns_string_to_pasteboard_internal(id pb, Lisp_Object str, NSString *gtype)
 {
   if (EQ (str, Qnil))
     {
@@ -178,7 +171,7 @@ ns_string_to_pasteboard_internal (id pb, Lisp_Object str, NSString *gtype)
 
 
 Lisp_Object
-ns_get_local_selection (Lisp_Object selection_name,
+ns_get_local_selection(Lisp_Object selection_name,
                        Lisp_Object target_type)
 {
   Lisp_Object local_value;
@@ -238,16 +231,13 @@ ns_get_foreign_selection (Lisp_Object symbol, Lisp_Object target)
 
 
 
-
-/* ==========================================================================
+/* ========================================================================
 
     Functions used externally
 
-   ========================================================================== */
+   ===================================================================== */
 
-
-Lisp_Object
-ns_string_from_pasteboard (id pb)
+Lisp_Object ns_string_from_pasteboard(id pb)
 {
   NSString *type, *str;
   const char *utfStr;
@@ -313,19 +303,18 @@ ns_string_from_pasteboard (id pb)
 }
 
 
-void
-ns_string_to_pasteboard (id pb, Lisp_Object str)
+void ns_string_to_pasteboard(id pb, Lisp_Object str)
 {
-  ns_string_to_pasteboard_internal (pb, str, nil);
+  ns_string_to_pasteboard_internal(pb, str, nil);
 }
 
 
 
-/* ==========================================================================
+/* ========================================================================
 
     Lisp Defuns
 
-   ========================================================================== */
+   ===================================================================== */
 
 
 DEFUN ("x-own-selection-internal", Fx_own_selection_internal,
@@ -529,15 +518,13 @@ SELECTION is a symbol, typically `PRIMARY', `SECONDARY', or `CLIPBOARD'. */)
 }
 
 
-void
-nxatoms_of_nsselect (void)
+void nxatoms_of_nsselect(void)
 {
   NXPrimaryPboard = @"Selection";
   NXSecondaryPboard = @"Secondary";
 }
 
-void
-syms_of_nsselect (void)
+void syms_of_nsselect(void)
 {
   QCLIPBOARD = intern_c_string ("CLIPBOARD");	staticpro (&QCLIPBOARD);
   QSECONDARY = intern_c_string ("SECONDARY");	staticpro (&QSECONDARY);
@@ -595,3 +582,5 @@ The functions are called with one argument, the selection type\n\
   Qforeign_selection = intern_c_string ("foreign-selection");
   staticpro (&Qforeign_selection);
 }
+
+/* EOF */

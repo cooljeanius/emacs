@@ -1,4 +1,4 @@
-/* Work-alike for termcap, plus extra features.
+/* termcap.c: Work-alike for termcap, plus extra features.
    Copyright (C) 1985-1986, 1993-1995, 2000-2008, 2011, 2013-2014 Free
    Software Foundation, Inc.
 
@@ -423,7 +423,7 @@ tgetent (char *bp, const char *name)
     }
 
   if (!termcap_name || !filep)
-    termcap_name = TERMCAP_FILE;
+    termcap_name = (char *)TERMCAP_FILE;
 
   /* Here we know we must search a file and termcap_name has its name.  */
 
@@ -647,3 +647,5 @@ gobble_line (int fd, register struct termcap_buffer *bufp, char *append_end)
     }
   return end + 1;
 }
+
+/* EOF */

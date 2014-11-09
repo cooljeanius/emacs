@@ -35,9 +35,10 @@ typedef unsigned long Time;
 #ifdef HAVE_CARBON
 # undef Z
 # ifdef MAC_OSX
-#  if ! HAVE_MKTIME || BROKEN_MKTIME
+#  if defined(mktime) && \
+      ((!defined(HAVE_MKTIME) || !HAVE_MKTIME) || (defined(BROKEN_MKTIME) && (BROKEN_MKTIME)))
 #   undef mktime
-#  endif
+#  endif /* mktime !HAVE_MKTIME || BROKEN_MKTIME */
 #  undef DEBUG
 #  undef free
 #  undef malloc
@@ -48,10 +49,12 @@ typedef unsigned long Time;
 #  undef min
 #  undef init_process
 #  include <Carbon/Carbon.h>
-#  if ! HAVE_MKTIME || BROKEN_MKTIME
-#   undef mktime
+#  if (!defined(HAVE_MKTIME) || !HAVE_MKTIME) || (defined(BROKEN_MKTIME) && (BROKEN_MKTIME))
+#   if defined(mktime)
+#    undef mktime
+#   endif /* mktime */
 #   define mktime emacs_mktime
-#  endif
+#  endif /* !HAVE_MKTIME || BROKEN_MKTIME */
 #  undef free
 #  define free unexec_free
 #  undef malloc
@@ -144,7 +147,7 @@ typedef struct _XCharStruct
   short	descent;		/* baseline to bottom edge of raster */
 #if 0
   unsigned short attributes;	/* per char flags (not predefined) */
-#endif
+#endif /* 0 */
 } XCharStruct;
 
 enum pcm_status
@@ -249,13 +252,13 @@ typedef struct _XGC
   /* QuickDraw background color.  */
   RGBColor back_color;
 
-#if USE_CG_DRAWING && MAC_OS_X_VERSION_MAX_ALLOWED >= 1030
+#if USE_CG_DRAWING && (MAC_OS_X_VERSION_MAX_ALLOWED >= 1030)
   /* Quartz 2D foreground color.  */
   CGColorRef cg_fore_color;
 
   /* Quartz 2D background color.  */
   CGColorRef cg_back_color;
-#endif
+#endif /* USE_CG_DRAWING && 10.3+ */
 
 #define MAX_CLIP_RECTS 2
   /* Number of clipping rectangles.  */
@@ -264,11 +267,11 @@ typedef struct _XGC
   /* QuickDraw clipping region.  Ignored if n_clip_rects == 0.  */
   RgnHandle clip_region;
 
-#if defined (MAC_OSX) && (USE_ATSUI || USE_CG_DRAWING)
+#if defined(MAC_OSX) && (USE_ATSUI || USE_CG_DRAWING)
   /* Clipping rectangles used in Quartz 2D drawing.  The y-coordinate
      is in QuickDraw's.  */
   CGRect clip_rects[MAX_CLIP_RECTS];
-#endif
+#endif /* MAC_OSX && (USE_ATSUI || USE_CG_DRAWING) */
 } *GC;
 
 #define GCForeground            (1L<<2)

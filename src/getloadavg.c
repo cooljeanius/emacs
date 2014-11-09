@@ -514,13 +514,13 @@ getloadavg (loadavg, nelem)
 # ifdef NO_GET_LOAD_AVG
 #  define LDAV_DONE
   /* Set errno to zero to indicate that there was no particular error;
-     this function just can't work at all on this system.  */
+     this function just cannot work at all on this system.  */
   errno = 0;
   elem = -1;
-# endif
+# endif /* NO_GET_LOAD_AVG */
 
 # if !defined (LDAV_DONE) && defined (HAVE_LIBKSTAT)
-/* Use libkstat because we don't have to be root.  */
+/* Use libkstat because we do NOT have to be root.  */
 #  define LDAV_DONE
   kstat_ctl_t *kc;
   kstat_t *ksp;
@@ -566,8 +566,8 @@ getloadavg (loadavg, nelem)
   kstat_close (kc);
 # endif /* HAVE_LIBKSTAT */
 
-# if !defined (LDAV_DONE) && defined (hpux) && defined (HAVE_PSTAT_GETDYNAMIC)
-/* Use pstat_getdynamic() because we don't have to be root.  */
+# if !defined(LDAV_DONE) && defined(hpux) && defined(HAVE_PSTAT_GETDYNAMIC)
+/* Use pstat_getdynamic() because we do NOT have to be root.  */
 #  define LDAV_DONE
 #  undef LOAD_AVE_TYPE
 
@@ -589,7 +589,7 @@ getloadavg (loadavg, nelem)
 
 #  ifndef LINUX_LDAV_FILE
 #   define LINUX_LDAV_FILE "/proc/loadavg"
-#  endif
+#  endif /* !LINUX_LDAV_FILE */
 
   char ldavgbuf[40];
   double load_ave[3];
@@ -624,7 +624,7 @@ getloadavg (loadavg, nelem)
 
 #  ifndef NETBSD_LDAV_FILE
 #   define NETBSD_LDAV_FILE "/kern/loadavg"
-#  endif
+#  endif /* !NETBSD_LDAV_FILE */
 
   unsigned long int load_ave[3], scale;
   int count;
@@ -647,7 +647,7 @@ getloadavg (loadavg, nelem)
 
 # endif /* __NetBSD__ */
 
-# if !defined (LDAV_DONE) && defined (NeXT)
+# if !defined (LDAV_DONE) && (defined(NeXT) || defined(HAVE_NS))
 #  define LDAV_DONE
   /* The NeXT code was adapted from iscreen 3.2.  */
 
@@ -660,7 +660,7 @@ getloadavg (loadavg, nelem)
 
   if (!getloadavg_initialized)
     {
-      if (processor_set_default (host_self (), &default_set) == KERN_SUCCESS)
+      if (processor_set_default(host_self(), &default_set) == KERN_SUCCESS)
 	getloadavg_initialized = 1;
     }
 
@@ -674,13 +674,13 @@ getloadavg (loadavg, nelem)
       else
 	{
 	  if (nelem > 0)
-	    loadavg[elem++] = (double) info.load_average / LOAD_SCALE;
+	    loadavg[elem++] = (double)info.load_average / LOAD_SCALE;
 	}
     }
 
   if (!getloadavg_initialized)
     return -1;
-# endif /* NeXT */
+# endif /* NeXT || HAVE_NS */
 
 # if !defined (LDAV_DONE) && defined (UMAX)
 #  define LDAV_DONE
@@ -755,7 +755,7 @@ getloadavg (loadavg, nelem)
 # if !defined (LDAV_DONE) && defined (DGUX)
 #  define LDAV_DONE
   /* This call can return -1 for an error, but with good args
-     it's not supposed to fail.  The first argument is for no
+     it is not supposed to fail.  The first argument is for no
      apparent reason of type `long int *'.  */
   dg_sys_info ((long int *) &load_info,
 	       DG_SYS_INFO_LOAD_INFO_TYPE,
@@ -778,7 +778,7 @@ getloadavg (loadavg, nelem)
    five minutes, and fifteen minutes.  Each value is a scaled integer,
    with 16 bits of integer part and 16 bits of fraction part.
 
-   I'm not sure which operating system first supported this system call,
+   I am not sure which operating system first supported this system call,
    but I know that SR10.2 supports it.  */
 
   extern void proc1_$get_loadav ();
@@ -808,8 +808,8 @@ getloadavg (loadavg, nelem)
 # if !defined (LDAV_DONE) && (defined (__MSDOS__) || defined (WINDOWS32))
 #  define LDAV_DONE
 
-  /* A faithful emulation is going to have to be saved for a rainy day.  */
-  for ( ; elem < nelem; elem++)
+  /* A faithful emulation is going to have to be saved for a rainy day: */
+  for (elem = 0; elem < nelem; elem++)
     {
       loadavg[elem] = 0.0;
     }
@@ -871,7 +871,7 @@ getloadavg (loadavg, nelem)
 
   /* UNIX-specific code -- read the average from /dev/kmem.  */
 
-#  define LDAV_PRIVILEGED		/* This code requires special installation.  */
+#  define LDAV_PRIVILEGED  /* This code requires special installation. */
 
   LOAD_AVE_TYPE load_ave[3];
 
@@ -894,17 +894,17 @@ getloadavg (loadavg, nelem)
 
 #   ifndef SUNOS_5
       if (
-#    if !(defined (_AIX) && !defined (ps2))
+#    if !(defined(_AIX) && !defined(ps2))
 	  nlist (KERNEL_FILE, nl)
 #    else  /* _AIX */
 	  knlist (nl, 1, sizeof (nl[0]))
-#    endif
+#    endif /* !(_AIX && !ps2) */
 	  >= 0)
 	  /* Omit "&& nl[0].n_type != 0 " -- it breaks on Sun386i.  */
 	  {
 #    ifdef FIXUP_KERNEL_SYMBOL_ADDR
 	    FIXUP_KERNEL_SYMBOL_ADDR (nl);
-#    endif
+#    endif /* FIXUP_KERNEL_SYMBOL_ADDR */
 	    offset = nl[0].n_value;
 	  }
 #   endif /* !SUNOS_5 */
@@ -929,9 +929,9 @@ getloadavg (loadavg, nelem)
 #   ifdef F_SETFD
 #    ifndef FD_CLOEXEC
 #     define FD_CLOEXEC 1
-#    endif
+#    endif /* !FD_CLOEXEC */
 	  (void) fcntl (channel, F_SETFD, FD_CLOEXEC);
-#   endif
+#   endif /* F_SETFD */
 	  getloadavg_initialized = 1;
 	}
 #  else /* SUNOS_5 */
@@ -989,10 +989,12 @@ getloadavg (loadavg, nelem)
   return elem;
 # else
   /* Set errno to zero to indicate that there was no particular error;
-     this function just can't work at all on this system.  */
-  errno = 0;
+     this function just cannot work at all on this system.  */
+  /* 'elem' should still be zero if we got here, so use that for errno,
+   * to kill two birds with one stone: */
+  errno = elem;
   return -1;
-# endif
+# endif /* LDAV_DONE */
 }
 
 #endif /* ! HAVE_GETLOADAVG */

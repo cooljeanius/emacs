@@ -346,7 +346,7 @@ print_regions (void)
 
   while (vm_region (target_task, &address, &size, VM_REGION_BASIC_INFO,
 		    (vm_region_info_t) &info, &info_count, &object_name)
-	 == KERN_SUCCESS && info_count == VM_REGION_BASIC_INFO_COUNT)
+	 == KERN_SUCCESS && (info_count == VM_REGION_BASIC_INFO_COUNT))
     {
       print_region (address, size, info.protection, info.max_protection);
 
@@ -373,10 +373,10 @@ build_region_list (void)
   mach_port_t object_name;
   struct region_t *r;
 
-#if VERBOSE
+#if defined(VERBOSE) && VERBOSE
   printf ("--- List of All Regions ---\n");
   printf ("   address     size prot maxp\n");
-#endif
+#endif /* VERBOSE */
 
   while (vm_region (target_task, &address, &size, VM_REGION_BASIC_INFO,
 		    (vm_region_info_t) &info, &info_count, &object_name)
@@ -387,9 +387,9 @@ build_region_list (void)
       if (address >= VM_DATA_TOP)
 	break;
 
-#if VERBOSE
+#if defined(VERBOSE) && VERBOSE
       print_region (address, size, info.protection, info.max_protection);
-#endif
+#endif /* VERBOSE */
 
       /* If a region immediately follows the previous one (the one
 	 most recently added to the list) and has identical
@@ -1039,6 +1039,12 @@ copy_data_segment (struct load_command *lc)
 	{
 	  extern char *my_endbss_static;
 	  unsigned long my_size = 0UL;
+
+          /* dummy: */
+          if ((header_offset >= my_size) && (old_file_offset >= my_size))
+            {
+              print_regions();
+            }
 
 zerofill_entry_point:
 	  sectp->flags = S_REGULAR;

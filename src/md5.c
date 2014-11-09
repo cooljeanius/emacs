@@ -21,20 +21,24 @@
 
 /* Written by Ulrich Drepper <drepper@gnu.ai.mit.edu>, 1995.  */
 
-#ifdef HAVE_CONFIG_H
+#if defined(HAVE_CONFIG_H) || defined(emacs)
 # include <config.h>
-#endif
+#endif /* HAVE_CONFIG_H || emacs */
 
 #include <sys/types.h>
 
-#if STDC_HEADERS || defined _LIBC
+#if (defined(STDC_HEADERS) && STDC_HEADERS) || defined(_LIBC) || \
+    (defined(__STDC__) && defined(HAVE_STDLIB_H) && defined(HAVE_STRING_H))
 # include <stdlib.h>
 # include <string.h>
 #else
 # ifndef HAVE_MEMCPY
-#  define memcpy(d, s, n) bcopy ((s), (d), (n))
-# endif
-#endif
+#  ifdef HAVE_STRINGS_H
+#   include <strings.h> /* for bcopy() */
+#  endif /* HAVE_STRINGS_H */
+#  define memcpy(d, s, n) bcopy((s), (d), (n))
+# endif /* !HAVE_MEMCPY */
+#endif /* STDC_HEADERS || _LIBC || (__STDC__ && HAVE_STDLIB_H && HAVE_STRING_H) */
 
 #ifdef _LIBC
 # include <endian.h>
@@ -50,7 +54,7 @@
 # define md5_read_ctx __md5_read_ctx
 # define md5_stream __md5_stream
 # define md5_buffer __md5_buffer
-#endif
+#endif /* _LIBC */
 
 #include "md5.h"
 

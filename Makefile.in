@@ -25,9 +25,9 @@
 #
 # make clean  or  make mostlyclean
 #      Delete all files from the current directory that are normally
-#      created by building the program.	 Don't delete the files that
+#      created by building the program.	 Do NOT delete the files that
 #      record the configuration.  Also preserve files that could be made
-#      by building, but normally aren't because the distribution comes
+#      by building, but normally are NOT because the distribution comes
 #      with them.
 #
 #      Delete `.dvi' files here if they are not part of the distribution.
@@ -95,7 +95,7 @@ EXEEXT=@EXEEXT@
 ### like `18.59' or `19.0'.
 version=@version@
 
-### This should be the name of the configuration we're building Emacs
+### This should be the name of the configuration we are building Emacs
 ### for, like `mips-dec-ultrix' or `sparc-sun-sunos'.
 configuration=@configuration@
 
@@ -218,7 +218,7 @@ standardlisppath=@standardlisppath@
 locallisppath=@locallisppath@
 
 # Where Emacs will search to find its lisp files.  Before
-# changing this, check to see if your purpose wouldn't
+# changing this, check to see if your purpose would NOT
 # better be served by changing locallisppath.  This
 # should be a colon-separated list of directories.
 # The default is ${locallisppath}:${standardlisppath}.
@@ -226,7 +226,7 @@ lisppath=@lisppath@
 
 # Where Emacs will search for its lisp files while building.
 # This is only used during the process of compiling Emacs,
-# to help Emacs find its lisp files before they've been installed
+# to help Emacs find its lisp files before they have been installed
 # in their final location.
 # This should be a colon-separated list of directories.
 # Normally it points to the lisp/ directory in the sources.
@@ -293,8 +293,8 @@ SUBDIR_MAKEFILES_IN = @SUBDIR_MAKEFILES_IN@
 SUBDIR_MAKEFILES = `echo $(SUBDIR_MAKEFILES_IN:.in=) | sed 's|$(srcdir)/||g'`
 
 # Subdirectories to install, and where they will go.  lib-src's and nt's
-# makefiles know how to install them, so we don't do that here.
-# Directories that cannot simply be copied, eg info, are treated
+# makefiles know how to install them, so we do NOT do that here.
+# Directories that cannot simply be copied, e.g. info, are treated
 # separately.
 COPYDIR = ${srcdir}/etc ${srcdir}/lisp
 COPYDESTS = "$(DESTDIR)${etcdir}" "$(DESTDIR)${lispdir}"
@@ -547,7 +547,7 @@ install-nt:
 INSTALL_ARCH_INDEP_EXTRA = @INSTALL_ARCH_INDEP_EXTRA@
 
 ## http://lists.gnu.org/archive/html/emacs-devel/2007-10/msg01672.html
-## Needs to be the user running install, so configure can't set it.
+## Needs to be the user running install, so configure cannot set it.
 set_installuser=for installuser in $${LOGNAME} $${USERNAME} $${USER} \
 	  `id -un 2> /dev/null`; do \
 	  [ -n "$${installuser}" ] && break ; \
@@ -845,9 +845,9 @@ mostlyclean: FRC
 
 ### `clean'
 ###      Delete all files from the current directory that are normally
-###      created by building the program.  Don't delete the files that
+###      created by building the program.  Do NOT delete the files that
 ###      record the configuration.  Also preserve files that could be made
-###      by building, but normally aren't because the distribution comes
+###      by building, but normally are NOT because the distribution comes
 ###      with them.
 ###
 ###      Delete `.dvi' files here if they are not part of the distribution.
@@ -925,6 +925,7 @@ bootstrap-clean: FRC
 	done
 	[ ! -f config.log ] || mv -f config.log config.log~
 	rm -rf ${srcdir}/info
+	-rm -f bootstrap-stamp
 	${top_bootclean}
 
 ### `maintainer-clean'
@@ -1168,7 +1169,7 @@ runit.o: runit.c dumpemacs.h
 GNUVersion = 22.1
 @ifGNUmake@VERSIONDEFFLAG = -DkEmacsVersion=$(patsubst %,'"%"', $(GNUVersion))
 @ifGNUmake@ifndef VERSIONDEFFLAG
-VERSIONDEFFLAG = -DkEmacsVersion=$(version)
+VERSIONDEFFLAG = -DkEmacsVersion=\"$(version)\"
 @ifGNUmake@endif
 
 dumpemacs.o: bo.h dumpemacs.c dumpemacs.h src/version.h

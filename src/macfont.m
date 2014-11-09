@@ -2658,17 +2658,16 @@ macfont_has_char (Lisp_Object font, int c)
   return result;
 }
 
-static unsigned
-macfont_encode_char (struct font *font, int c)
+static unsigned macfont_encode_char(struct font *font, int c)
 {
-  struct macfont_info *macfont_info = (struct macfont_info *) font;
+  struct macfont_info *macfont_info = (struct macfont_info *)font;
   CGGlyph glyph;
 
-  block_input ();
-  glyph = macfont_get_glyph_for_character (font, c);
-  unblock_input ();
+  block_input();
+  glyph = macfont_get_glyph_for_character(font, c);
+  unblock_input();
 
-  return glyph != kCGFontIndexInvalid ? glyph : FONT_INVALID_CODE;
+  return ((glyph != kCGFontIndexInvalid) ? glyph : FONT_INVALID_CODE);
 }
 
 static int
@@ -4047,8 +4046,7 @@ mac_register_font_driver (struct frame *f)
 #endif // MAC_OS_X_VERSION_MAX_ALLOWED >= 1050
 
 
-void
-syms_of_macfont (void)
+void syms_of_macfont(void)
 {
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= 1050
   static struct font_driver mac_font_driver;
@@ -4059,5 +4057,7 @@ syms_of_macfont (void)
 
   DEFSYM (QCdestination, ":destination");
   DEFSYM (QCminspace, ":minspace");
-#endif
+#endif /* 10.5+ */
 }
+
+/* EOF */

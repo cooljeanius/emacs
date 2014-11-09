@@ -1133,16 +1133,15 @@ default_pixels_per_inch_y (void)
 
 /* Set visibility of frame F.
    We call redisplay_other_windows to make sure the frame gets redisplayed
-   if some changes were applied to it while it wasn't visible (and hence
-   wasn't redisplayed).  */
-
+   if some changes were applied to it while it was NOT visible (and hence
+   was NOT redisplayed).  */
 INLINE void
-SET_FRAME_VISIBLE (struct frame *f, int v)
+SET_FRAME_VISIBLE(struct frame *f, int v)
 {
-  eassert (0 <= v && v <= 2);
-  if (v == 1 && f->visible != 1)
-    redisplay_other_windows ();
-  f->visible = v;
+  eassert((0 <= v) && (v <= 2));
+  if ((v == 1) && (f->visible != 1))
+    redisplay_other_windows();
+  f->visible = (unsigned)v;
 }
 
 /* Set iconify of frame F.  */

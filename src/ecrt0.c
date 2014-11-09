@@ -1,4 +1,4 @@
-/* C code startup routine.
+/* ecrt0.c: C code startup routine.
    Copyright (C) 1985, 1986, 1992, 2001, 2002, 2003, 2004,
                  2005, 2006, 2007 Free Software Foundation, Inc.
 
@@ -23,11 +23,11 @@ Boston, MA 02110-1301, USA.  */
 /* The standard Vax 4.2 Unix crt0.c cannot be used for Emacs
    because it makes `environ' an initialized variable.
    It is easiest to have a special crt0.c on all machines
-   though I don't know whether other machines actually need it.  */
+   though I do NOT know whether other machines actually need it.  */
 
 /* On the vax and 68000, in BSD4.2 and USG5.2,
    this is the data format on startup:
-  (vax) ap and fp are unpredictable as far as I know; don't use them.
+  (vax) ap and fp are unpredictable as far as I know; do NOT use them.
   sp ->  word containing argc
          word pointing to first arg string
 	 [word pointing to next arg string]... 0 or more times
@@ -49,8 +49,8 @@ And always:
 */
 
 #ifdef emacs
-#include <config.h>
-#endif
+# include <config.h>
+#endif /* emacs */
 
 /*		********  WARNING ********
     Do not insert any data definitions before data_start!
@@ -70,19 +70,32 @@ int data_start = 0;
 
 #ifdef NEED_ERRNO
 int errno;
-#endif
+#endif /* NEED_ERRNO */
 
 #ifndef DONT_NEED_ENVIRON
 char **environ;
-#endif
+#endif /* !DONT_NEED_ENVIRON */
+
+/* this code is special, so some of its functions may appear to be unused
+ * even when they are not: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__)
+# if defined(__clang__) || \
+     ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 5)))
+#  pragma GCC diagnostic ignored "-Wunused-function"
+# endif /* clang || gcc 4.5+ */
+#endif /* __GNUC__ && __GNUC_MINOR__ */
 
 #ifndef static
 /* On systems where the static storage class is usable, this function
    should be declared as static.  Otherwise, the static keyword has
    been defined to be something else, and code for those systems must
    take care of this declaration appropriately.  */
+# if defined(__STDC__) && (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L))
+static int start1(void);
+# else
 static start1 ();
-#endif
+# endif
+#endif /* !static */
 
 #ifdef APOLLO
 extern	char   *malloc(), *realloc(), *(*_libc_malloc) (), *(*_libc_realloc)();
@@ -288,10 +301,10 @@ start1 (CRT0_DUMMIES argc, xargv)
    most of these machines could use the vax code above
    with some suitable definition of CRT0_DUMMIES.
    Then the symbol m68k could be flushed.
-   But I don't want to risk breaking these machines
+   But I do NOT want to risk breaking these machines
    in a version 17 patch release, so that change is being put off.  */
 
-#ifdef m68k			/* Can't do it all from C */
+#ifdef m68k			/* Cannot do it all from C */
 	asm ("	global	_start");
 	asm ("	text");
 	asm ("_start:");

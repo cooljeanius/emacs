@@ -12,6 +12,7 @@
 
 #include "dumpemacs.h"
 
+/* only one function so far: */
 int main(int argc, char *argv[])
 {
   int ret;

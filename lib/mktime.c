@@ -573,7 +573,7 @@ __mktime_internal (struct tm *tp,
 
 /* FIXME: This should use a signed type wide enough to hold any UTC
    offset in seconds.  'int' should be good enough for GNU code.  We
-   can't fix this unilaterally though, as other modules invoke
+   cannot fix this unilaterally though, as other modules invoke
    __mktime_internal.  */
 static time_t localtime_offset;
 
@@ -586,7 +586,7 @@ mktime (struct tm *tp)
      time zone names contained in the external variable 'tzname' shall
      be set as if the tzset() function had been called.  */
   __tzset ();
-#endif
+#endif /* _LIBC */
 
   return __mktime_internal (tp, __localtime_r, &localtime_offset);
 }

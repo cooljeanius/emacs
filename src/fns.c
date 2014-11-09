@@ -85,11 +85,10 @@ See Info node `(elisp)Random Numbers' for more details.  */)
 }
 
 /* Heuristic on how many iterations of a tight loop can be safely done
-   before it's time to do a QUIT.  This must be a power of 2.  */
+   before it is time to do a QUIT.  This must be a power of 2.  */
 enum { QUIT_COUNT_HEURISTIC = 1 << 16 };
 
-/* Random data-structure functions.  */
-
+/* Random data-structure functions: */
 static void
 CHECK_LIST_END (Lisp_Object x, Lisp_Object y)
 {

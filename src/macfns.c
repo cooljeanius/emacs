@@ -1,4 +1,4 @@
-/* Graphical user interface functions for Mac OS.
+/* macfns.c: Graphical user interface functions for Mac OS.
    Copyright (C) 2000, 2001, 2002, 2003, 2004,
                  2005, 2006, 2007 Free Software Foundation, Inc.
 
@@ -26,7 +26,13 @@ Boston, MA 02110-1301, USA.  */
 #include <math.h>
 
 #include "lisp.h"
+
+/* prefer Carbon over NS in this file: */
+#if defined(HAVE_CARBON) && defined(HAVE_NS)
+# undef HAVE_NS
+#endif /* HAVE_CARBON && HAVE_NS */
 #include "macterm.h"
+
 #include "frame.h"
 #include "window.h"
 #include "buffer.h"
@@ -49,7 +55,7 @@ Boston, MA 02110-1301, USA.  */
 #include <errno.h>
 #include <sys/param.h>
 
-extern void free_frame_menubar ();
+extern void free_frame_menubar();
 
 #if TARGET_API_MAC_CARBON
 
@@ -59,9 +65,10 @@ static Lisp_Object Vmac_carbon_version_string;
 
 #endif	/* TARGET_API_MAC_CARBON */
 
-/* Non-zero means we're allowed to display an hourglass cursor.  */
-
+#ifndef display_hourglass_p
+/* Non-zero means we are allowed to display an hourglass cursor: */
 int display_hourglass_p;
+#endif /* !display_hourglass_p */
 
 /* The background and shape of the mouse pointer, and shape when not
    over text or in the modeline.  */
@@ -100,43 +107,47 @@ Lisp_Object Qundefined_color;
 Lisp_Object Qcancel_timer;
 
 /* In dispnew.c */
-
+#ifndef Vwindow_system_version
 extern Lisp_Object Vwindow_system_version;
+#endif /* !Vwindow_system_version */
 
 #if GLYPH_DEBUG
 int image_cache_refcount, dpyinfo_refcount;
-#endif
+#endif /* GLYPH_DEBUG */
 
 
 #if 0 /* Use xstricmp instead.  */
-/* compare two strings ignoring case */
-
-static int
-stricmp (const char *s, const char *t)
+/* compare two strings ignoring case: */
+static int stricmp(const char *s, const char *t)
 {
-  for ( ; tolower (*s) == tolower (*t); s++, t++)
-    if (*s == '\0')
+  int i;
+  for (i = 0; tolower(*s) == tolower(*t); s++, t++) {
+    if (*s == '\0') {
       return 0;
-  return tolower (*s) - tolower (*t);
+    }
+    i++;
+  }
+  return (tolower(*s) - tolower(*t));
 }
-#endif
+#endif /* 0 */
 
-/* compare two strings up to n characters, ignoring case */
-
+/* compare two strings up to n characters, ignoring case: */
 static int
 strnicmp (const char *s, const char *t, unsigned int n)
 {
-  for ( ; n > 0 && tolower (*s) == tolower (*t); n--, s++, t++)
-    if (*s == '\0')
+  int i;
+  for (i = 0; (n > 0) && (tolower(*s) == tolower(*t)); n--, s++, t++) {
+    if (*s == '\0') {
       return 0;
-  return n == 0 ? 0 : tolower (*s) - tolower (*t);
+    }
+    i++;
+  }
+  return ((n == 0) ? 0 : (tolower(*s) - tolower(*t)));
 }
 
 
 /* Error if we are not running on Mac OS.  */
-
-void
-check_mac ()
+void check_mac(void)
 {
   if (! mac_in_use)
     error ("Mac native windows not in use or not initialized");
@@ -144,19 +155,14 @@ check_mac ()
 
 /* Nonzero if we can use mouse menus.
    You should not call this unless HAVE_MENUS is defined.  */
-
-int
-have_menus_p ()
+int have_menus_p(void)
 {
   return mac_in_use;
 }
 
 /* Extract a frame as a FRAME_PTR, defaulting to the selected frame
    and checking validity for Mac.  */
-
-FRAME_PTR
-check_x_frame (frame)
-     Lisp_Object frame;
+FRAME_PTR check_x_frame(Lisp_Object frame)
 {
   FRAME_PTR f;
 
@@ -172,10 +178,7 @@ check_x_frame (frame)
 /* Let the user specify a display with a frame.
    nil stands for the selected frame--or, if that is not a mac frame,
    the first display on the list.  */
-
-struct mac_display_info *
-check_x_display_info (frame)
-     Lisp_Object frame;
+struct mac_display_info *check_x_display_info(Lisp_Object frame)
 {
   struct mac_display_info *dpyinfo = NULL;
 
@@ -226,18 +229,14 @@ extern void mac_get_window_bounds P_ ((struct frame *, Rect *, Rect *));
 /* Store the screen positions of frame F into XPTR and YPTR.
    These are the positions of the containing window manager window,
    not Emacs's own window.  */
-
-void
-x_real_positions (f, xptr, yptr)
-     FRAME_PTR f;
-     int *xptr, *yptr;
+void x_real_positions(FRAME_PTR f, int *xptr, int *yptr)
 {
   Rect inner, outer;
 
   mac_get_window_bounds (f, &inner, &outer);
 
-  f->x_pixels_diff = inner.left - outer.left;
-  f->y_pixels_diff = inner.top - outer.top;
+  f->x_pixels_diff = (inner.left - outer.left);
+  f->y_pixels_diff = (inner.top - outer.top);
 
   *xptr = outer.left;
   *yptr = outer.top;
@@ -248,7 +247,7 @@ x_real_positions (f, xptr, yptr)
 typedef struct colormap_t
 {
   unsigned long color;
-  char *name;
+  const char *name;
 } colormap_t;
 
 static const colormap_t mac_color_map[] =
@@ -1007,9 +1006,7 @@ static const colormap_t mac_color_map[] =
   { RGB_TO_ULONG(144, 238, 144), "LightGreen" }
 };
 
-Lisp_Object
-mac_color_map_lookup (colorname)
-     const char *colorname;
+Lisp_Object mac_color_map_lookup(const char *colorname)
 {
   Lisp_Object ret = Qnil;
   int i;
@@ -1028,9 +1025,7 @@ mac_color_map_lookup (colorname)
   return ret;
 }
 
-Lisp_Object
-x_to_mac_color (colorname)
-     char * colorname;
+Lisp_Object x_to_mac_color(char *colorname)
 {
   register Lisp_Object ret = Qnil;
 
@@ -1197,11 +1192,7 @@ x_to_mac_color (colorname)
 }
 
 /* Gamma-correct COLOR on frame F.  */
-
-void
-gamma_correct (f, color)
-     struct frame *f;
-     unsigned long *color;
+void gamma_correct(struct frame *f, unsigned long *color)
 {
   if (f->gamma)
     {
@@ -1217,16 +1208,11 @@ gamma_correct (f, color)
 /* Decide if color named COLOR is valid for the display associated
    with the selected frame; if so, return the rgb values in COLOR_DEF.
    If ALLOC is nonzero, allocate a new colormap cell.  */
-
 int
-mac_defined_color (f, color, color_def, alloc)
-     FRAME_PTR f;
-     char *color;
-     XColor *color_def;
-     int alloc;
+mac_defined_color(FRAME_PTR f, char *color, XColor *color_def, int alloc)
 {
   register Lisp_Object tem;
-  unsigned long mac_color_ref;
+  unsigned long mac_color_ref = 0UL;
 
   tem = x_to_mac_color (color);
 
@@ -1257,28 +1243,23 @@ mac_defined_color (f, color, color_def, alloc)
    suitable for screen F.
    If F is not a color screen, return DEF (default) regardless of what
    ARG says.  */
-
-int
-x_decode_color (f, arg, def)
-     FRAME_PTR f;
-     Lisp_Object arg;
-     int def;
+int x_decode_color(FRAME_PTR f, Lisp_Object arg, int def)
 {
   XColor cdef;
 
   CHECK_STRING (arg);
 
-  if (strcmp (SDATA (arg), "black") == 0)
-    return BLACK_PIX_DEFAULT (f);
-  else if (strcmp (SDATA (arg), "white") == 0)
-    return WHITE_PIX_DEFAULT (f);
+  if (strcmp((const char *)SDATA(arg), "black") == 0)
+    return BLACK_PIX_DEFAULT(f);
+  else if (strcmp((const char *)SDATA(arg), "white") == 0)
+    return WHITE_PIX_DEFAULT(f);
 
 #if 0
   if (FRAME_MAC_DISPLAY_INFO (f)->n_planes) == 1)
     return def;
-#endif
+#endif /* 0 */
 
-  if (mac_defined_color (f, SDATA (arg), &cdef, 1))
+  if (mac_defined_color(f, (char *)SDATA(arg), &cdef, 1))
     return cdef.pixel;
 
   /* defined_color failed; return an ultimate default.  */
@@ -1293,10 +1274,8 @@ x_decode_color (f, arg, def)
    In that case, just record the parameter's new value
    in the standard place; do not attempt to change the window.  */
 
-void
-x_set_foreground_color (f, arg, oldval)
-     struct frame *f;
-     Lisp_Object arg, oldval;
+void x_set_foreground_color(struct frame *f, Lisp_Object arg,
+                            Lisp_Object oldval)
 {
   struct mac_output *mac = f->output_data.mac;
   unsigned long fg, old_fg;
@@ -1331,10 +1310,8 @@ x_set_foreground_color (f, arg, oldval)
   unload_color (f, old_fg);
 }
 
-void
-x_set_background_color (f, arg, oldval)
-     struct frame *f;
-     Lisp_Object arg, oldval;
+void x_set_background_color(struct frame *f, Lisp_Object arg,
+                            Lisp_Object oldval)
 {
   struct mac_output *mac = f->output_data.mac;
   unsigned long bg;
@@ -1361,10 +1338,7 @@ x_set_background_color (f, arg, oldval)
     }
 }
 
-void
-x_set_mouse_color (f, arg, oldval)
-     struct frame *f;
-     Lisp_Object arg, oldval;
+void x_set_mouse_color(struct frame *f, Lisp_Object arg, Lisp_Object oldval)
 {
   struct x_output *x = f->output_data.x;
   Cursor cursor, nontext_cursor, mode_cursor, hand_cursor;
@@ -1442,7 +1416,7 @@ x_set_mouse_color (f, arg, oldval)
     XRecolorCursor (dpy, hourglass_cursor, &fore_color, &back_color);
     XRecolorCursor (dpy, horizontal_drag_cursor, &fore_color, &back_color);
   }
-#endif
+#endif /* 0 */
 
   BLOCK_INPUT;
 
@@ -1461,10 +1435,8 @@ x_set_mouse_color (f, arg, oldval)
   update_face_from_frame_parameter (f, Qmouse_color, arg);
 }
 
-void
-x_set_cursor_color (f, arg, oldval)
-     struct frame *f;
-     Lisp_Object arg, oldval;
+void x_set_cursor_color(struct frame *f, Lisp_Object arg,
+                        Lisp_Object oldval)
 {
   unsigned long fore_pixel, pixel;
 
@@ -1476,7 +1448,7 @@ x_set_cursor_color (f, arg, oldval)
 
   pixel = x_decode_color (f, arg, BLACK_PIX_DEFAULT (f));
 
-  /* Make sure that the cursor color differs from the background color.  */
+  /* Make sure that the cursor color differs from the background color: */
   if (pixel == FRAME_BACKGROUND_PIXEL (f))
     {
       pixel = f->output_data.mac->mouse_pixel;
@@ -1510,11 +1482,7 @@ x_set_cursor_color (f, arg, oldval)
 /* Set the border-color of frame F to pixel value PIX.
    Note that this does not fully take effect if done before
    F has a window.  */
-
-void
-x_set_border_pixel (f, pix)
-     struct frame *f;
-     int pix;
+void x_set_border_pixel(struct frame *f, int pix)
 {
 
   f->output_data.mac->border_pixel = pix;
@@ -1531,11 +1499,8 @@ x_set_border_pixel (f, pix)
    The border-color is used for the border that is drawn by the server.
    Note that this does not fully take effect if done before
    F has a window; it must be redone when the window is created.  */
-
 void
-x_set_border_color (f, arg, oldval)
-     struct frame *f;
-     Lisp_Object arg, oldval;
+x_set_border_color(struct frame *f, Lisp_Object arg, Lisp_Object oldval)
 {
   int pix;
 
@@ -1546,10 +1511,7 @@ x_set_border_color (f, arg, oldval)
 }
 
 
-void
-x_set_cursor_type (f, arg, oldval)
-     FRAME_PTR f;
-     Lisp_Object arg, oldval;
+void x_set_cursor_type(FRAME_PTR f, Lisp_Object arg, Lisp_Object oldval)
 {
   set_frame_cursor_types (f, arg);
 
@@ -1558,10 +1520,7 @@ x_set_cursor_type (f, arg, oldval)
 }
 
 #if 0 /* MAC_TODO: really no icon for Mac */
-void
-x_set_icon_type (f, arg, oldval)
-     struct frame *f;
-     Lisp_Object arg, oldval;
+void x_set_icon_type(struct frame *f, Lisp_Object arg, Lisp_Object oldval)
 {
   int result;
 
@@ -1588,12 +1547,11 @@ x_set_icon_type (f, arg, oldval)
 }
 #endif /* MAC_TODO */
 
-void
-x_set_icon_name (f, arg, oldval)
-     struct frame *f;
-     Lisp_Object arg, oldval;
+void x_set_icon_name(struct frame *f, Lisp_Object arg, Lisp_Object oldval)
 {
+#if 0 /* MAC_TODO (keep same as condition below) */
   int result;
+#endif /* MAC_TODO */
 
   if (STRINGP (arg))
     {
@@ -1628,9 +1586,9 @@ x_set_icon_name (f, arg, oldval)
      the new icon is not mapped, so map the window in its stead.  */
   if (FRAME_VISIBLE_P (f))
     {
-#ifdef USE_X_TOOLKIT
+# ifdef USE_X_TOOLKIT
       XtPopup (f->output_data.w32->widget, XtGrabNone);
-#endif
+# endif /* USE_X_TOOLKIT */
       XMapWindow (FRAME_W32_DISPLAY (f), FRAME_W32_WINDOW (f));
     }
 
@@ -1735,11 +1693,7 @@ x_set_tool_bar_lines (f, value, oldval)
 
 
 /* Set the Mac window title to NAME for frame F.  */
-
-static void
-x_set_name_internal (f, name)
-     FRAME_PTR f;
-     Lisp_Object name;
+static void x_set_name_internal(FRAME_PTR f, Lisp_Object name)
 {
   if (FRAME_MAC_WINDOW (f))
     {
@@ -2082,14 +2036,10 @@ x_get_string_resource (rdb, name, class)
 
    If no default is specified, return Qunbound.  If you call
    mac_get_arg, make sure you deal with Qunbound in a reasonable way,
-   and don't let it get stored in any Lisp-visible variables!  */
-
-static Lisp_Object
-mac_get_arg (alist, param, attribute, class, type)
-     Lisp_Object alist, param;
-     char *attribute;
-     char *class;
-     enum resource_types type;
+   and do NOT let it get stored in any Lisp-visible variables!  */
+static Lisp_Object mac_get_arg(Lisp_Object alist, Lisp_Object param,
+                               const char *attribute, const char *class,
+                               enum resource_types type)
 {
   return x_get_arg (check_x_display_info (Qnil),
 		    alist, param, attribute, class, type);
@@ -4373,7 +4323,7 @@ static pascal void mac_nav_event_callback P_ ((NavEventCallbackMessage,
 
 /**
    There is a relatively standard way to do this using applescript to run
-   a (choose file) method.  However, this doesn't do "the right thing"
+   a (choose file) method.  However, this fails to do "the right thing"
    by working only if the find-file occurred during a menu or toolbar
    click.  So we must do the file dialog by hand, using the navigation
    manager.  This also has more flexibility in determining the default
@@ -4563,10 +4513,11 @@ static pascal void
 mac_nav_event_callback (selector, parms, data)
      NavEventCallbackMessage selector;
      NavCBRecPtr parms;
-     void *data ;
+     void *data;
 {
+  return;
 }
-#endif
+#endif /* TARGET_API_MAC_CARBON */
 
 /***********************************************************************
 				Fonts
@@ -4613,7 +4564,7 @@ This is for internal use only.  Use `mac-font-panel-mode' instead.  */)
     error ("Cannot change visibility of the font panel");
   return Qnil;
 }
-#endif
+#endif /* USE_MAC_FONT_PANEL */
 
 #if USE_ATSUI
 extern Lisp_Object mac_atsu_font_face_attributes P_ ((ATSUFontID));
@@ -4636,7 +4587,7 @@ ID is specified by either an integer or a float.  */)
   UNBLOCK_INPUT;
   return result;
 }
-#endif
+#endif /* USE_ATSUI */
 
 
 /***********************************************************************
@@ -4679,8 +4630,7 @@ frame_parm_handler mac_frame_parm_handlers[] =
   x_set_fullscreen,
 };
 
-void
-syms_of_macfns ()
+void syms_of_macfns(void)
 {
 #ifdef MAC_OSX
   /* This is zero if not using Mac native windows.  */
@@ -4688,7 +4638,7 @@ syms_of_macfns ()
 #else
   /* Certainly running on Mac native windows.  */
   mac_in_use = 1;
-#endif
+#endif /* MAC_OSX */
 
   /* The section below is built by the lisp expression at the top of the file,
      just above where these variables are declared.  */
@@ -4713,76 +4663,76 @@ syms_of_macfns ()
   Fput (Qundefined_color, Qerror_message,
 	build_string ("Undefined color"));
 
-  DEFVAR_LISP ("x-pointer-shape", &Vx_pointer_shape,
+  DEFVAR_LISP ("x-pointer-shape", Vx_pointer_shape,
     doc: /* The shape of the pointer when over text.
 Changing the value does not affect existing frames
 unless you set the mouse color.  */);
   Vx_pointer_shape = Qnil;
 
-#if 0 /* This doesn't really do anything.  */
-  DEFVAR_LISP ("x-nontext-pointer-shape", &Vx_nontext_pointer_shape,
+#if 0 /* This does NOT really do anything.  */
+  DEFVAR_LISP ("x-nontext-pointer-shape", Vx_nontext_pointer_shape,
     doc: /* The shape of the pointer when not over text.
 This variable takes effect when you create a new frame
 or when you set the mouse color.  */);
-#endif
+#endif /* 0 */
   Vx_nontext_pointer_shape = Qnil;
 
-  DEFVAR_LISP ("x-hourglass-pointer-shape", &Vx_hourglass_pointer_shape,
+  DEFVAR_LISP ("x-hourglass-pointer-shape", Vx_hourglass_pointer_shape,
     doc: /* The shape of the pointer when Emacs is busy.
 This variable takes effect when you create a new frame
 or when you set the mouse color.  */);
   Vx_hourglass_pointer_shape = Qnil;
 
-  DEFVAR_BOOL ("display-hourglass", &display_hourglass_p,
+  DEFVAR_BOOL ("display-hourglass", display_hourglass_p,
     doc: /* Non-zero means Emacs displays an hourglass pointer on window systems.  */);
   display_hourglass_p = 1;
 
-  DEFVAR_LISP ("hourglass-delay", &Vhourglass_delay,
+  DEFVAR_LISP ("hourglass-delay", Vhourglass_delay,
     doc: /* *Seconds to wait before displaying an hourglass pointer.
 Value must be an integer or float.  */);
   Vhourglass_delay = make_number (DEFAULT_HOURGLASS_DELAY);
 
-#if 0 /* This doesn't really do anything.  */
-  DEFVAR_LISP ("x-mode-pointer-shape", &Vx_mode_pointer_shape,
+#if 0 /* This does NOT really do anything.  */
+  DEFVAR_LISP ("x-mode-pointer-shape", Vx_mode_pointer_shape,
     doc: /* The shape of the pointer when over the mode line.
 This variable takes effect when you create a new frame
 or when you set the mouse color.  */);
-#endif
+#endif /* 0 */
   Vx_mode_pointer_shape = Qnil;
 
   DEFVAR_LISP ("x-sensitive-text-pointer-shape",
-	      &Vx_sensitive_text_pointer_shape,
+	       Vx_sensitive_text_pointer_shape,
 	       doc: /* The shape of the pointer when over mouse-sensitive text.
 This variable takes effect when you create a new frame
 or when you set the mouse color.  */);
   Vx_sensitive_text_pointer_shape = Qnil;
 
   DEFVAR_LISP ("x-window-horizontal-drag-cursor",
-	      &Vx_window_horizontal_drag_shape,
+	       Vx_window_horizontal_drag_shape,
   doc: /* Pointer shape to use for indicating a window can be dragged horizontally.
 This variable takes effect when you create a new frame
 or when you set the mouse color.  */);
   Vx_window_horizontal_drag_shape = Qnil;
 
-  DEFVAR_LISP ("x-cursor-fore-pixel", &Vx_cursor_fore_pixel,
+  DEFVAR_LISP ("x-cursor-fore-pixel", Vx_cursor_fore_pixel,
     doc: /* A string indicating the foreground color of the cursor box.  */);
   Vx_cursor_fore_pixel = Qnil;
 
-  DEFVAR_LISP ("x-max-tooltip-size", &Vx_max_tooltip_size,
+  DEFVAR_LISP ("x-max-tooltip-size", Vx_max_tooltip_size,
     doc: /* Maximum size for tooltips.  Value is a pair (COLUMNS . ROWS).
 Text larger than this is clipped.  */);
   Vx_max_tooltip_size = Fcons (make_number (80), make_number (40));
 
-  DEFVAR_LISP ("x-no-window-manager", &Vx_no_window_manager,
+  DEFVAR_LISP ("x-no-window-manager", Vx_no_window_manager,
     doc: /* Non-nil if no window manager is in use.
-Emacs doesn't try to figure this out; this is always nil
+Emacs does NOT try to figure this out; this is always nil
 unless you set it to something else.  */);
-  /* We don't have any way to find this out, so set it to nil
+  /* We do NOT have any way to find this out, so set it to nil
      and maybe the user would like to set it to t.  */
   Vx_no_window_manager = Qnil;
 
   DEFVAR_LISP ("x-pixel-size-width-font-regexp",
-	       &Vx_pixel_size_width_font_regexp,
+	        Vx_pixel_size_width_font_regexp,
     doc: /* Regexp matching a font name whose width is the same as `PIXEL_SIZE'.
 
 Since Emacs gets width of a font matching with this regexp from
@@ -4792,7 +4742,7 @@ Chinese, Japanese, and Korean.  */);
   Vx_pixel_size_width_font_regexp = Qnil;
 
 #if TARGET_API_MAC_CARBON
-  DEFVAR_LISP ("mac-carbon-version-string", &Vmac_carbon_version_string,
+  DEFVAR_LISP ("mac-carbon-version-string", Vmac_carbon_version_string,
     doc: /* Version info for Carbon API.  */);
   {
     OSErr err;
@@ -4839,10 +4789,10 @@ Chinese, Japanese, and Korean.  */);
   /* Setting callback functions for fontset handler.  */
   get_font_info_func = x_get_font_info;
 
-#if 0 /* This function pointer doesn't seem to be used anywhere.
-	 And the pointer assigned has the wrong type, anyway.  */
+#if 0 /* This function pointer does NOT seem to be used anywhere.
+       * And the pointer assigned has the wrong type, anyway.  */
   list_fonts_func = x_list_fonts;
-#endif
+#endif /* 0 */
 
   load_font_func = x_load_font;
   find_ccl_program_func = x_find_ccl_program;
@@ -4865,14 +4815,14 @@ Chinese, Japanese, and Korean.  */);
 
 #if TARGET_API_MAC_CARBON
   defsubr (&Sx_file_dialog);
-#endif
+#endif /* TARGET_API_MAC_CARBON */
   defsubr (&Smac_clear_font_name_table);
 #if USE_MAC_FONT_PANEL
   defsubr (&Smac_set_font_panel_visible_p);
-#endif
+#endif /* USE_MAC_FONT_PANEL */
 #if USE_ATSUI
   defsubr (&Smac_atsu_font_face_attributes);
-#endif
+#endif /* USE_ATSUI */
 }
 
 /* arch-tag: d7591289-f374-4377-b245-12f5dbbb8edc

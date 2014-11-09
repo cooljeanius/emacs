@@ -237,18 +237,18 @@ enum font_property_index
   ASET ((font), prop, make_number (font_style_to_value (prop, val, true)))
 
 #ifndef FONT_WIDTH
-# if !defined(MAC_OS) && !defined(HAVE_CARBON)
+# if !defined(MAC_OS) && !(defined(HAVE_CARBON) && !defined(HAVE_NS))
 #  define FONT_WIDTH(f) ((f)->max_width) /* (what was originally in this file) */
 # else
 #  define FONT_WIDTH(f)	((f)->max_bounds.width) /* (definition in "macterm.h") */
-# endif /* !MAC_OS && !HAVE_CARBON */
+# endif /* !MAC_OS && !(HAVE_CARBON && !HAVE_NS) */
 #endif /* !FONT_WIDTH */
 #ifndef FONT_HEIGHT
-# if !defined(MAC_OS) && !defined(HAVE_CARBON)
+# if !defined(MAC_OS) && !(defined(HAVE_CARBON) && !defined(HAVE_NS))
 #  define FONT_HEIGHT(f) ((f)->height) /* (what was originally in this file) */
 # else
 #  define FONT_HEIGHT(f) ((f)->ascent + (f)->descent) /* (definition in "macterm.h") */
-# endif /* !MAC_OS && !HAVE_CARBON */
+# endif /* !MAC_OS && !(HAVE_CARBON && !HAVE_NS) */
 #endif /* !FONT_HEIGHT */
 #define FONT_BASE(f) ((f)->ascent)
 #define FONT_DESCENT(f) ((f)->descent)

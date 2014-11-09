@@ -23,14 +23,29 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <stdio.h>
 #include <limits.h>		/* For CHAR_BIT.  */
 
-#ifdef ENABLE_CHECKING
-#include <signal.h>		/* For SIGABRT.  */
-#endif
+#if defined(STDC_HEADERS) || defined(HAVE_STDDEF_H)
+# include <stddef.h> /* For offsetof, used by PSEUDOVECSIZE. */
+#endif /* STDC_HEADERS || HAVE_STDDEF_H */
 
-#ifdef HAVE_PTHREAD
-#include <pthread.h>
-#endif
+#if defined(ALLOC_DEBUG) && defined(INLINE)
+# undef INLINE
+#endif /* ALLOC_DEBUG && INLINE */
 
+#if defined(ENABLE_CHECKING) || (defined(HAVE_SIGNAL_H) && !defined(SIGABRT))
+/* Note that this declares bzero on OSF/1.  How dumb.  */
+# include <signal.h> /* For SIGABRT.  */
+#endif /* ENABLE_CHECKING || (HAVE_SIGNAL_H && !SIGABRT) */
+
+#if defined(HAVE_PTHREAD) || defined(HAVE_GTK_AND_PTHREAD)
+# include <pthread.h>
+#endif /* HAVE_PTHREAD || HAVE_GTK_AND_PTHREAD */
+
+#if defined(HIDE_LISP_IMPLEMENTATION)
+/* This file is part of the core Lisp implementation, and thus must
+ * deal with the real data structures.  If the Lisp implementation is
+ * replaced, this file likely will not be used.  */
+# undef HIDE_LISP_IMPLEMENTATION
+#endif /* HIDE_LISP_IMPLEMENTATION */
 #include "lisp.h"
 #include "process.h"
 #include "intervals.h"
@@ -41,9 +56,14 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "keyboard.h"
 #include "frame.h"
 #include "blockinput.h"
+#include "charset.h"
+#include "syssignal.h"
+#if defined(HAVE_SETJMP_H)
+# include <setjmp.h>
+#endif /* HAVE_SETJMP_H */
 #include "termhooks.h"		/* For struct terminal.  */
 #ifdef HAVE_WINDOW_SYSTEM
-#include TERM_HEADER
+# include TERM_HEADER
 #endif /* HAVE_WINDOW_SYSTEM */
 
 #include <verify.h>
@@ -55,10 +75,10 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #endif
 
 #if USE_VALGRIND
-#include <valgrind/valgrind.h>
-#include <valgrind/memcheck.h>
+# include <valgrind/valgrind.h>
+# include <valgrind/memcheck.h>
 static bool valgrind_p;
-#endif
+#endif /* USE_VALGRIND */
 
 /* GC_CHECK_MARKED_OBJECTS means do sanity checks on allocated objects.
    Doable only if GC_MARK_STACK.  */
@@ -75,20 +95,37 @@ static bool valgrind_p;
 #undef GC_MALLOC_CHECK
 #endif
 
-#include <unistd.h>
-#include <fcntl.h>
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
+#else
+extern POINTER_TYPE *sbrk(int incr);
+#endif/* HAVE_UNISTD_H */
+#ifdef HAVE_FCNTL_H
+# ifndef INCLUDED_FCNTL
+#  define INCLUDED_FCNTL 1
+#  include <fcntl.h>
+# endif /* !INCLUDED_FCNTL */
+#endif /* HAVE_FCNTL_H */
+#ifndef O_WRONLY
+# define O_WRONLY 1
+#endif /* !O_WRONLY */
 
 #ifdef USE_GTK
 # include "gtkutil.h"
-#endif
+#endif /* USE_GTK */
 #ifdef WINDOWSNT
-#include "w32.h"
-#include "w32heap.h"	/* for sbrk */
-#endif
+# include <fcntl.h>
+# include "w32.h"
+# include "w32heap.h"	/* for sbrk */
+#endif /* WINDOWSNT */
 
 #ifdef DOUG_LEA_MALLOC
 
 #include <malloc.h>
+/* malloc.h #defines this as size_t, at least in glibc2: */
+#ifndef __malloc_size_t
+# define __malloc_size_t int
+#endif /* !__malloc_size_t */
 
 /* Specify maximum number of areas to mmap.  It would be nice to use a
    value that explicitly means "no limit".  */
@@ -1679,10 +1716,14 @@ allocate_string (void)
   --total_free_strings;
   ++total_strings;
   ++strings_consed;
-  consing_since_gc += sizeof *s;
+  consing_since_gc += sizeof(*s);
 
 #ifdef GC_CHECK_STRING_BYTES
-  if (!noninteractive)
+  if (!noninteractive
+# ifdef MAC_OS8
+      && current_sblock
+# endif /* MAC_OS8 */
+      )
     {
       if (++check_string_bytes_count == 200)
 	{
@@ -6961,3 +7002,6 @@ union
   enum pvec_type pvec_type;
 } const EXTERNALLY_VISIBLE gdb_make_enums_visible = {0};
 #endif	/* __GNUC__ */
+
+/* arch-tag: 6695ca10-e3c5-4c2c-8bc3-ed26a7dda857
+   (do not change this comment) */

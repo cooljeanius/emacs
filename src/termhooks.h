@@ -1,4 +1,4 @@
-/* Parameters and display hooks for terminal devices.
+/* termhooks.h: Parameters and display hooks for terminal devices.
 
 Copyright (C) 1985-1986, 1993-1994, 2001-2014 Free Software Foundation,
 Inc.
@@ -315,15 +315,15 @@ enum {
 };
 
 #ifdef HAVE_GPM
-#include <gpm.h>
+# include <gpm.h>
 extern int handle_one_term_event (struct tty_display_info *, Gpm_Event *, struct input_event *);
-#ifndef HAVE_WINDOW_SYSTEM
+# ifndef HAVE_WINDOW_SYSTEM
 extern void term_mouse_moveto (int, int);
-#endif
+# endif /* !HAVE_WINDOW_SYSTEM */
 
 /* The device for which we have enabled gpm support.  */
 extern struct tty_display_info *gpm_tty;
-#endif
+#endif /* HAVE_GPM */
 
 /* Terminal-local parameters. */
 struct terminal
@@ -390,6 +390,7 @@ struct terminal
     struct x_display_info *x;         /* xterm.h */
     struct w32_display_info *w32;     /* w32term.h */
     struct ns_display_info *ns;       /* nsterm.h */
+    struct mac_display_info *mac;     /* macterm.h */
   } display_info;
 
 
@@ -628,15 +629,18 @@ extern struct terminal *terminal_list;
 
 /* Return font cache data for the specified terminal.  The historical
    name is grossly misleading, actually it is (NAME . FONT-LIST-CACHE).  */
-#if defined (HAVE_X_WINDOWS)
-#define TERMINAL_FONT_CACHE(t)						\
-  (t->type == output_x_window ? t->display_info.x->name_list_element : Qnil)
-#elif defined (HAVE_NTGUI)
-#define TERMINAL_FONT_CACHE(t)						\
-  (t->type == output_w32 ? t->display_info.w32->name_list_element : Qnil)
-#elif defined (HAVE_NS)
-#define TERMINAL_FONT_CACHE(t)						\
-  (t->type == output_ns ? t->display_info.ns->name_list_element : Qnil)
+#if defined(HAVE_X_WINDOWS)
+# define TERMINAL_FONT_CACHE(t)						\
+   (t->type == output_x_window ? t->display_info.x->name_list_element : Qnil)
+#elif defined(HAVE_NTGUI)
+# define TERMINAL_FONT_CACHE(t)						\
+   (t->type == output_w32 ? t->display_info.w32->name_list_element : Qnil)
+#elif defined(HAVE_NS)
+# define TERMINAL_FONT_CACHE(t)						\
+   (t->type == output_ns ? t->display_info.ns->name_list_element : Qnil)
+#elif (defined(MAC_OS) || defined(HAVE_CARBON))
+# define TERMINAL_FONT_CACHE(t)						\
+   (t->type == output_mac ? t->display_info.mac->name_list_element : Qnil)
 #endif
 
 extern struct terminal *get_terminal (Lisp_Object terminal, bool);
@@ -649,19 +653,19 @@ extern struct terminal *initial_terminal;
 #ifdef WINDOWSNT
 extern unsigned char *encode_terminal_code (struct glyph *, int,
 					    struct coding_system *);
-#endif
+#endif /* WINDOWSNT */
 
 #ifdef HAVE_GPM
 extern void close_gpm (int gpm_fd);
-#endif
+#endif /* HAVE_GPM */
 
 #ifdef WINDOWSNT
 extern int cursorX (struct tty_display_info *);
 extern int cursorY (struct tty_display_info *);
 #else
-#define cursorX(t)  curX(t)
-#define cursorY(t)  curY(t)
-#endif
+# define cursorX(t)  curX(t)
+# define cursorY(t)  curY(t)
+#endif /* WINDOWSNT */
 
 INLINE_HEADER_END
 

@@ -1,6 +1,7 @@
-/* Header for composite sequence handler.
+/* composite.h: Header for composite sequence handler.
    Copyright (C) 2001-2014 Free Software Foundation, Inc.
-   Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011
+   Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005,
+     2006, 2007, 2008, 2009, 2010, 2011, etc.
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H14PRO021
    Copyright (C) 2003, 2006
@@ -280,22 +281,22 @@ enum lglyph_indices
 #define LGLYPH_TO(g) XINT (AREF ((g), LGLYPH_IX_TO))
 #define LGLYPH_CHAR(g) XINT (AREF ((g), LGLYPH_IX_CHAR))
 #define LGLYPH_CODE(g)						\
-  (NILP (AREF ((g), LGLYPH_IX_CODE))				\
+  (NILP(AREF((g), LGLYPH_IX_CODE))				\
    ? FONT_INVALID_CODE						\
-   : cons_to_unsigned (AREF (g, LGLYPH_IX_CODE), TYPE_MAXIMUM (unsigned)))
-#define LGLYPH_WIDTH(g) XINT (AREF ((g), LGLYPH_IX_WIDTH))
-#define LGLYPH_LBEARING(g) XINT (AREF ((g), LGLYPH_IX_LBEARING))
-#define LGLYPH_RBEARING(g) XINT (AREF ((g), LGLYPH_IX_RBEARING))
-#define LGLYPH_ASCENT(g) XINT (AREF ((g), LGLYPH_IX_ASCENT))
-#define LGLYPH_DESCENT(g) XINT (AREF ((g), LGLYPH_IX_DESCENT))
-#define LGLYPH_ADJUSTMENT(g) AREF ((g), LGLYPH_IX_ADJUSTMENT)
-#define LGLYPH_SET_FROM(g, val) ASET ((g), LGLYPH_IX_FROM, make_number (val))
-#define LGLYPH_SET_TO(g, val) ASET ((g), LGLYPH_IX_TO, make_number (val))
-#define LGLYPH_SET_CHAR(g, val) ASET ((g), LGLYPH_IX_CHAR, make_number (val))
+   : cons_to_unsigned(AREF(g, LGLYPH_IX_CODE), TYPE_MAXIMUM(unsigned)))
+#define LGLYPH_WIDTH(g) XINT(AREF((g), LGLYPH_IX_WIDTH))
+#define LGLYPH_LBEARING(g) XINT(AREF((g), LGLYPH_IX_LBEARING))
+#define LGLYPH_RBEARING(g) XINT(AREF((g), LGLYPH_IX_RBEARING))
+#define LGLYPH_ASCENT(g) XINT(AREF((g), LGLYPH_IX_ASCENT))
+#define LGLYPH_DESCENT(g) XINT(AREF((g), LGLYPH_IX_DESCENT))
+#define LGLYPH_ADJUSTMENT(g) AREF((g), LGLYPH_IX_ADJUSTMENT)
+#define LGLYPH_SET_FROM(g, val) ASET((g), LGLYPH_IX_FROM, make_number(val))
+#define LGLYPH_SET_TO(g, val) ASET((g), LGLYPH_IX_TO, make_number(val))
+#define LGLYPH_SET_CHAR(g, val) ASET((g), LGLYPH_IX_CHAR, make_number(val))
 /* Callers must assure that VAL is not negative!  */
 #define LGLYPH_SET_CODE(g, val)						\
   ASET (g, LGLYPH_IX_CODE,						\
-	val == FONT_INVALID_CODE ? Qnil : INTEGER_TO_CONS (val))
+	((val == FONT_INVALID_CODE) ? Qnil : INTEGER_TO_CONS(val)))
 
 #define LGLYPH_SET_WIDTH(g, val) ASET ((g), LGLYPH_IX_WIDTH, make_number (val))
 #define LGLYPH_SET_LBEARING(g, val) ASET ((g), LGLYPH_IX_LBEARING, make_number (val))
@@ -304,12 +305,12 @@ enum lglyph_indices
 #define LGLYPH_SET_DESCENT(g, val) ASET ((g), LGLYPH_IX_DESCENT, make_number (val))
 #define LGLYPH_SET_ADJUSTMENT(g, val) ASET ((g), LGLYPH_IX_ADJUSTMENT, (val))
 
-#define LGLYPH_XOFF(g) (VECTORP (LGLYPH_ADJUSTMENT (g)) \
-			? XINT (AREF (LGLYPH_ADJUSTMENT (g), 0)) : 0)
-#define LGLYPH_YOFF(g) (VECTORP (LGLYPH_ADJUSTMENT (g)) \
-			? XINT (AREF (LGLYPH_ADJUSTMENT (g), 1)) : 0)
-#define LGLYPH_WADJUST(g) (VECTORP (LGLYPH_ADJUSTMENT (g)) \
-			   ? XINT (AREF (LGLYPH_ADJUSTMENT (g), 2)) : 0)
+#define LGLYPH_XOFF(g) (VECTORP(LGLYPH_ADJUSTMENT(g)) \
+			? XINT(AREF(LGLYPH_ADJUSTMENT(g), 0)) : 0)
+#define LGLYPH_YOFF(g) (VECTORP(LGLYPH_ADJUSTMENT(g)) \
+			? XINT(AREF(LGLYPH_ADJUSTMENT(g), 1)) : 0)
+#define LGLYPH_WADJUST(g) (VECTORP(LGLYPH_ADJUSTMENT(g)) \
+			   ? XINT(AREF(LGLYPH_ADJUSTMENT(g), 2)) : 0)
 
 extern Lisp_Object composition_gstring_put_cache (Lisp_Object, ptrdiff_t);
 extern Lisp_Object composition_gstring_from_id (ptrdiff_t);
@@ -331,3 +332,5 @@ extern ptrdiff_t composition_adjust_point (ptrdiff_t, ptrdiff_t);
 INLINE_HEADER_END
 
 #endif /* not EMACS_COMPOSITE_H */
+
+/* EOF */

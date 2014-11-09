@@ -634,9 +634,8 @@ x_free_gc (struct frame *f, GC gc)
 
 #endif  /* HAVE_NTGUI */
 
-#ifdef HAVE_NS
+#if defined(HAVE_NS)
 /* NS emulation of GCs */
-
 static GC
 x_create_gc (struct frame *f,
 	     unsigned long mask,
@@ -646,13 +645,28 @@ x_create_gc (struct frame *f,
   *gc = *xgcv;
   return gc;
 }
+#endif /* HAVE_NS */
 
+#if defined(HAVE_CARBON) && !defined(HAVE_NS)
+/* Carbon emulation of GCs */
+static GC
+x_create_gc (struct frame *f,
+	     unsigned long mask,
+	     XGCValues *xgcv)
+{
+  GC gc = xmalloc(sizeof *gc);
+  *gc = *XCreateGC(NULL, FRAME_MAC_WINDOW(f), mask, xgcv);
+  return gc;
+}
+#endif /* HAVE_CARBON && !HAVE_NS */
+
+#if defined(HAVE_NS) || defined(HAVE_CARBON)
 static void
 x_free_gc (struct frame *f, GC gc)
 {
   xfree (gc);
 }
-#endif  /* HAVE_NS */
+#endif  /* HAVE_NS || HAVE_CARBON */
 
 /***********************************************************************
 			   Frames and faces
@@ -1138,7 +1152,7 @@ face_color_supported_p (struct frame *f, const char *color_name,
 
   XSETFRAME (frame, f);
   return
-#ifdef HAVE_WINDOW_SYSTEM
+#if defined(HAVE_WINDOW_SYSTEM) && !defined(MAC_OS) && !defined(HAVE_CARBON)
     FRAME_WINDOW_P (f)
     ? (!NILP (Fxw_display_color_p (frame))
        || xstrcasecmp (color_name, "black") == 0
@@ -1148,7 +1162,7 @@ face_color_supported_p (struct frame *f, const char *color_name,
        || (!NILP (Fx_display_grayscale_p (frame))
 	   && face_color_gray_p (f, color_name)))
     :
-#endif
+#endif /* HAVE_WINDOW_SYSTEM && !MAC_OS && !HAVE_CARBON */
     tty_defined_color (f, color_name, &not_used, 0);
 }
 
@@ -1673,8 +1687,13 @@ the WIDTH times as wide as FACE on FRAME.  */)
 	}
       else
 	{
+#if !(defined(MAC_OS) || defined(HAVE_CARBON))
 	  size = FRAME_FONT (f)->pixel_size;
 	  avgwidth = FRAME_FONT (f)->average_width;
+#else
+          size = 0;
+          avgwidth = 0;
+#endif /* !(MAC_OS || HAVE_CARBON) */
 	}
       if (!NILP (width))
 	avgwidth *= XINT (width);
@@ -4125,7 +4144,7 @@ prepare_face_for_display (struct frame *f, struct face *face)
       xgcv.background = face->background;
 #ifdef HAVE_X_WINDOWS
       xgcv.graphics_exposures = False;
-#endif
+#endif /* HAVE_X_WINDOWS */
 
       block_input ();
 #ifdef HAVE_X_WINDOWS
@@ -4135,7 +4154,7 @@ prepare_face_for_display (struct frame *f, struct face *face)
 	  xgcv.stipple = x_bitmap_pixmap (f, face->stipple);
 	  mask |= GCFillStyle | GCStipple;
 	}
-#endif
+#endif /* HAVE_X_WINDOWS */
       face->gc = x_create_gc (f, mask, &xgcv);
       if (face->font)
 	font_prepare_for_face (f, face);

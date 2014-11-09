@@ -1,4 +1,4 @@
-/* Interface from Emacs to terminfo.
+/* terminfo.c: Interface from Emacs to terminfo.
    Copyright (C) 1985-1986, 2001-2014 Free Software Foundation, Inc.
 
 This file is part of GNU Emacs.
@@ -22,20 +22,16 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "lisp.h"
 
 /* Define these variables that serve as global parameters to termcap,
-   so that we do not need to conditionalize the places in Emacs
-   that set them.  */
-
-char *UP, *BC, PC;
+ * so that we do not need to conditionalize the places in Emacs
+ * that set them: */
+extern char *UP, *BC, PC;
 
 /* Interface to curses/terminfo library.
-   Turns out that all of the terminfo-level routines look
-   like their termcap counterparts except for tparm, which replaces
-   tgoto.  Not only is the calling sequence different, but the string
-   format is different too.
-*/
-
+ * Turns out that all of the terminfo-level routines look
+ * like their termcap counterparts except for tparm, which replaces
+ * tgoto.  Not only is the calling sequence different, but the string
+ * format is different too: */
 extern char *tparm (const char *str, ...);
-
 
 char *
 tparam (const char *string, char *outstring, int len,
@@ -50,3 +46,5 @@ tparam (const char *string, char *outstring, int len,
   temp = tparm (string, arg1, arg2, arg3, arg4);
   return xstrdup (temp);
 }
+
+/* EOF */

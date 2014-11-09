@@ -10,6 +10,8 @@ config.sub
 config.log
 conf*/*.awk
 depcomp
+dumpemacs
+emacswrapper
 install-sh
 ldd.sh
 libtool
@@ -22,6 +24,7 @@ src/config.in
 makefile
 TAGS
 *~
+*.o
 /README.W32
 
 # not sure why the break?

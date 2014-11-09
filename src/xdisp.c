@@ -11073,13 +11073,16 @@ echo_area_display (int update_frame_p)
   if (!FRAME_VISIBLE_P (f) || !f->glyphs_initialized_p)
     return 0;
 
-#ifdef HAVE_WINDOW_SYSTEM
+/* The terminal frame is used as the first Emacs frame on the Mac OS.  */
+#ifndef MAC_OS8
+# ifdef HAVE_WINDOW_SYSTEM
   /* When Emacs starts, selected_frame may be the initial terminal
      frame.  If we let this through, a message would be displayed on
      the terminal.  */
   if (FRAME_INITIAL_P (XFRAME (selected_frame)))
     return 0;
-#endif /* HAVE_WINDOW_SYSTEM */
+# endif /* HAVE_WINDOW_SYSTEM */
+#endif /* !MAC_OS8 */
 
   /* Redraw garbaged frames.  */
   clear_garbaged_frames ();
@@ -11600,13 +11603,16 @@ prepare_menu_bars (void)
 	  menu_bar_hooks_run = update_menu_bar (f, 0, menu_bar_hooks_run);
 #ifdef HAVE_WINDOW_SYSTEM
 	  update_tool_bar (f, 0);
-#endif
+# ifdef MAC_OS
+	  mac_update_title_bar (f, 0);
+# endif /* MAC_OS */
+#endif /* HAVE_WINDOW_SYSTEM */
 #ifdef HAVE_NS
           if (windows_or_buffers_changed
 	      && FRAME_NS_P (f))
             ns_set_doc_edited
 	      (f, Fbuffer_modified_p (XWINDOW (f->selected_window)->contents));
-#endif
+#endif /* HAVE_NS */
 	  UNGCPRO;
 	}
 
@@ -11618,7 +11624,10 @@ prepare_menu_bars (void)
       update_menu_bar (sf, 1, 0);
 #ifdef HAVE_WINDOW_SYSTEM
       update_tool_bar (sf, 1);
-#endif
+# ifdef MAC_OS
+      mac_update_title_bar (sf, 1);
+# endif /* MAC_OS */
+#endif /* HAVE_WINDOW_SYSTEM */
     }
 }
 
@@ -11651,7 +11660,7 @@ update_menu_bar (struct frame *f, int save_match_data, int hooks_run)
 
   if (FRAME_WINDOW_P (f)
       ?
-#if defined (USE_X_TOOLKIT) || defined (HAVE_NTGUI) \
+#if defined (USE_X_TOOLKIT) || defined (HAVE_NTGUI) || defined (MAC_OS) \
     || defined (HAVE_NS) || defined (USE_GTK)
       FRAME_EXTERNAL_MENU_BAR (f)
 #else
@@ -11705,26 +11714,26 @@ update_menu_bar (struct frame *f, int save_match_data, int hooks_run)
 	  fset_menu_bar_items (f, menu_bar_items (FRAME_MENU_BAR_ITEMS (f)));
 
 	  /* Redisplay the menu bar in case we changed it.  */
-#if defined (USE_X_TOOLKIT) || defined (HAVE_NTGUI) \
+#if defined (USE_X_TOOLKIT) || defined (HAVE_NTGUI) || defined (MAC_OS) \
     || defined (HAVE_NS) || defined (USE_GTK)
 	  if (FRAME_WINDOW_P (f))
             {
-#if defined (HAVE_NS)
+#if defined (HAVE_NS) || defined(MAC_OS)
               /* All frames on Mac OS share the same menubar.  So only
                  the selected frame should be allowed to set it.  */
               if (f == SELECTED_FRAME ())
-#endif
+#endif /* HAVE_NS || MAC_OS */
 		set_frame_menubar (f, 0, 0);
 	    }
 	  else
 	    /* On a terminal screen, the menu bar is an ordinary screen
 	       line, and this makes it get updated.  */
 	    w->update_mode_line = 1;
-#else /* ! (USE_X_TOOLKIT || HAVE_NTGUI || HAVE_NS || USE_GTK) */
+#else /* ! (USE_X_TOOLKIT || HAVE_NTGUI || MAC_OS || HAVE_NS || USE_GTK) */
 	  /* In the non-toolkit version, the menu bar is an ordinary screen
 	     line, and this makes it get updated.  */
 	  w->update_mode_line = 1;
-#endif /* ! (USE_X_TOOLKIT || HAVE_NTGUI || HAVE_NS || USE_GTK) */
+#endif /* ! (USE_X_TOOLKIT || HAVE_NTGUI || MAC_OS || HAVE_NS || USE_GTK) */
 
 	  unbind_to (count, Qnil);
 	  set_buffer_internal_1 (prev);
@@ -12432,7 +12441,7 @@ redisplay_tool_bar (struct frame *f)
 #endif /* USE_GTK || HAVE_NS */
 }
 
-#if ! defined (USE_GTK) && ! defined (HAVE_NS)
+#if !defined(USE_GTK) && !defined(HAVE_NS) && !defined(MAC_OS) && !defined(HAVE_CARBON)
 
 /* Get information about the tool-bar item which is displayed in GLYPH
    on frame F.  Return in *PROP_IDX the index where tool-bar item
@@ -12675,7 +12684,7 @@ note_tool_bar_highlight (struct frame *f, int x, int y)
     help_echo_string = AREF (f->tool_bar_items, prop_idx + TOOL_BAR_ITEM_CAPTION);
 }
 
-#endif /* !USE_GTK && !HAVE_NS */
+#endif /* !USE_GTK && !HAVE_NS && !MAC_OS && !HAVE_CARBON */
 
 #endif /* HAVE_WINDOW_SYSTEM */
 
@@ -13309,7 +13318,7 @@ redisplay_internal (void)
   if (!fr->glyphs_initialized_p)
     return;
 
-#if defined (USE_X_TOOLKIT) || defined (USE_GTK) || defined (HAVE_NS)
+#if defined (USE_X_TOOLKIT) || defined (USE_GTK) || defined (MAC_OS) || defined (HAVE_NS)
   if (popup_activated ())
     return;
 #endif
@@ -16519,7 +16528,7 @@ redisplay_window (Lisp_Object window, bool just_this_one_p)
 
       if (FRAME_WINDOW_P (f))
 	{
-#if defined (USE_X_TOOLKIT) || defined (HAVE_NTGUI) \
+#if defined (USE_X_TOOLKIT) || defined (HAVE_NTGUI) || defined (MAC_OS) \
     || defined (HAVE_NS) || defined (USE_GTK)
 	  redisplay_menu_p = FRAME_EXTERNAL_MENU_BAR (f);
 #else
@@ -19042,7 +19051,7 @@ extend_face_to_end_of_line (struct it *it)
 	      it->glyph_row->used[RIGHT_MARGIN_AREA] = 1;
 	    }
 	}
-#ifdef HAVE_WINDOW_SYSTEM
+#if defined(HAVE_WINDOW_SYSTEM) && !(defined(MAC_OS) || defined(HAVE_CARBON))
       if (it->glyph_row->reversed_p)
 	{
 	  /* Prepend a stretch glyph to the row, such that the
@@ -19056,7 +19065,7 @@ extend_face_to_end_of_line (struct it *it)
 	  struct font *font = (face->font ? face->font : FRAME_FONT (f));
 # endif /* _XFONTSTRUCT_DEFINED && 0 */
 	  struct glyph *row_start = it->glyph_row->glyphs[TEXT_AREA];
-	  struct glyph *row_end = row_start + it->glyph_row->used[TEXT_AREA];
+	  struct glyph *row_end = (row_start + it->glyph_row->used[TEXT_AREA]);
 	  struct glyph *g;
 	  int row_width, stretch_ascent, stretch_width;
 	  struct text_pos saved_pos;
@@ -19092,7 +19101,7 @@ extend_face_to_end_of_line (struct it *it)
 	      it->start_of_box_run_p = saved_box_start;
 	    }
 	}
-#endif	/* HAVE_WINDOW_SYSTEM */
+#endif	/* HAVE_WINDOW_SYSTEM && !(MAC_OS || HAVE_CARBON) */
     }
   else
     {
@@ -21044,6 +21053,10 @@ display_menu_bar (struct window *w)
   if (FRAME_X_P (f))
     return;
 #endif
+#ifdef MAC_OS
+  if (FRAME_MAC_P (f))
+    return;
+#endif /* MAC_OS */
 
 #ifdef HAVE_NS
   if (FRAME_NS_P (f))
@@ -23290,7 +23303,7 @@ calc_pixel_width_or_height (double *res, struct it *it, Lisp_Object prop,
 	    }
 	}
 
-#ifdef HAVE_WINDOW_SYSTEM
+#if defined(HAVE_WINDOW_SYSTEM) && !(defined(MAC_OS) || defined(HAVE_CARBON))
       if (EQ (prop, Qheight))
 	return OK_PIXELS (font ? FONT_HEIGHT (font) : FRAME_LINE_HEIGHT (it->f));
       if (EQ (prop, Qwidth))
@@ -23298,7 +23311,7 @@ calc_pixel_width_or_height (double *res, struct it *it, Lisp_Object prop,
 #else
       if (EQ (prop, Qheight) || EQ (prop, Qwidth))
 	return OK_PIXELS (1);
-#endif
+#endif /* HAVE_WINDOW_SYSTEM && !(MAC_OS || HAVE_CARBON) */
 
       if (EQ (prop, Qtext))
 	  return OK_PIXELS (width_p
@@ -27360,12 +27373,12 @@ show_mouse_face (Mouse_HLInfo *hlinfo, enum draw_glyphs_face draw)
   /* Change the mouse cursor.  */
   if (FRAME_WINDOW_P (f))
     {
-#if ! defined (USE_GTK) && ! defined (HAVE_NS)
+# if !defined(USE_GTK) && !defined(HAVE_NS)
       if (draw == DRAW_NORMAL_TEXT
 	  && !EQ (hlinfo->mouse_face_window, f->tool_bar_window))
 	FRAME_RIF (f)->define_frame_cursor (f, FRAME_X_OUTPUT (f)->text_cursor);
       else
-#endif
+# endif /* !USE_GTK && !HAVE_NS */
       if (draw == DRAW_MOUSE_FACE)
 	FRAME_RIF (f)->define_frame_cursor (f, FRAME_X_OUTPUT (f)->hand_cursor);
       else
@@ -28317,8 +28330,10 @@ define_frame_cursor1 (struct frame *f, Cursor cursor, Lisp_Object pointer)
 	cursor = FRAME_X_OUTPUT (f)->text_cursor;
       else if (EQ (pointer, intern ("hdrag")))
 	cursor = FRAME_X_OUTPUT (f)->horizontal_drag_cursor;
+#if !(defined(MAC_OS) || defined(HAVE_CARBON))
       else if (EQ (pointer, intern ("nhdrag")))
 	cursor = FRAME_X_OUTPUT (f)->vertical_drag_cursor;
+#endif /* !(MAC_OS || HAVE_CARBON) */
 #ifdef HAVE_X_WINDOWS
       else if (EQ (pointer, intern ("vdrag")))
 	cursor = FRAME_DISPLAY_INFO (f)->vertical_scroll_bar_cursor;
@@ -28648,7 +28663,7 @@ note_mode_line_or_margin_highlight (Lisp_Object window, int x, int y,
 #ifdef HAVE_WINDOW_SYSTEM
   if (FRAME_WINDOW_P (f))
     define_frame_cursor1 (f, cursor, pointer);
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
 }
 
 
@@ -28671,11 +28686,12 @@ note_mouse_highlight (struct frame *f, int x, int y)
   Lisp_Object pointer = Qnil;  /* Takes precedence over cursor!  */
   struct buffer *b;
 
-  /* When a menu is active, don't highlight because this looks odd.  */
-#if defined (USE_X_TOOLKIT) || defined (USE_GTK) || defined (HAVE_NS) || defined (MSDOS)
-  if (popup_activated ())
+  /* When a menu is active, do NOT highlight because this looks odd.  */
+#if defined(USE_X_TOOLKIT) || defined(USE_GTK) || \
+    defined(MAC_OS) || defined(HAVE_NS) || defined(MSDOS)
+  if (popup_activated())
     return;
-#endif
+#endif /* USE_X_TOOLKIT || USE_GTK || MAC_OS || HAVE_NS || MSDOS */
 
   if (!f->glyphs_initialized_p
       || f->pointer_invisible)
@@ -28712,15 +28728,16 @@ note_mouse_highlight (struct frame *f, int x, int y)
   w = XWINDOW (window);
   frame_to_window_pixel_xy (w, &x, &y);
 
-#if defined (HAVE_WINDOW_SYSTEM) && ! defined (USE_GTK) && ! defined (HAVE_NS)
-  /* Handle tool-bar window differently since it doesn't display a
+#if defined(HAVE_WINDOW_SYSTEM) && !defined(USE_GTK) && !defined(HAVE_NS) && \
+    !defined(MAC_OS) && !defined(HAVE_CARBON)
+  /* Handle tool-bar window differently since it does NOT display a
      buffer.  */
   if (EQ (window, f->tool_bar_window))
     {
       note_tool_bar_highlight (f, x, y);
       return;
     }
-#endif
+#endif /* HAVE_WINDOW_SYSTEM && !USE_GTK && !HAVE_NS && !MAC_OS && !HAVE_CARBON */
 
   /* Mouse is on the mode, header line or margin?  */
   if (part == ON_MODE_LINE || part == ON_HEADER_LINE
@@ -28740,7 +28757,7 @@ note_mouse_highlight (struct frame *f, int x, int y)
 	return;
     }
 
-#ifdef HAVE_WINDOW_SYSTEM
+#if defined(HAVE_WINDOW_SYSTEM) && !(MAC_OS || HAVE_CARBON)
   if (part == ON_VERTICAL_BORDER)
     {
       cursor = FRAME_X_OUTPUT (f)->horizontal_drag_cursor;
@@ -28766,7 +28783,7 @@ note_mouse_highlight (struct frame *f, int x, int y)
     cursor = FRAME_X_OUTPUT (f)->nontext_cursor;
   else
     cursor = FRAME_X_OUTPUT (f)->text_cursor;
-#endif
+#endif /* HAVE_WINDOW_SYSTEM && !(MAC_OS || HAVE_CARBON) */
 
   /* Are we in a window whose display is up to date?
      And verify the buffer's text has not changed.  */
@@ -30543,4 +30560,5 @@ void cancel_hourglass (void)
 
 #endif /* HAVE_WINDOW_SYSTEM */
 
-/* EOF (this file is way too long and needs to be split up...) */
+/* arch-tag: eacc864d-bb6a-4b74-894a-1a4399a1358b
+   (do not change this comment) */

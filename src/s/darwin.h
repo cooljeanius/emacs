@@ -277,6 +277,7 @@ Boston, MA 02110-1301, USA.  */
  * 0x690 is the total size of 30 segment load commands (at 56 each). */
 /* headerpad now set in encompassing Makefile */
 #define LD_SWITCH_SYSTEM_TEMACS -prebind LIBS_CARBON
+#define OLD_LD_SWITCH_SYSTEM_TEMACS_WITH_HEADERPAD -Xlinker -headerpad -Xlinker 690
 
 #define C_SWITCH_SYSTEM_TEMACS -Dtemacs
 

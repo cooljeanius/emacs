@@ -1,4 +1,4 @@
-/* Menu support for GNU Emacs on Mac OS.
+/* macmenu.c: Menu support for GNU Emacs on Mac OS.
    Copyright (C) 2000, 2001, 2002, 2003, 2004,
                  2005, 2006, 2007 Free Software Foundation, Inc.
 
@@ -37,17 +37,17 @@ Boston, MA 02110-1301, USA.  */
 #include "coding.h"
 
 #if !TARGET_API_MAC_CARBON
-#include <MacTypes.h>
-#include <Menus.h>
-#include <QuickDraw.h>
-#include <ToolUtils.h>
-#include <Fonts.h>
-#include <Controls.h>
-#include <Windows.h>
-#include <Events.h>
-#if defined (__MRC__) || (__MSL__ >= 0x6000)
-#include <ControlDefinitions.h>
-#endif
+# include <MacTypes.h>
+# include <Menus.h>
+# include <QuickDraw.h>
+# include <ToolUtils.h>
+# include <Fonts.h>
+# include <Controls.h>
+# include <Windows.h>
+# include <Events.h>
+# if defined(__MRC__) || (__MSL__ >= 0x6000)
+#  include <ControlDefinitions.h>
+# endif /* __MRC__ */
 #endif /* not TARGET_API_MAC_CARBON */
 
 /* This may include sys/types.h, and that somehow loses
@@ -57,8 +57,8 @@ Boston, MA 02110-1301, USA.  */
 /* Load sys/types.h if not already loaded.
    In some systems loading it twice is suicidal.  */
 #ifndef makedev
-#include <sys/types.h>
-#endif
+# include <sys/types.h>
+#endif /* !makedev */
 
 #include "dispextern.h"
 
@@ -78,8 +78,8 @@ static const int min_menu_id[] = {0, 1, 234, 235, 236, 256, 16384, 32768};
 #define DIALOG_WINDOW_RESOURCE 130
 
 #if TARGET_API_MAC_CARBON
-#define HAVE_DIALOGS 1
-#endif
+# define HAVE_DIALOGS 1
+#endif /* TARGET_API_MAC_CARBON */
 
 #undef HAVE_MULTILINGUAL_MENU
 
@@ -3235,16 +3235,13 @@ dispose_menus (kind, id)
 
 #endif /* HAVE_MENUS */
 
-/* Detect if a menu is currently active.  */
-
-int
-popup_activated ()
+/* Detect if a menu is currently active: */
+int popup_activated(void)
 {
   return popup_activated_flag;
 }
 
-/* The following is used by delayed window autoselection.  */
-
+/* The following is used by delayed window autoselection: */
 DEFUN ("menu-or-popup-active-p", Fmenu_or_popup_active_p, Smenu_or_popup_active_p, 0, 0, 0,
        doc: /* Return t if a menu or popup dialog is active.  */)
      ()
@@ -3254,8 +3251,7 @@ DEFUN ("menu-or-popup-active-p", Fmenu_or_popup_active_p, Smenu_or_popup_active_
   return Qnil;
 }
 
-void
-syms_of_macmenu ()
+void syms_of_macmenu(void)
 {
   staticpro (&menu_items);
   menu_items = Qnil;
@@ -3267,7 +3263,7 @@ syms_of_macmenu ()
   defsubr (&Smenu_or_popup_active_p);
 #ifdef HAVE_MENUS
   defsubr (&Sx_popup_dialog);
-#endif
+#endif /* HAVE_MENUS */
 }
 
 /* arch-tag: 40b2c6c7-b8a9-4a49-b930-1b2707184cce

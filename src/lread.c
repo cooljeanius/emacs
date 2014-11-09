@@ -40,7 +40,18 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "termhooks.h"
 #include "blockinput.h"
 
+#if defined(lint) && defined(HAVE_SYS_INODE_H)
+# include <sys/inode.h>
+#else
+# if defined(lint) && defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#  warning "linting lread.c expects <sys/inode.h> to be included."
+# endif /* lint && __GNUC__ && !__STRICT_ANSI__ */
+#endif /* lint && HAVE_SYS_INODE_H */
+
 #ifdef MSDOS
+# if defined(__DJGPP__) && (__DJGPP__ < 2) && !defined(X_OK)
+#  include <unistd.h>	/* to get X_OK */
+# endif /* old DJGPP */
 # include "msdos.h"
 #endif /* MSDOS */
 
@@ -48,13 +59,28 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 # include "nsterm.h"
 #endif /* HAVE_NS */
 
-#include <unistd.h>
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
+#endif /* HAVE_UNISTD_H */
+
+#ifndef X_OK
+# define X_OK 01
+#endif /* !X_OK */
+
+#ifdef HAVE_MATH_H
+# include <math.h>
+#endif /* HAVE_MATH_H */
 
 #ifdef HAVE_SETLOCALE
 # include <locale.h>
 #endif /* HAVE_SETLOCALE */
 
-#include <fcntl.h>
+#ifdef HAVE_FCNTL_H
+# include <fcntl.h>
+#endif /* HAVE_FCNTL_H */
+#ifndef O_RDONLY
+# define O_RDONLY 0
+#endif /* !O_RDONLY */
 
 #ifdef HAVE_FSEEKO
 # define file_offset off_t
@@ -64,7 +90,11 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 # define file_tell ftell
 #endif /* HAVE_FSEEKO */
 
-/* Hash table read constants.  */
+#if !defined(USE_CRT_DLL) && !defined(errno) && !defined(_SYS_ERRNO_H_)
+extern int errno;
+#endif /* !USE_CRT_DLL && !errno && !_SYS_ERRNO_H_ */
+
+/* Hash table read constants: */
 static Lisp_Object Qhash_table, Qdata;
 static Lisp_Object Qtest, Qsize;
 static Lisp_Object Qweakness;
@@ -1277,7 +1307,8 @@ Return t if the file exists and loads successfully.  */)
                   /* Make the progress messages mention that source is newer.  */
                   newer = 1;
 
-                  /* If we won't print another message, mention this anyway.  */
+                  /* If we will NOT print another message, then mention
+                   * this anyway: */
                   if (!NILP (nomessage) && !force_load_messages)
                     {
                       Lisp_Object msg_file;
@@ -4178,6 +4209,9 @@ load_path_check (Lisp_Object lpath)
     }
 }
 
+/* this is used in both of the following functions: */
+int turn_off_warning;
+
 /* Return the default load-path, to be used if EMACSLOADPATH is unset.
    This does not include the standard site-lisp directories
    under the installation prefix (i.e., PATH_SITELOADSEARCH),
@@ -4207,37 +4241,45 @@ load_path_check (Lisp_Object lpath)
    out-of-tree build) AND install-dir/src/Makefile exists BUT
    install-dir/src/Makefile.in does NOT exist (this is a sanity
    check), then repeat the above steps for source-dir/lisp, site-lisp.  */
-
-static Lisp_Object
-load_path_default (void)
+static Lisp_Object load_path_default(void)
 {
   Lisp_Object lpath = Qnil;
   const char *normal;
+  turn_off_warning = 0;
 
+  /* Compute the default load-path: */
 #ifdef CANNOT_DUMP
-#ifdef HAVE_NS
+# ifdef HAVE_NS
   const char *loadpath = ns_load_path ();
-#endif
+# endif /* HAVE_NS */
 
   normal = PATH_LOADSEARCH;
-#ifdef HAVE_NS
+# ifdef HAVE_NS
   lpath = decode_env_path (0, loadpath ? loadpath : normal, 0);
-#else
+# else /* !HAVE_NS: */
   lpath = decode_env_path (0, normal, 0);
-#endif
+# endif /* HAVE_NS */
 
-#else  /* !CANNOT_DUMP */
+#else  /* !CANNOT_DUMP: */
 
-  normal = NILP (Vpurify_flag) ? PATH_LOADSEARCH : PATH_DUMPLOADSEARCH;
+  if (NILP(Vpurify_flag)) {
+    normal = PATH_LOADSEARCH;
+  } else {
+# ifdef EMACS_UNDUMPED
+    normal = PATH_LOADSEARCH; /* for dumping from universal binary after install */
+# else
+    normal = PATH_DUMPLOADSEARCH;
+# endif /* EMACS_UNDUMPED */
+  }
 
   if (initialized)
     {
-#ifdef HAVE_NS
+# ifdef HAVE_NS
       const char *loadpath = ns_load_path ();
       lpath = decode_env_path (0, loadpath ? loadpath : normal, 0);
-#else
+# else /* !HAVE_NS: */
       lpath = decode_env_path (0, normal, 0);
-#endif
+# endif /* HAVE_NS */
       if (!NILP (Vinstallation_directory))
         {
           Lisp_Object tem, tem1;
@@ -4276,8 +4318,10 @@ load_path_default (void)
               tem1 = Ffile_accessible_directory_p (tem);
               if (!NILP (tem1))
                 {
-                  if (NILP (Fmember (tem, lpath)))
+                  if (NILP (Fmember (tem, lpath))) {
+                    turn_off_warning = 1;
                     lpath = Fcons (tem, lpath);
+                  }
                 }
             }
 
@@ -4293,7 +4337,7 @@ load_path_default (void)
                                        Vinstallation_directory);
               tem1 = Ffile_exists_p (tem);
 
-              /* Don't be fooled if they moved the entire source tree
+              /* Do NOT be fooled if they moved the entire source tree
                  AFTER dumping Emacs.  If the build directory is indeed
                  different from the source dir, src/Makefile.in and
                  src/Makefile will not be found together.  */
@@ -4338,17 +4382,20 @@ load_path_default (void)
   return lpath;
 }
 
+/* this function used to contain the above, but that was split off, so now
+ * this one is smaller: */
 void
 init_lread (void)
 {
+  turn_off_warning = 0;
   /* First, set Vload_path.  */
 
-  /* Ignore EMACSLOADPATH when dumping.  */
+  /* Ignore EMACSLOADPATH when dumping: */
 #ifdef CANNOT_DUMP
   bool use_loadpath = true;
 #else
   bool use_loadpath = NILP (Vpurify_flag);
-#endif
+#endif /* CANNOT_DUMP */
 
   if (use_loadpath && egetenv ("EMACSLOADPATH"))
     {
@@ -4409,6 +4456,37 @@ init_lread (void)
         }
     }
 
+#if (!(defined(WINDOWSNT) || defined(HAVE_CARBON) || defined(NS_SELF_CONTAINED_IS_TRUE)))
+  /* When Emacs is invoked over network shares on NT, PATH_LOADSEARCH is
+   * almost never correct, thereby causing a warning to be printed out that
+   * confuses users.  Since PATH_LOADSEARCH is always overridden by the
+   * EMACSLOADPATH environment variable below, disable the warning on NT.
+   * Also, when using the "self-contained" option for Carbon Emacs
+   * for MacOSX, the "standard" paths may not exist and would be overridden
+   * by EMACSLOADPATH as on NT.  Since this depends on how the executable
+   * was build and packaged, turn off the warnings in general */
+
+  /* Warn if dirs in the *standard* path do NOT exist: */
+  if (!turn_off_warning) {
+    Lisp_Object path_tail;
+
+    for (path_tail = Vload_path;
+         !NILP(path_tail);
+         path_tail = XCDR(path_tail))
+      {
+        Lisp_Object dirfile;
+        dirfile = Fcar (path_tail);
+        if (STRINGP(dirfile))
+          {
+            dirfile = Fdirectory_file_name(dirfile);
+            if (access((const char *)SDATA(dirfile), 0) < 0)
+              dir_warning("Warning: Lisp directory `%s' does not exist.\n",
+                          XCAR(path_tail));
+          }
+      }
+  }
+#endif /* !(WINDOWSNT || HAVE_CARBON || NS_SELF_CONTAINED_IS_TRUE) */
+
   Vvalues = Qnil;
 
   load_in_progress = 0;
@@ -4421,15 +4499,13 @@ init_lread (void)
    DIRNAME cannot be accessed.  On entry, errno should correspond to
    the access failure.  Print the warning on stderr and put it in
    *Messages*.  */
-
-void
-dir_warning (char const *use, Lisp_Object dirname)
+void dir_warning(char const *use, Lisp_Object dirname)
 {
   static char const format[] = "Warning: %s `%s': %s\n";
   int access_errno = errno;
-  fprintf (stderr, format, use, SSDATA (dirname), strerror (access_errno));
+  fprintf(stderr, format, use, SSDATA(dirname), strerror(access_errno));
 
-  /* Don't log the warning before we've initialized!!  */
+  /* Do NOT log the warning before we have initialized!!  */
   if (initialized)
     {
       char const *diagnostic = emacs_strerror (access_errno);
@@ -4734,3 +4810,6 @@ that are loaded before your customizations are read!  */);
   DEFSYM (Qrehash_size, "rehash-size");
   DEFSYM (Qrehash_threshold, "rehash-threshold");
 }
+
+/* arch-tag: a0d02733-0f96-4844-a659-9fd53c4f414d
+   (do not change this comment) */

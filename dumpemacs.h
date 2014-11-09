@@ -33,6 +33,20 @@
 #define kEmacsArchPath		kEmacsBinDir "/emacs-" kEmacsArch
 #define kDumpEmacsPath		kEmacsLibExecDir "/dumpemacs"
 
+/* this is taken from "src/config.h": */
+/* The _Noreturn keyword of C11: */
+#if !(defined(_Noreturn) \
+    || (defined(__STDC_VERSION__) && (201112 <= __STDC_VERSION__)))
+# if ((3 <= __GNUC__) || ((__GNUC__ == 2) && (8 <= __GNUC_MINOR__)) \
+     || (0x5110 <= __SUNPRO_C))
+#  define _Noreturn __attribute__ ((__noreturn__))
+# elif defined(_MSC_VER) && (1200 <= _MSC_VER)
+#  define _Noreturn __declspec (noreturn)
+# else
+#  define _Noreturn
+# endif /* compatible compiler check */
+#endif /* have _Noreturn */
+
 int is_emacs_valid(int debugflag);
 int runit(const char * const argv[], int dropprivs);
 

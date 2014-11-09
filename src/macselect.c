@@ -1,4 +1,4 @@
-/* Selection processing for Emacs on Mac OS.
+/* macselect.c: Selection processing for Emacs on Mac OS.
    Copyright (C) 2005, 2006, 2007 Free Software Foundation, Inc.
 
 This file is part of GNU Emacs.
@@ -21,12 +21,17 @@ Boston, MA 02110-1301, USA.  */
 #include <config.h>
 
 #include "lisp.h"
+
+/* prefer Carbon over NS in this file: */
+#if defined(HAVE_CARBON) && defined(HAVE_NS)
+# undef HAVE_NS
+#endif /* HAVE_CARBON && HAVE_NS */
 #include "macterm.h"
 #include "blockinput.h"
 #include "keymap.h"
 
 #if !TARGET_API_MAC_CARBON
-#include <Endian.h>
+# include <Endian.h>
 typedef int ScrapRef;
 typedef ResType ScrapFlavorType;
 #endif /* !TARGET_API_MAC_CARBON */
@@ -51,7 +56,7 @@ EXFUN (Fx_selection_owner_p, 1);
 static OSStatus mac_handle_service_event P_ ((EventHandlerCallRef,
 					      EventRef, void *));
 void init_service_handler P_ ((void));
-#endif
+#endif /* MAC_OSX */
 
 Lisp_Object QPRIMARY, QSECONDARY, QTIMESTAMP, QTARGETS;
 
@@ -102,17 +107,13 @@ static Lisp_Object Qmac_scrap_name, Qmac_ostype;
 #ifdef MAC_OSX
 /* Selection name for communication via Services menu.  */
 static Lisp_Object Vmac_service_selection;
-#endif
+#endif /* MAC_OSX */
 
 /* Get a reference to the scrap corresponding to the symbol SYM.  The
-   reference is set to *SCRAP, and it becomes NULL if there's no
+   reference is set to *SCRAP, and it becomes NULL if there is no
    corresponding scrap.  Clear the scrap if CLEAR_P is non-zero.  */
-
 static OSStatus
-get_scrap_from_symbol (sym, clear_p, scrap)
-     Lisp_Object sym;
-     int clear_p;
-     ScrapRef *scrap;
+get_scrap_from_symbol(Lisp_Object sym, int clear_p, ScrapRef *scrap)
 {
   OSStatus err = noErr;
   Lisp_Object str = Fget (sym, Qmac_scrap_name);
@@ -122,19 +123,19 @@ get_scrap_from_symbol (sym, clear_p, scrap)
   else
     {
 #if TARGET_API_MAC_CARBON
-#ifdef MAC_OSX
+# ifdef MAC_OSX
       CFStringRef scrap_name = cfstring_create_with_string (str);
       OptionBits options = (clear_p ? kScrapClearNamedScrap
 			    : kScrapGetNamedScrap);
 
       err = GetScrapByName (scrap_name, options, scrap);
       CFRelease (scrap_name);
-#else	/* !MAC_OSX */
+# else	/* !MAC_OSX: */
       if (clear_p)
 	err = ClearCurrentScrap ();
       if (err == noErr)
 	err = GetCurrentScrap (scrap);
-#endif	/* !MAC_OSX */
+# endif	/* !MAC_OSX */
 #else	/* !TARGET_API_MAC_CARBON */
       if (clear_p)
 	err = ZeroScrap ();
@@ -148,10 +149,7 @@ get_scrap_from_symbol (sym, clear_p, scrap)
 
 /* Get a scrap flavor type from the symbol SYM.  Return 0 if no
    corresponding flavor type.  */
-
-static ScrapFlavorType
-get_flavor_type_from_symbol (sym)
-     Lisp_Object sym;
+static ScrapFlavorType get_flavor_type_from_symbol(Lisp_Object sym)
 {
   Lisp_Object str = Fget (sym, Qmac_ostype);
 
@@ -161,27 +159,21 @@ get_flavor_type_from_symbol (sym)
   return 0;
 }
 
-/* Check if the symbol SYM has a corresponding scrap flavor type.  */
-
-static int
-valid_scrap_target_type_p (sym)
-     Lisp_Object sym;
+/* Check if the symbol SYM has a corresponding scrap flavor type: */
+static int valid_scrap_target_type_p(Lisp_Object sym)
 {
   return get_flavor_type_from_symbol (sym) != 0;
 }
 
 /* Clear the scrap whose reference is *SCRAP. */
-
-static INLINE OSStatus
-clear_scrap (scrap)
-     ScrapRef *scrap;
+static INLINE OSStatus clear_scrap(ScrapRef *scrap)
 {
 #if TARGET_API_MAC_CARBON
-#ifdef MAC_OSX
+# ifdef MAC_OSX
   return ClearScrap (scrap);
-#else
+# else
   return ClearCurrentScrap ();
-#endif
+# endif /* MAC_OSX */
 #else  /* !TARGET_API_MAC_CARBON */
   return ZeroScrap ();
 #endif	/* !TARGET_API_MAC_CARBON */
@@ -189,11 +181,8 @@ clear_scrap (scrap)
 
 /* Put Lisp String STR to the scrap SCRAP.  The target type is
    specified by TYPE. */
-
 static OSStatus
-put_scrap_string (scrap, type, str)
-     ScrapRef scrap;
-     Lisp_Object type, str;
+put_scrap_string(ScrapRef scrap, Lisp_Object type, Lisp_Object str)
 {
   ScrapFlavorType flavor_type = get_flavor_type_from_symbol (type);
 
@@ -210,11 +199,8 @@ put_scrap_string (scrap, type, str)
 
 /* Put TIMESTAMP to the scrap SCRAP.  The timestamp is used for
    checking if the scrap is owned by the process.  */
-
 static INLINE OSStatus
-put_scrap_private_timestamp (scrap, timestamp)
-     ScrapRef scrap;
-     unsigned long timestamp;
+put_scrap_private_timestamp(ScrapRef scrap, unsigned long timestamp)
 {
 #if TARGET_API_MAC_CARBON
   return PutScrapFlavor (scrap, SCRAP_FLAVOR_TYPE_EMACS_TIMESTAMP,
@@ -226,12 +212,9 @@ put_scrap_private_timestamp (scrap, timestamp)
 #endif	/* !TARGET_API_MAC_CARBON */
 }
 
-/* Check if data for the target type TYPE is available in SCRAP.  */
-
+/* Check if data for the target type TYPE is available in SCRAP: */
 static ScrapFlavorType
-scrap_has_target_type (scrap, type)
-     ScrapRef scrap;
-     Lisp_Object type;
+scrap_has_target_type(ScrapRef scrap, Lisp_Object type)
 {
   OSStatus err;
   ScrapFlavorType flavor_type = get_flavor_type_from_symbol (type);
@@ -258,11 +241,7 @@ scrap_has_target_type (scrap, type)
 
 /* Get data for the target type TYPE from SCRAP and create a Lisp
    string.  Return nil if failed to get data.  */
-
-static Lisp_Object
-get_scrap_string (scrap, type)
-     ScrapRef scrap;
-     Lisp_Object type;
+static Lisp_Object get_scrap_string(ScrapRef scrap, Lisp_Object type)
 {
   OSStatus err;
   Lisp_Object result = Qnil;
@@ -303,17 +282,14 @@ get_scrap_string (scrap, type)
 	result = make_unibyte_string (*handle, size);
       DisposeHandle (handle);
     }
-#endif
+#endif /* TARGET_API_MAC_CARBON */
 
   return result;
 }
 
-/* Get timestamp from the scrap SCRAP and set to *TIMPSTAMP.  */
-
+/* Get timestamp from the scrap SCRAP and set to *TIMESTAMP.  */
 static OSStatus
-get_scrap_private_timestamp (scrap, timestamp)
-     ScrapRef scrap;
-     unsigned long *timestamp;
+get_scrap_private_timestamp(ScrapRef scrap, unsigned long *timestamp)
 {
   OSStatus err = noErr;
 #if TARGET_API_MAC_CARBON
@@ -358,10 +334,7 @@ get_scrap_private_timestamp (scrap, timestamp)
 /* Get the list of target types in SCRAP.  The return value is a list
    of target type symbols possibly followed by scrap flavor type
    strings.  */
-
-static Lisp_Object
-get_scrap_target_type_list (scrap)
-     ScrapRef scrap;
+static Lisp_Object get_scrap_target_type_list(ScrapRef scrap)
 {
   Lisp_Object result = Qnil, rest, target_type;
 #if TARGET_API_MAC_CARBON
@@ -381,7 +354,7 @@ get_scrap_target_type_list (scrap)
     }
   if (flavor_info == NULL)
     count = 0;
-#endif
+#endif /* TARGET_API_MAC_CARBON */
   for (rest = Vselection_converter_alist; CONSP (rest); rest = XCDR (rest))
     {
       ScrapFlavorType flavor_type = 0;
@@ -399,7 +372,7 @@ get_scrap_target_type_list (scrap)
 		flavor_info[i].flavorType = 0;
 		break;
 	      }
-#endif
+#endif /* TARGET_API_MAC_CARBON */
 	}
     }
 #if TARGET_API_MAC_CARBON
@@ -414,7 +387,7 @@ get_scrap_target_type_list (scrap)
       result = nconc2 (result, strings);
       xfree (flavor_info);
     }
-#endif
+#endif /* TARGET_API_MAC_CARBON */
 
   return result;
 }
@@ -422,10 +395,8 @@ get_scrap_target_type_list (scrap)
 /* Do protocol to assert ourself as a selection owner.
    Update the Vselection_alist so that we can reply to later requests for
    our selection.  */
-
 static void
-x_own_selection (selection_name, selection_value)
-     Lisp_Object selection_name, selection_value;
+x_own_selection(Lisp_Object selection_name, Lisp_Object selection_value)
 {
   OSStatus err;
   ScrapRef scrap;
@@ -481,7 +452,7 @@ x_own_selection (selection_name, selection_value)
   UNGCPRO;
 
   if (scrap && err != noErr)
-    error ("Can't set selection");
+    error ("Cannot set selection");
 
   /* Now update the local cache */
   {
@@ -500,10 +471,10 @@ x_own_selection (selection_name, selection_value)
 
     /* If we already owned the selection, remove the old selection data.
        Perhaps we should destructively modify it instead.
-       Don't use Fdelq as that may QUIT.  */
+       Do NOT use Fdelq as that may QUIT.  */
     if (!NILP (prev_value))
       {
-	Lisp_Object rest;	/* we know it's not the CAR, so it's easy.  */
+	Lisp_Object rest; /* we know it is not the CAR, so it is easy. */
 	for (rest = Vselection_alist; !NILP (rest); rest = Fcdr (rest))
 	  if (EQ (prev_value, Fcar (XCDR (rest))))
 	    {
@@ -521,7 +492,6 @@ x_own_selection (selection_name, selection_value)
    and for local x-get-selection-internal (LOCAL_REQUEST is nonzero).
 
    This calls random Lisp code, and may signal or gc.  */
-
 static Lisp_Object
 x_get_local_selection (selection_symbol, target_type, local_request)
      Lisp_Object selection_symbol, target_type;
@@ -606,18 +576,15 @@ x_get_local_selection (selection_symbol, target_type, local_request)
 
 /* Clear all selections that were made from frame F.
    We do this when about to delete a frame.  */
-
-void
-x_clear_frame_selections (f)
-     FRAME_PTR f;
+void x_clear_frame_selections(FRAME_PTR f)
 {
   Lisp_Object frame;
   Lisp_Object rest;
 
   XSETFRAME (frame, f);
 
-  /* Otherwise, we're really honest and truly being told to drop it.
-     Don't use Fdelq as that may QUIT;.  */
+  /* Otherwise, we are really honest and truly being told to drop it.
+     Do NOT use Fdelq as that may QUIT;.  */
 
   /* Delete elements from the beginning of Vselection_alist.  */
   while (!NILP (Vselection_alist)
@@ -635,10 +602,10 @@ x_clear_frame_selections (f)
 	  for (; CONSP (hooks); hooks = Fcdr (hooks))
 	    call1 (Fcar (hooks), selection_symbol);
 #if 0 /* This can crash when deleting a frame
-	 from x_connection_closed.  Anyway, it seems unnecessary;
-	 something else should cause a redisplay.  */
+       * from x_connection_closed.  Anyway, it seems unnecessary;
+       * something else should cause a redisplay.  */
 	  redisplay_preserve_echo_area (21);
-#endif
+#endif /* 0 */
 	}
 
       Vselection_alist = Fcdr (Vselection_alist);
@@ -661,7 +628,7 @@ x_clear_frame_selections (f)
 	      call1 (Fcar (hooks), selection_symbol);
 #if 0 /* See above */
 	    redisplay_preserve_echo_area (22);
-#endif
+#endif /* 0 */
 	  }
 	XSETCDR (rest, Fcdr (XCDR (rest)));
 	break;
@@ -670,7 +637,6 @@ x_clear_frame_selections (f)
 
 /* Do protocol to read selection-data from the server.
    Converts this to Lisp data and returns it.  */
-
 static Lisp_Object
 x_get_foreign_selection (selection_symbol, target_type, time_stamp)
      Lisp_Object selection_symbol, target_type, time_stamp;
@@ -705,14 +671,17 @@ x_get_foreign_selection (selection_symbol, target_type, time_stamp)
 
 
 DEFUN ("x-own-selection-internal", Fx_own_selection_internal,
-       Sx_own_selection_internal, 2, 2, 0,
+       Sx_own_selection_internal, 2, 3, 0,
        doc: /* Assert a selection of the given TYPE with the given VALUE.
 TYPE is a symbol, typically `PRIMARY', `SECONDARY', or `CLIPBOARD'.
 VALUE is typically a string, or a cons of two markers, but may be
 anything that the functions on `selection-converter-alist' know about.  */)
-     (selection_name, selection_value)
-     Lisp_Object selection_name, selection_value;
+     (Lisp_Object selection_name, Lisp_Object selection_value,
+      Lisp_Object frame)
 {
+#ifdef __APPLE_CC__
+# pragma unused (frame)
+#endif /* __APPLE_CC__ */
   check_mac ();
   CHECK_SYMBOL (selection_name);
   if (NILP (selection_value)) error ("SELECTION-VALUE may not be nil");
@@ -724,16 +693,18 @@ anything that the functions on `selection-converter-alist' know about.  */)
 /* Request the selection value from the owner.  If we are the owner,
    simply return our selection value.  If we are not the owner, this
    will block until all of the data has arrived.  */
-
 DEFUN ("x-get-selection-internal", Fx_get_selection_internal,
-       Sx_get_selection_internal, 2, 3, 0,
+       Sx_get_selection_internal, 2, 4, 0,
        doc: /* Return text selected from some Mac application.
 SELECTION is a symbol, typically `PRIMARY', `SECONDARY', or `CLIPBOARD'.
 TYPE is the type of data desired, typically `STRING'.
 TIME_STAMP is ignored on Mac.  */)
-     (selection_symbol, target_type, time_stamp)
-     Lisp_Object selection_symbol, target_type, time_stamp;
+     (Lisp_Object selection_symbol, Lisp_Object target_type,
+      Lisp_Object time_stamp, Lisp_Object terminal)
 {
+#ifdef __APPLE_CC__
+# pragma unused (terminal)
+#endif /* __APPLE_CC__ */
   Lisp_Object val = Qnil;
   struct gcpro gcpro1, gcpro2;
   GCPRO2 (target_type, val); /* we store newly consed data into these */
@@ -762,13 +733,14 @@ TIME_STAMP is ignored on Mac.  */)
 }
 
 DEFUN ("x-disown-selection-internal", Fx_disown_selection_internal,
-       Sx_disown_selection_internal, 1, 2, 0,
+       Sx_disown_selection_internal, 1, 3, 0,
        doc: /* If we own the selection SELECTION, disown it.
 Disowning it means there is no such selection.  */)
-     (selection, time)
-     Lisp_Object selection;
-     Lisp_Object time;
+     (Lisp_Object selection, Lisp_Object time, Lisp_Object terminal)
 {
+#ifdef __APPLE_CC__
+# pragma unused (terminal)
+#endif /* __APPLE_CC__ */
   OSStatus err;
   ScrapRef scrap;
   Lisp_Object local_selection_data;
@@ -777,11 +749,11 @@ Disowning it means there is no such selection.  */)
   CHECK_SYMBOL (selection);
 
   if (NILP (Fx_selection_owner_p (selection)))
-    return Qnil;  /* Don't disown the selection when we're not the owner.  */
+    return Qnil; /* Do NOT disown the selection when we are not the owner. */
 
   local_selection_data = assq_no_quit (selection, Vselection_alist);
 
-  /* Don't use Fdelq as that may QUIT;.  */
+  /* Do NOT use Fdelq as that may QUIT;.  */
 
   if (EQ (local_selection_data, Fcar (Vselection_alist)))
     Vselection_alist = Fcdr (Vselection_alist);
@@ -823,15 +795,17 @@ Disowning it means there is no such selection.  */)
 
 
 DEFUN ("x-selection-owner-p", Fx_selection_owner_p, Sx_selection_owner_p,
-       0, 1, 0,
+       0, 2, 0,
        doc: /* Whether the current Emacs process owns the given SELECTION.
 The arg should be the name of the selection in question, typically one of
 the symbols `PRIMARY', `SECONDARY', or `CLIPBOARD'.
 For convenience, the symbol nil is the same as `PRIMARY',
 and t is the same as `SECONDARY'.  */)
-     (selection)
-     Lisp_Object selection;
+     (Lisp_Object selection, Lisp_Object terminal)
 {
+#ifdef __APPLE_CC__
+# pragma unused (terminal)
+#endif /* __APPLE_CC__ */
   OSStatus err;
   ScrapRef scrap;
   Lisp_Object result = Qnil, local_selection_data;
@@ -868,15 +842,17 @@ and t is the same as `SECONDARY'.  */)
 }
 
 DEFUN ("x-selection-exists-p", Fx_selection_exists_p, Sx_selection_exists_p,
-       0, 1, 0,
+       0, 2, 0,
        doc: /* Whether there is an owner for the given SELECTION.
 The arg should be the name of the selection in question, typically one of
 the symbols `PRIMARY', `SECONDARY', or `CLIPBOARD'.
 For convenience, the symbol nil is the same as `PRIMARY',
 and t is the same as `SECONDARY'.  */)
-     (selection)
-     Lisp_Object selection;
+     (Lisp_Object selection, Lisp_Object terminal)
 {
+#ifdef __APPLE_CC__
+# pragma unused (terminal)
+#endif /* __APPLE_CC__ */
   OSStatus err;
   ScrapRef scrap;
   Lisp_Object result = Qnil, rest;
@@ -1171,9 +1147,7 @@ mac_handle_apple_event (apple_event, reply, refcon)
 }
 
 static int
-cleanup_suspended_apple_events (head, all_p)
-     struct suspended_ae_info **head;
-     int all_p;
+cleanup_suspended_apple_events(struct suspended_ae_info **head, int all_p)
 {
   UInt32 current_tick = TickCount (), nresumed = 0;
   struct suspended_ae_info *p, *next;
@@ -1196,15 +1170,13 @@ cleanup_suspended_apple_events (head, all_p)
   return nresumed;
 }
 
-static void
-cleanup_all_suspended_apple_events ()
+static void cleanup_all_suspended_apple_events(void)
 {
   cleanup_suspended_apple_events (&deferred_apple_events, 1);
   cleanup_suspended_apple_events (&suspended_apple_events, 1);
 }
 
-void
-init_apple_event_handler ()
+void init_apple_event_handler(void)
 {
   OSErr err;
   long result;
@@ -1222,7 +1194,7 @@ init_apple_event_handler ()
 			       NewAEEventHandlerUPP (mac_handle_apple_event),
 #else
 			       NewAEEventHandlerProc (mac_handle_apple_event),
-#endif
+#endif /* TARGET_API_MAC_CARBON */
 			       0L, false);
   if (err != noErr)
     abort ();
@@ -1230,9 +1202,7 @@ init_apple_event_handler ()
   atexit (cleanup_all_suspended_apple_events);
 }
 
-static UInt32
-get_suspension_id (apple_event)
-     Lisp_Object apple_event;
+static UInt32 get_suspension_id(Lisp_Object apple_event)
 {
   Lisp_Object tem;
 
@@ -1259,7 +1229,7 @@ get_suspension_id (apple_event)
 
 DEFUN ("mac-process-deferred-apple-events", Fmac_process_deferred_apple_events, Smac_process_deferred_apple_events, 0, 0, 0,
        doc: /* Process Apple events that are deferred at the startup time.  */)
-  ()
+  (void)
 {
   if (mac_ready_for_apple_events)
     return Qnil;
@@ -1301,7 +1271,7 @@ DEFUN ("mac-process-deferred-apple-events", Fmac_process_deferred_apple_events, 
 DEFUN ("mac-cleanup-expired-apple-events", Fmac_cleanup_expired_apple_events, Smac_cleanup_expired_apple_events, 0, 0, 0,
        doc: /* Clean up expired Apple events.
 Return the number of expired events.   */)
-     ()
+     (void)
 {
   int nexpired;
 
@@ -1330,8 +1300,7 @@ If a (sub-)descriptor is in an invalid format, it is silently treated
 as null.
 
 Return t if the parameter is successfully set.  Otherwise return nil.  */)
-     (apple_event, keyword, descriptor)
-     Lisp_Object apple_event, keyword, descriptor;
+     (Lisp_Object apple_event, Lisp_Object keyword, Lisp_Object descriptor)
 {
   Lisp_Object result = Qnil;
   UInt32 suspension_id;
@@ -1376,8 +1345,7 @@ by Emacs again, thus it is redispatched to other handlers.
 
 Return t if APPLE-EVENT is successfully resumed.  Otherwise return
 nil, which means the event is already resumed or expired.  */)
-     (apple_event, error_code)
-     Lisp_Object apple_event, error_code;
+     (Lisp_Object apple_event, Lisp_Object error_code)
 {
   Lisp_Object result = Qnil;
   UInt32 suspension_id;
@@ -1522,10 +1490,7 @@ mac_do_track_drag (message, window, refcon, drag)
 }
 
 static pascal OSErr
-mac_do_receive_drag (window, refcon, drag)
-     WindowRef window;
-     void *refcon;
-     DragRef drag;
+mac_do_receive_drag(WindowRef window, void *refcon, ragRef drag)
 {
   OSErr err;
   int num_types, i;
@@ -1586,9 +1551,7 @@ mac_do_receive_drag (window, refcon, drag)
 }
 #endif	/* TARGET_API_MAC_CARBON */
 
-OSErr
-install_drag_handler (window)
-     WindowRef window;
+OSErr install_drag_handler(WindowRef window)
 {
   OSErr err = noErr;
 
@@ -1601,21 +1564,19 @@ install_drag_handler (window)
   err = InstallTrackingHandler (mac_do_track_dragUPP, window, NULL);
   if (err == noErr)
     err = InstallReceiveHandler (mac_do_receive_dragUPP, window, NULL);
-#endif
+#endif /* TARGET_API_MAC_CARBON */
 
   return err;
 }
 
-void
-remove_drag_handler (window)
-     WindowRef window;
+void remove_drag_handler(WindowRef window)
 {
 #if TARGET_API_MAC_CARBON
   if (mac_do_track_dragUPP)
     RemoveTrackingHandler (mac_do_track_dragUPP, window);
   if (mac_do_receive_dragUPP)
     RemoveReceiveHandler (mac_do_receive_dragUPP, window);
-#endif
+#endif /* TARGET_API_MAC_CARBON */
 }
 
 
@@ -1623,8 +1584,7 @@ remove_drag_handler (window)
 			Services menu support
 ***********************************************************************/
 #ifdef MAC_OSX
-void
-init_service_handler ()
+void init_service_handler(void)
 {
   static const EventTypeSpec specs[] =
     {{kEventClassService, kEventServiceGetTypes},
@@ -1828,11 +1788,10 @@ mac_handle_service_event (call_ref, event, data)
     err = eventNotHandledErr;
   return err;
 }
-#endif
+#endif /* MAC_OSX */
 
-
-void
-syms_of_macselect ()
+/* getting near the end now... */
+void syms_of_macselect(void)
 {
   defsubr (&Sx_get_selection_internal);
   defsubr (&Sx_own_selection_internal);
@@ -1847,7 +1806,7 @@ syms_of_macselect ()
   Vselection_alist = Qnil;
   staticpro (&Vselection_alist);
 
-  DEFVAR_LISP ("selection-converter-alist", &Vselection_converter_alist,
+  DEFVAR_LISP ("selection-converter-alist", Vselection_converter_alist,
 	       doc: /* An alist associating selection-types with functions.
 These functions are called to convert the selection, with three args:
 the name of the selection (typically `PRIMARY', `SECONDARY', or `CLIPBOARD');
@@ -1859,21 +1818,21 @@ The function should return the value to send to the Scrap Manager
 means that the conversion could not be done.  */);
   Vselection_converter_alist = Qnil;
 
-  DEFVAR_LISP ("x-lost-selection-functions", &Vx_lost_selection_functions,
+  DEFVAR_LISP ("x-lost-selection-functions", Vx_lost_selection_functions,
 	       doc: /* A list of functions to be called when Emacs loses a selection.
 \(This happens when a Lisp program explicitly clears the selection.)
 The functions are called with one argument, the selection type
 \(a symbol, typically `PRIMARY', `SECONDARY', or `CLIPBOARD').  */);
   Vx_lost_selection_functions = Qnil;
 
-  DEFVAR_LISP ("selection-coding-system", &Vselection_coding_system,
+  DEFVAR_LISP ("selection-coding-system", Vselection_coding_system,
 	       doc: /* Coding system for communicating with other programs.
 When sending or receiving text via cut_buffer, selection, and clipboard,
 the text is encoded or decoded by this coding system.
 The default value is determined by the system script code.  */);
   Vselection_coding_system = Qnil;
 
-  DEFVAR_LISP ("next-selection-coding-system", &Vnext_selection_coding_system,
+  DEFVAR_LISP ("next-selection-coding-system", Vnext_selection_coding_system,
 	       doc: /* Coding system for the next communication with other programs.
 Usually, `selection-coding-system' is used for communicating with
 other programs.  But, if this variable is set, it is used for the
@@ -1881,26 +1840,26 @@ next communication only.  After the communication, this variable is
 set to nil.  */);
   Vnext_selection_coding_system = Qnil;
 
-  DEFVAR_LISP ("mac-apple-event-map", &Vmac_apple_event_map,
+  DEFVAR_LISP ("mac-apple-event-map", Vmac_apple_event_map,
 	       doc: /* Keymap for Apple events handled by Emacs.  */);
   Vmac_apple_event_map = Qnil;
 
 #if TARGET_API_MAC_CARBON
-  DEFVAR_LISP ("mac-dnd-known-types", &Vmac_dnd_known_types,
+  DEFVAR_LISP ("mac-dnd-known-types", Vmac_dnd_known_types,
 	       doc: /* The types accepted by default for dropped data.
 The types are chosen in the order they appear in the list.  */);
   Vmac_dnd_known_types = list4 (build_string ("hfs "), build_string ("utxt"),
 				build_string ("TEXT"), build_string ("TIFF"));
-#ifdef MAC_OSX
+# ifdef MAC_OSX
   Vmac_dnd_known_types = Fcons (build_string ("furl"), Vmac_dnd_known_types);
-#endif
-#endif
+# endif /* MAC_OSX */
+#endif /* TARGET_API_MAC_CARBON */
 
 #ifdef MAC_OSX
-  DEFVAR_LISP ("mac-service-selection", &Vmac_service_selection,
+  DEFVAR_LISP ("mac-service-selection", Vmac_service_selection,
 	       doc: /* Selection name for communication via Services menu.  */);
   Vmac_service_selection = intern ("PRIMARY");
-#endif
+#endif /* MAC_OSX */
 
   QPRIMARY   = intern ("PRIMARY");	staticpro (&QPRIMARY);
   QSECONDARY = intern ("SECONDARY");	staticpro (&QSECONDARY);

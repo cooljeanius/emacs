@@ -1,4 +1,4 @@
-/* Buffer manipulation primitives for GNU Emacs.
+/* buffer.c: Buffer manipulation primitives for GNU Emacs.
 
 Copyright (C) 1985-1989, 1993-1995, 1997-2014 Free Software Foundation,
 Inc.
@@ -29,6 +29,12 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #include <verify.h>
 
+#ifndef KEEP_EMACS_BUFFER_C_STUFF_LOCAL
+# define KEEP_EMACS_BUFFER_C_STUFF_LOCAL 1
+#endif /* !KEEP_EMACS_BUFFER_C_STUFF_LOCAL */
+#ifndef PROTOS_IN_EMACS_BUFFER_C
+# define PROTOS_IN_EMACS_BUFFER_C 1
+#endif /* !PROTOS_IN_EMACS_BUFFER_C */
 #include "lisp.h"
 #include "intervals.h"
 #include "window.h"
@@ -5378,7 +5384,9 @@ init_buffer (void)
    only Lisp values that satisfies the PREDICATE are allowed (except
    that nil is allowed too).  DOC is a dummy where you write the doc
    string as a comment.  */
-
+#ifdef DEFVAR_PER_BUFFER
+# undef DEFVAR_PER_BUFFER
+#endif /* DEFVAR_PER_BUFFER */
 #define DEFVAR_PER_BUFFER(lname, vname, predicate, doc)		\
   do {								\
     static struct Lisp_Buffer_Objfwd bo_fwd;			\

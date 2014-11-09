@@ -313,14 +313,16 @@ ns_charset_covers(NSCharacterSet *set1, NSCharacterSet *set2, float pct)
     if (! (bytes1 && bytes2))
       return NO;
 
-    for (i=0; i<4096; i++, bytes1++, bytes2++)
+    for (i = 0; i < 4096; i++, bytes1++, bytes2++)
 	if (*bytes2)
 	  {
 	    tot++;
 	    if (*bytes1 == 0)  // *bytes1 & *bytes2 != *bytes2
 		off++;
 	  }
-//fprintf(stderr, "off = %d\ttot = %d\n", off,tot);
+#ifdef DEBUG
+    fprintf(stderr, "off = %d\ttot = %d\n", off, tot);
+#endif /* DEBUG */
     return (float)off / tot < 1.0F - pct;
 }
 
@@ -1310,7 +1312,7 @@ ns_uni_to_glyphs (struct nsfont_info *font_info, unsigned char block)
 #ifdef NS_IMPL_COCOA
   static EmacsGlyphStorage *glyphStorage;
   static char firstTime = 1;
-#endif
+#endif /* NS_IMPL_COCOA */
   unichar *unichars = xmalloc (0x101 * sizeof (unichar));
   unsigned int i, g, idx;
   unsigned short *glyphs;
@@ -1396,10 +1398,10 @@ ns_glyph_metrics (struct nsfont_info *font_info, unsigned char block)
             font_info, block);
 
 #ifdef NS_IMPL_GNUSTEP
-  /* not implemented yet (as of startup 0.18), so punt */
+  /* not implemented yet (as of startup 0.18), so punt: */
   if (numGlyphs == 0)
     numGlyphs = 0x10000;
-#endif
+#endif /* NS_IMPL_GNUSTEP */
 
   block_input ();
 #ifdef NS_IMPL_COCOA
@@ -1407,7 +1409,7 @@ ns_glyph_metrics (struct nsfont_info *font_info, unsigned char block)
                       NSFontAntialiasedIntegerAdvancementsRenderingMode];
 #else
   sfont = [font_info->nsfont screenFont];
-#endif
+#endif /* NS_IMPL_COCOA */
 
   font_info->metrics[block] = xzalloc (0x100 * sizeof (struct font_metrics));
   if (!(font_info->metrics[block]))
@@ -1510,7 +1512,7 @@ ns_glyph_metrics (struct nsfont_info *font_info, unsigned char block)
 #endif /* NS_IMPL_COCOA */
 
 
-/* Debugging */
+/* Debugging: */
 void
 ns_dump_glyphstring (struct glyph_string *s)
 {
@@ -1520,7 +1522,7 @@ ns_dump_glyphstring (struct glyph_string *s)
 "overlap = %d, bg_filled = %d:",
            s->nchars, s->x, s->y, s->left_overhang, s->right_overhang,
            s->row->overlapping_p, s->background_filled_p);
-  for (i =0; i<s->nchars; i++)
+  for (i = 0; i < s->nchars; i++)
     fprintf (stderr, "%c", s->first_glyph[i].u.ch);
   fprintf (stderr, "\n");
 }

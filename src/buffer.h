@@ -1,4 +1,4 @@
-/* Header file for the buffer manipulation primitives.
+/* buffer.h: Header file for the buffer manipulation primitives.
 
 Copyright (C) 1985-1986, 1993-1995, 1997-2014 Free Software Foundation,
 Inc.
@@ -18,8 +18,15 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
+#ifndef EMACS_BUFFER_H
+#define EMACS_BUFFER_H
+
 #include <sys/types.h>
 #include <time.h>
+
+#if !defined(STRING_CHAR) && !defined(EMACS_CHARACTER_H)
+# include "character.h"
+#endif /* !STRING_CHAR && !EMACS_CHARACTER_H */
 
 INLINE_HEADER_BEGIN
 
@@ -78,6 +85,11 @@ INLINE_HEADER_BEGIN
 
 /* Size of gap.  */
 #define GAP_SIZE (current_buffer->text->gap_size)
+
+/* Is the current buffer narrowed?  */
+#ifndef NARROWED
+# define NARROWED	((BEGV != BEG) || (ZV != Z))
+#endif /* !NARROWED */
 
 /* Modification count.  */
 #define MODIFF (current_buffer->text->modiff)
@@ -167,6 +179,12 @@ INLINE_HEADER_BEGIN
 /* Size of gap.  */
 #define BUF_GAP_SIZE(buf) ((buf)->text->gap_size)
 
+/* Is this buffer narrowed?  */
+#ifndef BUF_NARROWED
+# define BUF_NARROWED(buf) ((BUF_BEGV(buf) != BUF_BEG(buf)) \
+			    || (BUF_ZV(buf) != BUF_Z(buf)))
+#endif /* !BUF_NARROWED */
+
 /* Modification count.  */
 #define BUF_MODIFF(buf) ((buf)->text->modiff)
 
@@ -178,6 +196,11 @@ INLINE_HEADER_BEGIN
 
 /* Overlay modification count.  */
 #define BUF_OVERLAY_MODIFF(buf) ((buf)->text->overlay_modiff)
+
+/* Interval tree of buffer.  */
+#ifndef BUF_INTERVALS
+# define BUF_INTERVALS(buf) ((buf)->text->intervals)
+#endif /* !BUF_INTERVALS */
 
 /* Modification count as of last auto-save.  */
 /* FIXME: should we move this into ->text->auto_save_modiff?  */
@@ -238,6 +261,10 @@ INLINE_HEADER_BEGIN
 #define TEMP_SET_PT_BOTH(position, byte) \
   (temp_set_point_both (current_buffer, (position), (byte)))
 
+#ifndef BUF_SET_PT
+# define BUF_SET_PT(buffer, position) \
+   (set_point ((buffer), (position)))
+#endif /* !BUF_SET_PT */
 #define BUF_TEMP_SET_PT(buffer, position) \
   (temp_set_point ((buffer), (position)))
 
@@ -251,6 +278,9 @@ extern void enlarge_buffer_text (struct buffer *, ptrdiff_t);
 
 
 /* Macros for setting the BEGV, ZV or PT of a given buffer.
+
+   SET_BUF_PT* seem to be redundant, and were gotten rid of in newer
+   versions of emacs, but added back here just in case.
 
    The ..._BOTH macros take both a charpos and a bytepos,
    which must correspond to each other.
@@ -347,7 +377,7 @@ extern void enlarge_buffer_text (struct buffer *, ptrdiff_t);
 
 #define PTR_BYTE_POS(ptr) \
 ((ptr) - (current_buffer)->text->beg					    \
- - (ptr - (current_buffer)->text->beg <= GPT_BYTE - BEG_BYTE ? 0 : GAP_SIZE) \
+ - (((ptr - (current_buffer)->text->beg) <= (unsigned)(GPT_BYTE - BEG_BYTE)) ? 0 : GAP_SIZE) \
  + BEG_BYTE)
 
 /* Return character at byte position POS.  See the caveat WARNING for
@@ -361,6 +391,10 @@ extern void enlarge_buffer_text (struct buffer *, ptrdiff_t);
 /* Return the byte at byte position N.  */
 
 #define FETCH_BYTE(n) *(BYTE_POS_ADDR ((n)))
+
+/* Variables used locally in an old version of FETCH_MULTIBYTE_CHAR: */
+extern unsigned char *_fetch_multibyte_char_p;
+extern int _fetch_multibyte_char_len;
 
 /* Return character at byte position POS.  If the current buffer is unibyte
    and the character is not ASCII, make the returning character
@@ -395,8 +429,8 @@ extern void enlarge_buffer_text (struct buffer *, ptrdiff_t);
 
 #define BUF_PTR_BYTE_POS(buf, ptr)				\
 ((ptr) - (buf)->text->beg					\
- - (ptr - (buf)->text->beg <= BUF_GPT_BYTE (buf) - BEG_BYTE	\
-    ? 0 : BUF_GAP_SIZE ((buf)))					\
+ - (((ptr - (buf)->text->beg) <= (unsigned)(BUF_GPT_BYTE((buf)) - BEG_BYTE)) \
+    ? 0 : BUF_GAP_SIZE((buf)))					\
  + BEG_BYTE)
 
 /* Return the character at byte position POS in buffer BUF.   */
@@ -491,6 +525,23 @@ struct buffer
 {
   struct vectorlike_header header;
 
+#ifdef _USE_OLD_LISP_DATA_STRUCTURES
+  /* It used to be that everything before the `name' slot had to be of a
+   * non-Lisp_Object type, and every slot after `name' had to be a
+   * Lisp_Object, but that appears to have changed.
+   *
+   * Check out mark_buffer (alloc.c) to see why.  */
+  EMACS_INT size;
+
+  /* 'struct buffer *next;' now moved farther below */
+  /* 'struct buffer_text own_text;' now moved farther below */
+  /* 'struct buffer_text *text;' now moved farther below */
+  /* the following members, previously of type 'EMACS_INT', have all been
+   * changed to type 'ptrdiff_t' and moved farther below: 'pt', 'pt_byte',
+   * 'begv', 'begv_byte', 'zv', and 'zv_byte'. */
+  /* 'struct buffer *base_buffer;' now moved farther below */
+#endif /* _USE_OLD_LISP_DATA_STRUCTURES */
+
   /* The name of this buffer.  */
   Lisp_Object INTERNAL_FIELD (name);
 
@@ -565,6 +616,15 @@ struct buffer
   /* Function to call when insert space past fill column.  */
   Lisp_Object INTERNAL_FIELD (auto_fill_function);
 
+#ifdef _USE_OLD_LISP_DATA_STRUCTURES
+  /* nil: text, t: binary.
+   * This value is meaningful only on certain operating systems.  */
+  /* Actually, we do NOT need this flag any more because end-of-line
+   * is handled correctly according to the buffer-file-coding-system
+   * of the buffer.  Just keeping it for backward compatibility.  */
+  Lisp_Object INTERNAL_FIELD (buffer_file_type);
+#endif /* _USE_OLD_LISP_DATA_STRUCTURES */
+
   /* Case table for case-conversion in this buffer.
      This char-table maps each char into its lower-case version.  */
   Lisp_Object INTERNAL_FIELD (downcase_table);
@@ -586,6 +646,11 @@ struct buffer
 
   /* Non-nil means display ctl chars with uparrow.  */
   Lisp_Object INTERNAL_FIELD (ctl_arrow);
+
+#ifdef _USE_OLD_LISP_DATA_STRUCTURES
+  /* Non-nil means display text from right to left.  */
+  Lisp_Object INTERNAL_FIELD (direction_reversed);
+#endif /* _USE_OLD_LISP_DATA_STRUCTURES */
 
   /* Non-nil means reorder bidirectional text for display in the
      visual order.  */
@@ -632,6 +697,12 @@ struct buffer
 
   /* List of symbols naming the file format used for auto-save file.  */
   Lisp_Object INTERNAL_FIELD (auto_save_file_format);
+
+#ifdef _USE_OLD_LISP_DATA_STRUCTURES
+  /* True if the newline position cache and width run cache are
+   * enabled.  See search.c and indent.c.  */
+  Lisp_Object INTERNAL_FIELD (cache_long_line_scans);
+#endif /* _USE_OLD_LISP_DATA_STRUCTURES */
 
   /* True if the newline position cache, width run cache and BIDI paragraph
      cache are enabled.  See search.c, indent.c and bidi.c for details.  */
@@ -1160,8 +1231,7 @@ set_buffer_intervals (struct buffer *b, INTERVAL i)
   b->text->intervals = i;
 }
 
-/* Non-zero if current buffer has overlays.  */
-
+/* Non-zero if current buffer has overlays: */
 INLINE bool
 buffer_has_overlays (void)
 {
@@ -1169,7 +1239,7 @@ buffer_has_overlays (void)
 }
 
 /* Return character code of multi-byte form at byte position POS.  If POS
-   doesn't point the head of valid multi-byte form, only the byte at
+   does NOT point the head of valid multi-byte form, only the byte at
    POS is returned.  No range checking.
 
    WARNING: The character returned by this macro could be "unified"
@@ -1181,7 +1251,6 @@ buffer_has_overlays (void)
    do _not_ use FETCH_MULTIBYTE_CHAR if you need to advance through
    the buffer to the next character after fetching this one.  Instead,
    use either FETCH_CHAR_ADVANCE or STRING_CHAR_AND_LENGTH.  */
-
 INLINE int
 FETCH_MULTIBYTE_CHAR (ptrdiff_t pos)
 {
@@ -1371,3 +1440,7 @@ lowercasep (int c)
 INLINE int upcase (int c) { return uppercasep (c) ? c : upcase1 (c); }
 
 INLINE_HEADER_END
+
+#endif /* !EMACS_BUFFER_H */
+
+/* EOF */

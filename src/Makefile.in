@@ -251,7 +251,11 @@ CYGWIN_OBJ=@CYGWIN_OBJ@
 dot = .
 dotdot = ${dot}${dot}
 mac = $(dot)$(dot)/mac/
+##FIXME: make these objects configurable from the configure script:
 MAC_OBJ = mac.o macterm.o macfns.o macmenu.o macselect.o fontset.o fringe.o image.o
+## as a start towards the above, compare this with the previous,
+## and make sure they come out the same:
+MAC_OBJ_SUBSTED = @MAC_OBJ@
 emacsapp = $(PWD)/$(mac)Emacs.app/
 emacsappsrc = ${srcdir}/../mac/Emacs.app/
 #endif /* HAVE_CARBON */
@@ -260,9 +264,19 @@ emacsappsrc = ${srcdir}/../mac/Emacs.app/
 WINDOW_SYSTEM_OBJ=@WINDOW_SYSTEM_OBJ@
 
 ## dosfns.o msdos.o w16select.o if MSDOS.
-MSDOS_OBJ =
+#ifdef MSDOS
+#ifdef HAVE_X_WINDOWS
+MSDOS_OBJ = @MAINT@ dosfns.o msdos.o
+#else
+MSDOS_OBJ = @MAINT@ dosfns.o msdos.o w16select.o
+#endif /* HAVE_X_WINDOWS */
+#endif /* MSDOS */
 ## w16select.o termcap.o if MSDOS && HAVE_X_WINDOWS.
-MSDOS_X_OBJ =
+#ifdef MSDOS
+#ifdef HAVE_X_WINDOWS
+MSDOS_X_OBJ = @MAINT@ w16select.o termcap.o
+#endif /* HAVE_X_WINDOWS */
+#endif /* MSDOS */
 
 NS_OBJ=@NS_OBJ@
 ## nsterm.o nsfns.o nsmenu.o nsselect.o nsimage.o nsfont.o macfont.o if HAVE_NS.
@@ -308,7 +322,8 @@ LIBGNUTLS_CFLAGS = @LIBGNUTLS_CFLAGS@
 
 LIB_PTHREAD_SIGMASK = @LIB_PTHREAD_SIGMASK@
 
-INTERVALS_H = dispextern.h intervals.h composite.h
+INTERVAL_SRC = intervals.h composite.h
+INTERVALS_H = dispextern.h $(INTERVAL_SRC)
 
 GETLOADAVG_LIBS = @GETLOADAVG_LIBS@
 
@@ -378,7 +393,8 @@ base_obj = dispnew.o frame.o scroll.o xdisp.o menu.o $(XMENU_OBJ) window.o \
 	profiler.o decompress.o \
 	$(MSDOS_OBJ) $(MSDOS_X_OBJ) $(NS_OBJ) $(CYGWIN_OBJ) $(FONT_OBJ) \
 	$(W32_OBJ) $(WINDOW_SYSTEM_OBJ) $(XGSELOBJ)
-obj = $(base_obj) $(NS_OBJC_OBJ)
+old_obj = abbrev.o strftime.o md5.o $(MAC_OBJ)
+obj = $(base_obj) $(NS_OBJC_OBJ) @MAINT@ $(old_obj)
 
 ## Object files used on some machine or other.
 ## These go in the DOC file on all machines in case they are needed.
@@ -391,7 +407,10 @@ SOME_MACHINE_OBJECTS = dosfns.o msdos.o \
   w32.o w32console.o w32fns.o w32heap.o w32inevt.o w32notify.o \
   w32menu.o w32proc.o w32reg.o w32select.o w32term.o w32xfns.o \
   w16select.o widget.o xfont.o ftfont.o xftfont.o ftxfont.o gtkutil.o \
-  xsettings.o xgselect.o termcap.o
+  xsettings.o xgselect.o termcap.o @MAINT@ $(EXTRA_MACHINE_OBJECTS)
+
+EXTRA_MACHINE_OBJECTS = sunfns.o mac.o macterm.o macfns.o macmenu.o \
+  macselect.o w32bdf.o
 
 ## gmalloc.o if !SYSTEM_MALLOC && !DOUG_LEA_MALLOC, else empty.
 GMALLOC_OBJ=@GMALLOC_OBJ@
@@ -540,7 +559,7 @@ GLOBAL_SOURCES = $(base_obj:.o=.c) $(NS_OBJC_OBJ:.o=.m)
 gl-stamp: $(libsrc)/make-docfile$(EXEEXT) $(GLOBAL_SOURCES)
 	$(libsrc)/make-docfile -d $(srcdir) -g $(obj) > gl.tmp
 	$(srcdir)/../build-aux/move-if-change gl.tmp globals.h
-	echo timestamp > $@
+	echo "timestamp: `date`" > $@
 
 $(ALLOBJS): globals.h
 
@@ -561,6 +580,12 @@ temacs$(EXEEXT): $(LIBXMENU) $(ALLOBJS) \
 	  test "X$(PAXCTL)" = "X" || $(PAXCTL) -r temacs$(EXEEXT)
 	test "x$(CANNOT_DUMP)" = "xyes" || test -z "$(SETFATTR)" || \
 	  $(SETFATTR) -n user.pax.flags -v r $@
+
+## We do not use ALL_LDFLAGS because LD_SWITCH_SYSTEM and LD_SWITCH_MACHINE
+## often contain options that have to do with using the Emacs crt0,
+## which are only good with temacs.
+prefix-args$(EXEEXT): prefix-args.c $(config_h)
+	$(CC) $(ALL_CFLAGS) $(LDFLAGS) $(srcdir)/prefix-args.c -o prefix-args
 
 ## The following oldxmenu-related rules are only (possibly) used if
 ## HAVE_X11 && !USE_GTK, but there is no harm in always defining them.
@@ -622,7 +647,7 @@ ns-app: emacs$(EXEEXT)
 .PHONY: versionclean extraclean
 
 mostlyclean:
-	rm -f temacs$(EXEEXT) core *.core \#* *.o libXMenu11.a liblw.a
+	rm -f temacs$(EXEEXT) prefix-args$(EXEEXT) core *.core \#* *.o libXMenu11.a liblw.a
 	rm -f ../etc/DOC
 	rm -f bootstrap-emacs$(EXEEXT) emacs-$(version)$(EXEEXT)
 	-rm -rf bootstrap-emacs.dSYM

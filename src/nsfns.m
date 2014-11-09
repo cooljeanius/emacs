@@ -45,11 +45,11 @@ GNUstep port and post-20 update by Adrian Robert (arobert@cogsci.ucsd.edu)
 #include "font.h"
 
 #ifdef NS_IMPL_COCOA
-#include <IOKit/graphics/IOGraphicsLib.h>
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5
-#include "macfont.h"
-#endif
-#endif
+# include <IOKit/graphics/IOGraphicsLib.h>
+# if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5
+#  include "macfont.h"
+# endif /* 10.5+ */
+#endif /* NS_IMPL_COCOA */
 
 #if 0
 int fns_trace_num = 1;
@@ -543,7 +543,7 @@ static void
 x_set_title (struct frame *f, Lisp_Object name, Lisp_Object old_name)
 {
   NSTRACE (x_set_title);
-  /* Don't change the title if it's already NAME.  */
+  /* Do NOT change the title if it is already NAME.  */
   if (EQ (name, f->title))
     return;
 

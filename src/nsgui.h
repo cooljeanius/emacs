@@ -21,39 +21,37 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 /* this gets included from a couple of the plain (non-NS) .c files */
 #ifdef __OBJC__
+# ifdef NS_IMPL_COCOA
+#  ifdef Z
+#   warning "Z is defined.  If you get a later parse error in a header, check that buffer.h or other files #define-ing Z are not included."
+#  endif  /* Z */
+#  define Cursor FooFoo
+# endif  /* NS_IMPL_COCOA */
 
-#ifdef NS_IMPL_COCOA
-#ifdef Z
-#warning "Z is defined.  If you get a later parse error in a header, check that buffer.h or other files #define-ing Z are not included."
-#endif  /* Z */
-#define Cursor FooFoo
-#endif  /* NS_IMPL_COCOA */
+# undef verify
 
-#undef verify
+# import <AppKit/AppKit.h>
 
-#import <AppKit/AppKit.h>
+# ifdef NS_IMPL_COCOA
+#  undef Cursor
+# endif /* NS_IMPL_COCOA */
+# import <Foundation/NSDistantObject.h>
 
-#ifdef NS_IMPL_COCOA
-#undef Cursor
-#endif /* NS_IMPL_COCOA */
-#import <Foundation/NSDistantObject.h>
-
-#ifdef NS_IMPL_COCOA
-#include <AvailabilityMacros.h>
-#endif /* NS_IMPL_COCOA */
-
+# ifdef NS_IMPL_COCOA
+#  include <AvailabilityMacros.h>
+# endif /* NS_IMPL_COCOA */
 #endif /* __OBJC__ */
 
 #undef verify
 #undef _GL_VERIFY_H
 #include <verify.h>
 
-/* menu-related */
+/* menu-related: */
 #define free_widget_value(wv) xfree (wv)
 #define malloc_widget_value() ((widget_value *) memset (xmalloc \
     (sizeof (widget_value)), 0, sizeof (widget_value)))
 
-/* Emulate XCharStruct.  */
+/* Emulate XCharStruct: */
 typedef struct _XCharStruct
 {
   int rbearing;
@@ -63,10 +61,10 @@ typedef struct _XCharStruct
   int descent;
 } XCharStruct;
 
-/* Fake structure from Xlib.h to represent two-byte characters.  */
+/* Fake structure from Xlib.h to represent two-byte characters: */
 #ifndef __OBJC__
 typedef unsigned short unichar;
-#endif
+#endif /* __OBJC__ */
 typedef unichar XChar2b;
 
 #define STORE_XCHAR2B(chp, b1, b2) \
@@ -89,7 +87,7 @@ typedef struct _XGCValues
   struct ns_font *font;
 #else
   void *font;
-#endif
+#endif /* __OBJC__ */
 } XGCValues;
 
 typedef XGCValues * GC;
@@ -120,23 +118,23 @@ typedef void * Color;
 typedef int Window;
 typedef int Display;
 
-/* Xism */
+/* Xism: */
 typedef Lisp_Object XrmDatabase;
 
 
-/* some sort of attempt to normalize rectangle handling.. seems a bit much
-   for what is accomplished */
+/* some sort of attempt to normalize rectangle handling... seems a bit much
+ * for what is accomplished: */
 typedef struct {
       int x, y;
       unsigned width, height;
 } XRectangle;
 
 #ifndef __OBJC__
-#if defined (__LP64__) && __LP64__
+# if defined(__LP64__) && __LP64__
 typedef double CGFloat;
-#else
+# else
 typedef float CGFloat;
-#endif
+# endif /* __LP64__ */
 typedef struct _NSPoint { CGFloat x, y; } NSPoint;
 typedef struct _NSSize  { CGFloat width, height; } NSSize;
 typedef struct _NSRect  { NSPoint origin; NSSize size; } NSRect;
@@ -163,9 +161,7 @@ typedef struct _NSRect  { NSPoint origin; NSSize size; } NSRect;
    (nr).size.height = (pheight))
 
 
-
-
-/* This stuff needed by frame.c. */
+/* This stuff is needed by frame.c: */
 #define ForgetGravity		0
 #define NorthWestGravity	1
 #define NorthGravity		2
@@ -200,3 +196,5 @@ typedef struct _NSRect  { NSPoint origin; NSSize size; } NSRect;
 #define PWinGravity	(1L << 9) /* program specified window gravity */
 
 #endif  /* __NSGUI_H__ */
+
+/* EOF */

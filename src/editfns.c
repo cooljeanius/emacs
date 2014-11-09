@@ -27,7 +27,9 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 # include <grp.h>
 #endif /* HAVE_PWD_H */
 
-#include <unistd.h>
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
+#endif /* HAVE_UNISTD_H */
 
 #ifdef HAVE_SYS_UTSNAME_H
 # include <sys/utsname.h>
@@ -44,11 +46,22 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 # include <sys/resource.h>
 #endif /* HAVE_SYS_RESOURCE_H */
 
-#include <float.h>
+#include <ctype.h>
+#if defined(STDC_HEADERS) || defined(HAVE_FLOAT_H)
+# include <float.h>
+#endif /* STDC_HEADERS || HAVE_FLOAT_H */
 #include <limits.h>
 #include <intprops.h>
 #include <strftime.h>
 #include <verify.h>
+
+#ifndef MAX_10_EXP
+# if (defined(STDC_HEADERS) || defined(HAVE_FLOAT_H)) && defined(DBL_MAX_10_EXP)
+#  define MAX_10_EXP DBL_MAX_10_EXP
+# else
+#  define MAX_10_EXP 310
+# endif /* (STDC_HEADERS || HAVE_FLOAT_H) && DBL_MAX_10_EXP */
+#endif /* !MAX_10_EXP */
 
 #include "intervals.h"
 #include "character.h"
@@ -58,7 +71,18 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "window.h"
 #include "blockinput.h"
 
+#ifndef NULL
+# define NULL ((void *)0)
+#endif /* !NULL */
+
 #define TM_YEAR_BASE 1900
+
+/* Nonzero if TM_YEAR is a struct tm's tm_year value that causes
+ * asctime to have well-defined behavior: */
+#ifndef TM_YEAR_IN_ASCTIME_RANGE
+# define TM_YEAR_IN_ASCTIME_RANGE(tm_year) \
+    (1000 - TM_YEAR_BASE <= (tm_year) && (tm_year) <= 9999 - TM_YEAR_BASE)
+#endif /* !TM_YEAR_IN_ASCTIME_RANGE */
 
 #ifdef WINDOWSNT
 extern Lisp_Object w32_get_internal_run_time (void);
@@ -101,7 +125,7 @@ init_editfns (void)
   init_system_name ();
 
 #ifndef CANNOT_DUMP
-  /* Don't bother with this on initial start when just dumping out */
+  /* Do NOT bother with this on initial start when just dumping out */
   if (!initialized)
     return;
 #endif /* not CANNOT_DUMP */
@@ -1871,6 +1895,10 @@ check_tm_member (Lisp_Object obj, int offset)
   return n - offset;
 }
 
+#if defined(mktime) && !defined(emacs_mktime)
+# undef mktime
+#endif /* mktime && !emacs_mktime */
+
 DEFUN ("encode-time", Fencode_time, Sencode_time, 6, MANY, 0,
        doc: /* Convert SECOND, MINUTE, HOUR, DAY, MONTH, YEAR and ZONE to internal time.
 This is the reverse operation of `decode-time', which see.
@@ -1958,7 +1986,7 @@ usage: (encode-time SECOND MINUTE HOUR DAY MONTH YEAR &optional ZONE)  */)
       set_time_zone_rule (old_tzstring);
 #ifdef LOCALTIME_CACHE
       tzset ();
-#endif
+#endif /* LOCALTIME_CACHE */
       unblock_input ();
       SAFE_FREE ();
     }
@@ -4915,3 +4943,6 @@ functions if all the text being accessed has this property.  */);
   defsubr (&Ssave_restriction);
   defsubr (&Stranspose_regions);
 }
+
+/* arch-tag: fc3827d8-6f60-4067-b11e-c3218031b018
+   (do not change this comment) */

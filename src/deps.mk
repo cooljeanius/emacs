@@ -36,8 +36,11 @@
 
 ### Code:
 
+alloca.o: alloca.c blockinput.h atimer.h systime.h
+abbrev.o: abbrev.c buffer.h window.h dispextern.h commands.h charset.h \
+   syntax.h $(config_h)
 atimer.o: atimer.c atimer.h syssignal.h systime.h lisp.h blockinput.h \
- globals.h ../lib/unistd.h $(config_h)
+   globals.h ../lib/unistd.h $(config_h)
 bidi.o: bidi.c buffer.h character.h dispextern.h msdos.h lisp.h \
    globals.h $(config_h)
 buffer.o: buffer.c buffer.h region-cache.h commands.h window.h \
@@ -71,6 +74,7 @@ cmds.o: cmds.c syntax.h buffer.h character.h commands.h window.h lisp.h \
    globals.h $(config_h) msdos.h dispextern.h keyboard.h keymap.h systime.h \
    coding.h frame.h composite.h
 pre-crt0.o: pre-crt0.c
+ecrt0.o: ecrt0.c $(config_h)
 dbusbind.o: dbusbind.c termhooks.h frame.h keyboard.h lisp.h $(config_h)
 dired.o: dired.c commands.h buffer.h lisp.h $(config_h) character.h charset.h \
    coding.h regex.h systime.h blockinput.h atimer.h composite.h \
@@ -100,6 +104,7 @@ fileio.o: fileio.c window.h buffer.h systime.h $(INTERVALS_H) character.h \
    commands.h globals.h ../lib/unistd.h
 filelock.o: filelock.c buffer.h character.h coding.h systime.h composite.h \
    ../lib/unistd.h lisp.h globals.h $(config_h)
+filemode.o: filemode.c  $(config_h)
 font.o: font.c dispextern.h frame.h window.h ccl.h character.h charset.h \
    font.h lisp.h globals.h $(config_h) buffer.h composite.h fontset.h \
    xterm.h nsgui.h msdos.h
@@ -116,6 +121,7 @@ fringe.o: fringe.c dispextern.h nsgui.h frame.h window.h buffer.h termhooks.h \
 ftfont.o: ftfont.c dispextern.h frame.h character.h charset.h composite.h \
    font.h lisp.h $(config_h) blockinput.h atimer.h systime.h coding.h \
    fontset.h ccl.h ftfont.h globals.h
+getloadavg.o: getloadavg.c $(config_h)
 gnutls.o: gnutls.c gnutls.h process.h ../lib/unistd.h \
    lisp.h globals.h $(config_h)
 gtkutil.o: gtkutil.c gtkutil.h xterm.h lisp.h frame.h lisp.h $(config_h) \
@@ -146,9 +152,11 @@ gmalloc.o: gmalloc.c $(config_h)
 ralloc.o: ralloc.c lisp.h $(config_h)
 vm-limit.o: vm-limit.c lisp.h globals.h $(config_h)
 marker.o: marker.c buffer.h character.h lisp.h globals.h $(config_h)
+md5.o: md5.c md5.h $(config_h)
 minibuf.o: minibuf.c syntax.h frame.h window.h keyboard.h systime.h \
    buffer.h commands.h character.h msdos.h $(INTERVALS_H) keymap.h \
    termhooks.h lisp.h globals.h $(config_h) coding.h
+mktime.o: mktime.c $(config_h)
 msdos.o: msdos.c msdos.h dosfns.h systime.h termhooks.h dispextern.h frame.h \
    termopts.h termchar.h character.h coding.h ccl.h disptab.h window.h \
    keyboard.h $(INTERVALS_H) buffer.h commands.h blockinput.h atimer.h \
@@ -183,6 +191,7 @@ search.o: search.c regex.h commands.h buffer.h region-cache.h syntax.h \
    $(INTERVALS_H) lisp.h globals.h $(config_h)
 sound.o: sound.c dispextern.h syssignal.h lisp.h globals.h $(config_h) \
    atimer.h systime.h ../lib/unistd.h msdos.h
+strftime.o: strftime.c $(config_h)
 syntax.o: syntax.c syntax.h buffer.h commands.h category.h character.h \
    keymap.h regex.h $(INTERVALS_H) lisp.h globals.h $(config_h)
 sysdep.o: sysdep.c syssignal.h systty.h systime.h syswait.h blockinput.h \
@@ -270,6 +279,8 @@ xsettings.o: xterm.h xsettings.h lisp.h frame.h termhooks.h $(config_h) \
    dispextern.h keyboard.h systime.h coding.h composite.h blockinput.h \
    atimer.h termopts.h globals.h
 
+hftctl.o: hftctl.c $(config_h)
+
 ## The files of Lisp proper.
 alloc.o: alloc.c process.h frame.h window.h buffer.h  puresize.h syssignal.h \
    keyboard.h blockinput.h atimer.h systime.h character.h lisp.h $(config_h) \
@@ -303,6 +314,28 @@ intervals.o: intervals.c buffer.h $(INTERVALS_H) keyboard.h puresize.h \
    keymap.h lisp.h globals.h $(config_h) systime.h coding.h
 textprop.o: textprop.c buffer.h window.h $(INTERVALS_H) \
    lisp.h globals.h $(config_h)
+
+## /* System-specific programs to be made.
+##  * OTHER_FILES and OBJECTS_MACHINE
+##  * select which of these should be compiled.  */
+
+sunfns.o: sunfns.c buffer.h window.h dispextern.h $(config_h)
+
+#ifdef HAVE_CARBON
+mac.o: mac.c process.h sysselect.h blockinput.h atimer.h systime.h charset.h \
+  coding.h ccl.h $(config_h)
+macfns.o: macfns.c charset.h macterm.h macgui.h frame.h window.h buffer.h \
+  dispextern.h macgui.h fontset.h $(INTERVAL_SRC) keyboard.h blockinput.h \
+  atimer.h systime.h epaths.h termhooks.h coding.h $(config_h)
+macmenu.o: macmenu.c termhooks.h frame.h window.h dispextern.h macgui.h \
+  keyboard.h blockinput.h atimer.h systime.h buffer.h macterm.h $(config_h)
+macterm.o: blockinput.h atimer.h systime.h syssignal.h macterm.h macgui.h \
+  frame.h charset.h ccl.h dispextern.h fontset.h termhooks.h termopts.h \
+  termchar.h gnu.h disptab.h buffer.h window.h keyboard.h $(INTERVAL_SRC) \
+  process.h coding.h $(config_h)
+macselect.o: blockinput.h atimer.h systime.h macterm.h macgui.h frame.h \
+  keymap.h $(config_h)
+#endif /* HAVE_CARBON */
 
 
 ### deps.mk ends here

@@ -1,4 +1,4 @@
-/* Header for multibyte character handler.
+/* character.h: Header for multibyte character handler.
    Copyright (C) 1995, 1997, 1998 Electrotechnical Laboratory, JAPAN.
      Licensed to the Free Software Foundation.
    Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011
@@ -111,8 +111,8 @@ INLINE_HEADER_BEGIN
 /* Nonzero iff X is a character.  */
 #define CHARACTERP(x) (NATNUMP (x) && XFASTINT (x) <= MAX_CHAR)
 
-/* Nonzero iff C is valid as a character code.  */
-#define CHAR_VALID_P(c) UNSIGNED_CMP (c, <=, MAX_CHAR)
+/* Nonzero iff C is valid as a character code: */
+#define CHAR_VALID_P(c) UNSIGNED_CMP(c, <=, MAX_CHAR)
 
 /* Check if Lisp object X is a character or not.  */
 #define CHECK_CHARACTER(x) \
@@ -682,3 +682,5 @@ extern Lisp_Object string_escape_byte8 (Lisp_Object);
 INLINE_HEADER_END
 
 #endif /* EMACS_CHARACTER_H */
+
+/* EOF */

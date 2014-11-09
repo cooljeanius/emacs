@@ -34,7 +34,17 @@ extern int faccessat (int, char const *, int, int);
 #define O_NOCTTY 0
 #define O_NOFOLLOW 0
 
-/* This is normally on stdlib.h, but we don't override that header.  */
+#ifndef STDIN_FILENO
+# define STDIN_FILENO 0 /* standard input file descriptor */
+#endif /* !STDIN_FILENO */
+#ifndef STDOUT_FILENO
+# define STDOUT_FILENO 1 /* standard output file descriptor */
+#endif /* !STDOUT_FILENO */
+#ifndef STDERR_FILENO
+# define STDERR_FILENO 2 /* standard error file descriptor */
+#endif /* !STDERR_FILENO */
+
+/* This is normally on stdlib.h, but we do NOT override that header.  */
 extern int unsetenv (const char *);
 
 #endif	/* _UNISTD_H */

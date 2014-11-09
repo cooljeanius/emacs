@@ -72,13 +72,98 @@ extern time_t timezone;
 #  endif /* !__TIMEVAL__ */
 # endif /* _STRUCT_TIMEVAL */
 #endif /* HPUX */
-
-/* Emacs uses struct timespec to represent nonnegative temporal intervals.
 
-   WARNING: Since tv_sec might be an unsigned value, do not use struct
-   timespec as a general-purpose data type for adding or subtracting
-   arbitrary time values!  When computing A + B or A - B, typically A
-   should be an absolute time since the epoch and B a nonnegative offset.  */
+/* EMACS_TIME is the type to use to represent temporal intervals -
+ * struct timeval on some systems, int on others.  It can be passed as
+ * the timeout argument to the select  system call.
+ *
+ * EMACS_SECS (TIME) is an rvalue for the seconds component of TIME.
+ * EMACS_SET_SECS (TIME, SECONDS) sets that to SECONDS.
+ *
+ * EMACS_HAS_USECS is defined iff EMACS_TIME has a usecs component.
+ * EMACS_USECS (TIME) is an rvalue for the microseconds component of TIME.
+ * This returns zero if EMACS_TIME doesn't have a microseconds component.
+ * EMACS_SET_USECS (TIME, MICROSECONDS) sets that to MICROSECONDS.
+ * This does nothing if EMACS_TIME doesn't have a microseconds component.
+ *
+ * EMACS_SET_SECS_USECS (TIME, SECS, USECS) sets both components of TIME.
+ *
+ * EMACS_GET_TIME (TIME) stores the current system time in TIME, which
+ * should be an lvalue.
+ *
+ * EMACS_ADD_TIME (DEST, SRC1, SRC2) adds SRC1 to SRC2 and stores the
+ * result in DEST.  SRC should not be negative.
+ *
+ * EMACS_SUB_TIME (DEST, SRC1, SRC2) subtracts SRC2 from SRC1 and
+ * stores the result in DEST.  SRC should not be negative.
+ * EMACS_TIME_NEG_P (TIME) is true iff TIME is negative.
+ */
+
+#ifdef HAVE_TIMEVAL
+# ifndef EMACS_HAS_USECS
+#  define EMACS_HAS_USECS 1
+# endif /* !EMACS_HAS_USECS */
+
+# define EMACS_TIME struct timeval
+# define EMACS_SECS(time)		    ((time).tv_sec  + 0)
+# define EMACS_USECS(time)		    ((time).tv_usec + 0)
+# define EMACS_SET_SECS(time, seconds)	    ((time).tv_sec  = (seconds))
+# define EMACS_SET_USECS(time, microseconds) ((time).tv_usec = (microseconds))
+
+/* On SVR4, the compiler may complain if given this extra BSD arg: */
+# ifdef GETTIMEOFDAY_ONE_ARGUMENT
+#  define EMACS_GET_TIME(time) gettimeofday(&(time))
+# else /* not GETTIMEOFDAY_ONE_ARGUMENT */
+/* Presumably the second arg is ignored: */
+#  define EMACS_GET_TIME(time) gettimeofday(&(time), NULL)
+# endif /* not GETTIMEOFDAY_ONE_ARGUMENT */
+
+# define EMACS_ADD_TIME(dest, src1, src2)		\
+   do {							\
+     (dest).tv_sec  = (src1).tv_sec  + (src2).tv_sec;	\
+     (dest).tv_usec = (src1).tv_usec + (src2).tv_usec;	\
+     if ((dest).tv_usec > 1000000)			\
+       (dest).tv_usec -= 1000000, (dest).tv_sec++;	\
+   } while (0)
+
+# define EMACS_SUB_TIME(dest, src1, src2)		\
+   do {							\
+     (dest).tv_sec  = (src1).tv_sec  - (src2).tv_sec;	\
+     (dest).tv_usec = (src1).tv_usec - (src2).tv_usec;	\
+     if ((dest).tv_usec < 0)				\
+       (dest).tv_usec += 1000000, (dest).tv_sec--;	\
+   } while (0)
+
+# define EMACS_TIME_NEG_P(time)					\
+   ((long)(time).tv_sec < 0					\
+    || ((time).tv_sec == 0					\
+        && (long)(time).tv_usec < 0))
+
+#else /* ! defined (HAVE_TIMEVAL) */
+
+# define EMACS_TIME int
+# define EMACS_SECS(time)		    (time)
+# define EMACS_USECS(time)		    0
+# define EMACS_SET_SECS(time, seconds)	    ((time) = (seconds))
+# define EMACS_SET_USECS(time, usecs)	    0
+
+# define EMACS_GET_TIME(t) ((t) = time ((long *) 0))
+# define EMACS_ADD_TIME(dest, src1, src2) ((dest) = (src1) + (src2))
+# define EMACS_SUB_TIME(dest, src1, src2) ((dest) = (src1) - (src2))
+# define EMACS_TIME_NEG_P(t) ((t) < 0)
+
+#endif /* ! defined (HAVE_TIMEVAL) */
+
+#define EMACS_SET_SECS_USECS(time, secs, usecs) 		\
+  (EMACS_SET_SECS(time, secs), EMACS_SET_USECS(time, usecs))
+
+/* Emacs uses struct timespec to represent nonnegative temporal intervals.
+ *
+ * WARNING: Since tv_sec might be an unsigned value, do not use struct
+ * timespec as a general-purpose data type for adding or subtracting
+ * arbitrary time values!  When computing A + B or A - B, typically A
+ * should be an absolute time, since the epoch and B have a nonnegative
+ * offset.  */
 
 /* Return an invalid timespec.  */
 INLINE struct timespec
@@ -114,12 +199,34 @@ extern void set_waiting_for_input(struct timespec *);
    happen when this files is used outside the src directory).
    Use GCPRO1 to determine if lisp.h was included.  */
 #ifdef GCPRO1
+/* originally defined in dired.c, but now static in editfns.c, so ifdef
+ * it out: */
+# if 0
+extern Lisp_Object make_time(time_t);
+# endif /* 0 */
 /* defined in editfns.c */
 extern Lisp_Object make_lisp_time(struct timespec);
 extern bool decode_time_components(Lisp_Object, Lisp_Object, Lisp_Object,
                                    Lisp_Object, struct timespec *, double *);
 extern struct timespec lisp_time_argument(Lisp_Object);
 #endif /* GCPRO1 */
+
+/* Compare times T1 and T2.  Value is 0 if T1 and T2 are the same.
+ * Value is < 0 if T1 is less than T2.  Value is > 0 otherwise.  */
+
+#define EMACS_TIME_CMP(T1, T2)			\
+  (EMACS_SECS (T1) - EMACS_SECS (T2)		\
+   + (EMACS_SECS (T1) == EMACS_SECS (T2)	\
+      ? EMACS_USECS (T1) - EMACS_USECS (T2)	\
+      : 0))
+
+/* Compare times T1 and T2 for equality, inequality, and so on:  */
+#define EMACS_TIME_EQ(T1, T2) (EMACS_TIME_CMP(T1, T2) == 0)
+#define EMACS_TIME_NE(T1, T2) (EMACS_TIME_CMP(T1, T2) != 0)
+#define EMACS_TIME_GT(T1, T2) (EMACS_TIME_CMP(T1, T2) > 0)
+#define EMACS_TIME_GE(T1, T2) (EMACS_TIME_CMP(T1, T2) >= 0)
+#define EMACS_TIME_LT(T1, T2) (EMACS_TIME_CMP(T1, T2) < 0)
+#define EMACS_TIME_LE(T1, T2) (EMACS_TIME_CMP(T1, T2) <= 0)
 
 INLINE_HEADER_END
 

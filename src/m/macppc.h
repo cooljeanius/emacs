@@ -1,7 +1,7 @@
-/* machine description file For the powerpc Macintosh.
-   Copyright (C) 1994, 2001, 2002, 2003, 2004,
-                 2005, 2006, 2007 Free Software Foundation, Inc.
-
+/* macppc.h: machine description file For the powerpc Macintosh.
+ * Copyright (C) 1994, 2001, 2002, 2003, 2004,
+ *************** 2005, 2006, 2007 Free Software Foundation, Inc. */
+/*
 This file is part of GNU Emacs.
 
 GNU Emacs is free software; you can redistribute it and/or modify
@@ -58,7 +58,7 @@ Boston, MA 02110-1301, USA.  */
  * these systems, define the following, and then use it in
  * config.h (or elsewhere) to decide when (not) to use SIGIO.
  *
- * You'd think this would go in an operating-system description file,
+ * You would think this would go in an operating-system description file,
  * but since it only occurs on some, but not all, BSD systems, the
  * reasonable place to select for it is in the machine description
  * file.
@@ -70,48 +70,48 @@ Boston, MA 02110-1301, USA.  */
 
 #define NO_TERMIO
 
-#if defined (LINUX) || defined (__NetBSD__) || defined (__OpenBSD__)
+#if defined(LINUX) || defined(__NetBSD__) || defined(__OpenBSD__)
 # define TEXT_END ({ extern int _etext; &_etext; })
-#endif
+#endif /* LINUX || __NetBSD__ || __OpenBSD__ */
 
-#if (defined (__NetBSD__) || defined (__OpenBSD__)) && defined (__ELF__)
-#define HAVE_TEXT_START
-#endif
+#if (defined(__NetBSD__) || defined(__OpenBSD__)) && defined(__ELF__)
+# define HAVE_TEXT_START
+#endif /* (__NetBSD__ || __OpenBSD__) && __ELF__ */
 
 /* NAKAJI Hiroyuki <nakaji@tutrp.tut.ac.jp> says this is needed
-   For MkLinux/LinuxPPC.  */
-
+ * for MkLinux/LinuxPPC: */
 #ifdef LINUX
-#define LINKER $(CC) -nostdlib
+# define LINKER $(CC) -nostdlib
 /* s/gnu-linux.h defines this to `-z nocombreloc' which does not work here
-   because prefix-args is not used.  */
-#undef LD_SWITCH_SYSTEM_TEMACS
-#define LD_SWITCH_MACHINE_TEMACS -Xlinker -znocombreloc
-#ifdef _ARCH_PPC64
-#undef START_FILES
-#define START_FILES pre-crt0.o /usr/lib64/crt1.o /usr/lib64/crti.o
-#undef LIB_STANDARD
-#define LIB_STANDARD -lgcc -lc -lgcc /usr/lib64/crtn.o
-#endif
-#endif
+ * because prefix-args is not used: */
+# undef LD_SWITCH_SYSTEM_TEMACS
+# define LD_SWITCH_MACHINE_TEMACS -Xlinker -znocombreloc
+# ifdef _ARCH_PPC64
+#  undef START_FILES
+#  define START_FILES pre-crt0.o /usr/lib64/crt1.o /usr/lib64/crti.o
+#  undef LIB_STANDARD
+#  define LIB_STANDARD -lgcc -lc -lgcc /usr/lib64/crtn.o
+# endif /* _ARCH_PPC64 */
+#endif /* LINUX */
 
-#if 0  /* This breaks things on PPC GNU/Linux ecept for Yellowdog,
-	  even with identical GCC, as, ld.  Let's take it out until we
-	  know what's really going on here.  */
+/* This breaks things on PPC GNU/Linux except for Yellowdog, even with
+ * identical GCC, as, ld.  Let us take it out until we know what is really
+ * going on here.  Guess at what an ifdef for Yellowdog might be though: */
+#ifdef __YELLOWDOG__
 /* GCC 2.95 and newer on GNU/Linux PPC changed the load address to
-   0x10000000.  */
-#if defined __linux__
-#if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 95)
-#define DATA_SEG_BITS  0x10000000
-#endif
-#endif
-#endif /* 0 */
+ * 0x10000000: */
+# if defined(__linux__) && defined(__GNUC__) && defined(__GNUC_MINOR__)
+#  if (__GNUC__ > 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 95))
+#   define DATA_SEG_BITS  0x10000000
+#  endif /* gcc 2.95+ */
+# endif /* __linux__ && __GNUC__ && __GNUC_MINOR__ */
+#endif /* __YELLOWDOG__ */
 
 #ifdef _ARCH_PPC64
-#ifndef _LP64
-#define _LP64
-#endif
-#endif
+# ifndef _LP64
+#  define _LP64
+# endif /* !_LP64 */
+#endif /* _ARCH_PPC64 */
 
 /* arch-tag: 41913e4e-e7d1-4023-aadb-210cc31712ed
    (do not change this comment) */

@@ -61,14 +61,14 @@ GNUstep port and post-20 update by Adrian Robert (arobert@cogsci.ucsd.edu)
 #include "font.h"
 
 #ifdef NS_IMPL_GNUSTEP
-#include "process.h"
-#endif
+# include "process.h"
+#endif /* NS_IMPL_GNUSTEP */
 
 #ifdef NS_IMPL_COCOA
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5
-#include "macfont.h"
-#endif
-#endif
+# if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5
+#  include "macfont.h"
+# endif /* 10.5+ */
+#endif /* NS_IMPL_COCOA */
 
 /* call tracing */
 #if 0
@@ -103,11 +103,11 @@ int term_trace_num = 0;
 
 extern NSString *NSMenuDidBeginTrackingNotification;
 
-/* ==========================================================================
+/* ========================================================================
 
    NSColor, EmacsColor category.
 
-   ========================================================================== */
+   ===================================================================== */
 @implementation NSColor (EmacsColor)
 + (NSColor *)colorForEmacsRed:(CGFloat)red green:(CGFloat)green
                          blue:(CGFloat)blue alpha:(CGFloat)alpha
@@ -1393,7 +1393,9 @@ x_set_window_size (struct frame *f,
   }
 
   change_frame_size (f, width, height, 0, 1, 0, pixelwise);
-/*  SET_FRAME_GARBAGED (f); // this short-circuits expose call in drawRect */
+#ifdef SHORT_CIRCUIT_EXPOSE_CALL_IN_DRAWRECT
+  SET_FRAME_GARBAGED (f); /* this short-circuits expose call in drawRect */
+#endif /* SHORT_CIRCUIT_EXPOSE_CALL_IN_DRAWRECT */
 
   mark_window_cursors_off (XWINDOW (f->root_window));
   cancel_mouse_face (f);
@@ -1412,9 +1414,9 @@ ns_fullscreen_hook (struct frame *f)
 
    if (! [view fsIsNative] && f->want_fullscreen == FULLSCREEN_BOTH)
     {
-      /* Old style fs don't initiate correctly if created from
-         init/default-frame alist, so use a timer (not nice...).
-      */
+      /* Old style fs do NOT initiate correctly if created from
+       * init/default-frame alist, so use a timer (not nice...).
+       */
       [NSTimer scheduledTimerWithTimeInterval: 0.5 target: view
                                      selector: @selector (handleFS)
                                      userInfo: nil repeats: NO];
@@ -1513,15 +1515,17 @@ ns_free_indexed_color (unsigned long idx, struct frame *f)
   [color release];
   color_table->colors[idx] = nil;
   [color_table->empty_indices addObject: index];
-/*fprintf(stderr, "color_table: FREED %d\n",idx);*/
+#ifdef DEBUG
+  fprintf(stderr, "color_table: FREED %lud\n", idx);
+#endif /* DEBUG */
 }
 
 
 static int
 ns_get_color (const char *name, NSColor **col)
-/* --------------------------------------------------------------------------
+/* ------------------------------------------------------------------------
      Parse a color name
-   -------------------------------------------------------------------------- */
+   --------------------------------------------------------------------- */
 /* On *Step, we attempt to mimic the X11 platform here, down to installing an
    X11 rgb.txt-compatible color list in Emacs.clr (see ns_term_init()).
    See: http://thread.gmane.org/gmane.emacs.devel/113050/focus=113272). */
@@ -1532,7 +1536,9 @@ ns_get_color (const char *name, NSColor **col)
   float r = -1.0, g, b;
   NSString *nsname = [NSString stringWithUTF8String: name];
 
-/*fprintf (stderr, "ns_get_color: '%s'\n", name); */
+#ifdef DEBUG
+ fprintf(stderr, "ns_get_color: '%s'\n", name);
+#endif /* DEBUG */
   block_input ();
 
   if ([nsname isEqualToString: @"ns_selection_bg_color"])
@@ -1557,9 +1563,8 @@ ns_get_color (const char *name, NSColor **col)
     }
   else if ([nsname isEqualToString: @"ns_selection_fg_color"])
     {
-      /* NOTE: OSX applications normally don't set foreground selection, but
-         text may be unreadable if we don't.
-      */
+      /* NOTE: OSX applications normally do NOT set foreground selection,
+       * but text may be unreadable if we fail to do so: */
       if ((new = [NSColor selectedTextColor]) != nil)
         {
           *col = [new colorUsingDefaultColorSpace];
@@ -1936,7 +1941,10 @@ ns_mouse_position (struct frame **fp, int insist, Lisp_Object *bar_window,
           position = [view convertPoint: position fromView: nil];
           remember_mouse_glyph (f, position.x, position.y,
 				&dpyinfo->last_mouse_glyph);
-/*fprintf (stderr, "ns_mouse_position: %.0f, %.0f\n", position.x, position.y); */
+#ifdef DEBUG
+          fprintf(stderr, "ns_mouse_position: %.0f, %.0f\n",
+                  position.x, position.y);
+#endif /* DEBUG */
 
           if (bar_window) *bar_window = Qnil;
           if (part) *part = 0; /*scroll_bar_handle; */
@@ -4057,9 +4065,9 @@ ns_default (const char *parameter, Lisp_Object *result,
 
 static void
 ns_initialize_display_info (struct ns_display_info *dpyinfo)
-/* --------------------------------------------------------------------------
+/* ------------------------------------------------------------------------
       Initialize global info and storage for display.
-   -------------------------------------------------------------------------- */
+   --------------------------------------------------------------------- */
 {
     NSScreen *screen = [NSScreen mainScreen];
     NSWindowDepth depth = [screen depth];
@@ -4522,26 +4530,32 @@ ns_term_shutdown (int sig)
 
 
 - (void)sendEvent: (NSEvent *)theEvent
-/* --------------------------------------------------------------------------
-     Called when NSApp is running for each event received.  Used to stop
-     the loop when we choose, since there's no way to just run one iteration.
-   -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------
+ *  Called when NSApp is running for each event received.  Used to stop
+ *  the loop when we choose, since there is no way to just run 1 iteration.
+ * --------------------------------------------------------------------- */
 {
   int type = [theEvent type];
   NSWindow *window = [theEvent window];
 
-/*  NSTRACE (sendEvent); */
-/*fprintf (stderr, "received event of type %d\t%d\n", type);*/
+#if defined(NSTRACE) && defined(DEBUG)
+  NSTRACE(sendEvent);
+#endif /* NSTRACE && DEBUG */
+#if (defined(DEBUG) || defined(VERBOSE)) && 0
+  /* what is the second formatter supposed to represent here?
+   * seem to be missing a variable... */
+  fprintf(stderr, "received event of type %d\t%d\n", type);
+#endif /* (DEBUG || VERBOSE) && 0 */
 
 #ifdef NS_IMPL_GNUSTEP
-  // Keyboard events aren't propagated to file dialogs for some reason.
+  // Keyboard events are NOT propagated to file dialogs for some reason:
   if ([NSApp modalWindow] != nil &&
       (type == NSKeyDown || type == NSKeyUp || type == NSFlagsChanged))
     {
       [[NSApp modalWindow] sendEvent: theEvent];
       return;
     }
-#endif
+#endif /* NS_IMPL_GNUSTEP */
 
   if (type == NSApplicationDefined)
     {
@@ -4552,7 +4566,7 @@ ns_term_shutdown (int sig)
           ns_run_ascript ();
           [self stop: self];
           return;
-#endif
+#endif /* NS_IMPL_COCOA */
         case NSAPP_DATA2_RUNFILEDIALOG:
           ns_run_file_dialog ();
           [self stop: self];
@@ -4598,7 +4612,7 @@ ns_term_shutdown (int sig)
       if (! has_focus)
         return;
     }
-#endif
+#endif /* NS_IMPL_COCOA */
 
   [super sendEvent: theEvent];
 }
@@ -5299,18 +5313,18 @@ not_in_argv (NSString *arg)
     }
 
 
-#if !defined (NS_IMPL_COCOA) || MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_6
+#if !defined(NS_IMPL_COCOA) || (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_6)
   /* if we get here we should send the key for input manager processing */
   /* Disable warning, there is nothing a user can do about it anyway, and
      it does not seem to matter.  */
-#if 0
+# if 0
   if (firstTime && [[NSInputManager currentInputManager]
                      wantsToDelayTextChangeNotifications] == NO)
-    fprintf (stderr,
-          "Emacs: WARNING: TextInput mgr wants marked text to be permanent!\n");
-#endif
+    fprintf(stderr,
+            "Emacs: WARNING: TextInput mgr wants marked text to be permanent!\n");
+# endif /* 0 */
   firstTime = NO;
-#endif
+#endif /* !NS_IMPL_COCOA || pre-10.6 */
   if (NS_KEYLOG && !processingCompose)
     fprintf (stderr, "keyDown: Begin compose sequence.\n");
 
@@ -5818,7 +5832,10 @@ not_in_argv (NSString *arg)
 
   NSTRACE (windowWillResize);
   NSTRACE_SIZE ("Original size", frameSize);
-/*fprintf (stderr,"Window will resize: %.0f x %.0f\n",frameSize.width,frameSize.height); */
+#ifdef DEBUG
+  fprintf(stderr, "Window will resize: %.0f x %.0f\n",
+          frameSize.width, frameSize.height);
+#endif /* DEBUG */
 
   if (fs_state == FULLSCREEN_MAXIMIZED
       && (maximized_width != (int)frameSize.width
@@ -5879,7 +5896,10 @@ not_in_argv (NSString *arg)
       }
   }
 #endif /* NS_IMPL_COCOA */
-/*fprintf (stderr,"    ...size became %.0f x %.0f  (%d x %d)\n",frameSize.width,frameSize.height,cols,rows); */
+#ifdef DEBUG
+  fprintf(stderr, "    ...size became %.0f x %.0f  (%d x %d)\n",
+          frameSize.width, frameSize.height, cols, rows);
+#endif /* DEBUG */
 
   return frameSize;
 }
@@ -5898,15 +5918,20 @@ not_in_argv (NSString *arg)
 #ifdef NS_IMPL_GNUSTEP
   NSWindow *theWindow = [notification object];
 
-   /* In GNUstep, at least currently, it's possible to get a didResize
-      without getting a willResize.. therefore we need to act as if we got
-      the willResize now */
+   /* In GNUstep, at least currently, it is possible to get a didResize
+    * without getting a willResize... therefore we need to act as if we got
+    * the willResize now: */
   NSSize sz = [theWindow frame].size;
   sz = [self windowWillResize: theWindow toSize: sz];
 #endif /* NS_IMPL_GNUSTEP */
 
   NSTRACE (windowDidResize);
-/*fprintf (stderr,"windowDidResize: %.0f\n",[theWindow frame].size.height); */
+#if defined(DEBUG) && defined(NS_IMPL_GNUSTEP)
+  /* besides the DEBUG, the rest of the condition has to stay the same as
+   * the one in which 'theWindow' is declared */
+  fprintf(stderr, "windowDidResize: %.0f\n",
+          [theWindow frame].size.height);
+#endif /* DEBUG && NS_IMPL_GNUSTEP */
 
 if (cols > 0 && rows > 0)
     {

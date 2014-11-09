@@ -26,7 +26,7 @@
 ## supposed to be platform-independent).
 ## It is arranged like this because it is easier to generate it
 ## semi-mechanically from loadup.el this way.
-## Eg something like:
+## E.g. something like:
 ##   sed -e 's/"[ )].*//' -n -e '/(load "/ s/.*load "//p' loadup.el | \
 ##   grep -vE 'site-|ldefs-boot'
 ## minus any duplicates.

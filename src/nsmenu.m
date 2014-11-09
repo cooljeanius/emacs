@@ -93,15 +93,13 @@ static int trackingMenu;
 /* Supposed to discard menubar and free storage.  Since we share the
    menubar among frames and update its context for the focused window,
    there is nothing to do here. */
-void
-free_frame_menubar (struct frame *f)
+void free_frame_menubar(struct frame *f)
 {
   return;
 }
 
 
-int
-popup_activated (void)
+int popup_activated(void)
 {
   return popup_activated_flag;
 }
@@ -623,13 +621,15 @@ extern NSString *NSMenuDidBeginTrackingNotification;
      Thus, we rely on the didBeginTrackingNotification notification
      as above to indicate the need for updates.
      From 10.6 on, we could also use -[NSMenu propertiesToUpdate]: In the
-     key press case, NSMenuPropertyItemImage (e.g.) won't be set.
+     key press case, NSMenuPropertyItemImage (e.g.) will NOT be set.
   */
   if (trackingMenu == 0)
     return;
 #ifdef DEBUG
   fprintf(stderr, "Updating menu '%s'\n", [[self title] UTF8String]);
+# ifdef event
   NSLog(@"%@\n", event);
+# endif /* event */
 #endif /* DEBUG */
 #if (! defined (NS_IMPL_COCOA) \
      || MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_5)

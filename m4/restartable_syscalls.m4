@@ -54,7 +54,8 @@ int main(void)
   return status == -1;
 }])],
 	       [ac_cv_sys_restartable_syscalls=yes],
-	       [ac_cv_sys_restartable_syscalls=no])])
+	       [ac_cv_sys_restartable_syscalls=no],
+               [ac_cv_sys_restartable_syscalls=yes])])
 if test "x${ac_cv_sys_restartable_syscalls}" = "xyes"; then
   AC_DEFINE([HAVE_RESTARTABLE_SYSCALLS],[1],
 	    [Define to 1 if system calls automatically restart after

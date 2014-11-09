@@ -1,5 +1,6 @@
-/* Generate doc-string file for GNU Emacs from source files.
-
+/* lib-src/make-docfile.c:
+ * Generate doc-string file for GNU Emacs from source files. */
+/*
 Copyright (C) 1985-1986, 1992-1994, 1997, 1999-2014 Free Software
 Foundation, Inc.
 
@@ -38,15 +39,18 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #include <stdio.h>
 #include <stdlib.h>   /* config.h unconditionally includes this anyway */
+#ifdef HAVE_STRING_H
+# include <string.h>
+#endif /* HAVE_STRING_H */
 #ifdef MSDOS
-#include <fcntl.h>
+# include <fcntl.h>
 #endif /* MSDOS */
 #ifdef WINDOWSNT
 /* Defined to be sys_fopen in ms-w32.h, but only #ifdef emacs, so this
    is really just insurance.  */
-#undef fopen
-#include <fcntl.h>
-#include <direct.h>
+# undef fopen
+# include <fcntl.h>
+# include <direct.h>
 #endif /* WINDOWSNT */
 
 #ifdef DOS_NT
@@ -55,14 +59,14 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
    Similarly, msdos defines this as sys_chdir, but we're not linking with the
    file where that function is defined.  */
-#undef chdir
-#define READ_TEXT "rt"
-#define READ_BINARY "rb"
-#define IS_SLASH(c)  ((c) == '/' || (c) == '\\' || (c) == ':')
+# undef chdir
+# define READ_TEXT "rt"
+# define READ_BINARY "rb"
+# define IS_SLASH(c)  ((c) == '/' || (c) == '\\' || (c) == ':')
 #else  /* not DOS_NT */
-#define READ_TEXT "r"
-#define READ_BINARY "r"
-#define IS_SLASH(c)  ((c) == '/')
+# define READ_TEXT "r"
+# define READ_BINARY "r"
+# define IS_SLASH(c)  ((c) == '/')
 #endif /* not DOS_NT */
 
 static int scan_file (char *filename);
@@ -73,10 +77,10 @@ static void write_globals (void);
 
 #include <unistd.h>
 
-/* Stdio stream for output to the DOC file.  */
+/* Stdio stream for output to the DOC file: */
 FILE *outfile;
 
-/* Name this program was invoked with.  */
+/* Name with which this program was invoked: */
 char *progname;
 
 /* Nonzero if this invocation is generating globals.h.  */
@@ -103,8 +107,7 @@ fatal (const char *s1, const char *s2)
   exit (EXIT_FAILURE);
 }
 
-/* Like malloc but get fatal error if memory is exhausted.  */
-
+/* Like malloc but get fatal error if memory is exhausted: */
 static void *
 xmalloc (unsigned int size)
 {
@@ -114,8 +117,7 @@ xmalloc (unsigned int size)
   return result;
 }
 
-/* Like realloc but get fatal error if memory is exhausted.  */
-
+/* Like realloc but get fatal error if memory is exhausted: */
 static void *
 xrealloc (void *arg, unsigned int size)
 {
@@ -126,8 +128,7 @@ xrealloc (void *arg, unsigned int size)
 }
 
 
-int
-main (int argc, char **argv)
+int main(int argc, char **argv)
 {
   int i;
   int err_count = 0;
@@ -137,14 +138,14 @@ main (int argc, char **argv)
 
   outfile = stdout;
 
-  /* Don't put CRs in the DOC file.  */
+  /* Do NOT put CRs in the DOC file.  */
 #ifdef MSDOS
   _fmode = O_BINARY;
-#if 0  /* Suspicion is that this causes hanging.
-	  So instead we require people to use -o on MSDOS.  */
+# if 0  /* Suspicion is that this causes hanging.
+	 * So instead we require people to use -o on MSDOS.  */
   (stdout)->_flag &= ~_IOTEXT;
   _setmode (fileno (stdout), O_BINARY);
-#endif
+# endif /* 0 */
   outfile = 0;
 #endif /* MSDOS */
 #ifdef WINDOWSNT
@@ -189,7 +190,7 @@ main (int argc, char **argv)
   for (; i < argc; i++)
     {
       int j;
-      /* Don't process one file twice.  */
+      /* Do NOT process one file twice.  */
       for (j = first_infile; j < i; j++)
 	if (! strcmp (argv[i], argv[j]))
 	  break;
@@ -675,13 +676,38 @@ write_globals (void)
 	  fprintf (outfile, ");\n");
 	}
 
+#ifdef HAVE_STRNSTR
+      /* only need to check first character, really: */
+      if ((strnstr(globals[i].name, "&", (size_t)1UL)) != NULL) {
+        error("identifier '%s' starts with '&', which is deprecated",
+              globals[i].name);
+      }
+#else
+# ifdef HAVE_STRSTR
+      if ((strstr(globals[i].name, "&")) != NULL) {
+        error("identifier '%s' has an ampersand in it", globals[i].name);
+      }
+# else
+#  if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#   warning "will not be able to flag identifiers with illegal characters"
+#  endif /* __GNUC__ && !__STRICT_ANSI__ */
+# endif /* HAVE_STRSTR */
+#endif /* HAVE_STRNSTR */
+
       while (i + 1 < num_globals
 	     && !strcmp (globals[i].name, globals[i + 1].name))
 	{
-	  if (globals[i].type == FUNCTION
-	      && globals[i].value != globals[i + 1].value)
-	    error ("function '%s' defined twice with differing signatures",
-		   globals[i].name);
+	  if ((globals[i].type == FUNCTION)
+	      && (globals[i].value != globals[i + 1].value))
+            {
+              error ("function '%s' defined twice with differing signatures",
+                     globals[i].name);
+#ifdef DEBUG
+              fprintf(stderr,
+                      "(func '#%d' has sig '%d', but func '#%d' has sig '%d'.)\n",
+                      i, globals[i].value, (i + 1), globals[i + 1].value);
+#endif /* DEBUG */
+            }
 	  ++i;
 	}
     }
@@ -716,7 +742,7 @@ scan_c_file (char *filename, const char *mode)
       filename[strlen (filename) - 1] = 'm';
       infile = fopen (filename, mode);
       if (infile == NULL)
-        filename[strlen (filename) - 1] = 'c'; /* Don't confuse people.  */
+        filename[strlen (filename) - 1] = 'c'; /* Avoid confusion. */
     }
 
   /* No error if non-ex input file.  */
@@ -951,7 +977,7 @@ scan_c_file (char *filename, const char *mode)
 
 	  /* If this is a defun, find the arguments and print them.  If
 	     this function takes MANY or UNEVALLED args, then the C source
-	     won't give the names of the arguments, so we shouldn't bother
+	     will NOT give names of the arguments, so we should NOT bother
 	     trying to find them.
 
 	     Various doc-string styles:
@@ -1091,7 +1117,7 @@ search_lisp_doc_at_eol (FILE *infile)
     {
 #ifdef DEBUG
       fprintf (stderr, "## non-docstring found\n");
-#endif
+#endif /* DEBUG */
       if (c != EOF)
 	ungetc (c, infile);
       return 0;
@@ -1249,9 +1275,8 @@ scan_lisp_file (const char *filename, const char *mode)
 	      c = getc (infile);
 	  skip_white (infile);
 
-	  /* If the next three characters aren't `dquote bslash newline'
-	     then we're not reading a docstring.
-	   */
+	  /* If the next three characters are NOT `dquote bslash newline'
+	   * then we are not reading a docstring: */
 	  if ((c = getc (infile)) != '"'
 	      || (c = getc (infile)) != '\\'
 	      || ((c = getc (infile)) != '\n' && c != '\r'))
@@ -1259,7 +1284,7 @@ scan_lisp_file (const char *filename, const char *mode)
 #ifdef DEBUG
 	      fprintf (stderr, "## non-docstring in %s (%s)\n",
 		       buffer, filename);
-#endif
+#endif /* DEBUG */
 	      continue;
 	    }
 	}
@@ -1406,19 +1431,19 @@ scan_lisp_file (const char *filename, const char *mode)
       else if (! strcmp (buffer, "if")
 	       || ! strcmp (buffer, "byte-code"))
 	continue;
-#endif
+#endif /* DEBUG */
 
       else
 	{
 #ifdef DEBUG
 	  fprintf (stderr, "## unrecognized top-level form, %s (%s)\n",
 		   buffer, filename);
-#endif
+#endif /* DEBUG */
 	  continue;
 	}
 
-      /* At this point, we should either use the previous dynamic doc string in
-	 saved_string or gobble a doc string from the input file.
+      /* At this point, we should either use the previous dynamic doc string
+         in saved_string or gobble a doc string from the input file.
 	 In the latter case, the opening quote (and leading backslash-newline)
 	 have already been read.  */
 
@@ -1428,7 +1453,7 @@ scan_lisp_file (const char *filename, const char *mode)
       if (saved_string)
 	{
 	  fputs (saved_string, outfile);
-	  /* Don't use one dynamic doc string twice.  */
+	  /* Do NOT use one dynamic doc string twice: */
 	  free (saved_string);
 	  saved_string = 0;
 	}
@@ -1440,4 +1465,4 @@ scan_lisp_file (const char *filename, const char *mode)
 }
 
 
-/* make-docfile.c ends here */
+/* make-docfile.c ends here  (EOF) */

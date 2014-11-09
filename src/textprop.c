@@ -115,8 +115,10 @@ modify_text_properties (Lisp_Object buffer, Lisp_Object start, Lisp_Object end)
   set_buffer_internal (old);
 }
 
-/* Complain if object is not string or buffer type.  */
-
+/* Complain if object is not string or buffer type: */
+#ifdef CHECK_STRING_OR_BUFFER
+# undef CHECK_STRING_OR_BUFFER
+#endif /* CHECK_STRING_OR_BUFFER */
 static void
 CHECK_STRING_OR_BUFFER (Lisp_Object x)
 {

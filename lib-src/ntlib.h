@@ -1,6 +1,7 @@
-/* Utility and Unix shadow routines for GNU Emacs support programs on NT.
-   Copyright (C) 1994, 2002-2014 Free Software Foundation, Inc.
-
+/* lib-src/ntlib.h
+ * Utility and Unix shadow routines for GNU Emacs support programs on NT.
+ * Copyright (C) 1994, 2002-2014 Free Software Foundation, Inc. */
+/*
 This file is part of GNU Emacs.
 
 GNU Emacs is free software: you can redistribute it and/or modify
@@ -16,6 +17,9 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
+#ifndef EMACS_NTLIB_H
+#define EMACS_NTLIB_H 1
+
 #include <pwd.h>
 #include <malloc.h>
 
@@ -27,8 +31,8 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <stdio.h>
 
 #ifdef sleep
-#undef sleep
-#endif
+# undef sleep
+#endif /* sleep */
 unsigned sleep (unsigned seconds);
 char *getwd (char *dir);
 int getppid (void);
@@ -76,13 +80,13 @@ int mkostemp (char * template, int flags);
 #undef write
 #define write   _write
 
-/* map to MSVC names */
+/* map to MSVC names: */
 #define execlp    _execlp
 #define execvp    _execvp
 #define fdopen	  _fdopen
 #ifndef fileno
-#define fileno	  _fileno
-#endif
+# define fileno	  _fileno
+#endif /* !fileno */
 #define getcwd	  _getcwd
 #define getw	  _getw
 #define getpid    _getpid
@@ -98,9 +102,10 @@ int mkostemp (char * template, int flags);
 #define index     strchr
 #define rindex    strrchr
 
-/* Make standard winsock definitions available if needed.  */
+/* Make standard winsock definitions available if needed: */
 #undef _WINSOCKAPI_
 #undef _WINSOCK_H
 
-/* end of ntlib.h */
+#endif /* !EMACS_NTLIB_H */
 
+/* end of ntlib.h */

@@ -1400,7 +1400,7 @@ no quit occurs and `x-popup-menu' returns nil.  */)
   /* Hide a previous tip, if any.  */
   if (!FRAME_TERMCAP_P (f))
     Fx_hide_tip ();
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
 
 #ifdef HAVE_NTGUI     /* FIXME: Is it really w32-specific?  --Stef  */
   /* If resources from a previous popup menu still exist, does nothing

@@ -1,6 +1,7 @@
-/* Machine description file for Apple Power Macintosh
-   Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006, 2007 Free Software Foundation, Inc.
-
+/* powermac.h: Machine description file for Apple Power Macintosh
+ * Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006, 2007
+ * Free Software Foundation, Inc. */
+/*
 This file is part of GNU Emacs.
 
 GNU Emacs is free software; you can redistribute it and/or modify
@@ -80,10 +81,10 @@ Boston, MA 02110-1301, USA.  */
 /* #define VIRT_ADDR_VARIES * */
 
 /* Define NO_REMAP if memory segmentation makes it not work well
-   to change the boundary between the text section and data section
-   when Emacs is dumped.  If you define this, the preloaded Lisp
-   code will not be sharable; but that's better than failing completely.  */
-
+ * to change the boundary between the text section and data section
+ * when Emacs is dumped.  If you define this, the preloaded Lisp
+ * code will not be sharable; but that is still better than failing
+ * completely: */
 #define NO_REMAP
 
 /* Some really obscure 4.2-based systems (like Sequent DYNIX)
@@ -92,7 +93,7 @@ Boston, MA 02110-1301, USA.  */
  * these systems, define the following, and then use it in
  * config.h (or elsewhere) to decide when (not) to use SIGIO.
  *
- * You'd think this would go in an operating-system description file,
+ * You would think this would go in an operating-system description file,
  * but since it only occurs on some, but not all, BSD systems, the
  * reasonable place to select for it is in the machine description
  * file.
@@ -106,7 +107,7 @@ Boston, MA 02110-1301, USA.  */
    configuration names, and add a description of the system to
    `etc/MACHINES'.
 
-   If you've just fixed a problem in an existing configuration file,
+   If you have just fixed a problem in an existing configuration file,
    you should also check `etc/MACHINES' to make sure its descriptions
    of known problems in that configuration should be updated.  */
 

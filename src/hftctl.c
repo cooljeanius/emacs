@@ -47,14 +47,139 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <setjmp.h>
+/* get the Darwin <sys/ioctl.h> to include some compatibility code: */
+#ifndef USE_OLD_TTY
+# define USE_OLD_TTY 1
+#endif /* !USE_OLD_TTY */
 #include <sys/ioctl.h>
-#include <sys/devinfo.h>
+#ifdef HAVE_SYS_DEVINFO_H
+# include <sys/devinfo.h>
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#  warning "hftctl.c expects <sys/devinfo.h> to be included."
+# endif /* __GNUC__ && !__STRICT_ANSI__ */
+/* guess: */
+struct devinfo;
+#endif /* HAVE_SYS_DEVINFO_H */
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif /* HAVE_SYS_TYPES_H */
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
+#endif /* HAVE_UNISTD_H */
 #include <termios.h>
-#include <termio.h>
-#include <sys/hft.h>
+#ifdef HAVE_TERMIO_H
+# include <termio.h>
+#else
+# ifdef HAVE_TERM_H
+#  include <term.h>
+# else
+#  if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#   warning "hftctl.c expects <termio.h> or <term.h> to be included."
+#  endif /* __GNUC__ && !__STRICT_ANSI__ */
+# endif /* HAVE_TERM_H */
+/* copy-and-paste a copy of parts of "../mac/inc/termio.h" here,
+ * just in case: */
+# ifndef _SYS_TERMIO_H
+#  define _SYS_TERMIO_H 1
+#  ifndef NCCS
+#   define NCCS 32
+#  endif /* !NCCS */
+/* c_cc subscript names: */
+#  ifndef VINTR
+#   define VINTR 1
+#  endif /* !VINTR */
+#  ifndef VQUIT
+#   define VQUIT 2
+#  endif /* !VQUIT */
+#  ifndef VERASE
+#   define VERASE 3
+#  endif /* !VERASE */
+#  ifndef VTIME
+#   define VTIME 4
+#  endif /* !VTIME */
+#  ifndef VMIN
+#   define VMIN 5
+#  endif /* !VMIN */
+/* c_iflag fields: */
+#  ifndef IGNBRK
+#   define IGNBRK 0x1	/* ignore break condition */
+#  endif /* !IGNBRK */
+#  ifndef ICRNL
+#   define ICRNL 0x2	/* map CR to NL on input */
+#  endif /* !ICRNL */
+#  ifndef IXON
+#   define IXON 0x4	/* enable start/stop output control */
+#  endif /* !IXON */
+/* c_oflag fields: */
+#  ifndef ONLCR
+#   define ONLCR 0x1	/* map CR to NL on output */
+#  endif /* !ONLCR */
+#  ifndef TABDLY
+#   define TABDLY 0x2	/* horizontal tab delays */
+#  endif /* !TABDLY */
+#  ifndef TAB3
+#   define TAB3 0x4	/* expand tab to spaces */
+#  endif /* !TAB3 */
+/* c_cflag fields: */
+#  ifndef CBAUD
+#   define CBAUD 0x1
+#  endif /* !CBAUD */
+#  ifndef B9600
+#   define B9600 0x2
+#  endif /* !B9600 */
+/* c_lflag fields: */
+#  ifndef ISIG
+#   define ISIG 0x1	/* enable signals */
+#  endif /* !ISIG */
+#  ifndef ICANON
+#   define ICANON 0x2	/* canonical input (erase and kill processing) */
+#  endif /* !ICANON */
+#  ifndef ECHO
+#   define ECHO 0x3	/* enable echo */
+#  endif /* !ECHO */
+/* 2 extra things: */
+#  ifndef TCSETAW
+#   define TCSETAW 4
+#  endif /* !TCSETAW */
+#  ifndef TCSETAF
+#   define TCSETAF 5
+#  endif /* !TCSETAF */
+# endif /* _SYS_TERMIO_H */
+#endif /* HAVE_TERMIO_H */
+#ifdef HAVE_SYS_HFT_H
+# include <sys/hft.h>
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#  warning "hftctl.c expects <sys/hft.h> to be included."
+# endif /* __GNUC__ && !__STRICT_ANSI__ */
+/* guess at what these are supposed to be: */
+struct hfbuf {
+    int hf_buflen;
+    char *hf_bufp;
+};
+struct hfquery {
+    int hf_cmdlen;
+    char *hf_cmd;
+    int hf_resplen;
+    char *hf_resp;
+};
+/* also need to figure out what the order is for the names of the fields
+ * for 'struct hfctlack' and 'struct hfctlreq'... */
+/* just forward-declare them for now: */
+struct hfctlack;
+struct hfctlreq;
+struct hfintro;
+#endif /* HAVE_SYS_HFT_H */
 #include <sys/uio.h>
 #include <sys/tty.h>
-/* #include <sys/pty.h> */
+#ifdef HAVE_SYS_PTY_H
+# include <sys/pty.h>
+#else
+# ifdef HAVE_PTY_H
+#  include <pty.h>
+# endif /* HAVE_PTY_H */
+#endif /* HAVE_SYS_PTY_H */
 
 #define REMOTE 0x01
 
@@ -63,31 +188,76 @@ static char     SCCSid[] = "com/gnuemacs/src,3.1,9021-90/05/03-5/3/90";
 
 /*************** LOCAL DEFINES **********************************/
 
-#define QDEV   ((HFQPDEVCH<<8)|HFQPDEVCL)
-#define QLOC   ((HFQLOCCH<<8)|HFQLOCCL)
-#define QPS    ((HFQPRESCH<<8)|HFQPRESCL)
+#define QDEV   ((HFQPDEVCH << 8) | HFQPDEVCL)
+#define QLOC   ((HFQLOCCH << 8) | HFQLOCCL)
+#define QPS    ((HFQPRESCH << 8) | HFQPRESCL)
 
+/* definition of TCGETA taken from "../mac/inc/sys/ioctl.h"; and TCSETA is
+ * just that incremented by 1. */
+#ifndef TCGETA
+# define TCGETA 2
+#endif /* !TCGETA */
+#ifndef TCSETA
+# define TCSETA 3
+#endif /* !TCSETA */
 #ifndef TCGETS
-#define TCGETS TCGETA
-#endif
+# define TCGETS TCGETA
+#endif /* !TCGETS */
 #ifndef TCSETS
-#define TCSETS TCSETA
-#endif
+# define TCSETS TCSETA
+#endif /* !TCSETS */
 
 /*************** EXTERNAL / GLOBAL DATA AREA ********************/
 
+#if defined(PROTOTYPES) || defined(__PROTOTYPES)
+static int              hfqry(int fd, int request, struct hfquery *arg);
+static int              hfskbd(int fd, int request, struct hfbuf *arg);
+       void             xfree(void *block);
+       void            *xmalloc(size_t n);
+       ptrdiff_t        emacs_read(int fildes, void *buf, ptrdiff_t nbyte);
+       ptrdiff_t emacs_write(int fildes, void const *buf, ptrdiff_t nbyte);
+#else
 static int              hfqry();
 static int              hfskbd();
+       void             xfree();
        char            *xmalloc();
+       ptrdiff_t        emacs_read();
+       ptrdiff_t        emacs_write();
+#endif /* PROTOTYPES || __PROTOTYPES */
 
 extern int              errno;
 static jmp_buf          hftenv;
 static int              is_ack_vtd;
+
+#ifndef RETSIGTYPE
+# define RETSIGTYPE void
+#endif /* !RETSIGTYPE */
+#ifndef SIGTYPE
+# define SIGTYPE RETSIGTYPE
+#endif /* !SIGTYPE */
+#if defined(PROTOTYPES) || defined(__PROTOTYPES)
+static SIGTYPE             (*sav_alrm) (int);
+#else
 static SIGTYPE             (*sav_alrm) ();
+#endif /* PROTOTYPES || __PROTOTYPES */
+/* no idea what these are actually supposed to be: */
+#ifndef HFCTLREQCH
+# define HFCTLREQCH 0
+#endif /* !HFCTLREQCH */
+#ifndef HFCTLREQCL
+# define HFCTLREQCL 0
+#endif /* !HFCTLREQCL */
 static struct hfctlreq  req =
-			{ 0x1b,'[','x',0,0,0,21,HFCTLREQCH,HFCTLREQCL};
+                  { 0x1b, '[', 'x', 0, 0, 0, 21, HFCTLREQCH, HFCTLREQCL };
+/* likewise: */
+#ifndef HFCTLACKCH
+# define HFCTLACKCH 0
+#endif /* !HFCTLACKCH */
+#ifndef HFCTLACKCL
+# define HFCTLACKCL 0
+#endif /* !HFCTLACKCL */
 static struct hfctlack  ACK =
-			{ 0x1b,'[','x',0,0,0,21,HFCTLACKCH,HFCTLACKCL};
+                  { 0x1b, '[', 'x', 0, 0, 0, 21, HFCTLACKCH, HFCTLACKCL };
 
        /* FUNC             signal(); */
 
@@ -97,7 +267,7 @@ static struct hfctlack  ACK =
 
 #define BYTE4(p)    ((p)[0]<<24 | (p)[1]<<16 | (p)[2]<<8 | (p)[3])
 
-					/* read a buffer        */
+					/* read a buffer:       */
 #define RD_BUF(f,p,l) \
         while ((l)) \
           if ((j = emacs_read (f, p, l)) < 0) \
@@ -106,19 +276,19 @@ static struct hfctlack  ACK =
           else { (l) -= j; (p) += j; }
 
 /*************** function prototypes ***************************/
-#ifdef PROTOTYPES
-static GT_ACK (int fd, int req, char *buf);
-static WR_REQ (int fd, int request, int cmdlen, char *cmd, int resplen);
+#if defined(PROTOTYPES) || defined(__PROTOTYPES)
+static int GT_ACK(int fd, int req, char *buf);
+static int WR_REQ(int fd, int request, int cmdlen, char *cmd, int resplen);
 static void hft_alrm(int sig);
 #else
 static GT_ACK ();
 static WR_REQ ();
 static void hft_alrm ();
-#endif
+#endif /* PROTOTYPES || __PROTOTYPES */
 
 /*************** HFTCTL FUNCTION *******************************/
 
-hftctl (fd, request, arg)
+int hftctl (fd, request, arg)
      int     fd;
      int     request;
      union {
@@ -142,7 +312,9 @@ hftctl (fd, request, arg)
   struct termios   term_old;
   struct devinfo	devInfo; /* defined in sys/devinfo.h */
 
-
+#ifndef IOCINFO
+# define IOCINFO 0xff01
+#endif /* !IOCINFO */
   if (ioctl (fd, IOCINFO, &devInfo) == -1) return(-1);
 
   if (devInfo.devtype != DD_PSEU) /* is it a pty? */
@@ -192,7 +364,7 @@ hfskbd (fd, request, arg)
         int     request;
         struct hfbuf *arg;
 {
-  WR_REQ(fd, request, arg->hf_buflen, arg->hf_bufp,0);
+  WR_REQ(fd, request, arg->hf_buflen, arg->hf_bufp, 0);
   return (GT_ACK(fd, request, arg->hf_bufp));
 }
 
@@ -248,7 +420,7 @@ GT_ACK (fd, req, buf)
 
       p.ack = &ack;		/* no, then skip 1st           */
       ++p.c;			/* char and start over         */
-      i = sizeof (ack) - 1;	/* one less ESC to cry over    */
+      i = (sizeof(ack) - 1);	/* one less ESC to cry over    */
 
       while ((*p.c != 0x1b) && i) /* scan for next ESC           */
 	{ ++p.c; --i; }		/* if any                      */
@@ -330,7 +502,7 @@ WR_REQ (fd, request, cmdlen, cmd, resplen)
       size = sizeof (req);
     }
 
-  /* write request to terminal   */
+  /* write request to terminal: */
   if (emacs_write (fd, p.c, size) == -1) return (-1);
   if (p.req != &req)		/* free if allocated           */
     xfree (p.c);

@@ -856,6 +856,7 @@ dnl# see the `changequote' comment above.
       i[3456]86-* )  machine=intel386 ;;
       powerpc-* )    machine=powermac ;;
       x86_64-* )     machine=amdx86-64 ;;
+      mac-apple-darwin* ) machine=mac;;
       * )            unported=yes ;;
     esac
     opsys=darwin
@@ -877,7 +878,7 @@ dnl# see the `changequote' comment above.
           if test "x${FINK_ARCH}" = "x${CANONICAL_ARCH}"; then
             if test -d /sw/include && test -d /sw/lib; then
               echo "configure: deciding to use Fink packages"
-              GCC_TEST_OPTIONS="-I/sw/include -L/sw/lib"
+              GCC_TEST_OPTIONS="-I/sw/include -L/sw/lib -arch ${FINK_ARCH}"
               CPP_NO_PRECOMP="${CPP_NO_PRECOMP} ${GCC_TEST_OPTIONS}"
               NON_GCC_TEST_OPTIONS="${GCC_TEST_OPTIONS}"
             fi
@@ -900,6 +901,7 @@ dnl# see the `changequote' comment above.
       i[3456]86-* )  machine=intel386 ;;
       powerpc-* )    machine=powermac ;;
       x86_64-* )     machine=amdx86-64 ;;
+      mac-gnu-darwin* | mac-unknown-darwin* ) machine=mac;;
       * )            unported=yes ;;
     esac
     opsys=darwin
@@ -2245,6 +2247,8 @@ dnl# see the `changequote' comment above.
       ## FIXME: additional cases in here...
       *-darwin* )
 		opsys=darwin
+		machine=mac #For univeral building
+		CPP_NO_PRECOMP="${CC-cc} -E -no-cpp-precomp"
 		## (still official)
 		;;
       *-mingw32 )
@@ -2402,9 +2406,21 @@ if test x"${opsys}" = x""; then
         unofficially_ported=yes
         unofficial_port_warning_reason="${opsys} is old and deprecated, and was unhandled in the first batch, meaning that we have no idea if this is correct."
     ;;
-    *-sysv4.2uw* )			opsys=unixware ;;
-    *-sysv5uw* )			opsys=unixware ;;
-    *-sysv5OpenUNIX* )			opsys=unixware ;;
+    *-sysv4.2uw* )
+        opsys=unixware
+        unofficially_ported=yes
+        unofficial_port_warning_reason="${opsys} is old and deprecated, and was unhandled in the first batch, meaning that we have no idea if this is correct."
+        ;;
+    *-sysv5uw* )
+        opsys=unixware
+        unofficially_ported=yes
+        unofficial_port_warning_reason="${opsys} is old and deprecated, and was unhandled in the first batch, meaning that we have no idea if this is correct."
+        ;;
+    *-sysv5OpenUNIX* )
+        opsys=unixware
+        unofficially_ported=yes
+        unofficial_port_warning_reason="${opsys} is old and deprecated, and was unhandled in the first batch, meaning that we have no idea if this is correct."
+        ;;
     *-sysv4.1* | *-sysvr4.1* )
         NON_GNU_CPP=/usr/lib/cpp
         opsys=usg5-4
@@ -2885,7 +2901,15 @@ else
   for w in ${ws}; do
     gl_WARN_ADD([${w}])
   done
-  gl_WARN_ADD([-Wno-missing-field-initializers]) # We need this one
+  if test "x${gl_cv_warn_c__Wno_missing_field_initializers}" = "x"; then
+    test -z "${gl_cv_warn_c__Wno_missing_field_initializers}"
+    gl_WARN_ADD([-Wno-missing-field-initializers]) # We need this one
+  elif test "x${gl_cv_warn_c__Wno_missing_field_initializers}" = "xno"; then
+    AC_MSG_WARN([missing support for required warning disabling flag])
+  elif test "x${gl_cv_warn_c__Wno_missing_field_initializers}" = "xyes"; then
+    test -n "${gl_cv_warn_c__Wno_missing_field_initializers}"
+    ## (we should be good here)
+  fi  ##end check cache value
   gl_WARN_ADD([-Wno-sign-compare])     # Too many warnings for now
   gl_WARN_ADD([-Wno-type-limits])      # Too many warnings for now
   gl_WARN_ADD([-Wno-switch])           # Too many warnings for now
@@ -2950,38 +2974,45 @@ else
     else
       test -z "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
       nw="${nw} -Waggregate-return"
-    fi
+    fi  ##end check for one undocumented environment variable
     if test "x${PRINT_CONVERSION_WARNINGS}" = "xyes"; then
       test -n "${PRINT_CONVERSION_WARNINGS}"
       gl_WARN_ADD([-Wconversion])
     else
       test -z "${PRINT_CONVERSION_WARNINGS}"
       nw="${nw} -Wconversion"
-    fi
+    fi  ##end check for other undocumented environment variable
     gl_WARN_ADD([-Wdeclaration-after-statement])
-    gl_WARN_ADD([-Wfloat-equal])
     gl_WARN_ADD([-Wmissing-noreturn])
     if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
       test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
-      gl_WARN_ADD([-Wpadded])
+      ## maintainer mode can also trigger '-Werror', so avoid:
+      if test "x${USE_MAINTAINER_MODE}" != "xyes"; then
+        gl_WARN_ADD([-Wfloat-equal])
+      fi  ##end check for maintainer mode
+      ## clang prints a lot of these:
+      if test "x${emacs_cv_clang}" != "xyes"; then
+        gl_WARN_ADD([-Wpadded])
+      fi  ##end check for clang
       gl_WARN_ADD([-Wredundant-decls])
     else
       test -z "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
+      ## ('-Wfloat-equal' is added to 'nw' specifically for gnulib below)
       nw="${nw} -Wpadded"
       nw="${nw} -Wredundant-decls"
-    fi
+    fi  ##end check for undocumented environment variable
     dnl#FIXME: this will always end up in the first case, unless "${nw}" is
     dnl# entirely empty:
     if test -n "`echo ${nw} | grep Wswitch`"; then
       nw="${nw} -Wswitch-enum"
     else
       gl_WARN_ADD([-Wswitch-enum])
-    fi
+    fi  ##end check to see if 'nw' already contains '-Wswitch' (broken)
     if test "x${emacs_cv_clang}" = "xyes" || test "x${emacs_cv_apple}" = "xyes"; then
       nw="${nw} -Wunreachable-code"
     else
       gl_WARN_ADD([-Wunreachable-code])
-    fi
+    fi  ##end check for clang or Apple compiler
     ])dnl# end block of code for gcc4.2+
 
     dnl# some other ones from the gcc4.9 manual that m4/manywarnings.m4
@@ -2989,7 +3020,7 @@ else
     gl_GCC_VERSION_IFELSE([4],[9],[
     if test "x${CXX}" != "x" && test "x${CXX}" = "x${CC}"; then
       gl_WARN_ADD([-Wc++-compat])
-    fi
+    fi  ##end check for C++ compiler
     if test "x${PRINT_CONVERSION_WARNINGS}" = "xyes"; then
       dnl# leave this environment variable undocumented:
       test -n "${PRINT_CONVERSION_WARNINGS}"
@@ -3074,6 +3105,12 @@ dnl# not sure where else to put these:
 AC_PATH_PROG([FILE_MAGIC_BIN],[file])dnl
 AC_PATH_PROGS([MACHOCHECK],[machocheck machocheck_debug])dnl
 AC_PATH_PROG([RELPATH_BIN],[relpath])dnl
+AC_PATH_PROGS([ID_BIN],[id gid])dnl
+
+if test "x${ID_BIN}" != "x"; then
+  test -n "${ID_BIN}"
+  AC_DEFINE([HAVE_ID_BIN],[1],[Define to 1 if we have the 'id' program])
+fi
 
 AC_MSG_CHECKING([libtool things])
 AC_MSG_RESULT([ ])
@@ -3360,6 +3397,7 @@ case "${opsys}" in
    ## The system compiler, GCC, has apparently been modified to not
    ## look there, contrary to what a stock GCC would do.
 ### It is not our place to do this.  See bug#10313#17.
+### (hence the "BE_PRESUMPTUOUS" environment variable)
       if test -d /usr/local/lib && test -z "${LD_SWITCH_SYSTEM}" && test -n "${BE_PRESUMPTUOUS}"; then
          LD_SWITCH_SYSTEM='-L/usr/local/lib'
       fi
@@ -3376,6 +3414,7 @@ case "${opsys}" in
 
   netbsd)
 ### It is not our place to do this.  See bug#10313#17.
+### (hence the "BE_PRESUMPTUOUS" environment variable)
       if test -d /usr/pkg/lib && test -d /usr/local/lib && test -z "${LD_SWITCH_SYSTEM}" && test -n "${BE_PRESUMPTUOUS}"; then
          LD_SWITCH_SYSTEM="-Wl,-rpath,/usr/pkg/lib -L/usr/pkg/lib -Wl,-rpath,/usr/local/lib -L/usr/local/lib"
       fi
@@ -3437,6 +3476,7 @@ esac
 AC_SUBST([C_SWITCH_MACHINE])dnl
 
 C_SWITCH_SYSTEM=""
+C_SWITCH_SYSTEM_TEMACS=""
 ## Some programs in src produce warnings saying certain subprograms
 ## are too complex and need a MAXMEM value greater than 2000 for
 ## additional optimization.  --nils@exp-math.uni-essen.de
@@ -3447,10 +3487,25 @@ if test "x${opsys}" = "xmingw32"; then
     x86_64-*-mingw32) C_SWITCH_SYSTEM="-mtune=generic" ;;
     *) C_SWITCH_SYSTEM="-mtune=pentium4" ;;
   esac
+elif test "x${opsys}" = "xdarwin"; then
+  case "${canonical}" in
+    *-apple-darwin*)
+      if test "x${MAC_OSX_DEFINED}" != "x1"; then
+        export MAC_OSX_DEFINED=1
+        C_SWITCH_SYSTEM="-DMAC_OSX=1"
+      fi
+    ;;
+    mac-apple-*) C_SWITCH_SYSTEM="-DMAC_OS" ;;
+  esac
+  if test "x${emacs_cv_apple}" = "xyes"; then
+    C_SWITCH_SYSTEM="${C_SWITCH_SYSTEM} -fpascal-strings"
+  fi
+  C_SWITCH_SYSTEM_TEMACS="-Dtemacs"
 fi
 ## gnu-linux might need -D_BSD_SOURCE on old libc5 systems.
 ## It is redundant in glibc2, since we define _GNU_SOURCE.
 AC_SUBST([C_SWITCH_SYSTEM])dnl
+AC_SUBST([C_SWITCH_SYSTEM_TEMACS])dnl
 
 dnl# system-specific libraries to use (m4-quotation block 7 begins):
 [
@@ -3693,24 +3748,27 @@ fi
 dnl# checks for header files:
 AC_MSG_CHECKING([headers])
 AC_MSG_RESULT([ ])
-dnl# "_ONCE" causes test to be done at wrong location, unfortunately:
-AC_CHECK_HEADERS([ \
-  sys/systeminfo.h \
-  coff.h pty.h \
-  sys/resource.h \
-  sys/utsname.h pwd.h utmp.h util.h])
-dnl# (normally I check <malloc/malloc.h> right after <malloc.h>, but we do
-dnl# that elsewhere in this one)
+dnl# "_ONCE" causes test to be done at wrong location, unfortunately,
+dnl# so leave that part off and just check them normally, keeping this
+dnl# first batch mostly in their historical order:
+AC_CHECK_HEADERS([alloca.h assert.h \
+  sys/devinfo.h sys/systeminfo.h sys/inode.h \
+  coff.h pty.h sys/pty.h sys/tty.h sys/hft.h \
+  sys/resource.h sys/resourcevar.h \
+  sys/utsname.h pwd.h utmp.h utmpx.h util.h])dnl
+dnl# Try to keep this second batch in alphabetical order:
 AC_CHECK_HEADERS([OS.h arpa/inet.h dpmi.h err.h errno.h fcntl.h float.h \
                   langinfo.h libintl.h limits.h locale.h malloc.h paths.h \
                   nl_types.h sgtty.h stddef.h sys/_mbstate_t.h sys/file.h \
                   sys/ioctl.h sys/mman.h sys/timeb.h sys/vfs.h \
                   termcap.h termio.h termios.h timespec.h])
+dnl# (usually I would have checked <malloc/malloc.h> just after <malloc.h>,
+dnl# but we do that elsewhere in this one)
 if test "x${ac_cv_header_wctype_h}" = "x"; then
   test -z "${ac_cv_header_wctype_h}"
   AC_CHECK_HEADERS([wctype.h])
 fi
-dnl# Keep autoscan happy with a dummy condition:
+dnl# Keep autoscan happy with a dummy condition that is never reached:
 if test "x" = "Y0"; then
   test -x "`which autoscan`"
   AC_CHECK_HEADERS([stdio_ext.h sys/param.h sys/time.h utime.h wchar.h])
@@ -3760,7 +3818,8 @@ if test "x${ac_cv_have_decl_sys_siglist}" != "xyes"; then
 elif test "x${ac_cv_have_decl_sys_siglist}" = "x"; then
   AC_CHECK_DECLS([sys_siglist])
 fi
-AC_CHECK_DECLS([MD5_DIGEST_SIZE])
+dnl# I forget about this next one:
+AC_CHECK_DECLS([MD5_DIGEST_SIZE])dnl
 dnl# well this one at least is here so we can know if we need to check
 dnl# for mach headers:
 AC_CHECK_DECLS([__MACH__])
@@ -3897,6 +3956,9 @@ AC_MSG_RESULT([ ])
 dnl# Signedness of char can produce some warnings:
 AC_C_CHAR_UNSIGNED
 
+dnl# "src/lisp.h" mentions flexible arrays:
+AC_C_FLEXIBLE_ARRAY_MEMBER
+
 dnl# Testing __STDC__ to determine prototype support is NOT good enough.
 dnl# DEC C, for instance, does NOT define it with default options, and
 dnl# is used on 64-bit systems (OSF Alphas).  Similarly for volatile
@@ -3905,10 +3967,12 @@ if test "x${ac_cv_c_prototypes}" = "x"; then
   test -z "${ac_cv_c_prototypes}"
   AC_C_PROTOTYPES
 fi
+AC_C_BACKSLASH_A
 if test "x${ac_cv_c_restrict}" = "x" && test "x${emacs_cv_c_restrict}" = "x" && test "x${emacs_cv_c_restrict_arr}" = "x"; then
   test -z "${ac_cv_c_restrict}" && test -z "${emacs_cv_c_restrict}" test -z "${emacs_cv_c_restrict_arr}"
   AC_C_RESTRICT
 fi
+AC_C_TYPEOF
 AC_C_VOLATILE
 if test "x${ac_cv_c_const}" = "x"; then
   test -z "${ac_cv_c_const}"
@@ -4059,8 +4123,9 @@ if test "x${no_x}" != "xyes"; then
 fi
 AC_SUBST([no_x])dnl
 
-dnl# actually it might be a bad idea to m4-quote this next block; it looks
-dnl# like it alread had some quotation in it to begin with...
+dnl# actually it might be a bad idea to m4-quote this next block
+dnl# (which was temporarily block number 10), as it looks like it already
+dnl# had some quotation in it to begin with...
 LD_SWITCH_X_SITE_RPATH=""
 if test "x${x_libraries}" != "xNONE"; then
   if test -n "${x_libraries}"; then
@@ -4121,6 +4186,9 @@ dnl# m4-quotation block 11 ends
 HAVE_CARBON=no
 if test "x${with_carbon}" != "xno"; then
   AC_CHECK_HEADER([Carbon/Carbon.h],[HAVE_CARBON=yes])
+  AC_CHECK_HEADERS([CarbonCore/Files.h CarbonCore/MacTypes.h \
+                    CarbonCore/Script.h CarbonCore/TextUtils.h \
+                    HIToolbox/Drag.h MacTypes.h])
 fi
 if test "x${window_system}" = "xx11" && test "x${HAVE_CARBON}" = "xyes"; then
   if test "x${with_carbon+set}" != "xset" \
@@ -4134,10 +4202,51 @@ if test "x${window_system}" = "xx11" && test "x${HAVE_CARBON}" = "xyes"; then
     done
   fi
 fi
+LIBS_CARBON=""
+MAC_OBJ=""
 if test "x${HAVE_CARBON}" = "xyes"; then
   window_system=mac
+  export LIBS_CARBON="-framework Carbon -framework QuickTime -framework CoreFoundation"
+  export MAC_OBJ="mac.o macterm.o macfns.o macmenu.o macselect.o fontset.o fringe.o image.o"
   AC_MSG_NOTICE([it looks like we are using Carbon for the window system at this point])
+  case "${canonical}" in
+    *64-*-darwin9.* | *64-*-darwin1[[012345]].*)
+      NON_CARBON_LDFLAGS="${LDFLAGS}"
+      LDFLAGS="${LDFLAGS} ${LIBS_CARBON} -m64"
+      AC_CACHE_CHECK([if Carbon still works when compiling 64-bit],
+                     [emacs_cv_carbon_sixtyfourbit],[
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+#ifndef __LP64__
+# define __LP64__ 1
+#endif /* !__LP64__ */
+#include <Carbon/Carbon.h>
+#ifdef HAVE_SYS_PARAM_H
+# include <sys/param.h>
+#else
+# ifndef MAXPATHLEN
+#  ifdef PATH_MAX
+#   define MAXPATHLEN PATH_MAX
+#  else
+#   define MAXPATHLEN 1024
+#  endif /* PATH_MAX */
+# endif /* !MAXPATHLEN */
+#endif /* HAVE_SYS_PARAM_H */
+static char in_string[MAXPATHLEN + 1] = "/System";
+]],[[
+/* call a function known to only work in 32-bit mode: */
+char *out_string = p2cstr((StringPtr)in_string);
+printf("%s", out_string);
+]])],
+[emacs_cv_carbon_sixtyfourbit=yes],[emacs_cv_carbon_sixtyfourbit=no])
+      ])
+      LDFLAGS="${NON_CARBON_LDFLAGS}"
+      ##FIXME: see also if it is possible to force 32-bit compilation,
+      ## if the above fails (which it should)...
+    ;;
+  esac
 fi
+AC_SUBST([LIBS_CARBON])dnl
+AC_SUBST([MAC_OBJ])dnl
 
 HAVE_NS="no"
 NS_IMPL=""
@@ -4332,6 +4441,8 @@ if test "x${HAVE_NS}" = "xyes"; then
      mandir="\${ns_appresdir}/man"
      lispdir="\${ns_appresdir}/lisp"
      INSTALL_ARCH_INDEP_EXTRA=""
+     AC_DEFINE([NS_SELF_CONTAINED_IS_TRUE],[1],
+               [Define to 1 if the Nextstep application is self-contained])
   fi
 
   NS_OBJC_OBJ="nsterm.o nsfns.o nsmenu.o nsselect.o nsimage.o nsfont.o ${macfont_file}"
@@ -6587,12 +6698,13 @@ if test "x${libm_has_fmod}" = "x" && test "x${ac_cv_func_fmod}" = "x"; then
   AC_CHECK_FUNCS([fmod])
 fi
 dnl# these ones should be in alphabetical order:
-AC_CHECK_FUNCS([__fpending acl atexit btowc bzero doprnt errc fchdir \
-                floor ftime ftruncate getcwd getpass inet_ntoa isascii \
-                iswprint mbrlen memchr memmove memset mkdir munmap \
-                nl_langinfo posix_spawnp pow putenv re_comp regcomp rmdir \
-                setenv socket sqrt strcasecmp strchr strcspn strdup \
-                strerror strpbrk strrchr strstr strtol strtoul \
+AC_CHECK_FUNCS([__fpending acl atexit atof atoi btowc bzero doprnt errc \
+                fabs fabsf fchdir floor ftime ftruncate getcwd getpass \
+                inet_ntoa isascii iswprint mbrlen memchr memmove memset \
+                mkdir munmap nl_langinfo posix_spawnp pow putenv \
+                re_comp regcomp rmdir setenv socket sqrt strcasecmp \
+                strcasestr strchr strcspn strdup strerror strnstr \
+                strpbrk strrchr strstr strtol strtoul system \
                 uname utime utmpname])
 dnl# Keep autoscan happy with a dummy condition:
 if test "x" = "Y0"; then
@@ -7745,7 +7857,8 @@ case ${opsys} in
     AC_DEFINE([DARWIN_OS],[],[Define if the system is Darwin.])
     dnl# We need a way to distinguish OS X from pure Darwin as well:
     if test "x${host_vendor}" = "xapple" && test "x${ac_cv_have_decl___MACH__}" = "xyes"; then
-      AC_DEFINE([MAC_OSX],[],[Define if the system is the darwin distribution known as Mac OS X.])
+      export MAC_OSX_DEFINED=1
+      AC_DEFINE([MAC_OSX],[1],[Define to 1 if the system is the darwin distribution known as Mac OS X.])
     else
       test -n "${host_vendor}" ##...and do something else...
     fi
@@ -8197,6 +8310,7 @@ case "${opsys}" in
   aix4-2) LD_SWITCH_SYSTEM_TEMACS="-Wl,-bnodelcsect" ;;
 
   darwin)
+   libs_nsgui=""
    ## The -headerpad option tells ld (see man page) to leave room at the
    ## end of the header for adding load commands. Needed for dumping.
    ## 0x690 is the total size of 30 segment load commands (at 56
@@ -8207,6 +8321,9 @@ case "${opsys}" in
         libs_nsgui="${libs_nsgui} -framework IOKit"
      fi
      headerpad_extra=6C8
+   elif test "x${HAVE_CARBON}" = "xyes" && test "x${LIBS_CARBON}" != "x"; then
+     test -n "${LIBS_CARBON}" && libs_nsgui="${LIBS_CARBON}"
+     headerpad_extra=690
    else
      libs_nsgui=""
      headerpad_extra=690
@@ -8358,6 +8475,28 @@ AH_BOTTOM([#include <conf_post.h>
 # endif  /* GCC.  */
 #endif /* __P */
 
+/* MAC_OS is used to conditionally compile code common to both MAC_OS8
+ * and MAC_OSX.  */
+#if defined(MAC_OS8) || (defined(MAC_OSX) && !defined(HAVE_NS))
+# if defined(HAVE_CARBON) && defined(ALLOW_OBSOLETE_CARBON)
+#  if !defined(__LP64__) || !__LP64__
+#   ifndef MAC_OS
+#    define MAC_OS
+#   endif /* !MAC_OS */
+#  endif /* !__LP64__ */
+# endif /* HAVE_CARBON && ALLOW_OBSOLETE_CARBON */
+#endif /* MAC_OS8 || (MAC_OSX && !HAVE_NS) */
+
+/* Some other debugging defines: */
+#if defined(ENABLE_CHECKING) || defined(GLYPH_DEBUG) || defined(EMACSDEBUG)
+# ifndef DEBUG
+#  define DEBUG 1
+# endif /* !DEBUG */
+# ifndef _DEBUG
+#  define _DEBUG 1
+# endif /* !_DEBUG */
+#endif /* ENABLE_CHECKING || GLYPH_DEBUG || EMACSDEBUG */
+
 #endif /* EMACS_CONFIG_H */
 
 /*
@@ -8454,7 +8593,7 @@ echo ""
 if test "x${USE_XASSERTS}" = "xyes"; then
    echo "  Compiling with asserts turned on."
    CPPFLAGS="${CPPFLAGS} -DXASSERTS=1"
-   echo
+   echo ""
 fi
 
 echo "Special environment variables: "
