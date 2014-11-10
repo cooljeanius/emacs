@@ -1,4 +1,4 @@
-/* Keyboard and mouse input; editor command loop.
+/* keyboard.c: Keyboard and mouse input; editor command loop.
 
 Copyright (C) 1985-1989, 1993-1997, 1999-2014 Free Software Foundation,
 Inc.
@@ -2403,7 +2403,7 @@ read_char (int commandflag, Lisp_Object map,
 	   Lisp_Object prev_event,
 	   bool *used_mouse_menu, struct timespec *end_time)
 {
-  Lisp_Object c;
+  Lisp_Object volatile c;
   ptrdiff_t jmpcount;
   sys_jmp_buf local_getcjmp;
   sys_jmp_buf save_jump;
@@ -2420,7 +2420,7 @@ read_char (int commandflag, Lisp_Object map,
 #if 0  /* This was commented out as part of fixing echo for C-u left.  */
   before_command_key_count = this_command_key_count;
   before_command_echo_length = echo_length ();
-#endif
+#endif /* 0 */
   c = Qnil;
   previous_echo_area_message = Qnil;
 

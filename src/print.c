@@ -964,21 +964,21 @@ float_to_string (char *buf, double data)
 
   /* Check for plus infinity in a way that will NOT lose
      if there is no plus infinity.  */
-  if ((data == (data / 2)) && (data > 1.0f))
+  if ((data == (data / (double)2.0f)) && (data > (double)1.0f))
     {
       static char const infinity_string[] = "1.0e+INF";
       strcpy (buf, infinity_string);
       return sizeof infinity_string - 1;
     }
-  /* Likewise for minus infinity.  */
-  if ((data == (data / 2)) && (data < -1.0f))
+  /* Likewise for minus infinity: */
+  if ((data == (data / (double)2.0f)) && (data < (double)-1.0f))
     {
       static char const minus_infinity_string[] = "-1.0e+INF";
       strcpy (buf, minus_infinity_string);
       return sizeof minus_infinity_string - 1;
     }
   /* Check for NaN in a way that will NOT fail if there are no NaNs.  */
-  if (!((data * 0.0f) >= 0.0f))
+  if (!((data * (double)0.0f) >= (double)0.0f))
     {
       /* Prepend "-" if the NaN's sign bit is negative.
 	 The sign bit of a double is the bit that is 1 in -0.0.  */

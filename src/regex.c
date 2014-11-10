@@ -29,7 +29,7 @@
 /* AIX requires this to be the first thing in the file.  */
 #if defined _AIX && !defined REGEX_MALLOC
   #pragma alloca
-#endif
+#endif /* _AIX && !REGEX_MALLOC */
 
 /* Ignore some GCC warnings for now.  This section should go away
    once the Emacs and Gnulib regex code is merged.  */
@@ -41,11 +41,11 @@
 #  pragma GCC diagnostic ignored "-Wunused-result"
 #  pragma GCC diagnostic ignored "-Wunused-variable"
 # endif /* !emacs */
-#endif
+#endif /* gcc 4.5+ || __clang__ */
 
 #if 4 < __GNUC__ + (6 <= __GNUC_MINOR__) && ! defined __clang__
 # pragma GCC diagnostic ignored "-Wunused-but-set-variable"
-#endif
+#endif /* gcc 4.6+ && !__clang__ */
 
 #include <config.h>
 
@@ -58,18 +58,18 @@
 #endif /* STDC_HEADERS || HAVE_STDDEF_H */
 
 #ifdef emacs
-/* We need this for `regex.h', and perhaps for the Emacs include files.  */
+/* We need this for `regex.h', and perhaps for the Emacs include files: */
 # include <sys/types.h>
 #endif /* emacs */
 
 /* Whether to use ISO C Amendment 1 wide char functions.
    Those should not be used for Emacs since it uses its own.  */
 #if defined _LIBC
-#define WIDE_CHAR_SUPPORT 1
+# define WIDE_CHAR_SUPPORT 1
 #else
-#define WIDE_CHAR_SUPPORT \
-	(HAVE_WCTYPE_H && HAVE_WCHAR_H && HAVE_BTOWC && !emacs)
-#endif
+# define WIDE_CHAR_SUPPORT \
+ 	 (HAVE_WCTYPE_H && HAVE_WCHAR_H && HAVE_BTOWC && !emacs)
+#endif /* _LIBC */
 
 /* For platform which support the ISO C amendment 1 functionality we
    support user defined character classes.  */
@@ -77,7 +77,7 @@
 /* Solaris 2.5 has a bug: <wchar.h> must be included before <wctype.h>.  */
 # include <wchar.h>
 # include <wctype.h>
-#endif
+#endif /* WIDE_CHAR_SUPPORT */
 
 #ifdef _LIBC
 /* We have to keep the namespace clean.  */
@@ -113,21 +113,21 @@
 # include <locale/elem-hash.h>
 # include <langinfo.h>
 #else
-# define WEAK_ALIAS(a,b)
-#endif
+# define WEAK_ALIAS(a,b) /* (nothing) */
+#endif /* _LIBC */
 
 /* This is for other GNU distributions with internationalized messages.  */
 #if HAVE_LIBINTL_H || defined _LIBC
 # include <libintl.h>
 #else
 # define gettext(msgid) (msgid)
-#endif
+#endif /* HAVE_LIBINTL_H || _LIBC */
 
 #ifndef gettext_noop
 /* This define is so xgettext can find the internationalizable
    strings.  */
 # define gettext_noop(String) String
-#endif
+#endif /* !gettext_noop */
 
 /* The `emacs' switch turns on certain matching commands
    that make sense only in Emacs. */
@@ -145,15 +145,15 @@
 
 # ifdef malloc
 #  undef malloc
-# endif
+# endif /* malloc */
 # define malloc xmalloc
 # ifdef realloc
 #  undef realloc
-# endif
+# endif /* realloc */
 # define realloc xrealloc
 # ifdef free
 #  undef free
-# endif
+# endif /* free */
 # define free xfree
 
 /* Converts the pointer to the char to BEG-based offset from the start.  */
@@ -207,16 +207,14 @@
 #else  /* not emacs */
 
 /* If we are not linking with Emacs proper,
-   we can't use the relocating allocator
+   we cannot use the relocating allocator
    even if config.h says that we can.  */
 # undef REL_ALLOC
 
 # include <unistd.h>
 
-/* When used in Emacs's lib-src, we need xmalloc and xrealloc. */
-
-static void *
-xmalloc (size_t size)
+/* When used in Emacs's lib-src, we need xmalloc and xrealloc: */
+static void *xmalloc(size_t size)
 {
   void *val = malloc (size);
   if (!val && size)
@@ -227,8 +225,7 @@ xmalloc (size_t size)
   return val;
 }
 
-static void *
-xrealloc (void *block, size_t size)
+static void *xrealloc(void *block, size_t size)
 {
   void *val;
   /* We must call malloc explicitly when BLOCK is 0, since some
@@ -247,11 +244,11 @@ xrealloc (void *block, size_t size)
 
 # ifdef malloc
 #  undef malloc
-# endif
+# endif /* malloc */
 # define malloc xmalloc
 # ifdef realloc
 #  undef realloc
-# endif
+# endif /* realloc */
 # define realloc xrealloc
 
 # include <stdbool.h>
@@ -288,7 +285,7 @@ enum syntaxcode { Swhitespace = 0, Sword = 1, Ssymbol = 2 };
 #ifndef RE_TRANSLATE
 # define RE_TRANSLATE(TBL, C) ((unsigned char)(TBL)[C])
 # define RE_TRANSLATE_P(TBL) (TBL)
-#endif
+#endif /* !RE_TRANSLATE */
 
 /* Get the interface, including the syntax bits.  */
 #ifdef _REGEX_H
@@ -374,12 +371,12 @@ enum syntaxcode { Swhitespace = 0, Sword = 1, Ssymbol = 2 };
 #  define ISBLANK(c) isblank (c)
 # else
 #  define ISBLANK(c) ((c) == ' ' || (c) == '\t')
-# endif
+# endif /* isblank */
 # ifdef isgraph
 #  define ISGRAPH(c) isgraph (c)
 # else
 #  define ISGRAPH(c) (isprint (c) && !isspace (c))
-# endif
+# endif /* isgraph */
 
 /* Solaris defines ISPRINT so we must undefine it first.  */
 # undef ISPRINT
@@ -400,7 +397,7 @@ enum syntaxcode { Swhitespace = 0, Sword = 1, Ssymbol = 2 };
 #  define TOLOWER(c) _tolower (c)
 # else
 #  define TOLOWER(c) tolower (c)
-# endif
+# endif /* _tolower */
 
 /* How many characters in the character set.  */
 # define CHAR_SET_SIZE 256
@@ -413,8 +410,7 @@ extern char *re_syntax_table;
 
 static char re_syntax_table[CHAR_SET_SIZE];
 
-static void
-init_syntax_once (void)
+static void init_syntax_once(void)
 {
    register int c;
    static int done = 0;
@@ -785,11 +781,11 @@ extract_number_and_incr (re_char **source)
 #define CHARSET_RANGE_TABLE(p) (&(p)[4 + CHARSET_BITMAP_SIZE (p)])
 
 #ifdef emacs
-/* Extract the bit flags that start a range table.  */
-#define CHARSET_RANGE_TABLE_BITS(p)		\
-  ((p)[2 + CHARSET_BITMAP_SIZE (p)]		\
-   + (p)[3 + CHARSET_BITMAP_SIZE (p)] * 0x100)
-#endif
+/* Extract the bit flags that start a range table: */
+# define CHARSET_RANGE_TABLE_BITS(p)		\
+   ((p)[2 + CHARSET_BITMAP_SIZE (p)]		\
+    + (p)[3 + CHARSET_BITMAP_SIZE (p)] * 0x100)
+#endif /* emacs */
 
 /* Return the address of end of RANGE_TABLE.  COUNT is number of
    ranges (which is a pair of (start, end)) in the RANGE_TABLE.  `* 2'
@@ -1221,7 +1217,7 @@ print_double_string (re_char *where, re_char *string1, ssize_t size1,
 # define IF_LINT(Code) Code
 #else
 # define IF_LINT(Code) /* empty */
-#endif
+#endif /* lint */
 
 /* Set by `re_set_syntax' to the current regexp syntax to recognize.  Can
    also be assigned to arbitrarily: each pattern buffer stores its own
@@ -1237,9 +1233,7 @@ reg_syntax_t re_syntax_options;
 
    The argument SYNTAX is a bit mask comprised of the various bits
    defined in regex.h.  We return the old syntax.  */
-
-reg_syntax_t
-re_set_syntax (reg_syntax_t syntax)
+reg_syntax_t re_set_syntax(reg_syntax_t syntax)
 {
   reg_syntax_t ret = re_syntax_options;
 
@@ -1248,13 +1242,12 @@ re_set_syntax (reg_syntax_t syntax)
 }
 WEAK_ALIAS (__re_set_syntax, re_set_syntax)
 
-/* Regexp to use to replace spaces, or NULL meaning don't.  */
+/* Regexp to use to replace spaces, or NULL meaning do NOT do so:  */
 static const_re_char *whitespace_regexp;
 
-void
-re_set_whitespace_regexp (const char *regexp)
+void re_set_whitespace_regexp(const char *regexp)
 {
-  whitespace_regexp = (const_re_char *) regexp;
+  whitespace_regexp = (const_re_char *)regexp;
 }
 WEAK_ALIAS (__re_set_syntax, re_set_syntax)
 
@@ -1314,7 +1307,7 @@ static const char *re_error_msgid[] =
    so REL_ALLOC should not affect this.  */
 #if defined REGEX_MALLOC && defined emacs
 # undef MATCH_MAY_ALLOCATE
-#endif
+#endif /* REGEX_MALLOC && emacs */
 
 
 /* Failure stack declarations and macros; both re_compile_fastmap and
@@ -1327,7 +1320,7 @@ static const char *re_error_msgid[] =
    space, so it is not a hard limit.  */
 #ifndef INIT_FAILURE_ALLOC
 # define INIT_FAILURE_ALLOC 20
-#endif
+#endif /* !INIT_FAILURE_ALLOC */
 
 /* Roughly the maximum number of failure points on the stack.  Would be
    exactly that if always used TYPICAL_FAILURE_SIZE items each time we failed.
@@ -1390,7 +1383,7 @@ typedef struct
 
 # define RETALLOC_IF(addr, n, t) \
   if (addr) RETALLOC((addr), (n), t); else (addr) = TALLOC ((n), t)
-#endif
+#endif /* MATCH_MAY_ALLOCATE */
 
 
 /* Double the size of FAIL_STACK, up to a limit
@@ -1672,12 +1665,12 @@ static int analyse_first (re_char *p, re_char *pend,
 #ifndef TRANSLATE
 # define TRANSLATE(d) \
   (RE_TRANSLATE_P (translate) ? RE_TRANSLATE (translate, (d)) : (d))
-#endif
+#endif /* !TRANSLATE */
 
 
 /* Macros for outputting the compiled pattern into `buffer'.  */
 
-/* If the buffer isn't allocated when it comes in, use this.  */
+/* If the buffer is NOT allocated when it comes in, then use this: */
 #define INIT_BUF_SIZE  32
 
 /* Make sure we have at least N more bytes of space in buffer.  */
@@ -1750,7 +1743,7 @@ static int analyse_first (re_char *p, re_char *pend,
 #else
 # define MOVE_BUFFER_POINTER(P) ((P) = new_buffer + ((P) - old_buffer))
 # define ELSE_EXTEND_BUFFER_HIGH_BOUND
-#endif
+#endif /* __BOUNDED_POINTERS__ */
 #define EXTEND_BUFFER()							\
   do {									\
     unsigned char *old_buffer = bufp->buffer;				\
@@ -1830,7 +1823,7 @@ typedef struct
     } while (0)
 #else
 # define IMMEDIATE_QUIT_CHECK    ((void)0)
-#endif
+#endif /* emacs */
 
 /* Structure to manage work area for range table.  */
 struct range_table_work_area
@@ -2029,8 +2022,7 @@ struct range_table_work_area
 #if ! WIDE_CHAR_SUPPORT
 
 /* Map a string to the char class it names (if any).  */
-re_wctype_t
-re_wctype (const_re_char *str)
+re_wctype_t re_wctype(const_re_char *str)
 {
   const char *string = (const char *) str;
   if      (STREQ (string, "alnum"))	return RECC_ALNUM;
@@ -2053,9 +2045,8 @@ re_wctype (const_re_char *str)
   else return 0;
 }
 
-/* True if CH is in the char class CC.  */
-boolean
-re_iswctype (int ch, re_wctype_t cc)
+/* True if CH is in the char class CC: */
+boolean re_iswctype(int ch, re_wctype_t cc)
 {
   switch (cc)
     {
@@ -2084,8 +2075,7 @@ re_iswctype (int ch, re_wctype_t cc)
 
 /* Return a bit-pattern to use in the range-table bits to match multibyte
    chars of class CC.  */
-static int
-re_wctype_to_bit (re_wctype_t cc)
+static int re_wctype_to_bit(re_wctype_t cc)
 {
   switch (cc)
     {
@@ -2102,12 +2092,11 @@ re_wctype_to_bit (re_wctype_t cc)
       abort ();
     }
 }
-#endif
+#endif /* !WIDE_CHAR_SUPPORT */
 
 /* Filling in the work area of a range.  */
 
-/* Actually extend the space in WORK_AREA.  */
-
+/* Actually extend the space in WORK_AREA: */
 static void
 extend_range_table_work_area (struct range_table_work_area *work_area)
 {
@@ -2292,7 +2281,7 @@ set_image_of_range (struct range_table_work_area *work_area,
   /* For Latin-1 ranges, use set_image_of_range_1
      to get proper handling of ranges that include letters and nonletters.
      For a range that includes the whole of Latin-1, this is not necessary.
-     For other character sets, we don't bother to get this right.  */
+     For other character sets, we do NOT bother to get this right.  */
   if (RE_TRANSLATE_P (translate) && start < 04400
       && !(start < 04200 && end >= 04377))
     {
@@ -2309,7 +2298,7 @@ set_image_of_range (struct range_table_work_area *work_area,
       if (end < 04400)
 	return -1;
     }
-#endif
+#endif /* emacs */
 
   EXTEND_RANGE_TABLE (work_area, 2);
   work_area->table[work_area->used++] = (start);
@@ -2442,7 +2431,7 @@ regex_compile (const_re_char *pattern, size_t size, reg_syntax_t syntax,
   unsigned char *p = pattern;
 #else
   re_char *p = pattern;
-#endif
+#endif /* AIX */
   re_char *pend = pattern + size;
 
   /* How to translate the characters in the pattern.  */
@@ -2527,7 +2516,7 @@ regex_compile (const_re_char *pattern, size_t size, reg_syntax_t syntax,
 #if !defined emacs && !defined SYNTAX_TABLE
   /* Initialize the syntax table.  */
    init_syntax_once ();
-#endif
+#endif /* !emacs && !SYNTAX_TABLE */
 
   if (bufp->allocated == 0)
     {
@@ -3708,7 +3697,7 @@ regex_compile (const_re_char *pattern, size_t size, reg_syntax_t syntax,
 
 #ifndef MATCH_MAY_ALLOCATE
   /* Initialize the failure stack to the largest possible stack.  This
-     isn't necessary unless we're trying to avoid calling alloca in
+     is unnecessary unless we are trying to avoid calling alloca in
      the search and match routines.  */
   {
     int num_regs = bufp->re_nsub + 1;
@@ -3975,7 +3964,7 @@ analyse_first (const_re_char *p, const_re_char *pend, char *fastmap,
 
 #ifdef emacs
 	  if (/* Any leading code can possibly start a character
-		 which doesn't match the specified set of characters.  */
+		 which does NOT match the specified set of characters.  */
 	      not
 	      ||
 	      /* If we can match a character class, we can match any
@@ -4019,7 +4008,7 @@ analyse_first (const_re_char *p, const_re_char *pend, char *fastmap,
 		    fastmap[j] = 1;
 		}
 	    }
-#endif
+#endif /* emacs */
 	  break;
 
 	case syntaxspec:
@@ -4337,15 +4326,15 @@ re_search_2 (struct re_pattern_buffer *bufp, const char *str1, size_t size1,
 
     SETUP_SYNTAX_TABLE_FOR_OBJECT (re_match_object, charpos, 1);
   }
-#endif
+#endif /* emacs */
 
   /* Loop through the string, looking for a place to start matching.  */
   for (;;)
     {
       /* If the pattern is anchored,
 	 skip quickly past places we cannot match.
-	 We don't bother to treat startpos == 0 specially
-	 because that case doesn't repeat.  */
+	 We do NOT bother to treat startpos == 0 specially
+	 because that case does NOT repeat.  */
       if (anchored_start && startpos > 0)
 	{
 	  if (! ((startpos <= size1 ? string1[startpos - 1]
@@ -4576,17 +4565,17 @@ static int bcmp_translate (re_char *s1, re_char *s2,
    two special cases to check for: if past the end of string1, look at
    the first character in string2; and if before the beginning of
    string2, look at the last character in string1.  */
-#define WORDCHAR_P(d)							\
-  (SYNTAX ((d) == end1 ? *string2					\
-	   : (d) == string2 - 1 ? *(end1 - 1) : *(d))			\
-   == Sword)
+# define WORDCHAR_P(d)							\
+   (SYNTAX ((d) == end1 ? *string2					\
+	    : (d) == string2 - 1 ? *(end1 - 1) : *(d))			\
+    == Sword)
 
 /* Test if the character before D and the one at D differ with respect
    to being word-constituent.  */
-#define AT_WORD_BOUNDARY(d)						\
-  (AT_STRINGS_BEG (d) || AT_STRINGS_END (d)				\
-   || WORDCHAR_P (d - 1) != WORDCHAR_P (d))
-#endif
+# define AT_WORD_BOUNDARY(d)						\
+   (AT_STRINGS_BEG (d) || AT_STRINGS_END (d)				\
+    || WORDCHAR_P (d - 1) != WORDCHAR_P (d))
+#endif /* 0 */
 
 /* Free everything we malloc.  */
 #ifdef MATCH_MAY_ALLOCATE
@@ -4905,7 +4894,7 @@ WEAK_ALIAS (__re_match, re_match)
 /* In Emacs, this is the string or buffer in which we
    are matching.  It is used for looking up syntax properties.  */
 Lisp_Object re_match_object;
-#endif
+#endif /* emacs */
 
 /* re_match_2 matches the compiled pattern in BUFP against the
    the (virtual) concatenation of STRING1 and STRING2 (of length SIZE1
@@ -4932,7 +4921,7 @@ re_match_2 (struct re_pattern_buffer *bufp, const char *string1,
   gl_state.object = re_match_object; /* Used by SYNTAX_TABLE_BYTE_TO_CHAR. */
   charpos = SYNTAX_TABLE_BYTE_TO_CHAR (POS_AS_IN_BUFFER (pos));
   SETUP_SYNTAX_TABLE_FOR_OBJECT (re_match_object, charpos, 1);
-#endif
+#endif /* emacs */
 
   result = re_match_2_internal (bufp, (re_char*) string1, size1,
 				(re_char*) string2, size2,
@@ -4991,16 +4980,16 @@ re_match_2_internal (struct re_pattern_buffer *bufp, const_re_char *string1,
      scanning the strings.  */
 #ifdef MATCH_MAY_ALLOCATE /* otherwise, this is global.  */
   fail_stack_type fail_stack;
-#endif
+#endif /* MATCH_MAY_ALLOCATE */
 #ifdef DEBUG_COMPILES_ARGUMENTS
   unsigned nfailure_points_pushed = 0, nfailure_points_popped = 0;
-#endif
+#endif /* DEBUG_COMPILES_ARGUMENTS */
 
 #if defined REL_ALLOC && defined REGEX_MALLOC
   /* This holds the pointer to the failure stack, when
      it is allocated relocatably.  */
   fail_stack_elt_t *failure_stack_ptr;
-#endif
+#endif /* REL_ALLOC && REGEX_MALLOC */
 
   /* We fill all the registers internally, independent of what we
      return, for use in backreferences.  The number here includes
@@ -5016,7 +5005,7 @@ re_match_2_internal (struct re_pattern_buffer *bufp, const_re_char *string1,
      keeps track of what the whole pattern matches.)  */
 #ifdef MATCH_MAY_ALLOCATE /* otherwise, these are global.  */
   re_char **regstart, **regend;
-#endif
+#endif /* MATCH_MAY_ALLOCATE */
 
   /* The following record the register info as found in the above
      variables when we find a match better than any we've seen before.
@@ -5025,7 +5014,7 @@ re_match_2_internal (struct re_pattern_buffer *bufp, const_re_char *string1,
   unsigned best_regs_set = false;
 #ifdef MATCH_MAY_ALLOCATE /* otherwise, these are global.  */
   re_char **best_regstart, **best_regend;
-#endif
+#endif /* MATCH_MAY_ALLOCATE */
 
   /* Logically, this is `best_regend[0]'.  But we don't want to have to
      allocate space for that if we're not allocating space for anything
@@ -5040,7 +5029,7 @@ re_match_2_internal (struct re_pattern_buffer *bufp, const_re_char *string1,
 #ifdef DEBUG_COMPILES_ARGUMENTS
   /* Counts the total number of registers pushed.  */
   unsigned num_regs_pushed = 0;
-#endif
+#endif /* DEBUG_COMPILES_ARGUMENTS */
 
   DEBUG_PRINT ("\n\nEntering re_match_2.\n");
 
@@ -5425,7 +5414,7 @@ re_match_2_internal (struct re_pattern_buffer *bufp, const_re_char *string1,
 		d++;
 	      }
 	    while (--mcnt);
-#endif
+#endif /* !emacs || emacs */
 	  break;
 
 
@@ -5955,12 +5944,12 @@ re_match_2_internal (struct re_pattern_buffer *bufp, const_re_char *string1,
 		ssize_t offset = PTR_TO_OFFSET (d - 1);
 		ssize_t charpos = SYNTAX_TABLE_BYTE_TO_CHAR (offset);
 		UPDATE_SYNTAX_TABLE (charpos);
-#endif
+#endif /* emacs */
 		GET_CHAR_BEFORE_2 (c1, d, string1, end1, string2, end2);
 		s1 = SYNTAX (c1);
 #ifdef emacs
 		UPDATE_SYNTAX_TABLE_FORWARD (charpos + 1);
-#endif
+#endif /* emacs */
 		PREFETCH_NOLIMIT ();
 		GET_CHAR_AFTER (c2, d, dummy);
 		s2 = SYNTAX (c2);
@@ -5997,7 +5986,7 @@ re_match_2_internal (struct re_pattern_buffer *bufp, const_re_char *string1,
 	      ssize_t offset = PTR_TO_OFFSET (d);
 	      ssize_t charpos = SYNTAX_TABLE_BYTE_TO_CHAR (offset);
 	      UPDATE_SYNTAX_TABLE (charpos);
-#endif
+#endif /* emacs */
 	      PREFETCH ();
 	      GET_CHAR_AFTER (c2, d, dummy);
 	      s2 = SYNTAX (c2);
@@ -6012,7 +6001,7 @@ re_match_2_internal (struct re_pattern_buffer *bufp, const_re_char *string1,
 		  GET_CHAR_BEFORE_2 (c1, d, string1, end1, string2, end2);
 #ifdef emacs
 		  UPDATE_SYNTAX_TABLE_BACKWARD (charpos - 1);
-#endif
+#endif /* emacs */
 		  s1 = SYNTAX (c1);
 
 		  /* ... and S1 is Sword, and WORD_BOUNDARY_P (C1, C2)
@@ -6042,7 +6031,7 @@ re_match_2_internal (struct re_pattern_buffer *bufp, const_re_char *string1,
 	      ssize_t offset = PTR_TO_OFFSET (d) - 1;
 	      ssize_t charpos = SYNTAX_TABLE_BYTE_TO_CHAR (offset);
 	      UPDATE_SYNTAX_TABLE (charpos);
-#endif
+#endif /* emacs */
 	      GET_CHAR_BEFORE_2 (c1, d, string1, end1, string2, end2);
 	      s1 = SYNTAX (c1);
 
@@ -6057,7 +6046,7 @@ re_match_2_internal (struct re_pattern_buffer *bufp, const_re_char *string1,
 		  GET_CHAR_AFTER (c2, d, dummy);
 #ifdef emacs
 		  UPDATE_SYNTAX_TABLE_FORWARD (charpos);
-#endif
+#endif /* emacs */
 		  s2 = SYNTAX (c2);
 
 		  /* ... and S2 is Sword, and WORD_BOUNDARY_P (C1, C2)
@@ -6086,7 +6075,7 @@ re_match_2_internal (struct re_pattern_buffer *bufp, const_re_char *string1,
 	      ssize_t offset = PTR_TO_OFFSET (d);
 	      ssize_t charpos = SYNTAX_TABLE_BYTE_TO_CHAR (offset);
 	      UPDATE_SYNTAX_TABLE (charpos);
-#endif
+#endif /* emacs */
 	      PREFETCH ();
 	      c2 = RE_STRING_CHAR (d, target_multibyte);
 	      s2 = SYNTAX (c2);
@@ -6101,7 +6090,7 @@ re_match_2_internal (struct re_pattern_buffer *bufp, const_re_char *string1,
 		  GET_CHAR_BEFORE_2 (c1, d, string1, end1, string2, end2);
 #ifdef emacs
 		  UPDATE_SYNTAX_TABLE_BACKWARD (charpos - 1);
-#endif
+#endif /* emacs */
 		  s1 = SYNTAX (c1);
 
 		  /* ... and S1 is Sword or Ssymbol.  */
@@ -6129,7 +6118,7 @@ re_match_2_internal (struct re_pattern_buffer *bufp, const_re_char *string1,
 	      ssize_t offset = PTR_TO_OFFSET (d) - 1;
 	      ssize_t charpos = SYNTAX_TABLE_BYTE_TO_CHAR (offset);
 	      UPDATE_SYNTAX_TABLE (charpos);
-#endif
+#endif /* emacs */
 	      GET_CHAR_BEFORE_2 (c1, d, string1, end1, string2, end2);
 	      s1 = SYNTAX (c1);
 
@@ -6144,7 +6133,7 @@ re_match_2_internal (struct re_pattern_buffer *bufp, const_re_char *string1,
 		  c2 = RE_STRING_CHAR (d, target_multibyte);
 #ifdef emacs
 		  UPDATE_SYNTAX_TABLE_FORWARD (charpos + 1);
-#endif
+#endif /* emacs */
 		  s2 = SYNTAX (c2);
 
 		  /* ... and S2 is Sword or Ssymbol.  */
@@ -6168,7 +6157,7 @@ re_match_2_internal (struct re_pattern_buffer *bufp, const_re_char *string1,
 	      ssize_t pos1 = SYNTAX_TABLE_BYTE_TO_CHAR (offset);
 	      UPDATE_SYNTAX_TABLE (pos1);
 	    }
-#endif
+#endif /* emacs */
 	    {
 	      int len;
 	      re_wchar_t c;
@@ -6352,7 +6341,7 @@ re_compile_pattern (const char *pattern, size_t length,
 }
 WEAK_ALIAS (__re_compile_pattern, re_compile_pattern)
 
-/* Entry points compatible with 4.2 BSD regex library.  We don't define
+/* Entry points compatible with 4.2 BSD regex library.  We do NOT define
    them unless specifically requested.  */
 
 #if defined _REGEX_RE_COMP || defined _LIBC
@@ -6363,10 +6352,10 @@ static struct re_pattern_buffer re_comp_buf;
 char *
 # ifdef _LIBC
 /* Make these definitions weak in libc, so POSIX programs can redefine
-   these names if they don't use our functions, and still use
+   these names if they do NOT use our functions, and still use
    regcomp/regexec below without link errors.  */
 weak_function
-# endif
+# endif /* _LIBC */
 re_comp (const char *s)
 {
   reg_errcode_t ret;
@@ -6409,7 +6398,7 @@ re_comp (const char *s)
 int
 # ifdef _LIBC
 weak_function
-# endif
+# endif /* _LIBC */
 re_exec (const char *s)
 {
   const size_t len = strlen (s);
@@ -6417,7 +6406,7 @@ re_exec (const char *s)
 }
 #endif /* _REGEX_RE_COMP */
 
-/* POSIX.2 functions.  Don't define these for Emacs.  */
+/* POSIX.2 functions.  Do NOT define these for Emacs.  */
 
 #ifndef emacs
 
@@ -6452,9 +6441,8 @@ re_exec (const char *s)
      routine will report only success or failure, and nothing about the
      registers.
 
-   It returns 0 if it succeeds, nonzero if it doesn't.  (See regex.h for
+   It returns 0 if it succeeds, nonzero if it does NOT.  (See regex.h for
    the return codes and their meanings.)  */
-
 reg_errcode_t
 regcomp (regex_t *_Restrict_ preg, const char *_Restrict_ pattern,
 	 int cflags)
@@ -6502,7 +6490,7 @@ regcomp (regex_t *_Restrict_ preg, const char *_Restrict_ pattern,
      can use strlen here in compiling the pattern.  */
   ret = regex_compile ((re_char*) pattern, strlen (pattern), syntax, preg);
 
-  /* POSIX doesn't distinguish between an unmatched open-group and an
+  /* POSIX does NOT distinguish between an unmatched open-group and an
      unmatched close-group: both are REG_EPAREN.  */
   if (ret == REG_ERPAREN)
     ret = REG_EPAREN;
@@ -6535,7 +6523,6 @@ WEAK_ALIAS (__regcomp, regcomp)
    string; if REG_NOTEOL is set, then $ does not match at the end.
 
    We return 0 if we find a match and REG_NOMATCH if not.  */
-
 reg_errcode_t
 regexec (const regex_t *_Restrict_ preg, const char *_Restrict_ string,
 	 size_t nmatch, regmatch_t pmatch[_Restrict_arr_], int eflags)
@@ -6604,13 +6591,12 @@ WEAK_ALIAS (__regexec, regexec)
 
 
 /* Returns a message corresponding to an error code, ERR_CODE, returned
-   from either regcomp or regexec.   We don't use PREG here.
+   from either regcomp or regexec.   We do NOT use PREG here.
 
    ERR_CODE was previously called ERRCODE, but that name causes an
    error with msvc8 compiler.  */
-
 size_t
-regerror (int err_code, const regex_t *preg, char *errbuf, size_t errbuf_size)
+regerror(int err_code, const regex_t *preg, char *errbuf, size_t errbuf_size)
 {
   const char *msg;
   size_t msg_size;

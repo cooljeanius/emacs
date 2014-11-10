@@ -109,14 +109,14 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <mach/mach.h>
 #include <mach-o/loader.h>
 #include <mach-o/reloc.h>
-#if defined (__ppc__)
-#include <mach-o/ppc/reloc.h>
-#endif
+#if defined(__ppc__)
+# include <mach-o/ppc/reloc.h>
+#endif /* __ppc__ */
 #ifdef HAVE_MALLOC_MALLOC_H
-#include <malloc/malloc.h>
+# include <malloc/malloc.h>
 #else
-#include <objc/malloc.h>
-#endif
+# include <objc/malloc.h>
+#endif /* HAVE_MALLOC_MALLOC_H */
 
 #include <assert.h>
 
@@ -124,25 +124,27 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
    But it is used if we build with "Command Line Tools for Xcode 4.5
    (OS X Lion) - September 2012".  */
 #ifndef LC_DATA_IN_CODE
-#define LC_DATA_IN_CODE 0x29 /* table of non-instructions in __text */
-#endif
+# define LC_DATA_IN_CODE 0x29 /* table of non-instructions in __text */
+#endif /* !LC_DATA_IN_CODE */
 
 #ifdef _LP64
-#define mach_header			mach_header_64
-#define segment_command			segment_command_64
-#undef  VM_REGION_BASIC_INFO_COUNT
-#define VM_REGION_BASIC_INFO_COUNT	VM_REGION_BASIC_INFO_COUNT_64
-#undef  VM_REGION_BASIC_INFO
-#define VM_REGION_BASIC_INFO		VM_REGION_BASIC_INFO_64
-#undef  LC_SEGMENT
-#define LC_SEGMENT			LC_SEGMENT_64
-#define vm_region			vm_region_64
-#define section				section_64
-#undef MH_MAGIC
-#define MH_MAGIC			MH_MAGIC_64
-#endif
+# define mach_header			mach_header_64
+# define segment_command		segment_command_64
+# undef  VM_REGION_BASIC_INFO_COUNT
+# define VM_REGION_BASIC_INFO_COUNT	VM_REGION_BASIC_INFO_COUNT_64
+# undef  VM_REGION_BASIC_INFO
+# define VM_REGION_BASIC_INFO		VM_REGION_BASIC_INFO_64
+# undef  LC_SEGMENT
+# define LC_SEGMENT			LC_SEGMENT_64
+# define vm_region			vm_region_64
+# define section			section_64
+# undef MH_MAGIC
+# define MH_MAGIC			MH_MAGIC_64
+#endif /* _LP64 */
 
-#define VERBOSE 1
+#ifndef VERBOSE
+# define VERBOSE 1
+#endif /* !VERBOSE */
 
 /* Size of buffer used to copy data from the input file to the output
    file in function unexec_copy.  */
@@ -194,7 +196,7 @@ static unsigned long curr_header_offset = sizeof (struct mach_header);
 static unsigned long curr_file_offset = 0;
 
 static unsigned long pagesize;
-#define ROUNDUP_TO_PAGE_BOUNDARY(x)	(((x) + pagesize - 1) & ~(pagesize - 1))
+#define ROUNDUP_TO_PAGE_BOUNDARY(x) (((x) + pagesize - 1) & ~(pagesize - 1))
 
 static int infd, outfd;
 
@@ -207,21 +209,29 @@ static off_t data_segment_old_fileoff = 0;
 
 static struct segment_command *data_segment_scp;
 
+/* some prototypes from this file: */
+void unexec_init_emacs_zone(void);
+void *unexec_malloc(size_t size);
+void *unexec_realloc(void *old_ptr, size_t new_size);
+void unexec_free(void *ptr);
+
+/*****************************/
+/* Now the actual functions: */
+/*****************************/
+
 /* Read N bytes from infd into memory starting at address DEST.
    Return true if successful, false otherwise.  */
-static int
-unexec_read (void *dest, size_t n)
+static int unexec_read(void *dest, size_t n)
 {
-  return n == read (infd, dest, n);
+  return (n == read(infd, dest, n));
 }
 
 /* Write COUNT bytes from memory starting at address SRC to outfd
    starting at offset DEST.  Return true if successful, false
    otherwise.  */
-static int
-unexec_write (off_t dest, const void *src, size_t count)
+static int unexec_write(off_t dest, const void *src, size_t count)
 {
-  if (lseek (outfd, dest, SEEK_SET) != dest)
+  if (lseek(outfd, dest, SEEK_SET) != dest)
     return 0;
 
   return (write(outfd, src, count) == count);
@@ -229,8 +239,7 @@ unexec_write (off_t dest, const void *src, size_t count)
 
 /* Write COUNT bytes of zeros to outfd starting at offset DEST.
    Return true if successful, false otherwise.  */
-static int
-unexec_write_zero (off_t dest, size_t count)
+static int unexec_write_zero(off_t dest, size_t count)
 {
   char buf[UNEXEC_COPY_BUFSZ];
   ssize_t bytes;
@@ -253,8 +262,7 @@ unexec_write_zero (off_t dest, size_t count)
 /* Copy COUNT bytes from starting offset SRC in infd to starting
    offset DEST in outfd.  Return true if successful, false
    otherwise.  */
-static int
-unexec_copy (off_t dest, off_t src, ssize_t count)
+static int unexec_copy(off_t dest, off_t src, ssize_t count)
 {
   ssize_t bytes_read;
   ssize_t bytes_to_read;
@@ -515,8 +523,7 @@ unexec_regions_sort_compare (const void *a, const void *b)
     return 0;
 }
 
-static void
-unexec_regions_merge (void)
+static void unexec_regions_merge(void)
 {
   int i, n;
   vm_address_t begin, end;
@@ -527,93 +534,104 @@ unexec_regions_merge (void)
   void *zeropage = calloc(1, pagesize);
   vm_size_t padsize;
 
-  qsort (unexec_regions, num_unexec_regions, sizeof (unexec_regions[0]),
-	 &unexec_regions_sort_compare);
+  qsort(unexec_regions, num_unexec_regions, sizeof(unexec_regions[0]),
+        &unexec_regions_sort_compare);
   n = 0;
   r = unexec_regions[0];
   padsize = (r.range.address & (pagesize - 1L));
   if (padsize) {
-	  begin = r.range.address;
-	  r.range.address -= padsize;
-	  r.range.size += padsize;
-	  r.filesize += padsize;
+    begin = r.range.address;
+    r.range.address -= padsize;
+    r.range.size += padsize;
+    r.filesize += padsize;
   }
   for (i = 1; i < num_unexec_regions; i++) {
     if (((r.range.address + r.range.size) == unexec_regions[i].range.address)
         && ((r.range.size - r.filesize) < (2 * pagesize))) {
-	  r.filesize = r.range.size + unexec_regions[i].filesize;
-	  r.range.size += unexec_regions[i].range.size;
-    } else {	/* All segments must be a multiple of pagesize */
-	    end = r.range.address + r.range.size;
-	    if (end & (pagesize-1L)) {
-		    end = ROUNDUP_TO_PAGE_BOUNDARY(end);
-		    printf("Page (%#8lx) aligning region @%#8lx size from %#8lx to %#8lx\n",
-			   (long)pagesize, (long)r.range.address, (long)r.range.size, (long)(end - r.range.address));
-		    r.range.size = end - r.range.address;
-		    r.filesize = r.range.size;
-		    if (end == unexec_regions[i].range.address) {
-			    r.filesize += unexec_regions[i].filesize;
-			    r.range.size += unexec_regions[i].range.size;
-			    continue;
-		    }
-	    }
-	    /* Truncate zerod pages */
-	    while (r.filesize > 0) {
-		    vm_address_t p = r.range.address + r.filesize - pagesize;
-		    if (memcmp((const void *)p, zeropage, pagesize) == 0) {
-			    r.filesize -= pagesize;
-		    } else {
-			    break;
-		    }
-	    }
-	    if (r.filesize != r.range.size) {
-		    printf("Removed %lx zerod bytes from filesize\n", r.range.size - r.filesize);
-	    }
-	    unexec_regions[n++] = r;
-	    r = unexec_regions[i];
-	    padsize = r.range.address & (pagesize - 1);
-	    if (padsize) { /* Align beginning of unmerged region */
-		    if ((unexec_regions[n-1].range.address
-                         + unexec_regions[n-1].range.size) == r.range.address) {
-                      unexec_regions[n-1].range.size -= padsize;
-		    }
-		    begin = r.range.address;
-		    r.range.address -= padsize;
-		    r.range.size += padsize;
-		    r.filesize += padsize;
-	    }
+      r.filesize = (r.range.size + unexec_regions[i].filesize);
+      r.range.size += unexec_regions[i].range.size;
+    } else { /* All segments must be a multiple of pagesize: */
+      end = (r.range.address + r.range.size);
+      if (end & (pagesize-1L)) {
+        end = ROUNDUP_TO_PAGE_BOUNDARY(end);
+        printf("Page (%#8lx) aligning region @%#8lx size from %#8lx to %#8lx\n",
+               (long)pagesize, (long)r.range.address, (long)r.range.size,
+               (long)(end - r.range.address));
+        r.range.size = (end - r.range.address);
+        r.filesize = r.range.size;
+        if (end == unexec_regions[i].range.address) {
+          r.filesize += unexec_regions[i].filesize;
+          r.range.size += unexec_regions[i].range.size;
+          continue;
+        }
+      }
+      /* Truncate zerod pages: */
+      while (r.filesize > 0) {
+        vm_address_t p = (r.range.address + r.filesize - pagesize);
+        if (memcmp((const void *)p, zeropage, pagesize) == 0) {
+          r.filesize -= pagesize;
+        } else {
+          break;
+        }
+      }
+      if (r.filesize != r.range.size) {
+        printf("Removed %lx zerod bytes from filesize\n",
+               (r.range.size - r.filesize));
+      }
+      unexec_regions[n++] = r;
+      r = unexec_regions[i];
+      padsize = r.range.address & (pagesize - 1);
+      if (padsize) { /* Align beginning of unmerged region */
+        if ((unexec_regions[n - 1].range.address
+             + unexec_regions[n - 1].range.size) == r.range.address) {
+          unexec_regions[n - 1].range.size -= padsize;
+        }
+        begin = r.range.address;
+        r.range.address -= padsize;
+        r.range.size += padsize;
+        r.filesize += padsize;
+      }
     }
   }
-  end = r.range.address + r.range.size;
-  if (end & (pagesize-1L)) {
-     end = ROUNDUP_TO_PAGE_BOUNDARY(end);
-     printf("Page (%#8lx) aligning region @%#8lx size from %#8lx to %#8lx\n",
-	    pagesize, (long)r.range.address, (long)r.range.size, (long)(end - r.range.address));
-     r.range.size = end - r.range.address;
-     r.filesize = r.range.size;
+  end = (r.range.address + r.range.size);
+  if (end & (pagesize - 1L)) {
+    end = ROUNDUP_TO_PAGE_BOUNDARY(end);
+    printf("Page (%#8lx) aligning region @%#8lx size from %#8lx to %#8lx\n",
+           pagesize, (long)r.range.address, (long)r.range.size,
+           (long)(end - r.range.address));
+    r.range.size = end - r.range.address;
+    r.filesize = r.range.size;
   }
-  /* Truncate zerod pages */
+  /* Truncate zerod pages: */
   while (r.filesize > 0) {
-	  vm_address_t p = r.range.address + r.filesize - pagesize;
-	  if (memcmp((const void *)p, zeropage, pagesize) == 0) {
-		  r.filesize -= pagesize;
-	  } else {
-		  break;
-	  }
+    vm_address_t p = (r.range.address + r.filesize - pagesize);
+    if (memcmp((const void *)p, zeropage, pagesize) == 0) {
+      r.filesize -= pagesize;
+    } else {
+      break;
+    }
   }
   free(zeropage);
   if (r.filesize != r.range.size) {
-	  printf("Removed %lx zerod bytes from filesize\n", r.range.size - r.filesize);
+    printf("Removed %lx zerod bytes from filesize\n",
+           (r.range.size - r.filesize));
   }
   unexec_regions[n++] = r;
   num_unexec_regions = n;
+
+#ifdef lint
+  if (begin > end) {
+    /* we return at the end anyways by falling off the end of the function;
+     * this condition just uses the variable 'begin' to keep the compiler
+     * happy: */
+    return;
+  }
+#endif /* lint */
 }
 
 
-/* More informational messages routines.  */
-
-static void
-print_load_command_name (int lc)
+/* More informational messages routines: */
+static void print_load_command_name(int lc)
 {
   switch (lc)
     {
@@ -622,7 +640,7 @@ print_load_command_name (int lc)
       printf("LC_SEGMENT       ");
 #else
       printf("LC_SEGMENT_64    ");
-#endif
+#endif /* !_LP64 */
       break;
     case LC_LOAD_DYLINKER:
       printf("LC_LOAD_DYLINKER ");
@@ -684,7 +702,7 @@ print_load_command_name (int lc)
     case LC_UUID:
       printf("LC_UUID          ");
       break;
-#endif
+#endif /* LC_UUID */
     case LC_RPATH:
       printf("LC_RPATH               ");
       break;
@@ -710,7 +728,7 @@ print_load_command_name (int lc)
     case LC_DYLD_INFO_ONLY:
       printf("LC_DYLD_INFO_ONLY");
       break;
-#endif
+#endif /* LC_DYLD_INFO */
     case LC_LOAD_UPWARD_DYLIB:
       printf("LC_LOAD_UPWARD_DYLIB   ");
       break;
@@ -718,7 +736,7 @@ print_load_command_name (int lc)
     case LC_VERSION_MIN_MACOSX:
       printf("LC_VERSION_MIN_MACOSX");
       break;
-#endif
+#endif /* LC_VERSION_MIN_MACOSX */
     case LC_VERSION_MIN_IPHONEOS:
       printf("LC_VERSION_MIN_IPHONEOS");
       break;
@@ -726,7 +744,7 @@ print_load_command_name (int lc)
     case LC_FUNCTION_STARTS:
       printf("LC_FUNCTION_STARTS");
       break;
-#endif
+#endif /* LC_FUNCTION_STARTS */
     case LC_DYLD_ENVIRONMENT:
       printf("LC_DYLD_ENVIRONMENT    ");
       break;
@@ -734,22 +752,22 @@ print_load_command_name (int lc)
     case LC_MAIN:
       printf("LC_MAIN          ");
       break;
-#endif
+#endif /* LC_MAIN */
 #ifdef LC_DATA_IN_CODE
     case LC_DATA_IN_CODE:
       printf("LC_DATA_IN_CODE  ");
       break;
-#endif
+#endif /* LC_DATA_IN_CODE */
 #ifdef LC_SOURCE_VERSION
     case LC_SOURCE_VERSION:
       printf("LC_SOURCE_VERSION");
       break;
-#endif
+#endif /* LC_SOURCE_VERSION */
 #ifdef LC_DYLIB_CODE_SIGN_DRS
     case LC_DYLIB_CODE_SIGN_DRS:
       printf("LC_DYLIB_CODE_SIGN_DRS");
       break;
-#endif
+#endif /* LC_DYLIB_CODE_SIGN_DRS */
     default:
       printf("unknown(%08x)", lc);
       break;
@@ -810,7 +828,7 @@ read_load_commands (void)
   printf ("NCmds = %d\n", mh.ncmds);
   printf ("SizeOfCmds = %d\n", mh.sizeofcmds);
   printf ("Flags = 0x%08x\n", mh.flags);
-#endif
+#endif /* VERBOSE */
 
   nlc = mh.ncmds;
 #ifdef __cplusplus
@@ -1270,9 +1288,9 @@ unrelocate (const char *name, off_t reloff, int nrel, vm_address_t base)
 	  {
 #if defined (__ppc__)
 	  case PPC_RELOC_PB_LA_PTR:
-	    /* nothing to do for prebound lazy pointer */
+	    /* (nothing to do for prebound lazy pointer) */
 	    break;
-#endif
+#endif /* __ppc__ */
 	  default:
 	    unexec_error ("unrelocate: %s:%d cannot handle scattered type = %d",
 			  name, i, sc_reloc_info->r_type);
@@ -1311,7 +1329,7 @@ rebase_reloc_address (off_t reloff, int nrel, long linkedit_delta, long diff)
 	}
     }
 }
-#endif
+#endif /* __ppc64__ */
 
 /* Copy a LC_DYSYMTAB load command from the input file to the output
    file, adjusting the file offset fields.  */
@@ -1322,7 +1340,7 @@ copy_dysymtab (struct load_command *lc, long delta)
   vm_address_t base;
 
 #ifdef _LP64
-#if __ppc64__
+# if __ppc64__
   {
     int i;
 
@@ -1340,14 +1358,14 @@ copy_dysymtab (struct load_command *lc, long delta)
 	    }
 	}
   }
-#else
+# else
   /* First writable segment address.  */
   base = data_segment_scp->vmaddr;
-#endif
+# endif /* __ppc64__ */
 #else
   /* First segment address in the file (unless MH_SPLIT_SEGS set). */
   base = 0;
-#endif
+#endif /* _LP64 */
 
   unrelocate ("local", dstp->locreloff, dstp->nlocrel, base);
   unrelocate ("external", dstp->extreloff, dstp->nextrel, base);
@@ -1391,7 +1409,7 @@ copy_dysymtab (struct load_command *lc, long delta)
 	  rebase_reloc_address (dstp->extreloff, dstp->nextrel, delta, newbase);
 	}
     }
-#endif
+#endif /* __ppc64__ */
 }
 
 /* Copy a LC_TWOLEVEL_HINTS load command from the input file to the output
@@ -1441,7 +1459,7 @@ copy_dyld_info (struct load_command *lc, long delta)
 
   curr_header_offset += lc->cmdsize;
 }
-#endif
+#endif /* LC_DYLD_INFO */
 
 #ifdef LC_FUNCTION_STARTS
 /* Copy a LC_FUNCTION_STARTS/LC_DATA_IN_CODE/LC_DYLIB_CODE_SIGN_DRS
@@ -1464,7 +1482,7 @@ copy_linkedit_data (struct load_command *lc, long delta)
 
   curr_header_offset += lc->cmdsize;
 }
-#endif
+#endif /* LC_FUNCTION_STARTS */
 
 /* Copy other kinds of load commands from the input file to the output
    file, ones that do not require adjustments of file offsets.  */
@@ -1541,20 +1559,20 @@ dump_it (void)
       case LC_DYLD_INFO_ONLY:
 	copy_dyld_info_only(lca[i], linkedit_delta);
 	break;
-#endif
+#endif /* LC_DYLD_INFO */
       case LC_CODE_SIGNATURE:
       case LC_SEGMENT_SPLIT_INFO:
 #ifdef LC_FUNCTION_STARTS
       case LC_FUNCTION_STARTS:
-#ifdef LC_DATA_IN_CODE
+# ifdef LC_DATA_IN_CODE
       case LC_DATA_IN_CODE:
-#endif
-#ifdef LC_DYLIB_CODE_SIGN_DRS
+# endif /* LC_DATA_IN_CODE */
+# ifdef LC_DYLIB_CODE_SIGN_DRS
       case LC_DYLIB_CODE_SIGN_DRS:
-#endif
+# endif /* LC_DYLIB_CODE_SIGN_DRS */
 	copy_linkedit_data (lca[i], linkedit_delta);
 	break;
-#endif
+#endif /* LC_FUNCTION_STARTS */
       default:
 	copy_other (lca[i]);
 	break;
@@ -1609,16 +1627,15 @@ unexec (const char *outfile, const char *infile)
 }
 
 
-void
-unexec_init_emacs_zone (void)
+void unexec_init_emacs_zone(void)
 {
-  emacs_zone = malloc_create_zone (0, 0);
-  malloc_set_zone_name (emacs_zone, "EmacsZone");
+  emacs_zone = malloc_create_zone(0, 0);
+  malloc_set_zone_name(emacs_zone, "EmacsZone");
 }
 
 #ifndef MACOSX_MALLOC_MULT16
-#define MACOSX_MALLOC_MULT16 1
-#endif
+# define MACOSX_MALLOC_MULT16 1
+#endif /* !MACOSX_MALLOC_MULT16 */
 
 typedef struct unexec_malloc_header {
   union {
@@ -1628,13 +1645,9 @@ typedef struct unexec_malloc_header {
 } unexec_malloc_header_t;
 
 #if MACOSX_MALLOC_MULT16
-
-#define ptr_in_unexec_regions(p) ((((vm_address_t) (p)) & 8) != 0)
-
+# define ptr_in_unexec_regions(p) ((((vm_address_t) (p)) & 8) != 0)
 #else
-
-int
-ptr_in_unexec_regions (void *ptr)
+int ptr_in_unexec_regions(void *ptr)
 {
   int i;
 
@@ -1645,11 +1658,9 @@ ptr_in_unexec_regions (void *ptr)
 
   return 0;
 }
+#endif /* MACOSX_MALLOC_MULT16 */
 
-#endif
-
-void *
-unexec_malloc (size_t size)
+void *unexec_malloc(size_t size)
 {
   if (in_dumped_exec)
     {
@@ -1658,7 +1669,7 @@ unexec_malloc (size_t size)
       p = malloc (size);
 #if MACOSX_MALLOC_MULT16
       assert (((vm_address_t) p % 16) == 0);
-#endif
+#endif /* MACOSX_MALLOC_MULT16 */
       return p;
     }
   else
@@ -1671,13 +1682,12 @@ unexec_malloc (size_t size)
       ptr++;
 #if MACOSX_MALLOC_MULT16
       assert (((vm_address_t) ptr % 16) == 8);
-#endif
+#endif /* MACOSX_MALLOC_MULT16 */
       return (void *) ptr;
     }
 }
 
-void *
-unexec_realloc (void *old_ptr, size_t new_size)
+void *unexec_realloc(void *old_ptr, size_t new_size)
 {
   if (in_dumped_exec)
     {
@@ -1702,7 +1712,7 @@ unexec_realloc (void *old_ptr, size_t new_size)
 	}
 #if MACOSX_MALLOC_MULT16
       assert (((vm_address_t) p % 16) == 0);
-#endif
+#endif /* MACOSX_MALLOC_MULT16 */
       return p;
     }
   else
@@ -1716,13 +1726,12 @@ unexec_realloc (void *old_ptr, size_t new_size)
       ptr++;
 #if MACOSX_MALLOC_MULT16
       assert (((vm_address_t) ptr % 16) == 8);
-#endif
+#endif /* MACOSX_MALLOC_MULT16 */
       return (void *) ptr;
     }
 }
 
-void
-unexec_free (void *ptr)
+void unexec_free(void *ptr)
 {
   if (ptr == NULL)
     return;

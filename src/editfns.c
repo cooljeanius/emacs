@@ -55,13 +55,16 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <strftime.h>
 #include <verify.h>
 
-#ifndef MAX_10_EXP
-# if (defined(STDC_HEADERS) || defined(HAVE_FLOAT_H)) && defined(DBL_MAX_10_EXP)
-#  define MAX_10_EXP DBL_MAX_10_EXP
-# else
-#  define MAX_10_EXP 310
-# endif /* (STDC_HEADERS || HAVE_FLOAT_H) && DBL_MAX_10_EXP */
-#endif /* !MAX_10_EXP */
+/* prevent '-Wunused-macros' from warning about this define: */
+#ifndef lint
+# ifndef MAX_10_EXP
+#  if (defined(STDC_HEADERS) || defined(HAVE_FLOAT_H)) && defined(DBL_MAX_10_EXP)
+#   define MAX_10_EXP DBL_MAX_10_EXP
+#  else
+#   define MAX_10_EXP 310
+#  endif /* (STDC_HEADERS || HAVE_FLOAT_H) && DBL_MAX_10_EXP */
+# endif /* !MAX_10_EXP */
+#endif /* !lint */
 
 #include "intervals.h"
 #include "character.h"
@@ -77,12 +80,15 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #define TM_YEAR_BASE 1900
 
+/* prevent '-Wunused-macros' from warning about this define: */
+#ifndef lint
 /* Nonzero if TM_YEAR is a struct tm's tm_year value that causes
  * asctime to have well-defined behavior: */
-#ifndef TM_YEAR_IN_ASCTIME_RANGE
-# define TM_YEAR_IN_ASCTIME_RANGE(tm_year) \
-    (1000 - TM_YEAR_BASE <= (tm_year) && (tm_year) <= 9999 - TM_YEAR_BASE)
-#endif /* !TM_YEAR_IN_ASCTIME_RANGE */
+# ifndef TM_YEAR_IN_ASCTIME_RANGE
+#  define TM_YEAR_IN_ASCTIME_RANGE(tm_year) \
+     (((1000 - TM_YEAR_BASE) <= (tm_year)) && ((tm_year) <= (9999 - TM_YEAR_BASE)))
+# endif /* !TM_YEAR_IN_ASCTIME_RANGE */
+#endif /* !lint */
 
 #ifdef WINDOWSNT
 extern Lisp_Object w32_get_internal_run_time (void);

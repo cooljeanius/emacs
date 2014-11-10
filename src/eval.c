@@ -1,4 +1,4 @@
-/* Evaluator for GNU Emacs Lisp interpreter.
+/* eval.c: Evaluator for GNU Emacs Lisp interpreter.
 
 Copyright (C) 1985-1987, 1993-1995, 1999-2014 Free Software Foundation,
 Inc.
@@ -1253,7 +1253,6 @@ usage: (condition-case VAR BODYFORM &rest HANDLERS)  */)
 
 /* Like Fcondition_case, but the args are separate
    rather than passed in a list.  Used by Fbyte_code.  */
-
 Lisp_Object
 internal_lisp_condition_case (volatile Lisp_Object var, Lisp_Object bodyform,
 			      Lisp_Object handlers)
@@ -1261,7 +1260,7 @@ internal_lisp_condition_case (volatile Lisp_Object var, Lisp_Object bodyform,
   Lisp_Object val;
   struct handler *c;
   struct handler *oldhandlerlist = handlerlist;
-  int clausenb = 0;
+  volatile int clausenb = 0;
 
   CHECK_SYMBOL (var);
 

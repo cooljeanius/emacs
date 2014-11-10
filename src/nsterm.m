@@ -113,14 +113,14 @@ extern NSString *NSMenuDidBeginTrackingNotification;
                          blue:(CGFloat)blue alpha:(CGFloat)alpha
 {
 #ifdef NS_IMPL_COCOA
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_7
+# if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_7
   if (ns_use_srgb_colorspace)
       return [NSColor colorWithSRGBRed: red
                                  green: green
                                   blue: blue
                                  alpha: alpha];
-#endif
-#endif
+# endif /* 10.7+ */
+#endif /* NS_IMPL_COCOA */
   return [NSColor colorWithCalibratedRed: red
                                    green: green
                                     blue: blue
@@ -130,11 +130,11 @@ extern NSString *NSMenuDidBeginTrackingNotification;
 - (NSColor *)colorUsingDefaultColorSpace
 {
 #ifdef NS_IMPL_COCOA
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_7
+# if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_7
   if (ns_use_srgb_colorspace)
     return [self colorUsingColorSpace: [NSColorSpace sRGBColorSpace]];
-#endif
-#endif
+# endif /* 10.7+ */
+#endif /* NS_IMPL_COCOA */
   return [self colorUsingColorSpaceName: NSCalibratedRGBColorSpace];
 }
 
@@ -247,19 +247,21 @@ NSString *ns_app_name = @"Emacs";  /* default changed later */
 struct ns_display_info *x_display_list; /* Chain of existing displays */
 long context_menu_value = 0;
 
-/* display update */
+/* display update: */
 static struct frame *ns_updating_frame;
 static NSView *focus_view = NULL;
 static int ns_window_num = 0;
 #ifdef NS_IMPL_GNUSTEP
 static NSRect uRect;
-#endif
+#endif /* NS_IMPL_GNUSTEP */
 static BOOL gsaved = NO;
 static BOOL ns_fake_keydown = NO;
 #ifdef NS_IMPL_COCOA
 static BOOL ns_menu_bar_is_hidden = NO;
-#endif
-/*static int debug_lock = 0; */
+#endif /* NS_IMPL_COCOA */
+#if defined(DEBUG) && defined(_DEBUG) && !defined(debug_lock) && !defined(lint)
+static int debug_lock = 0;
+#endif /* DEBUG && _DEBUG && !debug_lock && !lint */
 
 /* event loop */
 static BOOL send_appdefined = YES;
@@ -299,14 +301,14 @@ static struct {
  * MENU_OPENING  Menu is up to date, and the click event is redone so the menu
  *               will open.
  */
-#define MENU_NONE 0
-#define MENU_PENDING 1
-#define MENU_OPENING 2
+# define MENU_NONE 0
+# define MENU_PENDING 1
+# define MENU_OPENING 2
 static int menu_will_open_state = MENU_NONE;
 
-/* Saved position for menu click.  */
+/* Saved position for menu click: */
 static CGPoint menu_mouse_point;
-#endif
+#endif /* NS_IMPL_COCOA */
 
 /* Convert modifiers in a NeXTstep event to emacs style modifiers.  */
 #define NS_FUNCTION_KEY_MASK 0x800000
@@ -390,14 +392,12 @@ static void ns_judge_scroll_bars (struct frame *f);
 void x_set_frame_alpha (struct frame *f);
 
 
-/* ==========================================================================
+/* ========================================================================
 
     Utilities
 
-   ========================================================================== */
-
-static void
-hold_event (struct input_event *event)
+   ===================================================================== */
+static void hold_event(struct input_event *event)
 {
   if (hold_event_q.nr == hold_event_q.cap)
     {
@@ -415,9 +415,9 @@ hold_event (struct input_event *event)
 
 static Lisp_Object
 append2 (Lisp_Object list, Lisp_Object item)
-/* --------------------------------------------------------------------------
+/* ------------------------------------------------------------------------
    Utility to append to a list
-   -------------------------------------------------------------------------- */
+   --------------------------------------------------------------------- */
 {
   Lisp_Object array[2];
   array[0] = list;
@@ -477,7 +477,7 @@ ns_exec_path (void)
       binDir = [binDir stringByAppendingPathComponent: @"Contents"];
 #ifdef NS_IMPL_COCOA
       binDir = [binDir stringByAppendingPathComponent: @"MacOS"];
-#endif
+#endif /* NS_IMPL_COCOA */
     }
 
   paths = [binDir stringsByAppendingPaths:
@@ -688,7 +688,7 @@ static void
 ns_update_auto_hide_menu_bar (void)
 {
 #ifdef NS_IMPL_COCOA
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6
+# if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6
   block_input ();
 
   NSTRACE (ns_update_auto_hide_menu_bar);
@@ -720,8 +720,8 @@ ns_update_auto_hide_menu_bar (void)
     }
 
   unblock_input ();
-#endif
-#endif
+# endif /* 10.6+ */
+#endif /* NS_IMPL_COCOA */
 }
 
 
@@ -738,15 +738,14 @@ ns_update_begin (struct frame *f)
   ns_update_auto_hide_menu_bar ();
 
 #ifdef NS_IMPL_COCOA
-  if ([view isFullscreen] && [view fsIsNative])
-  {
-    // Fix reappearing tool bar in fullscreen for OSX 10.7
-    BOOL tbar_visible = FRAME_EXTERNAL_TOOL_BAR (f) ? YES : NO;
-    NSToolbar *toolbar = [FRAME_NS_VIEW (f) toolbar];
+  if ([view isFullscreen] && [view fsIsNative]) {
+    // Fix reappearing tool bar in fullscreen for OSX 10.7:
+    BOOL tbar_visible = (FRAME_EXTERNAL_TOOL_BAR(f) ? YES : NO);
+    NSToolbar *toolbar = [FRAME_NS_VIEW(f) toolbar];
     if (! tbar_visible != ! [toolbar isVisible])
       [toolbar setVisible: tbar_visible];
   }
-#endif
+#endif /* NS_IMPL_COCOA */
 
   ns_updating_frame = f;
   [view lockFocus];
@@ -761,7 +760,7 @@ ns_update_begin (struct frame *f)
     NSRect r = [view frame];
     NSRect cr = [[view window] frame];
     /* If a large frame size is set, r may be larger than the window frame
-       before constrained.  In that case don't change the clip path, as we
+       before constrained.  In that case do NOT change the clip path, as we
        will clear in to the tool bar and title bar.  */
     if (r.size.height
         + FRAME_NS_TITLEBAR_HEIGHT (f)
@@ -772,11 +771,11 @@ ns_update_begin (struct frame *f)
         [bp release];
       }
   }
-#endif
+#endif /* NS_IMPL_COCOA */
 
 #ifdef NS_IMPL_GNUSTEP
-  uRect = NSMakeRect (0, 0, 0, 0);
-#endif
+  uRect = NSMakeRect(0, 0, 0, 0);
+#endif /* NS_IMPL_GNUSTEP */
 }
 
 
@@ -1281,9 +1280,9 @@ x_set_offset (struct frame *f, int xoff, int yoff, int change_grav)
         : f->top_pos;
 #ifdef NS_IMPL_GNUSTEP
       if (f->left_pos < 100)
-        f->left_pos = 100;  /* don't overlap menu */
-#endif
-      /* Constrain the setFrameTopLeftPoint so we don't move behind the
+        f->left_pos = 100;  /* do NOT overlap menu */
+#endif /* NS_IMPL_GNUSTEP */
+      /* Constrain the setFrameTopLeftPoint so we do NOT move behind the
          menu bar.  */
       [[view window] setFrameTopLeftPoint:
                        NSMakePoint (SCREENMAXBOUND (f->left_pos),
@@ -1320,7 +1319,12 @@ x_set_window_size (struct frame *f,
   if (view == nil)
     return;
 
-/*fprintf (stderr, "\tsetWindowSize: %d x %d, pixelwise %d, font size %d x %d\n", width, height, pixelwise, FRAME_COLUMN_WIDTH (f), FRAME_LINE_HEIGHT (f));*/
+#ifdef DEBUG
+  fprintf(stderr,
+          "\tsetWindowSize: %d x %d, pixelwise %d, font size %d x %d\n",
+          width, height, pixelwise, FRAME_COLUMN_WIDTH(f),
+          FRAME_LINE_HEIGHT(f));
+#endif /* DEBUG */
 
   block_input ();
 
@@ -1354,7 +1358,7 @@ x_set_window_size (struct frame *f,
         - FRAME_NS_TITLEBAR_HEIGHT (f);
 #ifdef NS_IMPL_GNUSTEP
       FRAME_TOOLBAR_HEIGHT (f) -= 3;
-#endif
+#endif /* NS_IMPL_GNUSTEP */
     }
   else
     FRAME_TOOLBAR_HEIGHT (f) = 0;
@@ -1483,7 +1487,9 @@ ns_index_color (NSColor *color, struct frame *f)
 
   color_table->colors[idx] = color;
   [color retain];
-/*fprintf(stderr, "color_table: allocated %d\n",idx);*/
+#ifdef DEBUG
+  fprintf(stderr, "color_table: allocated %td\n", idx);
+#endif /* DEBUG */
   return idx;
 }
 
@@ -1532,8 +1538,8 @@ ns_get_color (const char *name, NSColor **col)
 {
   NSColor *new = nil;
   static char hex[20];
-  int scaling;
-  float r = -1.0, g, b;
+  int scaling = 0;
+  float r = -1.0f, g, b;
   NSString *nsname = [NSString stringWithUTF8String: name];
 
 #ifdef DEBUG
@@ -1549,7 +1555,7 @@ ns_get_color (const char *name, NSColor **col)
       if (defname != nil)
         nsname = defname;
       else
-#endif
+#endif /* NS_IMPL_COCOA */
       if ((new = [NSColor selectedTextBackgroundColor]) != nil)
         {
           *col = [new colorUsingDefaultColorSpace];
@@ -1591,9 +1597,9 @@ ns_get_color (const char *name, NSColor **col)
   else if (name[0] == '#')        /* An old X11 format; convert to newer */
     {
       int len = (strlen(name) - 1);
-      int start = (len % 3 == 0) ? 1 : len / 4 + 1;
+      int start = (((len % 3) == 0) ? 1 : (len / 4 + 1));
       int i;
-      scaling = strlen(name+start) / 3;
+      scaling = (strlen(name + start) / 3);
       for (i = 0; i < 3; i++)
 	sprintf (hex + i * (scaling + 1), "%.*s/", scaling,
 		 name + start + i * scaling);
@@ -1603,7 +1609,8 @@ ns_get_color (const char *name, NSColor **col)
   if (hex[0])
     {
       int rr, gg, bb;
-      float fscale = scaling == 4 ? 65535.0 : (scaling == 2 ? 255.0 : 15.0);
+      float fscale;
+      fscale = ((scaling == 4) ? 65535.0f : ((scaling == 2) ? 255.0f : 15.0f));
       if (sscanf (hex, "%x/%x/%x", &rr, &gg, &bb))
         {
           r = rr / fscale;
@@ -1630,7 +1637,7 @@ ns_get_color (const char *name, NSColor **col)
     if ([nsname compare: @"Highlight" options: NSCaseInsensitiveSearch]
         == NSOrderedSame)
       nsname = @"highlightColor";
-#endif
+#endif /* NS_IMPL_GNUSTEP */
 
     lenum = [[NSColorList availableColorLists] objectEnumerator];
     while ( (clist = [lenum nextObject]) && new == nil)
@@ -1792,33 +1799,31 @@ x_set_frame_alpha (struct frame *f)
     EmacsView *view = FRAME_NS_VIEW (f);
   [[view window] setAlphaValue: alpha];
   }
-#endif
+#endif /* NS_IMPL_COCOA */
 }
 
 
-/* ==========================================================================
+/* ========================================================================
 
     Mouse handling
 
-   ========================================================================== */
-
-
-void
-x_set_mouse_pixel_position (struct frame *f, int pix_x, int pix_y)
-/* --------------------------------------------------------------------------
+   ===================================================================== */
+/* position: */
+void x_set_mouse_pixel_position(struct frame *f, int pix_x, int pix_y)
+/* ------------------------------------------------------------------------
      Programmatically reposition mouse pointer in pixel coordinates
-   -------------------------------------------------------------------------- */
+   --------------------------------------------------------------------- */
 {
   NSTRACE (x_set_mouse_pixel_position);
   ns_raise_frame (f);
 #if 0
   /* FIXME: this does not work, and what about GNUstep? */
-#ifdef NS_IMPL_COCOA
+# ifdef NS_IMPL_COCOA
   [FRAME_NS_VIEW (f) lockFocus];
   PSsetmouse ((float)pix_x, (float)pix_y);
   [FRAME_NS_VIEW (f) unlockFocus];
-#endif
-#endif
+# endif /* NS_IMPL_COCOA */
+#endif /* 0 */
 }
 
 
@@ -2409,7 +2414,8 @@ ns_draw_fringe_bitmap (struct window *w, struct glyph_row *row,
       [ns_lookup_indexed_color(face->background, f) set];
       NSRectFill (r);
       [img setXBMColor: ns_lookup_indexed_color(face->foreground, f)];
-#if defined (NS_IMPL_COCOA) && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6
+#if defined(NS_IMPL_COCOA) && \
+    (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6)
       [img drawInRect: r
               fromRect: NSZeroRect
              operation: NSCompositeSourceOver
@@ -2422,7 +2428,7 @@ ns_draw_fringe_bitmap (struct window *w, struct glyph_row *row,
         pt.y += p->h;
         [img compositeToPoint: pt operation: NSCompositeSourceOver];
       }
-#endif
+#endif /* NS_IMPL_COCOA && 10.6+ */
     }
   ns_unfocus (f);
 }
@@ -2519,10 +2525,10 @@ ns_draw_window_cursor (struct window *w, struct glyph_row *glyph_row,
   /* TODO: This makes drawing of cursor plus that of phys_cursor_glyph
            atomic.  Cleaner ways of doing this should be investigated.
            One way would be to set a global variable DRAWING_CURSOR
-  	   when making the call to draw_phys..(), don't focus in that
+  	   when making the call to draw_phys..(), do NOT focus in that
   	   case, then move the ns_unfocus() here after that call. */
   NSDisableScreenUpdates ();
-#endif
+#endif /* NS_IMPL_COCOA */
 
   switch (cursor_type)
     {
@@ -2559,16 +2565,17 @@ ns_draw_window_cursor (struct window *w, struct glyph_row *glyph_row,
 
 #ifdef NS_IMPL_COCOA
   NSEnableScreenUpdates ();
-#endif
+#endif /* NS_IMPL_COCOA */
 
+  return;
 }
 
 
 static void
 ns_draw_vertical_window_border (struct window *w, int x, int y0, int y1)
-/* --------------------------------------------------------------------------
+/* ------------------------------------------------------------------------
      External (RIF): Draw a vertical line.
-   -------------------------------------------------------------------------- */
+   --------------------------------------------------------------------- */
 {
   struct frame *f = XFRAME (WINDOW_FRAME (w));
   struct face *face;
@@ -2588,9 +2595,9 @@ ns_draw_vertical_window_border (struct window *w, int x, int y0, int y1)
 
 static void
 ns_draw_window_divider (struct window *w, int x0, int x1, int y0, int y1)
-/* --------------------------------------------------------------------------
+/* ------------------------------------------------------------------------
      External (RIF): Draw a window divider.
-   -------------------------------------------------------------------------- */
+   --------------------------------------------------------------------- */
 {
   struct frame *f = XFRAME (WINDOW_FRAME (w));
   struct face *face;
@@ -3105,7 +3112,8 @@ ns_dumpglyphs_image (struct glyph_string *s, NSRect r)
   /* Draw the image.. do we need to draw placeholder if img ==nil? */
   if (img != nil)
     {
-#if defined (NS_IMPL_COCOA) && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6
+#if defined(NS_IMPL_COCOA) && \
+    (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6)
       NSRect dr = NSMakeRect (x, y, s->slice.width, s->slice.height);
       NSRect ir = NSMakeRect (s->slice.x, s->slice.y,
                               s->slice.width, s->slice.height);
@@ -3118,7 +3126,7 @@ ns_dumpglyphs_image (struct glyph_string *s, NSRect r)
 #else
       [img compositeToPoint: NSMakePoint (x, y + s->slice.height)
                   operation: NSCompositeSourceOver];
-#endif
+#endif /* NS_IMPL_COCOA && 10.6+ */
     }
 
   if (s->hl == DRAW_CURSOR)
@@ -3431,14 +3439,15 @@ ns_draw_glyph_string (struct glyph_string *s)
    ========================================================================== */
 
 
-static void
-ns_send_appdefined (int value)
-/* --------------------------------------------------------------------------
+static void ns_send_appdefined(int value)
+/* ------------------------------------------------------------------------
     Internal: post an appdefined event which EmacsApp-sendEvent will
               recognize and take as a command to halt the event loop.
-   -------------------------------------------------------------------------- */
+   --------------------------------------------------------------------- */
 {
-  /*NSTRACE (ns_send_appdefined); */
+#ifdef DEBUG
+  NSTRACE(ns_send_appdefined);
+#endif /* DEBUG */
 
 #ifdef NS_IMPL_GNUSTEP
   // GNUstep needs postEvent to happen on the main thread.
@@ -3451,11 +3460,11 @@ ns_send_appdefined (int value)
                          waitUntilDone:YES];
       return;
     }
-#endif
+#endif /* NS_IMPL_GNUSTEP */
 
-  /* Only post this event if we haven't already posted one.  This will end
-       the [NXApp run] main loop after having processed all events queued at
-       this moment.  */
+  /* Only post this event if we have NOT already posted one.  This will end
+   * the [NXApp run] main loop after having processed all events queued at
+   * this moment.  */
   if (send_appdefined)
     {
       NSEvent *nxev;
@@ -3489,8 +3498,7 @@ ns_send_appdefined (int value)
 }
 
 #ifdef HAVE_NATIVE_FS
-static void
-check_native_fs ()
+static void check_native_fs(void)
 {
   Lisp_Object frame, tail;
 
@@ -3509,14 +3517,13 @@ check_native_fs ()
         }
     }
 }
-#endif
+#endif /* HAVE_NATIVE_FS */
 
 /* GNUstep and OSX <= 10.4 does not have cancelTracking.  */
 #if defined (NS_IMPL_COCOA) && \
-  MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5
-/* Check if menu open should be canceled or continued as normal.  */
-void
-ns_check_menu_open (NSMenu *menu)
+  (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5)
+/* Check if menu open should be canceled or continued as normal: */
+void ns_check_menu_open(NSMenu *menu)
 {
   /* Click in menu bar? */
   NSArray *a = [[NSApp mainMenu] itemArray];
@@ -3537,16 +3544,17 @@ ns_check_menu_open (NSMenu *menu)
       if (menu_will_open_state == MENU_NONE && emacs_event)
         {
           NSEvent *theEvent = [NSApp currentEvent];
-          struct frame *emacsframe = SELECTED_FRAME ();
+          struct frame *emacsframe = SELECTED_FRAME();
+          CGEventRef ourEvent;
 
           [menu cancelTracking];
           menu_will_open_state = MENU_PENDING;
           emacs_event->kind = MENU_BAR_ACTIVATE_EVENT;
-          EV_TRAILER (theEvent);
+          EV_TRAILER(theEvent);
 
-          CGEventRef ourEvent = CGEventCreate (NULL);
-          menu_mouse_point = CGEventGetLocation (ourEvent);
-          CFRelease (ourEvent);
+          ourEvent = CGEventCreate(NULL);
+          menu_mouse_point = CGEventGetLocation(ourEvent);
+          CFRelease(ourEvent);
         }
       else if (menu_will_open_state == MENU_OPENING)
         {
@@ -3555,9 +3563,8 @@ ns_check_menu_open (NSMenu *menu)
     }
 }
 
-/* Redo saved menu click if state is MENU_PENDING.  */
-void
-ns_check_pending_open_menu ()
+/* Redo saved menu click if state is MENU_PENDING: */
+void ns_check_pending_open_menu(void)
 {
   if (menu_will_open_state == MENU_PENDING)
     {
@@ -3576,24 +3583,26 @@ ns_check_pending_open_menu ()
       menu_will_open_state = MENU_OPENING;
     }
 }
-#endif /* NS_IMPL_COCOA) && >= MAC_OS_X_VERSION_10_5 */
+#endif /* NS_IMPL_COCOA && 10.5+ */
 
 static int
 ns_read_socket (struct terminal *terminal, struct input_event *hold_quit)
-/* --------------------------------------------------------------------------
-     External (hook): Post an event to ourself and keep reading events until
-     we read it back again.  In effect process all events which were waiting.
-     From 21+ we have to manage the event buffer ourselves.
-   -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------
+    External (hook): Post an event to ourself and keep reading events until
+    we read it back again. In effect process all events which were waiting.
+    From 21+ we have to manage the event buffer ourselves.
+   --------------------------------------------------------------------- */
 {
   struct input_event ev;
   int nevents;
 
-/* NSTRACE (ns_read_socket); */
+#ifdef DEBUG
+  NSTRACE(ns_read_socket);
+#endif /* DEBUG */
 
 #ifdef HAVE_NATIVE_FS
-  check_native_fs ();
-#endif
+  check_native_fs();
+#endif /* HAVE_NATIVE_FS */
 
   if ([NSApp modalWindow] != nil)
     return -1;
@@ -3662,20 +3671,22 @@ int
 ns_select (int nfds, fd_set *readfds, fd_set *writefds,
 	   fd_set *exceptfds, struct timespec const *timeout,
 	   sigset_t const *sigmask)
-/* --------------------------------------------------------------------------
+/* ------------------------------------------------------------------------
      Replacement for select, checking for events
-   -------------------------------------------------------------------------- */
+   --------------------------------------------------------------------- */
 {
   int result;
   int t, k, nr = 0;
   struct input_event event;
   char c;
 
-/*  NSTRACE (ns_select); */
+#ifdef DEBUG
+  NSTRACE(ns_select);
+#endif /* DEBUG */
 
 #ifdef HAVE_NATIVE_FS
-  check_native_fs ();
-#endif
+  check_native_fs();
+#endif /* HAVE_NATIVE_FS */
 
   if (hold_event_q.nr > 0)
     {
@@ -3802,19 +3813,19 @@ ns_select (int nfds, fd_set *readfds, fd_set *writefds,
 
 
 
-/* ==========================================================================
+/* ========================================================================
 
     Scrollbar handling
 
-   ========================================================================== */
+   ===================================================================== */
 
 
 static void
 ns_set_vertical_scroll_bar (struct window *window,
                            int portion, int whole, int position)
-/* --------------------------------------------------------------------------
+/* ------------------------------------------------------------------------
       External (hook): Update or add scrollbar
-   -------------------------------------------------------------------------- */
+   --------------------------------------------------------------------- */
 {
   Lisp_Object win;
   NSRect r, v;
@@ -3913,10 +3924,10 @@ ns_set_vertical_scroll_bar (struct window *window,
 
 static void
 ns_condemn_scroll_bars (struct frame *f)
-/* --------------------------------------------------------------------------
+/* ------------------------------------------------------------------------
      External (hook): arrange for all frame's scrollbars to be removed
      at next call to judge_scroll_bars, except for those redeemed.
-   -------------------------------------------------------------------------- */
+   --------------------------------------------------------------------- */
 {
   int i;
   id view;
@@ -3952,10 +3963,10 @@ ns_redeem_scroll_bar (struct window *window)
 
 static void
 ns_judge_scroll_bars (struct frame *f)
-/* --------------------------------------------------------------------------
-     External (hook): destroy all scrollbars on frame that weren't
+/* ------------------------------------------------------------------------
+     External (hook): destroy all scrollbars on frame that were NOT
      redeemed after call to condemn_scroll_bars.
-   -------------------------------------------------------------------------- */
+   --------------------------------------------------------------------- */
 {
   int i;
   id view;
@@ -3976,11 +3987,11 @@ ns_judge_scroll_bars (struct frame *f)
     [eview updateFrameSize: NO];
 }
 
-/* ==========================================================================
+/* ========================================================================
 
     Initialization
 
-   ========================================================================== */
+   ===================================================================== */
 
 int
 x_display_pixel_height (struct ns_display_info *dpyinfo)
@@ -4014,9 +4025,9 @@ x_display_pixel_width (struct ns_display_info *dpyinfo)
 
 
 static Lisp_Object ns_string_to_lispmod (const char *s)
-/* --------------------------------------------------------------------------
+/* ------------------------------------------------------------------------
      Convert modifier name to lisp symbol
-   -------------------------------------------------------------------------- */
+   --------------------------------------------------------------------- */
 {
   if (!strncmp (SSDATA (SYMBOL_NAME (Qmeta)), s, 10))
     return Qmeta;
@@ -4039,9 +4050,9 @@ static void
 ns_default (const char *parameter, Lisp_Object *result,
            Lisp_Object yesval, Lisp_Object noval,
            BOOL is_float, BOOL is_modstring)
-/* --------------------------------------------------------------------------
+/* ------------------------------------------------------------------------
       Check a parameter value in user's preferences
-   -------------------------------------------------------------------------- */
+   --------------------------------------------------------------------- */
 {
   const char *value = ns_get_defaults_value (parameter);
 
@@ -4129,7 +4140,7 @@ static struct redisplay_interface ns_redisplay_interface =
 static void
 ns_delete_display (struct ns_display_info *dpyinfo)
 {
-  /* TODO... */
+  return; /* TODO... */
 }
 
 
@@ -4154,9 +4165,9 @@ ns_delete_terminal (struct terminal *terminal)
 
 static struct terminal *
 ns_create_terminal (struct ns_display_info *dpyinfo)
-/* --------------------------------------------------------------------------
+/* ------------------------------------------------------------------------
       Set up use of NS before we make the first connection.
-   -------------------------------------------------------------------------- */
+   --------------------------------------------------------------------- */
 {
   struct terminal *terminal;
 
@@ -4257,10 +4268,12 @@ ns_term_init (Lisp_Object display_name)
                            toTarget:NSApp
                          withObject:nil];
 
-  /* debugging: log all notifications */
-  /*   [[NSNotificationCenter defaultCenter] addObserver: NSApp
-                                         selector: @selector (logNotification:)
-                                             name: nil object: nil]; */
+  /* debugging: log all notifications: */
+#ifdef DEBUG
+  [[NSNotificationCenter defaultCenter] addObserver: NSApp
+                                           selector: @selector (logNotification:)
+                                               name: nil object: nil];
+#endif /* DEBUG */
 
   dpyinfo = xzalloc (sizeof *dpyinfo);
 
@@ -4268,7 +4281,7 @@ ns_term_init (Lisp_Object display_name)
   terminal = ns_create_terminal (dpyinfo);
 
   terminal->kboard = allocate_kboard (Qns);
-  /* Don't let the initial kboard remain current longer than necessary.
+  /* Do NOT let the initial kboard remain current longer than necessary.
      That would cause problems if a file loaded on startup tries to
      prompt in the mini-buffer.  */
   if (current_kboard == initial_kboard)
@@ -4298,7 +4311,7 @@ ns_term_init (Lisp_Object display_name)
   {
     NSColorList *cl = [NSColorList colorListNamed: @"Emacs"];
 
-    if ( cl == nil )
+    if (cl == nil)
       {
         Lisp_Object color_file, color_map, color;
         unsigned long c;
@@ -4332,11 +4345,13 @@ ns_term_init (Lisp_Object display_name)
 #ifdef NS_IMPL_GNUSTEP
     Vwindow_system_version = build_string (gnustep_base_version);
 #else
-    /*PSnextrelease (128, c); */
+# if 0
+    PSnextrelease (128, c);
+# endif /* 0 */
     char c[DBL_BUFSIZE_BOUND];
     int len = dtoastr (c, sizeof c, 0, 0, NSAppKitVersionNumber);
     Vwindow_system_version = make_unibyte_string (c, len);
-#endif
+#endif /* NS_IMPL_GNUSTEP */
   }
 
   delete_keyboard_wait_descriptor (0);
@@ -4433,10 +4448,10 @@ ns_term_init (Lisp_Object display_name)
   ns_do_open_file = YES;
 
 #ifdef NS_IMPL_GNUSTEP
-  /* GNUstep steals SIGCHLD for use in NSTask, but we don't use NSTask.
+  /* GNUstep steals SIGCHLD for use in NSTask, but we do NOT use NSTask.
      We must re-catch it so subprocess works.  */
   catch_child_signal ();
-#endif
+#endif /* NS_IMPL_GNUSTEP */
   return dpyinfo;
 }
 
@@ -4454,32 +4469,32 @@ ns_term_shutdown (int sig)
     {
       [NSApp terminate: NSApp];
     }
-  else // force a stack trace to happen
+  else // force a stack trace to happen:
     {
       emacs_abort ();
     }
 }
 
 
-/* ==========================================================================
+/* ========================================================================
 
     EmacsApp implementation
 
-   ========================================================================== */
-
+   ===================================================================== */
 
 @implementation EmacsApp
 
 - (id)init
 {
-  if (self = [super init])
+  /* assuming this is an assignment: */
+  if ((self = [super init]))
     {
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_9
       self->isFirst = YES;
-#endif
+#endif /* 10.9+ */
 #ifdef NS_IMPL_GNUSTEP
       self->applicationDidFinishLaunchingCalled = NO;
-#endif
+#endif /* NS_IMPL_GNUSTEP */
     }
 
   return self;
@@ -4518,7 +4533,7 @@ ns_term_shutdown (int sig)
     // The file dialog still leaks 7k - 10k on 10.9 though.
     [super stop:sender];
 }
-#endif
+#endif /* 10.9+ */
 
 - (void)logNotification: (NSNotification *)notification
 {
@@ -4666,21 +4681,21 @@ ns_term_shutdown (int sig)
 }
 
 
-/* **************************************************************************
+/* ************************************************************************
 
       EmacsApp delegate implementation
 
-   ************************************************************************** */
+   ********************************************************************* */
 
 - (void)applicationDidFinishLaunching: (NSNotification *)notification
-/* --------------------------------------------------------------------------
+/* ------------------------------------------------------------------------
      When application is loaded, terminate event loop in ns_term_init
-   -------------------------------------------------------------------------- */
+   --------------------------------------------------------------------- */
 {
   NSTRACE (applicationDidFinishLaunching);
 #ifdef NS_IMPL_GNUSTEP
   ((EmacsApp *)self)->applicationDidFinishLaunchingCalled = YES;
-#endif
+#endif /* NS_IMPL_GNUSTEP */
   [NSApp setServicesProvider: NSApp];
   ns_send_appdefined (-2);
 }
@@ -4802,7 +4817,11 @@ not_in_argv (NSString *arg)
 /* TODO: these may help w/IO switching btwn terminal and NSApp */
 - (void)applicationWillBecomeActive: (NSNotification *)notification
 {
-  //ns_app_active=YES;
+#if 0
+  ns_app_active = YES;
+#else
+  return;
+#endif /* 0 */
 }
 - (void)applicationDidBecomeActive: (NSNotification *)notification
 {
@@ -4811,8 +4830,10 @@ not_in_argv (NSString *arg)
 #ifdef NS_IMPL_GNUSTEP
   if (! applicationDidFinishLaunchingCalled)
     [self applicationDidFinishLaunching:notification];
-#endif
-  //ns_app_active=YES;
+#endif /* NS_IMPL_GNUSTEP */
+#if 0
+  ns_app_active=YES;
+#endif /* 0 */
 
   ns_update_auto_hide_menu_bar ();
   // No constraining takes place when the application is not active.
@@ -4820,23 +4841,25 @@ not_in_argv (NSString *arg)
 }
 - (void)applicationDidResignActive: (NSNotification *)notification
 {
-  //ns_app_active=NO;
+#if 0
+  ns_app_active = NO;
+#endif /* 0 */
   ns_send_appdefined (-1);
 }
 
 
 
-/* ==========================================================================
+/* ========================================================================
 
     EmacsApp aux handlers for managing event loop
 
-   ========================================================================== */
+   ===================================================================== */
 
 
 - (void)timeout_handler: (NSTimer *)timedEntry
-/* --------------------------------------------------------------------------
+/* ------------------------------------------------------------------------
      The timeout specified to ns_select has passed.
-   -------------------------------------------------------------------------- */
+   --------------------------------------------------------------------- */
 {
 #ifdef DEBUG
   NSTRACE(timeout_handler);
@@ -4851,7 +4874,16 @@ not_in_argv (NSString *arg)
 }
 #endif /* NS_IMPL_GNUSTEP */
 
-- (void) _Noreturn fd_handler:(id)unused
+/* _Noreturn breaks in objc with gcc, so ignore warnings about it:  */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 7)))
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wmissing-noreturn"
+#endif /* gcc 4.7+ */
+/* (4.7 is the version used for the ifdefs surrounding the other
+ * "-Wsuggest-attribute=" warning removals) */
+
+- (void)fd_handler:(id)unused
 /* ------------------------------------------------------------------------
      Check data waiting on file descriptors, and terminate if so
    --------------------------------------------------------------------- */
@@ -4942,15 +4974,18 @@ not_in_argv (NSString *arg)
     }
 }
 
+/* keep this condition the same as when we push: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 7)))
+# pragma GCC diagnostic pop
+#endif /* gcc 4.7+ */
 
-
-/* ==========================================================================
+/* ========================================================================
 
     Service provision
 
-   ========================================================================== */
-
-/* called from system: queue for next pass through event loop */
+   ===================================================================== */
+/* called from system: queue for next pass through event loop: */
 - (void)requestService: (NSPasteboard *)pboard
               userData: (NSString *)userData
                  error: (NSString **)error
@@ -5031,7 +5066,7 @@ not_in_argv (NSString *arg)
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5
   else
     nsfont = (NSFont *) macfont_get_nsctfont (font);
-#endif
+#endif /* 10.5+ */
 
   if ((newFont = [sender convertFont: nsfont]))
     {
@@ -5082,15 +5117,16 @@ not_in_argv (NSString *arg)
   int code;
   unsigned fnKeysym = 0;
   static NSMutableArray *nsEvArray;
-#if !defined (NS_IMPL_COCOA) || MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_6
+#if !defined(NS_IMPL_COCOA) || \
+    (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_6)
   static BOOL firstTime = YES;
-#endif
+#endif /* !NS_IMPL_COCOA || pre-10.6 */
   int left_is_none;
   unsigned int flags = [theEvent modifierFlags];
 
   NSTRACE (keyDown);
 
-  /* Rhapsody and OS X give up and down events for the arrow keys */
+  /* Rhapsody and OS X give up and down events for the arrow keys: */
   if (ns_fake_keydown == YES)
     ns_fake_keydown = NO;
   else if ([theEvent type] != NSKeyDown)
@@ -5155,13 +5191,13 @@ not_in_argv (NSString *arg)
              because Emacs treats Delete and KP-Delete same (in simple.el). */
           if ((fnKeysym == 0xFFFF && [theEvent keyCode] == 0x33)
 #ifdef NS_IMPL_GNUSTEP
-              /*  GNUstep uses incompatible keycodes, even for those that are
-                  supposed to be hardware independent.  Just check for delete.
-                  Keypad delete does not have keysym 0xFFFF.
-                  See http://savannah.gnu.org/bugs/?25395
-              */
+              /* GNUstep uses incompatible keycodes, even for those that
+               * are supposed to be hardware independent.
+               * Just check for delete.
+               * Keypad delete does not have keysym 0xFFFF.
+               *   See <http://savannah.gnu.org/bugs/?25395> */
               || (fnKeysym == 0xFFFF && code == 127)
-#endif
+#endif /* NS_IMPL_GNUSTEP */
             )
             code = 0xFF08; /* backspace */
           else
@@ -5220,7 +5256,7 @@ not_in_argv (NSString *arg)
                                  &dummy, 1, &dummy, &code);
                   code &= 0xFF;
                 }
-#endif
+#endif /* 0 */
             }
         }
 
@@ -5354,7 +5390,7 @@ not_in_argv (NSString *arg)
       [self keyDown: theEvent];
     }
 }
-#endif
+#endif /* NS_IMPL_COCOA */
 
 
 /* <NSTextInput> implementation (called through super interpretKeyEvents:]). */
@@ -5380,8 +5416,8 @@ not_in_argv (NSString *arg)
   if (workingText != nil)
     [self deleteWorkingText];
 
-  /* now insert the string as keystrokes */
-  for (i =0; i<len; i++)
+  /* now insert the string as keystrokes: */
+  for (i = 0; i < len; i++)
     {
       code = [aString characterAtIndex: i];
       /* TODO: still need this? */
@@ -5452,6 +5488,13 @@ not_in_argv (NSString *arg)
 }
 
 
+/* gcc is clueless about NSString literals, so ignore warnings resulting
+ * from their use (4.6 is the version with push and pop): */
+#if !defined(__clang__) && defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wformat-security"
+#endif /* non-clang gcc 4.6+ */
 - (NSRange)markedRange
 {
   NSRange rng = workingText != nil
@@ -5532,12 +5575,12 @@ not_in_argv (NSString *arg)
   return NSMakeRange (NSNotFound, 0);
 }
 
-#if defined (NS_IMPL_COCOA) || GNUSTEP_GUI_MAJOR_VERSION > 0 || \
-    GNUSTEP_GUI_MINOR_VERSION > 22
+#if defined(NS_IMPL_COCOA) || (GNUSTEP_GUI_MAJOR_VERSION > 0) || \
+    (GNUSTEP_GUI_MINOR_VERSION > 22)
 - (NSUInteger)characterIndexForPoint: (NSPoint)thePoint
 #else
 - (unsigned int)characterIndexForPoint: (NSPoint)thePoint
-#endif
+#endif /* NS_IMPL_COCOA || gnustep gui 0.22+ */
 {
   if (NS_KEYLOG)
     NSLog (@"characterIndexForPoint request");
@@ -5553,8 +5596,14 @@ not_in_argv (NSString *arg)
   return str;
 }
 
+/* keep this condition the same as when we push: */
+#if !defined(__clang__) && defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic pop
+#endif /* non-clang gcc 4.6+ */
+
 /* End <NSTextInput> impl. */
-/*****************************************************************************/
+/*************************************************************************/
 
 
 /* This is what happens when the user presses a mouse button.  */
@@ -5679,10 +5728,10 @@ not_in_argv (NSString *arg)
 
   if (!NILP (Vmouse_autoselect_window))
     {
-      NSTRACE (mouse_autoselect_window);
       static Lisp_Object last_mouse_window;
-      Lisp_Object window
-	= window_from_coordinates (emacsframe, pt.x, pt.y, 0, 0);
+      Lisp_Object window;
+      NSTRACE (mouse_autoselect_window);
+      window = window_from_coordinates(emacsframe, pt.x, pt.y, 0, 0);
 
       if (WINDOWP (window)
           && !EQ (window, last_mouse_window)
@@ -5778,7 +5827,7 @@ not_in_argv (NSString *arg)
 #ifdef NS_IMPL_GNUSTEP
       // GNUstep does not always update the tool bar height.  Force it.
       if (toolbar) update_frame_tool_bar (emacsframe);
-#endif
+#endif /* NS_IMPL_GNUSTEP */
 
       extra = FRAME_NS_TITLEBAR_HEIGHT (emacsframe)
         + FRAME_TOOLBAR_HEIGHT (emacsframe);
@@ -6209,7 +6258,7 @@ if (cols > 0 && rows > 0)
       [self setFSValue: FULLSCREEN_HEIGHT];
 #ifdef NS_IMPL_COCOA
       maximizing_resize = YES;
-#endif
+#endif /* NS_IMPL_COCOA */
     }
   else if (next_maximized == FULLSCREEN_WIDTH)
     {
@@ -6230,7 +6279,7 @@ if (cols > 0 && rows > 0)
       [self setFSValue: FULLSCREEN_MAXIMIZED];
 #ifdef NS_IMPL_COCOA
       maximizing_resize = YES;
-#endif
+#endif /* NS_IMPL_COCOA */
     }
   else
     {
@@ -6239,7 +6288,7 @@ if (cols > 0 && rows > 0)
       ns_userRect = NSMakeRect (0, 0, 0, 0);
 #ifdef NS_IMPL_COCOA
       maximizing_resize = fs_state != FULLSCREEN_NONE;
-#endif
+#endif /* NS_IMPL_COCOA */
       [self setFSValue: FULLSCREEN_NONE];
       maximized_width = maximized_height = -1;
     }
@@ -6305,7 +6354,7 @@ if (cols > 0 && rows > 0)
 {
   return proposedOptions|NSApplicationPresentationAutoHideToolbar;
 }
-#endif
+#endif /* HAVE_NATIVE_FS */
 
 - (void)windowWillEnterFullScreen:(NSNotification *)notification
 {
@@ -6357,7 +6406,7 @@ if (cols > 0 && rows > 0)
   fs_before_fs = -1;
 #ifdef HAVE_NATIVE_FS
   [self updateCollectionBehavior];
-#endif
+#endif /* HAVE_NATIVE_FS */
   if (FRAME_EXTERNAL_TOOL_BAR (emacsframe))
     {
       [toolbar setVisible:YES];
@@ -6384,7 +6433,7 @@ if (cols > 0 && rows > 0)
   return ([[self window] styleMask] & NSFullScreenWindowMask) != 0;
 #else
   return NO;
-#endif
+#endif /* HAVE_NATIVE_FS */
 }
 
 #ifdef HAVE_NATIVE_FS
@@ -6403,7 +6452,7 @@ if (cols > 0 && rows > 0)
       fs_is_native = ns_use_native_fullscreen;
     }
 }
-#endif
+#endif /* HAVE_NATIVE_FS */
 
 - (void)toggleFullScreen: (id)sender
 {
@@ -6455,7 +6504,7 @@ if (cols > 0 && rows > 0)
           [NSApp setPresentationOptions: options];
 #else
           [NSMenu setMenuBarVisible:NO];
-#endif
+#endif /* NS_IMPL_COCOA && 10.6+ */
         }
 
       fw = [[EmacsFSWindow alloc]
@@ -6504,7 +6553,7 @@ if (cols > 0 && rows > 0)
           [NSApp setPresentationOptions: NSApplicationPresentationDefault];
 #else
           [NSMenu setMenuBarVisible:YES];
-#endif
+#endif /* NS_IMPL_COCOA && 10.6+ */
         }
 
       [w setContentView:[fw contentView]];
@@ -6997,6 +7046,8 @@ if (cols > 0 && rows > 0)
   NSArray *screens = [NSScreen screens];
   NSUInteger nr_screens = [screens count], nr_eff_screens = 0, i;
   struct frame *f = ((EmacsView *)[self delegate])->emacsframe;
+  float old_top, new_top;
+  NSRect r;
   NSTRACE (constrainFrameRect);
   NSTRACE_RECT ("input", frameRect);
 
@@ -7036,14 +7087,13 @@ if (cols > 0 && rows > 0)
   /* The default implementation does two things 1) ensure that the top
      of the rectangle is below the menu bar (or below the top of the
      screen) and 2) resizes windows larger than the screen. As we
-     don't want the latter, a smaller rectangle is used. */
+     do NOT want the latter, a smaller rectangle is used. */
 #define FAKE_HEIGHT 64
-  float old_top = frameRect.origin.y + frameRect.size.height;
-  NSRect r;
+  old_top = (frameRect.origin.y + frameRect.size.height);
   r.size.height = FAKE_HEIGHT;
   r.size.width = frameRect.size.width;
   r.origin.x = frameRect.origin.x;
-  r.origin.y = old_top - FAKE_HEIGHT;
+  r.origin.y = (old_top - FAKE_HEIGHT);
 
   NSTRACE_RECT ("input to super", r);
 
@@ -7051,10 +7101,9 @@ if (cols > 0 && rows > 0)
 
   NSTRACE_RECT ("output from super", r);
 
-  float new_top = r.origin.y + FAKE_HEIGHT;
-  if (new_top < old_top)
-  {
-    frameRect.origin.y = new_top - frameRect.size.height;
+  new_top = (r.origin.y + FAKE_HEIGHT);
+  if (new_top < old_top) {
+    frameRect.origin.y = ((CGFloat)new_top - frameRect.size.height);
   }
 
   NSTRACE_RECT ("output", frameRect);
@@ -7117,7 +7166,7 @@ if (cols > 0 && rows > 0)
   [self setAutoresizingMask: NSViewMaxXMargin | NSViewHeightSizable];
 #else
   [self setAutoresizingMask: NSViewMinXMargin | NSViewHeightSizable];
-#endif
+#endif /* NS_IMPL_GNUSTEP */
 
   win = nwin;
   condemned = NO;
@@ -7239,12 +7288,13 @@ if (cols > 0 && rows > 0)
 
   if (portion >= whole)
     {
-#if defined (NS_IMPL_COCOA) && MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_5
+#if defined(NS_IMPL_COCOA) && \
+    (MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_5)
       [self setKnobProportion: 1.0];
       [self setDoubleValue: 1.0];
 #else
       [self setFloatValue: 0.0 knobProportion: 1.0];
-#endif
+#endif /* NS_IMPL_COCOA && newer than 10.5 */
     }
   else
     {
@@ -7253,12 +7303,13 @@ if (cols > 0 && rows > 0)
       portion = max ((float)whole*min_portion/pixel_height, portion);
       pos = (float)position / (whole - portion);
       por = (CGFloat)portion/whole;
-#if defined (NS_IMPL_COCOA) && MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_5
+#if defined(NS_IMPL_COCOA) && \
+    (MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_5)
       [self setKnobProportion: por];
       [self setDoubleValue: pos];
 #else
       [self setFloatValue: pos knobProportion: por];
-#endif
+#endif /* NS_IMPL_COCOA && newer than 10.5 */
     }
 
   /* Events may come here even if the event loop is not running.

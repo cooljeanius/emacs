@@ -29,15 +29,15 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <stdio.h>
 
 #ifdef HAVE_PWD_H
-#include <pwd.h>
-#endif
+# include <pwd.h>
+#endif /* HAVE_PWD_H */
 
 #include <sys/file.h>
 #include <fcntl.h>
 #include <unistd.h>
 
 #ifdef __FreeBSD__
-#include <sys/sysctl.h>
+# include <sys/sysctl.h>
 #endif /* __FreeBSD__ */
 
 #include <errno.h>
@@ -50,26 +50,30 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "coding.h"
 #include "systime.h"
 #ifdef WINDOWSNT
-#include <share.h>
-#include <sys/socket.h>	/* for fcntl */
-#include "w32.h"	/* for dostounix_filename */
-#endif
+# include <share.h>
+# include <sys/socket.h> /* for fcntl */
+# include "w32.h"	/* for dostounix_filename */
+#endif /* WINDOWSNT */
 
 #ifdef CLASH_DETECTION
 
 #ifdef HAVE_UTMP_H
-#include <utmp.h>
-#endif
+# include <utmp.h>
+#endif /* HAVE_UTMP_H */
 
 /* A file whose last-modified time is just after the most recent boot.
    Define this to be NULL to disable checking for this file.  */
 #ifndef BOOT_TIME_FILE
-#define BOOT_TIME_FILE "/var/run/random-seed"
-#endif
+# define BOOT_TIME_FILE "/var/run/random-seed"
+#endif /* !BOOT_TIME_FILE */
 
-#ifndef WTMP_FILE
-#define WTMP_FILE "/var/log/wtmp"
-#endif
+/* this is the same condition as that which guards the part where the
+ * the defined macro ('WTMP_FILE') is actually used: */
+#if defined(BOOT_TIME)
+# ifndef WTMP_FILE
+#  define WTMP_FILE "/var/log/wtmp"
+# endif /* !WTMP_FILE */
+#endif /* BOOT_TIME */
 
 /* Normally use a symbolic link to represent a lock.
    The strategy: to lock a file FN, create a symlink .#FN in FN's
@@ -81,7 +85,7 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
    Otherwise, we could look at a separate file that maps hostnames to
    reboot times to see if the remote pid can possibly be valid, since we
-   don't want Emacs to have to communicate via pipes or sockets or
+   do NOT want Emacs to have to communicate via pipes or sockets or
    whatever to other processes, either locally or remotely; rms says
    that's too unreliable.  Hence the separate file, which could
    theoretically be updated by daemons running separately -- but this
@@ -97,8 +101,8 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
    virtually all such systems are probably single-user anyway, so it
    didn't seem worth the complication.
 
-   Similarly, we don't worry about a possible 14-character limit on
-   file names, because those are all the same systems that don't have
+   Similarly, we do NOT worry about a possible 14-character limit on
+   file names, because those are all the same systems that do NOT have
    symlinks.
 
    This is compatible with the locking scheme used by Interleaf (which
@@ -131,14 +135,14 @@ static bool boot_time_initialized;
 
 #ifdef BOOT_TIME
 static void get_boot_time_1 (const char *, bool);
-#endif
+#endif /* BOOT_TIME */
 
 static time_t
 get_boot_time (void)
 {
 #if defined (BOOT_TIME)
   int counter;
-#endif
+#endif /* BOOT_TIME */
 
   if (boot_time_initialized)
     return boot_time;
@@ -172,14 +176,14 @@ get_boot_time (void)
 	}
     }
 
-#if defined (BOOT_TIME)
-#ifndef CANNOT_DUMP
+#if defined(BOOT_TIME)
+# ifndef CANNOT_DUMP
   /* The utmp routines maintain static state.
-     Don't touch that state unless we are initialized,
+     Do NOT touch that state unless we are initialized,
      since it might not survive dumping.  */
   if (! initialized)
     return boot_time;
-#endif /* not CANNOT_DUMP */
+# endif /* not CANNOT_DUMP */
 
   /* Try to get boot time from utmp before wtmp,
      since utmp is typically much smaller than wtmp.
@@ -243,7 +247,7 @@ get_boot_time (void)
   return boot_time;
 #else
   return 0;
-#endif
+#endif /* BOOT_TIME */
 }
 
 #ifdef BOOT_TIME
@@ -378,7 +382,7 @@ rename_lock_file (char const *old, char const *new, bool force)
     }
 
   return rename (old, new);
-#endif
+#endif /* WINDOWSNT */
 }
 
 /* Create the lock file LFNAME with contents LOCK_INFO_STR.  Return 0 if
@@ -396,7 +400,7 @@ create_lock_file (char *lfname, char *lock_info_str, bool force)
   int err = ENOSYS;
 #else
   int err = symlink (lock_info_str, lfname) == 0 ? 0 : errno;
-#endif
+#endif /* WINDOWSNT */
 
   if (err == EEXIST && force)
     {
@@ -488,10 +492,10 @@ within_one_second (time_t a, time_t b)
   return (a - b >= -1 && a - b <= 1);
 }
 
-/* On systems lacking ELOOP, test for an errno value that shouldn't occur.  */
+/* On systems lacking ELOOP, test for an errno value that should NOT occur.  */
 #ifndef ELOOP
 # define ELOOP (-1)
-#endif
+#endif /* !ELOOP */
 
 /* Read the data for the lock file LFNAME into LFINFO.  Read at most
    MAX_LFINFO + 1 bytes.  Return the number of bytes read, or -1
@@ -694,7 +698,7 @@ lock_file (Lisp_Object fn)
      looking (inside fill_in_lock_file_name) for backslashes in file
      names encoded by some DBCS codepage.  */
   dostounix_filename (SSDATA (fn));
-#endif
+#endif /* WINDOWSNT */
   encoded_fn = ENCODE_FILE (fn);
 
   /* Create the name of the lock-file for file fn */
@@ -854,5 +858,7 @@ syms_of_filelock (void)
   defsubr (&Sunlock_buffer);
   defsubr (&Slock_buffer);
   defsubr (&Sfile_locked_p);
-#endif
+#endif /* CLASH_DETECTION */
 }
+
+/* EOF */

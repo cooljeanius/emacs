@@ -47,7 +47,7 @@
 #endif /* DEBUG */
 
 /* Some of the code in this file assumes that signed integer overflow
-   silently wraps around.  This assumption can't easily be programmed
+   silently wraps around.  This assumption cannot easily be programmed
    around, nor can it be checked for portably at compile-time or
    easily eliminated at run-time.
 

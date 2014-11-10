@@ -1,4 +1,4 @@
-/* Storage allocation and gc for GNU Emacs Lisp interpreter.
+/* alloc.c: Storage allocation and gc for GNU Emacs Lisp interpreter.
 
 Copyright (C) 1985-1986, 1988, 1993-1995, 1997-2014 Free Software
 Foundation, Inc.
@@ -72,7 +72,7 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
      && defined HAVE_VALGRIND_VALGRIND_H	\
      && !defined USE_VALGRIND)
 # define USE_VALGRIND 1
-#endif
+#endif /* ENABLE_CHECKING && HAVE_VALGRIND_VALGRIND_H && !USE_VALGRIND */
 
 #if USE_VALGRIND
 # include <valgrind/valgrind.h>
@@ -84,7 +84,7 @@ static bool valgrind_p;
    Doable only if GC_MARK_STACK.  */
 #if ! GC_MARK_STACK
 # undef GC_CHECK_MARKED_OBJECTS
-#endif
+#endif /* !GC_MARK_STACK */
 
 /* GC_MALLOC_CHECK defined means perform validity checks of malloc'd
    memory.  Can do this only if using gmalloc.c and if not checking
@@ -92,8 +92,8 @@ static bool valgrind_p;
 
 #if (defined SYSTEM_MALLOC || defined DOUG_LEA_MALLOC \
      || defined GC_CHECK_MARKED_OBJECTS)
-#undef GC_MALLOC_CHECK
-#endif
+# undef GC_MALLOC_CHECK
+#endif /* SYSTEM_MALLOC || DOUG_LEA_MALLOC || GC_CHECK_MARKED_OBJECTS */
 
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
@@ -102,7 +102,10 @@ extern POINTER_TYPE *sbrk(int incr);
 #endif/* HAVE_UNISTD_H */
 #ifdef HAVE_FCNTL_H
 # ifndef INCLUDED_FCNTL
-#  define INCLUDED_FCNTL 1
+/* prevent '-Wunused-macros' from warning about this pseudo-headerguard: */
+#  ifndef lint
+#   define INCLUDED_FCNTL 1
+#  endif /* !lint */
 #  include <fcntl.h>
 # endif /* !INCLUDED_FCNTL */
 #endif /* HAVE_FCNTL_H */

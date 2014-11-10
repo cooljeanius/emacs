@@ -2474,6 +2474,7 @@ AC_MSG_CHECKING([compiler])
 AC_MSG_RESULT([ ])dnl
 
 test -n "${CC}" && cc_specified=yes
+test -n "${LD}" && ld_specified=yes
 
 # Save the value of CFLAGS that the user specified.
 SPECIFIED_CFLAGS="${CFLAGS}"
@@ -2489,6 +2490,7 @@ if test "x${with_gcc}" != "x"; then
     * )
   esac
 fi
+
 dnl# This will set GCC=yes if using gcc:
 AC_PROG_CC([gcc cc cl clang "${XCRUN} gcc" "${XCRUN} clang"])
 if test -n "${XCRUN}"; then
@@ -2568,9 +2570,17 @@ dnl# Amongst other things, this sets AR and ARFLAGS.
 gl_EARLY
 AC_MSG_NOTICE([done initializing gnulib, back to more compiler checks])dnl
 
-dnl# TODO: maybe use '-ggdb3' instead of just '-g3' based on the results of
-dnl# this check(?):
 AC_PATH_PROGS([GDB_BIN],[gdb ggdb gdb-apple])dnl
+
+## if gdb is present, use gdb-specific debugging options; otherwise proceed
+## as this script did previously:
+if test "x${GDB_BIN}" != "x"; then
+  test -n "${GDB_BIN}" && test -x "${GDB_BIN}"
+  gthree='-ggdb3'
+else
+  test -z "${GDB_BIN}"
+  gthree='-g3'
+fi
 
 if test "x${ac_test_CFLAGS}" != "xset"; then
   # It is helpful to have C macros available to GDB, so prefer -g3 to -g
@@ -2578,9 +2588,9 @@ if test "x${ac_test_CFLAGS}" != "xset"; then
   # This test must follow gl_EARLY; otherwise AC_LINK_IFELSE complains.
   case ${CFLAGS} in
     '-g')
-      emacs_g3_CFLAGS='-g3';;
+      emacs_g3_CFLAGS="${gthree}";;
     '-g -O2')
-      emacs_g3_CFLAGS='-g3 -O2';;
+      emacs_g3_CFLAGS="${gthree} -O2";;
     *)
       emacs_g3_CFLAGS='';;
   esac
@@ -2631,9 +2641,9 @@ if test "x${ac_test_OBJCFLAGS}" != "xset"; then
   # so prefer -g3 to -g if -g3 works & the user does not specify OBJCFLAGS.
   case ${OBJCFLAGS} in
     '-g')
-      emacs_g3_OBJCFLAGS='-g3';;
+      emacs_g3_OBJCFLAGS="${gthree}";;
     '-g -O2')
-      emacs_g3_OBJCFLAGS='-g3 -O2';;
+      emacs_g3_OBJCFLAGS="${gthree} -O2";;
     *)
       emacs_g3_OBJCFLAGS='';;
   esac
@@ -2679,9 +2689,9 @@ if test "x${ac_test_CXXFLAGS}" != "xset"; then
   # -g3 to -g if -g3 works and the user does not specify CXXFLAGS.
   case ${CXXFLAGS} in
     '-g')
-      emacs_g3_CXXFLAGS='-g3';;
+      emacs_g3_CXXFLAGS="${gthree}";;
     '-g -O2')
-      emacs_g3_CXXFLAGS='-g3 -O2';;
+      emacs_g3_CXXFLAGS="${gthree} -O2";;
     *)
       emacs_g3_CXXFLAGS='';;
   esac
@@ -2736,35 +2746,53 @@ dnl# definition of macro for checking version of gcc has been moved to:
 m4_include([m4/gcc-version.m4])dnl
 
 gl_GCC_VERSION_IFELSE([4],[5],[
-AC_ARG_ENABLE([link-time-optimization],
-[AS_HELP_STRING([--enable-link-time-optimization],
-                [build emacs with link-time optimization.
-                 This is supported only for GCC since 4.5.0.])],[
-if test "x${enableval}" != "xno"; then
-   AC_MSG_CHECKING([whether link-time optimization is supported])
-   ac_lto_supported=no
-   if test "x${GCC}" = "xyes"; then
-      AC_PATH_PROG([GETCONF_PROG],[getconf])
-      CPUS="`getconf _NPROCESSORS_ONLN 2>/dev/null`"
-      if test "x${CPUS}" != "x"; then
-      	 LTO="-flto=${CPUS}"
-      else
-	 LTO="-flto"
-      fi
-      old_CFLAGS="${CFLAGS}"
-      CFLAGS="${CFLAGS} ${LTO}"
-      AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]],[[]])],
-      	[ac_lto_supported=yes],[ac_lto_supported=no])
-      CFLAGS="${old_CFLAGS}"
-   fi
-   AC_MSG_RESULT([${ac_lto_supported}])
-   if test "x${ac_lto_supported}" = "xyes"; then
-      CFLAGS="${CFLAGS} ${LTO}"
-   fi
-else
-   AC_MSG_NOTICE([skipping checks for link-time optimization])
-fi
-])dnl
+  AC_ARG_ENABLE([link-time-optimization],
+  [AS_HELP_STRING([--enable-link-time-optimization],
+                  [build emacs with link-time optimization.
+                   This is supported only for GCC since 4.5.0.])],[
+  if test "x${enableval}" != "xno"; then
+     if test "x${GCC}" = "xyes"; then
+        AC_PATH_PROG([GETCONF_PROG],[getconf])
+        CPUS="`getconf _NPROCESSORS_ONLN 2>/dev/null`"
+        if test "x${CPUS}" != "x"; then
+      	   LTO="-flto=${CPUS}"
+        else
+	   LTO="-flto"
+        fi  ##end cpu check
+        old_CFLAGS="${CFLAGS}"
+        CFLAGS="${CFLAGS} ${LTO}"
+        AC_CACHE_CHECK([for link-time optimization support when compiling],
+                       [ac_cv_lto_supported],[
+           AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]],[[]])],
+      	     [ac_cv_lto_supported=yes],[ac_cv_lto_supported=no])
+        ])dnl# end compile cache check
+        ## reset:
+        CFLAGS="${old_CFLAGS}"
+        ## do it again with the linker:
+        old_LDLAGS="${LDFLAGS}"
+        LDFLAGS="${LDFLAGS} ${LTO}"
+        AC_CACHE_CHECK([for link-time optimization support when linking],
+                       [ac_cv_ld_lto_supported],[
+           AC_LINK_IFELSE([AC_LANG_PROGRAM([[]],[[]])],
+      	     [ac_cv_ld_lto_supported=yes],[ac_cv_ld_lto_supported=no])
+        ])dnl# end compile cache check
+        ## reset:
+        LDFLAGS="${old_LDFLAGS}"
+     else
+        AC_MSG_WARN([link-time optimization requested, but it currently requires a GCC-compatible compiler, which we do not have])
+     fi  ##end gcc-specific checks
+     ## now use it what we found, but only once:
+     if test "x${ac_cv_lto_supported}" = "xyes"; then
+        CFLAGS="${CFLAGS} ${LTO}"
+     elif test "x${ac_cv_ld_lto_supported}" = "xyes"; then
+        LDFLAGS="${LDFLAGS} ${LTO}"
+     fi
+  else
+     AC_MSG_NOTICE([skipping checks for link-time optimization])
+  fi
+  ])dnl
+],[
+  AC_MSG_NOTICE([need gcc 4.5.0 or newer for LTO checks])
 ])dnl# end code for gcc4.5+
 
 dnl# The definitions of the macros for checking compiler ids have moved to:
@@ -2919,7 +2947,9 @@ else
   # In spite of excluding -Wlogical-op above, it is enabled, as of
   # gcc 4.5.0 20090517.
   gl_GCC_VERSION_IFELSE([4],[5],[
-  gl_WARN_ADD([-Wno-logical-op])dnl
+    gl_WARN_ADD([-Wno-logical-op])dnl
+  ],[
+    AC_MSG_NOTICE([no need to explicitly add '-Wno-logical-op' for versions of gcc before 4.5.0])
   ])dnl# end code for gcc4.5(+(?))
 
   # More things that clang is unduly picky about.
@@ -2940,6 +2970,10 @@ else
       gl_WARN_ADD([-Wfour-char-constants])
       gl_WARN_ADD([-Wnewline-eof])
     fi  ##end check for Apple compiler
+
+    dnl# speaking of m4/manywarnings.m4, running the command in one of the
+    dnl# comments discovered the following warning flag:
+    gl_WARN_ADD([-Wnonportable-cfstrings])
 
     dnl# These next ones are linker warnings, which we do need to keep
     dnl# conditionalized on the vendor, because preprocessor macro
@@ -2968,79 +3002,83 @@ else
     dnl# some other ones from the gcc4.2 manual that m4/manywarnings.m4
     dnl# leaves out:
     gl_GCC_VERSION_IFELSE([4],[2],[
-    if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
-      test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
-      gl_WARN_ADD([-Waggregate-return])
-    else
-      test -z "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
-      nw="${nw} -Waggregate-return"
-    fi  ##end check for one undocumented environment variable
-    if test "x${PRINT_CONVERSION_WARNINGS}" = "xyes"; then
-      test -n "${PRINT_CONVERSION_WARNINGS}"
-      gl_WARN_ADD([-Wconversion])
-    else
-      test -z "${PRINT_CONVERSION_WARNINGS}"
-      nw="${nw} -Wconversion"
-    fi  ##end check for other undocumented environment variable
-    gl_WARN_ADD([-Wdeclaration-after-statement])
-    gl_WARN_ADD([-Wmissing-noreturn])
-    if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
-      test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
-      ## maintainer mode can also trigger '-Werror', so avoid:
-      if test "x${USE_MAINTAINER_MODE}" != "xyes"; then
-        gl_WARN_ADD([-Wfloat-equal])
-      fi  ##end check for maintainer mode
-      ## clang prints a lot of these:
-      if test "x${emacs_cv_clang}" != "xyes"; then
-        gl_WARN_ADD([-Wpadded])
-      fi  ##end check for clang
-      gl_WARN_ADD([-Wredundant-decls])
-    else
-      test -z "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
-      ## ('-Wfloat-equal' is added to 'nw' specifically for gnulib below)
-      nw="${nw} -Wpadded"
-      nw="${nw} -Wredundant-decls"
-    fi  ##end check for undocumented environment variable
-    dnl#FIXME: this will always end up in the first case, unless "${nw}" is
-    dnl# entirely empty:
-    if test -n "`echo ${nw} | grep Wswitch`"; then
-      nw="${nw} -Wswitch-enum"
-    else
-      gl_WARN_ADD([-Wswitch-enum])
-    fi  ##end check to see if 'nw' already contains '-Wswitch' (broken)
-    if test "x${emacs_cv_clang}" = "xyes" || test "x${emacs_cv_apple}" = "xyes"; then
-      nw="${nw} -Wunreachable-code"
-    else
-      gl_WARN_ADD([-Wunreachable-code])
-    fi  ##end check for clang or Apple compiler
+      if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
+        test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
+        gl_WARN_ADD([-Waggregate-return])
+      else
+        test -z "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
+        nw="${nw} -Waggregate-return"
+      fi  ##end check for one undocumented environment variable
+      if test "x${PRINT_CONVERSION_WARNINGS}" = "xyes"; then
+        test -n "${PRINT_CONVERSION_WARNINGS}"
+        gl_WARN_ADD([-Wconversion])
+      else
+        test -z "${PRINT_CONVERSION_WARNINGS}"
+        nw="${nw} -Wconversion"
+      fi  ##end check for other undocumented environment variable
+      gl_WARN_ADD([-Wdeclaration-after-statement])
+      gl_WARN_ADD([-Wmissing-noreturn])
+      if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
+        test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
+        ## maintainer mode can also trigger '-Werror', so avoid:
+        if test "x${USE_MAINTAINER_MODE}" != "xyes"; then
+          gl_WARN_ADD([-Wfloat-equal])
+        fi  ##end check for maintainer mode
+        ## clang prints a lot of these:
+        if test "x${emacs_cv_clang}" != "xyes"; then
+          gl_WARN_ADD([-Wpadded])
+        fi  ##end check for clang
+        gl_WARN_ADD([-Wredundant-decls])
+      else
+        test -z "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
+        ## ('-Wfloat-equal' is added to 'nw' specifically for gnulib below)
+        nw="${nw} -Wpadded"
+        nw="${nw} -Wredundant-decls"
+      fi  ##end check for undocumented environment variable
+      dnl#FIXME: this will always end up in the first case, unless "${nw}"
+      dnl# is entirely empty:
+      if test -n "`echo ${nw} | grep Wswitch`"; then
+        nw="${nw} -Wswitch-enum"
+      else
+        gl_WARN_ADD([-Wswitch-enum])
+      fi  ##end check to see if 'nw' already contains '-Wswitch' (broken)
+      if test "x${emacs_cv_clang}" = "xyes" || test "x${emacs_cv_apple}" = "xyes"; then
+        nw="${nw} -Wunreachable-code"
+      else
+        gl_WARN_ADD([-Wunreachable-code])
+      fi  ##end check for clang or Apple compiler
+    ],[
+      AC_MSG_NOTICE([skipping checks for warnings for gcc 4.2 or newer])
     ])dnl# end block of code for gcc4.2+
 
     dnl# some other ones from the gcc4.9 manual that m4/manywarnings.m4
     dnl# leaves out:
     gl_GCC_VERSION_IFELSE([4],[9],[
-    if test "x${CXX}" != "x" && test "x${CXX}" = "x${CC}"; then
-      gl_WARN_ADD([-Wc++-compat])
-    fi  ##end check for C++ compiler
-    if test "x${PRINT_CONVERSION_WARNINGS}" = "xyes"; then
-      dnl# leave this environment variable undocumented:
-      test -n "${PRINT_CONVERSION_WARNINGS}"
-      gl_WARN_ADD([-Wfloat-conversion])
-      gl_WARN_ADD([-Wtraditional-conversion])
-      gl_WARN_ADD([-Wsign-conversion])
-    else
-      test -z "${PRINT_CONVERSION_WARNINGS}"
-      nw="${nw} -Wfloat-conversion"
-      nw="${nw} -Wtraditional-conversion"
-      nw="${nw} -Wsign-conversion"
-    fi  ##end dummy variable check
-    if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
-      dnl# leave this environment variable undocumented, too:
-      test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
-      gl_WARN_ADD([-Wunsuffixed-float-constants])
-    else
-      test -z "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
-      nw="${nw} -Wunsuffixed-float-constants"
-    fi  ##end dummy variable check
+      if test "x${CXX}" != "x" && test "x${CXX}" = "x${CC}"; then
+        gl_WARN_ADD([-Wc++-compat])
+      fi  ##end check for C++ compiler
+      if test "x${PRINT_CONVERSION_WARNINGS}" = "xyes"; then
+        dnl# leave this environment variable undocumented:
+        test -n "${PRINT_CONVERSION_WARNINGS}"
+        gl_WARN_ADD([-Wfloat-conversion])
+        gl_WARN_ADD([-Wtraditional-conversion])
+        gl_WARN_ADD([-Wsign-conversion])
+      else
+        test -z "${PRINT_CONVERSION_WARNINGS}"
+        nw="${nw} -Wfloat-conversion"
+        nw="${nw} -Wtraditional-conversion"
+        nw="${nw} -Wsign-conversion"
+      fi  ##end dummy variable check
+      if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
+        dnl# leave this environment variable undocumented, too:
+        test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
+        gl_WARN_ADD([-Wunsuffixed-float-constants])
+      else
+        test -z "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
+        nw="${nw} -Wunsuffixed-float-constants"
+      fi  ##end dummy variable check
+    ],[
+      AC_MSG_NOTICE([skipping checks for warnings for gcc 4.9 or newer])
     ])dnl# end block of code for gcc4.9+
 
     dnl# to be added in a future version of gcc:
@@ -3051,6 +3089,8 @@ else
       gl_WARN_ADD([-Wlogical-not-parentheses])
       gl_WARN_ADD([-Wsizeof-array-argument])
       gl_WARN_ADD([-Wswitch-bool])
+    ],[
+      AC_MSG_NOTICE([skipping checks for warnings for gcc 5.0 or newer])
     ])dnl# end block of code for gcc trunk
     ##...okay, that should be it.
   fi  ##end check for werror flags
@@ -3299,13 +3339,17 @@ else
 fi
 
 LDFLAGS="${LDFLAGS} ${LDFLAGS_NOCOMBRELOC}"
-
-AC_MSG_CHECKING([for -znocombreloc ld flag])
+## now with a cache value:
+AC_CACHE_CHECK([for -znocombreloc ld flag],
+               [emacs_cv_ld_znocombreloc],[
 AC_LINK_IFELSE([AC_LANG_PROGRAM([[]],[[]])],
-  [AC_MSG_RESULT([yes])],
+  [emacs_cv_ld_znocombreloc=yes],
+  [emacs_cv_ld_znocombreloc=no])dnl
+])dnl
+  ## pseudo-unset if failed:
+if test "x${emacs_cv_ld_znocombreloc}" = "xno"; then
    LDFLAGS_NOCOMBRELOC=""
-  [AC_MSG_RESULT([no])])dnl
-
+fi
 LDFLAGS="${late_LDFLAGS}"
 
 AC_CACHE_CHECK([whether addresses are sanitized],
@@ -3327,7 +3371,7 @@ AC_ARG_VAR([CANNOT_DUMP],
            [Set to "yes" to disable the dump-emacs function.])dnl
 
 dnl# The function dump-emacs will not be defined and temacs will do
-dnl# (load "loadup") automatically unless told otherwise.
+dnl# (load "loadup") automatically unless told otherwise:
 test "x${CANNOT_DUMP}" = "x" && export CANNOT_DUMP="no"
 case "${opsys}" in
   your-opsys-here) CANNOT_DUMP=yes ;;
@@ -4321,12 +4365,27 @@ fail;
   fi
 
   if test "x${gl_gcc_warnings}" = "xyes" && test "x${WERROR_CFLAGS}" = "x"; then
-    AC_LANG_PUSH([Objective C])
-    gl_WARN_ADD([-Wselector],[GNU_OBJC_FLAGS])
-    gl_WARN_ADD([-Wstrict-selector-match],[GNU_OBJC_FLAGS])
-    gl_WARN_ADD([-Wundeclared-selector],[GNU_OBJC_FLAGS])
+    AC_LANG_PUSH([Objective C])dnl
+    gl_WARN_ADD([-Wprotocol],[GNU_OBJC_WARN_CFLAGS])
+    if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
+      test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
+      gl_WARN_ADD([-Wselector],[GNU_OBJC_WARN_CFLAGS])
+      gl_WARN_ADD([-Wstrict-selector-match],[GNU_OBJC_WARN_CFLAGS])
+    else
+      test -z "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
+      nw="${nw} -Wselector"
+      nw="${nw} -Wstrict-selector-match"
+    fi
+    gl_WARN_ADD([-Wundeclared-selector],[GNU_OBJC_WARN_CFLAGS])
+    AC_SUBST([GNU_OBJC_WARN_CFLAGS])dnl
     AC_LANG_POP
+  elif test "x${gl_gcc_warnings}" = "xno"; then
+    GNU_OBJC_WARN_CFLAGS=""
   fi
+
+  dnl# make sure the warning flags get included in the more-general version
+  dnl# of the variable, which is substed in more places:
+  GNU_OBJC_CFLAGS="${GNU_OBJC_CFLAGS} ${GNU_OBJC_WARN_CFLAGS}"
 
   dnl# This is only used while we test the NS headers, it gets reset below.
   CFLAGS="${CFLAGS} ${GNU_OBJC_CFLAGS}"
@@ -4395,7 +4454,7 @@ fail;
               [Define to 1 if `NSInteger' is defined.])
   fi
 else
-  if test "x${opsys}" = "xdarwin" && test "x${host_vendor}" = "xapple" && test "x${OBJC}" != "x" && test "x${emacs_cv_apple}" = "xyes"; then
+  if test "x${opsys}" = "xdarwin" && test "x${host_vendor}" = "xapple" && test "x${OBJC}" != "x" && test "x${emacs_cv_apple}" = "xyes" && test "x${have_cblocks}" = "xtrue"; then
     test -n "${OBJC}"
     AC_MSG_WARN(['--with-ns' is recommended for darwin, but it was not specified.])
   fi
@@ -4568,6 +4627,7 @@ AC_MSG_RESULT([going with ${window_system} for real now])
 if test "x${window_system}" = "xnone" && test "x${gl_gcc_warnings}" = "xyes"; then
    # Too many warnings for now.
    nw=""
+   nw="${nw} -Wsuggest-attribute"
    nw="${nw} -Wsuggest-attribute=const"
    nw="${nw} -Wsuggest-attribute=noreturn"
    gl_MANYWARN_COMPLEMENT([WARN_CFLAGS],[${WARN_CFLAGS}],[${nw}])dnl
@@ -6311,7 +6371,15 @@ case "${opsys}" in
     test -z "${ac_cv_header_malloc_malloc_h}"
     dnl# "_ONCE" causes test to jump out of the conditional and be done at
     dnl# wrong location, so leave that part off:
-    AC_CHECK_HEADERS([malloc/malloc.h])
+    AC_CHECK_HEADERS([malloc/malloc.h])dnl
+    AC_LANG_PUSH([Objective C])dnl
+    ## unexmacosx.c uses this as a backup in case <malloc/malloc.h> is bad:
+    if test "x${HAVE_NS}" = "xyes"; then
+      if test "x${ac_cv_header_malloc_malloc_h}" != "xyes"; then
+        AC_CHECK_HEADERS([objc/malloc.h])
+      fi
+    fi
+    AC_LANG_POP
     ;;
 esac
 
@@ -6343,11 +6411,11 @@ GNUSTEP_CFLAGS=""
 ### The NeXTstep API is another way to implement the GUI.
 if test "x${HAVE_NS}" = "xyes"; then
   AC_DEFINE([HAVE_NS],[1],
-            [Define to 1 if you are using the NeXTstep API, either GNUstep or Cocoa on Mac OS X.])
+            [Define to 1 if you are using the NeXTstep API, either GNUstep, or Cocoa on Mac OS X.])
   if test "x${NS_IMPL}" != "x"; then
     test -n "${NS_IMPL}"
     AC_DEFINE_UNQUOTED([NS_IMPL],["${NS_IMPL}"],
-                       [Define to the string representing the NeXTstep implementation used.])
+     [Define to the string representing the NeXTstep implementation used.])
   fi
   if test "x${NS_IMPL_COCOA}" = "xyes"; then
     AC_DEFINE([NS_IMPL_COCOA],[1],

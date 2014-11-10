@@ -57,43 +57,43 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #endif /* HAVE_SYS_STAT_H */
 
 #ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
+# include <sys/types.h>
 #endif /* HAVE_SYS_TYPES_H */
 
 #ifdef HAVE_WINDOW_SYSTEM
-#include TERM_HEADER
+# include TERM_HEADER
 #endif /* HAVE_WINDOW_SYSTEM */
 
 #ifdef HAVE_X_WINDOWS
-#define COLOR_TABLE_SUPPORT 1
+# define COLOR_TABLE_SUPPORT 1
 
 typedef struct x_bitmap_record Bitmap_Record;
-#define GET_PIXEL(ximg, x, y) XGetPixel (ximg, x, y)
-#define NO_PIXMAP None
+# define GET_PIXEL(ximg, x, y) XGetPixel (ximg, x, y)
+# define NO_PIXMAP None
 
-#define PIX_MASK_RETAIN	0
-#define PIX_MASK_DRAW	1
+# define PIX_MASK_RETAIN 0
+# define PIX_MASK_DRAW 1
 #endif /* HAVE_X_WINDOWS */
 
 #ifdef HAVE_NTGUI
 
 /* We need (or want) w32.h only when we are _not_ compiling for Cygwin: */
-#ifdef WINDOWSNT
-# include "w32.h"
-#endif
+# ifdef WINDOWSNT
+#  include "w32.h"
+# endif /* WINDOWSNT */
 
 /* W32_TODO : Color tables on W32.  */
-#undef COLOR_TABLE_SUPPORT
+# undef COLOR_TABLE_SUPPORT
 
 typedef struct w32_bitmap_record Bitmap_Record;
-#define GET_PIXEL(ximg, x, y) GetPixel (ximg, x, y)
-#define NO_PIXMAP 0
+# define GET_PIXEL(ximg, x, y) GetPixel (ximg, x, y)
+# define NO_PIXMAP 0
 
-#define PIX_MASK_RETAIN	0
-#define PIX_MASK_DRAW	1
+# define PIX_MASK_RETAIN 0
+# define PIX_MASK_DRAW 1
 
-#define x_defined_color w32_defined_color
-#define DefaultDepthOfScreen(screen) (one_w32_display_info.n_cbits)
+# define x_defined_color w32_defined_color
+# define DefaultDepthOfScreen(screen) (one_w32_display_info.n_cbits)
 
 /* Versions of libpng, libgif, and libjpeg that we were compiled with,
    or -1 if no PNG/GIF support was compiled in.  This is tested by
@@ -148,6 +148,17 @@ typedef struct mac_bitmap_record Bitmap_Record;
 # define DefaultDepthOfScreen(screen) (one_mac_display_info.n_planes)
 #endif /* MAC_OS || (HAVE_CARBON && !HAVE_NS) */
 
+/* some of these so-called "unused" macros are actually used; but it is
+ * easier to just ignore the warnings about them than it is to navigate
+ * the ifdefs and make sure they are the same both where they are used
+ * and where they are defined... */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 5)))
+# pragma GCC diagnostic ignored "-Wunused-macros"
+#endif /* gcc 4.5+ */
+/* (4.5 is the same version as in the other place where "-Wunused-macros"
+ * is ignored in this project) */
+
 #ifdef HAVE_NS
 # undef COLOR_TABLE_SUPPORT
 
@@ -157,11 +168,15 @@ typedef struct ns_bitmap_record Bitmap_Record;
 # define NO_PIXMAP 0
 
 # define PIX_MASK_RETAIN 0
-# define PIX_MASK_DRAW 1
+# ifndef PIX_MASK_DRAW
+#  define PIX_MASK_DRAW 1
+# endif /* !PIX_MASK_DRAW */
 
 # define x_defined_color(f, name, color_def, alloc) \
     ns_defined_color(f, name, color_def, alloc, 0)
-# define DefaultDepthOfScreen(screen) x_display_list->n_planes
+# ifndef DefaultDepthOfScreen
+#  define DefaultDepthOfScreen(screen) x_display_list->n_planes
+# endif /* !DefaultDepthOfScreen */
 #endif /* HAVE_NS */
 
 
@@ -3677,24 +3692,24 @@ static bool xpm_load (struct frame *f, struct image *img);
 #endif /* HAVE_XPM || MAC_OS || HAVE_NS */
 
 #ifdef HAVE_XPM
-#ifdef HAVE_NTGUI
+# ifdef HAVE_NTGUI
 /* Indicate to xpm.h that we do NOT have Xlib.  */
-#define FOR_MSW
+#  define FOR_MSW
 /* simx.h in xpm defines XColor and XImage differently than Emacs.  */
 /* It also defines Display the same way as Emacs, but gcc 3.3 still barfs.  */
-#define XColor xpm_XColor
-#define XImage xpm_XImage
-#define Display xpm_Display
-#define PIXEL_ALREADY_TYPEDEFED
-#include "X11/xpm.h"
-#undef FOR_MSW
-#undef XColor
-#undef XImage
-#undef Display
-#undef PIXEL_ALREADY_TYPEDEFED
-#else
-#include "X11/xpm.h"
-#endif /* HAVE_NTGUI */
+#  define XColor xpm_XColor
+#  define XImage xpm_XImage
+#  define Display xpm_Display
+#  define PIXEL_ALREADY_TYPEDEFED
+#  include "X11/xpm.h"
+#  undef FOR_MSW
+#  undef XColor
+#  undef XImage
+#  undef Display
+#  undef PIXEL_ALREADY_TYPEDEFED
+# else
+#  include "X11/xpm.h"
+# endif /* HAVE_NTGUI */
 #endif /* HAVE_XPM */
 
 #if defined (HAVE_XPM) || defined (MAC_OS) || defined (HAVE_NS)
@@ -4618,7 +4633,8 @@ xpm_load_image (struct frame *f,
 
   while (num_colors-- > 0)
     {
-      char *color, *max_color;
+      char *color;
+      char *max_color = (char *)"";
       int key, next_key, max_key = 0;
       Lisp_Object symbol_color = Qnil, color_val;
       XColor cdef;
@@ -4711,7 +4727,7 @@ xpm_load_image (struct frame *f,
 #else
           if (EQ (color_val, Qt))
             ns_set_alpha (ximg, x, y, 0);
-#endif
+#endif /* HAVE_NS */
 	}
       if (y + 1 < height)
 	expect (',');
@@ -9426,6 +9442,11 @@ static bool svg_image_p (Lisp_Object object)
 }
 
 #include <librsvg/rsvg.h>
+/* the above is the last header to be included in this file, so we should
+ * no longer need this: */
+#if defined(XLIB_ILLEGAL_ACCESS) && defined(lint)
+# undef XLIB_ILLEGAL_ACCESS
+#endif /* XLIB_ILLEGAL_ACCESS && lint */
 
 #ifdef WINDOWSNT
 

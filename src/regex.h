@@ -1,4 +1,4 @@
-/* Definitions for data structures and routines for the regular
+/* regex.h: Definitions for data structures and routines for the regular
    expression library, version 0.12.
 
    Copyright (C) 1985, 1989-1993, 1995, 2000-2014 Free Software
@@ -15,7 +15,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 #ifndef _REGEX_H
 #define _REGEX_H 1
@@ -23,11 +23,10 @@
 /* Allow the use in C++ code.  */
 #ifdef __cplusplus
 extern "C" {
-#endif
+#endif /* __cplusplus */
 
 /* POSIX says that <sys/types.h> must be included (by the caller) before
    <regex.h>.  */
-
 #if !defined _POSIX_C_SOURCE && !defined _POSIX_SOURCE && defined VMS
 /* VMS does NOT have `size_t' in <sys/types.h>, even though POSIX says it
  * should be there.  */
@@ -170,12 +169,12 @@ extern reg_syntax_t re_syntax_options;
 /* In Emacs, this is the string or buffer in which we
    are matching.  It is used for looking up syntax properties.  */
 extern Lisp_Object re_match_object;
-#endif
+#endif /* emacs */
 
 
 /* Define combinations of the above bits for the standard possibilities.
    (The [[[ comments delimit what gets put into the Texinfo file, so
-   don't delete them!)  */
+   do NOT delete them!)  */
 /* [[[begin syntaxes]]] */
 #define RE_SYNTAX_EMACS							\
   (RE_CHAR_CLASSES | RE_INTERVALS | RE_SHY_GROUPS | RE_FRUGAL)
@@ -224,7 +223,7 @@ extern Lisp_Object re_match_object;
 
 /* Differs from ..._POSIX_BASIC only in that RE_BK_PLUS_QM becomes
    RE_LIMITED_OPS, i.e., \? \+ \| are not recognized.  Actually, this
-   isn't minimal, since other operators, such as \`, aren't disabled.  */
+   is NOT minimal, since other operators, such as \`, are NOT disabled. */
 #define RE_SYNTAX_POSIX_MINIMAL_BASIC					\
   (_RE_SYNTAX_POSIX_COMMON | RE_LIMITED_OPS)
 
@@ -248,7 +247,7 @@ extern Lisp_Object re_match_object;
    value, so remove any previous define.  */
 #ifdef RE_DUP_MAX
 # undef RE_DUP_MAX
-#endif
+#endif /* RE_DUP_MAX */
 /* If sizeof(int) == 2, then ((1 << 15) - 1) overflows.  */
 #define RE_DUP_MAX (0x7fff)
 
@@ -291,11 +290,11 @@ extern Lisp_Object re_match_object;
 typedef enum
 {
 #ifdef _XOPEN_SOURCE
-  REG_ENOSYS = -1,	/* This will never happen for this implementation.  */
-#endif
+  REG_ENOSYS = -1,   /* This will never happen for this implementation.  */
+#endif /* _XOPEN_SOURCE */
 
   REG_NOERROR = 0,	/* Success.  */
-  REG_NOMATCH,		/* Didn't find a match (for regexec).  */
+  REG_NOMATCH,		/* Did NOT find a match (for regexec).  */
 
   /* POSIX regcomp return error codes.  (In the order listed in the
      standard.)  */
@@ -312,7 +311,7 @@ typedef enum
   REG_ESPACE,		/* Ran out of memory.  */
   REG_BADRPT,		/* No preceding re for repetition op.  */
 
-  /* Error codes we've added.  */
+  /* Error codes we have added.  */
   REG_EEND,		/* Premature end.  */
   REG_ESIZE,		/* Compiled pattern bigger than 2^16 bytes.  */
   REG_ERPAREN,		/* Unmatched ) or \); not returned from regcomp.  */
@@ -327,7 +326,7 @@ typedef enum
 
 #ifndef RE_TRANSLATE_TYPE
 # define RE_TRANSLATE_TYPE char *
-#endif
+#endif /* !RE_TRANSLATE_TYPE */
 
 struct re_pattern_buffer
 {
@@ -383,7 +382,7 @@ struct re_pattern_buffer
            subexpressions.  */
   unsigned no_sub : 1;
 
-        /* If set, a beginning-of-line anchor doesn't match at the
+        /* If set, a beginning-of-line anchor does NOT match at the
            beginning of the string.  */
   unsigned not_bol : 1;
 
@@ -405,7 +404,7 @@ struct re_pattern_buffer
 
   /* Charset of unibyte characters at compiling time. */
   int charset_unibyte;
-#endif
+#endif /* emacs */
 
 /* [[[end pattern_buffer]]] */
 };
@@ -435,7 +434,7 @@ struct re_registers
    the first time a `regs' structure is passed.  */
 #ifndef RE_NREGS
 # define RE_NREGS 30
-#endif
+#endif /* !RE_NREGS */
 
 
 /* POSIX specification for registers.  Aside from the different names than
@@ -524,8 +523,8 @@ extern void re_set_registers (struct re_pattern_buffer *__buffer,
 /* 4.2 bsd compatibility.  */
 extern char *re_comp (const char *);
 extern int re_exec (const char *);
-# endif
-#endif
+# endif /* !_CRAY */
+#endif /* _REGEX_RE_COMP || _LIBC */
 
 /* GCC 2.95 and later have "__restrict"; C99 compilers have
    "restrict", and "configure" may have defined "restrict".
@@ -535,25 +534,25 @@ extern int re_exec (const char *);
 #ifndef _Restrict_
 # if 199901L <= __STDC_VERSION__
 #  define _Restrict_ restrict
-# elif 2 < __GNUC__ || (2 == __GNUC__ && 95 <= __GNUC_MINOR__)
+# elif (2 < __GNUC__) || ((2 == __GNUC__) && (95 <= __GNUC_MINOR__))
 #  define _Restrict_ __restrict
 # else
 #  define _Restrict_
-# endif
-#endif
+# endif /* c99 or newer || gcc 2.95+ */
+#endif /* !_Restrict_ */
 /* gcc 3.1 and up support the [restrict] syntax.  Do NOT trust
  * sys/cdefs.h's definition of __restrict_arr, though, as it
  * mishandles gcc -ansi -pedantic.  */
 #ifndef _Restrict_arr_
-# if ((199901L <= __STDC_VERSION__					\
-       || ((3 < __GNUC__ || (3 == __GNUC__ && 1 <= __GNUC_MINOR__))	\
-	   && !defined __STRICT_ANSI__))					\
+# if (((199901L <= __STDC_VERSION__)					\
+       || (((3 < __GNUC__) || ((3 == __GNUC__) && (1 <= __GNUC_MINOR__))) \
+	   && !defined __STRICT_ANSI__))				  \
       && !defined __GNUG__)
 #  define _Restrict_arr_ _Restrict_
 # else
 #  define _Restrict_arr_
-# endif
-#endif
+# endif /* c99 or newer or gcc 3.1+ */
+#endif /* !_Restrict_arr_ */
 
 /* POSIX compatibility.  */
 extern reg_errcode_t regcomp (regex_t *_Restrict_ __preg,
@@ -583,7 +582,7 @@ extern void regfree (regex_t *__preg);
 # include <wctype.h>
 #endif /* WIDE_CHAR_SUPPORT */
 
-#if WIDE_CHAR_SUPPORT
+#if defined(WIDE_CHAR_SUPPORT) && WIDE_CHAR_SUPPORT
 /* The GNU C library provides support for user-defined character classes
  * and the functions from ISO C amendment 1.  */
 # ifdef CHARCLASS_NAME_MAX
@@ -609,6 +608,9 @@ typedef enum { RECC_ERROR = 0,
 # define re_wctype wctype
 # define re_iswctype iswctype
 # define re_wctype_to_bit(cc) 0
+/* this prototype is the same in the other half of the ifdef, too; could
+ * probably move it outside of it: */
+extern void re_set_whitespace_regexp (const char *regexp);
 #else /* no wide char support: */
 # define CHAR_CLASS_MAX_LENGTH  9 /* Namely, `multibyte'.  */
 # define btowc(c) c
@@ -625,7 +627,7 @@ typedef enum { RECC_ERROR = 0,
 	       RECC_ASCII, RECC_UNIBYTE
 } re_wctype_t;
 
-extern char re_iswctype (int ch,    re_wctype_t cc);
+extern char re_iswctype (int ch, re_wctype_t cc);
 extern re_wctype_t re_wctype (const unsigned char* str);
 
 typedef int re_wchar_t;
@@ -635,4 +637,5 @@ extern void re_set_whitespace_regexp (const char *regexp);
 #endif /* not WIDE_CHAR_SUPPORT */
 
 #endif /* regex.h */
-
+
+/* EOF */

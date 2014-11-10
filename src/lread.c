@@ -4221,10 +4221,8 @@ defvar_kboard (struct Lisp_Kboard_Objfwd *ko_fwd,
   SET_SYMBOL_FWD (XSYMBOL (sym), (union Lisp_Fwd *)ko_fwd);
 }
 
-/* Check that the elements of lpath exist.  */
-
-static void
-load_path_check (Lisp_Object lpath)
+/* Check that the elements of lpath exist: */
+static void load_path_check(Lisp_Object lpath)
 {
   Lisp_Object path_tail;
 
@@ -4417,10 +4415,26 @@ static Lisp_Object load_path_default(void)
   return lpath;
 }
 
+/* inline part of a copy of <stdbool.h>, in case the gnulib one is bad: */
+#ifndef _STDBOOL_H_
+# ifndef lint
+#  define _STDBOOL_H_ 1
+# endif /* !lint */
+# ifndef __cplusplus
+#  ifndef bool
+#   define bool _Bool
+#  endif /* !bool */
+#  if defined(__STDC_VERSION__) && defined(__GNUC__)
+#   if (__STDC_VERSION__ < 199901L) && (__GNUC__ < 3)
+typedef	int _Bool;
+#   endif /* pre-c99 && gcc 2 or older */
+#  endif /* __STDC_VERSION__ && __GNUC_ */
+# endif /* !__cplusplus */
+#endif /* !_STDBOOL_H_ */
+
 /* this function used to contain the above, but that was split off, so now
  * this one is smaller: */
-void
-init_lread (void)
+void init_lread(void)
 {
   turn_off_warning = 0;
   /* First, set Vload_path.  */
@@ -4429,7 +4443,7 @@ init_lread (void)
 #ifdef CANNOT_DUMP
   bool use_loadpath = true;
 #else
-  bool use_loadpath = NILP (Vpurify_flag);
+  bool use_loadpath = NILP(Vpurify_flag);
 #endif /* CANNOT_DUMP */
 
   if (use_loadpath && egetenv ("EMACSLOADPATH"))

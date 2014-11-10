@@ -30,40 +30,40 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 /* Include any platform specific configuration file.  */
 #ifdef config_opsysfile
 # include config_opsysfile
-#endif
+#endif /* config_opsysfile */
 
 #include <stdbool.h>
 
-/* The pre-C99 <stdbool.h> emulation doesn't work for bool bitfields.
+/* The pre-C99 <stdbool.h> emulation does NOY work for bool bitfields.
    Nor does compiling Objective-C with standard GCC.  */
 #if __STDC_VERSION__ < 199901 || NS_IMPL_GNUSTEP
 typedef unsigned int bool_bf;
 #else
 typedef bool bool_bf;
-#endif
+#endif /* pre-c99 || NS_IMPL_GNUSTEP */
 
 #ifndef WINDOWSNT
 /* On AIX 3 this must be included before any other include file.  */
-#include <alloca.h>
-#if ! HAVE_ALLOCA
-# error "alloca not available on this machine"
-#endif
-#endif
+# include <alloca.h>
+# if ! HAVE_ALLOCA
+#  error "alloca not available on this machine"
+# endif /* !HAVE_ALLOCA */
+#endif /* !WINDOWSNT */
 
 /* When not using Clang, assume its attributes and features are absent.  */
 #ifndef __has_attribute
 # define __has_attribute(a) false
-#endif
+#endif /* !__has_attribute */
 #ifndef __has_feature
 # define __has_feature(a) false
-#endif
+#endif /* !__has_feature */
 
 /* True if addresses are being sanitized.  */
 #if defined __SANITIZE_ADDRESS__ || __has_feature (address_sanitizer)
 # define ADDRESS_SANITIZER true
 #else
 # define ADDRESS_SANITIZER false
-#endif
+#endif /* ASAN */
 
 #ifdef DARWIN_OS
 /* in case "config.h" failed to define this: */
@@ -92,14 +92,13 @@ typedef bool bool_bf;
    srand48; it tries to redeclare what was once srandom to be srand48.
    So we go with HAVE_LRAND48 being defined.  */
 #ifdef HPUX
-#undef srandom
-#undef random
+# undef srandom
+# undef random
 /* We try to avoid checking for random and rint on hpux in
-   configure.ac, but some other configure test might check for them as
-   a dependency, so to be safe we also undefine them here.
- */
-#undef HAVE_RANDOM
-#undef HAVE_RINT
+ * configure.ac, but some other configure test might check for them as
+ * a dependency, so to be safe we also undefine them here. */
+# undef HAVE_RANDOM
+# undef HAVE_RINT
 #endif  /* HPUX */
 
 #ifdef IRIX6_5
@@ -126,14 +125,14 @@ You lose; /* Emacs for DOS must be compiled with DJGPP */
 #  define HAVE_LSTAT 1
 # else
 #  define lstat stat
-# endif
+# endif /* DJGPP version check */
 /* The "portable" definition of _GL_INLINE on config.h does not work
    with DJGPP GCC 3.4.4: it causes unresolved externals in sysdep.c,
    although lib/execinfo.h is included and the inline functions there
    are visible.  */
 # if (__GNUC__ < 4)
 #  define _GL_EXECINFO_INLINE inline
-# endif
+# endif /* old gcc version */
 /* End of gnulib-related stuff.  */
 
 # define emacs_raise(sig) msdos_fatal_signal (sig)
@@ -172,12 +171,12 @@ You lose; /* Emacs for DOS must be compiled with DJGPP */
 /* Mac OS X / GNUstep need a bit more pure memory.  Of the existing knobs,
    SYSTEM_PURESIZE_EXTRA seems like the least likely to cause problems.  */
 #ifdef HAVE_NS
-#if defined NS_IMPL_GNUSTEP
+# if defined NS_IMPL_GNUSTEP
 #  define SYSTEM_PURESIZE_EXTRA 30000
-#elif defined DARWIN_OS
+# elif defined DARWIN_OS
 #  define SYSTEM_PURESIZE_EXTRA 200000
-#endif
-#endif
+# endif /* NS_IMPL_GNUSTEP || DARWIN_OS */
+#endif /* HAVE_NS */
 
 #if defined HAVE_NTGUI && !defined DebPrint
 # ifdef EMACSDEBUG
@@ -185,43 +184,43 @@ extern void _DebPrint (const char *fmt, ...);
 #  define DebPrint(stuff) _DebPrint stuff
 # else
 #  define DebPrint(stuff)
-# endif
-#endif
+# endif /* EMACSDEBUG */
+#endif /* HAVE_NTGUI && !DebPrint */
 
 #if defined CYGWIN && defined HAVE_NTGUI
 # define NTGUI_UNICODE /* Cygwin runs only on UNICODE-supporting systems */
 # define _WIN32_WINNT 0x500 /* Win2k */
-#endif
+#endif /* CYGWIN && HAVE_NTGUI */
 
-#ifdef emacs /* Don't do this for lib-src.  */
+#ifdef emacs /* Do NOT do this for lib-src.  */
 /* Tell regex.c to use a type compatible with Emacs.  */
-#define RE_TRANSLATE_TYPE Lisp_Object
-#define RE_TRANSLATE(TBL, C) char_table_translate (TBL, C)
-#define RE_TRANSLATE_P(TBL) (!EQ (TBL, make_number (0)))
-#endif
+# define RE_TRANSLATE_TYPE Lisp_Object
+# define RE_TRANSLATE(TBL, C) char_table_translate (TBL, C)
+# define RE_TRANSLATE_P(TBL) (!EQ (TBL, make_number (0)))
+#endif /* emacs */
 
 #include <string.h>
 #include <stdlib.h>
 
 #if __GNUC__ >= 3  /* On GCC 3.0 we might get a warning.  */
-#define NO_INLINE __attribute__((noinline))
+# define NO_INLINE __attribute__((noinline))
 #else
-#define NO_INLINE
-#endif
+# define NO_INLINE
+#endif /* gcc 3+ */
 
 #if (__clang__								\
      ? __has_attribute (externally_visible)				\
      : (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 1)))
-#define EXTERNALLY_VISIBLE __attribute__((externally_visible))
+# define EXTERNALLY_VISIBLE __attribute__((externally_visible))
 #else
-#define EXTERNALLY_VISIBLE
-#endif
+# define EXTERNALLY_VISIBLE
+#endif /* __clang__ || gcc 4.1+ */
 
 #if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7)
 # define ATTRIBUTE_FORMAT(spec) __attribute__ ((__format__ spec))
 #else
 # define ATTRIBUTE_FORMAT(spec) /* empty */
-#endif
+#endif /* gcc 2.7+ */
 
 #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 4)
 # define ATTRIBUTE_FORMAT_PRINTF(formatstring_parameter, first_argument) \
@@ -229,7 +228,7 @@ extern void _DebPrint (const char *fmt, ...);
 #else
 # define ATTRIBUTE_FORMAT_PRINTF(formatstring_parameter, first_argument) \
    ATTRIBUTE_FORMAT ((__printf__, formatstring_parameter, first_argument))
-#endif
+#endif /* gcc 4.4+ */
 
 #define ATTRIBUTE_CONST _GL_ATTRIBUTE_CONST
 
@@ -243,11 +242,10 @@ extern void _DebPrint (const char *fmt, ...);
 # define ADDRESS_SANITIZER_WORKAROUND NO_INLINE
 #else
 # define ADDRESS_SANITIZER_WORKAROUND
-#endif
+#endif /* ADDRESS_SANITIZER */
 
 /* Attribute of functions whose code should not have addresses
    sanitized.  */
-
 #if (__has_attribute (no_sanitize_address) \
      || 4 < __GNUC__ + (8 <= __GNUC_MINOR__))
 # define ATTRIBUTE_NO_SANITIZE_ADDRESS \
@@ -257,12 +255,12 @@ extern void _DebPrint (const char *fmt, ...);
     __attribute__ ((no_address_safety_analysis)) ADDRESS_SANITIZER_WORKAROUND
 #else
 # define ATTRIBUTE_NO_SANITIZE_ADDRESS
-#endif
+#endif /* misc. */
 
 /* Some versions of GNU/Linux define noinline in their headers.  */
 #ifdef noinline
-#undef noinline
-#endif
+# undef noinline
+#endif /* noinline */
 
 /* Use Gnulib's extern-inline module for extern inline functions.
    An include file foo.h should prepend FOO_INLINE to function
@@ -295,7 +293,7 @@ extern void _DebPrint (const char *fmt, ...);
 
 #ifndef INLINE
 # define INLINE _GL_INLINE
-#endif
+#endif /* !INLINE */
 #define EXTERN_INLINE _GL_EXTERN_INLINE
 #define INLINE_HEADER_BEGIN _GL_INLINE_HEADER_BEGIN
 #define INLINE_HEADER_END _GL_INLINE_HEADER_END
@@ -309,7 +307,7 @@ extern void _DebPrint (const char *fmt, ...);
 # define FLEXIBLE_ARRAY_MEMBER 0
 #else
 # define FLEXIBLE_ARRAY_MEMBER 1
-#endif
+#endif /* pre-c99 || GNU, non-ANSI C || neither */
 
 /* Use this to suppress gcc's `...may be used before initialized' warnings. */
 #ifdef lint
@@ -317,6 +315,6 @@ extern void _DebPrint (const char *fmt, ...);
 # define IF_LINT(Code) Code
 #else
 # define IF_LINT(Code) /* empty */
-#endif
+#endif /* lint */
 
 /* conf_post.h ends here */

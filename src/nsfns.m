@@ -103,7 +103,7 @@ static int as_status;
 
 #ifdef GLYPH_DEBUG
 static ptrdiff_t image_cache_refcount;
-#endif
+#endif /* GLYPH_DEBUG */
 
 
 /* ==========================================================================
@@ -157,7 +157,7 @@ check_ns_display_info (Lisp_Object object)
 static id
 ns_get_window (Lisp_Object maybeFrame)
 {
-  id view =nil, window =nil;
+  id view = nil, window = nil;
 
   if (!FRAMEP (maybeFrame) || !FRAME_NS_P (XFRAME (maybeFrame)))
     maybeFrame = selected_frame;/*wrong_type_argument (Qframep, maybeFrame); */
@@ -197,25 +197,27 @@ ns_display_info_for_name (Lisp_Object name)
 static NSString *
 ns_filename_from_panel (NSSavePanel *panel)
 {
-#if defined (NS_IMPL_COCOA) && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6
+#if defined(NS_IMPL_COCOA) && \
+    (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6)
   NSURL *url = [panel URL];
   NSString *str = [url path];
   return str;
 #else
   return [panel filename];
-#endif
+#endif /* NS_IMPL_COCOA && 10.6+ */
 }
 
 static NSString *
 ns_directory_from_panel (NSSavePanel *panel)
 {
-#if defined (NS_IMPL_COCOA) && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6
+#if defined(NS_IMPL_COCOA) && \
+    (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6)
   NSURL *url = [panel directoryURL];
   NSString *str = [url path];
   return str;
 #else
   return [panel directory];
-#endif
+#endif /* NS_IMPL_COCOA && 10.6+ */
 }
 
 static Lisp_Object
@@ -228,9 +230,9 @@ interpret_services_menu (NSMenu *menu, Lisp_Object prefix, Lisp_Object old)
 # if defined(__APPLE__) && defined(__APPLE_CC__) && (__APPLE_CC__ > 1)
 #  pragma unused (menu, prefix, old)
 # endif /* __APPLE__ && (__APPLE_CC__ > 1) */
-# if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(lint)
 #  warning "Go back to an OS version that supports services properly to test the services menu."
-# endif /* __GNUC__ && !__STRICT_ANSI__ */
+# endif /* __GNUC__ && !__STRICT_ANSI__ && lint */
   /* (the service menu got broken in 10.6) */
   return Qnil;
 #else /* earlier than 10.6: */
@@ -280,12 +282,11 @@ interpret_services_menu (NSMenu *menu, Lisp_Object prefix, Lisp_Object old)
 
 
 
-/* ==========================================================================
+/* ========================================================================
 
     Frame parameter setters
 
-   ========================================================================== */
-
+   ===================================================================== */
 
 static void
 x_set_foreground_color (struct frame *f, Lisp_Object arg, Lisp_Object oldval)
@@ -628,7 +629,7 @@ ns_set_name_as_filename (struct frame *f)
              if given filename does not exist */
           if (! [[NSFileManager defaultManager] fileExistsAtPath: fstr])
             [[view window] setRepresentedFilename: @""];
-#endif
+#endif /* NS_IMPL_COCOA */
         }
       else
         fstr = @"";

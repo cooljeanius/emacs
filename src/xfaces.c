@@ -5395,8 +5395,8 @@ realize_default_face (struct frame *f)
   face = realize_face (c, attrs, DEFAULT_FACE_ID);
 
 #ifdef HAVE_WINDOW_SYSTEM
-#ifdef HAVE_X_WINDOWS
-  if (FRAME_X_P (f) && face->font != FRAME_FONT (f))
+# ifdef HAVE_X_WINDOWS
+  if (FRAME_X_P(f) && (face->font != FRAME_FONT(f)))
     {
       /* This can happen when making a frame on a display that does
 	 not support the default font.  */
@@ -5409,8 +5409,15 @@ realize_default_face (struct frame *f)
 	 font.  */
       x_set_font (f, LFACE_FONT (lface), Qnil);
     }
-#endif	/* HAVE_X_WINDOWS */
-#endif	/* HAVE_WINDOW_SYSTEM */
+# else
+#  ifdef lint
+  if (face->font != NULL)
+    {
+      ; /* keep compiler happy */
+    }
+#  endif /* lint */
+# endif /* HAVE_X_WINDOWS */
+#endif /* HAVE_WINDOW_SYSTEM */
   return 1;
 }
 

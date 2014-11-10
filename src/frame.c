@@ -72,7 +72,6 @@ Lisp_Object Qx_resource_name;
 Lisp_Object Qterminal;
 
 /* Frame parameters (set or reported).  */
-
 Lisp_Object Qauto_raise, Qauto_lower;
 Lisp_Object Qborder_color, Qborder_width;
 Lisp_Object Qcursor_color, Qcursor_type;
@@ -123,13 +122,11 @@ static Lisp_Object Qdelete_frame_functions;
 
 static Lisp_Object Qgeometry, Qworkarea, Qmm_size, Qframes, Qsource;
 
-/* The currently selected frame.  */
-
+/* The currently selected frame: */
 Lisp_Object selected_frame;
 
 /* A frame which is not just a mini-buffer, or NULL if there are no such
    frames.  This is usually the most recent such frame that was selected.  */
-
 static struct frame *last_nonminibuf_frame;
 
 /* Nonzero means there is at least one garbaged frame: */
@@ -359,7 +356,7 @@ make_frame (bool mini_p)
   f->line_height = 1;  /* !FRAME_WINDOW_P value.  */
 #ifdef HAVE_WINDOW_SYSTEM
   f->want_fullscreen = FULLSCREEN_NONE;
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
 
   root_window = make_window ();
   rw = XWINDOW (root_window);
@@ -385,7 +382,6 @@ make_frame (bool mini_p)
   /* 10 is arbitrary,
      just so that there is "something there."
      Correct size will be set up later with change_frame_size.  */
-
   SET_FRAME_COLS (f, 10);
   FRAME_LINES (f) = 10;
   SET_FRAME_WIDTH (f, FRAME_COLS (f) * FRAME_COLUMN_WIDTH (f));
@@ -414,10 +410,10 @@ make_frame (bool mini_p)
     if (BUFFER_HIDDEN_P (XBUFFER (buf)))
       buf = other_buffer_safely (buf);
 
-    /* Use set_window_buffer, not Fset_window_buffer, and don't let
+    /* Use set_window_buffer, not Fset_window_buffer, and do NOT let
        hooks be run by it.  The reason is that the whole frame/window
        arrangement is not yet fully initialized at this point.  Windows
-       don't have the right size, glyph matrices aren't initialized
+       do NOT have the right size, glyph matrices are NOT initialized
        etc.  Running Lisp functions at this point surely ends in a
        SEGV.  */
     set_window_buffer (root_window, buf, 0, 0);
@@ -444,9 +440,9 @@ make_frame (bool mini_p)
 /* Make a frame using a separate minibuffer window on another frame.
    MINI_WINDOW is the minibuffer window to use.  nil means use the
    default (the global minibuffer).  */
-
 struct frame *
-make_frame_without_minibuffer (register Lisp_Object mini_window, KBOARD *kb, Lisp_Object display)
+make_frame_without_minibuffer(register Lisp_Object mini_window, KBOARD *kb,
+                              Lisp_Object display)
 {
   register struct frame *f;
   struct gcpro gcpro1;
@@ -694,10 +690,10 @@ affects all frames on the same terminal device.  */)
     emacs_abort ();
 #else /* not MSDOS */
 
-#ifdef WINDOWSNT                           /* This should work now! */
+# ifdef WINDOWSNT                           /* This should work now! */
   if (sf->output_method != output_termcap)
     error ("Not using an ASCII terminal now; cannot make a new ASCII frame");
-#endif
+# endif /* WINDOWSNT */
 #endif /* not MSDOS */
 
   {
@@ -715,7 +711,7 @@ affects all frames on the same terminal device.  */)
       error ("Multiple terminals are not supported on this platform");
     if (!t)
       t = the_only_display_info.terminal;
-#endif
+#endif /* MSDOS */
   }
 
   if (!t)
@@ -785,7 +781,6 @@ affects all frames on the same terminal device.  */)
    is dead.
 
    The value of NORECORD is passed as argument to Fselect_window.  */
-
 Lisp_Object
 do_switch_frame (Lisp_Object frame, int track, int for_deletion, Lisp_Object norecord)
 {
@@ -836,8 +831,8 @@ do_switch_frame (Lisp_Object frame, int track, int for_deletion, Lisp_Object nor
 	}
     }
 #else /* ! 0 */
-  /* Instead, apply it only to the frame we're pointing to.  */
-#ifdef HAVE_WINDOW_SYSTEM
+  /* Instead, apply it only to the frame we are pointing to.  */
+# ifdef HAVE_WINDOW_SYSTEM
   if (track && FRAME_WINDOW_P (XFRAME (frame)))
     {
       Lisp_Object focus, xfocus;
@@ -850,7 +845,7 @@ do_switch_frame (Lisp_Object frame, int track, int for_deletion, Lisp_Object nor
 	    Fredirect_frame_focus (xfocus, frame);
 	}
     }
-#endif /* HAVE_X_WINDOWS */
+# endif /* HAVE_WINDOW_SYSTEM */
 #endif /* ! 0 */
 
   if (!for_deletion && FRAME_HAS_MINIBUF_P (sf))
@@ -946,7 +941,7 @@ DEFUN ("frame-list", Fframe_list, Sframe_list,
 #ifdef HAVE_WINDOW_SYSTEM
   if (FRAMEP (tip_frame))
     frames = Fdelq (tip_frame, frames);
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
   return frames;
 }
 
@@ -1127,7 +1122,7 @@ other_visible_frames (struct frame *f)
 #ifdef HAVE_X_WINDOWS
       if (FRAME_WINDOW_P (XFRAME (this)))
 	x_sync (XFRAME (this));
-#endif
+#endif /* HAVE_X_WINDOWS */
 
       if (FRAME_VISIBLE_P (XFRAME (this))
 	  || FRAME_ICONIFIED_P (XFRAME (this))
@@ -1255,7 +1250,7 @@ delete_frame (Lisp_Object frame, Lisp_Object force)
 #ifdef HAVE_X_WINDOWS
       /* Also, save clipboard to the clipboard manager.  */
       x_clipboard_manager_save_frame (frame);
-#endif
+#endif /* HAVE_X_WINDOWS */
 
       safe_call2 (Qrun_hook_with_args, Qdelete_frame_functions, frame);
     }
@@ -1312,7 +1307,7 @@ delete_frame (Lisp_Object frame, Lisp_Object force)
 	   needs to know about it.  We call Fraise_frame, but the
 	   purpose is really to transfer focus.  */
 	Fraise_frame (frame1);
-#endif
+#endif /* NS_IMPL_COCOA */
 
       do_switch_frame (frame1, 0, 1, Qnil);
       sf = SELECTED_FRAME ();
@@ -1329,7 +1324,7 @@ delete_frame (Lisp_Object frame, Lisp_Object force)
 #ifdef HAVE_X_WINDOWS
   if (FRAME_X_P (f))
     x_clear_frame_selections (f);
-#endif
+#endif /* HAVE_X_WINDOWS */
 
   /* Free glyphs.
      This function must be called before the window tree of the
@@ -1340,7 +1335,7 @@ delete_frame (Lisp_Object frame, Lisp_Object force)
 #ifdef HAVE_WINDOW_SYSTEM
   /* Give chance to each font driver to free a frame specific data.  */
   font_update_drivers (f, Qnil);
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
 
   /* Mark all the windows that used to be on FRAME as deleted, and then
      remove the reference to them.  */
@@ -1626,21 +1621,21 @@ before calling this function on it, like this.
     /* Warping the mouse will cause enternotify and focus events.  */
     x_set_mouse_position (XFRAME (frame), XINT (x), XINT (y));
 #else
-#if defined (MSDOS)
+# if defined(MSDOS)
   if (FRAME_MSDOS_P (XFRAME (frame)))
     {
       Fselect_frame (frame, Qnil);
       mouse_moveto (XINT (x), XINT (y));
     }
-#else
-#ifdef HAVE_GPM
+# else
+#  ifdef HAVE_GPM
     {
       Fselect_frame (frame, Qnil);
       term_mouse_moveto (XINT (x), XINT (y));
     }
-#endif
-#endif
-#endif
+#  endif /* HAVE_GPM */
+# endif /* MSDOS */
+#endif /* HAVE_WINDOW_SYSTEM */
 
   return Qnil;
 }
@@ -1667,21 +1662,21 @@ before calling this function on it, like this.
     /* Warping the mouse will cause enternotify and focus events.  */
     x_set_mouse_pixel_position (XFRAME (frame), XINT (x), XINT (y));
 #else
-#if defined (MSDOS)
+# if defined(MSDOS)
   if (FRAME_MSDOS_P (XFRAME (frame)))
     {
       Fselect_frame (frame, Qnil);
       mouse_moveto (XINT (x), XINT (y));
     }
-#else
-#ifdef HAVE_GPM
+# else
+#  ifdef HAVE_GPM
     {
       Fselect_frame (frame, Qnil);
       term_mouse_moveto (XINT (x), XINT (y));
     }
-#endif
-#endif
-#endif
+#  endif /* HAVE_GPM */
+# endif /* MSDOS */
+#endif /* HAVE_WINDOW_SYSTEM */
 
   return Qnil;
 }
@@ -1700,7 +1695,7 @@ If omitted, FRAME defaults to the currently selected frame.  */)
 #ifdef HAVE_WINDOW_SYSTEM
   if (FRAME_WINDOW_P (f))
     x_make_frame_visible (f);
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
 
   make_frame_visible_1 (f->root_window);
 
@@ -1756,7 +1751,7 @@ displayed in the terminal.  */)
 #ifdef HAVE_WINDOW_SYSTEM
   if (FRAME_WINDOW_P (f))
     x_make_frame_invisible (f);
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
 
   /* Make menu bar update for the Buffers and Frames menus.  */
   windows_or_buffers_changed = 16;
@@ -1779,7 +1774,7 @@ If omitted, FRAME defaults to the currently selected frame.  */)
 #ifdef HAVE_WINDOW_SYSTEM
   if (FRAME_WINDOW_P (f))
       x_iconify_frame (f);
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
 
   /* Make menu bar update for the Buffers and Frames menus.  */
   windows_or_buffers_changed = 17;
@@ -1928,17 +1923,16 @@ If there is no window system support, this function does nothing.  */)
 {
 #ifdef HAVE_WINDOW_SYSTEM
   x_focus_frame (decode_window_system_frame (frame));
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
   return Qnil;
 }
 
 
-/* Return the value of frame parameter PROP in frame FRAME.  */
-
+/* Return the value of frame parameter PROP in frame FRAME: */
 #ifdef HAVE_WINDOW_SYSTEM
-#if !HAVE_NS && !HAVE_NTGUI
+# if !HAVE_NS && !HAVE_NTGUI
 static
-#endif
+# endif /* !HAVE_NS && !HAVE_NTGUI */
 Lisp_Object
 get_frame_param (register struct frame *frame, Lisp_Object prop)
 {
@@ -1949,12 +1943,10 @@ get_frame_param (register struct frame *frame, Lisp_Object prop)
     return tem;
   return Fcdr (tem);
 }
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
 
-/* Discard BUFFER from the buffer-list and buried-buffer-list of each frame.  */
-
-void
-frames_discard_buffer (Lisp_Object buffer)
+/* Discard BUFFER from the buffer-list & buried-buffer-list of each frame: */
+void frames_discard_buffer(Lisp_Object buffer)
 {
   Lisp_Object frame, tail;
 
@@ -2035,8 +2027,7 @@ set_term_frame_name (struct frame *f, Lisp_Object name)
 }
 
 #ifdef HAVE_NTGUI
-void
-set_frame_param (struct frame *f, Lisp_Object prop, Lisp_Object val)
+void set_frame_param(struct frame *f, Lisp_Object prop, Lisp_Object val)
 {
   register Lisp_Object old_alist_elt;
 
@@ -2046,7 +2037,7 @@ set_frame_param (struct frame *f, Lisp_Object prop, Lisp_Object val)
   else
     Fsetcdr (old_alist_elt, val);
 }
-#endif
+#endif /* HAVE_NTGUI */
 
 void
 store_frame_param (struct frame *f, Lisp_Object prop, Lisp_Object val)
@@ -2227,7 +2218,7 @@ If FRAME is omitted or nil, return information on the currently selected frame. 
   if (FRAME_WINDOW_P (f))
     x_report_frame_params (f, &alist);
   else
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
     {
       /* This ought to be correct in f->param_alist for an X frame.  */
       Lisp_Object lines;
@@ -2340,13 +2331,12 @@ use is not recommended.  Explicitly check for a frame-parameter instead.  */)
   if (FRAME_WINDOW_P (f))
     x_set_frame_parameters (f, alist);
   else
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
 #ifdef MSDOS
   if (FRAME_MSDOS_P (f))
     IT_set_frame_parameters (f, alist);
   else
-#endif
-
+#endif /* MSDOS */
     {
       EMACS_INT length = XFASTINT (Flength (alist));
       ptrdiff_t i;
@@ -2356,8 +2346,7 @@ use is not recommended.  Explicitly check for a frame-parameter instead.  */)
       SAFE_ALLOCA_LISP (parms, 2 * length);
       values = parms + length;
 
-      /* Extract parm names and values into those vectors.  */
-
+      /* Extract parm names and values into those vectors: */
       for (i = 0; CONSP (alist); alist = XCDR (alist))
 	{
 	  Lisp_Object elt;
@@ -2368,7 +2357,7 @@ use is not recommended.  Explicitly check for a frame-parameter instead.  */)
 	  i++;
 	}
 
-      /* Now process them in reverse of specified order.  */
+      /* Now process them in reverse of specified order: */
       while (--i >= 0)
 	{
 	  prop = parms[i];
@@ -2398,7 +2387,7 @@ For a terminal frame, the value is always 1.  */)
   if (FRAME_WINDOW_P (f))
     return make_number (FRAME_LINE_HEIGHT (f));
   else
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
     return make_number (1);
 }
 
@@ -2417,7 +2406,7 @@ For a terminal screen, the value is always 1.  */)
   if (FRAME_WINDOW_P (f))
     return make_number (FRAME_COLUMN_WIDTH (f));
   else
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
     return make_number (1);
 }
 
@@ -2445,7 +2434,7 @@ to `frame-height'). */)
   if (FRAME_WINDOW_P (f))
     return make_number (FRAME_PIXEL_HEIGHT (f));
   else
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
     return make_number (FRAME_LINES (f));
 }
 
@@ -2462,7 +2451,7 @@ If FRAME is omitted or nil, the selected frame is used.  */)
   if (FRAME_WINDOW_P (f))
     return make_number (FRAME_PIXEL_WIDTH (f));
   else
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
     return make_number (FRAME_COLS (f));
 }
 
@@ -2479,7 +2468,7 @@ is used.  */)
 
   if (FRAME_WINDOW_P (f))
     return make_number (FRAME_TOOLBAR_WIDTH (f));
-#endif
+#endif /* FRAME_TOOLBAR_WIDTH */
   return make_number (0);
 }
 
@@ -2583,7 +2572,7 @@ FRAME should be HEIGHT pixels high.  */)
 	}
     }
   else
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
     change_frame_size (f, 0, XINT (height), !NILP (pretend), 0, 0,
 		       NILP (pixelwise) ? 0 : 1);
   return Qnil;
@@ -2619,7 +2608,7 @@ should be WIDTH pixels wide.  */)
 	}
     }
   else
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
     change_frame_size (f, XINT (width), 0, !NILP (pretend), 0, 0,
 		       NILP (pixelwise) ? 0 : 1);
   return Qnil;
@@ -2653,7 +2642,7 @@ Optional argument PIXELWISE non-nil means to measure in pixels.  */)
 	}
     }
   else
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
     change_frame_size (f, XINT (width), XINT (height), 0, 0, 0,
 		       NILP (pixelwise) ? 0 : 1);
 
@@ -2678,7 +2667,7 @@ or bottommost possible position (that stays within the screen).  */)
 #ifdef HAVE_WINDOW_SYSTEM
   if (FRAME_WINDOW_P (f))
     x_set_offset (f, XINT (xoffset), XINT (yoffset), 1);
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
 
   return Qt;
 }
@@ -2786,15 +2775,12 @@ x_fullscreen_adjust (struct frame *f, int *width, int *height, int *top_pos, int
 #endif /* HAVE_NTGUI */
 
 #ifdef HAVE_WINDOW_SYSTEM
-
 /* Change the parameters of frame F as specified by ALIST.
    If a parameter is not specially recognized, do nothing special;
    otherwise call the `x_set_...' function for that parameter.
    Except for certain geometry properties, always call store_frame_param
    to store the new value in the parameter alist.  */
-
-void
-x_set_frame_parameters (struct frame *f, Lisp_Object alist)
+void x_set_frame_parameters(struct frame *f, Lisp_Object alist)
 {
   Lisp_Object tail;
 
@@ -2814,9 +2800,9 @@ x_set_frame_parameters (struct frame *f, Lisp_Object alist)
   Lisp_Object *values;
   ptrdiff_t i, p;
   bool left_no_change = 0, top_no_change = 0;
-#ifdef HAVE_X_WINDOWS
+# ifdef HAVE_X_WINDOWS
   bool icon_left_no_change = 0, icon_top_no_change = 0;
-#endif
+# endif /* HAVE_X_WINDOWS */
   bool size_changed = 0;
   struct gcpro gcpro1, gcpro2;
 
@@ -2827,8 +2813,7 @@ x_set_frame_parameters (struct frame *f, Lisp_Object alist)
   parms = alloca (i * sizeof *parms);
   values = alloca (i * sizeof *values);
 
-  /* Extract parm names and values into those vectors.  */
-
+  /* Extract parm names and values into those vectors: */
   i = 0;
   for (tail = alist; CONSP (tail); tail = XCDR (tail))
     {
@@ -2942,7 +2927,7 @@ x_set_frame_parameters (struct frame *f, Lisp_Object alist)
 	}
     }
 
-  /* Don't die if just one of these was set.  */
+  /* Do NOT die if just one of these was set.  */
   if (EQ (left, Qunbound))
     {
       left_no_change = 1;
@@ -2963,29 +2948,29 @@ x_set_frame_parameters (struct frame *f, Lisp_Object alist)
   /* If one of the icon positions was not set, preserve or default it.  */
   if (! TYPE_RANGED_INTEGERP (int, icon_left))
     {
-#ifdef HAVE_X_WINDOWS
+# ifdef HAVE_X_WINDOWS
       icon_left_no_change = 1;
-#endif /* HAVE_X_WINDOWS */
+# endif /* HAVE_X_WINDOWS */
       icon_left = Fcdr (Fassq (Qicon_left, f->param_alist));
       if (NILP (icon_left))
 	XSETINT (icon_left, 0);
     }
   if (! TYPE_RANGED_INTEGERP (int, icon_top))
     {
-#ifdef HAVE_X_WINDOWS
+# ifdef HAVE_X_WINDOWS
       icon_top_no_change = 1;
-#endif /* HAVE_X_WINDOWS */
+# endif /* HAVE_X_WINDOWS */
       icon_top = Fcdr (Fassq (Qicon_top, f->param_alist));
       if (NILP (icon_top))
 	XSETINT (icon_top, 0);
     }
 
-  /* Don't set these parameters unless they've been explicitly
+  /* Do NOT set these parameters unless they have been explicitly
      specified.  The window might be mapped or resized while we're in
      this function, and we don't want to override that unless the lisp
      code has asked for it.
 
-     Don't set these parameters unless they actually differ from the
+     Do NOT set these parameters unless they actually differ from the
      window's current parameters; the window may not actually exist
      yet.  */
   {
@@ -3066,11 +3051,11 @@ x_set_frame_parameters (struct frame *f, Lisp_Object alist)
 	/* Actually set that position, and convert to absolute.  */
 	x_set_offset (f, leftpos, toppos, -1);
       }
-#ifdef HAVE_X_WINDOWS
+# ifdef HAVE_X_WINDOWS
     if ((!NILP (icon_left) || !NILP (icon_top))
 	&& ! (icon_left_no_change && icon_top_no_change))
       x_wm_set_icon_position (f, XINT (icon_left), XINT (icon_top));
-#endif /* HAVE_X_WINDOWS */
+# endif /* HAVE_X_WINDOWS */
   }
 
   UNGCPRO;
@@ -3082,9 +3067,7 @@ x_set_frame_parameters (struct frame *f, Lisp_Object alist)
    Only parameters that are specific to the X window system
    and whose values are not correctly recorded in the frame's
    param_alist need to be considered here.  */
-
-void
-x_report_frame_params (struct frame *f, Lisp_Object *alistptr)
+void x_report_frame_params(struct frame *f, Lisp_Object *alistptr)
 {
   Lisp_Object tem;
   uprintmax_t w;
@@ -3132,15 +3115,15 @@ x_report_frame_params (struct frame *f, Lisp_Object *alistptr)
   w = (uintptr_t) FRAME_X_WINDOW (f);
   store_in_alist (alistptr, Qwindow_id,
 		  make_formatted_string (buf, "%"pMu, w));
-#ifdef HAVE_X_WINDOWS
-#ifdef USE_X_TOOLKIT
+# ifdef HAVE_X_WINDOWS
+#  ifdef USE_X_TOOLKIT
   /* Tooltip frame may not have this widget.  */
   if (FRAME_X_OUTPUT (f)->widget)
-#endif
+#  endif /* USE_X_TOOLKIT */
     w = (uintptr_t) FRAME_OUTER_WINDOW (f);
   store_in_alist (alistptr, Qouter_window_id,
 		  make_formatted_string (buf, "%"pMu, w));
-#endif
+# endif /* HAVE_X_WINDOWS */
   store_in_alist (alistptr, Qicon_name, f->icon_name);
   store_in_alist (alistptr, Qvisibility,
 		  (FRAME_VISIBLE_P (f) ? Qt
@@ -3160,7 +3143,6 @@ x_report_frame_params (struct frame *f, Lisp_Object *alistptr)
 
 /* Change the `fullscreen' frame parameter of frame F.  OLD_VALUE is
    the previous value of that parameter, NEW_VALUE is the new value. */
-
 void
 x_set_fullscreen (struct frame *f, Lisp_Object new_value, Lisp_Object old_value)
 {
@@ -3182,7 +3164,6 @@ x_set_fullscreen (struct frame *f, Lisp_Object new_value, Lisp_Object old_value)
 
 /* Change the `line-spacing' frame parameter of frame F.  OLD_VALUE is
    the previous value of that parameter, NEW_VALUE is the new value.  */
-
 void
 x_set_line_spacing (struct frame *f, Lisp_Object new_value, Lisp_Object old_value)
 {
@@ -3208,7 +3189,6 @@ x_set_line_spacing (struct frame *f, Lisp_Object new_value, Lisp_Object old_valu
 
 /* Change the `screen-gamma' frame parameter of frame F.  OLD_VALUE is
    the previous value of that parameter, NEW_VALUE is the new value.  */
-
 void
 x_set_screen_gamma (struct frame *f, Lisp_Object new_value, Lisp_Object old_value)
 {
@@ -3244,9 +3224,9 @@ x_set_font (struct frame *f, Lisp_Object arg, Lisp_Object oldval)
 {
   Lisp_Object font_object;
   int fontset = -1;
-#ifdef HAVE_X_WINDOWS
+# ifdef HAVE_X_WINDOWS
   Lisp_Object font_param = arg;
-#endif /* HAVE_X_WINDOWS */
+# endif /* HAVE_X_WINDOWS */
 
   /* Set the frame parameter back to the old value because we may
      fail to use ARG as the new parameter value.  */
@@ -3285,16 +3265,16 @@ x_set_font (struct frame *f, Lisp_Object arg, Lisp_Object oldval)
 	error ("Unknown fontset: %s", SDATA (XCAR (arg)));
       font_object = XCDR (arg);
       arg = AREF (font_object, FONT_NAME_INDEX);
-#ifdef HAVE_X_WINDOWS
+# ifdef HAVE_X_WINDOWS
       font_param = Ffont_get (font_object, QCname);
-#endif /* HAVE_X_WINDOWS */
+# endif /* HAVE_X_WINDOWS */
     }
   else if (FONT_OBJECT_P (arg))
     {
       font_object = arg;
-#ifdef HAVE_X_WINDOWS
+# ifdef HAVE_X_WINDOWS
       font_param = Ffont_get (font_object, QCname);
-#endif /* HAVE_X_WINDOWS */
+# endif /* HAVE_X_WINDOWS */
       /* This is to store the XLFD font name in the frame parameter for
 	 backward compatibility.  We should store the font-object
 	 itself in the future.  */
@@ -3322,9 +3302,9 @@ x_set_font (struct frame *f, Lisp_Object arg, Lisp_Object oldval)
 
   x_new_font (f, font_object, fontset);
   store_frame_param (f, Qfont, arg);
-#ifdef HAVE_X_WINDOWS
+# ifdef HAVE_X_WINDOWS
   store_frame_param (f, Qfont_param, font_param);
-#endif /* HAVE_X_WINDOWS */
+# endif /* HAVE_X_WINDOWS */
   /* Recalculate toolbar height.  */
   f->n_tool_bar_rows = 0;
 
@@ -3407,11 +3387,11 @@ void
 x_set_fringe_width (struct frame *f, Lisp_Object new_value, Lisp_Object old_value)
 {
   compute_fringe_widths (f, 1);
-#ifdef HAVE_X_WINDOWS
+# ifdef HAVE_X_WINDOWS
   /* Must adjust this so window managers report correct number of columns: */
   if (FRAME_X_WINDOW (f) != 0)
     x_wm_set_size_hint (f, 0, 0);
-#endif /* HAVE_X_WINDOWS */
+# endif /* HAVE_X_WINDOWS */
 }
 
 void
@@ -3438,10 +3418,10 @@ x_set_internal_border_width (struct frame *f, Lisp_Object arg, Lisp_Object oldva
   if (FRAME_INTERNAL_BORDER_WIDTH (f) < 0)
     FRAME_INTERNAL_BORDER_WIDTH (f) = 0;
 
-#ifdef USE_X_TOOLKIT
+# ifdef USE_X_TOOLKIT
   if (FRAME_X_OUTPUT (f)->edit_widget)
     widget_store_internal_border (FRAME_X_OUTPUT (f)->edit_widget);
-#endif
+# endif /* USE_X_TOOLKIT */
 
   if (FRAME_INTERNAL_BORDER_WIDTH (f) == old)
     return;
@@ -3640,20 +3620,18 @@ x_set_alpha (struct frame *f, Lisp_Object arg, Lisp_Object oldval)
   for (i = 0; i < 2; i++)
     f->alpha[i] = newval[i];
 
-#if defined (HAVE_X_WINDOWS) || defined (HAVE_NTGUI) || defined (NS_IMPL_COCOA)
+# if defined(HAVE_X_WINDOWS) || defined(HAVE_NTGUI) || defined(NS_IMPL_COCOA)
   block_input ();
   x_set_frame_alpha (f);
   unblock_input ();
-#endif
+# endif /* HAVE_X_WINDOWS || HAVE_NTGUI || NS_IMPL_COCOA */
 
   return;
 }
 
-#if !defined(HAVE_NS) && (defined(Display_Info) || defined(HAVE_X_WINDOWS))
-
+# if !defined(HAVE_NS) && (defined(Display_Info) || defined(HAVE_X_WINDOWS))
 /* Non-zero if mouse is grabbed on DPYINFO
    and we know the frame where it is.  */
-
 bool x_mouse_grabbed (Display_Info *dpyinfo)
 {
   return (dpyinfo->grabbed
@@ -3663,9 +3641,7 @@ bool x_mouse_grabbed (Display_Info *dpyinfo)
 
 /* Re-highlight something with mouse-face properties
    on DPYINFO using saved frame and mouse position.  */
-
-void
-x_redo_mouse_highlight (Display_Info *dpyinfo)
+void x_redo_mouse_highlight (Display_Info *dpyinfo)
 {
   if (dpyinfo->last_mouse_motion_frame
       && FRAME_LIVE_P (dpyinfo->last_mouse_motion_frame))
@@ -3673,16 +3649,13 @@ x_redo_mouse_highlight (Display_Info *dpyinfo)
 			  dpyinfo->last_mouse_motion_x,
 			  dpyinfo->last_mouse_motion_y);
 }
-
-#endif /* HAVE_NS && (Display_Info || HAVE_X_WINDOWS) */
+# endif /* HAVE_NS && (Display_Info || HAVE_X_WINDOWS) */
 
 /* Subroutines of creating an X frame.  */
 
 /* Make sure that Vx_resource_name is set to a reasonable value.
    Fix it up, or set it to `emacs' if it is too hopeless.  */
-
-void
-validate_x_resource_name (void)
+void validate_x_resource_name(void)
 {
   ptrdiff_t len = 0;
   /* Number of valid characters in the resource name.  */
@@ -3733,7 +3706,6 @@ validate_x_resource_name (void)
 
   /* Name is partly valid.  Copy it and replace the invalid characters
      with underscores.  */
-
   Vx_resource_name = new = Fcopy_sequence (Vx_resource_name);
 
   for (i = 0; i < len; i++)
@@ -3749,9 +3721,10 @@ validate_x_resource_name (void)
 
 /* Get specified attribute from resource database RDB.
    See Fx_get_resource below for other parameters.  */
-
 static Lisp_Object
-xrdb_get_resource (XrmDatabase rdb, Lisp_Object attribute, Lisp_Object class, Lisp_Object component, Lisp_Object subclass)
+xrdb_get_resource (XrmDatabase rdb, Lisp_Object attribute,
+                   Lisp_Object class, Lisp_Object component,
+                   Lisp_Object subclass)
 {
   register char *value;
   char *name_key;
@@ -3803,11 +3776,12 @@ xrdb_get_resource (XrmDatabase rdb, Lisp_Object attribute, Lisp_Object class, Li
   strcat (name_key, ".");
   strcat (name_key, SSDATA (attribute));
 
-#if defined(HAVE_X_WINDOWS) || defined(HAVE_X_GET_STRING_RESOURCE) || defined(x_get_string_resource)
+# if defined(HAVE_X_WINDOWS) || defined(HAVE_X_GET_STRING_RESOURCE) || \
+     defined(x_get_string_resource)
   value = x_get_string_resource (rdb, name_key, class_key);
-#else
+# else
   value = (char *)"";
-#endif /* HAVE_X_WINDOWS || HAVE_X_GET_STRING_RESOURCE || x_get_string_resource */
+# endif /* HAVE_X_WINDOWS || HAVE_X_GET_STRING_RESOURCE || x_get_string_resource */
 
   if (value && *value)
     return build_string (value);
@@ -3836,7 +3810,6 @@ and the class is `Emacs.CLASS.SUBCLASS'.  */)
 }
 
 /* Get an X resource, like Fx_get_resource, but for display DPYINFO.  */
-
 Lisp_Object
 display_x_get_resource (Display_Info *dpyinfo, Lisp_Object attribute,
 			Lisp_Object class, Lisp_Object component,
@@ -3846,11 +3819,10 @@ display_x_get_resource (Display_Info *dpyinfo, Lisp_Object attribute,
 			    attribute, class, component, subclass);
 }
 
-#if defined HAVE_X_WINDOWS && !defined USE_X_TOOLKIT
+# if defined HAVE_X_WINDOWS && !defined USE_X_TOOLKIT
 /* Used when C code wants a resource value.  */
 /* Called from oldXMenu/Create.c.  */
-char *
-x_get_resource_string (const char *attribute, const char *class)
+char *x_get_resource_string(const char *attribute, const char *class)
 {
   char *result;
   struct frame *sf = SELECTED_FRAME ();
@@ -3870,7 +3842,7 @@ x_get_resource_string (const char *attribute, const char *class)
   SAFE_FREE ();
   return result;
 }
-#endif /* HAVE_X_WINDOWS && !USE_X_TOOLKIT */
+# endif /* HAVE_X_WINDOWS && !USE_X_TOOLKIT */
 
 /* Return the value of parameter PARAM.
 
@@ -3881,8 +3853,7 @@ x_get_resource_string (const char *attribute, const char *class)
 
    If no default is specified, return Qunbound.  If you call
    x_get_arg, make sure you deal with Qunbound in a reasonable way,
-   and don't let it get stored in any Lisp-visible variables!  */
-
+   and do NOT let it get stored in any Lisp-visible variables!  */
 Lisp_Object
 x_get_arg (Display_Info *dpyinfo, Lisp_Object alist, Lisp_Object param,
 	   const char *attribute, const char *class, enum resource_types type)
@@ -3939,9 +3910,9 @@ x_get_arg (Display_Info *dpyinfo, Lisp_Object alist, Lisp_Object param,
 	    case RES_TYPE_BOOLEAN:
 	      tem = Fdowncase (tem);
 	      if (!strcmp (SSDATA (tem), "on")
-#ifdef HAVE_NS
+# ifdef HAVE_NS
                   || !strcmp (SSDATA (tem), "yes")
-#endif /* HAVE_NS */
+# endif /* HAVE_NS */
 		  || !strcmp (SSDATA (tem), "true"))
 		return Qt;
 	      else
@@ -3957,15 +3928,15 @@ x_get_arg (Display_Info *dpyinfo, Lisp_Object alist, Lisp_Object param,
 		Lisp_Object lower;
 		lower = Fdowncase (tem);
 		if (!strcmp (SSDATA (lower), "on")
-#ifdef HAVE_NS
+# ifdef HAVE_NS
                     || !strcmp (SSDATA (lower), "yes")
-#endif /* HAVE_NS */
+# endif /* HAVE_NS */
 		    || !strcmp (SSDATA (lower), "true"))
 		  return Qt;
 		else if (!strcmp (SSDATA (lower), "off")
-#ifdef HAVE_NS
+# ifdef HAVE_NS
                       || !strcmp (SSDATA (lower), "no")
-#endif /* HAVE_NS */
+# endif /* HAVE_NS */
 		      || !strcmp (SSDATA (lower), "false"))
 		  return Qnil;
 		else
@@ -3991,8 +3962,7 @@ x_frame_get_arg (struct frame *f, Lisp_Object alist, Lisp_Object param,
 		    alist, param, attribute, class, type);
 }
 
-/* Like x_frame_get_arg, but also record the value in f->param_alist.  */
-
+/* Like x_frame_get_arg, but also record the value in f->param_alist: */
 Lisp_Object
 x_frame_get_and_record_arg (struct frame *f, Lisp_Object alist,
 			    Lisp_Object param,
@@ -4015,7 +3985,6 @@ x_frame_get_and_record_arg (struct frame *f, Lisp_Object alist,
    If no value is specified for PROP, look for an X default for XPROP
    on the frame named NAME.
    If that is not found either, use the value DEFLT.  */
-
 Lisp_Object
 x_default_parameter (struct frame *f, Lisp_Object alist, Lisp_Object prop,
 		     Lisp_Object deflt, const char *xprop, const char *xclass,
@@ -4031,8 +4000,7 @@ x_default_parameter (struct frame *f, Lisp_Object alist, Lisp_Object prop,
 }
 
 
-#if !defined (HAVE_X_WINDOWS) && defined (NoValue)
-
+# if !defined(HAVE_X_WINDOWS) && defined(NoValue)
 /*
  *    XParseGeometry parses strings of the form
  *   "=<width>x<height>{+-}<xoffset>{+-}<yoffset>", where
@@ -4044,9 +4012,9 @@ x_default_parameter (struct frame *f, Lisp_Object alist, Lisp_Object prop,
  *   the corresponding argument is updated;  for each value
  *   not found, the corresponding argument is left unchanged.
  */
-#ifndef _EMACS_MACTERM_H
+#  ifndef _EMACS_MACTERM_H
 static
-#endif /* !_EMACS_MACTERM_H */
+#  endif /* !_EMACS_MACTERM_H */
 int
 XParseGeometry (char *string,
 		int *x, int *y,
@@ -4054,8 +4022,10 @@ XParseGeometry (char *string,
 {
   int mask = NoValue;
   char *strind;
-  unsigned long tempWidth, tempHeight;
-  long int tempX, tempY;
+  unsigned long tempWidth = 0UL;
+  unsigned long tempHeight = 0UL;
+  long int tempX = 0L;
+  long int tempY = 0L;
   char *nextCharacter;
 
   if (string == NULL || *string == '\0')
@@ -4104,9 +4074,8 @@ XParseGeometry (char *string,
 	}
     }
 
-  /* If strind isn't at the end of the string then it's an invalid
+  /* If strind is NOT at the end of the string, then it is an invalid
      geometry specification. */
-
   if (*strind != '\0')
     return 0;
 
@@ -4120,8 +4089,7 @@ XParseGeometry (char *string,
     *height = min (tempHeight, UINT_MAX);
   return mask;
 }
-
-#endif /* !defined (HAVE_X_WINDOWS) && defined (NoValue) */
+# endif /* !defined (HAVE_X_WINDOWS) && defined (NoValue) */
 
 
 /* NS used to define x-parse-geometry in ns-win.el, but that confused
@@ -4143,15 +4111,16 @@ On Nextstep, this just calls `ns-parse-geometry'.  */)
   (Lisp_Object string)
 {
   int geometry, x, y;
-  unsigned int width, height;
+  unsigned int width = 0U;
+  unsigned int height = 0U;
   Lisp_Object result;
 
   CHECK_STRING (string);
 
-#ifdef HAVE_NS
+# ifdef HAVE_NS
   if (strchr (SSDATA (string), ' ') != NULL)
     return call1 (Qns_parse_geometry, string);
-#endif
+# endif /* HAVE_NS */
   geometry = XParseGeometry (SSDATA (string),
 			     &x, &y, &width, &height);
   result = Qnil;
@@ -4198,10 +4167,8 @@ On Nextstep, this just calls `ns-parse-geometry'.  */)
    Adjust height for toolbar if TOOLBAR_P is 1.
 
    This function does not make the coordinates positive.  */
-
-#define DEFAULT_ROWS 35
-#define DEFAULT_COLS 80
-
+# define DEFAULT_ROWS 35
+# define DEFAULT_COLS 80
 long
 x_figure_window_size (struct frame *f, Lisp_Object parms, bool toolbar_p)
 {
@@ -4218,7 +4185,7 @@ x_figure_window_size (struct frame *f, Lisp_Object parms, bool toolbar_p)
   FRAME_LINES (f) = DEFAULT_ROWS;
 
   /* Window managers expect that if program-specified
-     positions are not (0,0), they're intentional, not defaults.  */
+     positions are not (0,0), they are intentional, not defaults.  */
   f->top_pos = 0;
   f->left_pos = 0;
 
@@ -4376,13 +4343,11 @@ x_figure_window_size (struct frame *f, Lisp_Object parms, bool toolbar_p)
 
   return window_prompting;
 }
+#endif /* HAVE_WINDOW_SYSTEM (...from a few thousand lines above!) */
 
-
-
-#endif /* HAVE_WINDOW_SYSTEM */
-
-void
-frame_make_pointer_invisible (void)
+/* anyways, now that we have finished that part, some functions that are
+ * independent from having a window system: */
+void frame_make_pointer_invisible(void)
 {
   if (! NILP (Vmake_pointer_invisible))
     {
@@ -4401,10 +4366,9 @@ frame_make_pointer_invisible (void)
     }
 }
 
-void
-frame_make_pointer_visible (void)
+void frame_make_pointer_visible(void)
 {
-  /* We don't check Vmake_pointer_invisible here in case the
+  /* We do NOT check Vmake_pointer_invisible here in case the
      pointer was invisible when Vmake_pointer_invisible was set to nil.  */
   struct frame *f;
 
@@ -4448,7 +4412,7 @@ free_monitors (struct MonitorInfo *monitors, int n_monitors)
     xfree (monitors[i].name);
   xfree (monitors);
 }
-# endif
+# endif /* HAVE_NS || (!USE_GTK && (HAVE_XINERAMA || HAVE_XRANDR)) */
 
 Lisp_Object
 make_monitor_attribute_list (struct MonitorInfo *monitors,
@@ -4467,14 +4431,14 @@ make_monitor_attribute_list (struct MonitorInfo *monitors,
       Lisp_Object geometry, workarea, attributes = Qnil;
       struct MonitorInfo *mi = &monitors[i];
 
-#if defined(CONVERT_TO_XRECT)
+# if defined(CONVERT_TO_XRECT)
       CONVERT_TO_XRECT(mi_xgeom, mi->geom);
       if (mi_xgeom.width == 0) continue;
-#else
+# else
       if (mi->geom.width == 0) continue;
-#endif /* CONVERT_TO_XRECT */
+# endif /* CONVERT_TO_XRECT */
 
-#if defined(CONVERT_TO_XRECT)
+# if defined(CONVERT_TO_XRECT)
       CONVERT_TO_XRECT(mi_xwork, mi->work);
       /* (the "geom" one should have already been converted above, provided
        * that the conditions are kept the same) */
@@ -4482,12 +4446,12 @@ make_monitor_attribute_list (struct MonitorInfo *monitors,
 			 mi_xwork.width, mi_xwork.height);
       geometry = list4i (mi_xgeom.x, mi_xgeom.y,
 			 mi_xgeom.width, mi_xgeom.height);
-#else
+# else
       workarea = list4i (mi->work.x, mi->work.y,
 			 mi->work.width, mi->work.height);
       geometry = list4i (mi->geom.x, mi->geom.y,
 			 mi->geom.width, mi->geom.height);
-#endif /* CONVERT_TO_XRECT */
+# endif /* CONVERT_TO_XRECT */
       attributes = Fcons (Fcons (Qsource, build_string (source)),
                           attributes);
       attributes = Fcons (Fcons (Qframes, AREF (monitor_frames, i)),
@@ -4519,9 +4483,8 @@ make_monitor_attribute_list (struct MonitorInfo *monitors,
 /***********************************************************************
 				Initialization
  ***********************************************************************/
-
-void
-syms_of_frame (void)
+/* your standard 'syms_of_'-prefixed function: */
+void syms_of_frame(void)
 {
   DEFSYM (Qframep, "framep");
   DEFSYM (Qframe_live_p, "frame-live-p");
@@ -4544,7 +4507,7 @@ syms_of_frame (void)
   DEFSYM (Qwindow_id, "window-id");
 #ifdef HAVE_X_WINDOWS
   DEFSYM (Qouter_window_id, "outer-window-id");
-#endif
+#endif /* HAVE_X_WINDOWS */
   DEFSYM (Qparent_id, "parent-id");
   DEFSYM (Qx, "x");
   DEFSYM (Qw32, "w32");
@@ -4580,7 +4543,7 @@ syms_of_frame (void)
 
 #ifdef HAVE_NS
   DEFSYM (Qns_parse_geometry, "ns-parse-geometry");
-#endif
+#endif /* HAVE_NS */
 
   {
     int i;
@@ -4627,7 +4590,7 @@ is a reasonable practice.  See also the variable `x-resource-name'.  */);
 The value should range from 0 (invisible) to 100 (completely opaque).
 You can also use a floating number between 0.0 and 1.0.  */);
   Vframe_alpha_lower_limit = make_number (20);
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
 
   DEFVAR_LISP ("default-frame-alist", Vdefault_frame_alist,
 	       doc: /* Alist of default values for frame creation.
@@ -4647,16 +4610,17 @@ Setting this variable does not affect existing frames, only new ones.  */);
   DEFVAR_LISP ("default-frame-scroll-bars", Vdefault_frame_scroll_bars,
 	       doc: /* Default position of scroll bars on this window-system.  */);
 #ifdef HAVE_WINDOW_SYSTEM
-#if defined (HAVE_NTGUI) || defined (NS_IMPL_COCOA) || (defined (USE_GTK) && defined (USE_TOOLKIT_SCROLL_BARS))
+# if defined(HAVE_NTGUI) || defined(NS_IMPL_COCOA) || \
+     (defined(USE_GTK) && defined(USE_TOOLKIT_SCROLL_BARS))
   /* MS-Windows, Mac OS X, and GTK have scroll bars on the right by
      default.  */
   Vdefault_frame_scroll_bars = Qright;
-#else
+# else
   Vdefault_frame_scroll_bars = Qleft;
-#endif
+# endif /* HAVE_NTGUI || NS_IMPL_COCOA || (USE_GTK && USE_TOOLKIT_SCROLL_BARS) */
 #else
   Vdefault_frame_scroll_bars = Qnil;
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
 
   DEFVAR_BOOL ("scroll-bar-adjust-thumb-portion",
                scroll_bar_adjust_thumb_portion_p,
@@ -4732,7 +4696,7 @@ or call the function `tool-bar-mode'.  */);
   Vtool_bar_mode = Qt;
 #else
   Vtool_bar_mode = Qnil;
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
 
   DEFVAR_KBOARD ("default-minibuffer-frame", Vdefault_minibuffer_frame,
 		 doc: /* Minibufferless frames use this frame's minibuffer.
@@ -4788,7 +4752,7 @@ set this option to a non-nil value in your init file.  */);
 #if 0
   defsubr (&Sframe_configuration);
   defsubr (&Srestore_frame_configuration);
-#endif
+#endif /* 0 */
   defsubr (&Smake_frame_visible);
   defsubr (&Smake_frame_invisible);
   defsubr (&Siconify_frame);
@@ -4826,6 +4790,9 @@ set this option to a non-nil value in your init file.  */);
 #ifdef HAVE_WINDOW_SYSTEM
   defsubr (&Sx_get_resource);
   defsubr (&Sx_parse_geometry);
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
 
+  return;
 }
+
+/* EOF */

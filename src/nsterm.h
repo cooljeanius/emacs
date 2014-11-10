@@ -56,6 +56,13 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #ifdef __OBJC__
 
+/* _Noreturn breaks in objc with gcc, so ignore warnings about it:  */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 7)))
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wmissing-noreturn"
+#endif /* gcc 4.7+ */
+
 /* CGFloat on GNUstep may be 4 or 8 byte, but functions expect float* for
  * some versions.
  * On Cocoa >= 10.5, functions expect CGFloat*. Make compatible type.  */
@@ -115,8 +122,9 @@ typedef float EmacsCGFloat;
 - (void)logNotification:(NSNotification *)notification;
 - (void)sendEvent:(NSEvent *)theEvent;
 - (void)showPreferencesWindow:(id)sender;
+- (void)newFrame:(id)sender;
 - (BOOL)openFile:(NSString *)fileName;
-- (void) _Noreturn fd_handler:(id)unused;
+- (void)fd_handler:(id)unused;
 - (void)timeout_handler:(NSTimer *)timedEntry;
 - (BOOL)fulfillService:(NSString *)name withArg:(NSString *)arg;
 #ifdef NS_IMPL_GNUSTEP
@@ -131,6 +139,12 @@ typedef float EmacsCGFloat;
 }
 @end
 #endif /* NS_IMPL_GNUSTEP */
+
+/* keep this condition the same as when we push: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 7)))
+# pragma GCC diagnostic pop
+#endif /* gcc 4.7+ */
 
 /* ========================================================================
  *
@@ -227,8 +241,10 @@ typedef float EmacsCGFloat;
   unsigned long keyEquivModMask;
 }
 
+/* from nsmenu.m: */
 - (id)initWithTitle: (NSString *)title frame: (struct frame *)f;
 - (void)setFrame: (struct frame *)f;
+- (void)trackingNotification:(NSNotification *)notification;
 - (void)menuNeedsUpdate: (NSMenu *)menu; /* (delegate method) */
 - (NSString *)parseKeyEquiv: (const char *)key;
 - (NSMenuItem *)addItemWithWidgetValue: (void *)wvptr;
@@ -615,10 +631,10 @@ struct ns_display_info
   struct frame *x_highlight_frame;
   struct frame *x_focus_frame;
 
-  /* The frame where the mouse was last time we reported a mouse event.  */
+  /* The frame where the mouse was last time we reported a mouse event: */
   struct frame *last_mouse_frame;
 
-  /* The frame where the mouse was last time we reported a mouse motion.  */
+  /* The frame where the mouse was last time we reported a mouse motion: */
   struct frame *last_mouse_motion_frame;
 
   /* Position where the mouse was last time we reported a motion.
@@ -932,3 +948,5 @@ extern char gnustep_base_version[];  /* version tracking */
 #endif	/* HAVE_NS */
 
 #endif /* !_EMACS_NSTERM_H */
+
+/* EOF */

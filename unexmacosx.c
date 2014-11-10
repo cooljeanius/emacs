@@ -269,10 +269,8 @@ unexec_copy (off_t dest, off_t src, ssize_t count)
   return 1;
 }
 
-/* Debugging and informational messages routines.  */
-
-static void
-unexec_error (char *format, ...)
+/* Debugging and informational messages routines: */
+static void unexec_error(char *format, ...)
 {
   va_list ap;
 

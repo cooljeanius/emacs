@@ -867,7 +867,7 @@ LISP_MACRO_DEFUN (EQ, bool, (Lisp_Object x, Lisp_Object y), (x, y))
 INLINE ptrdiff_t
 clip_to_bounds (ptrdiff_t lower, EMACS_INT num, ptrdiff_t upper)
 {
-  return num < lower ? lower : num <= upper ? num : upper;
+  return ((num < lower) ? lower : ((num <= upper) ? num : upper));
 }
 
 /* Forward declarations.  */
@@ -2854,6 +2854,10 @@ static
 extern
 # endif /* KEEP_EMACS_BUFFER_C_STUFF_LOCAL */
 void defvar_per_buffer (const char *, Lisp_Object *, Lisp_Object, char *);
+#else
+# if defined(KEEP_EMACS_BUFFER_C_STUFF_LOCAL) && defined(lint)
+#  undef KEEP_EMACS_BUFFER_C_STUFF_LOCAL
+# endif /* KEEP_EMACS_BUFFER_C_STUFF_LOCAL && lint */
 #endif /* !PROTOS_IN_EMACS_BUFFER_C */
 extern void defvar_kboard (struct Lisp_Kboard_Objfwd *, const char *, int);
 

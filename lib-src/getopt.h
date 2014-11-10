@@ -1,4 +1,4 @@
-/* Declarations for getopt.
+/* getopt.h: Declarations for getopt.
    Copyright (C) 1989,90,91,92,93,94,96,97,98 Free Software Foundation, Inc.
    NOTE: The canonical source of this file is maintained with the GNU C Library.
    Bugs can be reported to bug-glibc@gnu.org.
@@ -21,18 +21,17 @@
 
 #ifndef __need_getopt
 # define _GETOPT_H 1
-#endif
+#endif /* !__need_getopt */
 
 #ifdef	__cplusplus
 extern "C" {
-#endif
+#endif /* __cplusplus */
 
 /* For communication from `getopt' to the caller.
    When `getopt' finds an option that takes an argument,
    the argument value is returned here.
    Also, when `ordering' is RETURN_IN_ORDER,
    each non-option ARGV-element is returned here.  */
-
 extern char *optarg;
 
 /* Index in ARGV of the next element to be scanned.
@@ -46,16 +45,13 @@ extern char *optarg;
 
    Otherwise, `optind' communicates from one call to the next
    how much of ARGV has been scanned so far.  */
-
 extern int optind;
 
 /* Callers store zero here to inhibit the error message `getopt' prints
    for unrecognized options.  */
-
 extern int opterr;
 
 /* Set to an option character which was unrecognized.  */
-
 extern int optopt;
 
 #ifndef __need_getopt
@@ -86,8 +82,8 @@ struct option
   const char *name;
 # else
   char *name;
-# endif
-  /* has_arg can't be an enum because some compilers complain about
+# endif /* __STDC__ */
+  /* has_arg cannot be an enum because some compilers complain about
      type mismatches in all the code that assumes it is an int.  */
   int has_arg;
   int *flag;
@@ -95,7 +91,6 @@ struct option
 };
 
 /* Names for the values of the `has_arg' field of `struct option'.  */
-
 # define no_argument		0
 # define required_argument	1
 # define optional_argument	2
@@ -125,16 +120,18 @@ struct option
    If OPTS begins with `--', then non-option arguments are treated as
    arguments to the option '\0'.  This behavior is specific to the GNU
    `getopt'.  */
-
 #if defined __STDC__ && __STDC__
-# ifdef __GNU_LIBRARY__
+# if defined(__GNU_LIBRARY__) || \
+     (!defined(_STDLIB_H_) && (defined(PROTOTYPES) || defined(__PROTOTYPES))) || \
+     (!defined(HAVE_GETOPT) && (defined(PROTOTYPES) || defined(__PROTOTYPES)))
 /* Many other libraries have conflicting prototypes for getopt, with
    differences in the consts, in stdlib.h.  To avoid compilation
    errors, only prototype getopt for the GNU C library.  */
-extern int getopt (int __argc, char *const *__argv, const char *__shortopts);
-# else /* not __GNU_LIBRARY__ */
-extern int getopt ();
-# endif /* __GNU_LIBRARY__ */
+/* (the one in the darwin <unistd.h> is the same though) */
+extern int getopt(int __argc, char *const *__argv, const char *__shortopts);
+# else /* not __GNU_LIBRARY__: */
+extern int getopt();
+# endif /* __GNU_LIBRARY__ || PROTOTYPES || __PROTOTYPES */
 
 # ifndef __need_getopt
 extern int getopt_long (int argc, char *const *argv, const char *__shortopts,
@@ -148,7 +145,7 @@ extern int _getopt_internal (int argc, char *const *argv,
 			     const char *__shortopts,
 		             const struct option *__longopts, int *__longind,
 			     int __long_only);
-# endif
+# endif /* !__need_getopt */
 #else /* not __STDC__ */
 extern int getopt ();
 # ifndef __need_getopt
@@ -156,14 +153,16 @@ extern int getopt_long ();
 extern int getopt_long_only ();
 
 extern int _getopt_internal ();
-# endif
+# endif /* !__need_getopt */
 #endif /* __STDC__ */
 
 #ifdef	__cplusplus
 }
-#endif
+#endif /* __cplusplus */
 
-/* Make sure we later can get all the definitions and declarations.  */
+/* Make sure we later can get all the definitions and declarations: */
 #undef __need_getopt
 
 #endif /* getopt.h */
+
+/* EOF */

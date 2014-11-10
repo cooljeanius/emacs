@@ -1908,31 +1908,33 @@ create_process (Lisp_Object process, char **new_argv, Lisp_Object current_dir)
     }
 }
 
-static void
-create_pty (Lisp_Object process)
+static void create_pty(Lisp_Object process)
 {
   struct Lisp_Process *p = XPROCESS (process);
   char pty_name[PTY_NAME_SIZE];
-  int pty_fd = NILP (Vprocess_connection_type) ? -1 : allocate_pty (pty_name);
+  int pty_fd = (NILP(Vprocess_connection_type) ? -1 : allocate_pty(pty_name));
 
   if (pty_fd >= 0)
     {
+      int forkout;
       p->open_fd[SUBPROCESS_STDIN] = pty_fd;
 #if ! defined (USG) || defined (USG_SUBTTY_WORKS)
       /* On most USG systems it does not work to open the pty's tty here,
 	 then close it and reopen it in the child.  */
-      /* Don't let this terminal become our controlling terminal
-	 (in case we don't have one).  */
-      int forkout = emacs_open (pty_name, O_RDWR | O_NOCTTY, 0);
+      /* Do NOT let this terminal become our controlling terminal
+	 (in case we do NOT have one).  */
+      forkout = emacs_open(pty_name, (O_RDWR | O_NOCTTY), 0);
       if (forkout < 0)
-	report_file_error ("Opening pty", Qnil);
+	report_file_error("Opening pty", Qnil);
       p->open_fd[WRITE_TO_SUBPROCESS] = forkout;
-#if defined (DONT_REOPEN_PTY)
+# if defined (DONT_REOPEN_PTY)
       /* In the case that vfork is defined as fork, the parent process
 	 (Emacs) may send some data before the child process completes
 	 tty options setup.  So we setup tty before forking.  */
       child_setup_tty (forkout);
-#endif /* DONT_REOPEN_PTY */
+# endif /* DONT_REOPEN_PTY */
+#else
+      forkout = 0;
 #endif /* not USG, or USG_SUBTTY_WORKS */
 
       fcntl (pty_fd, F_SETFL, O_NONBLOCK);
