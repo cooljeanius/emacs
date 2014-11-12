@@ -1,4 +1,4 @@
-/* Proxy shell designed for use with Emacs on Windows 95 and NT.
+/* cmdproxy.c: Proxy shell designed for use with Emacs on Windows 95/NT.
    Copyright (C) 1997, 2001-2014 Free Software Foundation, Inc.
 
    Accepts subset of Unix sh(1) command-line options, for compatibility
@@ -35,7 +35,7 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <string.h>  /* strlen */
 #include <ctype.h>   /* isspace, isalpha */
 
-/* We don't want to include stdio.h because we are already duplicating
+/* We do NOT want to include stdio.h because we are already duplicating
    lots of it here */
 extern int _snprintf (char *buffer, size_t count, const char *format, ...);
 

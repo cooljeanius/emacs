@@ -8803,8 +8803,8 @@ mac_set_font_info_for_selection (f, face_id, c)
 #include <Resources.h>
 
 #if __MWERKS__
-#include <unix.h>
-#endif
+# include <unix.h>
+#endif /* __MWERKS__ */
 #endif /* ! TARGET_API_MAC_CARBON */
 
 #define M_APPLE 234
@@ -10506,22 +10506,20 @@ profiler_exit_proc ()
    (corresponding to main in emacs.c).  Emacs_main calls XTread_socket
    (defined further below) to read input.  This is where
    WaitNextEvent/ReceiveNextEvent is called to process Mac events.  */
-
 #ifdef MAC_OS8
 #undef main
-int
-main (void)
+int main (void)
 {
 #if __profile__  /* is the profiler on? */
   if (ProfilerInit(collectDetailed, bestTimeBase, 5000, 200))
     exit(1);
-#endif
+#endif /* __profile__ */
 
 #if __MWERKS__
   /* set creator and type for files created by MSL */
   _fcreator = MAC_EMACS_CREATOR_CODE;
   _ftype = 'TEXT';
-#endif
+#endif /* __MWERKS__ */
 
   do_init_managers ();
 

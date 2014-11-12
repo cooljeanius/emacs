@@ -2582,6 +2582,8 @@ else
   gthree='-g3'
 fi
 
+dnl# we do this hunk of code 3 times; see the FIXME between this one and
+dnl# the next one for more info:
 if test "x${ac_test_CFLAGS}" != "xset"; then
   # It is helpful to have C macros available to GDB, so prefer -g3 to -g
   # if -g3 works and the user does not specify CFLAGS.
@@ -2591,6 +2593,8 @@ if test "x${ac_test_CFLAGS}" != "xset"; then
       emacs_g3_CFLAGS="${gthree}";;
     '-g -O2')
       emacs_g3_CFLAGS="${gthree} -O2";;
+    '-g -Og')
+      emacs_g3_CFLAGS="${gthree} -Og";;
     *)
       emacs_g3_CFLAGS='';;
   esac
@@ -2607,28 +2611,41 @@ if test "x${ac_test_CFLAGS}" != "xset"; then
     fi
     if test "x${opsys}" = "xmingw32" && test "x${GCC}" = "xyes"; then
       CFLAGS="${CFLAGS} -gdwarf-2"
+    elif test "x${opsys}" = "xdarwin" && test "x${GCC}" = "xyes" && test "x${host_vendor}" = "xapple" && test "x${GDB_BIN}" != "x"; then
+      ## (I would prefer to check '${emacs_cv_apple}' instead of
+      ## '${host_vendor}', but that has not been set yet by this point...)
+      CFLAGS="${CFLAGS} -gfull -mfix-and-continue"
     fi
   fi
 
   case ${CFLAGS} in
     *-O*) ;;
     *)
-      # No optimization flag was inferred for this non-GCC compiler.
-      # Try -O. This is needed for xlc on AIX; see Bug#14258.
+      if test "x${GCC}" = "xyes"; then
+        # gcc as of 4.8 supports the '-Og' optimization level for improved
+        # debugging; no need to conditionalize it on gcc version though,
+        # as we can just test it:
+        optflag="-Og"
+      else
+        # No optimization flag was inferred for this non-GCC compiler.
+        # Try -O. This is needed for xlc on AIX; see Bug#14258.
+        optflag="-O"
+      fi
       emacs_save_CFLAGS="${CFLAGS}"
       test -z "${CFLAGS}" || CFLAGS="${CFLAGS} "
-      CFLAGS="${CFLAGS}-O"
-      AC_CACHE_CHECK([whether ${CC} accepts -O],
+      CFLAGS="${CFLAGS}${optflag}"
+      AC_CACHE_CHECK([whether ${CC} accepts ${optflag}],
         [emacs_cv_prog_cc_o],
 	[AC_LINK_IFELSE([AC_LANG_PROGRAM([[]],[[]])],
 	   [emacs_cv_prog_cc_o=yes],
 	   [emacs_cv_prog_cc_o=no])])
       if test "x${emacs_cv_prog_cc_o}" != "xyes"; then
 	CFLAGS="${emacs_save_CFLAGS}"
-      fi ;;
+      fi
+      ;;
   esac
 else
-  AC_MSG_NOTICE([CFLAGS already set; skipping attempt to add more])
+  AC_MSG_NOTICE([CFLAGS already set (to '${CFLAGS}'); skipping attempt to add more])
 fi
 
 dnl# now do likewise with other languages.
@@ -2644,6 +2661,8 @@ if test "x${ac_test_OBJCFLAGS}" != "xset"; then
       emacs_g3_OBJCFLAGS="${gthree}";;
     '-g -O2')
       emacs_g3_OBJCFLAGS="${gthree} -O2";;
+    '-g -Og')
+      emacs_g3_OBJCFLAGS="${gthree} -Og";;
     *)
       emacs_g3_OBJCFLAGS='';;
   esac
@@ -2674,10 +2693,11 @@ if test "x${ac_test_OBJCFLAGS}" != "xset"; then
 	   [emacs_cv_prog_objc_o=no])])
       if test "x${emacs_cv_prog_objc_o}" != "xyes"; then
 	OBJCFLAGS="${emacs_save_OBJCFLAGS}"
-      fi ;;
+      fi
+      ;;
   esac
 else
-  AC_MSG_NOTICE([OBJCFLAGS already set; skipping attempt to add more])
+  AC_MSG_NOTICE([OBJCFLAGS already set (to '${OBJCFLAGS}'); skipping attempt to add more])
 fi
 AC_LANG_POP
 
@@ -2692,6 +2712,8 @@ if test "x${ac_test_CXXFLAGS}" != "xset"; then
       emacs_g3_CXXFLAGS="${gthree}";;
     '-g -O2')
       emacs_g3_CXXFLAGS="${gthree} -O2";;
+    '-g -Og')
+      emacs_g3_CXXFLAGS="${gthree} -Og";;
     *)
       emacs_g3_CXXFLAGS='';;
   esac
@@ -2722,10 +2744,11 @@ if test "x${ac_test_CXXFLAGS}" != "xset"; then
 	   [emacs_cv_prog_cxx_o=no])])
       if test "x${emacs_cv_prog_cxx_o}" != "xyes"; then
 	CXXFLAGS="${emacs_save_CXXFLAGS}"
-      fi ;;
+      fi
+      ;;
   esac
 else
-  AC_MSG_NOTICE([CXXFLAGS already set; skipping attempt to add more])
+  AC_MSG_NOTICE([CXXFLAGS already set (to '${CXXFLAGS}'); skipping attempt to add more])
 fi
 AC_LANG_POP
 
@@ -2872,6 +2895,8 @@ else
   nw="${nw} -Wbad-function-cast"    # These casts are no worse than others.
   nw="${nw} -Wignored-qualifiers"                        # invalid for ObjC
   nw="${nw} -Wopenmp-simd"                               # invalid for ObjC
+  nw="${nw} -Wcomments" # redundant synonym for the un-pluarlized -Wcomment
+  nw="${nw} -Wmudflap"                                # no longer supported
 
   # Emacs does NOT care about shadowing; see
   # <http://lists.gnu.org/archive/html/emacs-diffs/2011-11/msg00265.html>.
@@ -2906,6 +2931,7 @@ else
     if test "x${WERROR_CFLAGS}" = "x" && test "x${OBJC}" = "x"; then
       dnl# m4/manywarnings.m4 is unaware of this one:
       gl_WARN_ADD([-Wcast-qual])
+      dnl# (the gnulib gcc-warning.spec specifically filters it out though)
     fi  ##end check for werror or objc
   fi  ##end check for clang
 
@@ -2972,36 +2998,49 @@ else
     fi  ##end check for Apple compiler
 
     dnl# speaking of m4/manywarnings.m4, running the command in one of the
-    dnl# comments discovered the following warning flag:
-    gl_WARN_ADD([-Wnonportable-cfstrings])
+    dnl# comments discovered the following warning flag with gcc 4.9:
+    gl_WARN_ADD([-Wnonportable-cfstrings])dnl
 
     dnl# These next ones are linker warnings, which we do need to keep
     dnl# conditionalized on the vendor, because preprocessor macro
     dnl# declarations (which is what 'emacs_cv_apple' is based on) tell us
-    dnl# nothing about what the linker accepts.
+    dnl# nothing about what the linker accepts. Before we can check them,
+    dnl# though, we need to make sure that this variable is defined first,
+    dnl# to prevent aclocal/autoconf/autom4te/gm4 from choking on the
+    dnl# comma when it is used in arguments to the macro we use:
+    if test "x${acl_cv_wl}" = "x"; then
+      test -z "${acl_cv_wl}" && export acl_cv_wl='-Wl,'
+    fi
+    AC_SUBST([acl_cv_wl])
+    WARN_LDFLAGS=""
+    dnl# ok, now that set of vendor cases I was mentioning:
     case ${host_vendor} in 
       apple*)
-        dnl# Need to make sure that this variable is defined first,
-        dnl# to prevent aclocal/autoconf/autom4te/gm4 from choking on the
-        dnl# comma when it is used in arguments to a macro:
-        if test "x${acl_cv_wl}" = "x"; then
-          test -z "${acl_cv_wl}" && export acl_cv_wl='-Wl,'
-        fi
-        AC_SUBST([acl_cv_wl])
         dnl#FIXME: make sure these flags are actually used properly
         dnl# everywhere:
-        WARN_LDFLAGS=""
+        gl_WARN_ADD([${acl_cv_wl}-t],[WARN_LDFLAGS])
         gl_WARN_ADD([${acl_cv_wl}-warn_compact_unwind],[WARN_LDFLAGS])
         gl_WARN_ADD([${acl_cv_wl}-warn_weak_exports],[WARN_LDFLAGS])
         gl_WARN_ADD([${acl_cv_wl}-warn_stabs],[WARN_LDFLAGS])
         gl_WARN_ADD([${acl_cv_wl}-warn_commons],[WARN_LDFLAGS])
-        AC_SUBST([WARN_LDFLAGS])
+        ;;
+      gnu*)
+        dnl#FIXME: these flags are untested, and are only based on my
+        dnl# my reading of the GNU ld manpage:
+        gl_WARN_ADD([${acl_cv_wl}--warn-alternate-em],[WARN_LDFLAGS])
+        gl_WARN_ADD([${acl_cv_wl}--warn-common],[WARN_LDFLAGS])
+        gl_WARN_ADD([${acl_cv_wl}--warn-constructors],[WARN_LDFLAGS])
+        gl_WARN_ADD([${acl_cv_wl}--warn-multiple-gp],[WARN_LDFLAGS])
+        gl_WARN_ADD([${acl_cv_wl}--warn-section-align],[WARN_LDFLAGS])
         ;;
     esac
+    AC_SUBST([WARN_LDFLAGS])dnl
 
     dnl# some other ones from the gcc4.2 manual that m4/manywarnings.m4
     dnl# leaves out:
     gl_GCC_VERSION_IFELSE([4],[2],[
+      dnl# the gnulib gcc-warning.spec filters this out and calls it
+      dnl# "obsolescent", so guard it with an undocument envvar:
       if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
         test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
         gl_WARN_ADD([-Waggregate-return])
@@ -3009,6 +3048,10 @@ else
         test -z "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
         nw="${nw} -Waggregate-return"
       fi  ##end check for one undocumented environment variable
+      dnl# the comment in the gnulib gcc-warning.spec for why this is
+      dnl# filtered out from manywarnings.m4 says:
+      dnl# "FIXME maybe? too much noise; encourages bad changes"
+      dnl# so guard with another undocument envvar:
       if test "x${PRINT_CONVERSION_WARNINGS}" = "xyes"; then
         test -n "${PRINT_CONVERSION_WARNINGS}"
         gl_WARN_ADD([-Wconversion])
@@ -3016,18 +3059,32 @@ else
         test -z "${PRINT_CONVERSION_WARNINGS}"
         nw="${nw} -Wconversion"
       fi  ##end check for other undocumented environment variable
+      dnl# the comment in the gnulib gcc-warning.spec for why this is
+      dnl# filtered out from manywarnings.m4 says:
+      dnl# "FIXME: do not want.  others may"
+      dnl# I am "others", so just leave it in:
       gl_WARN_ADD([-Wdeclaration-after-statement])
+      dnl# this one is not even mentioned:
       gl_WARN_ADD([-Wmissing-noreturn])
       if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
         test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
         ## maintainer mode can also trigger '-Werror', so avoid:
         if test "x${USE_MAINTAINER_MODE}" != "xyes"; then
+          dnl# the comment in the gnulib gcc-warning.spec for why this is
+          dnl# filtered out from manywarnings.m4 says:
+          dnl# "FIXME maybe? borderline.  some will want this"
+          dnl# I am one of the "some", but only some of the time:
           gl_WARN_ADD([-Wfloat-equal])
         fi  ##end check for maintainer mode
         ## clang prints a lot of these:
         if test "x${emacs_cv_clang}" != "xyes"; then
+          dnl# the comment in the gnulib gcc-warning.spec for why this is
+          dnl# filtered out from manywarnings.m4 is too long to fit on a
+          dnl# single line, so never mind about that...
           gl_WARN_ADD([-Wpadded])
         fi  ##end check for clang
+        dnl# the comment in the gnulib gcc-warning.spec for why this is
+        dnl# filtered out from manywarnings.m4 has gnulib-specific reasons:
         gl_WARN_ADD([-Wredundant-decls])
       else
         test -z "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
@@ -3040,6 +3097,10 @@ else
       if test -n "`echo ${nw} | grep Wswitch`"; then
         nw="${nw} -Wswitch-enum"
       else
+        dnl# the comment in the gnulib gcc-warning.spec for why this is
+        dnl# filtered out from manywarnings.m4 says:
+        dnl# "FIXME maybe? borderline.  some will want this"
+        dnl# Sometimes I am one of those "some", so for when I am:
         gl_WARN_ADD([-Wswitch-enum])
       fi  ##end check to see if 'nw' already contains '-Wswitch' (broken)
       if test "x${emacs_cv_clang}" = "xyes" || test "x${emacs_cv_apple}" = "xyes"; then
@@ -3047,6 +3108,53 @@ else
       else
         gl_WARN_ADD([-Wunreachable-code])
       fi  ##end check for clang or Apple compiler
+      dnl# even though emacs has no C++ code, also check for some
+      dnl# C++-specific flags anyways, just in case:
+      if test "x${CXX}" != "x" && test "x${CC}" = "x${CXX}"; then
+        WARN_CXXFLAGS=""
+        AC_LANG_PUSH([C++])dnl
+        gl_WARN_ADD([-Wabi],[WARN_CXXFLAGS])
+        gl_WARN_ADD([-Wabi-tag],[WARN_CXXFLAGS])
+        gl_WARN_ADD([-Wconditionally-supported],[WARN_CXXFLAGS])
+        if test "x${PRINT_CONVERSION_WARNINGS}" = "xyes"; then
+          test -n "${PRINT_CONVERSION_WARNINGS}"
+          gl_WARN_ADD([-Wconversion-null],[WARN_CXXFLAGS])
+        fi  ##end check for undocumented environment variable.
+        gl_WARN_ADD([-Wctor-dtor-privacy],[WARN_CXXFLAGS])
+        gl_WARN_ADD([-Wdeprecated],[WARN_CXXFLAGS])
+        gl_WARN_ADD([-Wdelete-incomplete],[WARN_CXXFLAGS])
+        gl_WARN_ADD([-Wdelete-non-virtual-dtor],[WARN_CXXFLAGS])
+        gl_WARN_ADD([-Weffc++],[WARN_CXXFLAGS])
+        gl_WARN_ADD([-Wglobal-constructors],[WARN_CXXFLAGS])
+        gl_WARN_ADD([-Winherited-variadic-ctor],[WARN_CXXFLAGS])
+        gl_WARN_ADD([-Winvalid-offsetof],[WARN_CXXFLAGS])
+        gl_WARN_ADD([-Wliteral-suffix],[WARN_CXXFLAGS])
+        gl_WARN_ADD([-Wnoexcept],[WARN_CXXFLAGS])
+        gl_WARN_ADD([-Wnon-template-friend],[WARN_CXXFLAGS])
+        gl_WARN_ADD([-Wnon-virtual-dtor],[WARN_CXXFLAGS])
+        if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
+          test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
+          gl_WARN_ADD([-Wold-style-cast],[WARN_CXXFLAGS])
+        fi  ##end check for undocumented environment variable.
+        gl_WARN_ADD([-Woverloaded-virtual],[WARN_CXXFLAGS])
+        gl_WARN_ADD([-Wpmf-conversions],[WARN_CXXFLAGS])
+        gl_WARN_ADD([-Wreorder],[WARN_CXXFLAGS])
+        if test "x${PRINT_CONVERSION_WARNINGS}" = "xyes"; then
+          test -n "${PRINT_CONVERSION_WARNINGS}"
+          gl_WARN_ADD([-Wsign-promo],[WARN_CXXFLAGS])
+        fi  ##end check for other undocumented environment variable.
+        gl_WARN_ADD([-Wstrict-null-sentinel],[WARN_CXXFLAGS])
+        if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
+          test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
+          gl_WARN_ADD([-Wuseless-cast],[WARN_CXXFLAGS])
+        fi  ##end check for undocumented environment variable.
+        gl_WARN_ADD([-Wvirtual-move-assign],[WARN_CXXFLAGS])
+        gl_WARN_ADD([-Wzero-as-null-pointer-constant],[WARN_CXXFLAGS])
+        AC_SUBST([WARN_CXXFLAGS])dnl
+        AC_LANG_POP
+      else
+        AC_MSG_NOTICE([skipping checks for C++-specific warnings])
+      fi  ##end check for C++ compiler
     ],[
       AC_MSG_NOTICE([skipping checks for warnings for gcc 4.2 or newer])
     ])dnl# end block of code for gcc4.2+
@@ -3055,13 +3163,22 @@ else
     dnl# leaves out:
     gl_GCC_VERSION_IFELSE([4],[9],[
       if test "x${CXX}" != "x" && test "x${CXX}" = "x${CC}"; then
+        dnl# the comment in the gnulib gcc-warning.spec for why this is
+        dnl# filtered out from manywarnings.m4 says:
+        dnl# "FIXME maybe? borderline.  some will want this"
+        dnl# I sometimes do, so for when I do:
         gl_WARN_ADD([-Wc++-compat])
       fi  ##end check for C++ compiler
       if test "x${PRINT_CONVERSION_WARNINGS}" = "xyes"; then
         dnl# leave this environment variable undocumented:
         test -n "${PRINT_CONVERSION_WARNINGS}"
         gl_WARN_ADD([-Wfloat-conversion])
+        dnl# the gnulib gcc-warning.spec calls this next one "obsolescent":
         gl_WARN_ADD([-Wtraditional-conversion])
+        dnl# the comment in the gnulib gcc-warning.spec for why this is
+        dnl# filtered out from manywarnings.m4 says:
+        dnl# "FIXME maybe? borderline.  some will want this"
+        dnl# (which I sometimes do, but only sometimes)
         gl_WARN_ADD([-Wsign-conversion])
       else
         test -z "${PRINT_CONVERSION_WARNINGS}"
@@ -3072,6 +3189,8 @@ else
       if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
         dnl# leave this environment variable undocumented, too:
         test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
+        dnl# the comment in the gnulib gcc-warning.spec for why this is
+        dnl# filtered out from manywarnings.m4 has gnulib-specific reasons:
         gl_WARN_ADD([-Wunsuffixed-float-constants])
       else
         test -z "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
@@ -3110,9 +3229,13 @@ else
   # Remove the following and save the result in GNULIB_WARN_CFLAGS.
   nw=""
   nw="${nw} -Wfloat-equal"
+  nw="${nw} -Wredundant-decls"
+  nw="${nw} -Wunsuffixed-float-constants"
   nw="${nw} -Wunused-macros"
 
-  dnl# For some reason m4/manywarnings.m4 misses this one:
+  dnl# m4/manywarnings.m4 skips this one, because, apparently:
+  dnl# "FIXME maybe? too many false positives"
+  dnl# (according to the gnulib gcc-warning.spec)
   gl_WARN_ADD([-Wundef],[GNULIB_WARN_CFLAGS])dnl
 
   gl_MANYWARN_COMPLEMENT([GNULIB_WARN_CFLAGS],[${WARN_CFLAGS}],[${nw}])
@@ -4366,6 +4489,9 @@ fail;
 
   if test "x${gl_gcc_warnings}" = "xyes" && test "x${WERROR_CFLAGS}" = "x"; then
     AC_LANG_PUSH([Objective C])dnl
+    gl_WARN_ADD([-Wassign-intercept],[GNU_OBJC_WARN_CFLAGS])
+    gl_WARN_ADD([-Wglobal-constructors],[GNU_OBJC_WARN_CFLAGS])
+    gl_WARN_ADD([-Wproperty-assign-default],[GNU_OBJC_WARN_CFLAGS])
     gl_WARN_ADD([-Wprotocol],[GNU_OBJC_WARN_CFLAGS])
     if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
       test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
@@ -4627,6 +4753,8 @@ AC_MSG_RESULT([going with ${window_system} for real now])
 if test "x${window_system}" = "xnone" && test "x${gl_gcc_warnings}" = "xyes"; then
    # Too many warnings for now.
    nw=""
+   nw="${nw} -Wmissing-format-attribute"
+   nw="${nw} -Wmissing-noreturn"
    nw="${nw} -Wsuggest-attribute"
    nw="${nw} -Wsuggest-attribute=const"
    nw="${nw} -Wsuggest-attribute=noreturn"

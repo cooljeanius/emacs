@@ -779,9 +779,7 @@ You lose!!!
    a non-zero target_ticks value.  check_alarm calls the handler
    function pointed to by alarm_signal_func if one has been set up and
    an alarm is pending.  */
-
-void
-check_alarm ()
+void check_alarm(void)
 {
   if (target_ticks && TickCount () > target_ticks)
     {
@@ -1531,8 +1529,7 @@ ioctl (int d, int request, void *argp)
 
 
 #ifdef __MRC__
-int
-isatty (int fildes)
+int isatty(int fildes)
 {
   if (fildes >=0 && fildes <= 2)
     return 1;
@@ -1541,22 +1538,19 @@ isatty (int fildes)
 }
 
 
-int
-getgid ()
+int getgid(void)
 {
   return 100;
 }
 
 
-int
-getegid ()
+int getegid(void)
 {
   return 100;
 }
 
 
-int
-getuid ()
+int getuid(void)
 {
   return 200;
 }
