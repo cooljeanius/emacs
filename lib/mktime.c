@@ -47,7 +47,7 @@
 #endif /* DEBUG */
 
 /* Some of the code in this file assumes that signed integer overflow
-   silently wraps around.  This assumption cannot easily be programmed
+   silently wraps around.  This assumption can't easily be programmed
    around, nor can it be checked for portably at compile-time or
    easily eliminated at run-time.
 
@@ -573,7 +573,7 @@ __mktime_internal (struct tm *tp,
 
 /* FIXME: This should use a signed type wide enough to hold any UTC
    offset in seconds.  'int' should be good enough for GNU code.  We
-   cannot fix this unilaterally though, as other modules invoke
+   can't fix this unilaterally though, as other modules invoke
    __mktime_internal.  */
 static time_t localtime_offset;
 
@@ -586,7 +586,7 @@ mktime (struct tm *tp)
      time zone names contained in the external variable 'tzname' shall
      be set as if the tzset() function had been called.  */
   __tzset ();
-#endif /* _LIBC */
+#endif
 
   return __mktime_internal (tp, __localtime_r, &localtime_offset);
 }

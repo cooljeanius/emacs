@@ -46,7 +46,7 @@ SOURCES = *.el COPYING Makefile
 
 EMACSOPT = -batch --no-site-file --no-site-lisp
 
-# Extra flags to pass to the byte compiler
+# Extra flags to pass to the byte compiler:
 BYTE_COMPILE_EXTRA_FLAGS =
 # For example to not display the undefined function warnings you can use this:
 BYTE_COMPILE_EXTRA_FLAGS_NO_UNDEF_WARNS = --eval '(setq byte-compile-warnings (quote (not unresolved)))'
@@ -116,17 +116,17 @@ COMPILE_FIRST = \
 # Prevent any setting of EMACSLOADPATH in user environment causing problems.
 emacs = EMACSLOADPATH='.' '$(EMACS)' $(EMACSOPT)
 
-# Common command to find subdirectories
+# Common command to find subdirectories:
 setwins=for file in `find . -type d -print`; do \
-	   case $$file in */.* ) ;; \
-		*) wins="$$wins$${wins:+ }$$file" ;; \
+	   case $${file} in */.* ) ;; \
+		*) wins="$${wins}$${wins:+ }$${file}" ;; \
 	   esac; \
 	done
 
 # Find all subdirectories except `obsolete' and `term'.
 setwins_almost=for file in `find ${srcdir} -type d -print`; do \
-	   case $$file in ${srcdir}*/obsolete | ${srcdir}*/term ) ;; \
-	     *) wins="$$wins$${wins:+ }$$file" ;; \
+	   case $${file} in ${srcdir}*/obsolete | ${srcdir}*/term ) ;; \
+	     *) wins="$${wins}$${wins:+ }$${file}" ;; \
 	   esac; \
         done
 
@@ -134,16 +134,16 @@ setwins_almost=for file in `find ${srcdir} -type d -print`; do \
 # We do NOT want the leim files listed as packages, especially
 # since many share basenames with files in language/.
 setwins_finder=for file in `find ${srcdir} -type d -print`; do \
-	   case $$file in ${srcdir}*/obsolete | ${srcdir}*/term | ${srcdir}*/leim* ) ;; \
-	     *) wins="$$wins$${wins:+ }$$file" ;; \
+	   case $${file} in ${srcdir}*/obsolete | ${srcdir}*/term | ${srcdir}*/leim* ) ;; \
+	     *) wins="$${wins}$${wins:+ }$${file}" ;; \
 	   esac; \
         done
 
 # Find all subdirectories in which we might want to create subdirs.el.
 setwins_for_subdirs=for file in `find ${srcdir} -type d -print`; do \
-	   case $$file in \
+	   case $${file} in \
 	     ${srcdir}*/cedet* | ${srcdir}*/leim* ) ;; \
-	     *) wins="$$wins$${wins:+ }$$file" ;; \
+	     *) wins="$${wins}$${wins:+ }$${file}" ;; \
 	   esac; \
         done
 
@@ -184,20 +184,20 @@ $(lisp)/cus-load.el:
 	$(MAKE) $(MFLAGS) custom-deps
 custom-deps: doit
 	$(setwins_almost); \
-	echo Directories: $$wins; \
+	echo "Directories: $${wins}"; \
 	$(emacs) -l cus-dep \
 	  --eval '(setq generated-custom-dependencies-file (unmsys--file-name "$(srcdir)/cus-load.el"))' \
-	  -f custom-make-dependencies $$wins
+	  -f custom-make-dependencies $${wins}
 
 $(lisp)/finder-inf.el:
 	$(MAKE) $(MFLAGS) finder-data
 
 finder-data: doit
 	$(setwins_finder); \
-	echo Directories: $$wins; \
+	echo "Directories: $${wins}"; \
 	$(emacs) -l finder \
 	  --eval '(setq generated-finder-keywords-file (unmsys--file-name "$(srcdir)/finder-inf.el"))' \
-	  -f finder-compile-keywords-make-dist $$wins
+	  -f finder-compile-keywords-make-dist $${wins}
 
 # The chmod +w is to handle env var CVSREAD=1.
 # Use expand-file-name rather than $abs_scrdir so that Emacs does not
@@ -209,11 +209,11 @@ finder-data: doit
 autoloads: $(LOADDEFS) doit
 	cd $(lisp) && chmod +w $(AUTOGEN_VCS)
 	$(setwins_almost); \
-	echo Directories: $$wins; \
+	echo "Directories: $${wins}"; \
 	$(emacs) -l autoload \
 	    --eval '(setq autoload-builtin-package-versions t)' \
 	    --eval '(setq generated-autoload-file (expand-file-name (unmsys--file-name "$(srcdir)/loaddefs.el")))' \
-	    -f batch-update-autoloads $$wins
+	    -f batch-update-autoloads $${wins}
 
 # This is required by the bootstrap-emacs target in ../src/Makefile, so
 # we know that if we have an emacs executable, we also have a subdirs.el.
@@ -222,8 +222,9 @@ $(lisp)/subdirs.el:
 
 update-subdirs: doit
 	$(setwins_for_subdirs); \
-	for file in $$wins; do \
-	   $(srcdir)/../build-aux/update-subdirs $$file; \
+	for file in $${wins}; do \
+	   echo "updating subdir $${file}"; \
+	   $(srcdir)/../build-aux/update-subdirs $${file}; \
 	done;
 
 .PHONY: updates bzr-update update-authors
@@ -286,7 +287,7 @@ TAGS-LISP: $(lispsource)$(lisptagsfiles_old1) $(lispsource)$(lisptagsfiles_old2)
 # the most common problems of not bootstrapping from a clean state.
 .PHONY: compile-onefile
 compile-onefile:
-	@echo Compiling $(THEFILE)
+	@echo Compiling one file: $(THEFILE)
 	@# Use byte-compile-refresh-preloaded to try and work around some
 	@# of the most common bootstrapping problems.
 	$(emacs) $(BYTE_COMPILE_FLAGS) \
@@ -315,6 +316,7 @@ compile-onefile:
 .PHONY: compile-first compile-main compile compile-always
 
 compile-first: $(COMPILE_FIRST)
+	@echo "$@ just compiles the following dependencies: $<"
 
 # In `compile-main' we could directly do
 #    ... | xargs $(MAKE) $(MFLAGS) EMACS="$(EMACS)"

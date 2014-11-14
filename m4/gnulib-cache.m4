@@ -27,12 +27,13 @@
 
 
 # Specification in the form of a command-line invocation:
-#   gnulib-tool --import --dir=. --lib=libgnu --source-base=lib --m4-base=m4 --doc-base=doc --tests-base=tests --aux-dir=build-aux --with-obsolete --avoid=close --avoid=dup --avoid=fchdir --avoid=fstrcmp --avoid=localcharset --avoid=lock --avoid=malloc --avoid=malloc-posix --avoid=memchr-obsolete --avoid=msvc-nothrow --avoid=open --avoid=openat-die --avoid=opendir --avoid=raise --avoid=save-cwd --avoid=select --avoid=sigprocmask --avoid=threadlib --avoid=tls --avoid=vasnprintf --avoid=vasnprintf-posix --makefile-name=gnulib.mk --conditional-dependencies --no-libtool --macro-prefix=gl --no-vc-files absolute-header alloca alloca-opt allocator assert-h autobuild binary-io byteswap c-ctype c-strcase careadlinkat clock-time close-stream configmake count-one-bits count-trailing-zeros crypto/md5 crypto/sha1 crypto/sha256 crypto/sha512 dosname double-slash-root dtoastr dtotimespec dup2 dup2-obsolete environ errno error euidaccess execinfo extensions extern-inline faccessat fcntl fcntl-h fdatasync fdopendir filemode fpieee fpucw fstatat fsync func getgroups getloadavg getopt-gnu gettext gettext-h gettime gettimeofday git-version-gen gitlog-to-changelog gnu-make group-member havelib host-cpu-c-abi host-os include_next inline intprops inttypes-incomplete largefile ldd longlong lstat manywarnings memcmp memrchr mkostemp mktime multiarch nextafter no-c++ nocrash obstack openmp pathmax pipe2 posix_spawnp progname pselect pthread_sigmask putenv qacl quote readlink readlinkat root-uid sched sig2str snippet/_Noreturn snippet/link-warning snippet/unused-parameter snippet/warn-on-use socklen spawn stat-time stdalign stdarg stdbool stdio stdnoreturn strftime strtoimax strtoumax symlink sys_stat sys_time tempname time timer-time timespec timespec-add timespec-sub u64 unsetenv update-copyright utimens va-args vc-list-files verify vma-iter warnings winsz-ioctl winsz-termios xalloc xalloc-die xalloc-oversized
+#   gnulib-tool --import --dir=. --lib=libgnu --source-base=lib --m4-base=m4 --doc-base=doc --tests-base=tests --aux-dir=build-aux --with-obsolete --avoid=close --avoid=dup --avoid=fchdir --avoid=fstrcmp --avoid=localcharset --avoid=lock --avoid=malloc --avoid=malloc-posix --avoid=memchr-obsolete --avoid=msvc-nothrow --avoid=open --avoid=openat-die --avoid=opendir --avoid=raise --avoid=save-cwd --avoid=select --avoid=sigprocmask --avoid=strdup --avoid=strdup-posix --avoid=threadlib --avoid=tls --avoid=vasnprintf --avoid=vasnprintf-posix --makefile-name=gnulib.mk --conditional-dependencies --no-libtool --macro-prefix=gl --no-vc-files absolute-header alignof alloca alloca-opt allocator assert-h autobuild binary-io byteswap c-ctype c-strcase careadlinkat clock-time close-stream closedir configmake count-one-bits count-trailing-zeros crypto/md5 crypto/sha1 crypto/sha256 crypto/sha512 dirent dosname double-slash-root dtoastr dtotimespec dup2 environ errno error euidaccess execinfo extensions extern-inline faccessat fcntl fcntl-h fdatasync fdopendir filemode fpending fpieee fpucw fstat fstatat fsync func gendocs getdtablesize getgroups getloadavg getopt-gnu getpagesize gettext gettext-h gettime gettimeofday git-version-gen gitlog-to-changelog gnu-make group-member havelib host-cpu-c-abi host-os include_next inline intprops inttypes-incomplete largefile ldd longlong lstat manywarnings memchr memrchr mkostemp mktime multiarch nextafter no-c++ nocrash obstack openat openat-h openmp pathmax pipe2 posix_spawnp progname pselect pthread_sigmask putenv qacl quote readdir readlink readlinkat root-uid sched sig2str signal-h snippet/_Noreturn snippet/link-warning snippet/unused-parameter snippet/warn-on-use socklen spawn ssize_t stat stat-time stdalign stdarg stdbool stddef stdint stdio stdlib stdnoreturn streq strerror strftime string strstr strtoimax strtoumax symlink sys_ioctl sys_resource sys_select sys_stat sys_time sys_types tempname time timer-time timespec timespec-add timespec-sub u64 unistd unsetenv update-copyright utimens va-args vc-list-files verify vma-iter warnings wchar wctype-h winsz-ioctl winsz-termios xalloc xalloc-die xalloc-oversized
 
 # Specification in the form of a few gnulib-tool.m4 macro invocations:
 gl_LOCAL_DIR([])
 gl_MODULES([
   absolute-header
+  alignof
   alloca
   alloca-opt
   allocator
@@ -45,6 +46,7 @@ gl_MODULES([
   careadlinkat
   clock-time
   close-stream
+  closedir
   configmake
   count-one-bits
   count-trailing-zeros
@@ -52,12 +54,12 @@ gl_MODULES([
   crypto/sha1
   crypto/sha256
   crypto/sha512
+  dirent
   dosname
   double-slash-root
   dtoastr
   dtotimespec
   dup2
-  dup2-obsolete
   environ
   errno
   error
@@ -71,14 +73,19 @@ gl_MODULES([
   fdatasync
   fdopendir
   filemode
+  fpending
   fpieee
   fpucw
+  fstat
   fstatat
   fsync
   func
+  gendocs
+  getdtablesize
   getgroups
   getloadavg
   getopt-gnu
+  getpagesize
   gettext
   gettext-h
   gettime
@@ -99,7 +106,7 @@ gl_MODULES([
   longlong
   lstat
   manywarnings
-  memcmp
+  memchr
   memrchr
   mkostemp
   mktime
@@ -108,6 +115,8 @@ gl_MODULES([
   no-c++
   nocrash
   obstack
+  openat
+  openat-h
   openmp
   pathmax
   pipe2
@@ -118,29 +127,44 @@ gl_MODULES([
   putenv
   qacl
   quote
+  readdir
   readlink
   readlinkat
   root-uid
   sched
   sig2str
+  signal-h
   snippet/_Noreturn
   snippet/link-warning
   snippet/unused-parameter
   snippet/warn-on-use
   socklen
   spawn
+  ssize_t
+  stat
   stat-time
   stdalign
   stdarg
   stdbool
+  stddef
+  stdint
   stdio
+  stdlib
   stdnoreturn
+  streq
+  strerror
   strftime
+  string
+  strstr
   strtoimax
   strtoumax
   symlink
+  sys_ioctl
+  sys_resource
+  sys_select
   sys_stat
   sys_time
+  sys_types
   tempname
   time
   timer-time
@@ -148,6 +172,7 @@ gl_MODULES([
   timespec-add
   timespec-sub
   u64
+  unistd
   unsetenv
   update-copyright
   utimens
@@ -156,6 +181,8 @@ gl_MODULES([
   verify
   vma-iter
   warnings
+  wchar
+  wctype-h
   winsz-ioctl
   winsz-termios
   xalloc
@@ -163,7 +190,7 @@ gl_MODULES([
   xalloc-oversized
 ])
 gl_WITH_OBSOLETE
-gl_AVOID([ close dup fchdir fstrcmp localcharset lock malloc malloc-posix memchr-obsolete msvc-nothrow open openat-die opendir raise save-cwd select sigprocmask threadlib tls vasnprintf vasnprintf-posix])
+gl_AVOID([ close dup fchdir fstrcmp localcharset lock malloc malloc-posix memchr-obsolete msvc-nothrow open openat-die opendir raise save-cwd select sigprocmask strdup strdup-posix threadlib tls vasnprintf vasnprintf-posix])
 gl_SOURCE_BASE([lib])
 gl_M4_BASE([m4])
 gl_PO_BASE([])

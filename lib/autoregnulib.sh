@@ -2,7 +2,7 @@
 
 # The gnulib commit ID to use for the update.
 # If you know your version is newer, feel free to replace:
-GNULIB_COMMIT_SHA1="04a4a930a63e7396976fc016661f8f466faa64e6"
+GNULIB_COMMIT_SHA1="e470c5e34be2d717c688926e072955ec8f25588f"
 
 if [ $# -ne 1 ]; then
    echo "Warning: Path to gnulib repository missing."
@@ -58,35 +58,50 @@ if test -z "${gnulib_tool}" || test ! -x "${gnulib_tool}"; then
 else
   # The list of gnulib modules we are importing for emacs:
   module_list="\
-      absolute-header alloca alloca-opt allocator assert-h autobuild \
+      absolute-header alignof alloca alloca-opt allocator assert-h autobuild \
       binary-io byteswap \
-      c-ctype c-strcase careadlinkat clock-time close-stream \
+      c-ctype c-strcase careadlinkat clock-time close-stream closedir \
       configmake count-one-bits count-trailing-zeros \
       crypto/md5 crypto/sha1 crypto/sha256 crypto/sha512 \
-      dosname double-slash-root dtoastr dtotimespec dup2 dup2-obsolete \
+      dirent dosname double-slash-root dtoastr dtotimespec dup2 \
       environ errno error execinfo euidaccess extensions extern-inline \
-      faccessat fcntl fcntl-h fdatasync fdopendir filemode fpieee fpucw \
-      fstatat fsync func \
-      getgroups getloadavg getopt-gnu gettext gettext-h gettime gettimeofday \
+      faccessat fcntl fcntl-h fdatasync fdopendir filemode fpending fpieee \
+      fpucw fstat fstatat fsync func \
+      gendocs getdtablesize getgroups getloadavg getopt-gnu \
+      getpagesize gettext gettext-h gettime gettimeofday \
       git-version-gen gitlog-to-changelog gnu-make group-member \
       havelib host-cpu-c-abi host-os \
       include_next inline intprops inttypes-incomplete \
       largefile ldd longlong lstat \
-      manywarnings memcmp memrchr mkostemp mktime multiarch \
+      manywarnings memchr memrchr mkostemp mktime multiarch \
       nextafter no-c++ nocrash \
-      obstack openmp \
+      obstack openat openat-h openmp \
       pathmax pipe2 posix_spawnp progname pselect pthread_sigmask putenv \
       qacl quote \
-      readlink readlinkat root-uid \
-      sched sig2str snippet/_Noreturn snippet/link-warning \
-      snippet/unused-parameter snippet/warn-on-use socklen spawn stat-time \
-      stdalign stdarg stdbool stdio stdnoreturn strftime strtoimax strtoumax \
-      symlink sys_stat sys_time \
+      readdir readlink readlinkat root-uid \
+      sched sig2str signal-h snippet/_Noreturn snippet/link-warning \
+      snippet/unused-parameter snippet/warn-on-use socklen spawn ssize_t \
+      stat stat-time stdalign stdarg stdbool stddef stdint stdio stdlib \
+      stdnoreturn streq strerror strftime string strstr strtoimax strtoumax \
+      symlink sys_ioctl sys_resource sys_select sys_stat sys_time sys_types \
       tempname time timer-time timespec timespec-add timespec-sub \
-      u64 unsetenv update-copyright utimens \
+      u64 unistd unsetenv update-copyright utimens \
       va-args vc-list-files verify vma-iter \
-      warnings winsz-ioctl winsz-termios \
+      warnings wchar wctype-h winsz-ioctl winsz-termios \
       xalloc xalloc-die xalloc-oversized"
+   # Ones I am tempted to add, but cannot:
+   # - getcwd, which depends on strdup-posix, which depends on malloc-posix,
+   #   which is avoided
+   # - git-merge-changelog, which depends on... a lot of things
+   # - memmove, which is obsolete
+   # - obstack-printf, which drags in all the vasnprintf stuff
+   # (even though I cannot add them, there is no need to explicitly ignore them
+   # below, though)
+   # Other obsolete modules that I have stopped explicitly adding:
+   # - dup2-obsolete
+   # - memcmp
+   # (likewise, even though I no longer explicitly import them, there is no need
+   # to go to the other extreme and explicitly ignore them, either)
    echo "Actually beginning import now; this may take a while..."
   "${gnulib_tool}" --import --dir=. --lib=libgnu --source-base=lib \
     --m4-base=m4 --doc-base=doc --tests-base=tests --aux-dir=build-aux \
@@ -94,8 +109,8 @@ else
     --avoid=localcharset --avoid=lock --avoid=malloc --avoid=malloc-posix \
     --avoid=memchr-obsolete --avoid=msvc-nothrow --avoid=open \
     --avoid=openat-die --avoid=opendir --avoid=raise --avoid=save-cwd \
-    --avoid=select --avoid=sigprocmask --avoid=threadlib --avoid=tls \
-    --avoid=vasnprintf --avoid=vasnprintf-posix \
+    --avoid=select --avoid=sigprocmask --avoid=strdup --avoid=strdup-posix \
+    --avoid=threadlib --avoid=tls --avoid=vasnprintf --avoid=vasnprintf-posix \
     --makefile-name=gnulib.mk --conditional-dependencies \
     --no-libtool --macro-prefix=gl --no-vc-files --with-obsolete \
     "${module_list}"
@@ -105,4 +120,8 @@ else
   fi
 fi
 
-#TODO: integrate with the emacs local autogen.sh script.
+echo ""
+echo "$0 should now be done re-importing gnulib."
+echo "You should now re-generate the build system with ./autogen.sh, or by running autoreconf with your favorite flags."
+echo "Or, if you are unhappy with the results of this script ($0), you can try re-importing gnulib with ./admin/merge-gnulib instead, although that script is probably out of sync with this one."
+#TODO: integrate with the emacs local autogen.sh script (as in, actually run it)

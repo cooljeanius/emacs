@@ -895,8 +895,8 @@ dnl# see the `changequote' comment above.
       fi
   ;;
 
-  ## Non-Apple Darwin, i.e. OpenDarwin/PureDarwin/GNUDarwin:
-  *-gnu-darwin* | *-unknown-darwin* )
+  ## Non-Apple Darwin, i.e. OpenDarwin/PureDarwin/GNUDarwin/others:
+  *-gnu-darwin* | *-pc-darwin* | *-unknown-darwin* )
     case "${canonical}" in
       i[3456]86-* )  machine=intel386 ;;
       powerpc-* )    machine=powermac ;;

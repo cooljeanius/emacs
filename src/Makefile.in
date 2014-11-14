@@ -769,6 +769,7 @@ $(lispsource)/loaddefs.el: $(BOOTSTRAPEMACS) $(VCSWITNESS)
 bootstrap-emacs$(EXEEXT): temacs$(EXEEXT)
 	cd ../lisp; $(MAKE) $(MFLAGS) update-subdirs
 	if test "x$(CANNOT_DUMP)" = "xyes"; then \
+	  echo "Skipping dumping"; \
 	  rm -f bootstrap-emacs$(EXEEXT); \
 	  ln -v temacs$(EXEEXT) bootstrap-emacs$(EXEEXT); \
 	else \
@@ -777,6 +778,7 @@ bootstrap-emacs$(EXEEXT): temacs$(EXEEXT)
 	    $(LIPO) -thin `$(SRCROOT)/filearch.rb emacs-undumped` -output temacs emacs-undumped; \
 	    rm emacs-undumped; \
 	  fi; \
+	  echo "Running $(RUN_TEMACS) for bootstrapping"; \
 	  $(RUN_TEMACS) --batch --load loadup bootstrap || exit 1; \
 	  test "X$(PAXCTL)" = "X" || $(PAXCTL) -zex emacs$(EXEEXT); \
 	  mv -fv emacs$(EXEEXT) bootstrap-emacs$(EXEEXT); \

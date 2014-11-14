@@ -89,7 +89,6 @@ static bool valgrind_p;
 /* GC_MALLOC_CHECK defined means perform validity checks of malloc'd
    memory.  Can do this only if using gmalloc.c and if not checking
    marked objects.  */
-
 #if (defined SYSTEM_MALLOC || defined DOUG_LEA_MALLOC \
      || defined GC_CHECK_MARKED_OBJECTS)
 # undef GC_MALLOC_CHECK
@@ -148,38 +147,31 @@ extern POINTER_TYPE *sbrk(int incr);
 #define VECTOR_UNMARK(V)	((V)->header.size &= ~ARRAY_MARK_FLAG)
 #define VECTOR_MARKED_P(V)	(((V)->header.size & ARRAY_MARK_FLAG) != 0)
 
-/* Default value of gc_cons_threshold (see below).  */
-
+/* Default value of gc_cons_threshold (see below): */
 #define GC_DEFAULT_THRESHOLD (100000 * word_size)
 
-/* Global variables.  */
+/* Global variables: */
 struct emacs_globals globals;
 
-/* Number of bytes of consing done since the last gc.  */
-
+/* Number of bytes of consing done since the last gc: */
 EMACS_INT consing_since_gc;
 
-/* Similar minimum, computed from Vgc_cons_percentage.  */
-
+/* Similar minimum, computed from Vgc_cons_percentage: */
 EMACS_INT gc_relative_threshold;
 
 /* Minimum number of bytes of consing since GC before next GC,
    when memory is full.  */
-
 EMACS_INT memory_full_cons_threshold;
 
-/* True during GC.  */
-
+/* True during GC: */
 bool gc_in_progress;
 
 /* True means abort if try to GC.
    This is for code which is written on the assumption that
    no GC will happen, so as to verify that assumption.  */
-
 bool abort_on_gc;
 
 /* Number of live and free conses etc.  */
-
 static EMACS_INT total_conses, total_markers, total_symbols, total_buffers;
 static EMACS_INT total_free_conses, total_free_markers, total_free_symbols;
 static EMACS_INT total_free_floats, total_floats;
@@ -187,12 +179,10 @@ static EMACS_INT total_free_floats, total_floats;
 /* Points to memory space allocated as "spare", to be freed if we run
    out of memory.  We keep one large block, four cons-blocks, and
    two string blocks.  */
-
 static char *spare_memory[7];
 
 /* Amount of spare memory to keep in large reserve block, or to see
    whether this much is available when malloc fails on a larger request.  */
-
 #define SPARE_MEMORY (1 << 14)
 
 /* Initialize it to a nonzero value to force it into data space
@@ -200,46 +190,37 @@ static char *spare_memory[7];
    space (pure), on some systems.  We have not implemented the
    remapping on more recent systems because this is less important
    nowadays than in the days of small memories and timesharing.  */
-
-EMACS_INT pure[(PURESIZE + sizeof (EMACS_INT) - 1) / sizeof (EMACS_INT)] = {1,};
+EMACS_INT pure[(PURESIZE + sizeof(EMACS_INT) - 1) / sizeof(EMACS_INT)] = {1,};
 #define PUREBEG (char *) pure
 
-/* Pointer to the pure area, and its size.  */
-
+/* Pointer to the pure area, and its size: */
 static char *purebeg;
 static ptrdiff_t pure_size;
 
 /* Number of bytes of pure storage used before pure storage overflowed.
    If this is non-zero, this implies that an overflow occurred.  */
-
 static ptrdiff_t pure_bytes_used_before_overflow;
 
-/* True if P points into pure space.  */
-
+/* True if P points into pure space: */
 #define PURE_POINTER_P(P)					\
   ((uintptr_t) (P) - (uintptr_t) purebeg <= pure_size)
 
-/* Index in pure at which next pure Lisp object will be allocated..  */
-
+/* Index in pure at which next pure Lisp object will be allocated...  */
 static ptrdiff_t pure_bytes_used_lisp;
 
-/* Number of bytes allocated for non-Lisp objects in pure storage.  */
-
+/* Number of bytes allocated for non-Lisp objects in pure storage: */
 static ptrdiff_t pure_bytes_used_non_lisp;
 
 /* If nonzero, this is a warning delivered by malloc and not yet
    displayed.  */
-
 const char *pending_malloc_warning;
 
-/* Maximum amount of C stack to save when a GC happens.  */
-
+/* Maximum amount of C stack to save when a GC happens: */
 #ifndef MAX_SAVE_STACK
-#define MAX_SAVE_STACK 16000
-#endif
+# define MAX_SAVE_STACK 16000
+#endif /* !MAX_SAVE_STACK */
 
-/* Buffer in which we save a copy of the C stack at each GC.  */
-
+/* Buffer in which we save a copy of the C stack at each GC: */
 #if MAX_SAVE_STACK > 0
 static char *stack_copy;
 static ptrdiff_t stack_copy_size;
@@ -278,8 +259,7 @@ static Lisp_Object Qgc_cons_threshold;
 Lisp_Object Qautomatic_gc;
 Lisp_Object Qchar_table_extra_slots;
 
-/* Hook run after GC has finished.  */
-
+/* Hook run after GC has finished: */
 static Lisp_Object Qpost_gc_hook;
 
 static void mark_terminals (void);
@@ -289,7 +269,7 @@ static void mark_buffer (struct buffer *);
 
 #if !defined REL_ALLOC || defined SYSTEM_MALLOC
 static void refill_memory_reserve (void);
-#endif
+#endif /* !REL_ALLOC || SYSTEM_MALLOC */
 static void compact_small_strings (void);
 static void free_large_strings (void);
 extern Lisp_Object which_symbols (Lisp_Object, EMACS_INT) EXTERNALLY_VISIBLE;
@@ -6852,16 +6832,16 @@ init_alloc (void)
   gcprolist = 0;
   byte_stack_list = 0;
 #if GC_MARK_STACK
-#if !defined GC_SAVE_REGISTERS_ON_STACK && !defined GC_SETJMP_WORKS
+# if !defined GC_SAVE_REGISTERS_ON_STACK && !defined GC_SETJMP_WORKS
   setjmp_tested_p = longjmps_done = 0;
-#endif
-#endif
+# endif
+#endif /* GC_MARK_STACK */
   Vgc_elapsed = make_float (0.0);
   gcs_done = 0;
 
 #if USE_VALGRIND
   valgrind_p = RUNNING_ON_VALGRIND != 0;
-#endif
+#endif /* USE_VALGRIND */
 }
 
 void
@@ -6984,9 +6964,9 @@ The time is in seconds as a floating point value.  */);
 }
 
 /* When compiled with GCC, GDB might say "No enum type named
-   pvec_type" if we don't have at least one symbol with that type, and
+   pvec_type" if we do NOT have at least one symbol with that type, and
    then xbacktrace could fail.  Similarly for the other enums and
-   their values.  Some non-GCC compilers don't like these constructs.  */
+   their values.  Some non-GCC compilers do NOT like these constructs.  */
 #ifdef __GNUC__
 union
 {
