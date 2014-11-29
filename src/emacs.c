@@ -156,9 +156,9 @@ bool inhibit_window_system;
 bool running_asynch_code;
 
 #if defined (HAVE_X_WINDOWS) || defined (HAVE_NS)
-/* If true, -d was specified, meaning we're using some window system.  */
+/* If true, -d was specified, meaning we are using some window system: */
 bool display_arg;
-#endif
+#endif /* HAVE_X_WINDOWS || HAVE_NS */
 
 /* An address near the bottom of the stack.
    Tells GC how to save a copy of the stack.  */
@@ -1555,8 +1555,8 @@ Using an Emacs configured with --with-x-toolkit=lucid does not have this problem
   init_process_emacs (); /* init_display uses add_keyboard_wait_descriptor. */
   init_keyboard ();	/* This too must precede init_sys_modes.  */
   if (!noninteractive)
-    init_display ();	/* Determine terminal type.  Calls init_sys_modes.  */
-#if HAVE_W32NOTIFY
+    init_display (); /* Determine terminal type; calls init_sys_modes: */
+#if (defined(HAVE_W32NOTIFY) && HAVE_W32NOTIFY)
   else
     init_crit ();	/* w32notify.c needs this in batch mode.  */
 #endif	/* HAVE_W32NOTIFY */

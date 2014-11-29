@@ -1,7 +1,7 @@
-/* Fringe handling (split from xdisp.c).
-   Copyright (C) 1985-1988, 1993-1995, 1997-2014 Free Software
-   Foundation, Inc.
-
+/* fringe.c: Fringe handling (split from xdisp.c).
+ * Copyright (C) 1985-1988, 1993-1995, 1997-2014 Free Software
+ * Foundation, Inc. */
+/*
 This file is part of GNU Emacs.
 
 GNU Emacs is free software: you can redistribute it and/or modify
@@ -612,19 +612,21 @@ draw_fringe_bitmap_1 (struct window *w, struct glyph_row *row, int left_p, int o
   p.wd = fb->width;
 
   p.h = fb->height;
-  p.dh = (period > 0 ? (p.y % period) : 0);
+  p.dh = ((period > 0) ? (p.y % period) : 0);
   p.h -= p.dh;
 
   /* Adjust y to the offset in the row to start drawing the bitmap.  */
   switch (fb->align)
     {
     case ALIGN_BITMAP_CENTER:
-      p.y += (row->height - p.h) / 2;
+      p.y += ((row->height - p.h) / 2);
       break;
     case ALIGN_BITMAP_BOTTOM:
       p.y += (row->visible_height - p.h);
       break;
     case ALIGN_BITMAP_TOP:
+      break;
+    default:
       break;
     }
 
@@ -1814,15 +1816,27 @@ mark_fringe_data (void)
       mark_object (fringe_faces[i]);
 }
 
-/* Initialize this module when Emacs starts.  */
-
-void
+/* copied from "config.h": */
+#ifndef ATTRIBUTE_CONST
+/* The __const__ attribute was added in gcc 2.95: */
+# if (__GNUC__ > 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 95))
+#  define ATTRIBUTE_CONST __attribute__ ((__const__))
+# else
+#  define ATTRIBUTE_CONST /* empty */
+# endif /* gcc 2.95+ */
+#endif /* !ATTRIBUTE_CONST */
+/* Initialize this module when Emacs starts: */
+void ATTRIBUTE_CONST
 init_fringe_once (void)
 {
   int bt;
 
-  for (bt = NO_FRINGE_BITMAP + 1; bt < MAX_STANDARD_FRINGE_BITMAPS; bt++)
-    init_fringe_bitmap (bt, &standard_bitmaps[bt], 1);
+  for (bt = (NO_FRINGE_BITMAP + 1); bt < MAX_STANDARD_FRINGE_BITMAPS; bt++)
+    {
+      init_fringe_bitmap(bt, &standard_bitmaps[bt], 1);
+    }
+
+  return;
 }
 
 void
@@ -1871,3 +1885,5 @@ w32_reset_fringes (void)
 }
 
 #endif /* HAVE_NTGUI */
+
+/* EOF */

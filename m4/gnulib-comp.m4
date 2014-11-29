@@ -85,6 +85,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module fdatasync:
   # Code from module fdopendir:
   # Code from module filemode:
+  # Code from module float:
   # Code from module fpending:
   # Code from module fpieee:
   AC_REQUIRE([gl_FP_IEEE])
@@ -119,8 +120,10 @@ AC_DEFUN([gl_EARLY],
   AC_REQUIRE([AC_SYS_LARGEFILE])
   # Code from module ldd:
   # Code from module longlong:
+  # Code from module lseek:
   # Code from module lstat:
   # Code from module manywarnings:
+  # Code from module math:
   # Code from module mbrtowc:
   # Code from module mbsinit:
   # Code from module memchr:
@@ -141,6 +144,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module pipe2:
   # Code from module posix_spawn-internal:
   # Code from module posix_spawnp:
+  # Code from module printf-safe:
   # Code from module progname:
   # Code from module pselect:
   # Code from module pthread_sigmask:
@@ -158,6 +162,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module secure_getenv:
   # Code from module sig2str:
   # Code from module signal-h:
+  # Code from module sigpipe:
   # Code from module snippet/_Noreturn:
   # Code from module snippet/arg-nonnull:
   # Code from module snippet/c++defs:
@@ -214,8 +219,10 @@ AC_DEFUN([gl_EARLY],
   # Code from module update-copyright:
   # Code from module utimens:
   # Code from module va-args:
+  # Code from module vararrays:
   # Code from module vc-list-files:
   # Code from module verify:
+  # Code from module vla:
   # Code from module vma-iter:
   # Code from module warnings:
   # Code from module wchar:
@@ -316,6 +323,13 @@ AC_DEFUN([gl_INIT],
   gl_DIRENT_MODULE_INDICATOR([fdopendir])
   gl_MODULE_INDICATOR([fdopendir])
   gl_FILEMODE
+  gl_FLOAT_H
+  if test $REPLACE_FLOAT_LDBL = 1; then
+    AC_LIBOBJ([float])
+  fi
+  if test $REPLACE_ITOLD = 1; then
+    AC_LIBOBJ([itold])
+  fi
   gl_FUNC_FPENDING
   if test $gl_cv_func___fpending = no; then
     AC_LIBOBJ([fpending])
@@ -407,12 +421,18 @@ AC_DEFUN([gl_INIT],
   AC_CONFIG_FILES([ldd.sh:build-aux/ldd.sh.in])
   AC_REQUIRE([AC_TYPE_LONG_LONG_INT])
   AC_REQUIRE([AC_TYPE_UNSIGNED_LONG_LONG_INT])
+  gl_FUNC_LSEEK
+  if test $REPLACE_LSEEK = 1; then
+    AC_LIBOBJ([lseek])
+  fi
+  gl_UNISTD_MODULE_INDICATOR([lseek])
   gl_FUNC_LSTAT
   if test $REPLACE_LSTAT = 1; then
     AC_LIBOBJ([lstat])
     gl_PREREQ_LSTAT
   fi
   gl_SYS_STAT_MODULE_INDICATOR([lstat])
+  gl_MATH_H
   gl_FUNC_MBRTOWC
   if test $HAVE_MBRTOWC = 0 || test $REPLACE_MBRTOWC = 1; then
     AC_LIBOBJ([mbrtowc])
@@ -478,6 +498,7 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_POSIX_SPAWN_INTERNAL
   fi
   gl_SPAWN_MODULE_INDICATOR([posix_spawnp])
+  m4_divert_text([INIT_PREPARE], [gl_printf_safe=yes])
   AC_CHECK_DECLS([program_invocation_name], [], [], [#include <errno.h>])
   AC_CHECK_DECLS([program_invocation_short_name], [], [], [#include <errno.h>])
   gl_FUNC_PSELECT
@@ -529,6 +550,19 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_SIG2STR
   fi
   gl_SIGNAL_H
+  gl_SIGNAL_SIGPIPE
+  dnl Define the C macro GNULIB_SIGPIPE to 1.
+  gl_MODULE_INDICATOR([sigpipe])
+  dnl Define the substituted variable GNULIB_SIGNAL_H_SIGPIPE to 1.
+  AC_REQUIRE([gl_SIGNAL_H_DEFAULTS])
+  GNULIB_SIGNAL_H_SIGPIPE=1
+  dnl Define the substituted variable GNULIB_STDIO_H_SIGPIPE to 1.
+  AC_REQUIRE([gl_STDIO_H_DEFAULTS])
+  AC_REQUIRE([gl_ASM_SYMBOL_PREFIX])
+  GNULIB_STDIO_H_SIGPIPE=1
+  dnl Define the substituted variable GNULIB_UNISTD_H_SIGPIPE to 1.
+  AC_REQUIRE([gl_UNISTD_H_DEFAULTS])
+  GNULIB_UNISTD_H_SIGPIPE=1
   AC_REQUIRE([gl_FEATURES_H])
   gl_TYPE_SOCKLEN_T
   gl_SPAWN_H
@@ -614,6 +648,7 @@ AC_DEFUN([gl_INIT],
   gl_STDLIB_MODULE_INDICATOR([unsetenv])
   gl_UTIMENS
   gl_VA_ARGS
+  AC_C_VARARRAYS
   gl_FUNC_MMAP_ANON
   AC_CHECK_FUNCS_ONCE([mquery])
   gl_WCHAR_H
@@ -969,6 +1004,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/file-has-acl.c
   lib/filemode.c
   lib/filemode.h
+  lib/float.c
+  lib/float.in.h
   lib/fpending.c
   lib/fpending.h
   lib/fpucw.h
@@ -992,7 +1029,11 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/group-member.c
   lib/intprops.h
   lib/inttypes.in.h
+  lib/itold.c
+  lib/lseek.c
   lib/lstat.c
+  lib/math.c
+  lib/math.in.h
   lib/mbrtowc.c
   lib/mbsinit.c
   lib/md5.c
@@ -1053,6 +1094,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/stdbool.in.h
   lib/stddef.in.h
   lib/stdint.in.h
+  lib/stdio-write.c
   lib/stdio.in.h
   lib/stdlib.in.h
   lib/stdnoreturn.in.h
@@ -1096,6 +1138,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/utimens.c
   lib/utimens.h
   lib/verify.h
+  lib/vla.h
   lib/vma-iter.c
   lib/vma-iter.h
   lib/wchar.in.h
@@ -1109,6 +1152,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/absolute-header.m4
   m4/acl.m4
   m4/alloca.m4
+  m4/asm-underscore.m4
   m4/assert_h.m4
   m4/autobuild.m4
   m4/byteswap.m4
@@ -1138,6 +1182,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/fdatasync.m4
   m4/fdopendir.m4
   m4/filemode.m4
+  m4/float_h.m4
   m4/fpending.m4
   m4/fpieee.m4
   m4/fstat.m4
@@ -1184,8 +1229,10 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/locale-zh.m4
   m4/lock.m4
   m4/longlong.m4
+  m4/lseek.m4
   m4/lstat.m4
   m4/manywarnings.m4
+  m4/math_h.m4
   m4/mathfunc.m4
   m4/mbrtowc.m4
   m4/mbsinit.m4
@@ -1230,6 +1277,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/sha512.m4
   m4/sig2str.m4
   m4/signal_h.m4
+  m4/sigpipe.m4
   m4/size_max.m4
   m4/socklen.m4
   m4/spawn_h.m4
@@ -1276,6 +1324,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/utimens.m4
   m4/utimes.m4
   m4/va-args.m4
+  m4/vararrays.m4
   m4/visibility.m4
   m4/warn-on-use.m4
   m4/warnings.m4

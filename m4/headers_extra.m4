@@ -83,6 +83,9 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_HEADER_CHECKS],[
     m4_ifdef([gl_HEADER_STRING_H],[
       AC_REQUIRE([gl_HEADER_STRING_H])dnl
     ])dnl
+    m4_ifdef([gl_HEADER_SYS_RESOURCE],[
+      AC_REQUIRE([gl_HEADER_SYS_RESOURCE])dnl
+    ])dnl
     m4_ifdef([gl_HEADER_SYS_SELECT],[
       AC_REQUIRE([gl_HEADER_SYS_SELECT])dnl
     ])dnl

@@ -1,0 +1,14 @@
+# gitignore file for emacs/doc/lispref
+texput.log
+elisp.??
+elisp.???
+config.log
+config.cache
+config.status
+Makefile
+makefile
+elisp
+elisp-?
+elisp-??
+elisp1* 
+elisp2*

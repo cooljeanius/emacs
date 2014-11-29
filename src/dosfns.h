@@ -1,7 +1,7 @@
-/* MS-DOS specific Lisp utilities interface.
-   Coded by Manabu Higashida, 1991.
-   Modified by Morten Welinder, 1993-1994.
-
+/* dosfns.h: MS-DOS specific Lisp utilities interface.
+ * Coded by Manabu Higashida, 1991.
+ * Modified by Morten Welinder, 1993-1994.  */
+/*
 Copyright (C) 1991, 1994-1995, 1997, 1999, 2001-2014 Free Software
 Foundation, Inc.
 
@@ -20,6 +20,9 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
+#ifndef EMACS_DOSFNS_H
+#define EMACS_DOSFNS_H 1
+
 #define DOS_COUNTRY_INFO 34	/* no of bytes returned by dos int 38h */
 extern unsigned char dos_country_info[DOS_COUNTRY_INFO];
 
@@ -27,5 +30,9 @@ extern unsigned char dos_country_info[DOS_COUNTRY_INFO];
 extern int         msdos_stdcolor_idx  (const char *);
 extern Lisp_Object msdos_stdcolor_name (int);
 extern void        x_set_title (struct frame *, Lisp_Object);
-#endif
+#endif /* !HAVE_X_WINDOWS */
 
+#endif /* !EMACS_DOSFNS_H */
+
+/* arch-tag: a83b8c4c-63c8-451e-9e94-bc72e3e2f8bc
+   (do not change this comment) */

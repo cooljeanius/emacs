@@ -4829,11 +4829,13 @@ mutually_exclusive_p (struct re_pattern_buffer *bufp, const_re_char *p1,
 	  /* Reuse the code above.  */
 	  return mutually_exclusive_p (bufp, p2, p1);
 	case charset_not:
-	  /* When we have two charset_not, it's very unlikely that
-	     they don't overlap.  The union of the two sets of excluded
+	  /* When we have two charset_not, it is very unlikely that
+	     they do NOT overlap.  The union of the two sets of excluded
 	     chars should cover all possible chars, which, as a matter of
 	     fact, is virtually impossible in multibyte buffers.  */
 	  break;
+        default:
+          break;
 	}
       break;
 

@@ -1,2 +1,5 @@
+# gitignore file for emacs/leim
 *.elc
 leim-list.el
+changed.misc
+changed.tit

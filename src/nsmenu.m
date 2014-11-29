@@ -1,4 +1,4 @@
-/* NeXT/Open/GNUstep and MacOSX Cocoa menu and toolbar module.
+/* nsmenu.m: NeXT/Open/GNUstep and MacOSX Cocoa menu and toolbar module.
    Copyright (C) 2007-2014 Free Software Foundation, Inc.
 
 This file is part of GNU Emacs.
@@ -83,17 +83,27 @@ static int trackingMenu;
   following complete menu implementation. */
 
 
-/* ==========================================================================
+/* ========================================================================
 
     Menu: Externally-called functions
 
-   ========================================================================== */
+   ===================================================================== */
 
+/* copied from "config.h": */
+#ifndef ATTRIBUTE_CONST
+/* The __const__ attribute was added in gcc 2.95: */
+# if (__GNUC__ > 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 95))
+#  define ATTRIBUTE_CONST __attribute__ ((__const__))
+# else
+#  define ATTRIBUTE_CONST /* empty */
+# endif /* gcc 2.95+ */
+#endif /* !ATTRIBUTE_CONST */
 
 /* Supposed to discard menubar and free storage.  Since we share the
    menubar among frames and update its context for the focused window,
    there is nothing to do here. */
-void free_frame_menubar(struct frame *f)
+void ATTRIBUTE_CONST
+free_frame_menubar(struct frame *f)
 {
   return;
 }
@@ -105,13 +115,13 @@ int popup_activated(void)
 }
 
 
-/* --------------------------------------------------------------------------
+/* ------------------------------------------------------------------------
     Update menubar.  Three cases:
     1) ! deep_p, submenu = nil: Fresh switch onto a frame -- either set up
        just top-level menu strings (OS X), or goto case (2) (GNUstep).
     2) deep_p, submenu = nil: Recompute all submenus.
     3) deep_p, submenu = non-nil: Update contents of a single submenu.
-   -------------------------------------------------------------------------- */
+   --------------------------------------------------------------------- */
 static void
 ns_update_menubar (struct frame *f, bool deep_p, EmacsMenu *submenu)
 {
@@ -1255,13 +1265,14 @@ update_frame_tool_bar (struct frame *f)
                         helpText: (const char *)help
                          enabled: (BOOL)enabled
 {
+  NSToolbarItem *item;
   /* 1: come up w/identifier */
   NSString *identifier
     = [NSString stringWithFormat: @"%lu", (unsigned long)[img hash]];
   [activeIdentifiers addObject: identifier];
 
   /* 2: create / reuse item */
-  NSToolbarItem *item = [identifierToItem objectForKey: identifier];
+  item = [identifierToItem objectForKey: identifier];
   if (item == nil)
     {
       item = [[[NSToolbarItem alloc] initWithItemIdentifier: identifier]
@@ -1617,8 +1628,8 @@ ns_popup_dialog (Lisp_Object position, Lisp_Object header, Lisp_Object contents)
 
   dialog_return   = Qundefined;
   button_values   = NULL;
-  area.origin.x   = 3*SPACER;
-  area.origin.y   = 2*SPACER;
+  area.origin.x   = (3 * SPACER);
+  area.origin.y   = (2 * SPACER);
   area.size.width = ICONSIZE;
   area.size.height= ICONSIZE;
   img = [[NSImage imageNamed: @"NSApplicationIcon"] copy];

@@ -1,4 +1,4 @@
-/* Functions for the NeXT/Open/GNUstep and MacOSX window system.
+/* nsfns.m: Functions for the NeXT/Open/GNUstep and MacOSX window system.
 
 Copyright (C) 1989, 1992-1994, 2005-2006, 2008-2014 Free Software
 Foundation, Inc.
@@ -230,9 +230,11 @@ interpret_services_menu (NSMenu *menu, Lisp_Object prefix, Lisp_Object old)
 # if defined(__APPLE__) && defined(__APPLE_CC__) && (__APPLE_CC__ > 1)
 #  pragma unused (menu, prefix, old)
 # endif /* __APPLE__ && (__APPLE_CC__ > 1) */
-# if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(lint)
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(lint) && \
+     defined(GNULIB_PORTCHECK) && defined(DEPRECATED_IN_MAC_OS_X_VERSION_10_6_AND_LATER)
 #  warning "Go back to an OS version that supports services properly to test the services menu."
-# endif /* __GNUC__ && !__STRICT_ANSI__ && lint */
+# endif /* __GNUC__ && !__STRICT_ANSI__ && lint && GNULIB_PORTCHECK && \
+         * DEPRECATED_IN_MAC_OS_X_VERSION_10_6_AND_LATER */
   /* (the service menu got broken in 10.6) */
   return Qnil;
 #else /* earlier than 10.6: */
@@ -856,12 +858,12 @@ ns_cursor_type_to_lisp (int arg)
 {
   switch (arg)
     {
-    case FILLED_BOX_CURSOR: return Qbox;
-    case HOLLOW_BOX_CURSOR: return intern ("hollow");
-    case HBAR_CURSOR:	    return intern ("hbar");
-    case BAR_CURSOR:	    return intern ("bar");
-    case NO_CURSOR:
-    default:		    return intern ("no");
+      case FILLED_BOX_CURSOR: return Qbox;
+      case HOLLOW_BOX_CURSOR: return intern ("hollow");
+      case HBAR_CURSOR:       return intern ("hbar");
+      case BAR_CURSOR:        return intern ("bar");
+      case NO_CURSOR:
+      default:                return intern ("no");
     }
 }
 
@@ -873,16 +875,19 @@ x_set_cursor_type (struct frame *f, Lisp_Object arg, Lisp_Object oldval)
 }
 
 /* called to set mouse pointer color, but all other terms use it to
-   initialize pointer types (and don't set the color ;) */
+   initialize pointer types (and do NOT set the color) */
 static void
 x_set_mouse_color (struct frame *f, Lisp_Object arg, Lisp_Object oldval)
 {
-  /* don't think we can do this on Nextstep */
+  return; /* do NOT think we can do this on Nextstep */
 }
 
 
-#define Str(x) #x
-#define Xstr(x) Str(x)
+/* these macros are only used in GNUstep so far: */
+#ifdef NS_IMPL_GNUSTEP
+# define Str(x) #x
+# define Xstr(x) Str(x)
+#endif /* NS_IMPL_GNUSTEP */
 
 static Lisp_Object
 ns_appkit_version_str (void)
@@ -895,7 +900,7 @@ ns_appkit_version_str (void)
   sprintf(tmp, "apple-appkit-%.2f", NSAppKitVersionNumber);
 #else
   tmp = "ns-unknown";
-#endif
+#endif /* NS_IMPL_GNUSTEP || NS_IMPL_COCOA */
   return build_string (tmp);
 }
 
@@ -1186,28 +1191,32 @@ This function is an internal primitive--use `make-frame' instead.  */)
   block_input ();
 
 #ifdef NS_IMPL_COCOA
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5
-  if (CTGetCoreTextVersion != NULL
-      && CTGetCoreTextVersion () >= kCTVersionNumber10_5)
+# if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5
+  /* '-Waddress' seems to think it is smarter than the CTGetCoreTextVersion
+   * documentation here... not sure what to do about that... */
+  if ((&CTGetCoreTextVersion != NULL)
+      && (CTGetCoreTextVersion () >= kCTVersionNumber10_5))
     mac_register_font_driver (f);
-#endif
-#endif
+# endif /* 10.5+ */
+#endif /* NS_IMPL_COCOA */
   register_font_driver (&nsfont_driver, f);
 
   x_default_parameter (f, parms, Qfont_backend, Qnil,
 			"fontBackend", "FontBackend", RES_TYPE_STRING);
 
   {
-    /* use for default font name */
+    char *fontname;
+    int len;
+    /* use this to help build the default font name: */
     id font = [NSFont userFixedPitchFontOfSize: -1.0]; /* default */
     x_default_parameter (f, parms, Qfontsize,
                                     make_number (0 /*(int)[font pointSize]*/),
                                     "fontSize", "FontSize", RES_TYPE_NUMBER);
-    // Remove ' Regular', not handled by backends.
-    char *fontname = xstrdup ([[font displayName] UTF8String]);
-    int len = strlen (fontname);
-    if (len > 8 && strcmp (fontname + len - 8, " Regular") == 0)
-      fontname[len-8] = '\0';
+    // Remove ' Regular', not handled by backends:
+    fontname = xstrdup ([[font displayName] UTF8String]);
+    len = strlen (fontname);
+    if ((len > 8) && strcmp ((fontname + len - 8), " Regular") == 0)
+      fontname[len - 8] = '\0';
     x_default_parameter (f, parms, Qfont,
                                  build_string (fontname),
                                  "font", "Font", RES_TYPE_STRING);
@@ -1228,7 +1237,7 @@ This function is an internal primitive--use `make-frame' instead.  */)
           = Qt;
 #else
           = Qright;
-#endif
+#endif /* NS_IMPL_GNUSTEP */
       x_default_parameter (f, parms, Qvertical_scroll_bars, spos,
 			   "verticalScrollBars", "VerticalScrollBars",
 			   RES_TYPE_SYMBOL);
@@ -1655,7 +1664,7 @@ If omitted or nil, that stands for the selected frame's display.  */)
   return build_string ("GNU");
 #else
   return build_string ("Apple");
-#endif
+#endif /* NS_IMPL_GNUSTEP */
 }
 
 
@@ -2547,7 +2556,12 @@ Internal use only, use `display-monitor-attributes-list' instead.  */)
 
   for (i = 0; i < [screens count]; ++i)
     {
+      /* only need these first 2 variables in the following condition: */
+#if defined(CONVERT_TO_XRECT)
       XRectangle m_xgeom, m_xwork;
+      /* (be sure to keep the condition the same as where the variables
+       * are actually used) */
+#endif /* CONVERT_TO_XRECT */
       NSScreen *s = [screens objectAtIndex:i];
       struct MonitorInfo *m = &monitors[i];
       NSRect fr = [s frame];
@@ -2558,7 +2572,7 @@ Internal use only, use `display-monitor-attributes-list' instead.  */)
       NSDictionary *dict = [s deviceDescription];
       NSNumber *nid = [dict objectForKey:@"NSScreenNumber"];
       CGDirectDisplayID did = [nid unsignedIntValue];
-#endif
+#endif /* NS_IMPL_COCOA */
       if (i == 0)
         {
           primary_display_height = fr.size.height;
@@ -2612,11 +2626,13 @@ Internal use only, use `display-monitor-attributes-list' instead.  */)
         m->mm_height = (int) mms.height;
       }
 
+      IF_LINT((void)m_xgeom);
+      IF_LINT((void)m_xwork);
 #else
       // Assume 92 dpi as x-display-mm-height/x-display-mm-width does.
       m->mm_width = (int) (25.4 * fr.size.width / 92.0);
       m->mm_height = (int) (25.4 * fr.size.height / 92.0);
-#endif
+#endif /* NS_IMPL_COCOA */
     }
 
   // Primary monitor is always first for NS.

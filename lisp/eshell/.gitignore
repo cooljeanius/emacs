@@ -1,2 +1,3 @@
+# gitignore file for emacs/lisp/eshell
 esh-groups.el
 

@@ -318,6 +318,7 @@ typedef float EmacsCGFloat;
 - (void)addButton: (char *)str value: (int)tag row: (int)row;
 - (void)addString: (char *)str row: (int)row;
 - (void)addSplit;
+- (void)clicked: sender;
 - (Lisp_Object)runDialogAt: (NSPoint)p;
 - (void)timeout_handler: (NSTimer *)timedEntry;
 @end

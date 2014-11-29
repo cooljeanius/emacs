@@ -1,4 +1,4 @@
-/* Convenience header for conditional use of GNU <libintl.h>.
+/* gettext.h: Convenience header for conditional use of GNU <libintl.h>.
    Copyright (C) 1995, 1996, 1997, 1998, 2000, 2001, 2002, 2004,
                  2005, 2006, 2007 Free Software Foundation, Inc.
 
@@ -35,7 +35,7 @@
    is OK.  */
 #if defined(__sun)
 # include <locale.h>
-#endif
+#endif /* __sun */
 
 /* Many header files from the libstdc++ coming with g++ 3.3 or newer include
    <libintl.h>, which chokes if dcgettext is defined as a macro.  So include
@@ -44,8 +44,8 @@
 # include <cstdlib>
 # if (__GLIBC__ >= 2) || _GLIBCXX_HAVE_LIBINTL_H
 #  include <libintl.h>
-# endif
-#endif
+# endif /* (__GLIBC__ >= 2) || _GLIBCXX_HAVE_LIBINTL_H */
+#endif /* __cplusplus && __GNUG__ && (__GNUC__ >= 3) */
 
 /* Disabled NLS.
    The casts to 'const char *' serve the purpose of producing warnings

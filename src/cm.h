@@ -1,4 +1,4 @@
-/* Cursor motion calculation definitions for GNU Emacs
+/* cm.h: Cursor motion calculation definitions for GNU Emacs
    Copyright (C) 1985, 1989, 2001-2014 Free Software Foundation, Inc.
 
 This file is part of GNU Emacs.
@@ -16,7 +16,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
-/* Holds the minimum and maximum costs for the parameterized capabilities.  */
+#ifndef EMACS_CM_H
+#define EMACS_CM_H 1
+
+/* Holds the minimum/maximum costs for the parameterized capabilities: */
 struct parmcap
   {
     int mincost, maxcost;
@@ -166,3 +169,8 @@ extern void cmcostinit (struct tty_display_info *);
 extern void cmgoto (struct tty_display_info *, int, int);
 extern void Wcm_clear (struct tty_display_info *);
 extern int Wcm_init (struct tty_display_info *);
+
+#endif /* !EMACS_CM_H */
+
+/* arch-tag: acc1535a-7136-49d6-b22d-9bc85702251b
+   (do not change this comment) */

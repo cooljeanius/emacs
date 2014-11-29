@@ -34,63 +34,63 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 /* Only MS-DOS does not define `subprocesses'.  */
 #ifdef subprocesses
 
-#include <sys/socket.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
+# include <sys/socket.h>
+# include <netdb.h>
+# include <netinet/in.h>
+# include <arpa/inet.h>
 
 /* Are local (unix) sockets supported?  */
-#if defined (HAVE_SYS_UN_H)
-#if !defined (AF_LOCAL) && defined (AF_UNIX)
-#define AF_LOCAL AF_UNIX
-#endif
-#ifdef AF_LOCAL
-#define HAVE_LOCAL_SOCKETS
-#include <sys/un.h>
-#endif
-#endif
+# if defined (HAVE_SYS_UN_H)
+#  if !defined (AF_LOCAL) && defined (AF_UNIX)
+#   define AF_LOCAL AF_UNIX
+#  endif /* !AF_LOCAL && AF_UNIX */
+#  ifdef AF_LOCAL
+#   define HAVE_LOCAL_SOCKETS
+#   include <sys/un.h>
+#  endif /* AF_LOCAL */
+# endif /* HAVE_SYS_UN_H */
 
-#include <sys/ioctl.h>
-#if defined (HAVE_NET_IF_H)
-#include <net/if.h>
-#endif /* HAVE_NET_IF_H */
+# include <sys/ioctl.h>
+# if defined (HAVE_NET_IF_H)
+#  include <net/if.h>
+# endif /* HAVE_NET_IF_H */
 
-#if defined (HAVE_IFADDRS_H)
-/* Must be after net/if.h */
-#include <ifaddrs.h>
+# if defined (HAVE_IFADDRS_H)
+/* Must be after <net/if.h>: */
+#  include <ifaddrs.h>
 
 /* We only use structs from this header when we use getifaddrs.  */
-#if defined (HAVE_NET_IF_DL_H)
-#include <net/if_dl.h>
-#endif
+#  if defined (HAVE_NET_IF_DL_H)
+#   include <net/if_dl.h>
+#  endif /* HAVE_NET_IF_DL_H */
 
-#endif
+# endif /* HAVE_NET_IF_H */
 
-#ifdef NEED_BSDTTY
-#include <bsdtty.h>
-#endif
+# ifdef NEED_BSDTTY
+#  include <bsdtty.h>
+# endif /* NEED_BSDTTY */
 
-#ifdef USG5_4
-# include <sys/stream.h>
-# include <sys/stropts.h>
-#endif
+# ifdef USG5_4
+#  include <sys/stream.h>
+#  include <sys/stropts.h>
+# endif /* USG5_4 */
 
-#ifdef HAVE_RES_INIT
-#include <arpa/nameser.h>
-#include <resolv.h>
-#endif
+# ifdef HAVE_RES_INIT
+#  include <arpa/nameser.h>
+#  include <resolv.h>
+# endif /* HAVE_RES_INIT */
 
-#ifdef HAVE_UTIL_H
-#include <util.h>
-#endif
+# ifdef HAVE_UTIL_H
+#  include <util.h>
+# endif /* HAVE_UTIL_H */
 
-#ifdef HAVE_PTY_H
-#include <pty.h>
-#endif
+# ifdef HAVE_PTY_H
+#  include <pty.h>
+# endif /* HAVE_PTY_H */
 
-#include <c-ctype.h>
-#include <sig2str.h>
-#include <verify.h>
+# include <c-ctype.h>
+# include <sig2str.h>
+# include <verify.h>
 
 #endif	/* subprocesses */
 
@@ -115,28 +115,28 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "syssignal.h"
 #include "syswait.h"
 #ifdef HAVE_GNUTLS
-#include "gnutls.h"
-#endif
+# include "gnutls.h"
+#endif /* HAVE_GNUTLS */
 
 #ifdef HAVE_WINDOW_SYSTEM
-#include TERM_HEADER
+# include TERM_HEADER
 #endif /* HAVE_WINDOW_SYSTEM */
 
 #ifdef HAVE_GLIB
-#include "xgselect.h"
-#ifndef WINDOWSNT
-#include <glib.h>
-#endif
-#endif
+# include "xgselect.h"
+# ifndef WINDOWSNT
+#  include <glib.h>
+# endif /* !WINDOWSNT */
+#endif /* HAVE_GLIB */
 
 #ifdef WINDOWSNT
 extern int sys_select (int, fd_set *, fd_set *, fd_set *,
 		       struct timespec *, void *);
-#endif
+#endif /* WINDOWSNT */
 
 #ifndef SOCK_CLOEXEC
 # define SOCK_CLOEXEC 0
-#endif
+#endif /* !SOCK_CLOEXEC */
 
 #ifndef HAVE_ACCEPT4
 
@@ -268,8 +268,7 @@ static EMACS_INT update_tick;
 
 static int process_output_delay_count;
 
-/* True if any process has non-nil read_output_skip.  */
-
+/* True if any process has non-nil read_output_skip: */
 static bool process_output_skip;
 
 #else
@@ -279,7 +278,7 @@ static bool process_output_skip;
 static void create_process (Lisp_Object, char **, Lisp_Object);
 #ifdef USABLE_SIGIO
 static bool keyboard_bit_set (fd_set *);
-#endif
+#endif /* USABLE_SIGIO */
 static void deactivate_process (Lisp_Object);
 static void status_notify (struct Lisp_Process *);
 static int read_process_output (Lisp_Object, int);
@@ -287,28 +286,26 @@ static void handle_child_signal (int);
 static void create_pty (Lisp_Object);
 
 /* If we support a window system, turn on the code to poll periodically
-   to detect C-g.  It isn't actually used when doing interrupt input.  */
+ * to detect C-g.  It is NOT actually used when doing interrupt input: */
 #ifdef HAVE_WINDOW_SYSTEM
-#define POLL_FOR_INPUT
-#endif
+# ifndef POLL_FOR_INPUT
+#  define POLL_FOR_INPUT 1
+# endif /* !POLL_FOR_INPUT */
+#endif /* HAVE_WINDOW_SYSTEM */
 
 static Lisp_Object get_process (register Lisp_Object name);
 static void exec_sentinel (Lisp_Object proc, Lisp_Object reason);
 
-/* Mask of bits indicating the descriptors that we wait for input on.  */
-
+/* Mask of bits indicating the descriptors that we wait for input on: */
 static fd_set input_wait_mask;
 
-/* Mask that excludes keyboard input descriptor(s).  */
-
+/* Mask that excludes keyboard input descriptor(s): */
 static fd_set non_keyboard_wait_mask;
 
-/* Mask that excludes process input descriptor(s).  */
-
+/* Mask that excludes process input descriptor(s): */
 static fd_set non_process_wait_mask;
 
-/* Mask for selecting for write.  */
-
+/* Mask for selecting for write: */
 static fd_set write_mask;
 
 #ifdef NON_BLOCKING_CONNECT
@@ -1061,7 +1058,7 @@ The string argument is normally a multibyte string, except:
   CHECK_PROCESS (process);
   p = XPROCESS (process);
 
-  /* Don't signal an error if the process's input file descriptor
+  /* Do NOT signal an error if the process's input file descriptor
      is closed.  This could make debugging Lisp more difficult,
      for example when doing something like
 
@@ -5756,12 +5753,15 @@ process_send_signal (Lisp_Object process, int signo, Lisp_Object current_group,
 	  break;
 
   	case SIGTSTP:
-#if defined (VSWTCH) && !defined (PREFER_VSUSP)
+# if defined (VSWTCH) && !defined (PREFER_VSUSP)
 	  sig_char = &t.c_cc[VSWTCH];
-#else
+# else
 	  sig_char = &t.c_cc[VSUSP];
-#endif
+# endif /* VSWTCH && !PREFER_VSUSP */
 	  break;
+          default:
+            error ("Unhandled signal with number %d", signo);
+            break;
 	}
 
       if (sig_char && *sig_char != CDISABLE)
@@ -5821,10 +5821,10 @@ process_send_signal (Lisp_Object process, int signo, Lisp_Object current_group,
 	  redisplay_preserve_echo_area (13);
 	}
     }
-#endif
+#endif /* SIGCONT */
 
-  /* If we don't have process groups, send the signal to the immediate
-     subprocess.  That isn't really right, but it's better than any
+  /* If we do NOT have process groups, send the signal to the immediate
+     subprocess.  That is NOT really right, but it is better than any
      obvious alternative.  */
   if (no_pgrp)
     {
@@ -5844,7 +5844,7 @@ process_send_signal (Lisp_Object process, int signo, Lisp_Object current_group,
       gid = - p->pid;
       kill (gid, signo);
     }
-#else /* ! defined (TIOCSIGSEND) */
+#else /* ! defined (TIOCSIGSEND): */
   kill (-gid, signo);
 #endif /* ! defined (TIOCSIGSEND) */
 }
@@ -5910,7 +5910,7 @@ traffic.  */)
   error ("No SIGTSTP support");
 #else
   process_send_signal (process, SIGTSTP, current_group, 0);
-#endif
+#endif /* !SIGTSTP */
   return process;
 }
 
@@ -5935,7 +5935,7 @@ traffic.  */)
 #ifdef WINDOWSNT
 	  if (fd_info[ p->infd ].flags & FILE_SERIAL)
 	    PurgeComm (fd_info[ p->infd ].hnd, PURGE_RXABORT | PURGE_RXCLEAR);
-#else /* not WINDOWSNT */
+#else /* not WINDOWSNT: */
 	  tcflush (p->infd, TCIFLUSH);
 #endif /* not WINDOWSNT */
 	}
@@ -5946,7 +5946,7 @@ traffic.  */)
     process_send_signal (process, SIGCONT, current_group, 0);
 #else
     error ("No SIGCONT support");
-#endif
+#endif /* SIGCONT */
   return process;
 }
 
@@ -6087,11 +6087,11 @@ process has been transmitted to the serial port.  */)
       /* If this is a network connection, or socketpair is used
 	 for communication with the subprocess, call shutdown to cause EOF.
 	 (In some old system, shutdown to socketpair doesn't work.
-	 Then we just can't win.)  */
+	 Then we just cannot win.)  */
       if (EQ (p->type, Qnetwork)
 	  || p->infd == old_outfd)
 	shutdown (old_outfd, 1);
-#endif
+#endif /* HAVE_SHUTDOWN */
       close_process_fd (&p->open_fd[WRITE_TO_SUBPROCESS]);
       new_outfd = emacs_open (NULL_DEVICE, O_WRONLY, 0);
       if (new_outfd < 0)
@@ -6246,7 +6246,7 @@ handle_child_signal (int sig)
   /* NSTask in GNUstep sets its child handler each time it is called.
      So we must re-set ours.  */
   catch_child_signal();
-#endif
+#endif /* NS_IMPL_GNUSTEP */
 }
 
 static void
@@ -6285,7 +6285,7 @@ exec_sentinel (Lisp_Object proc, Lisp_Object reason)
   Lisp_Object obuffer, okeymap;
   XSETBUFFER (obuffer, current_buffer);
   okeymap = BVAR (current_buffer, keymap);
-#endif
+#endif /* 0 */
 
   /* There's no good reason to let sentinels change the current
      buffer, and many callers of accept-process-output, sit-for, and
@@ -6332,7 +6332,7 @@ exec_sentinel (Lisp_Object proc, Lisp_Object reason)
 #if 0
   if (! EQ (Fcurrent_buffer (), obuffer)
       || ! EQ (current_buffer->keymap, okeymap))
-#endif
+#endif /* 0 */
     /* But do it only if the caller is actually going to read events.
        Otherwise there's no need to make him wake up, and it could
        cause trouble (for example it would make sit_for return).  */
@@ -6834,11 +6834,10 @@ add_keyboard_wait_descriptor (int desc)
   FD_SET (desc, &non_process_wait_mask);
   if (desc > max_input_desc)
     max_input_desc = desc;
-#endif
+#endif /* subprocesses */
 }
 
-/* From now on, do not expect DESC to give keyboard input.  */
-
+/* From now on, do not expect DESC to give keyboard input: */
 void
 delete_keyboard_wait_descriptor (int desc)
 {
@@ -6846,11 +6845,10 @@ delete_keyboard_wait_descriptor (int desc)
   FD_CLR (desc, &input_wait_mask);
   FD_CLR (desc, &non_process_wait_mask);
   delete_input_desc (desc);
-#endif
+#endif /* subprocesses */
 }
 
-/* Setup coding systems of PROCESS.  */
-
+/* Setup coding systems of PROCESS: */
 void
 setup_process_coding_systems (Lisp_Object process)
 {
@@ -6878,7 +6876,7 @@ setup_process_coding_systems (Lisp_Object process)
     proc_encode_coding_system[outch] = xmalloc (sizeof (struct coding_system));
   setup_coding_system (p->encode_coding_system,
 		       proc_encode_coding_system[outch]);
-#endif
+#endif /* subprocesses */
 }
 
 DEFUN ("get-buffer-process", Fget_buffer_process, Sget_buffer_process, 1, 1, 0,
@@ -6916,12 +6914,11 @@ the process output.  */)
   /* Ignore the argument and return the value of
      inherit-process-coding-system.  */
   return inherit_process_coding_system ? Qt : Qnil;
-#endif
+#endif /* subprocesses */
 }
 
 /* Kill all processes associated with `buffer'.
    If `buffer' is nil, kill all processes  */
-
 void
 kill_buffer_processes (Lisp_Object buffer)
 {
@@ -6937,7 +6934,7 @@ kill_buffer_processes (Lisp_Object buffer)
 	  process_send_signal (proc, SIGHUP, Qnil, 1);
       }
 #else  /* subprocesses */
-  /* Since we have no subprocesses, this does nothing.  */
+  ; /* Since we have no subprocesses, this does nothing.  */
 #endif /* subprocesses */
 }
 
@@ -6951,11 +6948,10 @@ This is intended for use by asynchronous process output filters and sentinels.  
   return (waiting_for_user_input_p ? Qt : Qnil);
 #else
   return Qnil;
-#endif
+#endif /* subprocesses */
 }
 
-/* Stop reading input from keyboard sources.  */
-
+/* Stop reading input from keyboard sources: */
 void
 hold_keyboard_input (void)
 {
@@ -7049,14 +7045,13 @@ integer or floating point values.
   return system_process_attributes (pid);
 }
 
-/* Arrange to catch SIGCHLD if this hasn't already been arranged.
+/* Arrange to catch SIGCHLD if this has NOT already been arranged.
    Invoke this after init_process_emacs, and after glib and/or GNUstep
    futz with the SIGCHLD handler, but before Emacs forks any children.
-   This function's caller should block SIGCHLD.  */
-
+   The caller of this function should block SIGCHLD.  */
 #ifndef NS_IMPL_GNUSTEP
 static
-#endif
+#endif /* NS_IMPL_GNUSTEP */
 void
 catch_child_signal (void)
 {
@@ -7085,17 +7080,17 @@ init_process_emacs (void)
 
   inhibit_sentinels = 0;
 
-#ifndef CANNOT_DUMP
+# ifndef CANNOT_DUMP
   if (! noninteractive || initialized)
-#endif
+# endif /* !CANNOT_DUMP */
     {
-#if defined HAVE_GLIB && !defined WINDOWSNT
+# if defined HAVE_GLIB && !defined WINDOWSNT
       /* Tickle glib's child-handling code.  Ask glib to wait for Emacs itself;
 	 this should always fail, but is enough to initialize glib's
 	 private SIGCHLD handler, allowing catch_child_signal to copy
 	 it into lib_child_handler.  */
       g_source_unref (g_child_watch_source_new (getpid ()));
-#endif
+# endif /* HAVE_GLIB && !WINDOWSNT */
       catch_child_signal ();
     }
 
@@ -7106,22 +7101,22 @@ init_process_emacs (void)
   max_process_desc = max_input_desc = -1;
   memset (fd_callback_info, 0, sizeof (fd_callback_info));
 
-#ifdef NON_BLOCKING_CONNECT
+# ifdef NON_BLOCKING_CONNECT
   FD_ZERO (&connect_wait_mask);
   num_pending_connects = 0;
-#endif
+# endif /* NON_BLOCKING_CONNECT */
 
-#ifdef ADAPTIVE_READ_BUFFERING
+# ifdef ADAPTIVE_READ_BUFFERING
   process_output_delay_count = 0;
   process_output_skip = 0;
-#endif
+# endif /* ADAPTIVE_READ_BUFFERING */
 
-  /* Don't do this, it caused infinite select loops.  The display
-     method should call add_keyboard_wait_descriptor on stdin if it
-     needs that.  */
-#if 0
+  /* Do NOT do this, as it caused infinite select loops.  The display
+   * method should call add_keyboard_wait_descriptor on stdin if it
+   * needs that.  */
+# if 0
   FD_SET (0, &input_wait_mask);
-#endif
+# endif /* 0 */
 
   Vprocess_alist = Qnil;
   deleted_pid_list = Qnil;
@@ -7132,36 +7127,36 @@ init_process_emacs (void)
     }
   memset (proc_decode_coding_system, 0, sizeof proc_decode_coding_system);
   memset (proc_encode_coding_system, 0, sizeof proc_encode_coding_system);
-#ifdef DATAGRAM_SOCKETS
+# ifdef DATAGRAM_SOCKETS
   memset (datagram_address, 0, sizeof datagram_address);
-#endif
+# endif /* DATAGRAM_SOCKETS */
 
  {
    Lisp_Object subfeatures = Qnil;
    const struct socket_options *sopt;
 
-#define ADD_SUBFEATURE(key, val) \
-  subfeatures = pure_cons (pure_cons (key, pure_cons (val, Qnil)), subfeatures)
+# define ADD_SUBFEATURE(key, val) \
+   subfeatures = pure_cons(pure_cons(key, pure_cons(val, Qnil)), subfeatures)
 
-#ifdef NON_BLOCKING_CONNECT
+# ifdef NON_BLOCKING_CONNECT
    ADD_SUBFEATURE (QCnowait, Qt);
-#endif
-#ifdef DATAGRAM_SOCKETS
+# endif /* NON_BLOCKING_CONNECT */
+# ifdef DATAGRAM_SOCKETS
    ADD_SUBFEATURE (QCtype, Qdatagram);
-#endif
-#ifdef HAVE_SEQPACKET
+# endif /* DATAGRAM_SOCKETS */
+# ifdef HAVE_SEQPACKET
    ADD_SUBFEATURE (QCtype, Qseqpacket);
-#endif
-#ifdef HAVE_LOCAL_SOCKETS
+# endif /* HAVE_SEQPACKET */
+# ifdef HAVE_LOCAL_SOCKETS
    ADD_SUBFEATURE (QCfamily, Qlocal);
-#endif
+# endif /* HAVE_LOCAL_SOCKETS */
    ADD_SUBFEATURE (QCfamily, Qipv4);
-#ifdef AF_INET6
+# ifdef AF_INET6
    ADD_SUBFEATURE (QCfamily, Qipv6);
-#endif
-#ifdef HAVE_GETSOCKNAME
+# endif /* AF_INET6 */
+# ifdef HAVE_GETSOCKNAME
    ADD_SUBFEATURE (QCservice, Qt);
-#endif
+# endif /* HAVE_GETSOCKNAME */
    ADD_SUBFEATURE (QCserver, Qt);
 
    for (sopt = socket_options; sopt->name; sopt++)
@@ -7170,19 +7165,22 @@ init_process_emacs (void)
    Fprovide (intern_c_string ("make-network-process"), subfeatures);
  }
 
-#if defined (DARWIN_OS)
-  /* PTYs are broken on Darwin < 6, but are sometimes useful for interactive
-     processes.  As such, we only change the default value.  */
+# if defined (DARWIN_OS)
+  /* PTYs are broken on Darwin < 6, but are sometimes useful for
+   * interactive processes.  As such, we only change the default value.
+   * (so if it is only for old versions of Darwin, then why are we doing
+   * this for all versions of it?) */
  if (initialized)
   {
     char const *release = (STRINGP (Voperating_system_release)
 			   ? SSDATA (Voperating_system_release)
 			   : 0);
-    if (!release || !release[0] || (release[0] < '7' && release[1] == '.')) {
-      Vprocess_connection_type = Qnil;
-    }
+    if (!release || !release[0] || ((release[0] < '7') && (release[1] == '.')))
+      {
+        Vprocess_connection_type = Qnil;
+      }
   }
-#endif
+# endif /* DARWIN_OS */
 #endif	/* subprocesses */
   kbd_is_on_hold = 0;
 }
@@ -7197,7 +7195,7 @@ syms_of_process (void)
   DEFSYM (Qstop, "stop");
   DEFSYM (Qsignal, "signal");
 
-  /* Qexit is already staticpro'd by syms_of_eval; don't staticpro it
+  /* Qexit is already staticpro'd by syms_of_eval; do NOT staticpro it
      here again.
 
      Qexit = intern_c_string ("exit");
@@ -7210,9 +7208,9 @@ syms_of_process (void)
   DEFSYM (Qlisten, "listen");
   DEFSYM (Qlocal, "local");
   DEFSYM (Qipv4, "ipv4");
-#ifdef AF_INET6
+# ifdef AF_INET6
   DEFSYM (Qipv6, "ipv6");
-#endif
+# endif /* AF_INET6 */
   DEFSYM (Qdatagram, "datagram");
   DEFSYM (Qseqpacket, "seqpacket");
 
@@ -7309,7 +7307,7 @@ then a pipe is used in any case.
 The value takes effect when `start-process' is called.  */);
   Vprocess_connection_type = Qt;
 
-#ifdef ADAPTIVE_READ_BUFFERING
+# ifdef ADAPTIVE_READ_BUFFERING
   DEFVAR_LISP ("process-adaptive-read-buffering", Vprocess_adaptive_read_buffering,
 	       doc: /* If non-nil, improve receive buffering by delaying after short reads.
 On some systems, when Emacs reads the output from a subprocess, the output data
@@ -7321,7 +7319,7 @@ If the value is t, the delay is reset after each write to the process; any other
 non-nil value means that the delay is not reset on write.
 The variable takes effect when `start-process' is called.  */);
   Vprocess_adaptive_read_buffering = Qt;
-#endif
+# endif /* ADAPTIVE_READ_BUFFERING */
 
   defsubr (&Sprocessp);
   defsubr (&Sget_process);
@@ -7355,10 +7353,10 @@ The variable takes effect when `start-process' is called.  */);
   defsubr (&Sformat_network_address);
   defsubr (&Snetwork_interface_list);
   defsubr (&Snetwork_interface_info);
-#ifdef DATAGRAM_SOCKETS
+# ifdef DATAGRAM_SOCKETS
   defsubr (&Sprocess_datagram_address);
   defsubr (&Sset_process_datagram_address);
-#endif
+# endif /* DATAGRAM_SOCKETS */
   defsubr (&Saccept_process_output);
   defsubr (&Sprocess_send_region);
   defsubr (&Sprocess_send_string);
@@ -7386,3 +7384,5 @@ The variable takes effect when `start-process' is called.  */);
   defsubr (&Slist_system_processes);
   defsubr (&Sprocess_attributes);
 }
+
+/* EOF */

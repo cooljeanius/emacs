@@ -1,4 +1,4 @@
-/* Define wait system call interface for Emacs.
+/* syswait.h: Define wait system call interface for Emacs.
    Copyright (C) 1993-1995, 2000-2014 Free Software Foundation, Inc.
 
 This file is part of GNU Emacs.
@@ -25,34 +25,37 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #include <sys/types.h>
 
-#ifdef HAVE_SYS_WAIT_H	/* We have sys/wait.h with POSIXish definitions.  */
-#include <sys/wait.h>
+#ifdef HAVE_SYS_WAIT_H /* We have sys/wait.h with POSIXish definitions: */
+# include <sys/wait.h>
 #endif  /* !HAVE_SYS_WAIT_H */
 
-#ifndef WCOREDUMP		/* not POSIX */
-#define WCOREDUMP(status) ((status) & 0x80)
-#endif
+#ifndef WCOREDUMP		/* not POSIX: */
+# define WCOREDUMP(status) ((status) & 0x80)
+#endif /* !WCOREDUMP */
 #ifndef WEXITSTATUS
-#define WEXITSTATUS(status) (((status)  & 0xff00) >> 8)
-#endif
+# define WEXITSTATUS(status) (((status)  & 0xff00) >> 8)
+#endif /* !WEXITSTATUS */
 #ifndef WIFEXITED
-#define WIFEXITED(status) (WTERMSIG(status) == 0)
-#endif
+# define WIFEXITED(status) (WTERMSIG(status) == 0)
+#endif /* !WIFEXITED */
 #ifndef WIFSTOPPED
-#define WIFSTOPPED(status) (((status) & 0xff) == 0x7f)
-#endif
+# define WIFSTOPPED(status) (((status) & 0xff) == 0x7f)
+#endif /* WIFSTOPPED */
 #ifndef WIFSIGNALED
-#define WIFSIGNALED(status) (!WIFSTOPPED(status) && !WIFEXITED(status))
-#endif
+# define WIFSIGNALED(status) (!WIFSTOPPED(status) && !WIFEXITED(status))
+#endif /* !WIFSIGNALED */
 #ifndef WSTOPSIG
-#define WSTOPSIG(status) WEXITSTATUS(status)
-#endif
+# define WSTOPSIG(status) WEXITSTATUS(status)
+#endif /* !WSTOPSIG */
 #ifndef WTERMSIG
-#define WTERMSIG(status) ((status) & 0x7f)
-#endif
+# define WTERMSIG(status) ((status) & 0x7f)
+#endif /* !WTERMSIG */
 
 /* Defined in sysdep.c.  */
 extern void wait_for_termination (pid_t, int *, bool);
 extern pid_t child_status_changed (pid_t, int *, int);
 
 #endif /* EMACS_SYSWAIT_H */
+
+/* arch-tag: 7e5d9719-ec66-4b6f-89bb-563eea16a899
+   (do not change this comment) */

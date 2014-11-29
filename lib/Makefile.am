@@ -18,6 +18,7 @@ AUTOMAKE_OPTIONS = 1.11 gnits
 DEFS = @DEFS@ -D_IN_GNULIB
 AM_CFLAGS = $(PROFILING_CFLAGS) $(GNULIB_WARN_CFLAGS) @MAINT@ $(WERROR_CFLAGS)
 AM_CPPFLAGS = -I. -I$(top_srcdir)/lib -I../src -I$(top_srcdir)/src
+AM_DEFAULT_INCLUDES = $(AM_CPPFLAGS)
 
 if BUILDING_FOR_WINDOWSNT
 include ../nt/gnulib.mk
@@ -27,6 +28,16 @@ include gnulib.mk
 
 libgnu_a_SOURCES += openat-die.c save-cwd.c
 endif
+
+## a rule to make sure that all generated headers are built:
+headers: $(BUILT_SOURCES)
+	@echo "ensuring all generated headers have been generated..."
+	$(AM_V_at)ls *.h
+.PHONY: headers
+
+bootstrap-clean: maintainer-clean
+	@echo "no bootstrap-clean specific rules yet."
+.PHONY: bootstrap-clean
 
 maintainer-clean-local:
 	rm -rf glthread || rmdir glthread

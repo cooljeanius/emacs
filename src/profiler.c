@@ -1,4 +1,4 @@
-/* Profiler implementation.
+/* profiler.c: Profiler implementation.
 
 Copyright (C) 2012-2014 Free Software Foundation, Inc.
 
@@ -23,16 +23,14 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "systime.h"
 
 /* Return A + B, but return the maximum fixnum if the result would overflow.
-   Assume A and B are nonnegative and in fixnum range.  */
-
+   Assume A and B are nonnegative and in fixnum range: */
 static EMACS_INT
 saturated_add (EMACS_INT a, EMACS_INT b)
 {
   return min (a + b, MOST_POSITIVE_FIXNUM);
 }
 
-/* Logs.  */
-
+/* Logs: */
 typedef struct Lisp_Hash_Table log_t;
 
 static Lisp_Object Qprofiler_backtrace_equal;
@@ -44,7 +42,7 @@ make_log (int heap_size, int max_stack_depth)
   /* We use a standard Elisp hash-table object, but we use it in
      a special way.  This is OK as long as the object is not exposed
      to Elisp, i.e. until it is returned by *-profiler-log, after which
-     it can't be used any more.  */
+     it cannot be used any more.  */
   Lisp_Object log = make_hash_table (hashtest_profiler,
 				     make_number (heap_size),
 				     make_float (DEFAULT_REHASH_SIZE),
@@ -53,7 +51,7 @@ make_log (int heap_size, int max_stack_depth)
   struct Lisp_Hash_Table *h = XHASH_TABLE (log);
 
   /* What is special about our hash-tables is that the keys are pre-filled
-     with the vectors we'll put in them.  */
+     with the vectors that we will put in them.  */
   int i = ASIZE (h->key_and_value) / 2;
   while (i > 0)
     set_hash_key_slot (h, --i,
@@ -76,7 +74,6 @@ make_log (int heap_size, int max_stack_depth)
    entries (the half with the lowest counts).  So we get an amortized
    cost of O(1) and we get O(N) time for a new entry to grow larger
    than the other least counts before a new round of eviction.  */
-
 static EMACS_INT approximate_median (log_t *log,
 				     ptrdiff_t start, ptrdiff_t size)
 {
@@ -134,7 +131,6 @@ static void evict_lower_half (log_t *log)
 /* Record the current backtrace in LOG.  COUNT is the weight of this
    current backtrace: interrupt counts for CPU, and the allocation
    size for memory.  */
-
 static void
 record_backtrace (log_t *log, EMACS_INT count)
 {
@@ -192,7 +188,6 @@ record_backtrace (log_t *log, EMACS_INT count)
 }
 
 /* Sampling profiler.  */
-
 #ifdef PROFILER_CPU_SUPPORT
 
 /* The profiler timer and whether it was properly initialized, if
@@ -200,24 +195,23 @@ record_backtrace (log_t *log, EMACS_INT count)
 #ifdef HAVE_ITIMERSPEC
 static timer_t profiler_timer;
 static bool profiler_timer_ok;
-#endif
+#endif /* HAVE_ITIMERSPEC */
 
-/* Status of sampling profiler.  */
+/* Status of sampling profiler: */
 static enum profiler_cpu_running
   { NOT_RUNNING, TIMER_SETTIME_RUNNING, SETITIMER_RUNNING }
   profiler_cpu_running;
 
-/* Hash-table log of CPU profiler.  */
+/* Hash-table log of CPU profiler: */
 static Lisp_Object cpu_log;
 
-/* Separate counter for the time spent in the GC.  */
+/* Separate counter for the time spent in the GC: */
 static EMACS_INT cpu_gc_count;
 
-/* The current sampling interval in nanoseconds.  */
+/* The current sampling interval in nanoseconds: */
 static EMACS_INT current_sampling_interval;
 
-/* Signal handler for sampling profiler.  */
-
+/* Signal handler for sampling profiler: */
 static void
 handle_profiler_signal (int signal)
 {
@@ -239,7 +233,7 @@ handle_profiler_signal (int signal)
 	  eassert (overruns >= 0);
 	  count += overruns;
 	}
-#endif
+#endif /* HAVE_ITIMERSPEC */
       eassert (HASH_TABLE_P (cpu_log));
       record_backtrace (XHASH_TABLE (cpu_log), count);
     }
@@ -277,15 +271,15 @@ setup_cpu_timer (Lisp_Object sampling_interval)
     {
       /* System clocks to try, in decreasing order of desirability.  */
       static clockid_t const system_clock[] = {
-#ifdef CLOCK_THREAD_CPUTIME_ID
+# ifdef CLOCK_THREAD_CPUTIME_ID
 	CLOCK_THREAD_CPUTIME_ID,
-#endif
-#ifdef CLOCK_PROCESS_CPUTIME_ID
+# endif /* CLOCK_THREAD_CPUTIME_ID */
+# ifdef CLOCK_PROCESS_CPUTIME_ID 
 	CLOCK_PROCESS_CPUTIME_ID,
-#endif
-#ifdef CLOCK_MONOTONIC
+# endif /* CLOCK_PROCESS_CPUTIME_ID */
+# ifdef CLOCK_MONOTONIC
 	CLOCK_MONOTONIC,
-#endif
+# endif /* CLOCK_MONOTONIC */
 	CLOCK_REALTIME
       };
       int i;
@@ -309,13 +303,13 @@ setup_cpu_timer (Lisp_Object sampling_interval)
       if (timer_settime (profiler_timer, 0, &ispec, 0) == 0)
 	return TIMER_SETTIME_RUNNING;
     }
-#endif
+#endif /* HAVE_ITIMERSPEC */
 
 #ifdef HAVE_SETITIMER
   timer.it_value = timer.it_interval = make_timeval (interval);
   if (setitimer (ITIMER_PROF, &timer, 0) == 0)
     return SETITIMER_RUNNING;
-#endif
+#endif /* HAVE_SETITIMER */
 
   return NOT_RUNNING;
 }
@@ -363,7 +357,7 @@ Return non-nil if the profiler was running.  */)
 	timer_settime (profiler_timer, 0, &disable, 0);
       }
       break;
-#endif
+#endif /* HAVE_ITIMERSPEC */
 
 #ifdef HAVE_SETITIMER
     case SETITIMER_RUNNING:
@@ -373,7 +367,9 @@ Return non-nil if the profiler was running.  */)
 	setitimer (ITIMER_PROF, &disable, 0);
       }
       break;
-#endif
+#endif /* HAVE_SETITIMER */
+    default:
+      break;
     }
 
   signal (SIGPROF, SIG_IGN);
@@ -585,7 +581,7 @@ to make room for new entries.  */);
   defsubr (&Sprofiler_cpu_stop);
   defsubr (&Sprofiler_cpu_running_p);
   defsubr (&Sprofiler_cpu_log);
-#endif
+#endif /* PROFILER_CPU_SUPPORT */
   profiler_memory_running = false;
   memory_log = Qnil;
   staticpro (&memory_log);
@@ -594,3 +590,5 @@ to make room for new entries.  */);
   defsubr (&Sprofiler_memory_running_p);
   defsubr (&Sprofiler_memory_log);
 }
+
+/* EOF */

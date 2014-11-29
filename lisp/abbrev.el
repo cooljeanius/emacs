@@ -841,6 +841,9 @@ return value is that of `abbrev-insert'.)"
   (funcall abbrev-expand-function))
 
 (defun abbrev--default-expand ()
+  "Default function to use for `abbrev-expand-function'.
+This respects the wrapper hook `abbrev-expand-functions'.
+Calls `abbrev-insert' to insert any expansion, and returns what it does."
   (with-wrapper-hook abbrev-expand-functions ()
     (pcase-let ((`(,sym ,name ,wordstart ,wordend) (abbrev--before-point)))
       (when sym

@@ -143,21 +143,28 @@ ps: $(PS_TARGETS)
 all: info dvi html pdf ps
 .PHONY: all
 
-## Note: "<" is not portable in ordinary make rules.
+## Note: "<" is not portable in ordinary make rules, so only reserve it for
+## new ones that were never present in the old Makefiles that had to be
+## compatible with other versions of make besides GNU make, and for rules
+## where the lines are too long otherwise.
 $(buildinfodir)/elisp$(INFO_EXT): $(srcs)
 	$(mkinfodir)
-	$(MAKEINFO) $(MAKEINFO_OPTS) $(INFO_OPTS) -o $@ $(srcdir)/elisp.texi
+	$(MAKEINFO) $(MAKEINFO_OPTS) $(INFO_OPTS) -o $@ $<
 
 elisp.dvi: $(srcs)
 	$(ENVADD) $(TEXI2DVI) $(srcdir)/elisp.texi
 
 elisp.html: $(srcs)
-	$(MAKEINFO) $(MAKEINFO_OPTS) $(HTML_OPTS) -o $@ $(srcdir)/elisp.texi
+	$(MAKEINFO) $(MAKEINFO_OPTS) $(HTML_OPTS) -o $@ $<
 
 elisp.pdf: $(srcs)
 	$(ENVADD) $(TEXI2PDF) $(srcdir)/elisp.texi
 
-.PHONY: mostlyclean clean distclean maintainer-clean infoclean
+elisp.ps: elisp.dvi
+	$(DVIPS) -o $@ $<
+
+.PHONY: mostlyclean clean distclean bootstrap-clean maintainer-clean
+.PHONY: infoclean
 
 ## [12] stuff is from two-volume.make.
 mostlyclean:
@@ -176,7 +183,7 @@ distclean: clean
 infoclean:
 	-cd $(buildinfodir) && rm -f elisp$(INFO_EXT) elisp$(INFO_EXT)-[1-9] elisp$(INFO_EXT)-[1-9][0-9]
 
-maintainer-clean: distclean infoclean
+bootstrap-clean maintainer-clean: distclean infoclean
 
 .PHONY: dist
 

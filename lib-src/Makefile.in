@@ -28,6 +28,7 @@ EMACSOPT = -batch --no-site-file --no-site-lisp
 
 CC=@CC@
 CFLAGS=@CFLAGS@
+## (CPPFLAGS and LDFLAGS are taken care of farther below)
 version=@version@
 ## Used in ${archlibdir}.
 configuration=@configuration@
@@ -42,6 +43,26 @@ UPDATE_MANIFEST = @UPDATE_MANIFEST@
 
 # Program name transformation.
 TRANSFORM = @program_transform_name@
+# kinda similar:
+SED = @SED@
+
+# 'make' verbosity.
+AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
+
+AM_V_CC = $(am__v_CC_@AM_V@)
+am__v_CC_ = $(am__v_CC_@AM_DEFAULT_V@)
+am__v_CC_0 = @echo "  CC      " $@;
+am__v_CC_1 =
+
+AM_V_CCLD = $(am__v_CCLD_@AM_V@)
+am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
+am__v_CCLD_0 = @echo "  CCLD    " $@;
+am__v_CCLD_1 =
+
+AM_V_at = $(am__v_at_@AM_V@)
+am__v_at_ = $(am__v_at_@AM_DEFAULT_V@)
+am__v_at_0 = @
+am__v_at_1 =
 
 # ==================== Where To Install Things ====================
 
@@ -108,6 +129,7 @@ gameuser=@gameuser@
 # ../configure figures out the correct values for these.
 INSTALL = @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 # By default, we uphold the dignity of our programs.
 INSTALL_STRIP =
@@ -118,30 +140,42 @@ MKDIR_P = @MKDIR_P@
 # emacsclientw.exe for MinGW, empty otherwise
 CLIENTW = @CLIENTW@
 
-# Things that a user might actually run, which should be installed in bindir.
-INSTALLABLES = etags${EXEEXT} ctags${EXEEXT} emacsclient${EXEEXT} $(CLIENTW) \
-               ebrowse${EXEEXT}
+# Things a user might actually run, which should be installed in bindir.
+INSTALLABLES = etags${EXEEXT} ctags${EXEEXT} emacsclient${EXEEXT} \
+               b2m${EXEEXT} $(CLIENTW) ebrowse${EXEEXT}
 
-INSTALLABLE_SCRIPTS = grep-changelog
+INSTALLABLE_SCRIPTS = rcs-checkin  grep-changelog
 
 # Things that Emacs runs internally, or during the build process,
 #  which should not be installed in bindir.
-UTILITIES = profile${EXEEXT} movemail${EXEEXT} hexl${EXEEXT} \
+UTILITIES = profile${EXEEXT} digest-doc${EXEEXT} sorted-doc${EXEEXT} \
+            movemail${EXEEXT} cvtmail${EXEEXT} fakemail${EXEEXT} \
+            yow${EXEEXT} emacsserver${EXEEXT} hexl${EXEEXT} \
             update-game-score${EXEEXT}
 
 DONT_INSTALL= test-distrib${EXEEXT} make-docfile${EXEEXT}
 
-# Like UTILITIES, but they're not system-dependent, and should not be
-#  deleted by the distclean target.
-SCRIPTS= rcs2log $(UPDATE_MANIFEST)
+TEST_EXES = getopt_test${EXEEXT} getopt_long_test${EXEEXT} \
+            wincompat_test${EXEEXT}
 
-# All files that are created by the linker, i.e., whose names end in ${EXEEXT}.
-EXE_FILES = ${INSTALLABLES} ${UTILITIES} ${DONT_INSTALL}
+# Like UTILITIES, but they are not system-dependent, and should not be
+#  deleted by the distclean target.
+SCRIPTS= rcs2log vcdiff $(UPDATE_MANIFEST)
+
+# All files that are executable:
+EXECUTABLES= ${INSTALLABLES} ${UTILITIES} ${DONT_INSTALL} ${TEST_EXES} \
+	${SCRIPTS} ${INSTALLABLE_SCRIPTS}
+
+# All files created by the linker, i.e., whose names end in ${EXEEXT}.
+EXE_FILES = ${INSTALLABLES} ${UTILITIES} ${DONT_INSTALL} ${TEST_EXES}
+
+SOURCES = COPYING ChangeLog Makefile.in README emacs.csh \
+	makedoc.com *.[chy] rcs2log vcdiff
 
 # Specify additional -D flags for movemail. Options:
-# -DMAIL_USE_FLOCK or -DMAIL_USE_LOCKF (use flock or lockf for file locking).
+# -DMAIL_USE_FLOCK or -DMAIL_USE_LOCKF (use flock or lockf for file locks).
 # See the comments about locking in movemail.c.  Normally the values
-# set by configure should be correct and you should not need to do anything.
+# set by configure should be correct & you should not need to do anything.
 # If neither flag is set, you need to use blessmail.
 MOVE_FLAGS=
 
@@ -190,8 +224,8 @@ WINDRES = @WINDRES@
 LIBS_SYSTEM = @LIBS_SYSTEM@
 
 BASE_CFLAGS = $(C_SWITCH_SYSTEM) $(C_SWITCH_MACHINE) \
-	      -I. -I../src -I../lib \
-	      -I${srcdir} -I${srcdir}/../src -I${srcdir}/../lib \
+	      -I. -I../src -I$(lib) \
+	      -I${srcdir} -I${srcdir}/../src -I${srcdir}/$(lib) \
 	      $(WARN_CFLAGS) @MAINT@ $(WERROR_CFLAGS)
 
 DEFS = @DEFS@ -DDEBUG
@@ -204,25 +238,48 @@ CPP_CFLAGS = ${BASE_CFLAGS} ${PROFILING_CFLAGS} ${CPPFLAGS} ${CFLAGS}
 # Configuration files for .o files to depend on.
 config_h = ../src/config.h $(srcdir)/../src/conf_post.h
 
+# lots of targets use this combination, so do some shortening:
+stddep = $(NTLIB) $(config_h)
+
 all: ${EXE_FILES} ${SCRIPTS} ${INSTALLABLE_SCRIPTS}
 
 .PHONY: all need-blessmail maybe-blessmail
 
-LOADLIBES = ../lib/libgnu.a $(LIBS_SYSTEM)
-$(EXE_FILES): ../lib/libgnu.a
+## These targets copy the scripts into the build directory
+## so that they can be run from there in an uninstalled Emacs.
+rcs2log: $(srcdir)/rcs2log
+	cp -pv $(srcdir)/rcs2log rcs2log
+
+rcs-checkin: $(srcdir)/rcs-checkin
+	cp -pv $(srcdir)/rcs-checkin rcs-checkin
+
+grep-changelog: $(srcdir)/grep-changelog
+	cp -pv $(srcdir)/grep-changelog grep-changelog
+
+vcdiff: $(srcdir)/vcdiff
+	cp -pv $(srcdir)/vcdiff vcdiff
+
+lib = ../lib
+
+LOADLIBES = $(lib)/libgnu.a $(LIBS_SYSTEM)
+$(EXE_FILES): $(lib)/libgnu.a
+
+gnulib_headers: $(lib)/Makefile
+	$(MAKE) -C $(lib) headers
+.PHONY: gnulib_headers
 
 ## Only used if we need blessmail, but no harm in always defining.
 ## This makes the actual blessmail executable.
-blessmail:
+blessmail: $(srcdir)/../lisp/mail/blessmail.el
 	$(EMACS) $(EMACSOPT) -l $(srcdir)/../lisp/mail/blessmail.el
 	chmod +x blessmail
 
 ## This checks if we need to run blessmail.
 ## Do not charge ahead and do it!  Let the installer decide.
 need-blessmail: blessmail
-	@if [ `wc -l <blessmail` != 2 ] ; then \
-	  dir=`sed -n -e 's/echo mail directory = \(.*\)/\1/p' blessmail`; \
-	  echo "Assuming $$dir is really the mail spool directory, you should"; \
+	@if [ `wc -l <blessmail` != 2 ]; then \
+	  dir=`$(SED) -n -e 's/echo mail directory = \(.*\)/\1/p' blessmail`; \
+	  echo "Assuming $${dir} is really the mail spool directory, you should"; \
 	  echo "run  lib-src/blessmail $(DESTDIR)${archlibdir}/movemail${EXEEXT}"; \
 	  echo "as root, to give  movemail${EXEEXT}  appropriate permissions."; \
 	  echo "Do that after running  make install."; \
@@ -241,10 +298,10 @@ $(DESTDIR)${archlibdir}: all
 	@echo "Installing utilities run internally by Emacs."
 	umask 022; ${MKDIR_P} "$(DESTDIR)${archlibdir}"
 	exp_archlibdir=`cd "$(DESTDIR)${archlibdir}" && /bin/pwd`; \
-	if [ "$$exp_archlibdir" != "`/bin/pwd`" ]; then \
+	if [ "x$${exp_archlibdir}" != "x`/bin/pwd`" ]; then \
 	  for file in ${UTILITIES}; do \
-	    $(INSTALL_PROGRAM) $(INSTALL_STRIP) $$file "$(DESTDIR)${archlibdir}/$$file" ; \
-	  done ; \
+	    $(INSTALL_PROGRAM) $(INSTALL_STRIP) $${file} "$(DESTDIR)${archlibdir}/$${file}"; \
+	  done; \
         fi
 	umask 022; ${MKDIR_P} "$(DESTDIR)${gamedir}"; \
 	touch "$(DESTDIR)${gamedir}/snake-scores"; \
@@ -257,54 +314,72 @@ $(DESTDIR)${archlibdir}: all
              != "`cd ${srcdir} && /bin/pwd`" ]; then \
 	  for file in ${SCRIPTS}; do \
 	    $(INSTALL_SCRIPT) ${srcdir}/$$file "$(DESTDIR)${archlibdir}/$$file"; \
-	  done ; \
+	  done; \
 	fi
 
 .PHONY: install uninstall mostlyclean clean distclean maintainer-clean
-.PHONY: extraclean check tags
+.PHONY: bootstrap-clean extraclean check check-clean tags
 
 install: $(DESTDIR)${archlibdir}
 	@echo ""
 	@echo "Installing utilities for users to run."
 	umask 022; ${MKDIR_P} "$(DESTDIR)${bindir}"
 	for file in ${INSTALLABLES} ; do \
-	  $(INSTALL_PROGRAM) $(INSTALL_STRIP) $${file} "$(DESTDIR)${bindir}"/`echo $${file} | sed -e 's/${EXEEXT}$$//' -e '$(TRANSFORM)'`${EXEEXT} ; \
+	  $(INSTALL_PROGRAM) $(INSTALL_STRIP) $${file} "$(DESTDIR)${bindir}"/`echo $${file} | $(SED) -e 's/${EXEEXT}$$//' -e '$(TRANSFORM)'`${EXEEXT} ; \
 	done
-	for file in ${INSTALLABLE_SCRIPTS} ; do \
-	  $(INSTALL_SCRIPT) ${srcdir}/$${file} "$(DESTDIR)${bindir}"/`echo $${file} | sed '$(TRANSFORM)'`  ; \
+	for file in ${INSTALLABLE_SCRIPTS}; do \
+	  $(INSTALL_SCRIPT) ${srcdir}/$${file} "$(DESTDIR)${bindir}"/`echo $${file} | $(SED) '$(TRANSFORM)'`; \
 	done
 
 uninstall:
 	for file in ${INSTALLABLES}; do \
-	  rm -f "$(DESTDIR)${bindir}"/`echo $${file} | sed -e 's/${EXEEXT}$$//' -e '$(TRANSFORM)'`${EXEEXT} ; \
+	  rm -f "$(DESTDIR)${bindir}"/`echo $${file} | $(SED) -e 's/${EXEEXT}$$//' -e '$(TRANSFORM)'`${EXEEXT}; \
 	done
 	for file in ${INSTALLABLE_SCRIPTS}; do \
-	  rm -f "$(DESTDIR)${bindir}"/`echo $${file} | sed '$(TRANSFORM)'` ; \
+	  rm -f "$(DESTDIR)${bindir}"/`echo $${file} | $(SED) '$(TRANSFORM)'`; \
 	done
 	if [ -d "$(DESTDIR)${archlibdir}" ]; then \
 	  (cd "$(DESTDIR)${archlibdir}" && rm -f ${UTILITIES} ${SCRIPTS}) \
 	fi
 
 mostlyclean:
+	-rm -f getopt.h-t
 	-rm -f core *.o *.res
+
+check-clean: mostlyclean
+	-rm -f ${TEST_EXES}
 
 clean: mostlyclean
 	-rm -f ${EXE_FILES}
 	-rm -rf *.dSYM
+	-rm -f fns*.el *.tab.c *.tab.h
 
 distclean: clean
 	-rm -f TAGS
 	-rm -f Makefile blessmail
 
-maintainer-clean: distclean
+bootstrap-clean maintainer-clean: distclean
 	@echo "no specific maintainer-clean rules in lib-src/ yet"
 
 extraclean: maintainer-clean
 	-rm -f *~ \#*
 
+unlock:
+	chmod u+w $(SOURCES)
+
+relock:
+	chmod u-w $(SOURCES)
+
+.PHONY: unlock relock
+
 ## Test the contents of the directory.
-check:
-	@echo "We do NOT have any tests for the lib-src/ directory yet."
+check: ${TEST_EXES} all-obj
+	./getopt_test
+	./getopt_test -a
+	./getopt_test -c 1
+	./getopt_long_test -d 2
+	./getopt_long_test --verbose
+	./wincompat_test
 
 tags: TAGS
 TAGS: etags${EXEEXT}
@@ -318,53 +393,133 @@ test-distrib${EXEEXT}: ${srcdir}/test-distrib.c
 	$(CC) ${ALL_CFLAGS} -o test-distrib${EXEEXT} ${srcdir}/test-distrib.c
 	./test-distrib ${srcdir}/testfile
 
-../lib/libgnu.a: $(config_h)
-	cd ../lib && $(MAKE) libgnu.a
+$(lib)/libgnu.a: $(config_h)
+	cd $(lib) && $(MAKE) libgnu.a
+
+## We need the following in order to create a <getopt.h> when the system
+## does NOT have one that works with the given compiler.
+GETOPT_H = @GETOPT_H@
+getopt.h: getopt_.h
+	if [ ! -e $@ ]; then \
+	  cp -v $(srcdir)/getopt_.h $@-t; \
+	  $(SED) "s/getopt_.h/getopt.h/g" < $@-t > $@; \
+	else \
+	  echo "$@ already present"; \
+	fi
+	@-rm $@-t
+
+GETOPTOBJS = @GETOPTOBJS@
+GETOPTDEPS = $(GETOPTOBJS) $(GETOPT_H)
+getopt.o: ${srcdir}/getopt.c $(GETOPT_H) ${srcdir}/gettext.h
+	$(AM_V_CC)${CC} -c ${CPP_CFLAGS} ${srcdir}/getopt.c
+getopt_test${EXEEXT}: ${srcdir}/getopt.c $(GETOPT_H) ${srcdir}/gettext.h
+	${CC} -DTEST ${CPP_CFLAGS} ${srcdir}/getopt.c $(LOADLIBES) -o $@
+getopt1.o: ${srcdir}/getopt1.c $(GETOPT_H)
+	$(AM_V_CC)${CC} -c ${CPP_CFLAGS} ${srcdir}/getopt1.c
+getopt_long_test${EXEEXT}: ${srcdir}/getopt1.c $(GETOPT_H) getopt.o
+	${CC} -DTEST ${CPP_CFLAGS} ${srcdir}/getopt1.c getopt.o $(LOADLIBES) -o $@
+alloca.o: ${srcdir}/alloca.c
+	$(AM_V_CC)${CC} -Demacs -c ${BASE_CFLAGS} ${srcdir}/alloca.c
+
+#ifdef REGEXP_IN_LIBC
+REGEXPOBJ =
+REGEXPDEPS =
+#else
+REGEXPOBJ = regex.o
+REGEXPDEPS = $(REGEXPOBJ) $(srcdir)/../src/regex.h
+#endif /* REGEXP_IN_LIBC */
+
+ALL_OBJS = getopt.o getopt1.o alloca.o regex.o movemail.o pop.o ntlib.o \
+	   update-game-score.o wincompat_test.o
+
+all-obj: $(ALL_OBJS)
+	@echo "ensuring all objects have been built..."
+	$(AM_V_at)ls *.o
+.PHONY: all-obj
 
 regex.o: $(srcdir)/../src/regex.c $(srcdir)/../src/regex.h $(config_h)
-	${CC} -c ${CPP_CFLAGS} ${srcdir}/../src/regex.c
+	$(AM_V_CC)$(CC) -c $(CPP_CFLAGS) ${srcdir}/../src/regex.c
 
-etags${EXEEXT}: ${srcdir}/etags.c regex.o $(NTLIB) $(config_h)
+etags_deps = ${srcdir}/etags.c regex.o $(stddep) chkmalloc.h
+etags_cflags=-DEMACS_NAME="\"GNU Emacs\"" -DVERSION="\"${version}\"" -o $@
+etags_libs = regex.o $(LOADLIBES) $(NTLIB)
+
+etags${EXEEXT}: ${srcdir}/etags.c regex.o $(stddep)
 	$(CC) ${ALL_CFLAGS} -DEMACS_NAME="\"GNU Emacs\"" \
 	  -DVERSION="\"${version}\"" ${srcdir}/etags.c \
 	  regex.o $(LOADLIBES) $(NTLIB) -o etags${EXEEXT}
 
-ebrowse${EXEEXT}: ${srcdir}/ebrowse.c ${srcdir}/../lib/min-max.h $(NTLIB) \
-                   $(config_h)
+ebrowse${EXEEXT}: ${srcdir}/ebrowse.c ${srcdir}/$(lib)/min-max.h $(stddep)
 	$(CC) ${ALL_CFLAGS} -DVERSION="\"${version}\"" \
 	  ${srcdir}/ebrowse.c $(LOADLIBES) $(NTLIB) -o ebrowse${EXEEXT}
 
 ## We depend on etags to assure that parallel makes do not write two
 ## etags.o files on top of each other.
+## FIXME?
+## Can we not use a wrapper that calls 'etags --ctags'?
 ctags${EXEEXT}: etags${EXEEXT}
 	$(CC) ${ALL_CFLAGS} -DCTAGS -DEMACS_NAME="\"GNU Emacs\"" \
 	  -DVERSION="\"${version}\"" ${srcdir}/etags.c \
 	  regex.o $(LOADLIBES) $(NTLIB) -o ctags${EXEEXT}
 
-profile${EXEEXT}: ${srcdir}/profile.c $(NTLIB) $(config_h)
+profile${EXEEXT}: ${srcdir}/profile.c $(stddep)
 	$(CC) ${ALL_CFLAGS} ${srcdir}/profile.c \
 	  $(LOADLIBES) $(NTLIB) $(LIB_CLOCK_GETTIME) -o profile${EXEEXT}
 
-make-docfile${EXEEXT}: ${srcdir}/make-docfile.c $(NTLIB) $(config_h)
+make-docfile${EXEEXT}: ${srcdir}/make-docfile.c $(stddep) gnulib_headers
 	$(CC) ${ALL_CFLAGS} ${srcdir}/make-docfile.c $(LOADLIBES) $(NTLIB) \
 	  -o make-docfile${EXEEXT}
 
-movemail${EXEEXT}: ${srcdir}/movemail.c pop.o $(NTLIB) $(config_h)
+digest-doc${EXEEXT}: ${srcdir}/digest-doc.c
+	$(CC) ${ALL_CFLAGS} ${srcdir}/digest-doc.c $(LOADLIBES) -o digest-doc
+
+sorted-doc${EXEEXT}: ${srcdir}/sorted-doc.c
+	$(CC) ${ALL_CFLAGS} ${srcdir}/sorted-doc.c $(LOADLIBES) -o sorted-doc
+
+b2m${EXEEXT}: ${srcdir}/b2m.c $(config_h) $(GETOPTDEPS)
+	$(CC) ${ALL_CFLAGS} ${srcdir}/b2m.c  -DVERSION="\"${version}\"" \
+	   $(GETOPTOBJS) $(LOADLIBES) -o b2m
+
+movemail${EXEEXT}: ${srcdir}/movemail.c pop.o $(stddep)
 	$(CC) ${ALL_CFLAGS} ${MOVE_FLAGS} ${srcdir}/movemail.c pop.o \
 	  $(LOADLIBES) $(NTLIB) $(LIBS_MOVE) -o movemail${EXEEXT}
 
-pop.o: ${srcdir}/pop.c ${srcdir}/pop.h ${srcdir}/../lib/min-max.h $(config_h)
-	$(CC) -c ${CPP_CFLAGS} ${MOVE_FLAGS} ${srcdir}/pop.c
+EMACS_DEFS = ${CPP_CFLAGS} -Demacs
+movemail.o: ${srcdir}/movemail.c $(config_h) $(GETOPT_H)
+	$(AM_V_CC)$(CC) -c ${EMACS_DEFS} ${MOVE_FLAGS} ${srcdir}/movemail.c
 
-emacsclient${EXEEXT}: ${srcdir}/emacsclient.c $(NTLIB) $(config_h)
+pop.o: ${srcdir}/pop.c ${srcdir}/pop.h ${srcdir}/$(lib)/min-max.h $(config_h)
+	$(AM_V_CC)$(CC) -c ${CPP_CFLAGS} ${MOVE_FLAGS} ${srcdir}/pop.c
+
+cvtmail${EXEEXT}: ${srcdir}/cvtmail.c
+	$(CC) ${ALL_CFLAGS} ${srcdir}/cvtmail.c $(LOADLIBES) -o cvtmail
+
+fakemail${EXEEXT}: ${srcdir}/fakemail.c $(config_h)
+	$(CC) ${ALL_CFLAGS} ${srcdir}/fakemail.c $(LOADLIBES) -o fakemail
+
+yow: ${srcdir}/yow.c ../src/epaths.h
+	$(AM_V_CCLD)$(CC) ${ALL_CFLAGS} ${srcdir}/yow.c $(LOADLIBES) -o yow
+
+emacsserver: ${srcdir}/emacsserver.c $(config_h)
+	$(CC) ${ALL_CFLAGS} ${srcdir}/emacsserver.c $(LOADLIBES) -o emacsserver
+
+emacsclient${EXEEXT}: ${srcdir}/emacsclient.c $(stddep)
 	$(CC) ${ALL_CFLAGS} ${srcdir}/emacsclient.c \
 	   -DVERSION="\"${version}\"" $(NTLIB) $(LOADLIBES) $(LIB_FDATASYNC) \
 	   $(LIB_WSOCK32) $(LIBS_ECLIENT) -o emacsclient${EXEEXT}
 
-emacsclientw${EXEEXT}: ${srcdir}/emacsclient.c $(NTLIB) $(CLIENTRES) $(config_h)
+emacsclientw${EXEEXT}: ${srcdir}/emacsclient.c $(CLIENTRES) $(stddep)
 	$(CC) ${ALL_CFLAGS} $(CLIENTRES) -mwindows ${srcdir}/emacsclient.c \
 	   -DVERSION="\"${version}\"" $(LOADLIBES) $(LIB_FDATASYNC) \
 	   $(LIB_WSOCK32) $(LIBS_ECLIENT) -o emacsclientw${EXEEXT}
+
+#ifdef _WIN32
+WINDEFS =
+wincompat_h =
+#else
+WINDEFS = -DWINDOWS_COMPATIBILITY_CHECK
+wincompat_h = ${srcdir}/wincompat.h
+#endif /* _WIN32 */
 
 NTINC = ${srcdir}/../nt/inc
 NTDEPS = $(NTINC)/ms-w32.h $(NTINC)/sys/stat.h $(NTINC)/inttypes.h \
@@ -373,19 +528,51 @@ NTDEPS = $(NTINC)/ms-w32.h $(NTINC)/sys/stat.h $(NTINC)/inttypes.h \
 
 # The dependency on $(NTDEPS) is a trick intended to cause recompile of
 # programs on MinGW whenever some private header in nt/inc is modified.
-ntlib.o: ${srcdir}/ntlib.c ${srcdir}/ntlib.h $(NTDEPS)
-	$(CC) -c ${CPP_CFLAGS} ${srcdir}/ntlib.c
+ntlib.o: ${srcdir}/ntlib.c ${srcdir}/ntlib.h $(NTDEPS) ${wincompat_h}
+	$(AM_V_CC)$(CC) -c ${CPP_CFLAGS} ${WINDEFS} ${srcdir}/ntlib.c
 
-hexl${EXEEXT}: ${srcdir}/hexl.c $(NTLIB) $(config_h)
+hexl${EXEEXT}: ${srcdir}/hexl.c $(stddep)
 	$(CC) ${ALL_CFLAGS} ${srcdir}/hexl.c $(LOADLIBES) -o hexl${EXEEXT}
 
-update-game-score${EXEEXT}: ${srcdir}/update-game-score.c $(NTLIB) $(config_h)
+update-game-score${EXEEXT}: ${srcdir}/update-game-score.c $(stddep)
 	$(CC) ${ALL_CFLAGS} -DHAVE_SHARED_GAME_DIR="\"$(gamedir)\"" \
 	  ${srcdir}/update-game-score.c $(LOADLIBES) $(NTLIB) \
 	  -o update-game-score${EXEEXT}
 
+update-game-score.o: ${srcdir}/update-game-score.c $(config_h) $(GETOPT_H)
+	$(AM_V_CC)$(CC) -c ${CPP_CFLAGS} ${srcdir}/update-game-score.c \
+	  -DHAVE_SHARED_GAME_DIR="\"$(gamedir)\""
+
 emacsclient.res: $(NTINC)/../emacsclient.rc
 	$(WINDRES) -O coff --include-dir=$(NTINC)/.. -o emacsclient.res \
 	  $(NTINC)/../emacsclient.rc
+
+## /* for testing the Windows sources on non-Windows platforms: */
+wincompat_src = ${srcdir}/wincompat_test.c
+wincompat_test.o: ${srcdir}/wincompat_test.c ${srcdir}/wincompat.h
+	$(AM_V_CC)${CC} -c ${CPP_CFLAGS} ${WINDEFS} ${wincompat_src}
+wincompat_test${EXEEXT}: ${srcdir}/wincompat_test.c ${srcdir}/wincompat.h
+	$(CC) ${ALL_CFLAGS} -DTEST ${WINDEFS} ${wincompat_src} -o $@
+
+## These are NOT included in INSTALLABLES or UTILITIES.
+## See ../src/Makefile.in.
+emacstool${EXEEXT}: ${srcdir}/emacstool.c
+	$(CC) ${srcdir}/emacstool.c -o emacstool ${ALL_CFLAGS} \
+	  -lsuntool -lsunwindow -lpixrect $(LOADLIBES)
+
+## For SUN Japanese Language Environment.
+nemacstool${EXEEXT}: ${srcdir}/emacstool.c
+	$(CC) -o nemacstool -DJLE ${ALL_CFLAGS} ${srcdir}/emacstool.c \
+	  -lsuntool -lmle -lsunwindow -lpixrect $(LOADLIBES)
+
+xvetool${EXEEXT}: ${srcdir}/emacstool.c
+	$(CC) -o xvetool -DXVIEW ${ALL_CFLAGS} ${srcdir}/emacstool.c \
+	  -lxview -lX -I$(OPENWINHOME)/include -L$(OPENWINHOME)/lib \
+	  $(LOADLIBES)
+
+xveterm${EXEEXT}: ${srcdir}/emacstool.c
+	$(CC) -o xveterm -DXVIEW -DTTERM ${ALL_CFLAGS} ${srcdir}/emacstool.c \
+	  -lxview -lolgx -lX  -I$(OPENWINHOME)/include -L$(OPENWINHOME)/lib \
+	  $(LOADLIBES)
 
 ## Makefile ends here.

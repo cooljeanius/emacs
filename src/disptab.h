@@ -1,6 +1,6 @@
-/* Things for GLYPHS and glyph tables.
-   Copyright (C) 1993, 2001-2014 Free Software Foundation, Inc.
-
+/* disptab.h: Things for GLYPHS and glyph tables.
+ * Copyright (C) 1993, 2001-2014 Free Software Foundation, Inc.  */
+/*
 This file is part of GNU Emacs.
 
 GNU Emacs is free software: you can redistribute it and/or modify
@@ -16,8 +16,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
-/* Access the slots of a display-table, according to their purpose.  */
+#ifndef EMACS_DISPTAB_H
+#define EMACS_DISPTAB_H 1
 
+/* Access the slots of a display-table, according to their purpose: */
 #define DISP_TABLE_P(obj)						    \
   (CHAR_TABLE_P (obj)							    \
    && EQ (XCHAR_TABLE (obj)->purpose, Qdisplay_table)			    \
@@ -95,3 +97,8 @@ extern Lisp_Object Qdisplay_table;
 
 #define SET_GLYPH_FROM_CHAR(glyph, c) \
   SET_GLYPH (glyph, c, DEFAULT_FACE_ID)
+
+#endif /* !EMACS_DISPTAB_H */
+
+/* arch-tag: d7f792d2-f59c-4904-a91e-91522e3ab349
+   (do not change this comment) */

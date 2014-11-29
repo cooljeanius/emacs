@@ -1,4 +1,4 @@
-/* Cursor motion subroutines for GNU Emacs.
+/* cm.c: Cursor motion subroutines for GNU Emacs.
    Copyright (C) 1985, 1995, 2001-2014 Free Software Foundation, Inc.
     based primarily on public domain code written by Chris Torek
 
@@ -409,6 +409,9 @@ cmgoto (struct tty_display_info *tty, int row, int col)
 	curY (tty)++;
       curX (tty) = 0;
       break;
+
+    default:
+      break;
     }
 
   (void) calccost (tty, curY (tty), curX (tty), row, col, 1);
@@ -440,7 +443,7 @@ Wcm_init (struct tty_display_info *tty)
 #if 0
   if (tty->Wcm->cm_abs && !tty->Wcm->cm_ds)
     return 0;
-#endif
+#endif /* 0 */
   if (tty->Wcm->cm_abs)
     return 0;
   /* Require up and left, and, if no absolute, down and right */
@@ -453,3 +456,5 @@ Wcm_init (struct tty_display_info *tty)
     return - 2;
   return 0;
 }
+
+/* EOF */

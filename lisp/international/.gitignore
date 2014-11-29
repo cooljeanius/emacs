@@ -1,6 +1,9 @@
+# gitignore file for emacs/lisp/international
+
 # Generated Unicode files.
 charprop.el
 uni-bidi.el
+uni-brackets.el
 uni-category.el
 uni-combining.el
 uni-comment.el

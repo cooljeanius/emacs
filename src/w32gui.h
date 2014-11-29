@@ -1,6 +1,6 @@
 /* Definitions and headers for communication on the Microsoft Windows API.
-   Copyright (C) 1995, 2001-2014 Free Software Foundation, Inc.
-
+ * Copyright (C) 1995, 2001-2014 Free Software Foundation, Inc. */
+/*
 This file is part of GNU Emacs.
 
 GNU Emacs is free software: you can redistribute it and/or modify
@@ -45,12 +45,15 @@ typedef struct _XGCValues
 typedef HBITMAP Pixmap;
 typedef HBITMAP Bitmap;
 
+#ifndef _XRM_DATABASE_DECLARED
+# define _XRM_DATABASE_DECLARED 1
 typedef char * XrmDatabase;
+#endif /* !_XRM_DATABASE_DECLARED */
 
 typedef XGCValues * GC;
 typedef COLORREF Color;
 typedef HWND Window;
-typedef HDC Display;  /* HDC so it doesn't conflict with xpm lib.  */
+typedef HDC Display;  /* HDC so it does NOT conflict with xpm lib.  */
 typedef HCURSOR Cursor;
 
 #define No_Cursor (0)
@@ -142,3 +145,5 @@ typedef struct {
 
 
 #endif /* EMACS_W32GUI_H */
+
+/* EOF */

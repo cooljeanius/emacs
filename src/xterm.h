@@ -1,7 +1,7 @@
-/* Definitions and headers for communication with X protocol.
-   Copyright (C) 1989, 1993-1994, 1998-2014 Free Software Foundation,
-   Inc.
-
+/* xterm.h: Definitions and headers for communication with X protocol.
+ * Copyright (C) 1989, 1993-1994, 1998-2014 Free Software Foundation,
+ * Inc.  */
+/*
 This file is part of GNU Emacs.
 
 GNU Emacs is free software: you can redistribute it and/or modify
@@ -33,24 +33,24 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <X11/Xresource.h>
 
 #ifdef USE_X_TOOLKIT
-#include <X11/StringDefs.h>
-#include <X11/IntrinsicP.h>	/* CoreP.h needs this */
-#include <X11/CoreP.h>		/* foul, but we need this to use our own
+# include <X11/StringDefs.h>
+# include <X11/IntrinsicP.h>	/* CoreP.h needs this */
+# include <X11/CoreP.h>		/* foul, but we need this to use our own
 				   window inside a widget instead of one
 				   that Xt creates... */
 typedef Widget xt_or_gtk_widget;
-#endif
+#endif /* USE_X_TOOLKIT */
 
 #ifdef USE_GTK
-#include <gtk/gtk.h>
-#include <gdk/gdkx.h>
+# include <gtk/gtk.h>
+# include <gdk/gdkx.h>
 
 /* Some definitions to reduce conditionals.  */
 typedef GtkWidget *xt_or_gtk_widget;
-#define XtParent(x) (gtk_widget_get_parent (x))
-#undef XSync
-#define XSync(d, b) do { gdk_window_process_all_updates (); \
-                         XSync (d, b);  } while (false)
+# define XtParent(x) (gtk_widget_get_parent (x))
+# undef XSync
+# define XSync(d, b) do { gdk_window_process_all_updates (); \
+                          XSync (d, b);  } while (false)
 #endif /* USE_GTK */
 
 /* True iff GTK's version is at least I.J.K.  */
@@ -63,20 +63,27 @@ typedef GtkWidget *xt_or_gtk_widget;
 						    <= GTK_MICRO_VERSION)))
 # else
 #  define GTK_CHECK_VERSION(i, j, k) false
-# endif
-#endif
+# endif /* USE_GTK */
+#endif /* !GTK_CHECK_VERSION */
 
 /* The GtkTooltip API came in 2.12, but gtk-enable-tooltips in 2.14. */
 #if GTK_CHECK_VERSION (2, 14, 0)
-#define USE_GTK_TOOLTIP
+# define USE_GTK_TOOLTIP
 #endif
 
 #ifdef HAVE_X_I18N
-#include <X11/Xlocale.h>
-#endif
+# include <X11/Xlocale.h>
+#endif /* HAVE_X_I18N */
 
 #include "dispextern.h"
 #include "termhooks.h"
+
+/* this file contains way too many of these for now: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wredundant-decls"
+#endif /* gcc 4.6+ */
 
 /* Black and white pixel values for the screen which frame F is on.  */
 #define BLACK_PIX_DEFAULT(f)					\
@@ -180,7 +187,7 @@ struct x_display_info
 #ifdef USE_GTK
   /* The GDK cursor for scroll bars and popup menus.  */
   GdkCursor *xg_cursor;
-#endif
+#endif /* USE_GTK */
 
   /* X Resource data base */
   XrmDatabase xrdb;
@@ -343,7 +350,7 @@ struct x_display_info
   XIM xim;
   XIMStyles *xim_styles;
   struct xim_inst_t *xim_callback_data;
-#endif
+#endif /* HAVE_X_I18N */
 
   /* If non-null, a cache of the colors in the color map.  Don't
      use this directly, call x_color_cells instead.  */
@@ -405,7 +412,7 @@ struct x_display_info
 #ifdef HAVE_X_I18N
 /* Whether or not to use XIM if we have it.  */
 extern bool use_xim;
-#endif
+#endif /* HAVE_X_I18N */
 
 /* This is a chain of structures for all the X displays currently in use.  */
 extern struct x_display_info *x_display_list;
@@ -472,7 +479,7 @@ struct x_output
   Widget edit_widget;
 
   Widget menubar_widget;
-#endif
+#endif /* USE_X_TOOLKIT */
 
 #ifdef USE_GTK
   /* The widget of this screen.  This is the window of a top widget.  */
@@ -488,10 +495,10 @@ struct x_output
   GtkWidget *menubar_widget;
   /* The tool bar in this frame  */
   GtkWidget *toolbar_widget;
-#ifdef HAVE_GTK_HANDLE_BOX_NEW
+# ifdef HAVE_GTK_HANDLE_BOX_NEW
 /* The handle box that makes the tool bar detachable.  */
   GtkWidget *handlebox_widget;
-#endif
+# endif /* HAVE_GTK_HANDLE_BOX_NEW */
   /* True if tool bar is packed into the hbox widget (i.e. vertical).  */
   bool_bf toolbar_in_hbox : 1;
   bool_bf toolbar_is_packed : 1;
@@ -500,11 +507,11 @@ struct x_output
   GdkGeometry size_hints;
   long hint_flags;
 
-#ifdef USE_GTK_TOOLTIP
+# ifdef USE_GTK_TOOLTIP
   GtkTooltip *ttip_widget;
   GtkWidget *ttip_lbl;
   GtkWindow *ttip_window;
-#endif /* USE_GTK_TOOLTIP */
+# endif /* USE_GTK_TOOLTIP */
 
 #endif /* USE_GTK */
 
@@ -578,7 +585,7 @@ struct x_output
   /* This is the widget id used for this frame's menubar in lwlib.  */
 #ifdef USE_X_TOOLKIT
   int id;
-#endif
+#endif /* USE_X_TOOLKIT */
 
   /* True means hourglass cursor is currently displayed.  */
   bool_bf hourglass_p : 1;
@@ -608,7 +615,7 @@ struct x_output
   XIC xic;
   XIMStyle xic_style;
   XFontSet xic_xfs;
-#endif
+#endif /* HAVE_X_I18N */
 
   /* Relief GCs, colors etc.  */
   struct relief
@@ -664,50 +671,49 @@ enum
 
 /* Return the outermost X window associated with the frame F.  */
 #ifdef USE_X_TOOLKIT
-#define FRAME_OUTER_WINDOW(f) ((f)->output_data.x->widget ?             \
-                               XtWindow ((f)->output_data.x->widget) :  \
-                               FRAME_X_WINDOW (f))
+# define FRAME_OUTER_WINDOW(f) ((f)->output_data.x->widget ?             \
+                                XtWindow ((f)->output_data.x->widget) :  \
+                                FRAME_X_WINDOW (f))
 #else
-#ifdef USE_GTK
-/* Functions not present in older Gtk+ */
+# ifdef USE_GTK
+/* Functions not present in older Gtk+: */
+#  ifndef HAVE_GTK_WIDGET_GET_WINDOW
+#   define gtk_widget_get_window(w) ((w)->window)
+#  endif /* !HAVE_GTK_WIDGET_GET_WINDOW */
+#  ifndef HAVE_GTK_WIDGET_GET_MAPPED
+#   define gtk_widget_get_mapped(w) (GTK_WIDGET_MAPPED (w))
+#  endif /* !HAVE_GTK_WIDGET_GET_MAPPED */
+#  ifndef HAVE_GTK_ADJUSTMENT_GET_PAGE_SIZE
+#   define gtk_adjustment_get_page_size(w) ((w)->page_size)
+#   define gtk_adjustment_get_upper(w) ((w)->upper)
+#  endif /* !HAVE_GTK_ADJUSTMENT_GET_PAGE_SIZE */
 
-#ifndef HAVE_GTK_WIDGET_GET_WINDOW
-#define gtk_widget_get_window(w) ((w)->window)
-#endif
-#ifndef HAVE_GTK_WIDGET_GET_MAPPED
-#define gtk_widget_get_mapped(w) (GTK_WIDGET_MAPPED (w))
-#endif
-#ifndef HAVE_GTK_ADJUSTMENT_GET_PAGE_SIZE
-#define gtk_adjustment_get_page_size(w) ((w)->page_size)
-#define gtk_adjustment_get_upper(w) ((w)->upper)
-#endif
+#  ifdef HAVE_GTK3
+#   define DEFAULT_GDK_DISPLAY() \
+     gdk_x11_display_get_xdisplay (gdk_display_get_default ())
+#  else
+#   undef GDK_WINDOW_XID
+#   define GDK_WINDOW_XID(w) GDK_WINDOW_XWINDOW (w)
+#   define DEFAULT_GDK_DISPLAY() GDK_DISPLAY ()
+#   define gtk_widget_get_preferred_size(a, ign, b) \
+     gtk_widget_size_request (a, b)
+#  endif /* HAVE_GTK3 */
 
-#ifdef HAVE_GTK3
-#define DEFAULT_GDK_DISPLAY() \
-  gdk_x11_display_get_xdisplay (gdk_display_get_default ())
-#else
-#undef GDK_WINDOW_XID
-#define GDK_WINDOW_XID(w) GDK_WINDOW_XWINDOW (w)
-#define DEFAULT_GDK_DISPLAY() GDK_DISPLAY ()
-#define gtk_widget_get_preferred_size(a, ign, b) \
-  gtk_widget_size_request (a, b)
-#endif
+#  define GTK_WIDGET_TO_X_WIN(w) \
+    ((w) && gtk_widget_get_window (w) \
+     ? GDK_WINDOW_XID (gtk_widget_get_window (w)) : 0)
 
-#define GTK_WIDGET_TO_X_WIN(w) \
-  ((w) && gtk_widget_get_window (w) \
-   ? GDK_WINDOW_XID (gtk_widget_get_window (w)) : 0)
+#  define FRAME_GTK_OUTER_WIDGET(f) ((f)->output_data.x->widget)
+#  define FRAME_GTK_WIDGET(f) ((f)->output_data.x->edit_widget)
+#  define FRAME_OUTER_WINDOW(f)                                   \
+         (FRAME_GTK_OUTER_WIDGET (f) ?                            \
+          GTK_WIDGET_TO_X_WIN (FRAME_GTK_OUTER_WIDGET (f)) :      \
+          FRAME_X_WINDOW (f))
 
-#define FRAME_GTK_OUTER_WIDGET(f) ((f)->output_data.x->widget)
-#define FRAME_GTK_WIDGET(f) ((f)->output_data.x->edit_widget)
-#define FRAME_OUTER_WINDOW(f)                                   \
-       (FRAME_GTK_OUTER_WIDGET (f) ?                            \
-        GTK_WIDGET_TO_X_WIN (FRAME_GTK_OUTER_WIDGET (f)) :      \
-         FRAME_X_WINDOW (f))
-
-#else /* !USE_GTK */
-#define FRAME_OUTER_WINDOW(f) (FRAME_X_WINDOW (f))
-#endif /* !USE_GTK */
-#endif
+# else /* !USE_GTK */
+#  define FRAME_OUTER_WINDOW(f) (FRAME_X_WINDOW (f))
+# endif /* !USE_GTK */
+#endif /* USE_X_TOOLKIT || otherwise */
 
 
 #define FRAME_FONT(f) ((f)->output_data.x->font)
@@ -810,7 +816,7 @@ struct scroll_bar
 #if defined (USE_TOOLKIT_SCROLL_BARS) && defined (USE_LUCID)
   /* Last scroll bar part seen in xaw_jump_callback and xaw_scroll_callback.  */
   enum scroll_bar_part last_seen_part;
-#endif
+#endif /* USE_TOOLKIT_SCROLL_BARS && USE_LUCID */
 };
 
 /* Turning a lisp vector value into a pointer to a struct scroll_bar.  */
@@ -936,22 +942,22 @@ extern unsigned long x_copy_color (struct frame *, unsigned long);
 #ifdef USE_X_TOOLKIT
 extern XtAppContext Xt_app_con;
 extern void x_activate_timeout_atimer (void);
-#endif
+#endif /* USE_X_TOOLKIT */
 #ifdef USE_LUCID
 extern bool x_alloc_lighter_color_for_widget (Widget, Display *, Colormap,
 					      unsigned long *,
 					      double, int);
-#endif
+#endif /* USE_LUCID */
 extern bool x_alloc_nearest_color (struct frame *, Colormap, XColor *);
 extern void x_query_color (struct frame *f, XColor *);
 extern void x_clear_area (Display *, Window, int, int, int, int);
 #if !defined USE_X_TOOLKIT && !defined USE_GTK
 extern void x_mouse_leave (struct x_display_info *);
-#endif
+#endif /* !USE_X_TOOLKIT && !USE_GTK */
 
 #if defined USE_X_TOOLKIT || defined USE_MOTIF
 extern int x_dispatch_event (XEvent *, Display *);
-#endif
+#endif /* USE_X_TOOLKIT || USE_MOTIF */
 extern int x_x_to_emacs_modifiers (struct x_display_info *, int);
 extern int x_display_pixel_height (struct x_display_info *);
 extern int x_display_pixel_width (struct x_display_info *);
@@ -1011,8 +1017,8 @@ extern bool x_defined_color (struct frame *, const char *, XColor *, bool);
 extern void free_frame_xic (struct frame *);
 # if defined HAVE_X_WINDOWS && defined USE_X_TOOLKIT
 extern char * xic_create_fontsetname (const char *base_fontname, int motif);
-# endif
-#endif
+# endif /* HAVE_X_WINDOWS && USE_X_TOOLKIT */
+#endif /* HAVE_X_I18N */
 
 /* Defined in xfaces.c */
 
@@ -1025,14 +1031,14 @@ extern void x_free_dpy_colors (Display *, Screen *, Colormap,
 
 #if defined USE_X_TOOLKIT || defined USE_GTK
 extern Lisp_Object xw_popup_dialog (struct frame *, Lisp_Object, Lisp_Object);
-#endif
+#endif /* USE_X_TOOLKIT || USE_GTK */
 
 #if defined USE_GTK || defined USE_MOTIF
 extern void x_menu_set_in_use (int);
-#endif
+#endif /* USE_GTK || USE_MOTIF */
 #ifdef USE_MOTIF
 extern void x_menu_wait_for_event (void *data);
-#endif
+#endif /* USE_MOTIF */
 extern int popup_activated (void);
 extern void initialize_frame_menubar (struct frame *);
 
@@ -1040,14 +1046,14 @@ extern void initialize_frame_menubar (struct frame *);
 
 #ifdef USE_X_TOOLKIT
 extern void widget_store_internal_border (Widget);
-#endif
+#endif /* USE_X_TOOLKIT */
 
 /* Defined in xsmfns.c */
 #ifdef HAVE_X_SM
 extern void x_session_initialize (struct x_display_info *dpyinfo);
 extern int x_session_have_connection (void);
 extern void x_session_close (void);
-#endif
+#endif /* HAVE_X_SM */
 
 /* Defined in xterm.c */
 
@@ -1055,7 +1061,7 @@ extern Lisp_Object Qx_gtk_map_stock;
 
 #if !defined USE_X_TOOLKIT && !defined USE_GTK
 extern void x_clear_under_internal_border (struct frame *f);
-#endif
+#endif /* !USE_X_TOOLKIT && !USE_GTK */
 
 /* Is the frame embedded into another application? */
 
@@ -1076,4 +1082,13 @@ extern void x_clear_under_internal_border (struct frame *f);
    (nr).width = (rwidth),				\
    (nr).height = (rheight))
 
+/* keep condition the same as when we push away the redundancy warning: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic pop
+#endif /* gcc 4.6+ */
+
 #endif /* XTERM_H */
+
+/* arch-tag: 78a7972a-b18f-4694-861a-0780c4b3090e
+   (do not change this comment) */

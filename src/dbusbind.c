@@ -1,6 +1,6 @@
-/* Elisp bindings for D-Bus.
-   Copyright (C) 2007-2014 Free Software Foundation, Inc.
-
+/* dbusbind.c: Elisp bindings for D-Bus.
+ * Copyright (C) 2007-2014 Free Software Foundation, Inc.  */
+/*
 This file is part of GNU Emacs.
 
 GNU Emacs is free software: you can redistribute it and/or modify
@@ -18,6 +18,7 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #include <config.h>
 
+/* this ifdef goes pretty much the whole file: */
 #ifdef HAVE_DBUS
 #include <stdio.h>
 #include <dbus/dbus.h>
@@ -29,16 +30,15 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "process.h"
 
 #ifndef DBUS_NUM_MESSAGE_TYPES
-#define DBUS_NUM_MESSAGE_TYPES 5
-#endif
+# define DBUS_NUM_MESSAGE_TYPES 5
+#endif /* !DBUS_NUM_MESSAGE_TYPES */
 
 
 /* Some platforms define the symbol "interface", but we want to use it
  * as a variable name below.  */
-
 #ifdef interface
-#undef interface
-#endif
+# undef interface
+#endif /*interface */
 
 
 /* Subroutines.  */
@@ -64,7 +64,7 @@ static Lisp_Object QCdbus_type_double, QCdbus_type_string;
 static Lisp_Object QCdbus_type_object_path, QCdbus_type_signature;
 #ifdef DBUS_TYPE_UNIX_FD
 static Lisp_Object QCdbus_type_unix_fd;
-#endif
+#endif /* DBUS_TYPE_UNIX_FD */
 static Lisp_Object QCdbus_type_array, QCdbus_type_variant;
 static Lisp_Object QCdbus_type_struct, QCdbus_type_dict_entry;
 
@@ -218,7 +218,7 @@ xd_symbol_to_dbus_type (Lisp_Object object)
      : (EQ (object, QCdbus_type_signature)) ? DBUS_TYPE_SIGNATURE
 #ifdef DBUS_TYPE_UNIX_FD
      : (EQ (object, QCdbus_type_unix_fd)) ? DBUS_TYPE_UNIX_FD
-#endif
+#endif /* DBUS_TYPE_UNIX_FD */
      : (EQ (object, QCdbus_type_array)) ? DBUS_TYPE_ARRAY
      : (EQ (object, QCdbus_type_variant)) ? DBUS_TYPE_VARIANT
      : (EQ (object, QCdbus_type_struct)) ? DBUS_TYPE_STRUCT
@@ -405,7 +405,7 @@ xd_signature (char *signature, int dtype, int parent_type, Lisp_Object object)
     case DBUS_TYPE_UINT64:
 #ifdef DBUS_TYPE_UNIX_FD
     case DBUS_TYPE_UNIX_FD:
-#endif
+#endif /* DBUS_TYPE_UNIX_FD */
     case DBUS_TYPE_INT32:
     case DBUS_TYPE_INT64:
     case DBUS_TYPE_DOUBLE:
@@ -672,7 +672,7 @@ xd_append_arg (int dtype, Lisp_Object object, DBusMessageIter *iter)
       case DBUS_TYPE_UINT32:
 #ifdef DBUS_TYPE_UNIX_FD
       case DBUS_TYPE_UNIX_FD:
-#endif
+#endif /* DBUS_TYPE_UNIX_FD */
 	{
 	  dbus_uint32_t val =
 	    xd_extract_unsigned (object,
@@ -733,6 +733,9 @@ xd_append_arg (int dtype, Lisp_Object object, DBusMessageIter *iter)
 	    XD_SIGNAL2 (build_string ("Unable to append argument"), object);
 	  return;
 	}
+
+      default:
+        break;
       }
 
   else /* Compound types.  */
@@ -752,27 +755,32 @@ xd_append_arg (int dtype, Lisp_Object object, DBusMessageIter *iter)
 	     only.  */
 
 	  if (NILP (object))
-	    /* If the array is empty, DBUS_TYPE_STRING is the default
-	       element type.  */
-	    strcpy (signature, DBUS_TYPE_STRING_AS_STRING);
-
+            {
+              /* If the array is empty, DBUS_TYPE_STRING is the default
+               * element type: */
+              strcpy(signature, DBUS_TYPE_STRING_AS_STRING);
+            }
 	  else
-	    /* If the element type is DBUS_TYPE_SIGNATURE, and this is
-	       the only element, the value of this element is used as
-	       the array's element signature.  */
-	    if ((XD_OBJECT_TO_DBUS_TYPE (CAR_SAFE (object))
-		 == DBUS_TYPE_SIGNATURE)
-		&& STRINGP (CAR_SAFE (XD_NEXT_VALUE (object)))
-		&& NILP (CDR_SAFE (XD_NEXT_VALUE (object))))
-	      {
-		strcpy (signature, SSDATA (CAR_SAFE (XD_NEXT_VALUE (object))));
-		object = CDR_SAFE (XD_NEXT_VALUE (object));
-	      }
-
-	    else
-	      xd_signature (signature,
-			    XD_OBJECT_TO_DBUS_TYPE (CAR_SAFE (object)),
-			    dtype, CAR_SAFE (XD_NEXT_VALUE (object)));
+            {
+              /* If the element type is DBUS_TYPE_SIGNATURE, and this is
+               * the only element, the value of this element is used as
+               * the array's element signature.  */
+              if ((XD_OBJECT_TO_DBUS_TYPE (CAR_SAFE (object))
+                   == DBUS_TYPE_SIGNATURE)
+                  && STRINGP (CAR_SAFE (XD_NEXT_VALUE (object)))
+                  && NILP (CDR_SAFE (XD_NEXT_VALUE (object))))
+                {
+                  strcpy (signature,
+                          SSDATA (CAR_SAFE (XD_NEXT_VALUE (object))));
+                  object = CDR_SAFE (XD_NEXT_VALUE (object));
+                }
+              else
+                {
+                  xd_signature (signature,
+                                XD_OBJECT_TO_DBUS_TYPE (CAR_SAFE (object)),
+                                dtype, CAR_SAFE (XD_NEXT_VALUE (object)));
+                }
+            }
 
 	  XD_DEBUG_MESSAGE ("%c %s %s", dtype, signature,
 			    XD_OBJECT_TO_STRING (object));
@@ -803,6 +811,9 @@ xd_append_arg (int dtype, Lisp_Object object, DBusMessageIter *iter)
 	    XD_SIGNAL2 (build_string ("Cannot open container"),
 			make_number (dtype));
 	  break;
+
+        default:
+          break;
 	}
 
       /* Loop over list elements.  */
@@ -883,7 +894,7 @@ xd_retrieve_arg (int dtype, DBusMessageIter *iter)
     case DBUS_TYPE_UINT32:
 #ifdef DBUS_TYPE_UNIX_FD
     case DBUS_TYPE_UNIX_FD:
-#endif
+#endif /* DBUS_TYPE_UNIX_FD */
       {
 	dbus_uint32_t val;
 	unsigned int pval;
@@ -1011,7 +1022,7 @@ xd_find_watch_fd (DBusWatch *watch)
     fd = dbus_watch_get_socket (watch);
 #else
   int fd = dbus_watch_get_fd (watch);
-#endif
+#endif /* HAVE_DBUS_WATCH_GET_UNIX_FD */
   return fd;
 }
 
@@ -1063,7 +1074,7 @@ xd_remove_watch (DBusWatch *watch, void *data)
       XD_DEBUG_MESSAGE ("unsetenv DBUS_SESSION_BUS_ADDRESS");
       unsetenv ("DBUS_SESSION_BUS_ADDRESS");
     }
-#endif
+#endif /* 0 */
 
   if (flags & DBUS_WATCH_WRITABLE)
     delete_write_fd (fd);
@@ -1777,7 +1788,7 @@ syms_of_dbusbind (void)
   DEFSYM (QCdbus_type_signature, ":signature");
 #ifdef DBUS_TYPE_UNIX_FD
   DEFSYM (QCdbus_type_unix_fd, ":unix-fd");
-#endif
+#endif /* DBUS_TYPE_UNIX_FD */
   DEFSYM (QCdbus_type_array, ":array");
   DEFSYM (QCdbus_type_variant, ":variant");
   DEFSYM (QCdbus_type_struct, ":struct");
@@ -1793,7 +1804,7 @@ syms_of_dbusbind (void)
   Vdbus_compiled_version = build_pure_c_string (DBUS_VERSION_STRING);
 #else
   Vdbus_compiled_version = Qnil;
-#endif
+#endif /* DBUS_VERSION_STRING */
 
   DEFVAR_LISP ("dbus-runtime-version",
 	       Vdbus_runtime_version,
@@ -1807,7 +1818,7 @@ syms_of_dbusbind (void)
       = make_formatted_string (s, "%d.%d.%d", major, minor, micro);
 #else
     Vdbus_runtime_version = Qnil;
-#endif
+#endif /* DBUS_VERSION */
   }
 
   DEFVAR_LISP ("dbus-message-type-invalid",
@@ -1883,11 +1894,11 @@ be called when the D-Bus reply message arrives.  */);
 #ifdef DBUS_DEBUG
   Vdbus_debug = Qt;
   /* We can also set environment variable DBUS_VERBOSE=1 in order to
-     see more traces.  This requires libdbus-1 to be configured with
-     --enable-verbose-mode.  */
+   * see more traces.  This requires libdbus-1 to be configured with
+   * --enable-verbose-mode.  */
 #else
   Vdbus_debug = Qnil;
-#endif
+#endif /* DBUS_DEBUG */
 
   /* Initialize internal objects.  */
   xd_registered_buses = Qnil;
@@ -1895,6 +1906,13 @@ be called when the D-Bus reply message arrives.  */);
 
   Fprovide (intern_c_string ("dbusbind"), Qnil);
 
+  return;
 }
 
+#else
+/* keep file from being empty: */
+typedef int dbusbind_c_dummy_t;
+extern dbusbind_c_dummy_t dbusbind_c_dummy_var;
 #endif /* HAVE_DBUS */
+
+/* EOF */

@@ -1482,6 +1482,10 @@ get_dialog_title (char key)
   case 'Q': case 'q':
     title = "Question";
     break;
+
+  default:
+    /* ('title' stays '""') */
+    break;
   }
 
   return title;
@@ -2261,8 +2265,7 @@ xg_mark_data (void)
 
 /* Callback called when a menu item is destroyed.  Used to free data.
    W is the widget that is being destroyed (not used).
-   CLIENT_DATA points to the xg_menu_item_cb_data associated with the W.  */
-
+   CLIENT_DATA points to the xg_menu_item_cb_data associated with the W: */
 static void
 menuitem_destroy_callback (GtkWidget *w, gpointer client_data)
 {

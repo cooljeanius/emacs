@@ -48,64 +48,64 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "sysselect.h"
 
 #ifdef MSDOS
-#include "msdos.h"
-#endif
+# include "msdos.h"
+#endif /* MSDOS */
 
 #ifdef HAVE_X_WINDOWS
 /* This may include sys/types.h, and that somehow loses
    if this is not done before the other system files.  */
-#include "xterm.h"
-#endif
+# include "xterm.h"
+#endif /* HAVE_X_WINDOWS */
 
 /* Load sys/types.h if not already loaded.
    In some systems loading it twice is suicidal.  */
 #ifndef makedev
-#include <sys/types.h>
-#endif
+# include <sys/types.h>
+#endif /* !makedev */
 
 #include "dispextern.h"
 
 #ifdef HAVE_X_WINDOWS
-/*  Defining HAVE_MULTILINGUAL_MENU would mean that the toolkit menu
-    code accepts the Emacs internal encoding.  */
-#undef HAVE_MULTILINGUAL_MENU
-#ifdef USE_X_TOOLKIT
-#include "widget.h"
-#include <X11/Xlib.h>
-#include <X11/IntrinsicP.h>
-#include <X11/CoreP.h>
-#include <X11/StringDefs.h>
-#include <X11/Shell.h>
-#ifdef USE_LUCID
-#include "xsettings.h"
-#include "../lwlib/xlwmenu.h"
-#ifdef HAVE_XAW3D
-#include <X11/Xaw3d/Paned.h>
-#else /* !HAVE_XAW3D */
-#include <X11/Xaw/Paned.h>
-#endif /* HAVE_XAW3D */
-#endif /* USE_LUCID */
-#ifdef USE_MOTIF
-#include "../lwlib/lwlib.h"
-#endif
-#else /* not USE_X_TOOLKIT */
-#ifndef USE_GTK
-#include "../oldXMenu/XMenu.h"
-#endif
-#endif /* not USE_X_TOOLKIT */
+/* Defining HAVE_MULTILINGUAL_MENU would mean that the toolkit menu
+ * code accepts the Emacs internal encoding.  */
+# undef HAVE_MULTILINGUAL_MENU
+# ifdef USE_X_TOOLKIT
+#  include "widget.h"
+#  include <X11/Xlib.h>
+#  include <X11/IntrinsicP.h>
+#  include <X11/CoreP.h>
+#  include <X11/StringDefs.h>
+#  include <X11/Shell.h>
+#  ifdef USE_LUCID
+#   include "xsettings.h"
+#   include "../lwlib/xlwmenu.h"
+#   ifdef HAVE_XAW3D
+#    include <X11/Xaw3d/Paned.h>
+#   else /* !HAVE_XAW3D */
+#    include <X11/Xaw/Paned.h>
+#   endif /* HAVE_XAW3D */
+#  endif /* USE_LUCID */
+#  ifdef USE_MOTIF
+#   include "../lwlib/lwlib.h"
+#  endif /* USE_MOTIF */
+# else /* not USE_X_TOOLKIT */
+#  ifndef USE_GTK
+#   include "../oldXMenu/XMenu.h"
+#  endif /* !USE_GTK */
+# endif /* not USE_X_TOOLKIT */
 #endif /* HAVE_X_WINDOWS */
 
 #ifdef USE_GTK
-#include "gtkutil.h"
-#ifdef HAVE_GTK3
-#include "xgselect.h"
-#endif
-#endif
+# include "gtkutil.h"
+# ifdef HAVE_GTK3
+#  include "xgselect.h"
+# endif /* HAVE_GTK3 */
+#endif /* USE_GTK */
 
 #include "menu.h"
 
 #ifndef TRUE
-#define TRUE 1
+# define TRUE 1
 #endif /* no TRUE */
 
 static Lisp_Object Qdebug_on_next_call;
@@ -113,7 +113,7 @@ static Lisp_Object Qdebug_on_next_call;
 #if defined (USE_X_TOOLKIT) || defined (USE_GTK)
 static Lisp_Object xdialog_show (struct frame *, bool, Lisp_Object, Lisp_Object,
                                  const char **);
-#endif
+#endif /* USE_X_TOOLKIT || USE_GTK */
 
 /* Flag which when set indicates a dialog or menu has been posted by
    Xt on behalf of one of the widget sets.  */
@@ -143,7 +143,7 @@ menubar_id_to_frame (LWLIB_ID id)
   return 0;
 }
 
-#endif
+#endif /* USE_X_TOOLKIT */
 
 #ifdef HAVE_X_WINDOWS
 /* Return the mouse position in *X and *Y.  The coordinates are window
@@ -371,7 +371,7 @@ If FRAME is nil or not given, use the selected frame.  */)
         XtGetValues (menubar, al, 2);
         ev.xbutton.window = XtWindow (list[0]);
       }
-#endif
+#endif /* USE_MOTIF */
 
       XTranslateCoordinates (FRAME_X_DISPLAY (f),
                              /* From-window, to-window.  */
@@ -457,7 +457,7 @@ popup_widget_loop (int do_timers, GtkWidget *widget)
       gtk_main_iteration ();
     }
 }
-#endif
+#endif /* USE_GTK */
 
 /* Activate the menu bar of frame F.
    This is called from keyboard.c when it gets the
@@ -485,7 +485,7 @@ x_activate_menubar (struct frame *f)
   if (! xg_win_to_widget (FRAME_X_DISPLAY (f),
                           f->output_data.x->saved_menu_event->xany.window))
     return;
-#endif
+#endif /* USE_GTK */
 
   set_frame_menubar (f, 0, 1);
   block_input ();
@@ -495,7 +495,7 @@ x_activate_menubar (struct frame *f)
                  f->output_data.x->saved_menu_event);
 #else
   XtDispatchEvent (f->output_data.x->saved_menu_event);
-#endif
+#endif /* USE_GTK */
   unblock_input ();
 
   /* Ignore this if we get it a second time.  */
@@ -2363,7 +2363,7 @@ xmenu_show (struct frame *f, int x, int y, bool for_click, bool keymaps,
     case XM_SUCCESS:
 #ifdef XDEBUG
       fprintf (stderr, "pane= %d line = %d\n", panes, selidx);
-#endif
+#endif /* XDEBUG */
 
       /* Find the item number SELIDX in pane number PANE.  */
       i = 0;
@@ -2401,7 +2401,7 @@ xmenu_show (struct frame *f, int x, int y, bool for_click, bool keymaps,
       break;
 
     case XM_FAILURE:
-      *error_name = "Can't activate menu";
+      *error_name = "Cannot activate menu";
     case XM_IA_SELECT:
       break;
     case XM_NO_SELECT:
@@ -2412,6 +2412,8 @@ xmenu_show (struct frame *f, int x, int y, bool for_click, bool keymaps,
 	  unblock_input ();
 	  Fsignal (Qquit, Qnil);
 	}
+      break;
+    default:
       break;
     }
 
@@ -2449,9 +2451,9 @@ syms_of_xmenu (void)
   DEFSYM (Qdebug_on_next_call, "debug-on-next-call");
 
 #ifdef USE_X_TOOLKIT
-  widget_id_tick = (1<<16);
+  widget_id_tick = (1 << 16);
   next_menubar_widget_id = 1;
-#endif
+#endif /* USE_X_TOOLKIT */
 
   defsubr (&Smenu_or_popup_active_p);
 
@@ -2459,5 +2461,7 @@ syms_of_xmenu (void)
   defsubr (&Sx_menu_bar_open_internal);
   Ffset (intern_c_string ("accelerate-menu"),
 	 intern_c_string (Sx_menu_bar_open_internal.symbol_name));
-#endif
+#endif /* USE_GTK || USE_X_TOOLKIT */
 }
+
+/* EOF */

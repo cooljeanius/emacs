@@ -5896,6 +5896,8 @@ push_it (struct it *it, struct text_pos *position)
     case GET_FROM_STRETCH:
       p->u.stretch.object = it->object;
       break;
+    default:
+      break;
     }
   p->position = position ? *position : it->position;
   p->current = it->current;
@@ -6017,6 +6019,8 @@ pop_it (struct it *it)
 	  it->method = GET_FROM_BUFFER;
 	  it->object = it->w->contents;
 	}
+    default:
+      break;
     }
   it->end_charpos = p->end_charpos;
   it->string_nchars = p->string_nchars;
@@ -16673,15 +16677,15 @@ try_window (Lisp_Object window, struct text_pos pos, int flags)
       else
 	this_scroll_margin = 0;
 
-      if ((w->cursor.y >= 0	/* not vscrolled */
-	   && w->cursor.y < this_scroll_margin
-	   && CHARPOS (pos) > BEGV
-	   && IT_CHARPOS (it) < ZV)
+      if (((w->cursor.y >= 0)	/* not vscrolled */
+	   && (w->cursor.y < this_scroll_margin)
+	   && (CHARPOS(pos) > BEGV)
+	   && (IT_CHARPOS(it) < ZV))
 	  /* rms: considering make_cursor_line_fully_visible_p here
-	     seems to give wrong results.  We don't want to recenter
-	     when the last line is partly visible, we want to allow
-	     that case to be handled in the usual way.  */
-	  || w->cursor.y > it.last_visible_y - this_scroll_margin - 1)
+	   * seems to give wrong results.  We do NOT want to recenter
+	   * when the last line is partly visible, we want to allow
+	   * that case to be handled in the usual way.  */
+	  || (w->cursor.y > (it.last_visible_y - this_scroll_margin - 1)))
 	{
 	  w->cursor.vpos = -1;
 	  clear_glyph_matrix (w->desired_matrix);
@@ -21593,17 +21597,18 @@ display_mode_element (struct it *it, int depth, int field_width, int precision,
 		n += display_string (NULL, elt, Qnil, 0, 0, it,
 				     0, prec, 0, STRING_MULTIBYTE (elt));
 		break;
+              default:
+                break;
 	      }
 
 	    break;
 	  }
 
-	/* Handle the non-literal case.  */
-
-	while ((precision <= 0 || n < precision)
-	       && SREF (elt, offset) != 0
-	       && (mode_line_target != MODE_LINE_DISPLAY
-		   || it->current_x < it->last_visible_x))
+	/* Handle the non-literal case: */
+	while (((precision <= 0) || (n < precision))
+	       && (SREF(elt, offset) != 0)
+	       && ((mode_line_target != MODE_LINE_DISPLAY)
+		   || (it->current_x < it->last_visible_x)))
 	  {
 	    ptrdiff_t last_offset = offset;
 
@@ -21656,6 +21661,8 @@ display_mode_element (struct it *it, int depth, int field_width, int precision,
 					   STRING_MULTIBYTE (elt));
 		    }
 		    break;
+                  default:
+                    break;
 		  }
 	      }
 	    else /* c == '%' */
@@ -21737,6 +21744,8 @@ display_mode_element (struct it *it, int depth, int field_width, int precision,
 			    }
 			}
 			break;
+                      default:
+                        break;
 		      }
 		  }
 		else /* c == 0 */
@@ -21926,6 +21935,8 @@ display_mode_element (struct it *it, int depth, int field_width, int precision,
 	  n += display_string ("", Qnil, Qnil, 0, 0, it, field_width - n,
 			       0, 0, 0);
 	  break;
+        default:
+          break;
 	}
     }
 
@@ -22162,7 +22173,6 @@ pint2str (register char *buf, register int width, register ptrdiff_t d)
 /* Write a null-terminated, right justified decimal and "human
    readable" representation of the nonnegative integer D to BUF using
    a minimal field width WIDTH.  D should be smaller than 999.5e24. */
-
 static const char power_letter[] =
   {
     0,	 /* no letter */
@@ -22482,7 +22492,7 @@ decode_mode_spec (struct window *w, register int c, int field_width,
       }
 #else
       return "";
-#endif
+#endif /* SYSTEM_MALLOC */
 
     case 'F':
       /* %F displays the frame name.  */
@@ -22705,7 +22715,7 @@ decode_mode_spec (struct window *w, register int c, int field_width,
 	return "no process";
 #ifndef MSDOS
       obj = Fsymbol_name (Fprocess_status (obj));
-#endif
+#endif /* !MSDOS */
       break;
 
     case '@':
@@ -22758,6 +22768,9 @@ decode_mode_spec (struct window *w, register int c, int field_width,
 	*p = 0;
 	return decode_mode_spec_buf;
       }
+
+    default:
+      break;
     }
 
   if (STRINGP (obj))
@@ -28757,7 +28770,8 @@ note_mouse_highlight (struct frame *f, int x, int y)
 	return;
     }
 
-#if defined(HAVE_WINDOW_SYSTEM) && !(MAC_OS || HAVE_CARBON)
+#if defined(HAVE_WINDOW_SYSTEM) && \
+    !((defined(MAC_OS) && MAC_OS) || (defined(HAVE_CARBON) && HAVE_CARBON))
   if (part == ON_VERTICAL_BORDER)
     {
       cursor = FRAME_X_OUTPUT (f)->horizontal_drag_cursor;
@@ -28877,7 +28891,7 @@ note_mouse_highlight (struct frame *f, int x, int y)
 	      else
 		pointer = Vvoid_text_area_pointer;
 	    }
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
 	  goto set_cursor;
 	}
 

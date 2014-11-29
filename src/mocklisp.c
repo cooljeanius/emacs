@@ -24,28 +24,34 @@ Boston, MA 02111-1307, USA.  */
 #include <config.h>
 #include "lisp.h"
 #include "buffer.h"
+#include "mocklisp.h"
 
-/* Now in lisp code ("macrocode...")
-* DEFUN ("ml-defun", Fml_defun, Sml_defun, 0, UNEVALLED, 0,
-*  "Define mocklisp functions")
-*  (args)
-*     Lisp_Object args;
-* {
-*  Lisp_Object elt;
-*
-*   while (!NILP (args))
-*     {
-*       elt = Fcar (args);
-*       Ffset (Fcar (elt), Fcons (Qmocklisp, Fcdr (elt)));
-*       args = Fcdr (args);
-*     }
-*   return Qnil;
-* }
-*/
+/* warning: Feval() now takes 2 arguments, but this file appears to have
+ * been originally written when Feval() only took 1 argument...
+ * most of the 2nd arguments I have added to it in this file are just
+ * dummies... */
+
+/* Now in lisp code ("macrocode..."): */
+#if 0
+/**/DEFUN ("ml-defun", Fml_defun, Sml_defun, 0, UNEVALLED, 0,
+ doc: /* Define mocklisp functions.  */)
+ (Lisp_Object args)
+{
+ Lisp_Object elt;
+
+  while (!NILP (args))
+    {
+      elt = Fcar (args);
+      Ffset (Fcar (elt), Fcons (Qmocklisp, Fcdr (elt)));
+      args = Fcdr (args);
+    }
+  return Qnil;
+}
+#endif /* 0 */
 
-DEFUN ("ml-if", Fml_if, Sml_if, 0, UNEVALLED, 0, "Mocklisp version of `if'.")
-  (args)
-     Lisp_Object args;
+DEFUN ("ml-if", Fml_if, Sml_if, 0, UNEVALLED, 0,
+       doc: /* Mocklisp version of `if'.  */)
+  (Lisp_Object args)
 {
   register Lisp_Object val;
   struct gcpro gcpro1;
@@ -54,12 +60,12 @@ DEFUN ("ml-if", Fml_if, Sml_if, 0, UNEVALLED, 0, "Mocklisp version of `if'.")
   GCPRO1 (args);
   while (!NILP (args))
     {
-      val = Feval (Fcar (args));
+      val = Feval (Fcar (args), Qnil);
       args = Fcdr (args);
       if (NILP (args)) break;
       if (XINT (val))
 	{
-	  val = Feval (Fcar (args));
+	  val = Feval (Fcar (args), Qnil);
 	  break;
 	}
       args = Fcdr (args);
@@ -69,9 +75,9 @@ DEFUN ("ml-if", Fml_if, Sml_if, 0, UNEVALLED, 0, "Mocklisp version of `if'.")
 }
 
 #if 0 /* Now converted to regular "while" by hairier conversion code.  */
-/**/DEFUN ("ml-while", Fml_while, Sml_while, 1, UNEVALLED, 0, "while  for mocklisp programs")
-  (args)
-     Lisp_Object args;
+/**/DEFUN ("ml-while", Fml_while, Sml_while, 1, UNEVALLED, 0,
+           doc: /* `while' for mocklisp programs.  */)
+  (Lisp_Object args)
 {
   Lisp_Object test, body, tem;
   struct gcpro gcpro1, gcpro2;
@@ -80,7 +86,7 @@ DEFUN ("ml-if", Fml_if, Sml_if, 0, UNEVALLED, 0, "Mocklisp version of `if'.")
 
   test = Fcar (args);
   body = Fcdr (args);
-  while (tem = Feval (test), XINT (tem))
+  while (tem = Feval (test, Qnil), XINT (tem))
     {
       QUIT;
       Fprogn (body);
@@ -89,17 +95,16 @@ DEFUN ("ml-if", Fml_if, Sml_if, 0, UNEVALLED, 0, "Mocklisp version of `if'.")
   UNGCPRO;
   return Qnil;
 }
-#endif
+#endif /* 0 */
 
 /* This is the main entry point to mocklisp execution.
- When eval sees a mocklisp function being called, it calls here
- with the unevaluated argument list */
+ * When eval sees a mocklisp function being called, it calls here
+ * with the unevaluated argument list */
 
 Lisp_Object
-ml_apply (function, args)
-     Lisp_Object function, args;
+ml_apply (Lisp_Object function, Lisp_Object args)
 {
-  register int count = specpdl_ptr - specpdl;
+  register int count = (specpdl_ptr - specpdl);
   register Lisp_Object val;
 
   specbind (Qmocklisp_arguments, args);
@@ -108,8 +113,8 @@ ml_apply (function, args)
 }
 
 DEFUN ("ml-nargs", Fml_nargs, Sml_nargs, 0, 0, 0,
-  "Number of arguments to currently executing mocklisp function.")
-  ()
+  doc: /* Number of arguments to currently executing mocklisp function.  */)
+  (void)
 {
   if (EQ (Vmocklisp_arguments, Qinteractive))
     return make_number (0);
@@ -117,9 +122,8 @@ DEFUN ("ml-nargs", Fml_nargs, Sml_nargs, 0, 0, 0,
 }
 
 DEFUN ("ml-arg", Fml_arg, Sml_arg, 1, 2, 0,
-  "Argument number N to currently executing mocklisp function.")
-  (n, prompt)
-     Lisp_Object n, prompt;
+  doc: /* Argument number N to currently executing mocklisp function.  */)
+  (Lisp_Object n, Lisp_Object prompt)
 {
   if (EQ (Vmocklisp_arguments, Qinteractive))
     return Fread_string (prompt, Qnil, Qnil, Qnil, Qnil);
@@ -129,30 +133,28 @@ DEFUN ("ml-arg", Fml_arg, Sml_arg, 1, 2, 0,
 }
 
 DEFUN ("ml-interactive", Fml_interactive, Sml_interactive, 0, 0, 0,
- "True if currently executing mocklisp function was called interactively.")
-  ()
+ doc: /* True if currently executing mocklisp function was called interactively.  */)
+  (void)
 {
   return (EQ (Vmocklisp_arguments, Qinteractive)) ? Qt : Qnil;
 }
 
 DEFUN ("ml-provide-prefix-argument", Fml_provide_prefix_argument, Sml_provide_prefix_argument,
   2, UNEVALLED, 0,
-  "Evaluate second argument, using first argument as prefix arg value.")
-  (args)
-     Lisp_Object args;
+  doc: /* Evaluate second argument, using first argument as prefix arg value.  */)
+  (Lisp_Object args)
 {
   struct gcpro gcpro1;
   GCPRO1 (args);
-  Vcurrent_prefix_arg = Feval (Fcar (args));
+  Vcurrent_prefix_arg = Feval (Fcar (args), Qnil);
   UNGCPRO;
-  return Feval (Fcar (Fcdr (args)));
+  return Feval (Fcar (Fcdr (args)), Qnil);
 }
 
 DEFUN ("ml-prefix-argument-loop", Fml_prefix_argument_loop, Sml_prefix_argument_loop,
        0, UNEVALLED, 0,
-  "")
-  (args)
-     Lisp_Object args;
+       doc: /* undocumented.  */)
+  (Lisp_Object args)
 {
   register Lisp_Object tem;
   register int i;
@@ -181,10 +183,9 @@ DEFUN ("ml-prefix-argument-loop", Fml_prefix_argument_loop, Sml_prefix_argument_
 #if 0 /* Now in mlsupport.el */
 
 DEFUN ("ml-substr", Fml_substr, Sml_substr, 3, 3, 0,
-  "Return a substring of STRING, starting at index FROM and of length LENGTH.\n\
-If either FROM or LENGTH is negative, the length of STRING is added to it.")
-  (string, from, to)
-     Lisp_Object string, from, to;
+  doc: /* Return a substring of STRING, starting at index FROM and of length LENGTH.
+If either FROM or LENGTH is negative, the length of STRING is added to it.  */)
+  (Lisp_Object string, Lisp_Object from, Lisp_Object to)
 {
   CHECK_STRING (string, 0);
   CHECK_NUMBER (from, 1);
@@ -199,12 +200,10 @@ If either FROM or LENGTH is negative, the length of STRING is added to it.")
 }
 #endif /* 0 */
 DEFUN ("insert-string", Finsert_string, Sinsert_string, 0, MANY, 0,
-  "Mocklisp-compatibility insert function.\n\
-Like the function `insert' except that any argument that is a number\n\
-is converted into a string by expressing it in decimal.")
-  (nargs, args)
-     int nargs;
-     Lisp_Object *args;
+  doc: /* Mocklisp-compatibility insert function.
+Like the function `insert' except that any argument that is a number
+is converted into a string by expressing it in decimal.  */)
+  (int nargs, Lisp_Object *args)
 {
   register int argnum;
   register Lisp_Object tem;
@@ -229,19 +228,29 @@ is converted into a string by expressing it in decimal.")
 
 
 void
-syms_of_mocklisp ()
+syms_of_mocklisp (void)
 {
   Qmocklisp = intern ("mocklisp");
   staticpro (&Qmocklisp);
 
-/*defsubr (&Sml_defun);*/
+#if 0
+  defsubr (&Sml_defun);
+#endif /* 0 */
   defsubr (&Sml_if);
-/*defsubr (&Sml_while);*/
+#if 0
+  defsubr (&Sml_while);
+#endif /* 0 */
   defsubr (&Sml_arg);
   defsubr (&Sml_nargs);
   defsubr (&Sml_interactive);
   defsubr (&Sml_provide_prefix_argument);
   defsubr (&Sml_prefix_argument_loop);
-/*defsubr (&Sml_substr);*/
+#if 0
+  defsubr (&Sml_substr);
+#endif /* 0 */
   defsubr (&Sinsert_string);
+  
+  return;
 }
+
+/* EOF */

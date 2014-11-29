@@ -82,11 +82,19 @@ DISTCLEANFILES = .DS_Store *~ build-aux/*~ build-aux/snippet/*~ m4/*~
 cache_file = @cache_file@
 CONFIGURE_FLAGS = --cache-file=$(cache_file)
 
+AUTOCONF = @AUTOCONF@
+AUTOMAKE = @AUTOMAKE@
+AUTOHEADER = @AUTOHEADER@
+ACLOCAL = @ACLOCAL@
+AWK = @AWK@
+
 CC=@CC@
 CFLAGS=@CFLAGS@
 LDFLAGS=@LDFLAGS@
 CPPFLAGS=@CPPFLAGS@
 EXEEXT=@EXEEXT@
+
+SED = @SED@
 
 ### These help us choose version- and architecture-specific directories
 ### to install files in.
@@ -192,6 +200,9 @@ x_default_search_path=@x_default_search_path@
 # Where the etc/emacs.desktop file is to be installed.
 desktopdir=$(datarootdir)/applications
 
+# Where the etc/emacs.appdata.xml file is to be installed.
+appdatadir=$(datarootdir)/appdata
+
 # Where the etc/images/icons/hicolor directory is to be installed.
 icondir=$(datarootdir)/icons
 
@@ -272,7 +283,7 @@ MKDIR_P = @MKDIR_P@
 # Create a link to a file in the same directory as the target.
 LN_S_FILEONLY = @LN_S_FILEONLY@
 
-# We use gzip to compress installed .el files.
+# We use gzip to compress installed .el and some .txt files.
 GZIP_PROG = @GZIP_PROG@
 
 # ============================= Targets ==============================
@@ -281,16 +292,20 @@ GZIP_PROG = @GZIP_PROG@
 TRANSFORM = @program_transform_name@
 
 # What emacs should be called when installed.
-EMACS_NAME = `echo emacs | sed '$(TRANSFORM)'`
+EMACS_NAME = `echo emacs | $(SED) '$(TRANSFORM)'`
 EMACS = ${EMACS_NAME}${EXEEXT}
-EMACSFULL = `echo emacs-${version} | sed '$(TRANSFORM)'`${EXEEXT}
+EMACSFULL = `echo emacs-${version} | $(SED) '$(TRANSFORM)'`${EXEEXT}
 
 # Subdirectories to make recursively.
 SUBDIR = $(NTDIR) lib lib-src src lisp lispintro lispref
+# As above, but only the ones with C sources:
+SUBDIR_C = $(NTDIR) lib lib-src src
+# For real though:
+SUBDIR_REALLY_ONLY_C = lib lib-src
 
 # The subdir makefiles created by config.status.
 SUBDIR_MAKEFILES_IN = @SUBDIR_MAKEFILES_IN@
-SUBDIR_MAKEFILES = `echo $(SUBDIR_MAKEFILES_IN:.in=) | sed 's|$(srcdir)/||g'`
+SUBDIR_MAKEFILES = `echo $(SUBDIR_MAKEFILES_IN:.in=) | $(SED) 's|$(srcdir)/||g'`
 
 # Subdirectories to install, and where they will go.  lib-src's and nt's
 # makefiles know how to install them, so we do NOT do that here.
@@ -299,23 +314,45 @@ SUBDIR_MAKEFILES = `echo $(SUBDIR_MAKEFILES_IN:.in=) | sed 's|$(srcdir)/||g'`
 COPYDIR = ${srcdir}/etc ${srcdir}/lisp
 COPYDESTS = "$(DESTDIR)${etcdir}" "$(DESTDIR)${lispdir}"
 
-all: ${SUBDIR}
+all: ${SUBDIR} info
+all_c: ${SUBDIR_C}
+all_only_c: ${SUBDIR_REALLY_ONLY_C}
 
-.PHONY: all ${SUBDIR} blessmail epaths-force epaths-force-w32 FRC
+.PHONY: all all_c ${SUBDIR} blessmail epaths-force epaths-force-w32 FRC
+.PHONY: etc-emacsver all_only_c
 
-removenullpaths=sed -e 's/^:*//' -e 's/:*$$//g' -e 's/::*/:/g'
+# If configure were to just generate emacsver.tex from emacsver.tex.in
+# in the normal way, the timestamp of emacsver.tex would always be
+# newer than that of the pdf files, which are prebuilt in release tarfiles.
+# So we use this rule, and move-if-change, to avoid that.
+etc-emacsver:
+	majorversion=`echo ${version} | $(SED) 's/\..*//'`; \
+	$(SED) "s/[@]majorversion@/$${majorversion}/" \
+	  ${srcdir}/etc/refcards/emacsver.tex.in > emacsver.tex.$$$$ && \
+	  ${srcdir}/build-aux/move-if-change emacsver.tex.$$$$ \
+	  ${srcdir}/etc/refcards/emacsver.tex
+
+removenullpaths=$(SED) -e 's/^:*//' -e 's/:*$$//g' -e 's/::*/:/g'
 
 # Generate epaths.h from epaths.in.  This target is invoked by `configure'.
 # See comments in configure.ac for why it is done this way, as opposed
 # to just letting configure generate epaths.h from epaths.in in a
 # similar way to how Makefile is made from Makefile.in.
 epaths-force: FRC
+	@for dir in '$(abs_srcdir)' '$(lispdir)' '$(archlibdir)'; do \
+	  case $${dir} in \
+	    *:*) \
+	      echo >&2 "Build or installation directory '$${dir}'"; \
+	      echo >&2 "cannot contain ':'."; \
+	      exit 1;; \
+	  esac; \
+	done
 	@(standardlisppath=`echo "${standardlisppath}" | ${removenullpaths}` ; \
 	  locallisppath=`echo "${locallisppath}" | ${removenullpaths}` ; \
 	  buildlisppath=`echo "${buildlisppath}" | ${removenullpaths}` ; \
 	  x_default_search_path=`echo ${x_default_search_path}`; \
 	  gamedir=`echo ${gamedir}`; \
-	  sed < ${srcdir}/src/epaths.in > epaths.h.$$$$		\
+	  $(SED) < ${srcdir}/src/epaths.in > epaths.h.$$$$		\
 	  -e 's;\(#.*PATH_LOADSEARCH\).*$$;\1 "'"$${standardlisppath}"'";' \
 	  -e 's;\(#.*PATH_SITELOADSEARCH\).*$$;\1 "'"$${locallisppath}"'";' \
 	  -e 's;\(#.*PATH_DUMPLOADSEARCH\).*$$;\1 "'"$${buildlisppath}"'";' \
@@ -330,11 +367,11 @@ epaths-force: FRC
 
 # Replace "${w32prefix}" with '%emacs_dir%' (which expands to install
 # directory at runtime).
-msys_w32prefix_subst=sed -e 's!\(^\|;\)'"$${w32prefixpattern}"'\([;/]\|$$\)!\1%emacs_dir%\2!g'
+msys_w32prefix_subst=$(SED) -e 's!\(^\|;\)'"$${w32prefixpattern}"'\([;/]\|$$\)!\1%emacs_dir%\2!g'
 
 # Quote Sed special characters (except backslash and newline) with
 # a double backslash.
-msys_sed_sh_escape=sed -e 's/[];$$*.^[]/\\\\&/g'
+msys_sed_sh_escape=$(SED) -e 's/[];$$*.^[]/\\\\&/g'
 
 # The w32 build needs a slightly different editing, and it uses
 # nt/epaths.nt as the template.
@@ -351,7 +388,7 @@ epaths-force-w32: FRC
 	  w32prefix=`${srcdir}/build-aux/msys-to-w32 "${prefix}" N`; \
 	  w32prefixpattern=`echo "$${w32prefix}" | ${msys_sed_sh_escape}` ; \
 	  w32locallisppath=`${srcdir}/build-aux/msys-to-w32 "${locallisppath}" N ":" "\\;" | ${msys_w32prefix_subst}` ; \
-	  sed < ${srcdir}/nt/epaths.nt > epaths.h.$$$$		\
+	  $(SED) < ${srcdir}/nt/epaths.nt > epaths.h.$$$$		\
 	  -e 's;\(#.*PATH_SITELOADSEARCH\).*$$;\1 "'"$${w32locallisppath}"'";' \
 	  -e '/^.*#/s/@VER@/${version}/g' 			\
 	  -e '/^.*#/s/@CFG@/${configuration}/g' 		\
@@ -386,12 +423,24 @@ lib lib-src lisp nt: Makefile FRC
 # actual src/emacs, which is not wrong, but is overkill in 99.99% of the
 # cases.
 #
+# Ideally, VCSWITNESS should be a file that is modified whenever the
+# repository registers a commit from either a local checkin or a
+# repository pull. In git there is no single file that guarantees
+# this, but the local log for the current head should be close enough.
+#
 # Note the use of single quotes in the value of vcswitness.
-# This passes an unexpanded $srcdir to src's Makefile, which then
+# This passes an unexpanded ${srcdir} to src's Makefile, which then
 # expands it using its own value of srcdir (which points to the
 # source directory of src/).
 src: Makefile FRC
-	dirstate='.bzr/checkout/dirstate';				\
+	if [ -d .git ]; then 				                \
+	  dirstate='.git/logs/HEAD'; 				        \
+	elif [ -d .bzr ]; then				                \
+	  dirstate='.bzr/checkout/dirstate';				\
+	else 				                                \
+	  echo "warning: unsure what to set dirstate to" >&2;           \
+	  dirstate='dirstate'; 				                \
+	fi; 				                                \
 	vcswitness='$$(srcdir)/../'$${dirstate};			\
 	[ -r "$(srcdir)/$${dirstate}" ] || vcswitness='';		\
 	cd $@ || exit;							\
@@ -437,16 +486,17 @@ config.status: ${srcdir}/configure ${srcdir}/lisp/version.el
 AUTOCONF_INPUTS = $(srcdir)/configure.ac $(srcdir)/aclocal.m4
 
 $(srcdir)/configure: $(AUTOCONF_INPUTS)
-	cd ${srcdir} && autoconf
+	cd ${srcdir} && ${AUTOCONF}
 
+ACLOCAL_PATH = @ACLOCAL_PATH@
 ACLOCAL_INPUTS = $(srcdir)/configure.ac $(srcdir)/m4/gnulib-comp.m4
 $(srcdir)/aclocal.m4: $(ACLOCAL_INPUTS)
-	cd $(srcdir) && aclocal $(ACLOCAL_AMFLAGS)
+	cd $(srcdir) && ACLOCAL_PATH='$(ACLOCAL_PATH)' $(ACLOCAL) $(ACLOCAL_AMFLAGS)
 
 AUTOMAKE_INPUTS = $(srcdir)/aclocal.m4 $(srcdir)/lib/Makefile.am \
   $(srcdir)/lib/gnulib.mk
 $(srcdir)/lib/Makefile.in: $(AUTOMAKE_INPUTS)
-	cd $(srcdir) && automake --gnits -a -c lib/Makefile
+	cd $(srcdir) && $(AUTOMAKE) --gnits -a -c lib/Makefile
 
 # Regenerate files that this makefile would have made, if this makefile
 # had been built by Automake.  The name 'am--refresh' is for
@@ -454,14 +504,14 @@ $(srcdir)/lib/Makefile.in: $(AUTOMAKE_INPUTS)
 am--refresh: $(srcdir)/aclocal.m4 $(srcdir)/configure $(srcdir)/src/config.in
 .PHONY: am--refresh
 
-## Usually, there is no need to rebuild src/config.in just
-## because stamp-h.in has changed (since building stamp-h.in
-## refreshes config.in as well), but if config.in is missing
-## then we really need to do something more.
 $(srcdir)/src/config.in: $(srcdir)/src/stamp-h.in
-	[ -r "$@" ] || ( cd ${srcdir} && autoheader )
+	@ # Usually, there is no need to rebuild src/config.in just
+	@ # because stamp-h.in has changed (since building stamp-h.in
+	@ # refreshes config.in as well), but if config.in is missing
+	@ # then we really need to do something more.
+	[ -r "$@" ] || ( cd ${srcdir} && ${AUTOHEADER} )
 $(srcdir)/src/stamp-h.in: $(AUTOCONF_INPUTS)
-	cd ${srcdir} && autoheader
+	cd ${srcdir} && ${AUTOHEADER}
 	rm -f $(srcdir)/src/stamp-h.in
 	echo "timestamp: `date`" > $(srcdir)/src/stamp-h.in
 
@@ -487,7 +537,7 @@ write_subdir=if [ -f "$${subdir}/subdirs.el" ]; \
 	then echo "found subdirs.el"; \
 	else \
 	  umask 022; \
-	  ${MKDIR_P} "$${subdir}"; \
+	  ${MKDIR_P} -v "$${subdir}"; \
 	  (echo "(if (fboundp 'normal-top-level-add-subdirs-to-load-path)"; \
 	   echo "    (normal-top-level-add-subdirs-to-load-path))") \
 	    > "$${subdir}/subdirs.el"; \
@@ -497,7 +547,7 @@ write_subdir=if [ -f "$${subdir}/subdirs.el" ]; \
 ### machine. We do install-arch-indep first because the executable needs
 ### the Lisp files and DOC file to work properly.
 install-arch-dep: src install-arch-indep install-etcdoc install-$(NTDIR)
-	umask 022; ${MKDIR_P} "$(DESTDIR)${bindir}"
+	umask 022; ${MKDIR_P} -v "$(DESTDIR)${bindir}"
 	cd lib-src && \
 	  $(MAKE) install $(MFLAGS) prefix="${prefix}" \
 	    exec_prefix="${exec_prefix}" bindir="${bindir}" \
@@ -520,7 +570,7 @@ install-arch-dep: src install-arch-indep install-etcdoc install-$(NTDIR)
 	  rm -rf ${ns_appresdir}/share; \
 	fi
 	if test "x${carbon_appdir}" != "x"; then \
-	  umask 022; ${MKDIR_P} $(DESTDIR)${carbon_appdir}/Emacs.app; \
+	  umask 022; ${MKDIR_P} -v $(DESTDIR)${carbon_appdir}/Emacs.app; \
 	  (cd mac/Emacs.app; (tar -chf - . | \
 		(cd $(DESTDIR)${carbon_appdir}/Emacs.app; umask 022; tar -xvf - \
 			&& cat > /dev/null))) || exit 1; \
@@ -603,8 +653,8 @@ install-arch-indep: lisp install-info install-man ${INSTALL_ARCH_INDEP_EXTRA}
 	  else echo "$${dest} is not a directory"; \
 	  fi; \
 	  rm -rf "$${dest}" ; \
-	  umask 022; ${MKDIR_P} "$${dest}" ; \
-	  echo "Copying $${dir} to $${dest}..." ; \
+	  umask 022; ${MKDIR_P} -v "$${dest}"; \
+	  echo "Copying $${dir} to $${dest}..."; \
 	  (cd $${dir}; tar -chf - . ) \
 	    | (cd "$${dest}"; umask 022; \
 	       tar -xvf - && cat > /dev/null) || exit 1; \
@@ -652,7 +702,7 @@ install-arch-indep: lisp install-info install-man ${INSTALL_ARCH_INDEP_EXTRA}
 ## installed etc/ directory, so we need it to run before this does.
 install-etcdoc: src install-arch-indep
 	-unset CDPATH; \
-	umask 022; ${MKDIR_P} "$(DESTDIR)${etcdocdir}" ; \
+	umask 022; ${MKDIR_P} -v "$(DESTDIR)${etcdocdir}" ; \
 	exp_etcdocdir=`cd "$(DESTDIR)${etcdocdir}"; /bin/pwd`; \
 	if [ "`cd ./etc; /bin/pwd`" != "$${exp_etcdocdir}" ]; \
 	then \
@@ -672,7 +722,7 @@ install-etcdoc: src install-arch-indep
 ## If HAVE_MAKEINFO = no and there are no info files, do not install
 ## info/dir.
 install-info: info
-	umask 022; ${MKDIR_P} "$(DESTDIR)${infodir}"
+	umask 022; ${MKDIR_P} -v "$(DESTDIR)${infodir}"
 	-unset CDPATH; \
 	thisdir=`/bin/pwd`; \
 	exp_infodir=`cd "$(DESTDIR)${infodir}" && /bin/pwd`; \
@@ -705,11 +755,11 @@ install-info: info
 ## ctags.1 is compressed or not.  "gzip -f" is another option here,
 ## but not sure if portable.
 install-man:
-	umask 022; ${MKDIR_P} "$(DESTDIR)${man1dir}"
+	umask 022; ${MKDIR_P} -v "$(DESTDIR)${man1dir}"
 	thisdir=`/bin/pwd`; \
 	cd ${mansrcdir}; \
 	for page in *.1; do \
-	  dest=`echo "$${page}" | sed -e 's/\.1$$//' -e '$(TRANSFORM)'`.1; \
+	  dest=`echo "$${page}" | $(SED) -e 's/\.1$$//' -e '$(TRANSFORM)'`.1; \
 	  (cd "$${thisdir}"; \
 	   ${INSTALL_DATA} ${mansrcdir}/$${page} "$(DESTDIR)${man1dir}/$${dest}"); \
 	  [ -n "${GZIP_PROG}" ] || continue ; \
@@ -724,23 +774,29 @@ install-man:
 EMACS_ICON=emacs
 
 install-etc:
-	umask 022; ${MKDIR_P} "$(DESTDIR)${desktopdir}"
+	umask 022; ${MKDIR_P} -v "$(DESTDIR)${desktopdir}"
 	tmp=etc/emacs.tmpdesktop; rm -f $${tmp}; \
-	emacs_name=`echo emacs | sed '$(TRANSFORM)'`; \
-	sed -e "/^Exec=emacs/ s/emacs/$${emacs_name}/" \
+	emacs_name=`echo emacs | $(SED) '$(TRANSFORM)'`; \
+	$(SED) -e "/^Exec=emacs/ s/emacs/$${emacs_name}/" \
 	  -e "/^Icon=emacs/ s/emacs/$${emacs_name}/" \
 	  ${srcdir}/etc/emacs.desktop > $${tmp}; \
 	${INSTALL_DATA} $${tmp} "$(DESTDIR)${desktopdir}/${EMACS_NAME}.desktop"; \
+	rm -f $${tmp}
+	umask 022; ${MKDIR_P} -v "$(DESTDIR)${appdatadir}"
+	tmp=etc/emacs.tmpappdata; rm -f $${tmp}; \
+	$(SED) -e "s/emacs\.desktop/${EMACS_NAME}.desktop/" \
+	  ${srcdir}/etc/emacs.appdata.xml > $${tmp}; \
+	${INSTALL_DATA} $${tmp} "$(DESTDIR)${appdatadir}/${EMACS_NAME}.appdata.xml"; \
 	rm -f $${tmp}
 	thisdir=`/bin/pwd`; \
 	cd ${iconsrcdir} || exit 1; umask 022 ; \
 	for dir in */*/apps */*/mimetypes; do \
 	  [ -d $${dir} ] || continue ; \
-	  ( cd "$${thisdir}"; ${MKDIR_P} "$(DESTDIR)${icondir}/$${dir}" ) ; \
+	  (cd "$${thisdir}"; ${MKDIR_P} "$(DESTDIR)${icondir}/$${dir}"); \
 	  for icon in $${dir}/${EMACS_ICON}[.-]*; do \
 	    [ -r $${icon} ] || continue ; \
-	    ext=`echo "$${icon}" | sed -e 's|.*\.||'`; \
-	    dest=`echo "$${icon}" | sed -e 's|.*/||' -e "s|\.$${ext}$$||" -e 's/$(EMACS_ICON)/emacs/' -e '$(TRANSFORM)'`.$${ext} ; \
+	    ext=`echo "$${icon}" | $(SED) -e 's|.*\.||'`; \
+	    dest=`echo "$${icon}" | $(SED) -e 's|.*/||' -e "s|\.$${ext}$$||" -e 's/$(EMACS_ICON)/emacs/' -e '$(TRANSFORM)'`.$${ext} ; \
 	    ( cd "$${thisdir}"; \
 	      ${INSTALL_DATA} ${iconsrcdir}/$${icon} "$(DESTDIR)${icondir}/$${dir}/$${dest}" ) \
 	    || exit 1; \
@@ -794,15 +850,16 @@ uninstall: uninstall-$(NTDIR) uninstall-doc
 	    ext=.gz; else ext=""; fi; \
 	 if cd ${mansrcdir}; then \
 	   for page in *.1; do \
-	     rm -f "$(DESTDIR)${man1dir}"/`echo "$${page}" | sed -e 's/\.1$$//' -e '$(TRANSFORM)'`.1$$ext; done; \
+	     rm -f "$(DESTDIR)${man1dir}"/`echo "$${page}" | $(SED) -e 's/\.1$$//' -e '$(TRANSFORM)'`.1$${ext}; done; \
 	 fi)
 	(cd "$(DESTDIR)${bindir}" && rm -f $(EMACSFULL) $(EMACS) || true)
 	(if cd "$(DESTDIR)${icondir}"; then \
 	   rm -f hicolor/*x*/apps/${EMACS_NAME}.png \
 	     hicolor/scalable/apps/${EMACS_NAME}.svg \
-	     hicolor/scalable/mimetypes/`echo emacs-document | sed '$(TRANSFORM)'`.svg; \
+	     hicolor/scalable/mimetypes/`echo emacs-document | $(SED) '$(TRANSFORM)'`.svg; \
 	fi)
 	-rm -f "$(DESTDIR)${desktopdir}/${EMACS_NAME}.desktop"
+	-rm -f "$(DESTDIR)${appdatadir}/${EMACS_NAME}.appdata.xml"
 	for file in snake-scores tetris-scores; do \
 	  file="$(DESTDIR)${gamedir}/$${file}"; \
 	  [ -s "$${file}" ] || rm -f "$$file"; \
@@ -976,7 +1033,7 @@ check: all
 	  cd test/automated && $(MAKE) $(MFLAGS) check; \
 	fi
 
-dist:
+dist: ${srcdir}/./make-dist
 	cd ${srcdir}; ./make-dist
 
 DVIS  = lispref-dvi  lispintro-dvi  emacs-dvi  misc-dvi
@@ -1017,10 +1074,12 @@ info_dir_deps = ${srcdir}/build-aux/dir_top \
 ## but then we would need to depend on info-real, which would
 ## slow down parallelization.
 ${srcdir}/info/dir: ${info_dir_deps}
+	${MKDIR_P} -v ${srcdir}/info
 	tempfile=info-dir.$$$$; \
 	rm -f $${tempfile}; \
 	thisdir=`pwd`; \
-	(cd ${srcdir} && ./build-aux/make-info-dir $${thisdir}/$${tempfile}); \
+	(cd ${srcdir} && 
+	 AWK='${AWK}' ./build-aux/make-info-dir $${thisdir}/$${tempfile}); \
 	${srcdir}/build-aux/move-if-change $${tempfile} ${srcdir}/info/dir
 
 INSTALL_DVI = install-emacs-dvi install-lispref-dvi \
@@ -1099,7 +1158,7 @@ check-info: info
 	  case $${file} in \
 	    *-[0-9]*|COPYING|dir) continue ;; \
 	  esac ; \
-	  cat=`sed -n 's/^INFO-DIR-SECTION //p' $${file}`; \
+	  cat=`$(SED) -n 's/^INFO-DIR-SECTION //p' $${file}`; \
 	  case $${cat} in \
 	   "Texinfo documentation system" | "Emacs"| "Emacs lisp" | \
            "Emacs editing modes" | "Emacs network features" | \
@@ -1184,16 +1243,38 @@ emacswrapper.o: emacswrapper.c dumpemacs.h
 emacswrapper: emacswrapper.o isemacsvalid.o runit.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ -g $^
 
+# umbrella target for the above:
+apple_helper_executables: dumpemacs emacswrapper
+	stat dumpemacs
+	stat emacswrapper
+.PHONY: apple_helper_executables
+
+### To avoid lisp byte-compilation errors, try this:
+# (make globals.h early to prevent errors)
+only_temacs: src/Makefile @MAINT@ $(SUBDIR_REALLY_ONLY_C)
+	$(MAKE) -C src globals.h
+	$(MAKE) -C src temacs
+.PHONY: only_temacs
+
+# might also need this:
+gnulib_headers: lib/Makefile
+	$(MAKE) -C lib headers
+.PHONY: gnulib-headers
+
 ### Targets for in case we convert to automake:
 clean-local:
 	rm -f bo.h dumpemacs emacswrapper *.o
+.PHONY: clean-local
 
 distclean-local: clean-local
 	rm -rf autom4te.cache || rmdir autom4te.cache
 	if test -e ldd.sh; then rm -f ldd.sh; fi
+.PHONY: distclean-local
 
 maintainer-clean-local: distclean-local
 	rm -f configure*.scan autoscan.log
+.PHONY: maintainer-clean-local
 
 extraclean-local: maintainer-clean-local
 	-find . -name .DS_Store -delete 2>/dev/null
+.PHONY: extraclean-local

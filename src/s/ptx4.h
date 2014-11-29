@@ -46,8 +46,7 @@ Boston, MA 02110-1301, USA.  */
  */
 
 /* rms: I hope that older versions which do have ttcompat
-   will not get confused by the code to use ptem.  */
-
+ * will not get confused by the code to use ptem: */
 #undef SETUP_SLAVE_PTY
 #define SETUP_SLAVE_PTY \
   if (ioctl (xforkin, I_PUSH, "ptem") == -1 && errno != EINVAL) \

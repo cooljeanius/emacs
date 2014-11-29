@@ -1,3 +1,5 @@
+# gitignore file for emacs/nt
+
 debug.bat
 emacs.bat
 

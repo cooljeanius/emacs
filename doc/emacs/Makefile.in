@@ -26,6 +26,8 @@ SHELL = @SHELL@
 # of the source tree.  This is set by configure's `--srcdir' option.
 srcdir=@srcdir@
 
+top_srcdir = @top_srcdir@
+
 # Only for make dist.
 version=@version@
 
@@ -185,7 +187,20 @@ emacs-xtra.dvi: $(EMACS_XTRA)
 emacs-xtra.pdf: $(EMACS_XTRA)
 	$(ENVADD) $(TEXI2PDF) ${srcdir}/emacs-xtra.texi
 
-.PHONY: mostlyclean clean distclean maintainer-clean infoclean
+.PHONY: doc-emacsver
+
+# If configure were to just generate emacsver.texi from emacsver.texi.in
+# in the normal way, the timestamp of emacsver.texi would always be
+# newer than that of the info files, which are prebuilt in release tarfiles.
+# So we use this rule, and move-if-change, to avoid that.
+doc-emacsver:
+	sed 's/[@]version@/${version}/' \
+	  ${srcdir}/emacsver.texi.in > emacsver.texi.$$$$ && \
+	  ${top_srcdir}/build-aux/move-if-change emacsver.texi.$$$$ \
+	  ${srcdir}/emacsver.texi
+
+.PHONY: mostlyclean clean distclean bootstrap-clean maintainer-clean
+.PHONY: infoclean
 
 ## Temp files.
 mostlyclean:
@@ -204,7 +219,8 @@ distclean: clean
 infoclean:
 	-cd $(buildinfodir) && rm -f emacs$(INFO_EXT) emacs$(INFO_EXT)-[1-9] emacs$(INFO_EXT)-[1-9][0-9]
 
-maintainer-clean: distclean infoclean
+bootstrap-clean maintainer-clean: distclean infoclean
+	rm -f ${srcdir}/emacsver.texi
 
 .PHONY: dist
 

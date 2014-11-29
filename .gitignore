@@ -1,3 +1,5 @@
+# top-level gitignore for emacs
+
 # allow the configure script, so that it is easier to see what effect my
 # changes are having on it.
 configure*.scan
@@ -20,11 +22,15 @@ missing
 # as allowing the configure script
 po/Makevars
 src/config.in
+# this catches both autom4te.cache and config.cache:
 *.cache
 makefile
 TAGS
 *~
+.#*
 *.o
+*.exe
+*.res
 /README.W32
 
 # not sure why the break?
@@ -35,7 +41,9 @@ etc/refcards/*.aux
 etc/refcards/*.log
 # actually the entire info subdir should be gitignored:
 info/*
+test/biditest.txt
 *DS_Store*
+# this catches config.status:
 *.status
 *.bak
 *.orig
@@ -45,3 +53,5 @@ bootstrap-stamp
 *.elc
 confdefs.h
 conftest*
+
+# (most of the subdirectories have their own gitignore files in this fork)

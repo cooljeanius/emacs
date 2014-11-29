@@ -1,4 +1,4 @@
-/* Flags and parameters describing terminal's characteristics.
+/* termchar.h: Flags and parameters describing terminal's characteristics.
    Copyright (C) 1985-1986, 2001-2014 Free Software Foundation, Inc.
 
 This file is part of GNU Emacs.
@@ -15,6 +15,9 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
+
+#ifndef EMACS_TERMCHAR_H
+#define EMACS_TERMCHAR_H 1
 
 #include "dispextern.h"
 
@@ -230,3 +233,7 @@ extern struct tty_display_info *tty_list;
    : (emacs_abort (), (struct tty_display_info *) 0))
 
 #define CURTTY() FRAME_TTY (SELECTED_FRAME())
+
+#endif /* !EMACS_TERMCHAR_H */
+
+/* EOF */

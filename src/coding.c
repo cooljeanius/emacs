@@ -347,9 +347,9 @@ Lisp_Object Qcoding_system_p, Qcoding_system_error;
 Lisp_Object Qemacs_mule, Qraw_text;
 Lisp_Object Qutf_8_emacs;
 
-#if defined (WINDOWSNT) || defined (CYGWIN)
+# if defined (WINDOWSNT) || defined (CYGWIN)
 static Lisp_Object Qutf_16le;
-#endif
+# endif /* WINDOWSNT || CYGWIN */
 
 /* Coding-systems are handed between Emacs Lisp programs and C internal
    routines by the following three variables.  */
@@ -4327,6 +4327,9 @@ encode_invocation_designation (struct charset *charset,
 	  else
 	    ENCODE_LOCKING_SHIFT_3;
 	  break;
+
+        default:
+          break;
 	}
     }
 
@@ -7301,6 +7304,8 @@ produce_annotation (struct coding_system *coding, ptrdiff_t pos)
 	      case CODING_ANNOTATE_CHARSET_MASK:
 		produce_charset (coding, charbuf, pos);
 		break;
+              default:
+                break;
 	      }
 	  charbuf += len;
 	}
@@ -11348,7 +11353,7 @@ character.");
   system_eol_type = Qdos;
 #else
   system_eol_type = Qunix;
-#endif
+#endif /* DOS_NT */
   staticpro (&system_eol_type);
 }
 
@@ -11372,3 +11377,5 @@ emacs_strerror (int error_number)
 }
 
 #endif /* emacs */
+
+/* EOF */

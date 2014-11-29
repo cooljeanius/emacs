@@ -1409,16 +1409,16 @@ four_corners_best (XImagePtr_or_DC ximg, int *corners,
 #endif /* !HAVE_NTGUI && !HAVE_NS */
 
 
-/* Return the `background' field of IMG.  If IMG doesn't have one yet,
+/* Return the `background' field of IMG.  If IMG does NOT have one yet,
    it is guessed heuristically.  If non-zero, XIMG is an existing
    XImage object (or device context with the image selected on W32) to
    use for the heuristic.  */
-
 RGB_PIXEL_COLOR
 image_background (struct image *img, struct frame *f, XImagePtr_or_DC ximg)
 {
   if (! img->background_valid)
-    /* IMG doesn't have a background yet, try to guess a reasonable value.  */
+    /* IMG does NOT have a background yet, so try to guess a reasonable
+     * value here: */
     {
       bool free_ximg = !ximg;
 #ifdef HAVE_NTGUI
@@ -1439,15 +1439,15 @@ image_background (struct image *img, struct frame *f, XImagePtr_or_DC ximg)
   return img->background;
 }
 
-/* Return the `background_transparent' field of IMG.  If IMG doesn't
+/* Return the `background_transparent' field of IMG.  If IMG does NOT
    have one yet, it is guessed heuristically.  If non-zero, MASK is an
    existing XImage object to use for the heuristic.  */
-
 int
 image_background_transparent (struct image *img, struct frame *f, XImagePtr_or_DC mask)
 {
   if (! img->background_transparent_valid)
-    /* IMG doesn't have a background yet, try to guess a reasonable value.  */
+    /* IMG does NOT have a background yet, so try to guess a reasonable
+     * value here: */
     {
       if (img->mask)
 	{
@@ -1509,7 +1509,7 @@ x_clear_image_1 (struct frame *f, struct image *img, int flags)
 	  img->ximg = NULL;
 	  img->background_valid = 0;
 	}
-#endif
+#endif /* HAVE_X_WINDOWS */
     }
 
   if (flags & CLEAR_IMAGE_MASK)
@@ -1527,7 +1527,7 @@ x_clear_image_1 (struct frame *f, struct image *img, int flags)
 	  img->mask_img = NULL;
 	  img->background_transparent_valid = 0;
 	}
-#endif
+#endif /* HAVE_X_WINDOWS */
     }
 
   if ((flags & CLEAR_IMAGE_COLORS) && img->ncolors)
@@ -7100,7 +7100,8 @@ jpeg_load_body (struct frame *f, struct image *img,
 {
   Lisp_Object file, specified_file;
   Lisp_Object specified_data;
-  FILE *fp = NULL;
+  /* the 'volatile' has to go AFTER the 'FILE *' part to work: */
+  FILE *volatile fp = NULL;
   JSAMPARRAY buffer;
   int row_stride, x, y;
   XImagePtr ximg = NULL;
@@ -7158,6 +7159,9 @@ jpeg_load_body (struct frame *f, struct image *img,
 
 	case MY_JPEG_CANNOT_CREATE_X:
 	  break;
+
+        default:
+          break;
 	}
 
       /* Close the input file and destroy the JPEG object.  */

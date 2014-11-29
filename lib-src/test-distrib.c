@@ -24,8 +24,8 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <fcntl.h>
 #include <unistd.h>
 
-/* Break string in two parts to avoid buggy C compilers that ignore characters
-   after nulls in strings.  */
+/* Break string in two parts to avoid buggy C compilers that ignore
+ * characters after nulls in strings: */
 
 static char string1[] = "Testing distribution of nonprinting chars:\n\
 Should be 0177: \177 Should be 0377: \377 Should be 0212: \212.\n\
@@ -35,7 +35,7 @@ static char string2[] = ".\n\
 This file is read by the `test-distribution' program.\n\
 If you change it, you will make that program fail.\n";
 
-/* Like `read' but keeps trying until it gets SIZE bytes or reaches eof.  */
+/* Like `read' but keeps trying until it gets SIZE bytes or reaches eof: */
 static int
 cool_read (int fd, char *buf, size_t size)
 {
@@ -44,12 +44,15 @@ cool_read (int fd, char *buf, size_t size)
 
   while (1)
     {
-      if ((num = read (fd, buf + sofar, size - sofar)) == 0)
+      if ((num = read (fd, (buf + sofar), (size - sofar))) == 0)
 	return sofar;
       else if (num < 0)
 	return num;
       sofar += num;
     }
+
+  /* should never get here, but just in case: */
+  return 0;
 }
 
 int

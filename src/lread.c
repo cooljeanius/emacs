@@ -4195,6 +4195,9 @@ void defvar_per_buffer(const char *namestring, Lisp_Object *address,
   SET_SYMBOL_VALUE(sym, val);
   PER_BUFFER_SYMBOL(offset) = sym;
   PER_BUFFER_TYPE(offset) = type;
+#else
+  /* silence warning: */
+  IF_LINT((void)sym);
 #endif /* 0 */
 
   if (PER_BUFFER_IDX(offset) == 0) {
@@ -4335,7 +4338,7 @@ static Lisp_Object load_path_default(void)
                 }
             }
           else
-            /* That dir doesn't exist, so add the build-time
+            /* That dir does NOT exist, so add the build-time
                Lisp dirs instead.  */
             {
               Lisp_Object dump_path =
@@ -4436,14 +4439,16 @@ typedef	int _Bool;
  * this one is smaller: */
 void init_lread(void)
 {
+  bool use_loadpath;
+  
   turn_off_warning = 0;
   /* First, set Vload_path.  */
 
   /* Ignore EMACSLOADPATH when dumping: */
 #ifdef CANNOT_DUMP
-  bool use_loadpath = true;
+  use_loadpath = true;
 #else
-  bool use_loadpath = NILP(Vpurify_flag);
+  use_loadpath = NILP(Vpurify_flag);
 #endif /* CANNOT_DUMP */
 
   if (use_loadpath && egetenv ("EMACSLOADPATH"))

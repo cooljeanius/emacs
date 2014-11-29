@@ -1,15 +1,25 @@
+# gitignore file for emacs/lib-src
 DOC
+b2m
+blessmail
 ctags
 ctags.c
+cvtmail
+digest-doc
 ebrowse
 emacsclient
+emacsserver
 etags
+fakemail
 hexl
 make-docfile
 movemail
 profile
+sorted-doc
 test-distrib
 update-game-score
+yow
+
 stamp_BLD
 echolisp.tmp
 

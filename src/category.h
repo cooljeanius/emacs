@@ -1,12 +1,12 @@
-/* Declarations having to do with Emacs category tables.
-   Copyright (C) 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
-     2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012
-     National Institute of Advanced Industrial Science and Technology (AIST)
-     Registration Number H14PRO021
-   Copyright (C) 2003
-     National Institute of Advanced Industrial Science and Technology (AIST)
-     Registration Number H13PRO009
-
+/* category.h: Declarations having to do with Emacs category tables.
+ * Copyright (C) 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003,
+ *  2004 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012
+ *  National Institute of Advanced Industrial Science and Technology (AIST)
+ *  Registration Number H14PRO021
+ * Copyright (C) 2003
+ *  National Institute of Advanced Industrial Science and Technology (AIST)
+ *  Registration Number H13PRO009 */
+/*
 This file is part of GNU Emacs.
 
 GNU Emacs is free software: you can redistribute it and/or modify
@@ -52,6 +52,9 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
    The second extra slot is a version number of the category table.
    But, for the moment, we are not using this slot.  */
+
+#ifndef EMACS_CATEGORY_H
+#define EMACS_CATEGORY_H
 
 INLINE_HEADER_BEGIN
 
@@ -116,3 +119,8 @@ CHAR_HAS_CATEGORY (int ch, int category)
 extern bool word_boundary_p (int, int);
 
 INLINE_HEADER_END
+
+#endif /* !EMACS_CATEGORY_H */
+
+/* arch-tag: 309dfe83-c3e2-4d22-8e81-faae5aece0ff
+   (do not change this comment) */

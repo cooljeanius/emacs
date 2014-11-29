@@ -1,4 +1,4 @@
-/* Declarations having to do with GNU Emacs syntax tables.
+/* syntax.h: Declarations having to do with GNU Emacs syntax tables.
 
 Copyright (C) 1985, 1993-1994, 1997-1998, 2001-2014 Free Software
 Foundation, Inc.
@@ -17,6 +17,9 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
+
+#ifndef EMACS_SYNTAX_H
+#define EMACS_SYNTAX_H 1
 
 INLINE_HEADER_BEGIN
 
@@ -208,3 +211,7 @@ extern ptrdiff_t scan_words (ptrdiff_t, EMACS_INT);
 extern void SETUP_SYNTAX_TABLE_FOR_OBJECT (Lisp_Object, ptrdiff_t, ptrdiff_t);
 
 INLINE_HEADER_END
+
+#endif /* !EMACS_SYNTAX_H */
+
+/* EOF */

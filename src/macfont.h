@@ -1,4 +1,4 @@
-/* Interface definition for Mac OSX Core text font backend.
+/* macfont.h: Interface definition for Mac OSX Core text font backend.
    Copyright (C) 2009-2014 Free Software Foundation, Inc.
 
 This file is part of GNU Emacs.
@@ -18,6 +18,9 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
 
 Original author: YAMAMOTO Mitsuharu
 */
+
+#ifndef EMACS_MACFONT_H
+#define EMACS_MACFONT_H 1
 
 /* Structure used by Mac `shape' functions for storing layout
    information for each glyph.  */
@@ -47,7 +50,7 @@ struct mac_glyph_layout
 
 typedef CTFontDescriptorRef FontDescriptorRef;
 typedef CTFontRef FontRef;
-typedef CTFontSymbolicTraits FontSymbolicTraits;
+typedef CTFontSymbolicTraits FontSymbolicTraits; /* a.k.a. uint32_t */
 typedef CTCharacterCollection CharacterCollection;
 
 #define MAC_FONT_NAME_ATTRIBUTE kCTFontNameAttribute
@@ -58,10 +61,10 @@ typedef CTCharacterCollection CharacterCollection;
 #define MAC_FONT_CHARACTER_SET_ATTRIBUTE kCTFontCharacterSetAttribute
 #define MAC_FONT_LANGUAGES_ATTRIBUTE kCTFontLanguagesAttribute
 #if MAC_OS_X_VERSION_MIN_REQUIRED >= 1060
-#define MAC_FONT_FORMAT_ATTRIBUTE kCTFontFormatAttribute
+# define MAC_FONT_FORMAT_ATTRIBUTE kCTFontFormatAttribute
 #else
-#define MAC_FONT_FORMAT_ATTRIBUTE (CFSTR ("NSCTFontFormatAttribute"))
-#endif
+# define MAC_FONT_FORMAT_ATTRIBUTE (CFSTR ("NSCTFontFormatAttribute"))
+#endif /* 10.6+ */
 #define MAC_FONT_SYMBOLIC_TRAIT kCTFontSymbolicTrait
 #define MAC_FONT_WEIGHT_TRAIT kCTFontWeightTrait
 #define MAC_FONT_WIDTH_TRAIT kCTFontWidthTrait
@@ -75,7 +78,7 @@ enum {
   MAC_FONT_TRAIT_COLOR_GLYPHS = kCTFontColorGlyphsTrait
 #else
   MAC_FONT_TRAIT_COLOR_GLYPHS = (1 << 13)
-#endif
+#endif /* 10.7+ */
 };
 
 enum {
@@ -83,7 +86,7 @@ enum {
   MAC_FONT_FORMAT_BITMAP = kCTFontFormatBitmap
 #else
   MAC_FONT_FORMAT_BITMAP = 5
-#endif
+#endif /* 10.6+ */
 };
 
 enum {
@@ -113,12 +116,12 @@ enum {
 #define mac_font_get_underline_thickness CTFontGetUnderlineThickness
 #define mac_font_copy_graphics_font(font) CTFontCopyGraphicsFont (font, NULL)
 #if MAC_OS_X_VERSION_MIN_REQUIRED >= 1060
-#define mac_font_copy_non_synthetic_table(font, table) \
-  CTFontCopyTable (font, table, kCTFontTableOptionNoOptions)
+# define mac_font_copy_non_synthetic_table(font, table) \
+   CTFontCopyTable (font, table, kCTFontTableOptionNoOptions)
 #else
-#define mac_font_copy_non_synthetic_table(font, table) \
-  CTFontCopyTable (font, table, kCTFontTableOptionExcludeSynthetic)
-#endif
+# define mac_font_copy_non_synthetic_table(font, table) \
+   CTFontCopyTable (font, table, kCTFontTableOptionExcludeSynthetic)
+#endif /* 10.6+ */
 
 #define mac_font_create_preferred_family_for_attributes \
   mac_ctfont_create_preferred_family_for_attributes
@@ -129,14 +132,14 @@ enum {
 #define mac_font_create_available_families mac_ctfont_create_available_families
 #define mac_font_shape mac_ctfont_shape
 #if USE_CT_GLYPH_INFO
-#define mac_font_get_glyph_for_cid mac_ctfont_get_glyph_for_cid
-#endif
+# define mac_font_get_glyph_for_cid mac_ctfont_get_glyph_for_cid
+#endif /* USE_CT_GLYPH_INFO */
 
 #define mac_nsctfont_copy_font_descriptor CTFontCopyFontDescriptor
 
 #ifndef kCTVersionNumber10_9
-#define kCTVersionNumber10_9 0x00060000
-#endif
+# define kCTVersionNumber10_9 0x00060000
+#endif /* !kCTVersionNumber10_9 */
 #define MAC_FONT_CHARACTER_SET_STRING_ATTRIBUTE \
   (CFSTR ("MAC_FONT_CHARACTER_SET_STRING_ATTRIBUTE"))
 
@@ -145,3 +148,8 @@ typedef const struct _EmacsScreenFont *ScreenFontRef; /* opaque */
 extern void mac_register_font_driver (struct frame *f);
 extern void *macfont_get_nsctfont (struct font *font);
 
+extern void macfont_init (void);
+
+#endif /* !EMACS_MACFONT_H */
+
+/* EOF */

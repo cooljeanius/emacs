@@ -53,6 +53,8 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 # include <direct.h>
 #endif /* WINDOWSNT */
 
+#include <binary-io.h> /* in ../lib (i.e. gnulib) */
+
 #ifdef DOS_NT
 /* Defined to be sys_chdir in ms-w32.h, but only #ifdef emacs, so this
    is really just insurance.

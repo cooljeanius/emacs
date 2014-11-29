@@ -1,6 +1,6 @@
 /* pop.h: Header file for the "pop.c" client POP3 protocol.
-   Copyright (C) 1991, 1993, 2001-2014 Free Software Foundation, Inc.
-
+ * Copyright (C) 1991, 1993, 2001-2014 Free Software Foundation, Inc.  */
+/*
 Author:  Jonathan Kamens <jik@security.ov.com>
 
 This file is part of GNU Emacs.
@@ -73,3 +73,5 @@ extern int pop_last (popserver server);
 extern int pop_reset (popserver server);
 extern int pop_quit (popserver server);
 extern void pop_close (popserver);
+
+/* EOF */

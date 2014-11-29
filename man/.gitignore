@@ -1,3 +1,5 @@
+# gitignore file for emacs/man
+emacs.1
 *.aux
 *.cp
 *.cps

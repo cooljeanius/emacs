@@ -5,6 +5,10 @@ Instructions to create pretest or release tarballs. -*- coding: utf-8 -*-
 
 Steps to take before starting on the first pretest in any release sequence:
 
+0.  The release branch (e.g. emacs-24) should already have been made
+    and you should use it for all that follows.  Diffs from this
+    branch should be going to the emacs-diffs mailing list.
+
 1.  Decide on versions of automake and autoconf, and ensure you will
     have them available for the duration of the release process.
 
@@ -14,11 +18,13 @@ Steps to take before starting on the first pretest in any release sequence:
     when preparing the first pretest for a major Emacs release.)
     Commit cus-edit.el if changed.
 
+3.  Remove any old pretests from ftp://alpha.gnu.org/gnu/emacs/pretest.
+    You can use `gnupload --delete' (see below for more gnupload details).
 
 General steps (for each step, check for possible errors):
 
-1.  `bzr update' (for a bound branch), or `bzr pull'.
-     bzr status   # check for locally modified files
+1.   git pull     # fetch from the repository
+     git status   # check for locally modified files
 
 2.  Bootstrap to make 100% sure all elc files are up-to-date, and to
     make sure that the later tagged version will bootstrap, should it be
@@ -66,6 +72,10 @@ General steps (for each step, check for possible errors):
     by M-x set-version.
     For a release, also commit the ChangeLog files in all directories.
 
+    If someone else made a commit between step 1 and now,
+    you need to repeat from step 5 onwards.  (You can commit the files
+    from step 2 and 3 earlier to reduce the chance of this.)
+
 7.  ./make-dist --snapshot --no-compress
 
     Check the contents of the new tar with
@@ -75,7 +85,7 @@ General steps (for each step, check for possible errors):
 
     If this is the first pretest of a major release, just comparing
     with the previous release may overlook many new files.  You can try
-    something like `find . | sort' in a clean bzr tree, and compare the
+    something like `find . | sort' in a clean repository, and compare the
     results against the new tar contents.
 
 8.   tar -xf emacs-NEW.tar; cd emacs-NEW
@@ -84,10 +94,10 @@ General steps (for each step, check for possible errors):
     compile-NEW.log and compare it against an old one.  The easiest way
     to do that is to visit the old log in Emacs, change the version
     number of the old Emacs to __, do the same with the new log and do
-    M-x ediff.  Especially check that Info files aren't built, and that
+    M-x ediff.  Especially check that Info files are NOT built, and that
     no autotools (autoconf etc) run.
 
-9.  cd EMACS_ROOT_DIR && bzr tag TAG
+9.  cd EMACS_ROOT_DIR && git tag -a TAG && git push origin tag TAG
     TAG is emacs-XX.Y.ZZ for a pretest, emacs-XX.Y for a release.
 
     Shortly before the release, cut the version branch also, and open
@@ -99,6 +109,7 @@ General steps (for each step, check for possible errors):
     For a release, at least gz and xz:
       gzip --best -c emacs-NEW.tar > emacs-NEW.tar.gz
       xz -c emacs-NEW.tar > emacs-NEW.tar.xz
+    For pretests, just xz is probably fine (saves bandwidth).
 
     Now you should upload the files to the GNU ftp server.  In order to
     do that, you must be registered as an Emacs maintainer and have your

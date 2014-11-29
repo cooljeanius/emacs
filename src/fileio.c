@@ -2119,6 +2119,7 @@ permissions.  */)
       {
       case -2: report_file_error ("Copying permissions from", file);
       case -1: report_file_error ("Copying permissions to", newname);
+      default: break;
       }
   }
 #endif	/* not MSDOS */

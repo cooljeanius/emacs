@@ -1,4 +1,4 @@
-/* Selection processing for Emacs on the Microsoft W32 API.
+/* w32select.h: Selection processing for Emacs on the Microsoft W32 API.
 
 Copyright (C) 1993-1994, 2001-2014 Free Software Foundation, Inc.
 
@@ -25,4 +25,6 @@ extern void syms_of_w32select (void);
 extern void globals_of_w32select (void);
 extern void term_w32select (void);
 
-#endif
+#endif /* !W32SELECT_H */
+
+/* EOF */

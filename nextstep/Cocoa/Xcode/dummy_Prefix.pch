@@ -1,0 +1,20 @@
+/* dummy_Prefix.pch -*- C -*-
+ * Prefix header for all source files of the 'dummy' target.
+ */
+
+#if defined(__OBJC__) && (defined(__GNUC__) || defined(__APPLE__))
+    #import <Foundation/Foundation.h>
+    #import <CoreData/CoreData.h>
+    #import <Cocoa/Cocoa.h>
+#else
+    #if defined(__STDC__) && defined(__STDC_VERSION__)
+        #include <stdbool.h>
+        #ifndef WINDOWSNT
+            #include <alloca.h>
+        #endif /* !WINDOWSNT */
+        #include <string.h>
+        #include <stdlib.h>
+    #endif /* __STDC__ && __STDC_VERSION__ */
+#endif /* __OBJC__ && (__GNUC__ || __APPLE__) */
+
+/* end of dummy_Prefix.pch */

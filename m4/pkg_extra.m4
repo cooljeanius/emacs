@@ -13,7 +13,13 @@ AC_DEFUN([PKG_CHECK_MODULES],[
      ifelse([$4],[],[AC_MSG_ERROR([
       *** The pkg-config script could not be found. Make sure it is in your path, or give the full name of pkg-config with the PKG_CONFIG environment variable or --with-pkg-config-prog.  Or see http://www.freedesktop.org/software/pkgconfig to get pkg-config.])],[$4])
   else
-     PKG_CONFIG_MIN_VERSION=0.9.0
+     dnl# generally I try to avoid doing this, but...
+     m4_pattern_allow([PKG_CONFIG_MIN_VERSION])
+     dnl# m4-quote this; it is NOT its own macro:
+     [
+     export PKG_CONFIG_MIN_VERSION="0.9.0"
+     ]
+     dnl# end m4-quoting
      if "${PKG_CONFIG}" --atleast-pkgconfig-version ${PKG_CONFIG_MIN_VERSION}; then
         AC_MSG_CHECKING([for $2])dnl
 
@@ -56,4 +62,25 @@ AC_DEFUN([PKG_CHECK_MODULES],[
   fi
 ])dnl
 
-# pkg_extra.m4 ends here
+# pkg_extra.m4 used to end here
+
+dnl# New version:
+dnl# EMACS_CHECK_MODULES([GSTUFF],[gtk+-2.0 >= 1.3 glib = 1.3.4])
+dnl# acts like PKG_CHECK_MODULES([GSTUFF],[gtk+-2.0 >= 1.3 glib = 1.3.4],
+dnl# [HAVE_GSTUFF=yes],[HAVE_GSTUFF=no]) -- see pkg-config man page --
+dnl# except that it postprocesses CFLAGS as needed for
+dnl# --enable-gcc-warnings.
+dnl# EMACS_CHECK_MODULES accepts optional 3rd and 4th arguments that
+dnl# can take the place of the default HAVE_GSTUFF=yes and HAVE_GSTUFF=no
+dnl# actions.
+AC_DEFUN([EMACS_CHECK_MODULES],
+  [AC_REQUIRE([AC_PROG_SED])
+   dnl# make sure edit_cflags is non-empty:
+   test -n "${edit_cflags}" ##FIXME: do something based on this
+   dnl# now just pass through to the underlying macro:
+   PKG_CHECK_MODULES([$1],[$2],
+     [$1_CFLAGS=`AS_ECHO(["$$1_CFLAGS"]) | sed -e "${edit_cflags}"`
+      m4_default([$3],[HAVE_$1=yes])],
+     [m4_default([$4],[HAVE_$1=no])])])dnl
+
+# pkg_extra.m4 actually ends here

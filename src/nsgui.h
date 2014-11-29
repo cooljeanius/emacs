@@ -119,7 +119,10 @@ typedef int Window;
 typedef int Display;
 
 /* Xism: */
+#ifndef _XRM_DATABASE_DECLARED
+# define _XRM_DATABASE_DECLARED 1
 typedef Lisp_Object XrmDatabase;
+#endif /* !_XRM_DATABASE_DECLARED */
 
 
 /* some sort of attempt to normalize rectangle handling... seems a bit much

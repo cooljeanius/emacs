@@ -1,7 +1,7 @@
-/* Window definitions for GNU Emacs.
-   Copyright (C) 1985-1986, 1993, 1995, 1997-2014 Free Software
-   Foundation, Inc.
-
+/* window.h: Window definitions for GNU Emacs.
+ * Copyright (C) 1985-1986, 1993, 1995, 1997-2014 Free Software
+ * Foundation, Inc.  */
+/*
 This file is part of GNU Emacs.
 
 GNU Emacs is free software: you can redistribute it and/or modify
@@ -23,6 +23,13 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "dispextern.h"
 
 INLINE_HEADER_BEGIN
+
+/* this file contains way too many of these for now: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wredundant-decls"
+#endif /* gcc 4.6+ */
 
 /* Windows are allocated as if they were vectors, but then the
 Lisp data type is changed to Lisp_Window.  They are garbage
@@ -1046,6 +1053,15 @@ output_cursor_to (struct window *w, int vpos, int hpos, int y, int x)
   w->output_cursor.y = y;
 }
 
+/* keep condition the same as when we push away the redundancy warning: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic pop
+#endif /* gcc 4.6+ */
+
 INLINE_HEADER_END
 
 #endif /* not WINDOW_H_INCLUDED */
+
+/* arch-tag: d4a6942f-e433-4ffe-ac10-2c3574f28577
+   (do not change this comment) */

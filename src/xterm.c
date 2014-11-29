@@ -3534,6 +3534,9 @@ x_detect_focus_change (struct x_display_info *dpyinfo, struct frame *frame,
 			   FOCUS_EXPLICIT, dpyinfo, frame, bufp);
 	}
       break;
+
+    default:
+      break;
     }
 }
 
@@ -3673,12 +3676,15 @@ x_find_modifier_meanings (struct x_display_info *dpyinfo)
 		    break;
 
 		  case XK_Shift_Lock:
-		    /* Ignore this if it's not on the lock modifier.  */
+		    /* Ignore this if it is not on the lock modifier.  */
 		    if (!found_alt_or_meta && ((1 << row) == LockMask))
 		      dpyinfo->shift_lock_mask = LockMask;
 		    code_col = syms_per_code;
 		    col = mods->max_keypermod;
 		    break;
+
+                  default:
+                    break;
 		  }
 	      }
 	  }
@@ -3686,7 +3692,8 @@ x_find_modifier_meanings (struct x_display_info *dpyinfo)
     }
   }
 
-  /* If we couldn't find any meta keys, accept any alt keys as meta keys.  */
+  /* If we failed to find any meta keys, then accept any alt keys
+   * as meta keys: */
   if (! dpyinfo->meta_mod_mask)
     {
       dpyinfo->meta_mod_mask = dpyinfo->alt_mod_mask;
@@ -4453,6 +4460,8 @@ xg_scroll_callback (GtkRange     *range,
     case GTK_SCROLL_PAGE_FORWARD:
       part = scroll_bar_below_handle;
       bar->dragging = -1;
+      break;
+    default:
       break;
     }
 
@@ -6866,6 +6875,8 @@ handle_one_xevent (struct x_display_info *dpyinfo,
           /* This is meant to fall through.  */
         case MappingKeyboard:
           XRefreshKeyboardMapping ((XMappingEvent *) &event->xmapping);
+        default:
+          ; /* ??? */
         }
       goto OTHER;
 
@@ -7779,7 +7790,7 @@ x_new_font (struct frame *f, Lisp_Object font_object, int fontset)
   FRAME_CONFIG_SCROLL_BAR_COLS (f) = (14 + unit - 1) / unit;
   FRAME_CONFIG_SCROLL_BAR_WIDTH (f)
     = FRAME_CONFIG_SCROLL_BAR_COLS (f) * unit;
-#endif  
+#endif
 
   if (FRAME_X_WINDOW (f) != 0)
     {
@@ -7985,7 +7996,7 @@ xim_close_dpy (struct x_display_info *dpyinfo)
     {
 #ifdef HAVE_X11R6_XIM
       struct xim_inst_t *xim_inst = dpyinfo->xim_callback_data;
-      
+
       if (dpyinfo->display)
 	{
 	  Bool ret = XUnregisterIMInstantiateCallback
@@ -9735,7 +9746,7 @@ x_term_init (Lisp_Object display_name, char *xrm_option, char *resource_name)
 
 #ifdef USE_GTK
   {
-#define NUM_ARGV 10
+# define NUM_ARGV 10
     int argc;
     char *argv[NUM_ARGV];
     char **argv2 = argv;
@@ -9768,7 +9779,7 @@ x_term_init (Lisp_Object display_name, char *xrm_option, char *resource_name)
         XSetLocaleModifiers ("");
 
         /* Emacs can only handle core input events, so make sure
-           Gtk doesn't use Xinput or Xinput2 extensions.  */
+           Gtk does NOT use Xinput or Xinput2 extensions.  */
 	xputenv ("GDK_CORE_DEVICE_EVENTS=1");
 
         /* Work around GLib bug that outputs a faulty warning. See
@@ -9791,7 +9802,7 @@ x_term_init (Lisp_Object display_name, char *xrm_option, char *resource_name)
 
         dpy = DEFAULT_GDK_DISPLAY ();
 
-#if ! GTK_CHECK_VERSION (2, 90, 0)
+# if ! GTK_CHECK_VERSION (2, 90, 0)
         /* Load our own gtkrc if it exists.  */
         {
           const char *file = "~/.emacs.d/gtkrc";
@@ -9803,22 +9814,22 @@ x_term_init (Lisp_Object display_name, char *xrm_option, char *resource_name)
           if (! NILP (abs_file) && !NILP (Ffile_readable_p (abs_file)))
             gtk_rc_parse (SSDATA (abs_file));
         }
-#endif
+# endif /* gtk version check */
 
         XSetErrorHandler (x_error_handler);
         XSetIOErrorHandler (x_io_error_quitter);
       }
   }
 #else /* not USE_GTK */
-#ifdef USE_X_TOOLKIT
+# ifdef USE_X_TOOLKIT
   /* weiner@footloose.sps.mot.com reports that this causes
      errors with X11R5:
 	   X protocol error: BadAtom (invalid Atom parameter)
 	   on protocol request 18skiloaf.
-     So let's not use it until R6.  */
-#ifdef HAVE_X11XTR6
+     So let us not use it until R6.  */
+#  ifdef HAVE_X11XTR6
   XtSetLanguageProc (NULL, NULL, NULL);
-#endif
+#  endif /* HAVE_X11XTR6 */
 
   {
     int argc = 0;
@@ -9838,16 +9849,16 @@ x_term_init (Lisp_Object display_name, char *xrm_option, char *resource_name)
 			 &argc, argv);
     turn_on_atimers (1);
 
-#ifdef HAVE_X11XTR6
-    /* I think this is to compensate for XtSetLanguageProc.  */
+#  ifdef HAVE_X11XTR6
+    /* I think this is to compensate for XtSetLanguageProc: */
     fixup_locale ();
-#endif
+#  endif /* HAVE_X11XTR6 */
   }
 
-#else /* not USE_X_TOOLKIT */
+# else /* not USE_X_TOOLKIT */
   XSetLocaleModifiers ("");
   dpy = XOpenDisplay (SSDATA (display_name));
-#endif /* not USE_X_TOOLKIT */
+# endif /* not USE_X_TOOLKIT */
 #endif /* not USE_GTK*/
 
   /* Detect failure.  */
@@ -9949,7 +9960,7 @@ x_term_init (Lisp_Object display_name, char *xrm_option, char *resource_name)
   XrmSetDatabase (dpyinfo->display, xrdb);
 #else
   dpyinfo->display->db = xrdb;
-#endif
+#endif /* HAVE_XRMSETDATABASE */
   /* Put the rdb where we can find it in a way that works on
      all versions.  */
   dpyinfo->xrdb = xrdb;
@@ -10008,7 +10019,7 @@ x_term_init (Lisp_Object display_name, char *xrm_option, char *resource_name)
     if (v != NULL && sscanf (v, "%lf", &d) == 1)
       dpyinfo->resy = dpyinfo->resx = d;
   }
-#endif
+#endif /* HAVE_XFT */
 
   if (dpyinfo->resy < 1)
     {
@@ -10134,7 +10145,7 @@ x_term_init (Lisp_Object display_name, char *xrm_option, char *resource_name)
 
 #ifdef HAVE_X_I18N
   xim_initialize (dpyinfo, resource_name);
-#endif
+#endif /* HAVE_X_I18N */
 
   xsettings_initialize (dpyinfo);
 
@@ -10170,7 +10181,7 @@ x_term_init (Lisp_Object display_name, char *xrm_option, char *resource_name)
       XrmPutLineResource (&xrdb, "Emacs.dialog.*.font: 9x15");
     x_uncatch_errors ();
   }
-#endif
+#endif /* USE_LUCID */
 
   /* See if we should run in synchronous mode.  This is useful
      for debugging X code.  */
@@ -10202,7 +10213,7 @@ x_term_init (Lisp_Object display_name, char *xrm_option, char *resource_name)
 	&& (!strcmp (SSDATA (value), "true")
 	    || !strcmp (SSDATA (value), "on")))
       use_xim = true;
-#endif
+#endif /* USE_XIM */
   }
 
 #ifdef HAVE_X_SM
@@ -10211,7 +10222,7 @@ x_term_init (Lisp_Object display_name, char *xrm_option, char *resource_name)
      tty.  */
   if (terminal->id == 1)
     x_session_initialize (dpyinfo);
-#endif
+#endif /* HAVE_X_SM */
 
   unblock_input ();
 
@@ -10235,7 +10246,7 @@ x_delete_display (struct x_display_info *dpyinfo)
         /* Close X session management when we close its display.  */
         if (t->id == 1 && x_session_have_connection ())
           x_session_close ();
-#endif
+#endif /* HAVE_X_SM */
         delete_terminal (t);
         break;
       }
@@ -10355,7 +10366,7 @@ x_delete_terminal (struct terminal *terminal)
      X display.  */
   if (dpyinfo->xim)
     xim_close_dpy (dpyinfo);
-#endif
+#endif /* HAVE_X_I18N */
 
   /* If called from x_connection_closed, the display may already be closed
      and dpyinfo->display was set to 0 to indicate that.  */
@@ -10373,33 +10384,33 @@ x_delete_terminal (struct terminal *terminal)
 
 	 Unfortunately, the above strategy does not work in some
 	 situations due to a bug in newer versions of libX11: because
-	 XrmSetDatabase doesn't clear the flag XlibDisplayDfltRMDB if
+	 XrmSetDatabase does NOT clear the flag XlibDisplayDfltRMDB if
 	 dpy->db is NULL, XCloseDisplay destroys the associated
 	 database whereas it has not been created by XGetDefault
 	 (Bug#21974 in freedesktop.org Bugzilla).  As a workaround, we
-	 don't destroy the database here in order to avoid the crash
+	 do NOT destroy the database here in order to avoid the crash
 	 in the above situations for now, though that may cause memory
 	 leaks in other situations.  */
 #if 0
-#ifdef HAVE_XRMSETDATABASE
+# ifdef HAVE_XRMSETDATABASE
       XrmSetDatabase (dpyinfo->display, NULL);
-#else
+# else
       dpyinfo->display->db = NULL;
-#endif
+# endif /* HAVE_XRMSETDATABASE */
       /* We used to call XrmDestroyDatabase from x_delete_display, but
 	 some older versions of libX11 crash if we call it after
 	 closing all the displays.  */
       XrmDestroyDatabase (dpyinfo->xrdb);
-#endif
+#endif /* 0 */
 
 #ifdef USE_GTK
       xg_display_close (dpyinfo->display);
 #else
-#ifdef USE_X_TOOLKIT
+# ifdef USE_X_TOOLKIT
       XtCloseDisplay (dpyinfo->display);
-#else
+# else
       XCloseDisplay (dpyinfo->display);
-#endif
+# endif /* USE_X_TOOLKIT */
 #endif /* ! USE_GTK */
     }
 
@@ -10470,9 +10481,9 @@ x_initialize (void)
 
 #ifdef USE_GTK
   current_count = -1;
-#endif
+#endif /* USE_GTK */
 
-  /* Try to use interrupt input; if we can't, then start polling.  */
+  /* Try to use interrupt input; if we cannot, then start polling.  */
   Fset_input_interrupt_mode (Qt);
 
 #ifdef USE_X_TOOLKIT
@@ -10489,14 +10500,14 @@ x_initialize (void)
 			 XtCacheByDisplay, cvt_pixel_dtor);
 
   XtAppSetFallbackResources (Xt_app_con, Xt_default_resources);
-#endif
+#endif /* USE_X_TOOLKIT */
 
 #ifdef USE_TOOLKIT_SCROLL_BARS
-#ifndef USE_GTK
+# ifndef USE_GTK
   xaw3d_arrow_scroll = False;
   xaw3d_pick_top = True;
-#endif
-#endif
+# endif /* !USE_GTK */
+#endif /* USE_TOOLKIT_SCROLL_BARS */
 
   /* Note that there is no real way portable across R3/R4 to get the
      original error handler.  */
@@ -10518,7 +10529,7 @@ syms_of_xterm (void)
   staticpro (&xg_default_icon_file);
 
   DEFSYM (Qx_gtk_map_stock, "x-gtk-map-stock");
-#endif
+#endif /* USE_GTK */
 
   DEFVAR_BOOL ("x-use-underline-position-properties",
 	       x_use_underline_position_properties,
@@ -10555,18 +10566,18 @@ With the X Window system, the value is a symbol describing the
 X toolkit.  Possible values are: gtk, motif, xaw, or xaw3d.
 With MS Windows or Nextstep, the value is t.  */);
 #ifdef USE_TOOLKIT_SCROLL_BARS
-#ifdef USE_MOTIF
+# ifdef USE_MOTIF
   Vx_toolkit_scroll_bars = intern_c_string ("motif");
-#elif defined HAVE_XAW3D
+# elif defined HAVE_XAW3D
   Vx_toolkit_scroll_bars = intern_c_string ("xaw3d");
-#elif USE_GTK
+# elif (defined(USE_GTK) && USE_GTK)
   Vx_toolkit_scroll_bars = intern_c_string ("gtk");
-#else
+# else
   Vx_toolkit_scroll_bars = intern_c_string ("xaw");
-#endif
+# endif /* USE_MOTIF || HAVE_XAW3D || USE_GTK || none of the above */
 #else
   Vx_toolkit_scroll_bars = Qnil;
-#endif
+#endif /* USE_TOOLKIT_SCROLL_BARS */
 
   DEFSYM (Qmodifier_value, "modifier-value");
   DEFSYM (Qalt, "alt");
@@ -10613,3 +10624,5 @@ default is nil, which is the same as `super'.  */);
 				     make_float (DEFAULT_REHASH_THRESHOLD),
 				     Qnil);
 }
+
+/* EOF */

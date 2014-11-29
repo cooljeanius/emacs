@@ -135,10 +135,12 @@ compile_pattern_1 (struct regexp_cache *cp, Lisp_Object pattern,
     cp->whitespace_regexp = Qnil;
 
   /* rms: I think BLOCK_INPUT is not needed here any more,
-     because regex.c defines malloc to call xmalloc.
-     Using BLOCK_INPUT here means the debugger won't run if an error occurs.
-     So let's turn it off.  */
-  /*  BLOCK_INPUT;  */
+   * because regex.c defines malloc to call xmalloc.
+   * Using BLOCK_INPUT here means the debugger will NOT run if an error
+   * occurs.  So let us turn it off: */
+#if defined(BLOCK_INPUT) && !defined(DEBUG) && defined(I_AM_NOT_RMS)
+  BLOCK_INPUT;
+#endif /* BLOCK_INPUT && !DEBUG && I_AM_NOT_RMS */
   old = re_set_syntax (RE_SYNTAX_EMACS
 		       | (posix ? 0 : RE_NO_POSIX_BACKTRACKING));
 
@@ -1119,7 +1121,11 @@ trivial_regexp_p (Lisp_Object regexp)
 	    case '1': case '2': case '3': case '4': case '5':
 	    case '6': case '7': case '8': case '9':
 	      return 0;
+            default:
+              break;
 	    }
+        default:
+          break;
 	}
     }
   return 1;

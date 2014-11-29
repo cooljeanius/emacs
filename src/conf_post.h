@@ -22,8 +22,11 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
    Rather than writing this code directly in AH_BOTTOM, we include it
    via this file.  This is so that it does not get processed by
-   autoheader.  Eg, any undefs here would otherwise be commented out.
+   autoheader.  E.g., any undefs here would otherwise be commented out.
 */
+
+#ifndef EMACS_CONF_POST_H
+#define EMACS_CONF_POST_H 1
 
 /* Code: */
 
@@ -36,7 +39,7 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 /* The pre-C99 <stdbool.h> emulation does NOY work for bool bitfields.
    Nor does compiling Objective-C with standard GCC.  */
-#if __STDC_VERSION__ < 199901 || NS_IMPL_GNUSTEP
+#if (__STDC_VERSION__ < 199901) || (defined(NS_IMPL_GNUSTEP) && NS_IMPL_GNUSTEP)
 typedef unsigned int bool_bf;
 #else
 typedef bool bool_bf;
@@ -202,13 +205,13 @@ extern void _DebPrint (const char *fmt, ...);
 #include <string.h>
 #include <stdlib.h>
 
-#if __GNUC__ >= 3  /* On GCC 3.0 we might get a warning.  */
+#if (__GNUC__ >= 3)  /* On GCC 3.0 we might get a warning.  */
 # define NO_INLINE __attribute__((noinline))
 #else
 # define NO_INLINE
 #endif /* gcc 3+ */
 
-#if (__clang__								\
+#if ((defined(__clang__) && __clang__)					\
      ? __has_attribute (externally_visible)				\
      : (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 1)))
 # define EXTERNALLY_VISIBLE __attribute__((externally_visible))
@@ -301,13 +304,15 @@ extern void _DebPrint (const char *fmt, ...);
 /* To use the struct hack with N elements, declare the struct like this:
      struct s { ...; t name[FLEXIBLE_ARRAY_MEMBER]; };
    and allocate (offsetof (struct s, name) + N * sizeof (t)) bytes.  */
-#if 199901 <= __STDC_VERSION__
-# define FLEXIBLE_ARRAY_MEMBER
-#elif __GNUC__ && !defined __STRICT_ANSI__
-# define FLEXIBLE_ARRAY_MEMBER 0
-#else
-# define FLEXIBLE_ARRAY_MEMBER 1
-#endif /* pre-c99 || GNU, non-ANSI C || neither */
+#ifndef FLEXIBLE_ARRAY_MEMBER
+# if 199901 <= __STDC_VERSION__
+#  define FLEXIBLE_ARRAY_MEMBER
+# elif (defined(__GNUC__) && __GNUC__) && !defined __STRICT_ANSI__
+#  define FLEXIBLE_ARRAY_MEMBER 0
+# else
+#  define FLEXIBLE_ARRAY_MEMBER 1
+# endif /* pre-c99 || GNU, non-ANSI C || neither */
+#endif /* !FLEXIBLE_ARRAY_MEMBER */
 
 /* Use this to suppress gcc's `...may be used before initialized' warnings. */
 #ifdef lint
@@ -316,5 +321,7 @@ extern void _DebPrint (const char *fmt, ...);
 #else
 # define IF_LINT(Code) /* empty */
 #endif /* lint */
+
+#endif /* !EMACS_CONF_POST_H */
 
 /* conf_post.h ends here */

@@ -645,12 +645,14 @@ lock_if_free (lock_info_type *clasher, char *lfname)
 	  return 1;   /* Someone else has it.  */
 	case -1:
 	  return -1;  /* current_lock_owner returned strange error.  */
+        default:
+          break;
 	}
 
       /* We deleted a stale lock; try again to lock the file.  */
     }
 
-  return err ? -1 : 0;
+  return (err ? -1 : 0);
 }
 
 /* lock_file locks file FN,

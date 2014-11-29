@@ -1,8 +1,8 @@
-/* Output like sprintf to a buffer of specified size.
-   Also takes args differently: pass one pointer to the end
-   of the format string in addition to the format string itself.
-   Copyright (C) 1985, 2001-2014 Free Software Foundation, Inc.
-
+/* doprnt.c: Output like sprintf to a buffer of specified size.
+ * Also takes args differently: pass one pointer to the end
+ * of the format string in addition to the format string itself.
+ * Copyright (C) 1985, 2001-2014 Free Software Foundation, Inc. */
+/*
 This file is part of GNU Emacs.
 
 GNU Emacs is free software: you can redistribute it and/or modify
@@ -260,7 +260,9 @@ doprnt (char *buffer, ptrdiff_t bufsize, const char *format,
 	    default:
 	      error ("Invalid format operation %s", fmtcpy);
 
-/*	    case 'b': */
+#if 0
+	    case 'b':
+#endif /* 0 */
 	    case 'l':
 	    case 'd':
 	      switch (length_modifier)
@@ -296,6 +298,8 @@ doprnt (char *buffer, ptrdiff_t bufsize, const char *format,
 		    tem = sprintf (sprintf_buffer, fmtcpy, v);
 		  }
 		  break;
+                default:
+                  error ("Invalid length modifier %d", length_modifier);
 		}
 	      /* Now copy into final output, truncating as necessary.  */
 	      string = sprintf_buffer;
@@ -331,6 +335,8 @@ doprnt (char *buffer, ptrdiff_t bufsize, const char *format,
 		    tem = sprintf (sprintf_buffer, fmtcpy, v);
 		  }
 		  break;
+                default:
+                  error ("Invalid length modifier %d", length_modifier);
 		}
 	      /* Now copy into final output, truncating as necessary.  */
 	      string = sprintf_buffer;
@@ -528,3 +534,5 @@ evxprintf (char **buf, ptrdiff_t *bufsize,
       *buf = xpalloc (NULL, bufsize, 1, bufsize_max, 1);
     }
 }
+
+/* EOF */

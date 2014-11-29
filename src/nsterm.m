@@ -6055,8 +6055,18 @@ if (cols > 0 && rows > 0)
     }
 }
 
-
-- (void)windowWillMiniaturize: sender
+#ifndef WINDOW_MESSAGE_NOTIFICATION_TYPE_DEFINED
+# ifndef lint
+#  define WINDOW_MESSAGE_NOTIFICATION_TYPE_DEFINED 1
+# endif /* !lint */
+# if defined(NS_IMPL_COCOA) && \
+     (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6)
+typedef NSNotification *NSNotification_or_id;
+# else
+typedef id NSNotification_or_id;
+# endif /* NS_IMPL_COCOA && 10.6+ */
+#endif /* !WINDOW_MESSAGE_NOTIFICATION_TYPE_DEFINED */
+- (void)windowWillMiniaturize: (NSNotification_or_id)sender
 {
   NSTRACE (windowWillMiniaturize);
 }
@@ -6201,7 +6211,7 @@ if (cols > 0 && rows > 0)
 }
 
 
-- (void)windowDidMove: sender
+- (void)windowDidMove: (NSNotification_or_id)sender
 {
   NSWindow *win = [self window];
   NSRect r = [win frame];
@@ -6299,7 +6309,7 @@ if (cols > 0 && rows > 0)
 }
 
 
-- (void)windowDidDeminiaturize: sender
+- (void)windowDidDeminiaturize: (NSNotification_or_id)sender
 {
   NSTRACE (windowDidDeminiaturize);
   if (!emacsframe->output_data.ns)
@@ -6317,7 +6327,7 @@ if (cols > 0 && rows > 0)
 }
 
 
-- (void)windowDidExpose: sender
+- (void)windowDidExpose: (NSNotification_or_id)sender
 {
   NSTRACE (windowDidExpose);
   if (!emacsframe->output_data.ns)
@@ -6331,7 +6341,7 @@ if (cols > 0 && rows > 0)
 }
 
 
-- (void)windowDidMiniaturize: sender
+- (void)windowDidMiniaturize: (NSNotification_or_id)sender
 {
   NSTRACE (windowDidMiniaturize);
   if (!emacsframe->output_data.ns)

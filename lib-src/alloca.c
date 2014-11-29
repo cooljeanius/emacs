@@ -26,21 +26,21 @@
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>
-#endif
+#endif /* HAVE_CONFIG_H */
 
 #ifdef HAVE_STRING_H
 # include <string.h>
-#endif
+#endif /* HAVE_STRING_H */
 #ifdef HAVE_STDLIB_H
 # include <stdlib.h>
-#endif
+#endif /* HAVE_STDLIB_H */
 
 #ifdef DO_BLOCK_INPUT
 # include "blockinput.h"
-#endif
+#endif /* DO_BLOCK_INPUT */
 
-/* If compiling with GCC 2, this file's not needed.  */
-#if !defined (__GNUC__) || __GNUC__ < 2
+/* If compiling with GCC 2, this file is not needed.  */
+#if !defined (__GNUC__) || (__GNUC__ < 2)
 
 /* If someone has defined alloca as a macro,
    there must be some other way alloca is supposed to work.  */
@@ -57,7 +57,7 @@ you
 lose
 -- must know STACK_DIRECTION at compile-time
 /* Using #error here is not wise since this file should work for
-   old and obscure compilers.  
+   old and obscure compilers.
 
    As far as I know, using it is OK if it's indented -- at least for
    pcc-based processors.  -- fx */

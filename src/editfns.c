@@ -147,7 +147,7 @@ init_editfns (void)
   Vuser_real_login_name = build_string (pw ? pw->pw_name : "root");
 #else
   Vuser_real_login_name = build_string (pw ? pw->pw_name : "unknown");
-#endif
+#endif /* MSDOS */
 
   /* Get the effective user name, by consulting environment variables,
      or the effective uid if those are unset.  */
@@ -3768,6 +3768,10 @@ usage: (format STRING &rest OBJECTS)  */)
 		case ' ': space_flag = 1; continue;
 		case '#': sharp_flag = 1; continue;
 		case '0':  zero_flag = 1; continue;
+                default:
+                    /* not sure if 'continue' or 'break' is more
+                     * appropriate here? */
+                    ;
 		}
 	      break;
 	    }

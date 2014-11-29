@@ -1,6 +1,6 @@
-/* GnuTLS glue for GNU Emacs.
-   Copyright (C) 2010-2014 Free Software Foundation, Inc.
-
+/* gnutls.c: GnuTLS glue for GNU Emacs.
+ * Copyright (C) 2010-2014 Free Software Foundation, Inc.  */
+/*
 This file is part of GNU Emacs.
 
 GNU Emacs is free software: you can redistribute it and/or modify
@@ -23,13 +23,14 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "process.h"
 #include "coding.h"
 
+/* this ifdef goes pretty much the whole file: */
 #ifdef HAVE_GNUTLS
-#include <gnutls/gnutls.h>
+# include <gnutls/gnutls.h>
 
-#ifdef WINDOWSNT
-#include <windows.h>
-#include "w32.h"
-#endif
+# ifdef WINDOWSNT
+#  include <windows.h>
+#  include "w32.h"
+# endif /* WINDOWSNT */
 
 static bool emacs_gnutls_handle_error (gnutls_session_t, int);
 
@@ -59,7 +60,7 @@ static void gnutls_log_function (int, const char *);
 static void gnutls_log_function2 (int, const char*, const char*);
 #ifdef HAVE_GNUTLS3
 static void gnutls_audit_log_function (gnutls_session_t, const char *);
-#endif
+#endif /* HAVE_GNUTLS3 */
 
 
 #ifdef WINDOWSNT
@@ -114,7 +115,7 @@ DEF_GNUTLS_FN (int, gnutls_global_init, (void));
 DEF_GNUTLS_FN (void, gnutls_global_set_log_function, (gnutls_log_func));
 #ifdef HAVE_GNUTLS3
 DEF_GNUTLS_FN (void, gnutls_global_set_audit_log_function, (gnutls_audit_log_func));
-#endif
+#endif /* HAVE_GNUTLS3 */
 DEF_GNUTLS_FN (void, gnutls_global_set_log_level, (int));
 DEF_GNUTLS_FN (void, gnutls_global_set_mem_functions,
 	       (gnutls_alloc_function, gnutls_alloc_function,
@@ -182,7 +183,7 @@ init_gnutls_functions (void)
   LOAD_GNUTLS_FN (library, gnutls_global_set_log_function);
 #ifdef HAVE_GNUTLS3
   LOAD_GNUTLS_FN (library, gnutls_global_set_audit_log_function);
-#endif
+#endif /* HAVE_GNUTLS3 */
   LOAD_GNUTLS_FN (library, gnutls_global_set_log_level);
   LOAD_GNUTLS_FN (library, gnutls_global_set_mem_functions);
   LOAD_GNUTLS_FN (library, gnutls_handshake);
@@ -194,7 +195,7 @@ init_gnutls_functions (void)
   LOAD_GNUTLS_FN (library, gnutls_strerror);
   LOAD_GNUTLS_FN (library, gnutls_transport_set_errno);
   LOAD_GNUTLS_FN (library, gnutls_check_version);
-  /* We don't need to call gnutls_transport_set_lowat in GnuTLS 2.11.1
+  /* We do NOT need to call gnutls_transport_set_lowat in GnuTLS 2.11.1
      and later, and the function was removed entirely in 3.0.0.  */
   if (!fn_gnutls_check_version ("2.11.1"))
     LOAD_GNUTLS_FN (library, gnutls_transport_set_lowat);
@@ -241,8 +242,8 @@ init_gnutls_functions (void)
 #define fn_gnutls_global_init			gnutls_global_init
 #define fn_gnutls_global_set_log_function	gnutls_global_set_log_function
 #ifdef HAVE_GNUTLS3
-#define fn_gnutls_global_set_audit_log_function	gnutls_global_set_audit_log_function
-#endif
+# define fn_gnutls_global_set_audit_log_function gnutls_global_set_audit_log_function
+#endif /* HAVE_GNUTLS3 */
 #define fn_gnutls_global_set_log_level		gnutls_global_set_log_level
 #define fn_gnutls_global_set_mem_functions	gnutls_global_set_mem_functions
 #define fn_gnutls_handshake			gnutls_handshake
@@ -253,8 +254,8 @@ init_gnutls_functions (void)
 #define fn_gnutls_record_send			gnutls_record_send
 #define fn_gnutls_strerror			gnutls_strerror
 #ifdef WINDOWSNT
-#define fn_gnutls_transport_set_errno		gnutls_transport_set_errno
-#endif
+# define fn_gnutls_transport_set_errno		gnutls_transport_set_errno
+#endif /* WINDOWSNT */
 #define fn_gnutls_transport_set_ptr2		gnutls_transport_set_ptr2
 #define fn_gnutls_x509_crt_check_hostname	gnutls_x509_crt_check_hostname
 #define fn_gnutls_x509_crt_deinit		gnutls_x509_crt_deinit
@@ -274,7 +275,7 @@ gnutls_audit_log_function (gnutls_session_t session, const char* string)
       message ("gnutls.c: [audit] %s", string);
     }
 }
-#endif
+#endif /* HAVE_GNUTLS3 */
 
 /* Function to log a simple message.  */
 static void
@@ -377,7 +378,7 @@ emacs_gnutls_transport_set_errno (gnutls_session_t state, int err)
 {
   fn_gnutls_transport_set_errno (state, err);
 }
-#endif
+#endif /* WINDOWSNT */
 
 ptrdiff_t
 emacs_gnutls_write (struct Lisp_Process *proc, const char *buf, ptrdiff_t nbyte)
@@ -540,6 +541,8 @@ gnutls_make_error (int err)
       return Qgnutls_e_interrupted;
     case GNUTLS_E_INVALID_SESSION:
       return Qgnutls_e_invalid_session;
+    default:
+      break;
     }
 
   return make_number (err);
@@ -690,7 +693,7 @@ DEFUN ("gnutls-available-p", Fgnutls_available_p, Sgnutls_available_p, 0, 0, 0,
     }
 #else
   return Qt;
-#endif
+#endif /* WINDOWSNT */
 }
 
 
@@ -726,7 +729,7 @@ emacs_gnutls_global_deinit (void)
 
   return gnutls_make_error (GNUTLS_E_SUCCESS);
 }
-#endif
+#endif /* 0 */
 
 DEFUN ("gnutls-boot", Fgnutls_boot, Sgnutls_boot, 3, 3, 0,
        doc: /* Initialize GnuTLS client for process PROC with TYPE+PROPLIST.
@@ -839,7 +842,7 @@ one trustfile (usually a CA bundle).  */)
       fn_gnutls_global_set_log_function (gnutls_log_function);
 #ifdef HAVE_GNUTLS3
       fn_gnutls_global_set_audit_log_function (gnutls_audit_log_function);
-#endif
+#endif /* HAVE_GNUTLS3 */
       fn_gnutls_global_set_log_level (XINT (loglevel));
       max_log_level = XINT (loglevel);
       XPROCESS (proc)->gnutls_log_level = max_log_level;
@@ -908,11 +911,11 @@ one trustfile (usually a CA bundle).  */)
 			   SSDATA (trustfile));
 	      trustfile = ENCODE_FILE (trustfile);
 #ifdef WINDOWSNT
-	      /* Since GnuTLS doesn't support UTF-8 or UTF-16 encoded
+	      /* Since GnuTLS does NOT support UTF-8 or UTF-16 encoded
 		 file names on Windows, we need to re-encode the file
 		 name using the current ANSI codepage.  */
 	      trustfile = ansi_encode_filename (trustfile);
-#endif
+#endif /* WINDOWSNT */
 	      ret = fn_gnutls_certificate_set_x509_trust_file
 		(x509_cred,
 		 SSDATA (trustfile),
@@ -938,7 +941,7 @@ one trustfile (usually a CA bundle).  */)
 	      crlfile = ENCODE_FILE (crlfile);
 #ifdef WINDOWSNT
 	      crlfile = ansi_encode_filename (crlfile);
-#endif
+#endif /* WINDOWSNT */
 	      ret = fn_gnutls_certificate_set_x509_crl_file
 		(x509_cred, SSDATA (crlfile), file_format);
 
@@ -967,7 +970,7 @@ one trustfile (usually a CA bundle).  */)
 #ifdef WINDOWSNT
 	      keyfile = ansi_encode_filename (keyfile);
 	      certfile = ansi_encode_filename (certfile);
-#endif
+#endif /* WINDOWSNT */
 	      ret = fn_gnutls_certificate_set_x509_key_file
 		(x509_cred, SSDATA (certfile), SSDATA (keyfile), file_format);
 
@@ -1224,4 +1227,10 @@ are as per the GnuTLS logging conventions.  */);
   global_gnutls_log_level = 0;
 }
 
+#else
+/* keep file from being empty: */
+typedef int gnutls_c_dummy_t;
+extern gnutls_c_dummy_t gnutls_c_dummy_var;
 #endif /* HAVE_GNUTLS */
+
+/* EOF */

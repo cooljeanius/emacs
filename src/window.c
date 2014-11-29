@@ -1393,15 +1393,15 @@ window_relative_x_coord (struct window *w, enum window_part part, int x)
   switch (part)
     {
     case ON_TEXT:
-      return x - window_box_left (w, TEXT_AREA);
+      return (x - window_box_left(w, TEXT_AREA));
 
     case ON_HEADER_LINE:
     case ON_MODE_LINE:
     case ON_LEFT_FRINGE:
-      return x - left_x;
+      return (x - left_x);
 
     case ON_RIGHT_FRINGE:
-      return x - left_x - WINDOW_LEFT_FRINGE_WIDTH (w);
+      return (x - left_x - WINDOW_LEFT_FRINGE_WIDTH(w));
 
     case ON_LEFT_MARGIN:
       return (x - left_x
@@ -1416,6 +1416,9 @@ window_relative_x_coord (struct window *w, enum window_part part, int x)
 	      + window_box_width (w, RIGHT_MARGIN_AREA)
 	      + ((WINDOW_HAS_FRINGES_OUTSIDE_MARGINS (w))
 		 ? WINDOW_RIGHT_FRINGE_WIDTH (w) : 0));
+
+    default:
+      break;
     }
 
   /* ON_SCROLL_BAR, ON_NOTHING, and ON_VERTICAL_BORDER:  */
@@ -2798,7 +2801,7 @@ window_loop (enum window_loop type, Lisp_Object obj, int mini, Lisp_Object frame
 	  {
 	  case GET_BUFFER_WINDOW:
 	    if (EQ (w->contents, obj)
-		/* Don't find any minibuffer window except the one that
+		/* Do NOT find any minibuffer window except the one that
 		   is currently in use.  */
 		&& (MINI_WINDOW_P (w) ? EQ (window, minibuf_window) : 1))
 	      {
@@ -2867,6 +2870,9 @@ window_loop (enum window_loop type, Lisp_Object obj, int mini, Lisp_Object frame
 
 	  case WINDOW_LOOP_UNUSED:
 	    break;
+
+          default:
+            break;
 	  }
     }
 
@@ -5608,11 +5614,11 @@ displayed_window_lines (struct window *w)
   bidi_unshelve_cache (itdata, 0);
 
   /* rms: On a non-window display,
-     the value of it.vpos at the bottom of the screen
-     seems to be 1 larger than window_box_height (w).
-     This kludge fixes a bug whereby (move-to-window-line -1)
-     when ZV is on the last screen line
-     moves to the previous screen line instead of the last one.  */
+   * the value of it.vpos at the bottom of the screen
+   * seems to be 1 larger than window_box_height (w).
+   * This kludge fixes a bug whereby (move-to-window-line -1)
+   * when ZV is on the last screen line
+   * moves to the previous screen line instead of the last one.  */
   if (! FRAME_WINDOW_P (XFRAME (w->frame)))
     height++;
 
@@ -5655,7 +5661,7 @@ and redisplay normally--don't erase and redraw the frame.  */)
   EMACS_INT iarg IF_LINT (= 0);
   int this_scroll_margin;
 
-  /* If redisplay is suppressed due to an error, try again.  */
+  /* If redisplay is suppressed due to an error, try again: */
   obuf->display_error_modiff = 0;
 
   if (NILP (arg))
@@ -5669,10 +5675,10 @@ and redisplay normally--don't erase and redraw the frame.  */)
 	  /* Invalidate pixel data calculated for all compositions.  */
 	  for (i = 0; i < n_compositions; i++)
 	    composition_table[i]->font = NULL;
-#if defined (HAVE_WINDOW_SYSTEM) && ! defined (USE_GTK) && ! defined (HAVE_NS)
-	  WINDOW_XFRAME (w)->minimize_tool_bar_window_p = 1;
-#endif
-	  Fredraw_frame (WINDOW_FRAME (w));
+#if defined(HAVE_WINDOW_SYSTEM) && !defined(USE_GTK) && !defined(HAVE_NS)
+	  WINDOW_XFRAME(w)->minimize_tool_bar_window_p = 1;
+#endif /* HAVE_WINDOW_SYSTEM && !USE_GTK && !HAVE_NS */
+ 	  Fredraw_frame (WINDOW_FRAME (w));
 	  SET_FRAME_GARBAGED (WINDOW_XFRAME (w));
 	}
 

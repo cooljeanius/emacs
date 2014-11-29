@@ -122,12 +122,15 @@ Boston, MA 02110-1301, USA.  */
  * we have the wrong name for networking libs
  */
 #ifdef USG5_4
-/* rms: not needed; LIB_X11_LIB deals with this.  */
-/* #define LIBX11_SYSTEM -lX11 */
+/* rms: not needed; LIB_X11_LIB deals with this: */
+# if !defined(LIB_X11_LIB) && !defined(LIBX11_SYSTEM) && defined(I_AM_NOT_RMS)
+#  define LIBX11_SYSTEM -lX11
+# endif /* !LIB_X11_LIB && !LIBX11_SYSTEM && I_AM_NOT_RMS */
 #else
-#undef LIB_X11_LIB /* We don't have the shared libs as assumed in usg5-3.h. */
-#undef LIBX11_SYSTEM
-#define LIBX11_SYSTEM -lnsl -lbsd
+/* We do NOT have the shared libs as assumed in "../m/usg5-3.h": */
+# undef LIB_X11_LIB
+# undef LIBX11_SYSTEM
+# define LIBX11_SYSTEM -lnsl -lbsd
 #endif /* USG5_4 */
 
 #define BROKEN_FIONREAD

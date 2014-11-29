@@ -392,13 +392,13 @@ child_setup_tty (int out)
 
 #ifdef AIX
   /* Also, PTY overloads NUL and BREAK.
-     don't ignore break, but don't signal either, so it looks like NUL.  */
+   * Do NOT ignore break, but do NOT signal either, so it looks like NUL: */
   s.main.c_iflag &= ~IGNBRK;
   s.main.c_iflag &= ~BRKINT;
   /* rms: Formerly it set s.main.c_cc[VINTR] to 0377 here
-     unconditionally.  Then a SIGNALS_VIA_CHARACTERS conditional
-     would force it to 0377.  That looks like duplicated code.  */
-  s.main.c_cflag = (s.main.c_cflag & ~CBAUD) | B9600; /* baud rate sanity */
+   * unconditionally.  Then a SIGNALS_VIA_CHARACTERS conditional
+   * would force it to 0377.  That looks like duplicated code.  */
+  s.main.c_cflag = ((s.main.c_cflag & ~CBAUD) | B9600); /* baud rate sanity */
 #endif /* AIX */
 
   /* We originally enabled ICANON (and set VEOF to 04), and then had
@@ -1266,17 +1266,17 @@ reset_sys_modes (struct tty_display_info *tty_out)
     continue;
 
 #ifndef DOS_NT
-#ifdef F_SETOWN
+# ifdef F_SETOWN
   if (interrupt_input)
     {
       reset_sigio (fileno (tty_out->input));
       fcntl (fileno (tty_out->input), F_SETOWN,
              old_fcntl_owner[fileno (tty_out->input)]);
     }
-#endif /* F_SETOWN */
+# endif /* F_SETOWN */
   fcntl (fileno (tty_out->input), F_SETFL,
          fcntl (fileno (tty_out->input), F_GETFL, 0) & ~O_NONBLOCK);
-#endif
+#endif /* !DOS_NT */
 
   if (tty_out->old_tty)
     while (emacs_set_tty (fileno (tty_out->input),
@@ -1285,20 +1285,27 @@ reset_sys_modes (struct tty_display_info *tty_out)
 
 #ifdef MSDOS	/* Demacs 1.1.2 91/10/20 Manabu Higashida */
   dos_ttcooked ();
-#endif
+#endif /* MSDOS */
 
   widen_foreground_group (fileno (tty_out->input));
 }
 
 #ifdef HAVE_PTYS
-
-/* Set up the proper status flags for use of a pty.  */
-
-void
-setup_pty (int fd)
+/* copied from "config.h": */
+# ifndef ATTRIBUTE_CONST
+/* The __const__ attribute was added in gcc 2.95: */
+#  if (__GNUC__ > 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 95))
+#   define ATTRIBUTE_CONST __attribute__ ((__const__))
+#  else
+#   define ATTRIBUTE_CONST /* empty */
+#  endif /* gcc 2.95+ */
+# endif /* !ATTRIBUTE_CONST */
+/* Set up the proper status flags for use of a pty: */
+void ATTRIBUTE_CONST
+setup_pty(int fd)
 {
-  /* I'm told that TOICREMOTE does not mean control chars
-     "can't be sent" but rather that they don't have
+  /* I am told that TOICREMOTE does not mean control chars
+     "cannot be sent" but rather that they do NOT have
      input-editing or signaling effects.
      That should be good, because we have other ways
      to do those things in Emacs.
@@ -1320,26 +1327,28 @@ setup_pty (int fd)
 
      Since the latter lossage is more benign, we may as well
      lose that way.  -- cph */
-#ifdef FIONBIO
-#if defined (UNIX98_PTYS)
+# ifdef FIONBIO
+#  if defined (UNIX98_PTYS)
   {
     int on = 1;
     ioctl (fd, FIONBIO, &on);
   }
-#endif
-#endif
+#  endif /* UNIX98_PTYS */
+# endif /* FIONBIO */
+  
+  return;
 }
 #endif /* HAVE_PTYS */
 
 #ifdef HAVE_SOCKETS
-#include <sys/socket.h>
-#include <netdb.h>
+# include <sys/socket.h>
+# include <netdb.h>
 #endif /* HAVE_SOCKETS */
 
 #ifdef TRY_AGAIN
-#ifndef HAVE_H_ERRNO
+# ifndef HAVE_H_ERRNO
 extern int h_errno;
-#endif
+# endif /* !HAVE_H_ERRNO */
 #endif /* TRY_AGAIN */
 
 void
@@ -1371,17 +1380,17 @@ init_system_name (void)
       hostname = hostname_alloc = xpalloc (hostname_alloc, &hostname_size, 1,
 					   min (PTRDIFF_MAX, SIZE_MAX), 1);
     }
-#ifdef HAVE_SOCKETS
+# ifdef HAVE_SOCKETS
   /* Turn the hostname into the official, fully-qualified hostname.
-     Don't do this if we're going to dump; this can confuse system
+     Do NOT do this if we are going to dump; this can confuse system
      libraries on some machines and make the dumped emacs core dump. */
-#ifndef CANNOT_DUMP
+#  ifndef CANNOT_DUMP
   if (initialized)
-#endif /* not CANNOT_DUMP */
+#  endif /* not CANNOT_DUMP */
     if (! strchr (hostname, '.'))
       {
 	int count;
-#ifdef HAVE_GETADDRINFO
+#  ifdef HAVE_GETADDRINFO
         struct addrinfo *res;
         struct addrinfo hints;
         int ret;
@@ -1425,19 +1434,18 @@ init_system_name (void)
               }
             freeaddrinfo (res);
           }
-#else /* !HAVE_GETADDRINFO */
+#  else /* !HAVE_GETADDRINFO */
         struct hostent *hp;
 	for (count = 0;; count++)
 	  {
 
-#ifdef TRY_AGAIN
+#   ifdef TRY_AGAIN
 	    h_errno = 0;
-#endif
+#   endif /* TRY_AGAIN */
 	    hp = gethostbyname (hostname);
-#ifdef TRY_AGAIN
+#   ifdef TRY_AGAIN
 	    if (! (hp == 0 && h_errno == TRY_AGAIN))
-#endif
-
+#   endif /* TRY_AGAIN */
 	      break;
 
 	    if (count >= 5)
@@ -1463,9 +1471,9 @@ init_system_name (void)
 	      }
 	    hostname = fqdn;
 	  }
-#endif /* !HAVE_GETADDRINFO */
+#  endif /* !HAVE_GETADDRINFO */
       }
-#endif /* HAVE_SOCKETS */
+# endif /* HAVE_SOCKETS */
   Vsystem_name = build_string (hostname);
   xfree (hostname_alloc);
 #endif /* HAVE_GETHOSTNAME */
@@ -1488,7 +1496,7 @@ emacs_sigaction_flags (void)
   /* SA_RESTART causes interruptible functions with timeouts (e.g.,
      'select') to reset their timeout on some platforms (e.g.,
      HP-UX 11), which is not what we want.  Also, when Emacs is
-     interactive, we don't want SA_RESTART because we need to poll
+     interactive, we do NOT want SA_RESTART because we need to poll
      for pending input so we need long-running syscalls to be interrupted
      after a signal that sets pending_signals.
 
@@ -1496,7 +1504,7 @@ emacs_sigaction_flags (void)
      always want restartable system calls.  */
   if (noninteractive)
     return SA_RESTART;
-#endif
+#endif /* SA_RESTART */
   return 0;
 }
 
@@ -1513,20 +1521,20 @@ emacs_sigaction_init (struct sigaction *action, signal_handler_t handler)
   sigaddset (&action->sa_mask, SIGCHLD);
 #ifdef SIGDANGER
   sigaddset (&action->sa_mask, SIGDANGER);
-#endif
+#endif /* SIGDANGER */
 #ifdef PROFILER_CPU_SUPPORT
   sigaddset (&action->sa_mask, SIGPROF);
-#endif
+#endif /* PROFILER_CPU_SUPPORT */
 #ifdef SIGWINCH
   sigaddset (&action->sa_mask, SIGWINCH);
-#endif
+#endif /* SIGWINCH */
   if (! noninteractive)
     {
       sigaddset (&action->sa_mask, SIGINT);
       sigaddset (&action->sa_mask, SIGQUIT);
 #ifdef USABLE_SIGIO
       sigaddset (&action->sa_mask, SIGIO);
-#endif
+#endif /* USABLE_SIGIO */
     }
 
   if (! IEEE_FLOATING_POINT)
@@ -1538,7 +1546,7 @@ emacs_sigaction_init (struct sigaction *action, signal_handler_t handler)
 
 #ifdef FORWARD_SIGNAL_TO_MAIN_THREAD
 static pthread_t main_thread;
-#endif
+#endif /* FORWARD_SIGNAL_TO_MAIN_THREAD */
 
 /* SIG has arrived at the current process.  Deliver it to the main
    thread, which should handle it with HANDLER.
@@ -1601,7 +1609,7 @@ deliver_thread_signal (int sig, signal_handler_t handler)
       while (1)
 	sigsuspend (&empty_mask);
     }
-#endif
+#endif /* FORWARD_SIGNAL_TO_MAIN_THREAD */
 
   handler (sig);
   errno = old_errno;
@@ -1616,14 +1624,14 @@ deliver_thread_signal (int sig, signal_handler_t handler)
 # else
 #  define sys_siglist my_sys_siglist
 static char const *sys_siglist[NSIG];
-# endif
-#endif
+# endif /* _sys_siglist || HAVE_DECL___SYS_SIGLIST || neither */
+#endif /* !HAVE_DECL_SYS_SIGLIST */
 
 #ifdef _sys_nsig
 # define sys_siglist_entries _sys_nsig
 #else
 # define sys_siglist_entries NSIG
-#endif
+#endif /* _sys_nsig */
 
 /* Handle bus errors, invalid instruction, etc.  */
 static _Noreturn void
@@ -2253,13 +2261,13 @@ emacs_close (int fd)
 /* Maximum number of bytes to read or write in a single system call.
    This works around a serious bug in Linux kernels before 2.6.16; see
    <https://bugzilla.redhat.com/show_bug.cgi?format=multiple&id=612839>.
-   It's likely to work around similar bugs in other operating systems, so do it
-   on all platforms.  Round INT_MAX down to a page size, with the conservative
-   assumption that page sizes are at most 2**18 bytes (any kernel with a
-   page size larger than that shouldn't have the bug).  */
+   It is likely to work around similar bugs in other operating systems,
+   so do it on all platforms.  Round INT_MAX down to a page size,
+   with the conservative assumption that page sizes are at most 2**18 bytes
+   (any kernel with a larger page size should NOT have the bug).  */
 #ifndef MAX_RW_COUNT
-#define MAX_RW_COUNT (INT_MAX >> 18 << 18)
-#endif
+# define MAX_RW_COUNT (INT_MAX >> 18 << 18)
+#endif /* !MAX_RW_COUNT */
 
 /* Read from FILEDESC to a buffer BUF with size NBYTE, retrying if interrupted.
    Return the number of bytes read, which might be less than NBYTE.

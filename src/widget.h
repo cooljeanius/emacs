@@ -21,6 +21,13 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #ifndef _EmacsFrame_h
 #define _EmacsFrame_h
 
+/* this file contains way too many of these for now: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wredundant-decls"
+#endif /* gcc 4.6+ */
+
 #define XtNminibuffer "minibuffer"
 #define XtCMinibuffer "Minibuffer"
 #define XtNunsplittable "unsplittable"
@@ -31,17 +38,17 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #define XtCInterline "Interline"
 
 #ifndef XtNfont
-#define XtNfont "font"
-#endif
+# define XtNfont "font"
+#endif /* !XtNfont */
 #ifndef XtCFont
-#define XtCFont "Font"
-#endif
+# define XtCFont "Font"
+#endif /* !XtCFont */
 #ifndef XtNforeground
-#define XtNforeground "foreground"
-#endif
+# define XtNforeground "foreground"
+#endif /* !XtNforeground */
 #ifndef XtCForeground
-#define XtCForeground "Foreground"
-#endif
+# define XtCForeground "Foreground"
+#endif /* !XtCForeground */
 
 #define XtNcursorColor "cursorColor"
 #define XtCCursorColor "CursorColor"
@@ -65,20 +72,20 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #define XtCEmacsFrame "EmacsFrame"
 
 #ifndef XtNgeometry
-#define XtNgeometry "geometry"
-#endif
+# define XtNgeometry "geometry"
+#endif /* !XtNgeometry */
 #ifndef XtCGeometry
-#define XtCGeometry "Geometry"
-#endif
+# define XtCGeometry "Geometry"
+#endif /* !XtCGeometry */
 #ifndef XtNshowGrip
-#define XtNshowGrip "showGrip"
-#endif
+# define XtNshowGrip "showGrip"
+#endif /* !XtNshowGrip */
 #ifndef XtNallowResize
-#define XtNallowResize "allowResize"
-#endif
+# define XtNallowResize "allowResize"
+#endif /* !XtNallowResize */
 #ifndef XtNresizeToPreferred
-#define XtNresizeToPreferred "resizeToPreferred"
-#endif
+# define XtNresizeToPreferred "resizeToPreferred"
+#endif /* !XtNresizeToPreferred */
 
 #define XtNinitialGeometry "initialGeometry"
 #define XtCInitialGeometry "InitialGeometry"
@@ -96,5 +103,11 @@ extern struct _DisplayContext* display_context;
 void EmacsFrameSetCharSize (Widget, int, int);
 void widget_store_internal_border (Widget widget);
 void widget_update_wm_size_hints (Widget widget);
+
+/* keep condition the same as when we push away the redundancy warning: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic pop
+#endif /* gcc 4.6+ */
 
 #endif /* _EmacsFrame_h */

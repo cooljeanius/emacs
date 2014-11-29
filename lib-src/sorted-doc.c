@@ -24,25 +24,30 @@
    This version sorts the output by function name.  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+# include <config.h>
+#endif /* HAVE_CONFIG_H */
 
 #include <stdio.h>
 #include <ctype.h>
 #ifdef DOS_NT
-#include <fcntl.h>		/* for O_BINARY */
-#include <io.h>			/* for setmode */
-#endif
-#ifndef HAVE_STDLIB_H		/* config.h includes stdlib.  */
-#ifndef WINDOWSNT		/* src/s/ms-w32.h includes stdlib.h */
-extern char *malloc ();
-#endif
-#endif
+# include <fcntl.h>		/* for O_BINARY */
+# include <io.h>		/* for setmode */
+#endif /* DOS_NT */
+/* config.h includes <stdlib.h>: */
+#if !defined(HAVE_STDLIB_H) && !defined(_STDLIB_H_)
+# ifndef WINDOWSNT		/* src/s/ms-w32.h includes <stdlib.h> */
+extern char *malloc(size_t size);
+# endif
+#endif /* !HAVE_STDLIB_H && !_STDLIB_H_ */
 
 #define NUL	'\0'
 #define MARKER '\037'
 
-#define DEBUG 0
+#ifndef DEBUG
+# define DEBUG 0
+#else
+# undef DEBUG
+#endif /* !DEBUG */
 
 typedef struct line LINE;
 
@@ -62,59 +67,59 @@ struct docstr			/* Allocated thing for an entry. */
   char type;			/* 'F' for function, 'V' for variable */
 };
 
+/* prototypes: */
+extern void error(const char *s1, const char *s2);
+extern void _Noreturn fatal(const char *s1, const char *s2);
+extern char *xmalloc(int size);
+extern char *xstrdup(char *str);
+extern int cmpdoc(DOCSTR **a, DOCSTR **b);
 
-/* Print error message.  `s1' is printf control string, `s2' is arg for it. */
-
+/* Print error message.
+ * `s1' is printf control string, `s2' is arg for it: */
 void
-error (s1, s2)
-     char *s1, *s2;
+error(const char *s1, const char *s2)
 {
-  fprintf (stderr, "sorted-doc: ");
-  fprintf (stderr, s1, s2);
-  fprintf (stderr, "\n");
+  fprintf(stderr, "sorted-doc: ");
+  fprintf(stderr, s1, s2);
+  fprintf(stderr, "\n");
 }
 
-/* Print error message and exit.  */
-
-void
-fatal (s1, s2)
-     char *s1, *s2;
+/* Print error message and exit: */
+void _Noreturn
+fatal(const char *s1, const char *s2)
 {
-  error (s1, s2);
-  exit (EXIT_FAILURE);
+  error(s1, s2);
+  exit(EXIT_FAILURE);
 }
+/* ("../src/config.h" should define '_Noreturn' for that, if we do not
+ * already have the C11 one) */
 
-/* Like malloc but get fatal error if memory is exhausted.  */
-
+/* xmalloc(): Like malloc but get fatal error if memory is exhausted: */
 char *
-xmalloc (size)
-     int size;
+xmalloc(int size)
 {
-  char *result = malloc ((unsigned)size);
-  if (result == NULL)
-    fatal ("%s", "virtual memory exhausted");
+  char *result = malloc((unsigned)size);
+  if (result == NULL) {
+    fatal("%s", "virtual memory exhausted");
+  }
   return result;
 }
 
 char *
-xstrdup (str)
-     char * str;
+xstrdup(char *str)
 {
-  char *buf = xmalloc (strlen (str) + 1);
-  (void) strcpy (buf, str);
+  char *buf = xmalloc(strlen(str) + 1);
+  (void)strcpy(buf, str);
   return (buf);
 }
 
-/* Comparison function for qsort to call.  */
-
+/* Comparison function for qsort to call: */
 int
-cmpdoc (a, b)
-     DOCSTR **a;
-     DOCSTR **b;
+cmpdoc(DOCSTR **a, DOCSTR **b)
 {
-  register int val = strcmp ((*a)->name, (*b)->name);
+  register int val = strcmp((*a)->name, (*b)->name);
   if (val) return val;
-  return (*a)->type - (*b)->type;
+  return ((*a)->type - (*b)->type);
 }
 
 
@@ -123,13 +128,13 @@ enum state
   WAITING, BEG_NAME, NAME_GET, BEG_DESC, DESC_GET
 };
 
-char *states[] =
+const char *states[] =
 {
   "WAITING", "BEG_NAME", "NAME_GET", "BEG_DESC", "DESC_GET"
 };
 
 int
-main ()
+main(void)
 {
   register DOCSTR *dp = NULL;	/* allocated DOCSTR */
   register LINE *lp = NULL;	/* allocated line */
@@ -141,54 +146,55 @@ main ()
   char buf[512];		/* line buffer */
 
 #ifdef DOS_NT
-  /* DOC is a binary file.  */
-  if (!isatty (fileno (stdin)))
-    setmode (fileno (stdin), O_BINARY);
-#endif
+  /* DOC is a binary file: */
+  if (!isatty(fileno(stdin))) {
+    setmode(fileno(stdin), O_BINARY);
+  }
+#endif /* DOS_NT */
 
   bp = buf;
 
   while (1)			/* process one char at a time */
     {
-      /* this char from the DOCSTR file */
-      register int ch = getchar ();
+      /* this char from the DOCSTR file: */
+      register int ch = getchar();
 
-      /* Beginnings */
-
+      /* Beginnings: */
       if (state == WAITING)
 	{
-	  if (ch == MARKER)
+	  if (ch == MARKER) {
 	    state = BEG_NAME;
+          }
 	}
       else if (state == BEG_NAME)
 	{
 	  cnt++;
 	  if (dp == NULL)	/* first dp allocated */
 	    {
-	      docs = dp = (DOCSTR*) xmalloc (sizeof (DOCSTR));
+	      docs = dp = (DOCSTR*)xmalloc(sizeof(DOCSTR));
 	    }
 	  else			/* all the rest */
 	    {
-	      dp->next = (DOCSTR*) xmalloc (sizeof (DOCSTR));
+	      dp->next = (DOCSTR*)xmalloc(sizeof(DOCSTR));
 	      dp = dp->next;
 	    }
 	  lp = NULL;
 	  dp->next = NULL;
 	  bp = buf;
 	  state = NAME_GET;
-	  /* Record whether function or variable.  */
+	  /* Record whether function or variable: */
 	  dp->type = ch;
-	  ch = getchar ();
+	  ch = getchar();
 	}
       else if (state == BEG_DESC)
 	{
 	  if (lp == NULL)	/* first line for dp */
 	    {
-	      dp->first = lp = (LINE*)xmalloc (sizeof (LINE));
+	      dp->first = lp = (LINE*)xmalloc(sizeof(LINE));
 	    }
 	  else			/* continuing lines */
 	    {
-	      lp->next = (LINE*)xmalloc (sizeof (LINE));
+	      lp->next = (LINE*)xmalloc(sizeof(LINE));
 	      lp = lp->next;
 	    }
 	  lp->next = NULL;
@@ -196,101 +202,100 @@ main ()
 	  state = DESC_GET;
 	}
 
-      /* process gets */
-
-      if (state == NAME_GET || state == DESC_GET)
+      /* process gets: */
+      if ((state == NAME_GET) || (state == DESC_GET))
 	{
-	  if (ch != MARKER && ch != '\n' && ch != EOF)
+	  if ((ch != MARKER) && (ch != '\n') && (ch != EOF))
 	    {
 	      *bp++ = ch;
 	    }
 	  else			/* saving and changing state */
 	    {
 	      *bp = NUL;
-	      bp = xstrdup (buf);
+	      bp = xstrdup(buf);
 
-	      if (state == NAME_GET)
+	      if (state == NAME_GET) {
 		dp->name = bp;
-	      else
+	      } else {
 		lp->line = bp;
+              }
 
 	      bp = buf;
-	      state =  (ch == MARKER) ? BEG_NAME : BEG_DESC;
+	      state = ((ch == MARKER) ? BEG_NAME : BEG_DESC);
 	    }
 	}			/* NAME_GET || DESC_GET */
-      if (ch == EOF)
+      if (ch == EOF) {
 	break;
+      }
     }
 
   {
     DOCSTR **array;
     register int i;		/* counter */
 
-    /* build array of ptrs to DOCSTRs */
-
-    array = (DOCSTR**)xmalloc (cnt * sizeof (*array));
-    for (dp = docs, i = 0; dp != NULL ; dp = dp->next)
+    /* build array of ptrs to DOCSTRs: */
+    array = (DOCSTR**)xmalloc(cnt * sizeof(*array));
+    for (dp = docs, i = 0; dp != NULL; dp = dp->next) {
       array[i++] = dp;
+    }
 
-    /* sort the array by name; within each name, by type */
+    /* sort the array by name; within each name, by type: */
+    qsort((char*)array, cnt, sizeof(DOCSTR*),
+          (int (*)(const void *, const void *))cmpdoc);
 
-    qsort ((char*)array, cnt, sizeof (DOCSTR*), cmpdoc);
+    /* write the output header: */
+    printf("\\input texinfo  @c -*-texinfo-*-\n");
+    printf("@setfilename ../info/summary\n");
+    printf("@settitle Command Summary for GNU Emacs\n");
+    printf("@finalout\n");
+    printf("@unnumbered Command Summary for GNU Emacs\n");
+    printf("@table @asis\n");
+    printf("\n");
+    printf("@iftex\n");
+    printf("@global@let@ITEM@item\n");
+    printf("@def@item{@filbreak@vskip5pt@ITEM}\n");
+    printf("@font@tensy cmsy10 scaled @magstephalf\n");
+    printf("@font@teni cmmi10 scaled @magstephalf\n");
+    printf("@def\\{{@tensy@char110}}\n"); /* this backslash goes with cmr10 */
+    printf("@def|{{@tensy@char106}}\n");
+    printf("@def@{{{@tensy@char102}}\n");
+    printf("@def@}{{@tensy@char103}}\n");
+    printf("@def<{{@teni@char62}}\n");
+    printf("@def>{{@teni@char60}}\n");
+    printf("@chardef@@64\n");
+    printf("@catcode43=12\n");
+    printf("@tableindent-0.2in\n");
+    printf("@end iftex\n");
 
-    /* write the output header */
-
-    printf ("\\input texinfo  @c -*-texinfo-*-\n");
-    printf ("@setfilename ../info/summary\n");
-    printf ("@settitle Command Summary for GNU Emacs\n");
-    printf ("@finalout\n");
-    printf ("@unnumbered Command Summary for GNU Emacs\n");
-    printf ("@table @asis\n");
-    printf ("\n");
-    printf ("@iftex\n");
-    printf ("@global@let@ITEM@item\n");
-    printf ("@def@item{@filbreak@vskip5pt@ITEM}\n");
-    printf ("@font@tensy cmsy10 scaled @magstephalf\n");
-    printf ("@font@teni cmmi10 scaled @magstephalf\n");
-    printf ("@def\\{{@tensy@char110}}\n"); /* this backslash goes with cmr10 */
-    printf ("@def|{{@tensy@char106}}\n");
-    printf ("@def@{{{@tensy@char102}}\n");
-    printf ("@def@}{{@tensy@char103}}\n");
-    printf ("@def<{{@teni@char62}}\n");
-    printf ("@def>{{@teni@char60}}\n");
-    printf ("@chardef@@64\n");
-    printf ("@catcode43=12\n");
-    printf ("@tableindent-0.2in\n");
-    printf ("@end iftex\n");
-
-    /* print each function from the array */
-
+    /* print each function from the array: */
     for (i = 0; i < cnt; i++)
       {
-	printf ("\n@item %s @code{%s}\n@display\n",
-		array[i]->type == 'F' ? "Function" : "Variable",
-		array[i]->name);
+	printf("\n@item %s @code{%s}\n@display\n",
+               ((array[i]->type == 'F') ? "Function" : "Variable"),
+               array[i]->name);
 
 	for (lp = array[i]->first; lp != NULL ; lp = lp->next)
 	  {
 	    for (bp = lp->line; *bp; bp++)
 	      {
-		/* the characters "@{}" need special treatment */
-		if (*bp == '@' || *bp == '{' || *bp == '}')
+		/* the characters "@{}" need special treatment: */
+		if ((*bp == '@') || (*bp == '{') || (*bp == '}'))
 		  {
 		    putchar('@');
 		  }
 		putchar(*bp);
 	      }
-	    putchar ('\n');
+	    putchar('\n');
 	  }
 	printf("@end display\n");
-	/* Try to avoid a save size overflow in the TeX output
-           routine.  */
-	if (i%100 == 0 && i > 0 && i != cnt)
+	/* Try to avoid a save size overflow in the TeX output routine: */
+	if (((i % 100) == 0) && (i > 0) && (i != cnt)) {
 	  printf("\n@end table\n@table @asis\n");
+        }
       }
 
-    printf ("@end table\n");
-    printf ("@bye\n");
+    printf("@end table\n");
+    printf("@bye\n");
   }
 
   return EXIT_SUCCESS;

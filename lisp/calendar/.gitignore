@@ -1,0 +1,5 @@
+# gitignore file for emacs/lisp/calendar
+*.elc
+cal-loaddefs.el
+diary-loaddefs.el
+hol-loaddefs.el

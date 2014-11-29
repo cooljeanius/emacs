@@ -777,7 +777,7 @@ digest_single_submenu (int start, int end, bool top_level_items)
 		  descrip = ENCODE_SYSTEM (descrip);
 		  ASET (menu_items, i + MENU_ITEMS_ITEM_EQUIV_KEY, descrip);
 		}
-#elif USE_LUCID
+#elif defined(USE_LUCID) && USE_LUCID
 	      if (STRINGP (item_name))
 		{
 		  item_name = ENCODE_UTF_8 (item_name);
@@ -801,7 +801,7 @@ digest_single_submenu (int start, int end, bool top_level_items)
 		  descrip = ENCODE_MENU_STRING (descrip);
 		  ASET (menu_items, i + MENU_ITEMS_ITEM_EQUIV_KEY, descrip);
 		}
-#endif
+#endif /* HAVE_NTGUI || USE_LUCID || !HAVE_MULTILINGUAL_MENU */
 	    }
 
 	  wv = xmalloc_widget_value ();
@@ -1237,7 +1237,7 @@ no quit occurs and `x-popup-menu' returns nil.  */)
 	/* Use the mouse's current position.  */
 	struct frame *new_f = SELECTED_FRAME ();
 #ifdef HAVE_X_WINDOWS
-	/* Can't use mouse_position_hook for X since it returns
+	/* Cannot use mouse_position_hook for X since it returns
 	   coordinates relative to the window the mouse is in,
 	   we need coordinates relative to the edit widget always.  */
 	if (new_f != 0)

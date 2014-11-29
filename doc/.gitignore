@@ -1,5 +1,8 @@
+# gitignore file for emacs/doc
+emacs/emacsver.texi
 Makefile
 man/Makefile
+man/emacs.1
 *.aux
 *.cm
 *.cms

@@ -1,4 +1,4 @@
-/* Definitions and global variables for intervals.
+/* intervals.h: Definitions and global variables for intervals.
    Copyright (C) 1993-1994, 2000-2014 Free Software Foundation, Inc.
 
 This file is part of GNU Emacs.
@@ -16,12 +16,21 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
+#ifndef EMACS_INTERVALS_H
+#define EMACS_INTERVALS_H
+
 #include "dispextern.h"
 
 INLINE_HEADER_BEGIN
 
-/* Basic data type for use of intervals.  */
+/* this file contains way too many of these for now: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wredundant-decls"
+#endif /* gcc 4.6+ */
 
+/* Basic data type for use of intervals: */
 struct interval
 {
   /* The first group of entries deal with the tree structure.  */
@@ -309,4 +318,15 @@ extern void syms_of_textprop (void);
 
 #include "composite.h"
 
+/* keep condition the same as when we push away the redundancy warning: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic pop
+#endif /* gcc 4.6+ */
+
 INLINE_HEADER_END
+
+#endif /* !EMACS_INTERVALS_H */
+
+/* arch-tag: f0bc16c0-b084-498d-9de4-21cc8f077795
+   (do not change this comment) */

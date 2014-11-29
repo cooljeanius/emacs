@@ -1,4 +1,4 @@
-/* Definitions for asynchronous process control in GNU Emacs.
+/* process.h: Definitions for asynchronous process control in GNU Emacs.
    Copyright (C) 1985, 1994, 2001-2014 Free Software Foundation, Inc.
 
 This file is part of GNU Emacs.
@@ -16,9 +16,12 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
+#ifndef EMACS_PROCESS_H
+#define EMACS_PROCESS_H 1
+
 #ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
+# include <sys/types.h>
+#endif /* HAVE_SYS_TYPES_H */
 
 #include <unistd.h>
 
@@ -229,7 +232,7 @@ extern void record_deleted_pid (pid_t, Lisp_Object);
 struct sockaddr;
 #ifdef WINDOWSNT
 extern Lisp_Object conv_sockaddr_to_lisp (struct sockaddr *, int);
-#endif
+#endif /* WINDOWSNT */
 extern void hold_keyboard_input (void);
 extern void unhold_keyboard_input (void);
 extern bool kbd_on_hold_p (void);
@@ -242,11 +245,15 @@ extern void add_write_fd (int fd, fd_callback func, void *data);
 extern void delete_write_fd (int fd);
 #ifdef NS_IMPL_GNUSTEP
 extern void catch_child_signal (void);
-#endif
+#endif /* NS_IMPL_GNUSTEP */
 
 #ifdef WINDOWSNT
 extern Lisp_Object network_interface_list (void);
 extern Lisp_Object network_interface_info (Lisp_Object);
-#endif
+#endif /* WINDOWSNT */
 
 INLINE_HEADER_END
+
+#endif /* !EMACS_PROCESS_H */
+
+/* EOF */

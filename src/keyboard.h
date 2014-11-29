@@ -1,7 +1,7 @@
-/* Declarations useful when processing input.
-   Copyright (C) 1985-1987, 1993, 2001-2014 Free Software Foundation,
-   Inc.
-
+/* keyboard.h: Declarations useful when processing input.
+ * Copyright (C) 1985-1987, 1993, 2001-2014 by:
+ * the Free Software Foundation, Inc.  */
+/*
 This file is part of GNU Emacs.
 
 GNU Emacs is free software: you can redistribute it and/or modify
@@ -17,11 +17,21 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
+#ifndef EMACS_KEYBOARD_H
+#define EMACS_KEYBOARD_H
+
 #include "systime.h"		/* for struct timespec, Time */
 #include "coding.h"             /* for ENCODE_UTF_8 and ENCODE_SYSTEM */
 #include "termhooks.h"
 
 INLINE_HEADER_BEGIN
+
+/* this file contains way too many of these for now: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wredundant-decls"
+#endif /* gcc 4.6+ */
 
 /* Most code should use this macro to access Lisp fields in struct kboard.  */
 
@@ -387,19 +397,19 @@ typedef struct _widget_value
   unsigned char selected;
   /* The type of a button.  */
   enum button_type button_type;
-#if defined (HAVE_NTGUI)
+# if defined (HAVE_NTGUI)
   /* true if menu title */
   unsigned char title;
-#endif
+# endif /* HAVE_NTGUI */
   /* Contents of the sub-widgets, also selected slot for checkbox */
   struct _widget_value*	contents;
   /* data passed to callback */
   void	*call_data;
   /* next one in the list */
   struct _widget_value*	next;
-#ifdef USE_GTK
+# ifdef USE_GTK
   struct _widget_value *free_list;
-#endif
+# endif /* USE_GTK */
 } widget_value;
 
 #endif /* HAVE_NS || HAVE_NTGUI */
@@ -518,9 +528,9 @@ extern bool input_polling_used (void);
 extern void clear_input_pending (void);
 extern bool requeued_events_pending_p (void);
 extern void bind_polling_period (int);
-#if HAVE_NTGUI
+#if defined(HAVE_NTGUI) && HAVE_NTGUI
 extern int make_ctrl_char (int) ATTRIBUTE_CONST;
-#endif
+#endif /* HAVE_NTGUI */
 extern void stuff_buffered_input (Lisp_Object);
 extern void clear_waiting_for_input (void);
 extern void swallow_events (bool);
@@ -545,6 +555,17 @@ extern void mark_kboards (void);
 
 #ifdef HAVE_NTGUI
 extern const char *const lispy_function_keys[];
-#endif
+#endif /* HAVE_NTGUI */
+
+/* keep condition the same as when we push away the redundancy warning: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic pop
+#endif /* gcc 4.6+ */
 
 INLINE_HEADER_END
+
+#endif /* !EMACS_KEYBOARD_H */
+
+/* arch-tag: 769cbade-1ba9-4950-b886-db265b061aa3
+   (do not change this comment) */

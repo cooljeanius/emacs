@@ -1,4 +1,4 @@
-/* Functions to manipulate keymaps.
+/* keymap.h: Functions to manipulate keymaps.
    Copyright (C) 2001-2014 Free Software Foundation, Inc.
 
 This file is part of GNU Emacs.
@@ -18,6 +18,13 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #ifndef KEYMAP_H
 #define KEYMAP_H
+
+/* this file contains way too many of these for now: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wredundant-decls"
+#endif /* gcc 4.6+ */
 
 /* The maximum byte size consumed by push_key_description.
    All callers should assure that at least this size of memory is
@@ -53,4 +60,12 @@ extern void map_keymap_canonical (Lisp_Object map,
 				  map_keymap_function_t fun,
 				  Lisp_Object args, void *data);
 
-#endif
+/* keep condition the same as when we push away the redundancy warning: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic pop
+#endif /* gcc 4.6+ */
+
+#endif /* !KEYMAP_H */
+
+/* EOF */

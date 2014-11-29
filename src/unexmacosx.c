@@ -101,7 +101,17 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "unexec.h"
 #include "lisp.h"
 
-#include <stdio.h>
+#if defined(emacs) || defined(temacs)
+# include "sysstdio.h"
+#else
+# if defined(HAVE_STDIO_H) || defined(STDC_HEADERS) || defined(__STDC__)
+#  include <stdio.h>
+# else
+#  if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(lint)
+#   warning "unexmacosx.c expects <stdio.h> to be included."
+#  endif /* __GNUC__ && !__STRICT_ANSI__ && lint */
+# endif /* HAVE_STDIO_H || STDC_HEADERS || __STDC__ */
+#endif /* emacs || temacs */
 #include <fcntl.h>
 #include <stdarg.h>
 #include <sys/types.h>
@@ -289,20 +299,90 @@ static int unexec_copy(off_t dest, off_t src, ssize_t count)
   return 1;
 }
 
-/* Debugging and informational messages routines.  */
+/* Debugging and informational messages routines: */
+#if !defined(_STDIO_H_) && !defined(EMACS_SYSSTDIO_H) && \
+    !defined(_GL_STDIO_H) && !defined(_GL_ALREADY_INCLUDING_STDIO_H)
+/* try to silence a warning by copying from the gnulib "stdio.h": */
+# ifndef _GL_ATTRIBUTE_FORMAT
+#  if (defined(__GNUC__) && defined(__GNUC_MINOR__)) && \
+      ((__GNUC__ > 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 7)))
+#   define _GL_ATTRIBUTE_FORMAT(spec) __attribute__ ((__format__ spec))
+#  else
+#   define _GL_ATTRIBUTE_FORMAT(spec) /* empty */
+#  endif /* gcc 2.7+ */
+# endif /* !_GL_ATTRIBUTE_FORMAT */
+
+# ifndef _GL_ATTRIBUTE_FORMAT_PRINTF
+/* _GL_ATTRIBUTE_FORMAT_PRINTF
+ * indicates to GCC that the function takes a format string and arguments,
+ * where the format string directives are the ones standardized by ISO C99
+ * and POSIX.  */
+#  if (defined(__GNUC__) && defined(__GNUC_MINOR__)) && \
+      ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 4)))
+#   define _GL_ATTRIBUTE_FORMAT_PRINTF(formatstring_parameter, first_argument) \
+     _GL_ATTRIBUTE_FORMAT ((__gnu_printf__, formatstring_parameter, first_argument))
+#  else
+#   define _GL_ATTRIBUTE_FORMAT_PRINTF(formatstring_parameter, first_argument) \
+     _GL_ATTRIBUTE_FORMAT ((__printf__, formatstring_parameter, first_argument))
+#  endif /* gcc 4.4+ */
+# endif /* !_GL_ATTRIBUTE_FORMAT_PRINTF */
+
+# if !defined(vfprintf) || !defined(HAVE_VFPRINTF)
+/* warn if we are messing up by declaring this here: */
+#  if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+      ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic warning "-Wredundant-decls"
+#  endif /* gcc 4.6+ */
+/* see if this will work: */
+int vfprintf(FILE *fp, const char *format, va_list args)
+            _GL_ATTRIBUTE_FORMAT_PRINTF(2, 0);
+/* keep condition the same as when we push on the redundancy warning: */
+#  if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+      ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+#   pragma GCC diagnostic pop
+#  endif /* gcc 4.6+ */
+# else
+#  if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#   warning "We should already have a vfprintf prototype...(?)"
+#  endif /* __GNUC__ && !__STRICT_ANSI__ */
+# endif /* !vfprintf || !HAVE_VFPRINTF */
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__) && 0
+#  warning "We should already have included <stdio.h>...(?)"
+# endif /* __GNUC__ && !__STRICT_ANSI__ && 0 */
+/* just ignore the warning if there is no way to re-declare vfprintf:  */
+# if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+     ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 7)))
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wsuggest-attribute=format"
+# endif /* gcc 4.7+ */
+#endif /* !_STDIO_H_ && !EMACS_SYSSTDIO_H && !_GL_STDIO_H && !_GL_ALREADY_INCLUDING_STDIO_H */
 
 static _Noreturn void
 unexec_error (const char *format, ...)
 {
   va_list ap;
+  int success = 0;
 
   va_start (ap, format);
   fprintf (stderr, "%s, unexec line %d: ", __FILE__, __LINE__);
-  vfprintf (stderr, format, ap);
+  success = vfprintf (stderr, format, ap);
+  if (success != 0) {
+    ; /* (do nothing?) */
+  }
   fprintf (stderr, "\n");
   va_end (ap);
   exit (1);
 }
+#if defined(_STDIO_H_) || defined(EMACS_SYSSTDIO_H) || \
+    defined(_GL_STDIO_H) || defined(_GL_ALREADY_INCLUDING_STDIO_H)
+/* keep condition the same as when we push away the format warning: */
+# if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+     ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 7)))
+#  pragma GCC diagnostic pop
+# endif /* gcc 4.7+ */
+#endif /* _STDIO_H_ || EMACS_SYSSTDIO_H || _GL_STDIO_H || _GL_ALREADY_INCLUDING_STDIO_H */
 
 static void
 print_prot (vm_prot_t prot)
@@ -1302,7 +1382,7 @@ unrelocate (const char *name, off_t reloff, int nrel, vm_address_t base)
 	    unreloc_count, nrel, name);
 }
 
-#if __ppc64__
+#if defined(__ppc64__) && __ppc64__
 /* Rebase r_address in the relocation table.  */
 static void
 rebase_reloc_address (off_t reloff, int nrel, long linkedit_delta, long diff)
@@ -1340,7 +1420,7 @@ copy_dysymtab (struct load_command *lc, long delta)
   vm_address_t base;
 
 #ifdef _LP64
-# if __ppc64__
+# if defined(__ppc64__) && __ppc64__
   {
     int i;
 
@@ -1388,7 +1468,7 @@ copy_dysymtab (struct load_command *lc, long delta)
 
   curr_header_offset += lc->cmdsize;
 
-#if __ppc64__
+#if defined(__ppc64__) && __ppc64__
   /* Check if the relocation base needs to be changed.  */
   if (base == 0)
     {
@@ -1606,7 +1686,7 @@ unexec (const char *outfile, const char *infile)
       unexec_error ("cannot open input file `%s'", infile);
     }
 
-  outfd = emacs_open (outfile, O_WRONLY | O_TRUNC | O_CREAT, 0755);
+  outfd = emacs_open (outfile, (O_WRONLY | O_TRUNC | O_CREAT), 0755);
   if (outfd < 0)
     {
       emacs_close (infd);
@@ -1677,7 +1757,7 @@ void *unexec_malloc(size_t size)
       unexec_malloc_header_t *ptr;
 
       ptr = (unexec_malloc_header_t *)
-	malloc_zone_malloc (emacs_zone, size + sizeof (unexec_malloc_header_t));
+	malloc_zone_malloc (emacs_zone, (size + sizeof (unexec_malloc_header_t)));
       ptr->u.size = size;
       ptr++;
 #if MACOSX_MALLOC_MULT16

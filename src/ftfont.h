@@ -26,14 +26,14 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include FT_FREETYPE_H
 #include FT_SIZES_H
 #ifdef FT_BDF_H
-#include FT_BDF_H
-#endif
+# include FT_BDF_H
+#endif /* FT_BDF_H */
 
 #ifdef HAVE_LIBOTF
-#include <otf.h>
-#ifdef HAVE_M17N_FLT
-#include <m17n-flt.h>
-#endif	/* HAVE_M17N_FLT */
+# include <otf.h>
+# ifdef HAVE_M17N_FLT
+#  include <m17n-flt.h>
+# endif	/* HAVE_M17N_FLT */
 #endif	/* HAVE_LIBOTF */
 
 extern Lisp_Object ftfont_font_format (FcPattern *, Lisp_Object);
@@ -41,3 +41,4 @@ extern FcCharSet *ftfont_get_fc_charset (Lisp_Object);
 
 #endif	/* EMACS_FTFONT_H */
 
+/* EOF */

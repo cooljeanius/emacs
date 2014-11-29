@@ -1,4 +1,4 @@
-/* Declarations for getopt.
+/* getopt_.h: Declarations for getopt.
    Copyright (C) 1989, 1990, 1991, 1992, 1993, 1994, 1996, 1997, 1998, 1999,
                  2001, 2003, 2004, 2005, 2006, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -21,7 +21,7 @@
 
 #ifndef __need_getopt
 # define _GETOPT_H 1
-#endif
+#endif /* !__need_getopt */
 
 /* Standalone applications should #define __GETOPT_PREFIX to an
    identifier that prefixes the external functions and variables
@@ -34,9 +34,9 @@
 #if defined __GETOPT_PREFIX && !defined __need_getopt
 # include <stdlib.h>
 # include <stdio.h>
-# if HAVE_UNISTD_H
+# if defined(HAVE_UNISTD_H) && HAVE_UNISTD_H
 #  include <unistd.h>
-# endif
+# endif /* HAVE_UNISTD_H */
 # undef __need_getopt
 # undef getopt
 # undef getopt_long
@@ -55,7 +55,7 @@
 # define opterr __GETOPT_ID (opterr)
 # define optind __GETOPT_ID (optind)
 # define optopt __GETOPT_ID (optopt)
-#endif
+#endif /* __GETOPT_PREFIX && !__need_getopt */
 
 /* Standalone applications get correct prototypes for getopt_long and
    getopt_long_only; they declare "char **argv".  libc uses prototypes
@@ -78,8 +78,8 @@
 #  define __getopt_argv_const /* empty */
 # else
 #  define __getopt_argv_const const
-# endif
-#endif
+# endif /* __GETOPT_PREFIX */
+#endif /* !__need_getopt */
 
 /* If __GNU_LIBRARY__ is not already defined, either we are being used
    standalone, or this is the first header included in the source file.
@@ -90,7 +90,7 @@
    doesn't flood the namespace with stuff the way some other headers do.)  */
 #if !defined __GNU_LIBRARY__
 # include <ctype.h>
-#endif
+#endif /* !__GNU_LIBRARY__ */
 
 #ifndef __THROW
 # ifndef __GNUC_PREREQ
@@ -101,11 +101,11 @@
 # else
 #  define __THROW
 # endif
-#endif
+#endif /* !__THROW */
 
 #ifdef	__cplusplus
 extern "C" {
-#endif
+#endif /* __cplusplus */
 
 /* For communication from `getopt' to the caller.
    When `getopt' finds an option that takes an argument,
@@ -163,7 +163,7 @@ extern int optopt;
 struct option
 {
   const char *name;
-  /* has_arg can't be an enum because some compilers complain about
+  /* has_arg cannot be an enum because some compilers complain about
      type mismatches in all the code that assumes it is an int.  */
   int has_arg;
   int *flag;
@@ -215,11 +215,11 @@ extern int getopt_long_only (int ___argc, char *__getopt_argv_const *___argv,
 		             const struct option *__longopts, int *__longind)
        __THROW;
 
-#endif
+#endif /* !__need_getopt */
 
 #ifdef	__cplusplus
 }
-#endif
+#endif /* __cplusplus */
 
 /* Make sure we later can get all the definitions and declarations.  */
 #undef __need_getopt

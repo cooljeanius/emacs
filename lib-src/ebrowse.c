@@ -27,10 +27,10 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <assert.h>
 #include <getopt.h>
 
-/* The SunOS compiler doesn't have SEEK_END.  */
+/* The SunOS compiler does NOT have SEEK_END.  */
 #ifndef SEEK_END
-#define SEEK_END 2
-#endif
+# define SEEK_END 2
+#endif /* !SEEK_END */
 
 /* Conditionalize function prototypes.  */
 
@@ -45,14 +45,14 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #define READ_CHUNK_SIZE (100 * 1024)
 
 #if defined (__MSDOS__)
-#define FILENAME_EQ(X,Y)    (strcasecmp (X,Y) == 0)
+# define FILENAME_EQ(X,Y)    (strcasecmp (X,Y) == 0)
 #else
-#if defined (WINDOWSNT)
-#define FILENAME_EQ(X,Y)    (stricmp (X,Y) == 0)
-#else
-#define FILENAME_EQ(X,Y)    (streq (X,Y))
-#endif
-#endif
+# if defined (WINDOWSNT)
+#  define FILENAME_EQ(X,Y)    (stricmp (X,Y) == 0)
+# else
+#  define FILENAME_EQ(X,Y)    (streq (X,Y))
+# endif /* WINDOWSNT */
+#endif /* __MSDOS__ */
 /* The default output file name.  */
 
 #define DEFAULT_OUTFILE "BROWSE"
@@ -327,16 +327,13 @@ unsigned yyival;		/* Set for token CINT.  */
 char *yytext;			/* Set for token IDENT.  */
 char *yytext_end;
 
-/* Output file.  */
-
+/* Output file: */
 FILE *yyout;
 
-/* Current line number.  */
-
+/* Current line number: */
 int yyline;
 
-/* The name of the current input file.  */
-
+/* The name of the current input file: */
 const char *filename;
 
 /* Three character class vectors, and macros to test membership
@@ -701,6 +698,9 @@ add_member_decl (struct sym *cls, char *name, char *regexp, int pos, unsigned in
 
     case PUBLIC:
       m->vis = V_PUBLIC;
+      break;
+
+    default:
       break;
     }
 
@@ -1628,6 +1628,8 @@ yylex (void)
                     case '\n':
                       INCREMENT_LINENO;
                       break;
+                    default:
+                      break;
                     }
                 }
             comment_end:;
@@ -1673,6 +1675,8 @@ yylex (void)
               return ARROW;
             case '=':
               return SUBASGN;
+            default:
+              break;
             }
           UNGET ();
           return '-';
@@ -1756,6 +1760,8 @@ yylex (void)
                 return LSHIFTASGN;
               UNGET ();
               return LSHIFT;
+            default:
+              break;
             }
           UNGET ();
           return '<';
@@ -1770,6 +1776,8 @@ yylex (void)
                 return RSHIFTASGN;
               UNGET ();
               return RSHIFT;
+            default:
+              break;
             }
           UNGET ();
           return '>';
@@ -3720,6 +3728,9 @@ main (int argc, char **argv)
 	case -3:
 	  version ();
 	  break;
+
+        default:
+          break;
         }
     }
 

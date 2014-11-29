@@ -83,7 +83,7 @@ ${ns_appbindir}/Emacs: verify_configured_with_ns ${ns_appdir} ${ns_check_file} .
 all: verify_configured_with_ns ${ns_appdir} ${ns_appbindir}/Emacs
 
 
-.PHONY: clean distclean maintainer-clean
+.PHONY: clean distclean bootstrap-clean maintainer-clean
 
 clean:
 	rm -rf ${ns_appdir}
@@ -95,6 +95,6 @@ distclean: clean
 	  Cocoa/Emacs.base/Contents/Info.plist \
 	  Cocoa/Emacs.base/Contents/Resources/English.lproj/InfoPlist.strings
 
-maintainer-clean: distclean
+bootstrap-clean maintainer-clean: distclean
 
 ### Makefile.in ends here

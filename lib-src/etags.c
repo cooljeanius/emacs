@@ -72,6 +72,13 @@ University of California, as described above. */
  * Francesco Potortì <pot@gnu.org> has maintained and improved it since 1993.
  */
 
+/* this file contains way too many of these for now: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wswitch-default"
+#endif /* gcc 4.6+ */
+
 /*
  * If you want to add support for a new language, start by looking at the LUA
  * language, which is the simplest.  Alternatively, consider distributing etags
@@ -81,18 +88,24 @@ University of California, as described above. */
 char pot_etags_version[] = "@(#) pot revision number is 17.38.1.4";
 
 #ifdef DEBUG
-#  undef DEBUG
-#  define DEBUG true
+# undef DEBUG
+# define DEBUG true
 #else
-#  define DEBUG  false
-#  define NDEBUG		/* disable assert */
-#endif
+# define DEBUG  false
+#endif /* DEBUG */
 
 #include <config.h>
 
+/* put this part AFTER "config.h", in case that also defines this: */
+#ifndef DEBUG
+# if !defined(NDEBUG) && !defined(lint)
+#  define NDEBUG		/* disable assert */
+# endif /* !NDEBUG && !lint */
+#endif /* !DEBUG */
+
 #ifndef _GNU_SOURCE
 # define _GNU_SOURCE 1		/* enables some compiler checks on GNU */
-#endif
+#endif /* !_GNU_SOURCE */
 
 /* WIN32_NATIVE is for XEmacs.
    MSDOS, WINDOWSNT, DOS_NT are for Emacs. */
@@ -124,7 +137,9 @@ char pot_etags_version[] = "@(#) pot revision number is 17.38.1.4";
 
 #include <unistd.h>
 #include <stdarg.h>
-#include <stdlib.h>
+#ifdef HAVE_STDLIB_H
+# include <stdlib.h>
+#endif /* HAVE_STDLIB_H */
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
@@ -137,7 +152,7 @@ char pot_etags_version[] = "@(#) pot revision number is 17.38.1.4";
 #ifdef NDEBUG
 # undef  assert			/* some systems have a buggy assert.h */
 # define assert(x) ((void) 0)
-#endif
+#endif /* NDEBUG */
 
 #include <getopt.h>
 #include <regex.h>
@@ -150,7 +165,7 @@ char pot_etags_version[] = "@(#) pot revision number is 17.38.1.4";
 # define CTAGS true
 #else
 # define CTAGS false
-#endif
+#endif /* CTAGS */
 
 #define streq(s,t)	(assert ((s)!=NULL || (t)!=NULL), !strcmp (s, t))
 #define strcaseeq(s,t)	(assert ((s)!=NULL && (t)!=NULL), !c_strcasecmp (s, t))
@@ -179,8 +194,12 @@ char pot_etags_version[] = "@(#) pot revision number is 17.38.1.4";
  * SYNOPSIS:	Type *xnew (int n, Type);
  *		void xrnew (OldPointer, int n, Type);
  */
-#if DEBUG
+#if (defined(DEBUG) && DEBUG) && !defined(NDEBUG) && 0
+/* where is this supposed to come from?
+ * furthermore, why did I never get an error about it being missing any
+ * time before this? */
 # include "chkmalloc.h"
+/* (anyways, found it... it is broken though.) */
 # define xnew(n,Type)	  ((Type *) trace_malloc (__FILE__, __LINE__, \
 						  (n) * sizeof (Type)))
 # define xrnew(op,n,Type) ((op) = (Type *) trace_realloc (__FILE__, __LINE__, \
@@ -189,7 +208,7 @@ char pot_etags_version[] = "@(#) pot revision number is 17.38.1.4";
 # define xnew(n,Type)	  ((Type *) xmalloc ((n) * sizeof (Type)))
 # define xrnew(op,n,Type) ((op) = (Type *) xrealloc ( \
 					(char *) (op), (n) * sizeof (Type)))
-#endif
+#endif /* DEBUG && !NDEBUG && 0 */
 
 typedef void Lang_function (FILE *);
 
@@ -6401,7 +6420,7 @@ relative_filename (char *file, char *dir)
 #ifdef DOS_NT
   if (fp == afn && afn[0] != '/') /* cannot build a relative name */
     return afn;
-#endif
+#endif /* DOS_NT */
   do				/* look at the equal chars until '/' */
     fp--, dp--;
   while (*fp != '/');
@@ -6516,7 +6535,7 @@ filename_is_absolute (char *fn)
   return (fn[0] == '/'
 #ifdef DOS_NT
 	  || (ISALPHA (fn[0]) && fn[1] == ':' && fn[2] == '/')
-#endif
+#endif /* DOS_NT */
 	  );
 }
 
@@ -6591,6 +6610,16 @@ xrealloc (char *ptr, size_t size)
     fatal ("virtual memory exhausted", (char *)NULL);
   return result;
 }
+
+/* keep condition same as when we push away the switch-default warning: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic pop
+#endif /* gcc 4.6+ */
+
+#ifdef NDEBUG
+# undef NDEBUG
+#endif /* NDEBUG */
 
 /*
  * Local Variables:

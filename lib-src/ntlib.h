@@ -21,13 +21,38 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #define EMACS_NTLIB_H 1
 
 #include <pwd.h>
-#include <malloc.h>
+#if defined(_WIN32) || defined(HAVE_MALLOC_H) || defined(WINDOWSNT) || \
+    defined(HAVE_NTGUI)
+# include <malloc.h>
+#else
+# ifdef HAVE_MALLOC_MALLOC_H
+#  include <malloc/malloc.h>
+# else
+#  if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(lint)
+#   warning "ntlib.h expects a malloc-related header to be included."
+#  endif /* __GNUC__ && !__STRICT_ANSI__ && lint */
+# endif /* HAVE_MALLOC_MALLOC_H */
+#endif /* _WIN32 || HAVE_MALLOC_H || WINDOWSNT || HAVE_NTGUI */
 
-/* Include these headers now so we don't have to worry about include
-   order dependencies in common source files.  */
-#include <direct.h>
+/* Include these headers now so we do NOT have to worry about include
+ * order dependencies in common source files.  */
+#if defined(_WIN32) || defined(HAVE_DIRECT_H) || defined(WINDOWSNT) || \
+    defined(HAVE_NTGUI)
+# include <direct.h>
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(lint)
+#  warning "ntlib.h expects <direct.h> to be included."
+# endif /* __GNUC__ && !__STRICT_ANSI__ && lint */
+#endif /* _WIN32 || HAVE_DIRECT_H || WINDOWSNT || HAVE_NTGUI */
 #include <fcntl.h>
-#include <io.h>
+#if defined(_WIN32) || defined(HAVE_IO_H) || defined(WINDOWSNT) || \
+    defined(HAVE_NTGUI)
+# include <io.h>
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(lint)
+#  warning "ntlib.h expects <io.h> to be included."
+# endif /* __GNUC__ && !__STRICT_ANSI__ && lint */
+#endif /* _WIN32 || HAVE_IO_H || WINDOWSNT || HAVE_NTGUI */
 #include <stdio.h>
 
 #ifdef sleep

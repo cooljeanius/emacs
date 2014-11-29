@@ -91,10 +91,12 @@ all: info dvi html pdf ps
 
 # The file name eintr must fit within 5 characters, to allow for
 # -NN extensions to fit into DOS 8+3 limits without clashing.
-# Note: "<" is not portable in ordinary make rules.
+# Note: "<" is not portable in ordinary make rules... but upstream has
+# moved to only supporting GNU make, so I suppose I can get away with a few
+# GNUmake-isms here and there, too...
 ${buildinfodir}/eintr$(INFO_EXT): ${srcs}
 	$(mkinfodir)
-	$(MAKEINFO) $(MAKEINFO_OPTS) $(INFO_OPTS) -o $@ ${srcdir}/emacs-lisp-intro.texi
+	$(MAKEINFO) $(MAKEINFO_OPTS) $(INFO_OPTS) -o $@ $<
 
 emacs-lisp-intro.dvi: ${srcs}
 	$(ENVADD) $(TEXI2DVI) ${srcdir}/emacs-lisp-intro.texi
@@ -103,9 +105,13 @@ emacs-lisp-intro.pdf: ${srcs}
 	$(ENVADD) $(TEXI2PDF) ${srcdir}/emacs-lisp-intro.texi
 
 emacs-lisp-intro.html: ${srcs}
-	$(MAKEINFO) $(MAKEINFO_OPTS) $(HTML_OPTS) -o $@ ${srcdir}/emacs-lisp-intro.texi
+	$(MAKEINFO) $(MAKEINFO_OPTS) $(HTML_OPTS) -o $@ $<
 
-.PHONY: mostlyclean clean distclean maintainer-clean infoclean
+emacs-lisp-intro.ps: emacs-lisp-intro.dvi
+	$(DVIPS) -o $@ $<
+
+.PHONY: mostlyclean clean distclean bootstrap-clean maintainer-clean
+.PHONY: infoclean
 
 mostlyclean:
 	rm -f *.aux *.log *.toc *.cp *.cps *.fn *.fns *.ky *.kys \
@@ -121,7 +127,7 @@ distclean: clean
 infoclean:
 	-cd $(buildinfodir) && rm -f eintr$(INFO_EXT) eintr$(INFO_EXT)-[1-9]
 
-maintainer-clean: distclean infoclean
+bootstrap-clean maintainer-clean: distclean infoclean
 
 .PHONY: dist
 

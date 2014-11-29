@@ -450,6 +450,9 @@ XMenuCreate(Display *display, Window parent, register char const *def_env)
 	width = cross_weave_width;
 	height = cross_weave_height;
 	break;
+
+      default:
+        break;
       }
 
     if (! data)

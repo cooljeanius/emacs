@@ -1,0 +1,2 @@
+# gitignore file for emacs/lisp/net
+*.elc

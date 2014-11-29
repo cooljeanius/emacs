@@ -26,10 +26,10 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_X_WINDOWS
 
-#include <X11/Xlib.h>
-#ifdef USE_X_TOOLKIT
-# include <X11/Intrinsic.h>
-#endif /* USE_X_TOOLKIT */
+# include <X11/Xlib.h>
+# ifdef USE_X_TOOLKIT
+#  include <X11/Intrinsic.h>
+# endif /* USE_X_TOOLKIT */
 
 #else /* !HAVE_X_WINDOWS */
 
@@ -49,6 +49,13 @@ typedef struct {
 #endif /* MSDOS */
 
 INLINE_HEADER_BEGIN
+
+/* this file contains way too many of these for now: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wredundant-decls"
+#endif /* gcc 4.6+ */
 
 #include <c-strcase.h>
 INLINE int xstrcasecmp(char const *a, char const *b)
@@ -3495,12 +3502,12 @@ ptrdiff_t lookup_image (struct frame *, Lisp_Object);
 #  define RGB_PIXEL_COLOR COLORREF
 # endif /* HAVE_NTGUI */
 
-# if defined(HAVE_X_WINDOWS)
+# if defined(HAVE_X_WINDOWS) || defined(XImagePtr_or_DC)
 RGB_PIXEL_COLOR image_background (struct image *, struct frame *,
                                   XImagePtr_or_DC ximg);
 int image_background_transparent (struct image *, struct frame *,
                                   XImagePtr_or_DC mask);
-# endif /* HAVE_X_WINDOWS */
+# endif /* HAVE_X_WINDOWS || XImagePtr_or_DC */
 
 int image_ascent (struct image *, struct face *, struct glyph_slice *);
 
@@ -3730,10 +3737,10 @@ extern Lisp_Object x_default_parameter (struct frame *, Lisp_Object,
                                         Lisp_Object, Lisp_Object,
                                         const char *, const char *,
                                         enum resource_types);
-# if defined(HAVE_X_WINDOWS) || defined(XrmDatabase)
+# if defined(HAVE_X_WINDOWS) || defined(XrmDatabase) || defined(_XRM_DATABASE_DECLARED)
 extern char *x_get_string_resource (XrmDatabase, const char *,
                                     const char *);
-# endif /* HAVE_X_WINDOWS || XrmDatabase */
+# endif /* HAVE_X_WINDOWS || XrmDatabase || _XRM_DATABASE_DECLARED */
 
 /* These both used on W32 and X only. */
 # if !defined(HAVE_NS) && \
@@ -3742,6 +3749,12 @@ extern bool x_mouse_grabbed (Display_Info *);
 extern void x_redo_mouse_highlight (Display_Info *);
 # endif /* !HAVE_NS && (NTGUI || WINDOWSNT || _WIN32 || HAVE_X_WINDOWS */
 #endif /* HAVE_WINDOW_SYSTEM */
+
+/* keep condition the same as when we push away the redundancy warning: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic pop
+#endif /* gcc 4.6+ */
 
 INLINE_HEADER_END
 

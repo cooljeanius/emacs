@@ -1,6 +1,6 @@
-/* movemail foo bar -- move file foo to file bar,
-   locking file foo the way /bin/mail respects.
-
+/* movemail.c: movemail foo bar -- move file foo to file bar,
+ * locking file foo the way /bin/mail respects.  */
+/*
 Copyright (C) 1986, 1992-1994, 1996, 1999, 2001-2014 Free Software
 Foundation, Inc.
 
@@ -77,12 +77,12 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #endif /* MSDOS */
 
 #ifdef WINDOWSNT
-#include "ntlib.h"
-#undef access
-#undef unlink
-#define fork() 0
-#define wait(var) (*(var) = 0)
-/* Unfortunately, Samba doesn't seem to properly lock Unix files even
+# include "ntlib.h"
+# undef access
+# undef unlink
+# define fork() 0
+# define wait(var) (*(var) = 0)
+/* Unfortunately, Samba does NOT seem to properly lock Unix files even
    though the locking call succeeds (and indeed blocks local access from
    other NT programs).  If you have direct file access using an NFS
    client or something other than Samba, the locking call might work
@@ -91,9 +91,11 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
    [18-Feb-97 andrewi] I now believe my comment above to be incorrect,
    since it was based on a misunderstanding of how locking calls are
    implemented and used on Unix.  */
-//#define DISABLE_DIRECT_ACCESS
+# if !defined(DISABLE_DIRECT_ACCESS) && defined(CONFUSION)
+#  define DISABLE_DIRECT_ACCESS
+# endif /* !DISABLE_DIRECT_ACCESS && CONFUSION */
 
-#include <fcntl.h>
+# include <fcntl.h>
 #endif /* WINDOWSNT */
 
 #ifdef WINDOWSNT
@@ -860,3 +862,5 @@ mbx_delimit_end (FILE *mbf)
 }
 
 #endif /* MAIL_USE_POP */
+
+/* EOF */

@@ -31,7 +31,7 @@ extern "C" {
 /* VMS does NOT have `size_t' in <sys/types.h>, even though POSIX says it
  * should be there.  */
 # include <stddef.h>
-#endif
+#endif /* !_POSIX_C_SOURCE && !_POSIX_SOURCE && VMS */
 
 /* The following bits are used to determine the regexp syntax we
    recognize.  The set/not-set meanings where historically chosen so

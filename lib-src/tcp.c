@@ -1,4 +1,4 @@
-/*
+/* tcp.c
  * TCP/IP stream emulation for GNU Emacs.
  * Copyright (C) 1988, 1989, 1992, 1993 Free Software Foundation, Inc.
 
@@ -190,7 +190,7 @@ main (argc, argv)
 	    {
 	      sleep (1);
 	    }
-	  else 
+	  else
 #else
 	    if (nbuffer == 0)
 	      goto finish;
@@ -218,7 +218,7 @@ main (argc, argv)
 	      writefds = 1 << emacsOut;
 #ifdef USG
 	      if (selectable)
-#endif
+#endif /* USG */
 		if (select (emacsOut+1, NULL, &writefds, NULL, (struct timeval*)NULL) == -1)
 		  {
 		    perror ("select");
@@ -235,8 +235,10 @@ main (argc, argv)
   close (server);
 #ifdef USG
   if (!selectable) fcntl (emacsIn, F_SETFL, 0);
-#endif
+#endif /* USG */
   close (emacsIn);
   close (emacsOut);
   exit (0);
 }
+
+/* EOF */

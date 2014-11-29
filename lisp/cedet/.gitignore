@@ -1,3 +1,5 @@
+# gitignore file for emacs/lisp/cedet
+
 ## Generated grammar files.
 semantic/bovine/c-by.el
 semantic/bovine/make-by.el

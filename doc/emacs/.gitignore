@@ -1,0 +1,24 @@
+# gitignore file for emacs/doc/emacs
+*.aux
+*.cp
+*.cps
+*.dvi
+*.fn
+*.fns
+*.ky
+*.kys
+*.log
+*.op
+*.ops
+*.pdf
+*.pg
+*.pgs
+*.ps
+*.tmp
+*.toc
+*.tp
+*.tps
+*.vr
+*.vrs
+Makefile
+makefile

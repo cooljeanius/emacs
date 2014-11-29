@@ -1,5 +1,5 @@
 #!/bin/sh
-### autogen.sh - tool to help build Emacs from a bzr checkout
+### autogen.sh - tool to help build Emacs from a repository checkout
 
 ## Copyright (C) 2011-2014 Free Software Foundation, Inc.
 
@@ -24,7 +24,7 @@
 ### Commentary:
 
 ## The Emacs bzr (or git) repository does not include the configure script
-## (and associated helpers).  The first time you fetch Emacs from bzr (or git),
+## (and associated helpers).  The first time you fetch Emacs from the repo,
 ## run this script to generate the necessary files.
 ## For more details, see the file INSTALL.REPO.
 
@@ -121,7 +121,7 @@ fi
 get_version ()
 {
     ## Remove e.g. "./autogen.sh: line 50: autoconf: command not found".
-    $1 --version 2>&1 | sed -e '/not found/d' -n -e '1 s/.* \([1-9][0-9\.]*\).*/\1/p'
+    $1 --version 2>&1 | sed -e '/not found/d' -e 's/.* //' -n -e '1 s/\([0-9][0-9\.]*\).*/\1/p'
 }
 
 ## $1 = version string, e.g. "2.59"
@@ -147,7 +147,7 @@ minor_version ()
 check_version ()
 {
     ## Respect e.g. ${AUTOMAKE} if it is set, like autoreconf does.
-    uprog=`echo $1 | sed 'y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/'`
+    uprog=`echo $1 | sed -e 's/-/_/g' -e 'y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/'`
 
     eval uprog=\$${uprog}
 
@@ -186,7 +186,9 @@ missing=""
 
 for prog in ${progs}; do
 
-    eval min=\$${prog}_min
+    sprog=`echo "$prog" | sed 's/-/_/g'`
+
+    eval min=\$${sprog}_min
 
     # Eat newline by using autoconf-style compatibility variable:
     ${as_echo_n} "Checking for ${prog} (need at least version ${min})... "
@@ -206,7 +208,7 @@ for prog in ${progs}; do
 
     if [ ${retval} -ne 0 ]; then
         missing="${missing} ${prog}"
-        eval ${prog}_why=\""${stat}"\"
+        eval ${sprog}_why=\""${stat}"\"
     fi
 
 done
@@ -216,11 +218,13 @@ if [ x"${missing}" != x"" ]; then
 
     cat <<EOF
 
-Building Emacs from Bzr requires the following specialized programs:
+Building Emacs from the repository requires the following specialized programs:
 EOF
 
     for prog in ${progs}; do
-        eval min=\$${prog}_min
+        sprog=`echo "${prog}" | sed 's/-/_/g'`
+
+        eval min=\$${sprog}_min
 
         echo "${prog} (minimum version ${min})"
     done
@@ -232,7 +236,9 @@ Your system seems to be missing the following tool(s):
 EOF
 
     for prog in ${missing}; do
-        eval why=\$${prog}_why
+        sprog=`echo "$prog" | sed 's/-/_/g'`
+
+        eval why=\$${sprog}_why
 
         echo "${prog} (${why})"
     done
@@ -273,13 +279,15 @@ EOF
     exit 1
 fi
 
-echo "Your system has the required tools, running autoreconf..."
+echo 'Your system has the required tools.'
+echo "Running 'autoreconf -fvi -Wall -Wno-cross -I m4' ..."
 
 # No longer need to override autopoint; in fact, doing so would be harmful
 # because gnulib would have us use an older version of gettext if we kept
 # autopoint from overriding it...
 
 ## Let autoreconf figure out what, if anything, needs doing.
+## Use autoreconf's -f option in case autoreconf itself has changed.
 autoreconf -fvi -Wall -Wno-cross -I m4 || exit $?
 ## ('-Wno-cross' is because gnulib-tool overwrites our patched macros with ones
 ## that produce warnings...)
@@ -289,7 +297,7 @@ autoreconf -fvi -Wall -Wno-cross -I m4 || exit $?
 echo "timestamp: `date`" > src/stamp-h.in || echo timestamp > src/stamp-h.in || exit
 
 echo ""
-echo "You can now run \`./configure' with your favorite arguments."
+echo "You can now run './configure' with your favorite arguments."
 
 exit 0
 

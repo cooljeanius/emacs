@@ -1,4 +1,4 @@
-/* Includes for memory limit warnings.
+/* mem-limits.h: Includes for memory limit warnings.
    Copyright (C) 1990, 1993, 1994, 1995, 1996, 2001, 2002, 2003, 2004,
                  2005, 2006, 2007  Free Software Foundation, Inc.
 
@@ -19,10 +19,13 @@ along with GNU Emacs; see the file COPYING.  If not, write to
 the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 Boston, MA 02110-1301, USA.  */
 
+#ifndef EMACS_MEM_LIMITS_H
+#define EMACS_MEM_LIMITS_H 1
+
 #ifdef MSDOS
-#include <dpmi.h>
+# include <dpmi.h>
 extern int etext;
-#endif
+#endif /* MSDOS */
 
 /* Some systems need this before <sys/resource.h>.  */
 #include <sys/types.h>
@@ -44,28 +47,28 @@ extern int etext, __data_start; weak_extern (__data_start)
 #else
 # if HAVE_SYS_VLIMIT_H
 #  include <sys/vlimit.h>	/* Obsolete, says glibc */
-# endif
-#endif
+# endif /* HAVE_SYS_VLIMIT_H */
+#endif /* HAVE_SYS_RESOURCE_H */
 
 #ifdef __bsdi__
-#define BSD4_2
-#endif
+# define BSD4_2
+#endif /* __bsdi__ */
 
 #ifdef CYGWIN
-#define BSD4_2
-#endif
+# define BSD4_2
+#endif /* CYGWIN */
 
 #ifndef BSD4_2
-#ifndef USG
-#ifndef MSDOS
-#ifndef WINDOWSNT
-#include <sys/vlimit.h>
-#endif /* not WINDOWSNT */
-#endif /* not MSDOS */
-#endif /* not USG */
+# ifndef USG
+#  ifndef MSDOS
+#   ifndef WINDOWSNT
+#    include <sys/vlimit.h>
+#   endif /* not WINDOWSNT */
+#  endif /* not MSDOS */
+# endif /* not USG */
 #else /* if BSD4_2 */
-#include <sys/time.h>
-#include <sys/resource.h>
+# include <sys/time.h>
+# include <sys/resource.h>
 #endif /* BSD4_2 */
 
 #ifdef emacs
@@ -77,40 +80,41 @@ typedef POINTER_TYPE *POINTER;
 typedef unsigned long SIZE;
 
 #ifdef NULL
-#undef NULL
-#endif
+# undef NULL
+#endif /* NULL */
 #define NULL ((POINTER) 0)
 
 extern POINTER start_of_data ();
 #if defined USE_LSB_TAG
-#define EXCEEDS_LISP_PTR(ptr) 0
+# define EXCEEDS_LISP_PTR(ptr) 0
 #elif defined DATA_SEG_BITS
-#define EXCEEDS_LISP_PTR(ptr) \
-  (((EMACS_UINT) (ptr) & ~DATA_SEG_BITS) >> VALBITS)
+# define EXCEEDS_LISP_PTR(ptr) \
+   (((EMACS_UINT) (ptr) & ~DATA_SEG_BITS) >> VALBITS)
 #else
-#define EXCEEDS_LISP_PTR(ptr) ((EMACS_UINT) (ptr) >> VALBITS)
-#endif
+# define EXCEEDS_LISP_PTR(ptr) ((EMACS_UINT) (ptr) >> VALBITS)
+#endif /* USE_LSB_TAG || DATA_SEG_BITS */
 
 #ifdef DATA_START
-#define start_of_data() ((char *)DATA_START)
-#endif
+# define start_of_data() ((char *)DATA_START)
+#endif /* DATA_START */
 
 #ifdef BSD_SYSTEM
-#ifndef DATA_SEG_BITS
-#ifndef DATA_START
+# ifndef DATA_SEG_BITS
+#  ifndef DATA_START
 extern char etext;
-#define start_of_data() &etext
-#endif
-#endif
-#endif
+#   define start_of_data() &etext
+#  endif /* !DATA_START */
+# endif /* !DATA_SEG_BITS */
+#endif /* BSD_SYSTEM */
 
 #else  /* not emacs */
 extern char etext;
-#define start_of_data() &etext
+# define start_of_data() &etext
 #endif /* not emacs */
 
 #endif /* not _LIBC */
 
+#endif /* !EMACS_MEM_LIMITS_H */
 
 /* arch-tag: fe39244e-e54f-4208-b7aa-02556f7841c5
    (do not change this comment) */

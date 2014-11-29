@@ -1275,7 +1275,7 @@ free_glyph_pool (struct glyph_pool *pool)
       /* More freed than allocated?  */
       --glyph_pool_count;
       eassert (glyph_pool_count >= 0);
-#endif
+#endif /* GLYPH_DEBUG && ENABLE_CHECKING */
       xfree (pool->glyphs);
       xfree (pool);
     }
@@ -1348,21 +1348,36 @@ flush_stdout (void)
 }
 
 
-/* Check that no glyph pointers have been lost in MATRIX.  If a
-   pointer has been lost, e.g. by using a structure assignment between
-   rows, at least one pointer must occur more than once in the rows of
-   MATRIX.  */
+/* copied from "config.h": */
+#ifndef ATTRIBUTE_CONST
+/* The __const__ attribute was added in gcc 2.95: */
+# if (__GNUC__ > 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 95))
+#  define ATTRIBUTE_CONST __attribute__ ((__const__))
+# else
+#  define ATTRIBUTE_CONST /* empty */
+# endif /* gcc 2.95+ */
+#endif /* !ATTRIBUTE_CONST */
 
-void
+/* Check that no glyph pointers have been lost in MATRIX.  If a
+ * pointer has been lost, e.g. by using a structure assignment between
+ * rows, at least one pointer must occur more than once in the rows of
+ * MATRIX.  */
+void ATTRIBUTE_CONST
 check_matrix_pointer_lossage (struct glyph_matrix *matrix)
 {
   int i, j;
 
   for (i = 0; i < matrix->nrows; ++i)
-    for (j = 0; j < matrix->nrows; ++j)
-      eassert (i == j
-	       || (matrix->rows[i].glyphs[TEXT_AREA]
-		   != matrix->rows[j].glyphs[TEXT_AREA]));
+    {
+      for (j = 0; j < matrix->nrows; ++j)
+        {
+          eassert ((i == j)
+                   || (matrix->rows[i].glyphs[TEXT_AREA]
+                       != matrix->rows[j].glyphs[TEXT_AREA]));
+        }
+    }
+
+  return;
 }
 
 
@@ -1374,12 +1389,12 @@ matrix_row (struct glyph_matrix *matrix, int row)
   eassert (matrix && matrix->rows);
   eassert (row >= 0 && row < matrix->nrows);
 
-  /* That's really too slow for normal testing because this function
-     is called almost everywhere.  Although---it's still astonishingly
+  /* That is really too slow for normal testing because this function
+     is called almost everywhere.  Although---it is still astonishingly
      fast, so it is valuable to have for debugging purposes.  */
 #if 0
   check_matrix_pointer_lossage (matrix);
-#endif
+#endif /* 0 */
 
   return matrix->rows + row;
 }
@@ -2147,7 +2162,7 @@ free_glyphs (struct frame *f)
 	  w->desired_matrix = w->current_matrix = NULL;
 	  fset_menu_bar_window (f, Qnil);
 	}
-#endif
+#endif /* HAVE_X_WINDOWS && !USE_X_TOOLKIT && !USE_GTK */
 
 #if defined (HAVE_WINDOW_SYSTEM) && ! defined (USE_GTK) && ! defined (HAVE_NS)
       /* Free the tool bar window and its glyph matrices.  */
@@ -2159,7 +2174,7 @@ free_glyphs (struct frame *f)
 	  w->desired_matrix = w->current_matrix = NULL;
 	  fset_tool_bar_window (f, Qnil);
 	}
-#endif
+#endif /* HAVE_WINDOW_SYSTEM && !USE_GTK && !HAVE_NS */
 
       /* Release frame glyph matrices.  Reset fields to zero in
 	 case we are called a second time.  */
@@ -2228,7 +2243,7 @@ check_glyph_memory (void)
   /* Check that nothing is left allocated.  */
   eassert (glyph_matrix_count == 0);
   eassert (glyph_pool_count == 0);
-#endif
+#endif /* GLYPH_DEBUG && ENABLE_CHECKING */
 }
 
 

@@ -1,6 +1,6 @@
-/* Asynchronous timers.
-   Copyright (C) 2000-2014 Free Software Foundation, Inc.
-
+/* atimer.c: Asynchronous timers.
+ * Copyright (C) 2000-2014 Free Software Foundation, Inc. */
+/*
 This file is part of GNU Emacs.
 
 GNU Emacs is free software: you can redistribute it and/or modify
@@ -26,18 +26,15 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "atimer.h"
 #include <unistd.h>
 
-/* Free-list of atimer structures.  */
-
+/* Free-list of atimer structures: */
 static struct atimer *free_atimers;
 
 /* List of currently not running timers due to a call to
    lock_atimer.  */
-
 static struct atimer *stopped_atimers;
 
 /* List of active atimers, sorted by expiration time.  The timer that
    will become ripe next is always at the front of this list.  */
-
 static struct atimer *atimers;
 
 /* The alarm timer and whether it was properly initialized, if
@@ -45,10 +42,9 @@ static struct atimer *atimers;
 #ifdef HAVE_ITIMERSPEC
 static timer_t alarm_timer;
 static bool alarm_timer_ok;
-#endif
+#endif /* HAVE_ITIMERSPEC */
 
-/* Block/unblock SIGALRM.  */
-
+/* Block/unblock SIGALRM: */
 static void
 sigmask_atimers (int how)
 {
@@ -68,8 +64,7 @@ unblock_atimers (void)
   sigmask_atimers (SIG_UNBLOCK);
 }
 
-/* Function prototypes.  */
-
+/* Function prototypes: */
 static void set_alarm (void);
 static void schedule_atimer (struct atimer *);
 static struct atimer *append_atimer_lists (struct atimer *,
@@ -91,7 +86,7 @@ static struct atimer *append_atimer_lists (struct atimer *,
    If TYPE is ATIMER_CONTINUOUS, the timer fires every TIME s/us.
 
    Value is a pointer to the atimer started.  It can be used in calls
-   to cancel_atimer; don't free it yourself.  */
+   to cancel_atimer; do NOT free it yourself.  */
 
 struct atimer *
 start_atimer (enum atimer_type type, struct timespec timestamp,
@@ -139,6 +134,10 @@ start_atimer (enum atimer_type type, struct timespec timestamp,
       t->expiration = timespec_add (current_timespec (), timestamp);
       t->interval = timestamp;
       break;
+        
+    default:
+      /* (unknown type of timer; should probably warn or error...) */
+      break;
     }
 
   /* Insert the timer in the list of active atimers.  */
@@ -152,8 +151,7 @@ start_atimer (enum atimer_type type, struct timespec timestamp,
 }
 
 
-/* Cancel and free atimer TIMER.  */
-
+/* Cancel and free atimer TIMER: */
 void
 cancel_atimer (struct atimer *timer)
 {
@@ -171,8 +169,8 @@ cancel_atimer (struct atimer *timer)
 	;
 
       /* If it is, take it off its list, and put in on the free-list.
-	 We don't bother to arrange for setting a different alarm time,
-	 since a too early one doesn't hurt.  */
+	 We do NOT bother to arrange for setting a different alarm time,
+	 since a too early one does NOT hurt.  */
       if (t)
 	{
 	  if (prev)
@@ -192,7 +190,6 @@ cancel_atimer (struct atimer *timer)
 
 /* Append two lists of atimers LIST_1 and LIST_2 and return the
    result list.  */
-
 static struct atimer *
 append_atimer_lists (struct atimer *list_1, struct atimer *list_2)
 {
@@ -212,8 +209,7 @@ append_atimer_lists (struct atimer *list_1, struct atimer *list_2)
 }
 
 
-/* Stop all timers except timer T.  T null means stop all timers.  */
-
+/* Stop all timers except timer T.  T null means stop all timers: */
 void
 stop_other_atimers (struct atimer *t)
 {
@@ -248,7 +244,6 @@ stop_other_atimers (struct atimer *t)
 
 /* Run all timers again, if some have been stopped with a call to
    stop_other_atimers.  */
-
 void
 run_all_atimers (void)
 {
@@ -273,8 +268,7 @@ run_all_atimers (void)
 }
 
 
-/* Arrange for a SIGALRM to arrive when the next timer is ripe.  */
-
+/* Arrange for a SIGALRM to arrive when the next timer is ripe: */
 static void
 set_alarm (void)
 {
@@ -282,7 +276,7 @@ set_alarm (void)
     {
 #ifdef HAVE_SETITIMER
       struct itimerval it;
-#endif
+#endif /* HAVE_SETITIMER */
       struct timespec now, interval;
 
 #ifdef HAVE_ITIMERSPEC
@@ -294,10 +288,10 @@ set_alarm (void)
 	  if (timer_settime (alarm_timer, 0, &ispec, 0) == 0)
 	    return;
 	}
-#endif
+#endif /* HAVE_ITIMERSPEC */
 
       /* Determine interval till the next timer is ripe.
-	 Don't set the interval to 0; this disables the timer.  */
+	 Do NOT set the interval to 0; this disables the timer.  */
       now = current_timespec ();
       interval = (timespec_cmp (atimers->expiration, now) <= 0
 		  ? make_timespec (0, 1000 * 1000)
@@ -308,7 +302,7 @@ set_alarm (void)
       memset (&it, 0, sizeof it);
       it.it_value = make_timeval (interval);
       setitimer (ITIMER_REAL, &it, 0);
-#else /* not HAVE_SETITIMER */
+#else /* not HAVE_SETITIMER: */
       alarm (max (interval.tv_sec, 1));
 #endif /* not HAVE_SETITIMER */
     }
@@ -318,7 +312,6 @@ set_alarm (void)
 /* Insert timer T into the list of active atimers `atimers', keeping
    the list sorted by expiration time.  T must not be in this list
    already.  */
-
 static void
 schedule_atimer (struct atimer *t)
 {
@@ -366,7 +359,6 @@ run_timers (void)
 
 /* Signal handler for SIGALRM.  SIGNO is the signal number, i.e.
    SIGALRM.  */
-
 static void
 handle_alarm_signal (int sig)
 {
@@ -374,8 +366,7 @@ handle_alarm_signal (int sig)
 }
 
 
-/* Do pending timers.  */
-
+/* Do pending timers: */
 void
 do_pending_atimers (void)
 {
@@ -390,7 +381,6 @@ do_pending_atimers (void)
 
 /* Turn alarms on/off.  This seems to be temporarily necessary on
    some systems like HPUX (see process.c).  */
-
 void
 turn_on_atimers (bool on)
 {
@@ -411,9 +401,11 @@ init_atimer (void)
   sigev.sigev_signo = SIGALRM;
   sigev.sigev_value.sival_ptr = &alarm_timer;
   alarm_timer_ok = timer_create (CLOCK_REALTIME, &sigev, &alarm_timer) == 0;
-#endif
+#endif /* HAVE_ITIMERSPEC */
   free_atimers = stopped_atimers = atimers = NULL;
   /* pending_signals is initialized in init_keyboard.*/
   emacs_sigaction_init (&action, handle_alarm_signal);
   sigaction (SIGALRM, &action, 0);
 }
+
+/* EOF */

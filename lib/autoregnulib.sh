@@ -2,7 +2,7 @@
 
 # The gnulib commit ID to use for the update.
 # If you know your version is newer, feel free to replace:
-GNULIB_COMMIT_SHA1="e470c5e34be2d717c688926e072955ec8f25588f"
+GNULIB_COMMIT_SHA1="e9dd4906da30642172e6bb1ff2703e8e2c912fcb"
 
 if [ $# -ne 1 ]; then
    echo "Warning: Path to gnulib repository missing."
@@ -65,28 +65,29 @@ else
       crypto/md5 crypto/sha1 crypto/sha256 crypto/sha512 \
       dirent dosname double-slash-root dtoastr dtotimespec dup2 \
       environ errno error execinfo euidaccess extensions extern-inline \
-      faccessat fcntl fcntl-h fdatasync fdopendir filemode fpending fpieee \
-      fpucw fstat fstatat fsync func \
+      faccessat fcntl fcntl-h fdatasync fdopendir filemode float fpending \
+      fpieee fpucw fstat fstatat fsync func \
       gendocs getdtablesize getgroups getloadavg getopt-gnu \
       getpagesize gettext gettext-h gettime gettimeofday \
       git-version-gen gitlog-to-changelog gnu-make group-member \
       havelib host-cpu-c-abi host-os \
       include_next inline intprops inttypes-incomplete \
-      largefile ldd longlong lstat \
-      manywarnings memchr memrchr mkostemp mktime multiarch \
+      largefile ldd longlong lseek lstat \
+      manywarnings math memchr memrchr mkostemp mktime multiarch \
       nextafter no-c++ nocrash \
       obstack openat openat-h openmp \
-      pathmax pipe2 posix_spawnp progname pselect pthread_sigmask putenv \
+      pathmax pipe2 posix_spawnp printf-safe progname pselect \
+      pthread_sigmask putenv \
       qacl quote \
       readdir readlink readlinkat root-uid \
-      sched sig2str signal-h snippet/_Noreturn snippet/link-warning \
+      sched sig2str signal-h sigpipe snippet/_Noreturn snippet/link-warning \
       snippet/unused-parameter snippet/warn-on-use socklen spawn ssize_t \
       stat stat-time stdalign stdarg stdbool stddef stdint stdio stdlib \
       stdnoreturn streq strerror strftime string strstr strtoimax strtoumax \
       symlink sys_ioctl sys_resource sys_select sys_stat sys_time sys_types \
-      tempname time timer-time timespec timespec-add timespec-sub \
+      tempname time time_r timer-time timespec timespec-add timespec-sub \
       u64 unistd unsetenv update-copyright utimens \
-      va-args vc-list-files verify vma-iter \
+      vararrays va-args vc-list-files verify vla vma-iter \
       warnings wchar wctype-h winsz-ioctl winsz-termios \
       xalloc xalloc-die xalloc-oversized"
    # Ones I am tempted to add, but cannot:
@@ -95,6 +96,8 @@ else
    # - git-merge-changelog, which depends on... a lot of things
    # - memmove, which is obsolete
    # - obstack-printf, which drags in all the vasnprintf stuff
+   # - fprintf-posix and vfprintf-posix also depend on vasnprintf, as does
+   #   printf-posix, which gets it indirectly via vfprintf-posix
    # (even though I cannot add them, there is no need to explicitly ignore them
    # below, though)
    # Other obsolete modules that I have stopped explicitly adding:

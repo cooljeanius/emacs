@@ -1,4 +1,4 @@
-/* Interface definitions for termcap entries.
+/* tparam.h: Interface definitions for termcap entries.
 
 Copyright (C) 2011-2014 Free Software Foundation, Inc.
 
@@ -17,9 +17,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
+#ifndef EMACS_TPARAM_H
+#define EMACS_TPARAM_H 1
 
-/* Don't try to include termcap.h.  On some systems, configure finds a
-   non-standard termcap.h that the main build won't find.  */
+/* Do NOT try to include termcap.h.  On some systems, configure finds a
+   non-standard termcap.h that the main build will NOT find.  */
 
 void tputs (const char *, int, int (*) (int));
 int tgetent (char *, const char *);
@@ -33,3 +35,7 @@ char *tparam (const char *, char *, int, int, int, int, int);
 extern char PC;
 extern char *BC;
 extern char *UP;
+
+#endif /* !EMACS_TPARAM_H */
+
+/* EOF */

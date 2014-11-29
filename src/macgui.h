@@ -26,7 +26,10 @@ Boston, MA 02110-1301, USA.  */
 
 typedef struct _XDisplay Display; /* opaque */
 
+#ifndef _XRM_DATABASE_DECLARED
+# define _XRM_DATABASE_DECLARED 1
 typedef Lisp_Object XrmDatabase;
+#endif /* !_XRM_DATABASE_DECLARED */
 
 #ifndef EMACS_SYSTIME_H
 typedef unsigned long Time;

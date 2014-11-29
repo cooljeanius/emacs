@@ -18,6 +18,9 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 /* Added by Kevin Gallo */
 
+#ifndef EMACS_W32TERM_H
+#define EMACS_W32TERM_H 1
+
 #include "w32gui.h"
 #include "frame.h"
 #include "atimer.h"
@@ -794,3 +797,8 @@ extern void globals_of_w32notify (void);
 #ifdef CYGWIN
 extern int w32_message_fd;
 #endif /* CYGWIN */
+
+#endif /* !EMACS_W32TERM_H */
+
+/* arch-tag: f201d05a-1240-4fc5-8ea4-ca24d4ee5671
+   (do not change this comment) */

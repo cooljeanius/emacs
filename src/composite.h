@@ -30,6 +30,13 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 INLINE_HEADER_BEGIN
 
+/* this file contains way too many of these for now: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wredundant-decls"
+#endif /* gcc 4.6+ */
+
 /* Methods to display a sequence of components of a composition.  */
 enum composition_method {
   /* Compose relatively without alternate characters.  */
@@ -328,6 +335,12 @@ extern int composition_update_it (struct composition_it *,
                                   ptrdiff_t, ptrdiff_t, Lisp_Object);
 
 extern ptrdiff_t composition_adjust_point (ptrdiff_t, ptrdiff_t);
+
+/* keep condition the same as when we push away the redundancy warning: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic pop
+#endif /* gcc 4.6+ */
 
 INLINE_HEADER_END
 

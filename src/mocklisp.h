@@ -1,4 +1,4 @@
-/* Fundamental definitions for emulating mocklisp.
+/* mocklisp.h: Fundamental definitions for emulating mocklisp.
    Copyright (C) 1985, 1986, 1987 Free Software Foundation, Inc.
 
 This file is part of GNU Emacs.
@@ -18,15 +18,26 @@ along with GNU Emacs; see the file COPYING.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 Boston, MA 02111-1307, USA.  */
 
-/* This is the main entry point to mocklisp execution.
- When eval sees a mocklisp function being called, it calls here
- with the unevaluated argument list */
+#ifndef EMACS_MOCKLISP_H
+#define EMACS_MOCKLISP_H 1
 
-extern Lisp_Object ml_apply ();
-extern Lisp_Object Fml_if ();
-extern Lisp_Object Fml_nargs ();
-extern Lisp_Object Fml_arg ();
-extern Lisp_Object Fml_interactive ();
-extern Lisp_Object Fml_provide_prefix_argument ();
-extern Lisp_Object Fml_prefix_argument_loop ();
-extern Lisp_Object Finsert_string ();
+/* This is the main entry point to mocklisp execution.
+ * When eval sees a mocklisp function being called, it calls here
+ * with the unevaluated argument list */
+
+extern Lisp_Object ml_apply (Lisp_Object function, Lisp_Object args);
+extern Lisp_Object Fml_if (Lisp_Object args);
+extern Lisp_Object Fml_nargs (void);
+extern Lisp_Object Fml_arg (Lisp_Object n, Lisp_Object prompt);
+extern Lisp_Object Fml_interactive (void);
+extern Lisp_Object Fml_provide_prefix_argument (Lisp_Object args);
+extern Lisp_Object Fml_prefix_argument_loop (Lisp_Object args);
+extern Lisp_Object Finsert_string (int nargs, Lisp_Object *args);
+
+#ifndef syms_of_mocklisp
+void syms_of_mocklisp (void);
+#endif /* !syms_of_mocklisp */
+
+#endif /* !EMACS_MOCKLISP_H */
+
+/* EOF */

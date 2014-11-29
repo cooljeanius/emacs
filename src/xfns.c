@@ -3997,8 +3997,6 @@ x_get_monitor_attributes (struct x_display_info *dpyinfo)
   Lisp_Object attributes_list = Qnil;
   Display *dpy = dpyinfo->display;
 
-  (void) dpy; /* Suppress unused variable warning.  */
-
 #ifdef HAVE_XRANDR
   int xrr_event_base, xrr_error_base;
   bool xrr_ok = false;
@@ -4007,11 +4005,14 @@ x_get_monitor_attributes (struct x_display_info *dpyinfo)
     {
       int xrr_major, xrr_minor;
       XRRQueryVersion (dpy, &xrr_major, &xrr_minor);
-      xrr_ok = (xrr_major == 1 && xrr_minor >= 2) || xrr_major > 1;
+      xrr_ok = (((xrr_major == 1) && (xrr_minor >= 2)) || (xrr_major > 1));
     }
 
-  if (xrr_ok)
-    attributes_list = x_get_monitor_attributes_xrandr (dpyinfo);
+  if (xrr_ok) {
+    attributes_list = x_get_monitor_attributes_xrandr(dpyinfo);
+  }
+#else
+  (void)dpy; /* Suppress unused variable warning.  */
 #endif /* HAVE_XRANDR */
 
 #ifdef HAVE_XINERAMA
@@ -4019,9 +4020,10 @@ x_get_monitor_attributes (struct x_display_info *dpyinfo)
     {
       int xin_event_base, xin_error_base;
       bool xin_ok = false;
-      xin_ok = XineramaQueryExtension (dpy, &xin_event_base, &xin_error_base);
-      if (xin_ok && XineramaIsActive (dpy))
+      xin_ok = XineramaQueryExtension(dpy, &xin_event_base, &xin_error_base);
+      if (xin_ok && XineramaIsActive(dpy)) {
         attributes_list = x_get_monitor_attributes_xinerama (dpyinfo);
+      }
     }
 #endif /* HAVE_XINERAMA */
 

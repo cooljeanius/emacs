@@ -266,6 +266,8 @@ x_atom_to_symbol (Display *dpy, Atom atom)
       return QINTEGER;
     case XA_ATOM:
       return QATOM;
+    default:
+      break;
     }
 
   dpyinfo = x_display_info_for_display (dpy);

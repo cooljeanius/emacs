@@ -1892,6 +1892,9 @@ exit."
   :version "22.1")
 
 (defun completion--in-region (start end collection &optional predicate)
+  "Default function to use for `completion-in-region-function'.
+Its arguments and return value are as specified for `completion-in-region'.
+This respects the wrapper hook `completion-in-region-functions'."
   (with-wrapper-hook
       ;; FIXME: Maybe we should use this hook to provide a "display
       ;; completions" operation as well.
@@ -1917,7 +1920,7 @@ exit."
   "Keymap activated during `completion-in-region'.")
 
 ;; It is difficult to know when to exit completion-in-region-mode (i.e. hide
-;; the *Completions*).
+;; the *Completions*).  Here is how previous packages did it:
 ;; - lisp-mode: never.
 ;; - comint: only do it if you hit SPC at the right time.
 ;; - pcomplete: pop it down on SPC or after some time-delay.

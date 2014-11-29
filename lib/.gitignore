@@ -1,4 +1,8 @@
+# gitignore file for emacs/lib (i.e. vendored copy of gnulib sources)
+
+# general build output:
 *deps/*.*o
+.deps/.dirstamp
 *.o
 lib*.a
 
@@ -9,9 +13,12 @@ byteswap.h
 configmake.h
 dirent.h
 errno.h
+execinfo.h
 fcntl.h
+float.h
 getopt.h
 inttypes.h
+math.h
 sched.h
 signal.h
 spawn.h

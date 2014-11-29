@@ -74,6 +74,8 @@ AS_IF([test "x${dispatch_cv_cblocks}" != "xno"],[
     ])
     CFLAGS="${saveCFLAGS}"
     have_cblocks=true
+    AC_DEFINE([CAN_USE_CBLOCKS],[1],
+              [Define to 1 if the Apple "Blocks" extension works in C])
 ],[
     CBLOCKS_FLAGS=""
     have_cblocks=false
@@ -121,6 +123,8 @@ AS_IF([test "x${dispatch_cv_cxxblocks}" != "xno"],[
     ])
     CXXFLAGS="${saveCXXFLAGS}"
     have_cxxblocks=true
+    AC_DEFINE([CAN_USE_CXXBLOCKS],[1],
+              [Define to 1 if the Apple "Blocks" extension works in C++])
 ],[
     CXXBLOCKS_FLAGS=""
     have_cxxblocks=false

@@ -1,7 +1,7 @@
-/* Terminal control module for terminals described by TERMCAP
-   Copyright (C) 1985-1987, 1993-1995, 1998, 2000-2014 Free Software
-   Foundation, Inc.
-
+/* term.c: Terminal control module for terminals described by TERMCAP
+ * Copyright (C) 1985-1987, 1993-1995, 1998, 2000-2014 Free Software
+ * Foundation, Inc. */
+/*
 This file is part of GNU Emacs.
 
 GNU Emacs is free software: you can redistribute it and/or modify
@@ -47,28 +47,28 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "systty.h"
 #include "intervals.h"
 #ifdef MSDOS
-#include "msdos.h"
+# include "msdos.h"
 static int been_here = -1;
-#endif
+#endif /* MSDOS */
 
 #ifdef USE_X_TOOLKIT
-#include "../lwlib/lwlib.h"
-#endif
+# include "../lwlib/lwlib.h"
+#endif /* USE_X_TOOLKIT */
 
 #include "cm.h"
 #ifdef HAVE_X_WINDOWS
-#include "xterm.h"
-#endif
+# include "xterm.h"
+#endif /* HAVE_X_WINDOWS */
 
 #include "menu.h"
 
 /* The name of the default console device.  */
 #ifdef WINDOWSNT
-#define DEV_TTY  "CONOUT$"
-#include "w32term.h"
+# define DEV_TTY  "CONOUT$"
+# include "w32term.h"
 #else
-#define DEV_TTY  "/dev/tty"
-#endif
+# define DEV_TTY  "/dev/tty"
+#endif /* WINDOWSNT */
 
 static void tty_set_scroll_region (struct frame *f, int start, int stop);
 static void turn_on_face (struct frame *, int face_id);
@@ -134,7 +134,7 @@ static int max_frame_cols;
 
 
 #ifdef HAVE_GPM
-#include <sys/fcntl.h>
+# include <sys/fcntl.h>
 
 /* The device for which we have enabled gpm support (or NULL).  */
 struct tty_display_info *gpm_tty = NULL;
@@ -3796,6 +3796,9 @@ tty_menu_show (struct frame *f, int x, int y, bool for_click, bool keymaps,
 	 the menu was invoked with a mouse event as POSITION).  */
       if (! for_click)
         Fsignal (Qquit, Qnil);
+      break;
+
+    default:
       break;
     }
 

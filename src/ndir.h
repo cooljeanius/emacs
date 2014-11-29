@@ -7,6 +7,10 @@
  * copyright, constituting the only possible expression of the
  * algorithm in this format.
  */
+
+#ifndef EMACS_NDIR_H
+#define EMACS_NDIR_H 1
+
 #ifdef VMS
 #ifndef FAB$C_BID
 #include <fab.h>
@@ -22,7 +26,7 @@
 
 #define DIRBLKSIZ	512		/* size of directory block */
 #ifdef VMS
-#define MAXNAMLEN	(DIR$S_NAME + 7) /* 80 plus room for version #.  */
+#define MAXNAMLEN      (DIR$S_NAME + 7) /* 80 plus room for version #.  */
 #define MAXFULLSPEC	NAM$C_MAXRSS /* Maximum full spec */
 #else
 #ifdef WINDOWSNT
@@ -56,6 +60,8 @@ extern void		seekdir();
 extern void		closedir();
 
 #define rewinddir( dirp )	seekdir( dirp, 0L )
+
+#endif /* !EMACS_NDIR_H */
 
 /* arch-tag: aea50570-ffb7-43fd-b423-7743b10fbe6e
    (do not change this comment) */

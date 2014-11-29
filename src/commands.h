@@ -1,4 +1,4 @@
-/* Definitions needed by most editing commands.
+/* commands.h: Definitions needed by most editing commands.
    Copyright (C) 1985, 1994, 2001-2014 Free Software Foundation, Inc.
 
 This file is part of GNU Emacs.
@@ -16,6 +16,15 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
+#ifndef EMACS_COMMAND_H
+#define EMACS_COMMAND_H
+
+/* this file contains way too many of these for now: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wredundant-decls"
+#endif /* gcc 4.6+ */
 
 #define Ctl(c) ((c)&037)
 
@@ -36,10 +45,19 @@ extern Lisp_Object control_x_map;
    events until a non-ASCII event is acceptable as input.  */
 extern Lisp_Object unread_switch_frame;
 
-/* Nonzero if input is coming from the keyboard.  */
-
+/* Nonzero if input is coming from the keyboard: */
 #define INTERACTIVE (NILP (Vexecuting_kbd_macro) && !noninteractive)
 
-/* Set this nonzero to force reconsideration of mode line.  */
-
+/* Set this nonzero to force reconsideration of mode line: */
 extern int update_mode_lines;
+
+/* keep condition the same as when we push away the redundancy warning: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic pop
+#endif /* gcc 4.6+ */
+
+#endif /* !EMACS_COMMAND_H */
+
+/* arch-tag: 4f7ca0b7-6a56-4b20-8bf5-b67a99921d1d
+   (do not change this comment) */

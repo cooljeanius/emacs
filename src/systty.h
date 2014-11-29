@@ -16,23 +16,26 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
+#ifndef EMACS_SYSTTY_H
+#define EMACS_SYSTTY_H 1
+
 /* Include the proper files.  */
 
 #ifndef DOS_NT
-#include <termios.h>
-#include <fcntl.h>
+# include <termios.h>
+# include <fcntl.h>
 #endif /* not DOS_NT */
 
 #include <sys/ioctl.h>
 
-#ifdef HPUX
-#include <sys/bsdtty.h>
-#include <sys/ptyio.h>
-#endif
+#if defined(HPUX) || (defined(HAVE_SYS_BSDTTY_H) && defined(HAVE_SYS_PTYIO_H))
+# include <sys/bsdtty.h>
+# include <sys/ptyio.h>
+#endif /* HPUX || (HAVE_SYS_BSDTTY_H && HAVE_SYS_PTYIO_H) */
 
-#ifdef AIX
-#include <sys/pty.h>
-#endif /* AIX */
+#if defined(AIX) || defined(HAVE_SYS_PTY_H)
+# include <sys/pty.h>
+#endif /* AIX || HAVE_SYS_PTY_H */
 
 #include <unistd.h>
 
@@ -42,14 +45,14 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
    _POSIX_VDISABLE as 0!  */
 
 #ifdef _POSIX_VDISABLE
-#define CDISABLE _POSIX_VDISABLE
+# define CDISABLE _POSIX_VDISABLE
 #else /* not _POSIX_VDISABLE */
-#ifdef CDEL
-#undef CDISABLE
-#define CDISABLE CDEL
-#else /* not CDEL */
-#define CDISABLE 255
-#endif /* not CDEL */
+# ifdef CDEL
+#  undef CDISABLE
+#  define CDISABLE CDEL
+# else /* not CDEL */
+#  define CDISABLE 255
+# endif /* not CDEL */
 #endif /* not _POSIX_VDISABLE */
 
 /* Manipulate a TTY's input/output processing parameters.  */
@@ -81,3 +84,8 @@ struct emacs_tty {
 /* From sysdep.c or w32.c  */
 extern int serial_open (Lisp_Object);
 extern void serial_configure (struct Lisp_Process *, Lisp_Object);
+
+#endif /* !EMACS_SYSTTY_H */
+
+/* arch-tag: cf4b90bc-be41-401c-be98-40619178a712
+   (do not change this comment) */

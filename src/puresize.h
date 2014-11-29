@@ -1,4 +1,4 @@
-/* How much read-only Lisp storage a dumped Emacs needs.
+/* puresize.h: How much read-only Lisp storage a dumped Emacs needs.
    Copyright (C) 1993, 2001-2014 Free Software Foundation, Inc.
 
 This file is part of GNU Emacs.
@@ -15,6 +15,9 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
+
+#ifndef EMACS_PURESIZE_H
+#define EMACS_PURESIZE_H 1
 
 /* Define PURESIZE, the number of bytes of pure Lisp code to leave space for.
 
@@ -83,3 +86,7 @@ extern EMACS_INT pure[];
 
 #define PURE_P(obj) \
   ((uintptr_t) XPNTR (obj) - (uintptr_t) pure <= PURESIZE)
+
+#endif /* !EMACS_PURESIZE_H */
+
+/* EOF */

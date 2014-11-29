@@ -40,7 +40,7 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
    existing data structure, and disturb as little of the existing code
    as possible.
 
-   So here's the tack.  We add some caching to the find_newline
+   So here is the tack.  We add some caching to the find_newline
    function, so that when it searches for a newline, it notes that the
    region between the start and end of the search contained no
    newlines; then, the next time around, it consults this cache to see
@@ -60,6 +60,8 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
    this region has property P" vs. "I don't know if this region has
    property P or not."  */
 
+#ifndef EMACS_REGION_CACHE_H
+#define EMACS_REGION_CACHE_H 1
 
 /* Allocate, initialize and return a new, empty region cache.  */
 struct region_cache *new_region_cache (void);
@@ -105,3 +107,7 @@ extern int region_cache_forward (struct buffer *buf, struct region_cache *c,
 /* Likewise, except before POS rather than after POS.  */
 extern int region_cache_backward (struct buffer *buf, struct region_cache *c,
 				  ptrdiff_t pos, ptrdiff_t *next);
+
+#endif /* !EMACS_REGION_CACHE_H */
+
+/* EOF */

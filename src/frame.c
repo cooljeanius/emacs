@@ -373,7 +373,9 @@ make_frame (bool mini_p)
   else
     {
       mini_window = Qnil;
+      mw = (struct window *)NULL; /* still have to initialize */
       wset_next (rw, Qnil);
+      mw->mini = 0;
       fset_minibuffer_window (f, Qnil);
     }
 
@@ -389,7 +391,7 @@ make_frame (bool mini_p)
 
   rw->total_cols = 10;
   rw->pixel_width = rw->total_cols * FRAME_COLUMN_WIDTH (f);
-  rw->total_lines = mini_p ? 9 : 10;
+  rw->total_lines = (mini_p ? 9 : 10);
   rw->pixel_height = rw->total_lines * FRAME_LINE_HEIGHT (f);
 
   if (mini_p)
@@ -1930,7 +1932,7 @@ If there is no window system support, this function does nothing.  */)
 
 /* Return the value of frame parameter PROP in frame FRAME: */
 #ifdef HAVE_WINDOW_SYSTEM
-# if !HAVE_NS && !HAVE_NTGUI
+# if (!defined(HAVE_NS) || !HAVE_NS) && (!defined(HAVE_NTGUI) || !HAVE_NTGUI)
 static
 # endif /* !HAVE_NS && !HAVE_NTGUI */
 Lisp_Object
@@ -2012,12 +2014,12 @@ set_term_frame_name (struct frame *f, Lisp_Object name)
     {
       CHECK_STRING (name);
 
-      /* Don't change the name if it's already NAME.  */
+      /* Don't change the name if it is already NAME.  */
       if (! NILP (Fstring_equal (name, f->name)))
 	return;
 
-      /* Don't allow the user to set the frame name to F<num>, so it
-	 doesn't clash with the names we generate for terminal frames.  */
+      /* Do NOT allow the user to set the frame name to F<num>, so it
+	 does NOT clash with the names we generate for terminal frames: */
       if (frame_name_fnn_p (SSDATA (name), SBYTES (name)))
 	error ("Frame names of the form F<num> are usurped by Emacs");
     }
@@ -4427,7 +4429,12 @@ make_monitor_attribute_list (struct MonitorInfo *monitors,
 
   for (i = 0; i < n_monitors; ++i)
     {
+      /* only need these first 2 variables in the following condition: */
+# if defined(CONVERT_TO_XRECT)
       XRectangle mi_xgeom, mi_xwork;
+      /* (be sure to keep the condition the same as where the variables
+       * are actually used) */
+# endif /* CONVERT_TO_XRECT */
       Lisp_Object geometry, workarea, attributes = Qnil;
       struct MonitorInfo *mi = &monitors[i];
 

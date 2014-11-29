@@ -27,12 +27,12 @@
 #include <stdio.h>
 
 #ifdef DOS_NT
-#include <fcntl.h>		/* for O_BINARY */
-#include <io.h>			/* for setmode */
-#endif
+# include <fcntl.h>		/* for O_BINARY */
+# include <io.h>		/* for setmode */
+#endif /* DOS_NT */
 
 int
-main ()
+main (void)
 {
   register int ch;
   register int notfirst = 0;

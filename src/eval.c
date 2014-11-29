@@ -30,8 +30,8 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "frame.h"		/* For XFRAME.  */
 
 #if HAVE_X_WINDOWS
-#include "xterm.h"
-#endif
+# include "xterm.h"
+#endif /* HAVE_X_WINDOWS */
 
 /* Chain of condition and catch handlers currently in effect.  */
 
@@ -40,7 +40,7 @@ struct handler *handlerlist;
 #ifdef DEBUG_GCPRO
 /* Count levels of GCPRO to detect failure to UNGCPRO.  */
 int gcpro_level;
-#endif
+#endif /* DEBUG_GCPRO */
 
 Lisp_Object Qautoload, Qmacro, Qexit, Qinteractive, Qcommandp;
 Lisp_Object Qinhibit_quit;
@@ -246,7 +246,7 @@ init_eval (void)
   specpdl_ptr = specpdl;
   { /* Put a dummy catcher at top-level so that handlerlist is never NULL.
        This is important since handlerlist->nextfree holds the freelist
-       which would otherwise leak every time we unwind back to top-level.   */
+       which would otherwise leak every time we unwind back to top-level.  */
     struct handler *c;
     handlerlist = handlerlist_sentinel.nextfree = &handlerlist_sentinel;
     PUSH_HANDLER (c, Qunbound, CATCHER);
@@ -259,8 +259,8 @@ init_eval (void)
   lisp_eval_depth = 0;
 #ifdef DEBUG_GCPRO
   gcpro_level = 0;
-#endif
-  /* This is less than the initial value of num_nonmacro_input_events.  */
+#endif /* DEBUG_GCPRO */
+  /* This is less than the initial value of num_nonmacro_input_events: */
   when_entered_debugger = -1;
 }
 
@@ -297,7 +297,7 @@ call_debugger (Lisp_Object arg)
 
   if (old_max == count)
     {
-      /* We can enter the debugger due to specpdl overflow (Bug#16603).  */
+      /* We can enter the debugger due to specpdl overflow (Bug#16603): */
       specpdl_ptr--;
       grow_specpdl ();
     }
@@ -310,7 +310,7 @@ call_debugger (Lisp_Object arg)
 #ifdef HAVE_WINDOW_SYSTEM
   if (display_hourglass_p)
     cancel_hourglass ();
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
 
   debug_on_next_call = 0;
   when_entered_debugger = num_nonmacro_input_events;
@@ -327,7 +327,7 @@ call_debugger (Lisp_Object arg)
 #if 0 /* Binding this prevents execution of Lisp code during
 	 redisplay, which necessarily leads to display problems.  */
   specbind (Qinhibit_eval_during_redisplay, Qt);
-#endif
+#endif /* 0 */
 
   val = apply1 (Vdebugger, arg);
 
@@ -635,7 +635,9 @@ The return value is BASE-VARIABLE.  */)
     case SYMBOL_FORWARDED:
       error ("Cannot make an internal variable an alias");
     case SYMBOL_LOCALIZED:
-      error ("Don't know how to make a localized variable an alias");
+      error ("Do NOT know how to make a localized variable an alias");
+    default:
+      break;
     }
 
   /* http://lists.gnu.org/archive/html/emacs-devel/2008-04/msg00834.html
@@ -680,6 +682,8 @@ default_toplevel_binding (Lisp_Object symbol)
 	  if (EQ (specpdl_symbol (pdl), symbol))
 	    binding = pdl;
 	  break;
+        default:
+          break;
 	}
     }
   return binding;
@@ -1176,8 +1180,8 @@ unwind_to_catch (struct handler *catch, Lisp_Object value)
   byte_stack_list = catch->byte_stack;
   gcprolist = catch->gcpro;
 #ifdef DEBUG_GCPRO
-  gcpro_level = gcprolist ? gcprolist->level + 1 : 0;
-#endif
+  gcpro_level = (cprolist ? (gcprolist->level + 1) : 0);
+#endif /* DEBUG_GCPRO */
   lisp_eval_depth = catch->lisp_eval_depth;
 
   sys_longjmp (catch->jmp, 1);
@@ -1251,6 +1255,13 @@ usage: (condition-case VAR BODYFORM &rest HANDLERS)  */)
   return internal_lisp_condition_case (var, bodyform, handlers);
 }
 
+/* see comment inside function for why this is disabled: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wclobbered"
+#endif /* gcc 4.6+ */
+
 /* Like Fcondition_case, but the args are separate
    rather than passed in a list.  Used by Fbyte_code.  */
 Lisp_Object
@@ -1280,6 +1291,8 @@ internal_lisp_condition_case (volatile Lisp_Object var, Lisp_Object bodyform,
        be added to handlerlist last.  So we build in `clauses' a table that
        contains `handlers' but in reverse order.  */
     Lisp_Object *clauses = alloca (clausenb * sizeof (Lisp_Object *));
+    /* ok to ignore '-Wclobbered' warning about the previous one,
+     * because we also have a separate volatile version of it: */
     Lisp_Object *volatile clauses_volatile = clauses;
     int i = clausenb;
     for (val = handlers; CONSP (val); val = XCDR (val))
@@ -1324,6 +1337,12 @@ internal_lisp_condition_case (volatile Lisp_Object var, Lisp_Object bodyform,
   return val;
 }
 
+/* keep condition the same as when we push away the clobbering warning: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic pop
+#endif /* gcc 4.6+ */
+
 /* Call the function BFUN with no arguments, catching errors within it
    according to HANDLERS.  If there is an error, call HFUN with
    one argument which is the data that describes the error:
@@ -1333,7 +1352,6 @@ internal_lisp_condition_case (volatile Lisp_Object var, Lisp_Object bodyform,
    If HANDLERS is Qt, catch all errors.
    If HANDLERS is Qerror, catch all errors
    but allow the debugger to run if that is enabled.  */
-
 Lisp_Object
 internal_condition_case (Lisp_Object (*bfun) (void), Lisp_Object handlers,
 			 Lisp_Object (*hfun) (Lisp_Object))
@@ -1356,8 +1374,7 @@ internal_condition_case (Lisp_Object (*bfun) (void), Lisp_Object handlers,
   return val;
 }
 
-/* Like internal_condition_case but call BFUN with ARG as its argument.  */
-
+/* Like internal_condition_case but call BFUN with ARG as its argument: */
 Lisp_Object
 internal_condition_case_1 (Lisp_Object (*bfun) (Lisp_Object), Lisp_Object arg,
 			   Lisp_Object handlers, Lisp_Object (*hfun) (Lisp_Object))
@@ -1486,13 +1503,14 @@ See also the function `condition-case'.  */)
   if (gc_in_progress || waiting_for_input)
     emacs_abort ();
 
-#if 0 /* rms: I don't know why this was here,
-	 but it is surely wrong for an error that is handled.  */
-#ifdef HAVE_WINDOW_SYSTEM
+  /* rms: I do NOT know why this was here,
+   * but it is surely wrong for an error that is handled: */
+#if defined(I_AM_NOT_RMS)
+# ifdef HAVE_WINDOW_SYSTEM
   if (display_hourglass_p)
     cancel_hourglass ();
-#endif
-#endif
+# endif /* HAVE_WINDOW_SYSTEM */
+#endif /* I_AM_NOT_RMS */
 
   /* This hook is used by edebug.  */
   if (! NILP (Vsignal_hook_function)
@@ -3316,9 +3334,10 @@ unbind_to (ptrdiff_t count, Lisp_Object value)
 	case SPECPDL_BACKTRACE:
 	  break;
 	case SPECPDL_LET:
-	  { /* If variable has a trivial value (no forwarding), we can
-	       just set it.  No need to check for constant symbols here,
-	       since that was already done by specbind.  */
+	  {
+            /* If variable has a trivial value (no forwarding), we can
+	     * just set it.  No need to check for constant symbols here,
+	     * since that was already done by specbind.  */
 	    struct Lisp_Symbol *sym = XSYMBOL (specpdl_symbol (specpdl_ptr));
 	    if (sym->redirect == SYMBOL_PLAINVAL)
 	      {
@@ -3326,9 +3345,11 @@ unbind_to (ptrdiff_t count, Lisp_Object value)
 		break;
 	      }
 	    else
-	      { /* FALLTHROUGH!!
-		   NOTE: we only ever come here if make_local_foo was used for
-		   the first time on this var within this let.  */
+	      {
+                /* FALLTHROUGH!!
+		 * NOTE: we only ever come here if make_local_foo was used
+                 * for the first time on this var within this let.  */
+                ;
 	      }
 	  }
 	case SPECPDL_LET_DEFAULT:
@@ -3348,6 +3369,8 @@ unbind_to (ptrdiff_t count, Lisp_Object value)
 	      set_internal (symbol, old_value, where, 1);
 	  }
 	  break;
+        default:
+          break;
 	}
     }
 
@@ -3496,8 +3519,8 @@ backtrace_eval_unrewind (int distance)
   union specbinding *tmp = specpdl_ptr;
   int step = -1;
   if (distance < 0)
-    { /* It's a rewind rather than unwind.  */
-      tmp += distance - 1;
+    { /* It is a rewind rather than unwind: */
+      tmp += (distance - 1);
       step = 1;
       distance = -distance;
     }
@@ -3508,9 +3531,9 @@ backtrace_eval_unrewind (int distance)
       /*  */
       switch (tmp->kind)
 	{
-	  /* FIXME: Ideally we'd like to "temporarily unwind" (some of) those
-	     unwind_protect, but the problem is that we don't know how to
-	     rewind them afterwards.  */
+	  /* FIXME: Ideally we would like to "temporarily unwind" (some of)
+           * those unwind_protect, but the problem is that we do NOT know
+           * how to rewind them afterwards.  */
 	case SPECPDL_UNWIND:
 	case SPECPDL_UNWIND_PTR:
 	case SPECPDL_UNWIND_INT:
@@ -3531,8 +3554,9 @@ backtrace_eval_unrewind (int distance)
 	      }
 	    else
 	      { /* FALLTHROUGH!!
-		   NOTE: we only ever come here if make_local_foo was used for
-		   the first time on this var within this let.  */
+		 * NOTE: we only ever come here if make_local_foo was used
+                 * for the first time on this var within this let.  */
+                ;
 	      }
 	  }
 	case SPECPDL_LET_DEFAULT:
@@ -3560,6 +3584,8 @@ backtrace_eval_unrewind (int distance)
 	      }
 	  }
 	  break;
+        default:
+          break;
 	}
     }
 }
@@ -3642,6 +3668,8 @@ NFRAMES and BASE specify the activation frame to use, as in `backtrace-frame'.  
 	      else
 		result = Fcons (Fcons (sym, val), result);
 	    }
+          default:
+            break;
 	  }
       }
   }
@@ -3679,13 +3707,18 @@ mark_specpdl (void)
 	case SPECPDL_LET_DEFAULT:
 	case SPECPDL_LET_LOCAL:
 	  mark_object (specpdl_where (pdl));
-	  /* Fall through.  */
+	  /* Fall through: */
 	case SPECPDL_LET:
 	  mark_object (specpdl_symbol (pdl));
 	  mark_object (specpdl_old_value (pdl));
 	  break;
+
+        default:
+          break;
 	}
     }
+
+  return;
 }
 
 void
@@ -3906,3 +3939,5 @@ alist of active lexical bindings.  */);
   defsubr (&Sspecial_variable_p);
   defsubr (&Sfunctionp);
 }
+
+/* EOF */

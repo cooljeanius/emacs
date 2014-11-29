@@ -1,3 +1,4 @@
+# gitignore file for emacs/lisp/leim/quail
 4Corner.el
 ARRAY30.el
 CCDOSPY.el

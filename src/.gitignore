@@ -1,3 +1,6 @@
+# gitignore file for emacs/src
+
+# generated headers:
 buildobj.h
 buildobj.lst
 config.h
@@ -5,15 +8,22 @@ epaths.h
 globals.h
 version.h
 
+# stampfiles used by the Makefile:
 stamp_BLD
+# catches stamp-h1:
 stamp-h*
+# catches gl-stamp:
 *-stamp
 
+# compilation output:
 oo/
 oo-spd/
 *.o
 deps/*.d
 temacs
+temacs.map
+temacs.tmp
 emacs
+emacs-[0-9]*
 bootstrap-emacs
 prefix-args

@@ -17,6 +17,16 @@
 # You should have received a copy of the GNU General Public License
 # along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
 
+### Commentary:
+
+## Some targets:
+## check: re-run all tests, writing to .log files.
+## check-maybe: run all tests whose .log file needs updating
+## filename.log: run tests from filename.el(c) if .log file needs updating
+## filename: re-run tests from filename.el(c), with no logging
+
+### Code:
+
 SHELL = @SHELL@
 
 srcdir = @srcdir@
@@ -41,9 +51,15 @@ EMACSOPT = -batch --no-site-file --no-site-lisp -L "$(SEPCHAR)$(srcdir)"
 # Extra flags to pass to the byte compiler.
 BYTE_COMPILE_EXTRA_FLAGS =
 
+@ifGNUmake@# Prevent any settings in the user environment causing problems.
+@ifGNUmake@unexport EMACSDATA EMACSDOC EMACSPATH GREP_OPTIONS
+
+## To run tests under a debugger, set this to eg: "gdb --args".
+GDB =
+
 # The actual Emacs command run in the targets below.
 # Prevent any setting of EMACSLOADPATH in user environment causing problems.
-emacs = EMACSLOADPATH= LC_ALL=C EMACS_TEST_DIRECTORY=$(srcdir) "$(EMACS)" $(EMACSOPT)
+emacs = EMACSLOADPATH= LC_ALL=C EMACS_TEST_DIRECTORY=$(srcdir) $(GDB) "$(EMACS)" $(EMACSOPT)
 
 # Common command to find subdirectories
 setwins=for file in `find $(srcdir) -type d -print`; do \
@@ -96,17 +112,20 @@ compile-clean:
 	done
 
 
-.PHONY: bootstrap-clean distclean maintainer-clean
+.PHONY: mostlyclean clean bootstrap-clean distclean maintainer-clean
 
-bootstrap-clean:
+clean mostlyclean:
+	-rm -f *.log *.log~
+
+bootstrap-clean: clean
 	-cd $(srcdir) && rm -f *.elc */*.elc */*/*.elc */*/*/*.elc
 
-distclean:
+distclean: clean
 	rm -f Makefile
 
 maintainer-clean: distclean bootstrap-clean
 
-
+## Re-run all the tests every time.
 check: compile-main
 	@$(setwins); \
 	pattern=`echo "$$wins " | sed -e 's|/\./|/|g' -e 's|/\. | |g' -e 's| |/*.el |g'`; \
@@ -117,5 +136,10 @@ check: compile-main
 	done; \
 	echo Testing $$els; \
 	$(emacs) $$args -f ert-run-tests-batch-and-exit
+
+## Only re-run tests whose .log is older than the test.
+.PHONY: check-maybe
+check-maybe: ${LOGFILES}
+	$(emacs) -l ert -f ert-summarize-tests-batch-and-exit $^
 
 # Makefile ends here.

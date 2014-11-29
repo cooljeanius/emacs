@@ -1,4 +1,4 @@
-/* Functions for handling font and other changes dynamically.
+/* xsettings.c: Functions for handling font and other changes dynamically.
 
 Copyright (C) 2009-2014 Free Software Foundation, Inc.
 
@@ -743,11 +743,10 @@ read_and_apply_settings (struct x_display_info *dpyinfo, int send_event_p)
 	dupstring (&current_font, settings.font);
       xfree (settings.font);
     }
-#endif
+#endif /* HAVE_XFT */
 }
 
-/* Check if EVENT for the display in DPYINFO is XSettings related.  */
-
+/* Check if EVENT for the display in DPYINFO is XSettings related: */
 void
 xft_settings_event (struct x_display_info *dpyinfo, const XEvent *event)
 {
@@ -773,6 +772,9 @@ xft_settings_event (struct x_display_info *dpyinfo, const XEvent *event)
           && event->xproperty.atom == dpyinfo->Xatom_xsettings_prop)
         apply_settings_p = 1;
       break;
+
+    default:
+      break;
     }
 
 
@@ -788,21 +790,41 @@ xft_settings_event (struct x_display_info *dpyinfo, const XEvent *event)
     read_and_apply_settings (dpyinfo, True);
 }
 
-/* Initialize GSettings and read startup values.  */
-
+/* Initialize GSettings and read startup values: */
 static void
 init_gsettings (void)
 {
 #ifdef HAVE_GSETTINGS
   GVariant *val;
   const gchar *const *schemas;
+#if GLIB_CHECK_VERSION (2, 40, 0)
+  /* these four are used as arguments to a function surrounded by the same
+   * ifdef: */
+  GSettingsSchemaSource *source = (GSettingsSchemaSource *)NULL;
+  /* not really sure if the previous version was recursive;
+   * the documentation says we probably want 'TRUE' though, so use that: */
+  gboolean recursive = TRUE;
+  gchar ***non_relocatable = (gchar ***)NULL;
+  gchar ***relocatable = (gchar ***)NULL;
+#endif /* glib 2.40 */
   int schema_found = 0;
 
 #if ! GLIB_CHECK_VERSION (2, 36, 0)
-  g_type_init ();
-#endif
+  g_type_init();
+#endif /* glib 2.36 */
 
-  schemas = g_settings_list_schemas ();
+#if GLIB_CHECK_VERSION (2, 40, 0)
+  /* newer version: */
+  g_settings_schema_source_list_schemas(source, recursive,
+                                        non_relocatable, relocatable);
+  /* FIXME: not sure if I did this right? */
+  schemas = (const gchar *const *)g_strconcat((const gchar *)non_relocatable,
+                                              (const gchar *)relocatable,
+                                              (const gchar *)NULL);
+#else
+  /* older version: */
+  schemas = g_settings_list_schemas();
+#endif /* glib 2.40 */
   if (schemas == NULL) return;
   while (! schema_found && *schemas != NULL)
     schema_found = strcmp (*schemas++, GSETTINGS_SCHEMA) == 0;
@@ -843,6 +865,12 @@ init_gsettings (void)
       g_variant_unref (val);
     }
 #endif /* HAVE_XFT */
+
+#if GLIB_CHECK_VERSION (2, 40, 0)
+  /* for glib 2.40, we use g_strconcat() to assign to 'schemas', and the
+   * docs for g_strconcat() say to use g_free() on the result: */
+  g_free((gpointer)schemas);
+#endif /* glib 2.40 */
 
 #endif /* HAVE_GSETTINGS */
 }

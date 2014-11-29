@@ -1,3 +1,5 @@
+/* w32.h -*- C -*- */
+/* (whoa, a header guard that goes BEFORE the license block comment?) */
 #ifndef EMACS_W32_H
 #define EMACS_W32_H
 

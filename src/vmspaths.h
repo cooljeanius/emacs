@@ -1,4 +1,7 @@
-/* Hey Emacs, this is -*- C -*- code!  */
+/* vmspaths.h: Hey Emacs, this is -*- C -*- code!  */
+
+#ifndef EMACS_VMSPATHS_H
+#define EMACS_VMSPATHS_H 1
 
 /* The default search path for Lisp function "load".
    This sets load-path.  */
@@ -30,3 +33,7 @@
 /* the name of the file !!!SuperLock!!! in the directory
   specified by PATH_LOCK.  Yes, this is redundant.  */
 #define PATH_SUPERLOCK "EMACS_LIBRARY:[LOCK]$$$SUPERLOCK$$$."
+
+#endif /* !EMACS_VMSPATHS_H */
+
+/* EOF */

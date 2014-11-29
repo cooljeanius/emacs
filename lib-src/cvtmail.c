@@ -1,6 +1,7 @@
-/* Copyright (C) 1985, 1994, 2001, 2002, 2003, 2004,
-                 2005, 2006, 2007  Free Software Foundation, Inc.
-
+/* cvtmail.c
+ * Copyright (C) 1985, 1994, 2001, 2002, 2003, 2004,
+ *************** 2005, 2006, 2007  Free Software Foundation, Inc.  */
+/*
 This file is part of GNU Emacs.
 
 GNU Emacs is free software; you can redistribute it and/or modify
@@ -35,24 +36,24 @@ Boston, MA 02110-1301, USA.  */
  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+# include <config.h>
+#endif /* HAVE_CONFIG_H */
 
 #include <stdio.h>
 
-#ifndef HAVE_STDLIB_H
-char *getenv ();
-#endif
+#if !defined(HAVE_STDLIB_H) && !defined(_STDLIB_H_) && !defined(getenv)
+extern char *getenv(const char *);
+#endif /* !HAVE_STDLIB_H && !_STDLIB_H_ && !getenv */
 
-char *xmalloc __P ((unsigned));
-char *xrealloc __P ((char *, unsigned));
-void skip_to_lf __P ((FILE *));
-void sysfail __P ((char *));
+extern char *xmalloc __P ((unsigned));
+extern char *xrealloc __P ((char *, unsigned));
+extern void skip_to_lf __P ((FILE *));
+extern void _Noreturn sysfail __P ((char *));
+extern void error __P ((const char *, char *));
+extern void _Noreturn fatal __P ((const char *, char *));
 
 int
-main (argc, argv)
-     int argc;
-     char *argv[];
+main(int argc, char *argv[])
 {
   char *hd;
   char *md;
@@ -67,118 +68,117 @@ main (argc, argv)
   char name[14];
   int c;
 
-  hd = (char *) getenv ("HOME");
+  hd = (char *)getenv("HOME");
 
-  md = (char *) xmalloc (strlen (hd) + 10);
-  strcpy (md, hd);
-  strcat (md, "/Messages");
+  md = (char *)xmalloc(strlen(hd) + 10);
+  strcpy(md, hd);
+  strcat(md, "/Messages");
 
-  mdd = (char *) xmalloc (strlen (md) + 11);
-  strcpy (mdd, md);
-  strcat (mdd, "/Directory");
+  mdd = (char *)xmalloc(strlen(md) + 11);
+  strcpy(mdd, md);
+  strcat(mdd, "/Directory");
 
   cflen = 100;
-  cf = (char *) xmalloc (cflen);
+  cf = (char *)xmalloc(cflen);
 
-  mddf = fopen (mdd, "r");
+  mddf = fopen(mdd, "r");
   if (!mddf)
-    sysfail (mdd);
+    sysfail(mdd);
   if (argc > 1)
     mfile = argv[1];
   else
     {
-      mfile = (char *) xmalloc (strlen (hd) + 7);
-      strcpy (mfile, hd);
-      strcat (mfile, "/OMAIL");
+      mfile = (char *)xmalloc(strlen(hd) + 7);
+      strcpy(mfile, hd);
+      strcat(mfile, "/OMAIL");
     }
-  mfilef = fopen (mfile, "w");
-  if (!mfilef)
-    sysfail (mfile);
+  mfilef = fopen(mfile, "w");
+  if (!mfilef) {
+    sysfail(mfile);
+  }
 
-  skip_to_lf (mddf);
-  while (fscanf (mddf, "%4c%14[0123456789]", pre, name) != EOF)
+  skip_to_lf(mddf);
+  while (fscanf(mddf, "%4c%14[0123456789]", pre, name) != EOF)
     {
-      if (cflen < strlen (md) + strlen (name) + 2)
+      if (cflen < (strlen(md) + strlen(name) + 2))
 	{
-	  cflen = strlen (md) + strlen (name) + 2;
-	  cf = (char *) xrealloc (cf, cflen);
+	  cflen = (strlen(md) + strlen(name) + 2);
+	  cf = (char *)xrealloc(cf, cflen);
 	}
-      strcpy (cf, md);
-      strcat (cf,"/");
-      strcat (cf, name);
-      cff = fopen (cf, "r");
+      strcpy(cf, md);
+      strcat(cf, "/");
+      strcat(cf, name);
+      cff = fopen(cf, "r");
       if (!cff)
-	perror (cf);
+	perror(cf);
       else
 	{
-	  while ((c = getc(cff)) != EOF)
-	    putc (c, mfilef);
-	  putc ('\n', mfilef);
-	  skip_to_lf (mddf);
-	  fclose (cff);
+	  while ((c = getc(cff)) != EOF) {
+	    putc(c, mfilef);
+          }
+	  putc('\n', mfilef);
+	  skip_to_lf(mddf);
+	  fclose(cff);
 	}
     }
-  fclose (mddf);
-  fclose (mfilef);
+  fclose(mddf);
+  fclose(mfilef);
   return EXIT_SUCCESS;
 }
 
 void
-skip_to_lf (stream)
-     FILE *stream;
+skip_to_lf(FILE *stream)
 {
   register int c;
-  while ((c = getc(stream)) != EOF && c != '\n')
+  while (((c = getc(stream)) != EOF) && (c != '\n')) {
     ;
+  }
 }
 
 
 void
-error (s1, s2)
-     char *s1, *s2;
+error(const char *s1, char *s2)
 {
-  fprintf (stderr, "cvtmail: ");
-  fprintf (stderr, s1, s2);
-  fprintf (stderr, "\n");
+  fprintf(stderr, "cvtmail: ");
+  fprintf(stderr, s1, s2);
+  fprintf(stderr, "\n");
 }
 
-/* Print error message and exit.  */
-
-void
-fatal (s1, s2)
-     char *s1, *s2;
+/* Print error message and exit: */
+void _Noreturn
+fatal(const char *s1, char *s2)
 {
-  error (s1, s2);
-  exit (EXIT_FAILURE);
+  error(s1, s2);
+  exit(EXIT_FAILURE);
 }
 
-void
-sysfail (s)
-     char *s;
+/* as with above, "../src/config.h" should define '_Noreturn' for us,
+ * if we do not already have the C11 one: */
+void _Noreturn
+sysfail(char *s)
 {
-  fprintf (stderr, "cvtmail: ");
-  perror (s);
-  exit (EXIT_FAILURE);
+  fprintf(stderr, "cvtmail: ");
+  perror(s);
+  exit(EXIT_FAILURE);
 }
 
 char *
-xmalloc (size)
-     unsigned size;
+xmalloc(unsigned size)
 {
-  char *result = (char *) malloc (size);
-  if (!result)
-    fatal ("virtual memory exhausted", 0);
+  char *result = (char *)malloc(size);
+  if (!result) {
+    fatal("virtual memory exhausted", 0);
+  }
   return result;
 }
 
 char *
-xrealloc (ptr, size)
-     char *ptr;
-     unsigned size;
+xrealloc(char *ptr, unsigned size)
 {
-  char *result = (char *) realloc (ptr, size);
-  if (!result)
-    fatal ("virtual memory exhausted", 0);
+  char *result = (char *)realloc(ptr, size);
+  if (!result) {
+    fatal("virtual memory exhausted", 0);
+  }
   return result;
 }
 

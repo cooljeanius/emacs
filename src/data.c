@@ -315,6 +315,8 @@ for example, (type-of 1) returns `integer'.  */)
 	  return Qoverlay;
 	case Lisp_Misc_Float:
 	  return Qfloat;
+        default:
+          break;
 	}
       emacs_abort ();
 
@@ -2715,6 +2717,8 @@ arith_driver (enum arithop code, ptrdiff_t nargs, Lisp_Object *args)
 	  if (!argnum || next < accum)
 	    accum = next;
 	  break;
+        default:
+          break;
 	}
     }
 
@@ -2779,6 +2783,8 @@ float_arith_driver (double accum, ptrdiff_t argnum, enum arithop code,
 	  if (!argnum || isnan (next) || next < accum)
 	    accum = next;
 	  break;
+        default:
+          break;
 	}
     }
 
@@ -3135,6 +3141,9 @@ bool_vector_binop_driver (Lisp_Object a,
 	    if (destdata[i] != (adata[i] &~ bdata[i]))
 	      goto set_dest;
 	  break;
+
+        default:
+          break;
 	}
 
       return Qnil;

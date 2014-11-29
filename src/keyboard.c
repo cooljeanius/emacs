@@ -46,18 +46,18 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <errno.h>
 
 #ifdef HAVE_PTHREAD
-#include <pthread.h>
-#endif
+# include <pthread.h>
+#endif /* HAVE_PTHREAD */
 #ifdef MSDOS
-#include "msdos.h"
-#include <time.h>
+# include "msdos.h"
+# include <time.h>
 #else /* not MSDOS */
-#include <sys/ioctl.h>
+# include <sys/ioctl.h>
 #endif /* not MSDOS */
 
 #if defined USABLE_FIONREAD && defined USG5_4
 # include <sys/filio.h>
-#endif
+#endif /* USABLE_FIONREAD && USG5_4 */
 
 #include "syssignal.h"
 
@@ -66,7 +66,7 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <fcntl.h>
 
 #ifdef HAVE_WINDOW_SYSTEM
-#include TERM_HEADER
+# include TERM_HEADER
 #endif /* HAVE_WINDOW_SYSTEM */
 
 /* Variables for blockinput.h:  */
@@ -302,12 +302,12 @@ static Lisp_Object Qfunction_key;
 Lisp_Object Qmouse_click;
 #ifdef HAVE_NTGUI
 Lisp_Object Qlanguage_change;
-#endif
+#endif /* HAVE_NTGUI */
 static Lisp_Object Qdrag_n_drop;
 static Lisp_Object Qsave_session;
 #ifdef HAVE_DBUS
 static Lisp_Object Qdbus_event;
-#endif
+#endif /* HAVE_DBUS */
 #ifdef USE_FILE_NOTIFY
 static Lisp_Object Qfile_notify;
 #endif /* USE_FILE_NOTIFY */
@@ -378,10 +378,12 @@ bool interrupt_input;
 bool interrupts_deferred;
 
 /* If we support a window system, turn on the code to poll periodically
-   to detect C-g.  It isn't actually used when doing interrupt input.  */
+   to detect C-g.  It is NOT actually used when doing interrupt input.  */
 #ifdef HAVE_WINDOW_SYSTEM
-#define POLL_FOR_INPUT
-#endif
+# ifndef POLL_FOR_INPUT
+#  define POLL_FOR_INPUT 1
+# endif /* !POLL_FOR_INPUT */
+#endif /* HAVE_WINDOW_SYSTEM */
 
 /* The time when Emacs started being idle.  */
 
@@ -6174,6 +6176,8 @@ parse_modifiers_uncached (Lisp_Object symbol, ptrdiff_t *modifier_end)
 	  break;
 #undef MULTI_LETTER_MOD
 
+        default:
+          break;
 	}
 
       /* If we found no modifier, stop looking for them.  */
@@ -6702,6 +6706,9 @@ parse_solitary_modifier (Lisp_Object symbol)
 
     case 't':
       MULTI_LETTER_MOD (triple_modifier, "triple", 6);
+      break;
+
+    default:
       break;
 
 #undef SINGLE_LETTER_MOD
@@ -10194,10 +10201,10 @@ stuff_buffered_input (Lisp_Object stuffstring)
 
   /* Anything we have read ahead, put back for the shell to read.  */
   /* ?? What should this do when we have multiple keyboards??
-     Should we ignore anything that was typed in at the "wrong" kboard?
-
-     rms: we should stuff everything back into the kboard
-     it came from.  */
+   * Should we ignore anything that was typed in at the "wrong" kboard?
+   *
+   * rms: we should stuff everything back into the kboard
+   * it came from.  */
   for (; kbd_fetch_ptr != kbd_store_ptr; kbd_fetch_ptr++)
     {
 

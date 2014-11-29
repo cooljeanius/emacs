@@ -30,9 +30,27 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <limits.h>
 
 #include <intprops.h>
+/* hack to silence '-Wundef': */
+#ifndef _MSC_VER
+# ifndef FAKED__MSC_VER
+#  define FAKED__MSC_VER 1
+# endif /* !FAKED__MSC_VER */
+# define _MSC_VER 0
+#endif /* !_MSC_VER */
 #include <verify.h>
+/* pop it off again: */
+#if defined(FAKED__MSC_VER) && defined(_MSC_VER)
+# undef _MSC_VER
+#endif /* FAKED__MSC_VER && _MSC_VER */
 
 INLINE_HEADER_BEGIN
+
+/* this file contains way too many of these for now: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wredundant-decls"
+#endif /* gcc 4.6+ */
 
 /* Declare the prototype for a general external function: */
 #ifndef P_
@@ -4211,6 +4229,11 @@ extern void syms_of_fileio (void);
 extern Lisp_Object make_temp_name (Lisp_Object, bool);
 extern Lisp_Object Qdelete_file;
 
+#if !defined(syms_of_abbrev) || defined(_USE_OLD_LISP_DATA_STRUCTURES)
+/* Defined in abbrev.c */
+extern void syms_of_abbrev (void);
+#endif /* !syms_of_abbrev || _USE_OLD_LISP_DATA_STRUCTURES */
+
 /* Defined in search.c.  */
 extern void shrink_regexp_cache (void);
 extern void restore_search_regs (void);
@@ -4307,18 +4330,18 @@ extern void set_frame_param (struct frame *, Lisp_Object, Lisp_Object);
 extern void store_frame_param (struct frame *, Lisp_Object, Lisp_Object);
 extern void store_in_alist (Lisp_Object *, Lisp_Object, Lisp_Object);
 extern Lisp_Object do_switch_frame (Lisp_Object, int, int, Lisp_Object);
-#if HAVE_NS || HAVE_NTGUI
+#if (defined(HAVE_NS) && HAVE_NS) || (defined(HAVE_NTGUI) && HAVE_NTGUI)
 extern Lisp_Object get_frame_param (struct frame *, Lisp_Object);
-#endif
+#endif /* HAVE_NS || HAVE_NTGUI */
 extern void frames_discard_buffer (Lisp_Object);
 extern void syms_of_frame (void);
 
 /* Defined in emacs.c.  */
 extern char **initial_argv;
 extern int initial_argc;
-#if defined (HAVE_X_WINDOWS) || defined (HAVE_NS)
+#if defined(HAVE_X_WINDOWS) || defined(HAVE_NS)
 extern bool display_arg;
-#endif
+#endif /* HAVE_X_WINDOWS || HAVE_NS */
 extern Lisp_Object decode_env_path (const char *, const char *, bool);
 extern Lisp_Object empty_unibyte_string, empty_multibyte_string;
 extern Lisp_Object Qfile_name_handler_alist;
@@ -4769,6 +4792,12 @@ functionp (Lisp_Object object)
   else
     return false;
 }
+
+/* keep condition the same as when we push away the redundancy warning: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic pop
+#endif /* gcc 4.6+ */
 
 INLINE_HEADER_END
 

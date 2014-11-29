@@ -1,0 +1,5 @@
+# gitignore file for emacs/lisp/url
+Makefile
+auto-autoloads.el
+custom-load.el
+url-auto.el

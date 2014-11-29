@@ -1,7 +1,8 @@
-/* GNU Emacs routines to deal with syntax tables; also word and list parsing.
-   Copyright (C) 1985, 1987, 1993-1995, 1997-1999, 2001-2014 Free
-   Software Foundation, Inc.
-
+/* syntax.c: GNU Emacs routines to deal with syntax tables;
+ * also word and list parsing.
+ * Copyright (C) 1985, 1987, 1993-1995, 1997-1999, 2001-2014 Free
+ * Software Foundation, Inc. */
+/*
 This file is part of GNU Emacs.
 
 GNU Emacs is free software: you can redistribute it and/or modify
@@ -1071,42 +1072,45 @@ the value of a `syntax-table' text property.  */)
     switch (*p++)
       {
       case '1':
-	val |= 1 << 16;
+	val |= (1 << 16);
 	break;
 
       case '2':
-	val |= 1 << 17;
+	val |= (1 << 17);
 	break;
 
       case '3':
-	val |= 1 << 18;
+	val |= (1 << 18);
 	break;
 
       case '4':
-	val |= 1 << 19;
+	val |= (1 << 19);
 	break;
 
       case 'p':
-	val |= 1 << 20;
+	val |= (1 << 20);
 	break;
 
       case 'b':
-	val |= 1 << 21;
+	val |= (1 << 21);
 	break;
 
       case 'n':
-	val |= 1 << 22;
+	val |= (1 << 22);
 	break;
 
       case 'c':
-	val |= 1 << 23;
+	val |= (1 << 23);
 	break;
+
+      default:
+        break;
       }
 
   if (val < ASIZE (Vsyntax_code_object) && NILP (match))
     return AREF (Vsyntax_code_object, val);
   else
-    /* Since we can't use a shared object, let's make a new one.  */
+    /* Since we cannot use a shared object, let us make a new one: */
     return Fcons (make_number (val), match);
 }
 
@@ -2739,6 +2743,8 @@ scan_lists (EMACS_INT from, EMACS_INT count, EMACS_INT depth, bool sexpflag)
 		    case Scharquote:
 		    case Sescape:
 		      INC_BOTH (from, from_byte);
+                    default:
+                      break;
 		    }
 		  INC_BOTH (from, from_byte);
 		}
@@ -3041,6 +3047,13 @@ This includes chars with "quote" or "prefix" syntax (' or p).  */)
   return Qnil;
 }
 
+/* see comment inside function for why we do this: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wswitch-default"
+#endif /* gcc 4.6+ */
+
 /* Parse forward from FROM / FROM_BYTE to END,
    assuming that FROM has state OLDSTATE (nil means FROM is start of function),
    and return a description of the state of the parse at END.
@@ -3355,6 +3368,8 @@ do { prev_from = from;				\
 		    INC_FROM;
 		  startquotedinstring:
 		    if (from >= end) goto endquoted;
+                    /* with the 'goto' label being mixed in here, I am not
+                     * exactly sure how to do a default case safely... */
 		  }
 		INC_FROM;
 	      }
@@ -3399,6 +3414,12 @@ do { prev_from = from;				\
 
   *stateptr = state;
 }
+
+/* keep condition same as when we push away the switch-default warning: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic pop
+#endif /* gcc 4.6+ */
 
 DEFUN ("parse-partial-sexp", Fparse_partial_sexp, Sparse_partial_sexp, 2, 6, 0,
        doc: /* Parse Lisp syntax starting at FROM until TO; return status of parse at TO.

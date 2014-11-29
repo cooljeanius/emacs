@@ -173,13 +173,13 @@ Boolean lw_window_is_in_menubar (Window win, Widget menubar_widget);
 /* Manage resizing: TRUE permits resizing widget w; FALSE disallows it. */
 #ifndef USE_MOTIF
 ATTRIBUTE_CONST
-#endif
+#endif /* !USE_MOTIF */
 void lw_allow_resizing (Widget w, Boolean flag);
 
 /* Set up the main window. */
 #ifndef USE_MOTIF
 ATTRIBUTE_CONST
-#endif
+#endif /* !USE_MOTIF */
 void lw_set_main_areas (Widget parent,
                         Widget menubar,
                         Widget work_area);

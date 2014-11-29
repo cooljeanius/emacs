@@ -277,7 +277,7 @@ xsmfns.o: xsmfns.c lisp.h $(config_h) systime.h sysselect.h termhooks.h \
    gnutls.h keyboard.h coding.h composite.h
 xsettings.o: xterm.h xsettings.h lisp.h frame.h termhooks.h $(config_h) \
    dispextern.h keyboard.h systime.h coding.h composite.h blockinput.h \
-   atimer.h termopts.h globals.h
+   atimer.h termopts.h globals.h ../lib/byteswap.h
 
 hftctl.o: hftctl.c $(config_h)
 
@@ -337,5 +337,8 @@ macselect.o: blockinput.h atimer.h systime.h macterm.h macgui.h frame.h \
   keymap.h $(config_h)
 #endif /* HAVE_CARBON */
 
+## how to make headers listed in this file that are in generated in ../lib:
+../lib/unistd.h ../lib/byteswap.h: gnulib_headers
+## (the actual target is in the main Makefile in this subdir)
 
 ### deps.mk ends here

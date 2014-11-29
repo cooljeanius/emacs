@@ -1,2 +1,4 @@
+# gitignore file for emacs/oldXMenu
 lib*.a
 *.o
+deps/*.d

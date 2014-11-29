@@ -1,4 +1,4 @@
-/* Functions to manipulate menus.
+/* menu.h: Functions to manipulate menus.
    Copyright (C) 2008-2014 Free Software Foundation, Inc.
 
 This file is part of GNU Emacs.
@@ -19,11 +19,18 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #ifndef MENU_H
 #define MENU_H
 
+/* this file contains way too many of these for now: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wredundant-decls"
+#endif /* gcc 4.6+ */
+
 #include "systime.h" /* for Time */
 
 #ifdef HAVE_NTGUI
 extern Lisp_Object Qunsupported__w32_dialog;
-#endif
+#endif /* HAVE_NTGUI */
 
 extern void x_set_menu_bar_lines (struct frame *f,
                                   Lisp_Object value,
@@ -47,7 +54,7 @@ extern widget_value *digest_single_submenu (int, int, bool);
 
 #ifdef HAVE_X_WINDOWS
 extern void mouse_position_for_popup (struct frame *f, int *x, int *y);
-#endif
+#endif /* HAVE_X_WINDOWS */
 
 extern Lisp_Object w32_menu_show (struct frame *, int, int, int, int,
 				  Lisp_Object, const char **);
@@ -58,4 +65,13 @@ extern Lisp_Object xmenu_show (struct frame *, int, int, bool, bool,
 extern Lisp_Object tty_menu_show (struct frame *, int, int, bool, bool,
 				  Lisp_Object, bool, const char **);
 extern ptrdiff_t menu_item_width (const unsigned char *);
+
+/* keep condition the same as when we push away the redundancy warning: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
+    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
+# pragma GCC diagnostic pop
+#endif /* gcc 4.6+ */
+
 #endif /* MENU_H */
+
+/* EOF */

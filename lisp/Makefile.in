@@ -112,6 +112,9 @@ COMPILE_FIRST = \
 	$(lisp)/emacs-lisp/bytecomp.elc \
 	$(lisp)/emacs-lisp/autoload.elc
 
+@ifGNUmake@# Prevent any settings in the user environment causing problems.
+@ifGNUmake@unexport EMACSDATA EMACSDOC EMACSPATH
+
 # The actual Emacs command run in the targets below.
 # Prevent any setting of EMACSLOADPATH in user environment causing problems.
 emacs = EMACSLOADPATH='.' '$(EMACS)' $(EMACSOPT)
@@ -211,6 +214,7 @@ autoloads: $(LOADDEFS) doit
 	$(setwins_almost); \
 	echo "Directories: $${wins}"; \
 	$(emacs) -l autoload \
+	    --eval '(setq autoload-ensure-writable t)' \
 	    --eval '(setq autoload-builtin-package-versions t)' \
 	    --eval '(setq generated-autoload-file (expand-file-name (unmsys--file-name "$(srcdir)/loaddefs.el")))' \
 	    -f batch-update-autoloads $${wins}
@@ -227,18 +231,18 @@ update-subdirs: doit
 	   $(srcdir)/../build-aux/update-subdirs $${file}; \
 	done;
 
-.PHONY: updates bzr-update update-authors
+.PHONY: updates repo-update update-authors
 
 # Some modes of make-dist use this.
 updates: update-subdirs autoloads finder-data custom-deps
 
-# This is useful after "bzr up"; but it does nothing more than a
-# plain "make" at top-level does.
+# This is useful after updating from the repository; but it does nothing
+# more than a plain "make" at top-level does.
 # The only difference between this and this directory's "all" rule
 # is that this runs "autoloads" as well (because it uses "compile"
 # rather than "compile-main").  In a bootstrap, $(lisp) in src/Makefile
 # triggers this directory's autoloads rule.
-bzr-update: compile finder-data custom-deps
+repo-update: compile finder-data custom-deps
 
 # Update the AUTHORS file.
 
@@ -486,14 +490,14 @@ $(CAL_DIR)/cal-loaddefs.el: $(CAL_SRC)
 	   --eval "(setq make-backup-files nil)" \
 	   -f batch-update-autoloads $(CAL_DIR)
 
-$(CAL_DIR)/diary-loaddefs.el: $(CAL_SRC)
+$(CAL_DIR)/diary-loaddefs.el: $(CAL_SRC) $(CAL_DIR)/cal-loaddefs.el
 	$(emacs) -l autoload \
 	   --eval "(setq generate-autoload-cookie \";;;###diary-autoload\")" \
 	   --eval "(setq generated-autoload-file (expand-file-name (unmsys--file-name \"$@\")))" \
 	   --eval "(setq make-backup-files nil)" \
 	   -f batch-update-autoloads $(CAL_DIR)
 
-$(CAL_DIR)/hol-loaddefs.el: $(CAL_SRC)
+$(CAL_DIR)/hol-loaddefs.el: $(CAL_SRC) $(CAL_DIR)/diary-loaddefs.el
 	$(emacs) -l autoload \
 	   --eval "(setq generate-autoload-cookie \";;;###holiday-autoload\")" \
 	   --eval "(setq generated-autoload-file (expand-file-name (unmsys--file-name \"$@\")))" \

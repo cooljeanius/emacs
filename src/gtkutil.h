@@ -1,4 +1,4 @@
-/* Definitions and headers for GTK widgets.
+/* gtkutil.h: Definitions and headers for GTK widgets.
 
 Copyright (C) 2003-2014 Free Software Foundation, Inc.
 

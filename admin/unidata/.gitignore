@@ -1,3 +1,4 @@
+# gitignore file for emacs/admin/unidata
 *.elc
 unidata.txt
 

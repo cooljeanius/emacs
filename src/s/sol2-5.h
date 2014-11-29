@@ -15,12 +15,16 @@
    that seem to relate to screwed up malloc data
    after deleting a frame.  */
 /* rms: I think the problems using ralloc had to do with system
-   libraries that called the system malloc even if we linked in the
-   GNU malloc.  I could not see any way to fix the problem except to
-   have just one malloc and that had to be the system one.  */
+ * libraries that called the system malloc even if we linked in the
+ * GNU malloc.  I could not see any way to fix the problem except to
+ * have just one malloc and that had to be the system one.  */
 /* This is not always necessary.  Turned off at present for testers to
    identify any problems with gmalloc more accurately.  */
-/* #define SYSTEM_MALLOC */
+#ifdef ALL_PROBLEMS_WITH_GMALLOC_ALREADY_FOUND
+# ifndef SYSTEM_MALLOC
+#  define SYSTEM_MALLOC
+# endif /* !SYSTEM_MALLOC */
+#endif /* ALL_PROBLEMS_WITH_GMALLOC_ALREADY_FOUND */
 
 /* There have problems reported with mmap at least on Solaris 2.6
    and 2.7.  For simplicity, let's not use mmap for anything >= 2.5.

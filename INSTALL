@@ -24,6 +24,12 @@ find some things, or what options to use.
 `src/config.h' file containing system-dependent definitions.
 Running the `make' utility then builds the package for your system.
 
+In mainline trunk, building Emacs requires GNU make, which can be found at
+<http://www.gnu.org/software/make/>.
+On most systems that Emacs supports, this is the default `make' program.
+However, this fork will try to retain compatibility with non-GNU versions
+of the `make' program.
+
 Here's the procedure to build Emacs using `configure' on systems which
 are supported by it.  In some cases, if the simplified procedure fails,
 you might need to use various non-default options, and maybe perform
@@ -167,6 +173,7 @@ X11 is being used.
   X libjpeg for JPEG: http://www.ijg.org/
   X libtiff for TIFF: http://www.remotesensing.org/libtiff/
   X libgif for GIF:   http://sourceforge.net/projects/giflib/
+    librsvg2 for SVG: http://wiki.gnome.org/action/show/Projects/LibRsvg
 
 If you supply the appropriate --without-LIB option, 'configure' will
 omit the corresponding library from Emacs, even if that makes for a
@@ -291,6 +298,7 @@ or more of these options:
   --without-tiff       for TIFF image support
   --without-gif        for GIF image support
   --without-png        for PNG image support
+  --without-rsvg       for SVG image support
 
 Use --without-toolkit-scroll-bars to disable Motif or Xaw3d scroll bars.
 
@@ -329,12 +337,25 @@ and is useful with GNU-compatible compilers.  On a recent GNU system
 there should be no warnings; on older and on non-GNU systems the
 generated warnings may still be useful.
 
-Use --enable-link-time-optimization to enable link-time optimizer, which
-is available in GNU compiler since version 4.5.0.  If your compiler is not
-GNU or older than version 4.5.0, this option does nothing.  If `configure'
-can determine number of online CPUS on your system, final link-time
-optimization and code generation is executed in parallel using one job
-per each available online CPU.
+Use --enable-silent-rules to cause 'make' to chatter less.  This is
+helpful when combined with options like --enable-gcc-warnings that
+generate long shell-command lines.  'make V=0' also suppresses the
+chatter.
+
+Use either --enable-gcc-link-time-optimization or
+--enable-clang-link-time-optimization to enable link-time optimizer.
+If you are using GNU compiler, this feature is supported since GCC 4.5.0.
+If your compiler is not GNU or older than version 4.5.0, the gcc variant of
+the option does nothing, and will fall through to the clang one.
+If `configure' can determine number of online CPUS on your system,
+final link-time optimization and code generation is executed in parallel
+using one job per each available online CPU.
+
+This option is also supported for clang.  You should have GNU binutils
+with `gold' linker and plugin support, and clang with LLVMgold.so plugin.
+Read http://llvm.org/docs/GoldPlugin.html for details.  Also note that
+this feature is still experimental, so prepare to build binutils and
+clang from the corresponding source code repositories.
 
 The `--prefix=PREFIXDIR' option specifies where the installation process
 should put emacs and its data files.  This defaults to `/usr/local'.

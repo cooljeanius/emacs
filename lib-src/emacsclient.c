@@ -1,5 +1,6 @@
-/* Client process that communicates with GNU Emacs acting as server.
-
+/* emacsclient.c
+ * Client process that communicates with GNU Emacs acting as server.  */
+/*
 Copyright (C) 1986-1987, 1994, 1999-2014 Free Software Foundation, Inc.
 
 This file is part of GNU Emacs.
@@ -88,27 +89,29 @@ char *w32_getenv (char *);
 
 
 
-char *getenv (const char *);
+#if !defined(getenv) && !defined(HAVE_STDLIB_H) && !defined(_STDLIB_H_)
+char *getenv(const char *);
+#endif /* !getenv && !HAVE_STDLIB_H && !_STDLIB_H_ */
 
 #ifndef VERSION
-#define VERSION "unspecified"
-#endif
+# define VERSION "unspecified"
+#endif /* !VERSION */
 
 
 #ifndef EXIT_SUCCESS
-#define EXIT_SUCCESS 0
-#endif
+# define EXIT_SUCCESS 0
+#endif /* !EXIT_SUCCESS */
 
 #ifndef EXIT_FAILURE
-#define EXIT_FAILURE 1
-#endif
+# define EXIT_FAILURE 1
+#endif /* !EXIT_FAILURE */
 
 /* Additional space when allocating buffers for filenames, etc.  */
 #define EXTRA_SPACE 100
 
 #ifdef min
-#undef min
-#endif
+# undef min
+#endif /* min */
 #define min(x, y) (((x) < (y)) ? (x) : (y))
 
 
@@ -176,7 +179,7 @@ struct option longopts[] =
   { "frame-parameters", required_argument, NULL, 'F' },
 #ifndef NO_SOCKETS_IN_FILE_SYSTEM
   { "socket-name",	required_argument, NULL, 's' },
-#endif
+#endif /* !NO_SOCKETS_IN_FILE_SYSTEM */
   { "server-file",	required_argument, NULL, 'f' },
   { "display",	required_argument, NULL, 'd' },
   { "parent-id", required_argument, NULL, 'p' },
@@ -1292,7 +1295,7 @@ set_local_socket (const char *local_socket_name)
     switch (sock_status)
       {
       case 1:
-	/* There's a socket, but it isn't owned by us.  This is OK if
+	/* There is a socket, but it is NOT owned by us.  This is OK if
 	   we are root. */
 	if (0 != geteuid ())
 	  {
@@ -1305,13 +1308,16 @@ set_local_socket (const char *local_socket_name)
 	/* `stat' failed */
 	if (saved_errno == ENOENT)
 	  message (true,
-		   "%s: can't find socket; have you started the server?\n\
+		   "%s: cannot find socket; have you started the server?\n\
 To start the server in Emacs, type \"M-x server-start\".\n",
 		   progname);
 	else
 	  message (true, "%s: can't stat %s: %s\n",
 		   progname, server.sun_path, strerror (saved_errno));
 	return INVALID_SOCKET;
+
+      default:
+        break;
       }
   }
 
@@ -1846,3 +1852,5 @@ main (int argc, char **argv)
 }
 
 #endif /* HAVE_SOCKETS && HAVE_INET_SOCKETS */
+
+/* EOF */

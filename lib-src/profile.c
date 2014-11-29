@@ -85,9 +85,11 @@ main (void)
 	  break;
 	case 'q':
 	  exit (EXIT_SUCCESS);
+        default:
+          break;
 	}
       /* Anything remaining on the line is ignored.  */
-      while (c != '\n' && c != EOF)
+      while ((c != '\n') && (c != EOF))
 	c = getchar ();
     }
   exit (EXIT_FAILURE);
