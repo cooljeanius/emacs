@@ -658,7 +658,41 @@ WINUSERAPI BOOL WINAPI ShowWindow(HWND,INT);
 # endif /* !_O_EXCL */
 #endif /* !__WINE_FCNTL_H */
 
-/* throw in a prototype: */
+#if (!defined(stricmp) && !defined(HAVE_STRICMP)) || (!defined(_stricmp) && !defined(HAVE__STRICMP))
+# if defined(WINDOWS_COMPATIBILITY_CHECK) && defined(HAVE_MSVCRT_STRING_H)
+/* hack: */
+#  ifndef _CRT_MEMORY_DEFINED
+#   define _CRT_MEMORY_DEFINED 1
+#  endif /* !_CRT_MEMORY_DEFINED */
+#  include <msvcrt/string.h>
+# else
+#  if (defined(HAVE__STRICMP) || defined(_stricmp)) && (!defined(stricmp) && !defined(HAVE_STRICMP))
+#   define stricmp(x, y) _stricmp(x, y)
+#  else
+#   if (defined(HAVE_STRICMP) || defined(stricmp)) && (!defined(_stricmp) && !defined(HAVE__STRICMP))
+#    define _stricmp(x, y) stricmp(x, y)
+#   else
+#    if defined(HAVE_STRCASECMP) || 1
+#     if !defined(stricmp) && !defined(HAVE_STRICMP)
+#      define stricmp(x, y) strcasecmp(x, y)
+#     endif /* (!stricmp && !HAVE_STRICMP) */
+#     if !defined(_stricmp) && !defined(HAVE__STRICMP)
+#      define _stricmp(x, y) strcasecmp(x, y)
+#     endif /* (!_stricmp && !_HAVE_STRICMP) */
+#    else
+#     if !defined(stricmp) && !defined(HAVE_STRICMP)
+#      define stricmp(x, y) ((x || y))
+#     endif /* (!stricmp && !HAVE_STRICMP) */
+#     if !defined(_stricmp) && !defined(HAVE__STRICMP)
+#      define _stricmp(x, y) ((x || y))
+#     endif /* (!_stricmp && !_HAVE_STRICMP) */
+#    endif /* HAVE_STRCASECMP || 1 */
+#   endif /* (HAVE_STRICMP || stricmp) && (!_stricmp && !HAVE__STRICMP) */
+#  endif /* (HAVE__STRICMP || _stricmp) && (!stricmp && !HAVE_STRICMP) */
+# endif /* WINDOWS_COMPATIBILITY_CHECK && HAVE_MSVCRT_STRING_H */
+#endif /* (!stricmp && !HAVE_STRICMP) || (!_stricmp && !_HAVE_STRICMP) */
+
+/* throw in an extra prototype: */
 extern int wincompat_test_c_dummy_func(void);
 
 #endif /* !_WINCOMPAT_H */

@@ -11,6 +11,8 @@ emacsclient
 emacsserver
 etags
 fakemail
+getopt_long_test
+getopt_test
 hexl
 make-docfile
 movemail
@@ -18,6 +20,7 @@ profile
 sorted-doc
 test-distrib
 update-game-score
+wincompat_test
 yow
 
 stamp_BLD

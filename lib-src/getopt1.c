@@ -17,9 +17,9 @@
    with this program; if not, write to the Free Software Foundation,
    Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.  */
 
-#ifdef HAVE_CONFIG_H
+#if defined(HAVE_CONFIG_H) || !defined(_LIBC)
 # include <config.h>
-#endif /* HAVE_CONFIG_H */
+#endif /* HAVE_CONFIG_H || !_LIBC */
 
 #ifdef _LIBC
 # include <getopt.h>
@@ -36,9 +36,10 @@
 
 /* This needs to come after some library #include
  * to get __GNU_LIBRARY__ defined: */
-#ifdef __GNU_LIBRARY__
+#if defined(__GNU_LIBRARY__) || \
+    (defined(HAVE_STDLIB_H) && defined(STDC_HEADERS) && defined(__STDC__))
 # include <stdlib.h>
-#endif /* __GNU_LIBRARY__ */
+#endif /* __GNU_LIBRARY__ || (HAVE_STDLIB_H && STDC_HEADERS && __STDC__) */
 
 #ifndef	NULL
 # define NULL 0

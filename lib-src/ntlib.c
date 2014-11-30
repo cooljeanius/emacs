@@ -123,7 +123,7 @@ getwd(char *dir)
 }
 
 static HANDLE getppid_parent;
-static int    getppid_ppid;
+static int getppid_ppid;
 
 int
 getppid(void)
@@ -283,7 +283,7 @@ getpass(const char * prompt)
  * does NOT have.  Copied from w32.c.  */
 # if defined(GETTIMEOFDAY_TWO_ARGUMENTS) && GETTIMEOFDAY_TWO_ARGUMENTS
 void
-gettimeofday (struct timeval *tv, struct timezone *tz)
+gettimeofday(struct timeval *tv, struct timezone *tz)
 {
   struct _timeb tb;
   _ftime(&tb);
@@ -305,7 +305,7 @@ gettimeofday (struct timeval *tv, struct timezone *tz)
 # else
 #  if defined(GETTIMEOFDAY_ONE_ARGUMENT) && GETTIMEOFDAY_ONE_ARGUMENT
 void
-gettimeofday (struct timeval *tv)
+gettimeofday(struct timeval *tv)
 {
   struct _timeb tb;
   _ftime(&tb);

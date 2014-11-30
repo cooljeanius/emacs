@@ -25,9 +25,21 @@ Boston, MA 02110-1301, USA.  */
 
 #define _XOPEN_SOURCE 500	/* for cuserid */
 
-#ifdef HAVE_CONFIG_H
+#if defined(HAVE_CONFIG_H) || defined(emacs)
+# ifdef emacs
+#  undef emacs
+# endif /* emacs */
 # include <config.h>
-#endif /* HAVE_CONFIG_H */
+/* On some systems, Emacs re-defines the malloc() and realloc() functions
+ * for the sake of unexec.  We avoid doing that here since we do NOT use
+ * unexec for this: */
+# ifdef malloc
+#  undef malloc
+# endif /* malloc */
+# ifdef realloc
+#  undef realloc
+# endif /* realloc */
+#endif /* HAVE_CONFIG_H || emacs */
 
 /* I am too lazy to do anything about these now: */
 #if defined(__GNUC__) && defined(__GNUC_MINOR__) && \

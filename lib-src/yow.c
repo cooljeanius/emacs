@@ -10,9 +10,21 @@
  * With dynamic memory allocation.
  */
 
-#ifdef HAVE_CONFIG_H
+#if defined(HAVE_CONFIG_H) || defined(emacs)
+# ifdef emacs
+#  undef emacs
+# endif /* emacs */
 # include <config.h>
-#endif /* HAVE_CONFIG_H */
+/* On some systems, Emacs re-defines the malloc() and realloc() functions
+ * for the sake of unexec.  We avoid doing that here since we do NOT use
+ * unexec for this: */
+# ifdef malloc
+#  undef malloc
+# endif /* malloc */
+# ifdef realloc
+#  undef realloc
+# endif /* realloc */
+#endif /* HAVE_CONFIG_H || emacs */
 
 #include <stdio.h>
 #include <ctype.h>

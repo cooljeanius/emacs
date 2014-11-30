@@ -23,9 +23,21 @@
 
    This version sorts the output by function name.  */
 
-#ifdef HAVE_CONFIG_H
+#if defined(HAVE_CONFIG_H) || defined(emacs)
+# ifdef emacs
+#  undef emacs
+# endif /* emacs */
 # include <config.h>
-#endif /* HAVE_CONFIG_H */
+/* On some systems, Emacs re-defines the malloc() and realloc() functions
+ * for the sake of unexec.  We avoid doing that here since we do NOT use
+ * unexec for this: */
+# ifdef malloc
+#  undef malloc
+# endif /* malloc */
+# ifdef realloc
+#  undef realloc
+# endif /* realloc */
+#endif /* HAVE_CONFIG_H || emacs */
 
 #include <stdio.h>
 #include <ctype.h>
@@ -37,7 +49,7 @@
 #if !defined(HAVE_STDLIB_H) && !defined(_STDLIB_H_)
 # ifndef WINDOWSNT		/* src/s/ms-w32.h includes <stdlib.h> */
 extern char *malloc(size_t size);
-# endif
+# endif /* !WINDOWSNT */
 #endif /* !HAVE_STDLIB_H && !_STDLIB_H_ */
 
 #define NUL	'\0'

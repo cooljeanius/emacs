@@ -1,4 +1,4 @@
-/*
+/* b2m.c -*- C -*-
  * b2m - a filter for Babyl -> Unix mail files
  * The copyright on this file has been disclaimed.
  *
@@ -19,28 +19,50 @@
 /* Made conformant to the GNU coding standards January, 1995
    by Francesco Potorti` <pot@cnuce.cnr.it>. */
 
-#ifdef HAVE_CONFIG_H
+#if defined(HAVE_CONFIG_H) || defined(emacs)
+# ifdef emacs
+#  undef emacs
+# endif /* emacs */
 # include <config.h>
 /* On some systems, Emacs defines static as nothing for the sake
  * of unexec.  We do NOT want that here since we do NOT use unexec. */
-# undef static
-#endif
+# ifdef static
+#  undef static
+# endif /* static */
+/* likewise with the malloc() and realloc() functions: */
+# ifdef malloc
+#  undef malloc
+# endif /* malloc */
+# ifdef realloc
+#  undef realloc
+# endif /* realloc */
+#endif /* HAVE_CONFIG_H || emacs */
 
 #include <stdio.h>
+#ifdef HAVE_STDLIB_H
+# include <stdlib.h>
+#endif /* HAVE_STDLIB_H */
+#ifdef HAVE_MALLOC_H
+# include <malloc.h>
+#else
+# ifdef HAVE_MALLOC_MALLOC_H
+#  include <malloc/malloc.h>
+# endif /* HAVE_MALLOC_MALLOC_H */
+#endif /* HAVE_MALLOC_H */
 #include <time.h>
 #include <sys/types.h>
 #include <getopt.h>
-#ifdef MSDOS
+#if defined(MSDOS) || defined(HAVE_FCNTL_H)
 # include <fcntl.h>
-#endif /* MSDOS */
+#endif /* MSDOS || HAVE_FCNTL_H */
 
 #undef TRUE
 #define TRUE	1
 #undef FALSE
 #define FALSE	0
 
-#define streq(s,t)	(strcmp (s, t) == 0)
-#define strneq(s,t,n)	(strncmp (s, t, n) == 0)
+#define streq(s,t)	(strcmp(s, t) == 0)
+#define strneq(s,t,n)	(strncmp(s, t, n) == 0)
 
 typedef int logical;
 
@@ -77,7 +99,7 @@ void fatal(const char *message);
 /*
  * xnew -- allocate storage.  SYNOPSIS: Type *xnew (int n, Type);
  */
-#define xnew(n, Type)	((Type *) xmalloc ((n) * sizeof (Type)))
+#define xnew(n, Type)	((Type *)xmalloc((n) * sizeof (Type)))
 
 
 

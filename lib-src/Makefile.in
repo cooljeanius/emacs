@@ -359,7 +359,7 @@ distclean: clean
 	-rm -f Makefile blessmail
 
 bootstrap-clean maintainer-clean: distclean
-	@echo "no specific maintainer-clean rules in lib-src/ yet"
+	-rm -f .DS_Store
 
 extraclean: maintainer-clean
 	-rm -f *~ \#*
@@ -473,18 +473,19 @@ make-docfile${EXEEXT}: ${srcdir}/make-docfile.c $(stddep) gnulib_headers
 digest-doc${EXEEXT}: ${srcdir}/digest-doc.c
 	$(CC) ${ALL_CFLAGS} ${srcdir}/digest-doc.c $(LOADLIBES) -o digest-doc
 
+EMACS_DEFS = ${CPP_CFLAGS} -Demacs
 sorted-doc${EXEEXT}: ${srcdir}/sorted-doc.c
-	$(CC) ${ALL_CFLAGS} ${srcdir}/sorted-doc.c $(LOADLIBES) -o sorted-doc
+	$(CC) ${ALL_CFLAGS} ${srcdir}/sorted-doc.c ${EMACS_DEFS} \
+	   $(LOADLIBES) -o sorted-doc
 
 b2m${EXEEXT}: ${srcdir}/b2m.c $(config_h) $(GETOPTDEPS)
 	$(CC) ${ALL_CFLAGS} ${srcdir}/b2m.c  -DVERSION="\"${version}\"" \
-	   $(GETOPTOBJS) $(LOADLIBES) -o b2m
+	   ${EMACS_DEFS} $(GETOPTOBJS) $(LOADLIBES) -o b2m
 
 movemail${EXEEXT}: ${srcdir}/movemail.c pop.o $(stddep)
 	$(CC) ${ALL_CFLAGS} ${MOVE_FLAGS} ${srcdir}/movemail.c pop.o \
 	  $(LOADLIBES) $(NTLIB) $(LIBS_MOVE) -o movemail${EXEEXT}
 
-EMACS_DEFS = ${CPP_CFLAGS} -Demacs
 movemail.o: ${srcdir}/movemail.c $(config_h) $(GETOPT_H)
 	$(AM_V_CC)$(CC) -c ${EMACS_DEFS} ${MOVE_FLAGS} ${srcdir}/movemail.c
 
@@ -492,13 +493,16 @@ pop.o: ${srcdir}/pop.c ${srcdir}/pop.h ${srcdir}/$(lib)/min-max.h $(config_h)
 	$(AM_V_CC)$(CC) -c ${CPP_CFLAGS} ${MOVE_FLAGS} ${srcdir}/pop.c
 
 cvtmail${EXEEXT}: ${srcdir}/cvtmail.c
-	$(CC) ${ALL_CFLAGS} ${srcdir}/cvtmail.c $(LOADLIBES) -o cvtmail
+	$(CC) ${ALL_CFLAGS} ${srcdir}/cvtmail.c ${EMACS_DEFS} \
+	   $(LOADLIBES) -o cvtmail
 
 fakemail${EXEEXT}: ${srcdir}/fakemail.c $(config_h)
-	$(CC) ${ALL_CFLAGS} ${srcdir}/fakemail.c $(LOADLIBES) -o fakemail
+	$(CC) ${ALL_CFLAGS} ${srcdir}/fakemail.c ${EMACS_DEFS} \
+	   $(LOADLIBES) -o fakemail
 
 yow: ${srcdir}/yow.c ../src/epaths.h
-	$(AM_V_CCLD)$(CC) ${ALL_CFLAGS} ${srcdir}/yow.c $(LOADLIBES) -o yow
+	$(AM_V_CCLD)$(CC) ${ALL_CFLAGS} ${srcdir}/yow.c ${EMACS_DEFS} \
+	   $(LOADLIBES) -o yow
 
 emacsserver: ${srcdir}/emacsserver.c $(config_h)
 	$(CC) ${ALL_CFLAGS} ${srcdir}/emacsserver.c $(LOADLIBES) -o emacsserver

@@ -8392,6 +8392,8 @@ do_ewmh_fullscreen (struct frame *f)
           else
             set_wm_state (frame, 0, dpyinfo->Xatom_net_wm_state_maximized_horz,
                           dpyinfo->Xatom_net_wm_state_maximized_vert);
+        default:
+          break;
         }
 
       f->want_fullscreen = FULLSCREEN_NONE;
@@ -8437,6 +8439,8 @@ x_handle_net_wm_state (struct frame *f, const XPropertyEvent *event)
     case FULLSCREEN_MAXIMIZED:
       lval = Qmaximized;
       break;
+    default:
+      break;
     }
 
   store_frame_param (f, Qfullscreen, lval);
@@ -8478,6 +8482,8 @@ x_check_fullscreen (struct frame *f)
           break;
         case FULLSCREEN_HEIGHT:
           height = x_display_pixel_height (dpyinfo);
+        default:
+          break;
         }
 
       XResizeWindow (FRAME_X_DISPLAY (f), FRAME_OUTER_WINDOW (f),

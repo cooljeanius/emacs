@@ -1,4 +1,4 @@
-/* The lwlib interface to Athena widgets.
+/* lwlib-Xaw.c: The lwlib interface to Athena widgets.
 
 Copyright (C) 1993 Chuck Thompson <cthomp@cs.uiuc.edu>
 Copyright (C) 1994, 2001-2014 Free Software Foundation, Inc.
@@ -709,19 +709,24 @@ xaw_create_dialog (widget_instance *instance)
     icon_name = "dbox-question";
     shell_name = "Question";
     break;
+
+  default:
+    icon_name = "unknown";
+    shell_name = "Unknown";
+    break;
   }
 
-  total_buttons = name [1] - '0';
+  total_buttons = (name[1] - '0');
 
-  if (name [3] == 'T' || name [3] == 't')
+  if ((name[3] == 'T') || (name[3] == 't'))
     {
       text_input_slot = False;
       radio_box = True;
     }
-  else if (name [3])
-    right_buttons = name [4] - '0';
+  else if (name[3])
+    right_buttons = (name[4] - '0');
 
-  left_buttons = total_buttons - right_buttons;
+  left_buttons = (total_buttons - right_buttons);
 
   widget = make_dialog (name, parent, pop_up_p,
 			shell_name, icon_name, text_input_slot, radio_box,

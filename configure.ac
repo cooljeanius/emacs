@@ -2679,6 +2679,14 @@ AC_DEFUN([gl_FCNTL_O_FLAGS],[:])
 # Avoid gnulib's threadlib module, as we do threads our own way:
 AC_DEFUN([gl_THREADLIB],[:])dnl
 
+dnl# make sure this is required before it is expanded:
+m4_ifdef([gl_DOUBLE_SLASH_ROOT],[
+  AC_DEFUN([gl_REQUIRE_DOUBLE_SLASH_ROOT],[
+    AC_REQUIRE([gl_DOUBLE_SLASH_ROOT])dnl
+  ])dnl
+  gl_REQUIRE_DOUBLE_SLASH_ROOT
+])dnl
+
 # Initialize gnulib right after choosing the compiler.
 dnl# Amongst other things, this sets AR and ARFLAGS.
 gl_EARLY
@@ -3049,6 +3057,10 @@ else
        if test "x${ac_cv_c_const}" = "xno" || test "x${ac_cv_c_const}" != "xyes"; then
          test -n "${ac_cv_c_const}"
          nw="${nw} -Wwrite-strings"
+         ##FIXME: this used to be done unconditionally; adding the
+         ## condition seems to have introduced new warnings...
+       else
+         AC_MSG_WARN([did not expect 'const' to work with the ${with_x_toolkit} toolkit; this may result in some extra warnings...])
        fi
        ;;
     gtk*)
@@ -3998,6 +4010,11 @@ AC_CHECK_TYPES([ptrdiff_t])dnl
 AC_CHECK_TYPES([time_t])dnl
 
 dnl# Check for speed_t typedef.
+if test "x${ac_cv_header_termios_h}" = "x"; then
+  test -z "${ac_cv_header_termios_h}"
+  dnl# Need this first though:
+  AC_CHECK_HEADERS([termios.h])
+fi
 AC_CACHE_CHECK([for speed_t],[emacs_cv_speed_t],
   [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <termios.h>]],
                                       [[speed_t x = 1;]])],
@@ -4199,10 +4216,10 @@ AC_CHECK_HEADERS_ONCE([sys/sysinfo.h])dnl
 dnl# Try to keep this second batch in alphabetical order:
 AC_CHECK_HEADERS([OS.h arpa/inet.h dpmi.h err.h errno.h fcntl.h float.h \
                   io.h langinfo.h libintl.h limits.h locale.h \
-                  malloc.h mbstring.h paths.h nl_types.h sgtty.h \
-                  stddef.h sys/_mbstate_t.h sys/bsdtty.h sys/file.h \
-                  sys/ptyio.h sys/timeb.h sys/vfs.h \
-                  termcap.h termio.h termios.h timespec.h unixlib.h])
+                  malloc.h mbstring.h msvcrt/string.h paths.h nl_types.h \
+                  sgtty.h stddef.h sys/_mbstate_t.h sys/bsdtty.h \
+                  sys/file.h sys/ptyio.h sys/timeb.h sys/vfs.h \
+                  termcap.h termio.h timespec.h unixlib.h])
 dnl# (usually I would have checked <malloc/malloc.h> just after <malloc.h>,
 dnl# but we do that elsewhere in this one)
 if test "x${ac_cv_header_wctype_h}" = "x"; then
@@ -7329,7 +7346,6 @@ case "${mail_lock}" in
     AC_DEFINE([MAIL_USE_FLOCK],[1],
               [Define to 1 if mailer uses flock to interlock mail spool])
     ;;
-
   lockf)
     AC_DEFINE([MAIL_USE_LOCKF],[1],
               [Define to 1 if mailer uses lockf to interlock mail spool])
@@ -7385,16 +7401,22 @@ fpathconf select setlocale newlocale \
 utimes getrlimit setrlimit setpgid getwd shutdown getaddrinfo \
 mblen strsignal setitimer ualarm index rindex \
 sendto recvfrom getsockopt setsockopt getsockname getpeername \
-getifaddrs freeifaddrs gai_strerror mkstemp getline getdelim mremap sync \
+getifaddrs freeifaddrs gai_strerror mkstemp getline mremap sync \
 difftime memcpy mempcpy getpwent endpwent getgrent endgrent \
 touchlock \
 cfmakeraw cfsetspeed copysign __executable_start log2])dnl
 m4_ifdef([AC_CHECK_FUNCS_ONCE],[
-  AC_CHECK_FUNCS_ONCE([pthread_sigmask])dnl
+  AC_CHECK_FUNCS_ONCE([getdelim pthread_sigmask])dnl
 ],[
+  if test "x${ac_cv_func_getdelim}" = "x"; then
+    test -z "${ac_cv_func_getdelim}"
+    AC_CHECK_FUNCS([getdelim])dnl
+    ## (in case gnulib fails to do it)
+  fi
   if test "x${ac_cv_func_pthread_sigmask}" = "x"; then
     test -z "${ac_cv_func_pthread_signmask}"
-    AC_CHECK_FUNCS([pthread_sigmask])
+    AC_CHECK_FUNCS([pthread_sigmask])dnl
+    ## (in case gnulib fails to do it)
   fi
 ])dnl# end ifdef
   ## reset:
@@ -7414,11 +7436,11 @@ if test "x${libm_has_fmod}" = "x" && test "x${ac_cv_func_fmod}" = "x"; then
   AC_CHECK_FUNCS([fmod])
 fi
 dnl# these ones should be in alphabetical order:
-AC_CHECK_FUNCS([__fpending acl atexit atof atoi btowc bzero cuserid \
-                doprnt errc fabs fabsf fchdir floor ftime ftruncate \
-                getcwd geteuid getpass getpwuid inet_ntoa \
-                isascii iswprint mbrlen  memmove memset mkdir munmap \
-                nl_langinfo posix_spawnp pow putenv re_comp regcomp rmdir \
+AC_CHECK_FUNCS([__fpending _stricmp acl atexit atof atoi btowc bzero \
+                cuserid doprnt errc fabs fabsf fchdir floor ftime \
+                ftruncate geteuid getpass getpwuid inet_ntoa isascii \
+                iswprint mbrlen  memmove memset mkdir munmap nl_langinfo \
+                posix_spawnp pow putenv re_comp regcomp rmdir \
                 setenv socket sqrt strcasecmp strcasestr strchr strcmp \
                 strcspn strdup strerror stricmp strncmp strnicmp strnstr \
                 strpbrk strrchr strtok strtol strtoul system xstricmp \
@@ -7430,8 +7452,8 @@ if test "x" = "Y0"; then
     test -z "${ac_cv_lib_error_at_line}"
     AC_FUNC_ERROR_AT_LINE
   fi
-  AC_CHECK_FUNCS([alarm dup2 gethostbyname getpagesize gettimeofday \
-                  localtime_r strtoumax tzset])
+  AC_CHECK_FUNCS([alarm dup2 getcwd gethostbyname getpagesize \
+                  gettimeofday localtime_r strtoumax tzset])
 fi
 
 dnl# No need to check for aligned_alloc and posix_memalign if using
@@ -7470,7 +7492,10 @@ fi
 dnl# "_ONCE" causes test to be done at wrong location, so leave that off:
 AC_CHECK_HEADERS([sys/un.h])dnl
 
-AC_FUNC_FSEEKO
+AC_DEFUN([AC_REQUIRE_FUNC_FSEEKO],[
+  AC_REQUIRE([AC_FUNC_FSEEKO])dnl
+])dnl
+AC_REQUIRE_FUNC_FSEEKO
 
 # Configure getopt.
 m4_include([m4/getopt.m4])dnl
@@ -7800,8 +7825,9 @@ if test "x${with_kerberos}" != "xno"; then
     AC_CHECK_HEADERS([krb.h],[],
 		     [AC_CHECK_HEADERS([kerberosIV/krb.h],[],
 				       [AC_CHECK_HEADERS([kerberos/krb.h])
-                                       ])
-                     ])
+                                       ])dnl
+                     ])dnl
+    ## ...why did Kerberos change between roman and arabic numerals?
   fi
   AC_CHECK_HEADERS([com_err.h])
   LIBS="${OLD_LIBS}"
@@ -7884,7 +7910,7 @@ if test "x${HAVE_TIMEVAL}" = "xyes"; then
 #  include <sys/time.h>
 # else
 #  ifdef HAVE_TIME_H
-#  include <time.h>
+#   include <time.h>
 #  else
 #   if defined(__GNUC__) && !defined(__STRICT_ANSI__)
 #    warning "conftest for gettimeofday args wants a time-related header."
@@ -9104,8 +9130,8 @@ SAVE_CFLAGS="${CFLAGS}"
 SAVE_LIBS="${LIBS}"
 CFLAGS="${pre_PKG_CONFIG_CFLAGS}"
 LIBS="${LIB_PTHREAD} ${pre_PKG_CONFIG_LIBS}"
-gl_ASSERT_NO_GNULIB_POSIXCHECK
-gl_ASSERT_NO_GNULIB_TESTS
+gl_ASSERT_NO_GNULIB_POSIXCHECK([])dnl
+gl_ASSERT_NO_GNULIB_TESTS([])dnl
 gl_INIT
 CFLAGS="${SAVE_CFLAGS}"
 LIBS="${SAVE_LIBS}"

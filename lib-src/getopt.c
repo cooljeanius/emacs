@@ -27,17 +27,17 @@
 # define _NO_PROTO
 #endif /* !_NO_PROTO */
 
-#ifdef HAVE_CONFIG_H
+#if defined(HAVE_CONFIG_H) || !defined(_LIBC)
 # include <config.h>
-#endif /* HAVE_CONFIG_H */
+#endif /* HAVE_CONFIG_H || !_LIBC */
 
 #include <stdio.h>
 
 /* This needs to come after some library #include
-   to get __GNU_LIBRARY__ defined.  */
+ * to get __GNU_LIBRARY__ defined: */
 #ifdef	__GNU_LIBRARY__
 /* Do NOT include stdlib.h for non-GNU C libraries because some of them
-   contain conflicting prototypes for getopt.  */
+ * contain conflicting prototypes for getopt: */
 # include <stdlib.h>
 # include <unistd.h>
 #endif	/* GNU C library.  */

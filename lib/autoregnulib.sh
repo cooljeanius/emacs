@@ -60,15 +60,15 @@ else
   module_list="\
       absolute-header alignof alloca alloca-opt allocator assert-h autobuild \
       binary-io byteswap \
-      c-ctype c-strcase careadlinkat clock-time close-stream closedir \
+      c-ctype c-strcase careadlinkat chdir clock-time close-stream closedir \
       configmake count-one-bits count-trailing-zeros \
       crypto/md5 crypto/sha1 crypto/sha256 crypto/sha512 \
       dirent dosname double-slash-root dtoastr dtotimespec dup2 \
       environ errno error execinfo euidaccess extensions extern-inline \
-      faccessat fcntl fcntl-h fdatasync fdopendir filemode float fpending \
-      fpieee fpucw fstat fstatat fsync func \
-      gendocs getdtablesize getgroups getloadavg getopt-gnu \
-      getpagesize gettext gettext-h gettime gettimeofday \
+      faccessat fcntl fcntl-h fdatasync fdopendir filemode float fopen \
+      fpending fpieee fpucw fstat fstatat fsync func \
+      gendocs getdtablesize getgroups getloadavg getlogin getopt-gnu \
+      getpagesize getpass getpass-gnu gettext gettext-h gettime gettimeofday \
       git-version-gen gitlog-to-changelog gnu-make group-member \
       havelib host-cpu-c-abi host-os \
       include_next inline intprops inttypes-incomplete \
@@ -79,12 +79,13 @@ else
       pathmax pipe2 posix_spawnp printf-safe progname pselect \
       pthread_sigmask putenv \
       qacl quote \
-      readdir readlink readlinkat root-uid \
-      sched sig2str signal-h sigpipe snippet/_Noreturn snippet/link-warning \
-      snippet/unused-parameter snippet/warn-on-use socklen spawn ssize_t \
-      stat stat-time stdalign stdarg stdbool stddef stdint stdio stdlib \
-      stdnoreturn streq strerror strftime string strstr strtoimax strtoumax \
-      symlink sys_ioctl sys_resource sys_select sys_stat sys_time sys_types \
+      readdir readlink readlinkat rename root-uid \
+      sched sig2str signal-h sigpipe sleep snippet/_Noreturn \
+      snippet/link-warning snippet/unused-parameter snippet/warn-on-use \
+      socklen spawn ssize_t stat stat-time stdalign stdarg stdbool stddef \
+      stdint stdio stdlib stdnoreturn streq strerror strftime string strstr \
+      strtoimax strtoumax symlink sys_ioctl sys_resource sys_select sys_stat \
+      sys_time sys_types \
       tempname time time_r timer-time timespec timespec-add timespec-sub \
       u64 unistd unsetenv update-copyright utimens \
       vararrays va-args vc-list-files verify vla vma-iter \

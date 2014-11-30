@@ -277,7 +277,7 @@
 		A540EB071A0C28680008DA29 /* lwlib-int.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "lwlib-int.h"; sourceTree = "<group>"; };
 		A540EB081A0C28680008DA29 /* lwlib-utils.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "lwlib-utils.c"; sourceTree = "<group>"; };
 		A540EB091A0C28680008DA29 /* lwlib-utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "lwlib-utils.h"; sourceTree = "<group>"; };
-		A540EB0A1A0C28680008DA29 /* lwlib-Xaw.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "lwlib-Xaw.c"; sourceTree = "<group>"; };
+		A540EB0A1A0C28680008DA29 /* lwlib-Xaw.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = "lwlib-Xaw.c"; sourceTree = "<group>"; tabWidth = 8; };
 		A540EB0B1A0C28680008DA29 /* lwlib-Xaw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "lwlib-Xaw.h"; sourceTree = "<group>"; };
 		A540EB0C1A0C28680008DA29 /* lwlib-Xlw.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "lwlib-Xlw.c"; sourceTree = "<group>"; };
 		A540EB0D1A0C28680008DA29 /* lwlib-Xlw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "lwlib-Xlw.h"; sourceTree = "<group>"; };
