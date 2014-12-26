@@ -110,15 +110,15 @@ ns_get_family (Lisp_Object font_spec)
 
 
 /* Return 0 if attr not set, else value (which might also be 0).
-   On Leopard 0 gets returned even on descriptors where the attribute
-   was never set, so there's no way to distinguish between unspecified
-   and set to not have.  Callers should assume 0 means unspecified. */
+ * On Leopard 0 gets returned even on descriptors where the attribute
+ * was never set, so there is no way to distinguish between unspecified
+ * and set to not have.  Callers should assume that 0 means unspecified: */
 static float
 ns_attribute_fvalue (NSFontDescriptor *fdesc, NSString *trait)
 {
     NSDictionary *tdict = [fdesc objectForKey: NSFontTraitsAttribute];
     NSNumber *val = [tdict objectForKey: trait];
-    return val == nil ? 0.0F : [val floatValue];
+    return ((val == nil) ? 0.0F : [val floatValue]);
 }
 
 
@@ -649,13 +649,13 @@ static int nsfont_draw (struct glyph_string *s, int from, int to, int x, int y,
 
 struct font_driver nsfont_driver =
   {
-    { 0 },			/* Qns */
+    LISP_INITIALLY_ZERO,	/* Qns */
     1,				/* case sensitive */
     nsfont_get_cache,
     nsfont_list,
     nsfont_match,
     nsfont_list_family,
-    NULL,			/*free_entity */
+    NULL,			/* free_entity */
     nsfont_open,
     nsfont_close,
     NULL,			/* prepare_face */
@@ -775,13 +775,17 @@ nsfont_open (struct frame *f, Lisp_Object font_entity, int pixel_size)
   if (family == nil)
     family = [[NSFont userFixedPitchFontOfSize: 0] familyName];
   /* Should be > 0.23 as some font descriptors (e.g. Terminus) set to that
-     when setting family in ns_spec_to_descriptor(). */
-  if (ns_attribute_fvalue (fontDesc, NSFontWeightTrait) > 0.50F)
+   * when setting family in ns_spec_to_descriptor(). */
+  if (ns_attribute_fvalue(fontDesc, NSFontWeightTrait) > 0.50F) {
       traits |= NSBoldFontMask;
-  if (fabs (ns_attribute_fvalue (fontDesc, NSFontSlantTrait) > 0.05F))
+  }
+  /* Were the parentheses wrong here, or was fabs() really being misused?
+   * I am going to assume the former for now: */
+  if (fabs(ns_attribute_fvalue(fontDesc, NSFontSlantTrait)) > 0.05F) {
       traits |= NSItalicFontMask;
+  }
 
-  /* see http://cocoadev.com/forums/comments.php?DiscussionID=74 */
+  /* see <http://cocoadev.com/forums/comments.php?DiscussionID=74> */
   fixLeopardBug = ((traits & NSBoldFontMask) ? 10 : 5);
   nsfont = [fontMgr fontWithFamily: family
                             traits: traits weight: fixLeopardBug
@@ -794,36 +798,36 @@ nsfont_open (struct frame *f, Lisp_Object font_entity, int pixel_size)
                                 weight: fixLeopardBug size: pixel_size];
     }
 #ifdef NS_IMPL_COCOA
-  /* LastResort not really a family */
+  /* LastResort not really a family: */
   if ((nsfont == nil) && [@"LastResort" isEqualToString: family])
       nsfont = [NSFont fontWithName: @"LastResort" size: pixel_size];
 #endif /* NS_IMPL_COCOA */
 
   if (nsfont == nil)
     {
-      message_with_string ("*** Warning: font in family '%s' not found",
-                          build_string ([family UTF8String]), 1);
+      message_with_string("*** Warning: font in family '%s' not found",
+                          build_string([family UTF8String]), 1);
       nsfont = [NSFont userFixedPitchFontOfSize: pixel_size];
     }
 
   if (NSFONT_TRACE)
-    NSLog (@"%@\n", nsfont);
+    NSLog(@"%@\n", nsfont);
 
-  font_object = font_make_object (VECSIZE (struct nsfont_info),
+  font_object = font_make_object (VECSIZE(struct nsfont_info),
                                   font_entity, pixel_size);
   ASET (font_object, FONT_TYPE_INDEX, nsfont_driver.type);
-  font_info = (struct nsfont_info *) XFONT_OBJECT (font_object);
-  font = (struct font *) font_info;
+  font_info = (struct nsfont_info *)XFONT_OBJECT(font_object);
+  font = (struct font *)font_info;
   if (!font)
     {
-      unblock_input ();
+      unblock_input();
       return Qnil; /* FIXME: other terms do, but return Qnil causes segfault */
     }
 
-  font_info->glyphs = xzalloc (0x100 * sizeof *font_info->glyphs);
-  font_info->metrics = xzalloc (0x100 * sizeof *font_info->metrics);
+  font_info->glyphs = xzalloc(0x100 * sizeof *font_info->glyphs);
+  font_info->metrics = xzalloc(0x100 * sizeof *font_info->metrics);
 
-  /* for metrics */
+  /* for metrics: */
 #ifdef NS_IMPL_COCOA
   sfont = [nsfont screenFontWithRenderingMode:
                     NSFontAntialiasedIntegerAdvancementsRenderingMode];
@@ -834,7 +838,7 @@ nsfont_open (struct frame *f, Lisp_Object font_entity, int pixel_size)
   if (sfont == nil)
     sfont = nsfont;
 
-  /* non-metric backend font struct fields */
+  /* non-metric backend font struct fields: */
   font = (struct font *) font_info;
   font->pixel_size = [sfont pointSize];
   font->driver = &nsfont_driver;

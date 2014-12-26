@@ -2520,19 +2520,18 @@ DEFUN ("cons", Fcons, Scons, 2, 2, 0,
 }
 
 #ifdef GC_CHECK_CONS_LIST
-/* Get an error now if there's any junk in the cons free list.  */
-void
-check_cons_list (void)
+/* Get an error now if there is any junk in the cons free list: */
+INLINE void
+check_cons_list(void)
 {
   struct Lisp_Cons *tail = cons_free_list;
 
   while (tail)
     tail = tail->u.chain;
 }
-#endif
+#endif /* GC_CHECK_CONS_LIST */
 
-/* Make a list of 1, 2, 3, 4 or 5 specified objects.  */
-
+/* Make a list of 1, 2, 3, 4 or 5 specified objects: */
 Lisp_Object
 list1 (Lisp_Object arg1)
 {
@@ -5488,13 +5487,13 @@ See Info node `(elisp)Garbage Collection'.  */)
   if (pure_bytes_used_before_overflow)
     return Qnil;
 
-  /* Record this function, so it appears on the profiler's backtraces.  */
+  /* Record this function, so it appears on the profiler's backtraces: */
   record_in_backtrace (Qautomatic_gc, &Qnil, 0);
 
-  check_cons_list ();
+  check_cons_list();
 
-  /* Don't keep undo information around forever.
-     Do this early on, so it is no problem if the user quits.  */
+  /* Do NOT keep undo information around forever.
+   * Do this early on, so it is no problem if the user quits: */
   FOR_EACH_BUFFER (nextb)
     compact_buffer (nextb);
 
@@ -5504,14 +5503,14 @@ See Info node `(elisp)Garbage Collection'.  */)
   start = current_timespec ();
 
   /* In case user calls debug_print during GC,
-     don't let that cause a recursive GC.  */
+   * do NOT let that cause a recursive GC.  */
   consing_since_gc = 0;
 
-  /* Save what's currently displayed in the echo area.  */
+  /* Save what is currently displayed in the echo area: */
   message_p = push_message ();
   record_unwind_protect_void (pop_message_unwind);
 
-  /* Save a copy of the contents of the stack, for debugging.  */
+  /* Save a copy of the contents of the stack, for debugging: */
 #if MAX_SAVE_STACK > 0
   if (NILP (Vpurify_flag))
     {
@@ -5548,8 +5547,7 @@ See Info node `(elisp)Garbage Collection'.  */)
 
   gc_in_progress = 1;
 
-  /* Mark all the special slots that serve as the roots of accessibility.  */
-
+  /* Mark all the special slots that serve as the roots of accessibility: */
   mark_buffer (&buffer_defaults);
   mark_buffer (&buffer_local_symbols);
 
@@ -5561,8 +5559,8 @@ See Info node `(elisp)Garbage Collection'.  */)
   mark_kboards ();
 
 #ifdef USE_GTK
-  xg_mark_data ();
-#endif
+  xg_mark_data();
+#endif /* USE_GTK */
 
 #if (GC_MARK_STACK == GC_MAKE_GCPROS_NOOPS \
      || GC_MARK_STACK == GC_MARK_STACK_CHECK_GCPROS)
@@ -5609,21 +5607,20 @@ See Info node `(elisp)Garbage Collection'.  */)
 
   gc_sweep ();
 
-  /* Clear the mark bits that we set in certain root slots.  */
-
+  /* Clear the mark bits that we set in certain root slots: */
   unmark_byte_stack ();
   VECTOR_UNMARK (&buffer_defaults);
   VECTOR_UNMARK (&buffer_local_symbols);
 
-#if GC_MARK_STACK == GC_USE_GCPROS_CHECK_ZOMBIES && 0
-  dump_zombies ();
-#endif
+#if (GC_MARK_STACK == GC_USE_GCPROS_CHECK_ZOMBIES) && 0
+  dump_zombies();
+#endif /* 0 */
 
-  check_cons_list ();
+  check_cons_list();
 
   gc_in_progress = 0;
 
-  unblock_input ();
+  unblock_input();
 
   consing_since_gc = 0;
   if (gc_cons_threshold < GC_DEFAULT_THRESHOLD / 10)
@@ -6063,19 +6060,19 @@ mark_object (Lisp_Object arg)
 
 	  case PVEC_FRAME:
 	    {
-	      struct frame *f = (struct frame *) ptr;
+	      struct frame *f = (struct frame *)ptr;
 
-	      mark_vectorlike (ptr);
-	      mark_face_cache (f->face_cache);
+	      mark_vectorlike(ptr);
+	      mark_face_cache(f->face_cache);
 #ifdef HAVE_WINDOW_SYSTEM
-	      if (FRAME_WINDOW_P (f) && FRAME_X_OUTPUT (f))
+	      if (FRAME_WINDOW_P(f) && FRAME_X_OUTPUT(f))
 		{
-		  struct font *font = FRAME_FONT (f);
+		  struct font *font = (struct font *)FRAME_FONT(f);
 
-		  if (font && !VECTOR_MARKED_P (font))
-		    mark_vectorlike ((struct Lisp_Vector *) font);
+		  if (font && !VECTOR_MARKED_P(font))
+		    mark_vectorlike((struct Lisp_Vector *)font);
 		}
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
 	    }
 	    break;
 

@@ -137,6 +137,11 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_FUNC_CHECKS],[
   m4_ifdef([gl_FUNC_RAWMEMCHR],[
     AC_REQUIRE([gl_FUNC_RAWMEMCHR])dnl
   ])dnl
+  dnl# we override this, but still need to subst something from the
+  dnl# overriding version:
+  m4_ifdef([gl_FUNC_SELECT],[
+    AC_REQUIRE([gl_FUNC_SELECT])dnl
+  ])dnl
   m4_ifdef([gl_FUNC_STRCHRNUL],[
     AC_REQUIRE([gl_FUNC_STRCHRNUL])dnl
   ])dnl

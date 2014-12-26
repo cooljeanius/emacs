@@ -26,6 +26,48 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #ifndef EMACS_FONTSET_H
 #define EMACS_FONTSET_H
 
+#ifndef EMACS_FRAME_H
+/* Forward declaration for prototypes: */
+struct frame;
+#endif /* !EMACS_FRAME_H */
+
+/* The following six are window system dependent functions.
+ * Initialization routine of each window system should set appropriate
+ * functions to these variables.  For instance, in case of X windows,
+ * x_term_init used to do this.  */
+
+/* Return a pointer to struct font_info of font FONT_IDX of frame F: */
+extern struct font_info *(*get_font_info_func)(struct frame *f,
+                                               int font_idx);
+
+/* Return a list of font names which matches PATTERN.  See the document of
+ * `x-list-fonts' for more detail.  */
+extern Lisp_Object (*list_fonts_func)(struct frame *f, Lisp_Object pattern,
+                                      int size, int maxnames);
+
+/* Load a font named NAME for frame F and return a pointer to the
+ * information of the loaded font.  If loading is failed, return -1: */
+extern struct font_info *(*load_font_func)(struct frame *f,
+                                           char *name, int);
+
+/* Return a pointer to struct font_info of a font named NAME for frame F.
+ * If no such font is loaded, return NULL: */
+extern struct font_info *(*query_font_func)(struct frame *f, char *name);
+
+/* Additional function for setting fontset or changing fontset
+ * contents of frame F.  This function may change the coordinate of
+ * the frame.  */
+extern void (*set_frame_fontset_func)(struct frame *f, Lisp_Object arg,
+                                      Lisp_Object oldval);
+
+/* To find a CCL program, fs_load_font calls this function.
+ * The argument is a pointer to the struct font_info.
+ * This function set the memer `encoder' of the structure: */
+extern void (*find_ccl_program_func)(struct font_info *);
+
+/* Check if any window system is used now: */
+extern void (*check_window_system_func)(void);
+
 extern void free_face_fontset (struct frame *, struct face *);
 extern int face_for_char (struct frame *, struct face *, int,
                           ptrdiff_t, Lisp_Object);
@@ -43,3 +85,5 @@ extern Lisp_Object fontset_ascii (int);
 extern int face_for_font (struct frame *, Lisp_Object, struct face *);
 
 #endif /* EMACS_FONTSET_H */
+
+/* EOF */

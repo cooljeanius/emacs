@@ -1,6 +1,6 @@
 /* nsmenu.m: NeXT/Open/GNUstep and MacOSX Cocoa menu and toolbar module.
-   Copyright (C) 2007-2014 Free Software Foundation, Inc.
-
+ * Copyright (C) 2007-2014 Free Software Foundation, Inc.  */
+/*
 This file is part of GNU Emacs.
 
 GNU Emacs is free software: you can redistribute it and/or modify

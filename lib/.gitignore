@@ -23,6 +23,7 @@ sched.h
 signal.h
 spawn.h
 stdalign.h
+stddef.h
 stdint.h
 stdbool.h
 stdio.h

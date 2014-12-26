@@ -106,11 +106,11 @@ static ptrdiff_t image_cache_refcount;
 #endif /* GLYPH_DEBUG */
 
 
-/* ==========================================================================
+/* ========================================================================
 
     Internal utility functions
 
-   ========================================================================== */
+   ===================================================================== */
 
 /* Let the user specify a Nextstep display with a Lisp object.
    OBJECT may be nil, a frame or a terminal object.
@@ -403,7 +403,7 @@ x_set_icon_name (struct frame *f, Lisp_Object arg, Lisp_Object oldval)
   NSView *view = FRAME_NS_VIEW (f);
   NSTRACE (x_set_icon_name);
 
-  /* see if it's changed */
+  /* see if it has changed */
   if (STRINGP (arg))
     {
       if (STRINGP (oldval) && EQ (Fstring_equal (oldval, arg), Qt))
@@ -431,7 +431,7 @@ x_set_icon_name (struct frame *f, Lisp_Object arg, Lisp_Object oldval)
           }
     }
 
-  /* Don't change the name if it's already NAME.  */
+  /* Do NOT change the name if it is already NAME: */
   if ([[view window] miniwindowTitle]
       && ([[[view window] miniwindowTitle]
              isEqualToString: [NSString stringWithUTF8String:
@@ -541,7 +541,6 @@ x_implicitly_set_name (struct frame *f, Lisp_Object arg, Lisp_Object oldval)
 
 /* Change the title of frame F to NAME.
    If NAME is nil, use the frame name as the title.  */
-
 static void
 x_set_title (struct frame *f, Lisp_Object name, Lisp_Object old_name)
 {
@@ -678,14 +677,18 @@ x_set_menu_bar_lines (struct frame *f, Lisp_Object value, Lisp_Object oldval)
   if (nlines)
     {
       FRAME_EXTERNAL_MENU_BAR (f) = 1;
-      /* does for all frames, whereas we just want for one frame
-	 [NSMenu setMenuBarVisible: YES]; */
+      /* does for all frames, whereas we just want for one frame: */
+#ifdef DO_ALL_THE_FRAMES
+      [NSMenu setMenuBarVisible: YES];
+#endif /* DO_ALL_THE_FRAMES */
     }
   else
     {
       if (FRAME_EXTERNAL_MENU_BAR (f) == 1)
         free_frame_menubar (f);
-      /*      [NSMenu setMenuBarVisible: NO]; */
+#if 0
+      [NSMenu setMenuBarVisible: NO];
+#endif /* 0 */
       FRAME_EXTERNAL_MENU_BAR (f) = 0;
     }
 }
@@ -922,12 +925,12 @@ ns_appkit_version_int (void)
 
 static void
 x_icon (struct frame *f, Lisp_Object parms)
-/* --------------------------------------------------------------------------
+/* ------------------------------------------------------------------------
    Strangely-named function to set icon position parameters in frame.
    This is irrelevant under OS X, but might be needed under GNUstep,
    depending on the window manager used.  Note, this is not a standard
    frame parameter-setter; it is called directly from x-create-frame.
-   -------------------------------------------------------------------------- */
+   --------------------------------------------------------------------- */
 {
   Lisp_Object icon_x, icon_y;
   struct ns_display_info *dpyinfo = check_ns_display_info (Qnil);
@@ -1059,11 +1062,11 @@ get_geometry_from_preferences (struct ns_display_info *dpyinfo,
   return parms;
 }
 
-/* ==========================================================================
+/* ========================================================================
 
     Lisp definitions
 
-   ========================================================================== */
+   ===================================================================== */
 
 DEFUN ("x-create-frame", Fx_create_frame, Sx_create_frame,
        1, 1, 0,

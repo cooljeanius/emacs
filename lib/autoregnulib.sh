@@ -2,7 +2,7 @@
 
 # The gnulib commit ID to use for the update.
 # If you know your version is newer, feel free to replace:
-GNULIB_COMMIT_SHA1="e9dd4906da30642172e6bb1ff2703e8e2c912fcb"
+GNULIB_COMMIT_SHA1="16518d9ed8f25d3e53931dd1aa343072933e4604"
 
 if [ $# -ne 1 ]; then
    echo "Warning: Path to gnulib repository missing."
@@ -83,9 +83,9 @@ else
       sched sig2str signal-h sigpipe sleep snippet/_Noreturn \
       snippet/link-warning snippet/unused-parameter snippet/warn-on-use \
       socklen spawn ssize_t stat stat-time stdalign stdarg stdbool stddef \
-      stdint stdio stdlib stdnoreturn streq strerror strftime string strstr \
-      strtoimax strtoumax symlink sys_ioctl sys_resource sys_select sys_stat \
-      sys_time sys_types \
+      stdint stdio stdlib stdnoreturn stpcpy streq strerror strftime string \
+      strstr strtoimax strtoumax symlink sys_ioctl sys_resource sys_select \
+      sys_stat sys_time sys_types \
       tempname time time_r timer-time timespec timespec-add timespec-sub \
       u64 unistd unsetenv update-copyright utimens \
       vararrays va-args vc-list-files verify vla vma-iter \

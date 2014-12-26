@@ -247,25 +247,26 @@ static OSErr fsspec_to_posix_pathname P_ ((const FSSpec *, char *, int));
 #endif /* !MAC_OSX */
 
 /* When converting from Mac to Unix pathnames, /'s in folder names are
-   converted to :'s.  This function, used in copying folder names,
-   performs a strncat and converts all character a to b in the copy of
-   the string s2 appended to the end of s1.  */
-
+ * converted to :'s.  This function, used in copying folder names,
+ * performs a strncat and converts all character a to b in the copy of
+ * the string s2 appended to the end of s1.  */
 void
-string_cat_and_replace (char *s1, const char *s2, int n, char a, char b)
+string_cat_and_replace(char *s1, const char *s2, int n, char a, char b)
 {
-  int l1 = strlen (s1);
-  int l2 = strlen (s2);
-  char *p = s1 + l1;
+  int l1 = strlen(s1);
+  int l2 = strlen(s2);
+  char *p = (s1 + l1);
   int i;
 
-  strncat (s1, s2, n);
+  strncat(s1, s2, n);
   for (i = 0; i < l2; i++)
     {
       if (*p == a)
         *p = b;
       p++;
     }
+
+  return;
 }
 
 
@@ -281,14 +282,14 @@ int mac_to_posix_pathname(const char *mfn, char *ufn, int ufnbuflen)
 {
   const char *p, *q, *pe;
 
-  strcpy (ufn, "");
+  strcpy(ufn, "");
 
   if (*mfn == '\0')
     return 1;
 
-  p = strchr (mfn, ':');
-  if (p != 0 && p != mfn)  /* full pathname */
-    strcat (ufn, "/");
+  p = strchr(mfn, ':');
+  if ((p != 0) && (p != mfn))  /* full pathname */
+    strcat(ufn, "/");
 
   p = mfn;
   if (*p == ':')
@@ -297,29 +298,29 @@ int mac_to_posix_pathname(const char *mfn, char *ufn, int ufnbuflen)
   pe = mfn + strlen (mfn);
   while (p < pe)
     {
-      q = strchr (p, ':');
+      q = strchr(p, ':');
       if (q)
 	{
 	  if (q == p)
 	    {  /* two consecutive ':' */
-	      if (strlen (ufn) + 3 >= ufnbuflen)
+	      if ((strlen(ufn) + 3) >= ufnbuflen)
 		return 0;
-	      strcat (ufn, "../");
+	      strcat(ufn, "../");
 	    }
 	  else
 	    {
-	      if (strlen (ufn) + (q - p) + 1 >= ufnbuflen)
+	      if ((strlen(ufn) + (q - p) + 1) >= ufnbuflen)
 		return 0;
-	      string_cat_and_replace (ufn, p, q - p, '/', ':');
-	      strcat (ufn, "/");
+	      string_cat_and_replace(ufn, p, (q - p), '/', ':');
+	      strcat(ufn, "/");
 	    }
-	  p = q + 1;
+	  p = (q + 1);
 	}
       else
 	{
-	  if (strlen (ufn) + (pe - p) >= ufnbuflen)
+	  if ((strlen(ufn) + (pe - p)) >= ufnbuflen)
 	    return 0;
-	  string_cat_and_replace (ufn, p, pe - p, '/', ':');
+	  string_cat_and_replace(ufn, p, (pe - p), '/', ':');
 	    /* no separator for last one */
 	  p = pe;
 	}
@@ -333,12 +334,12 @@ extern char *get_temp_dir_name(void);
 
 
 /* Convert a Posix pathname to Mac form.  Approximately reverse of the
-   above in algorithm.  */
+ * above in algorithm.  */
 int
-posix_to_mac_pathname (const char *ufn, char *mfn, int mfnbuflen)
+posix_to_mac_pathname(const char *ufn, char *mfn, int mfnbuflen)
 {
   const char *p, *q, *pe;
-  char expanded_pathname[MAXPATHLEN+1];
+  char expanded_pathname[MAXPATHLEN + 1];
 
   strcpy (mfn, "");
 
@@ -370,9 +371,9 @@ posix_to_mac_pathname (const char *ufn, char *mfn, int mfnbuflen)
       p = expanded_pathname;
         /* now p points to the pathname with emacs dir prefix */
     }
-  else if (strncmp (p, "/tmp/", 5) == 0)
+  else if (strncmp(p, "/tmp/", 5) == 0)
     {
-      char *t = get_temp_dir_name ();
+      char *t = get_temp_dir_name();
       p += 5;
       if (strlen (t) + strlen (p) > MAXPATHLEN)
 	return 0;
@@ -431,23 +432,25 @@ static struct {
   AEKeyword keyword;
   const char *name;
   Lisp_Object symbol;
-} ae_attr_table [] =
-  {{keyTransactionIDAttr,	"transaction-id"},
-   {keyReturnIDAttr,		"return-id"},
-   {keyEventClassAttr,		"event-class"},
-   {keyEventIDAttr,		"event-id"},
-   {keyAddressAttr,		"address"},
-   {keyOptionalKeywordAttr,	"optional-keyword"},
-   {keyTimeoutAttr,		"timeout"},
-   {keyInteractLevelAttr,	"interact-level"},
-   {keyEventSourceAttr,		"event-source"},
-   /* {keyMissedKeywordAttr,	"missed-keyword"}, */
-   {keyOriginalAddressAttr,	"original-address"},
-   {keyReplyRequestedAttr,	"reply-requested"},
-   {KEY_EMACS_SUSPENSION_ID_ATTR, "emacs-suspension-id"}
-  };
+} ae_attr_table [] = {
+  { keyTransactionIDAttr, "transaction-id" },
+  { keyReturnIDAttr, "return-id" },
+  { keyEventClassAttr, "event-class" },
+  { keyEventIDAttr, "event-id" },
+  { keyAddressAttr, "address" },
+  { keyOptionalKeywordAttr, "optional-keyword" },
+  { keyTimeoutAttr, "timeout" },
+  { keyInteractLevelAttr, "interact-level" },
+  { keyEventSourceAttr, "event-source" },
+#if 0
+  { keyMissedKeywordAttr, "missed-keyword" },
+#endif /* 0 */
+  { keyOriginalAddressAttr, "original-address" },
+  { keyReplyRequestedAttr, "reply-requested" },
+  { KEY_EMACS_SUSPENSION_ID_ATTR, "emacs-suspension-id" }
+};
 
-static Lisp_Object mac_aelist_to_lisp (const AEDescList *desc_list)
+static Lisp_Object mac_aelist_to_lisp(const AEDescList *desc_list)
 {
   OSErr err;
   long count;
@@ -458,7 +461,7 @@ static Lisp_Object mac_aelist_to_lisp (const AEDescList *desc_list)
   AEDesc desc;
   int attribute_p = 0;
 
-  err = AECountItems (desc_list, &count);
+  err = AECountItems(desc_list, &count);
   if (err != noErr)
     return Qnil;
   result = Qnil;
@@ -697,23 +700,18 @@ mac_ae_put_lisp(AEDescList *desc, UInt32 keyword_or_index, Lisp_Object obj)
 }
 
 static pascal OSErr
-mac_coerce_file_name_ptr (type_code, data_ptr, data_size,
-			  to_type, handler_refcon, result)
-     DescType type_code;
-     const void *data_ptr;
-     Size data_size;
-     DescType to_type;
-     long handler_refcon;
-     AEDesc *result;
+mac_coerce_file_name_ptr(DescType type_code, const void *data_ptr,
+                         Size data_size, DescType to_type,
+                         long handler_refcon, AEDesc *result)
 {
-  OSErr err;
+  OSErr err = noErr;
 
   if (type_code == typeNull)
     err = errAECoercionFail;
   else if (type_code == to_type || to_type == typeWildCard)
     err = AECreateDesc (TYPE_FILE_NAME, data_ptr, data_size, result);
   else if (type_code == TYPE_FILE_NAME)
-    /* Coercion from undecoded file name.  */
+    /* Coercion from undecoded file name: */
     {
 #ifdef MAC_OSX
       CFStringRef str;
@@ -744,18 +742,19 @@ mac_coerce_file_name_ptr (type_code, data_ptr, data_size,
 
       if (err != noErr)
 	{
-	  /* Just to be paranoid ...  */
+	  /* Just to be paranoid...  */
 	  FSRef fref;
 	  char *buf;
 
-	  buf = xmalloc (data_size + 1);
-	  memcpy (buf, data_ptr, data_size);
+	  buf = xmalloc(data_size + 1);
+	  memcpy(buf, data_ptr, data_size);
 	  buf[data_size] = '\0';
 	  err = FSPathMakeRef((const UInt8 *)buf, &fref, NULL);
 	  xfree (buf);
-	  if (err == noErr)
-	    err = AECoercePtr (typeFSRef, &fref, sizeof (FSRef),
-			       to_type, result);
+	  if (err == noErr) {
+	    err = AECoercePtr(typeFSRef, &fref, sizeof(FSRef), to_type,
+                              result);
+          }
 	}
 #else
       FSSpec fs;
@@ -767,7 +766,7 @@ mac_coerce_file_name_ptr (type_code, data_ptr, data_size,
       err = posix_pathname_to_fsspec (buf, &fs);
       xfree (buf);
       if (err == noErr)
-	err = AECoercePtr (typeFSS, &fs, sizeof (FSSpec), to_type, result);
+	err = AECoercePtr(typeFSS, &fs, sizeof(FSSpec), to_type, result);
 #endif /* MAC_OSX */
     }
   else if (to_type == TYPE_FILE_NAME)
@@ -888,11 +887,8 @@ mac_coerce_file_name_ptr (type_code, data_ptr, data_size,
 }
 
 static pascal OSErr
-mac_coerce_file_name_desc (from_desc, to_type, handler_refcon, result)
-     const AEDesc *from_desc;
-     DescType to_type;
-     long handler_refcon;
-     AEDesc *result;
+mac_coerce_file_name_desc(const AEDesc *from_desc, DescType to_type,
+                          long handler_refcon, AEDesc *result)
 {
   OSErr err = noErr;
   DescType from_type = from_desc->descriptorType;
@@ -961,7 +957,7 @@ init_coercion_handler(void)
 
 #if TARGET_API_MAC_CARBON
 static OSErr
-create_apple_event (AEEventClass class, AEEventID id, AppleEvent *result)
+create_apple_event(AEEventClass class, AEEventID id, AppleEvent *result)
 {
   OSErr err;
   static const ProcessSerialNumber psn = {0, kCurrentProcess};
@@ -983,12 +979,10 @@ create_apple_event (AEEventClass class, AEEventID id, AppleEvent *result)
 }
 
 OSStatus
-create_apple_event_from_event_ref (event, num_params, names, types, result)
-     EventRef event;
-     UInt32 num_params;
-     const EventParamName *names;
-     const EventParamType *types;
-     AppleEvent *result;
+create_apple_event_from_event_ref(EventRef event, UInt32 num_params,
+                                  const EventParamName *names,
+                                  const EventParamType *types,
+                                  AppleEvent *result)
 {
   OSStatus err;
   UInt32 i, size;
@@ -996,7 +990,7 @@ create_apple_event_from_event_ref (event, num_params, names, types, result)
   CFDataRef data;
   char *buf = NULL;
 
-  err = create_apple_event (0, 0, result); /* Dummy class and ID.  */
+  err = create_apple_event(0, 0, result); /* Dummy class and ID.  */
   if (err != noErr)
     return err;
 
@@ -1006,7 +1000,7 @@ create_apple_event_from_event_ref (event, num_params, names, types, result)
 #ifdef MAC_OSX
       case typeCFStringRef:
 	err = GetEventParameter (event, names[i], typeCFStringRef, NULL,
-				 sizeof (CFStringRef), NULL, &string);
+				 sizeof(CFStringRef), NULL, &string);
 	if (err != noErr)
 	  break;
 	data = CFStringCreateExternalRepresentation (NULL, string,
@@ -1039,11 +1033,9 @@ create_apple_event_from_event_ref (event, num_params, names, types, result)
 }
 
 OSErr
-create_apple_event_from_drag_ref (drag, num_types, types, result)
-     DragRef drag;
-     UInt32 num_types;
-     const FlavorType *types;
-     AppleEvent *result;
+create_apple_event_from_drag_ref(DragRef drag, UInt32 num_types,
+                                 const FlavorType *types,
+                                 AppleEvent *result)
 {
   OSErr err;
   UInt16 num_items;
@@ -1051,10 +1043,10 @@ create_apple_event_from_drag_ref (drag, num_types, types, result)
   long index;
   char *buf = NULL;
 
-  err = CountDragItems (drag, &num_items);
+  err = CountDragItems(drag, &num_items);
   if (err != noErr)
     return err;
-  err = AECreateList (NULL, 0, false, &items);
+  err = AECreateList(NULL, 0, false, &items);
   if (err != noErr)
     return err;
 
@@ -1064,7 +1056,7 @@ create_apple_event_from_drag_ref (drag, num_types, types, result)
       DescType desc_type = typeNull;
       Size size;
 
-      err = GetDragItemReferenceNumber (drag, index, &item);
+      err = GetDragItemReferenceNumber(drag, index, &item);
       if (err == noErr)
 	{
 	  int i;
@@ -1164,14 +1156,13 @@ CFStringRef cfstring_create_with_string(Lisp_Object s)
 }
 
 
-/* From CFData to a lisp string.  Always returns a unibyte string.  */
-
+/* From CFData to a lisp string.  Always returns a unibyte string: */
 Lisp_Object cfdata_to_lisp(CFDataRef data)
 {
-  CFIndex len = CFDataGetLength (data);
-  Lisp_Object result = make_uninit_string (len);
+  CFIndex len = CFDataGetLength(data);
+  Lisp_Object result = make_uninit_string(len);
 
-  CFDataGetBytes (data, CFRangeMake (0, len), SDATA (result));
+  CFDataGetBytes(data, CFRangeMake(0, len), SDATA(result));
 
   return result;
 }
@@ -1323,11 +1314,9 @@ cfdictionary_puthash(const void *key, const void *value, void *context)
    always generate alists.  If HASH_BOUND >= 0, generate an alist if
    the number of keys in the dictionary is smaller than HASH_BOUND,
    and a hash table otherwise.  */
-
 Lisp_Object
-cfproperty_list_to_lisp (plist, with_tag, hash_bound)
-     CFPropertyListRef plist;
-     int with_tag, hash_bound;
+cfproperty_list_to_lisp(CFPropertyListRef plist,
+                        int with_tag, int hash_bound)
 {
   CFTypeID type_id = CFGetTypeID (plist);
   Lisp_Object tag = Qnil, result = Qnil;
@@ -1406,7 +1395,7 @@ cfproperty_list_to_lisp (plist, with_tag, hash_bound)
 
   return result;
 }
-#endif
+#endif /* TARGET_API_MAC_CARBON */
 
 
 /***********************************************************************
@@ -1690,37 +1679,35 @@ static XrmDatabase xrm_create_database(void)
   return database;
 }
 
-static void
-xrm_q_put_resource (database, quarks, value)
-     XrmDatabase database;
-     Lisp_Object quarks, value;
+static void xrm_q_put_resource(XrmDatabase database, Lisp_Object quarks,
+                               Lisp_Object value)
 {
-  struct Lisp_Hash_Table *h = XHASH_TABLE (database);
+  struct Lisp_Hash_Table *h = XHASH_TABLE(database);
   unsigned hash_code;
   int max_nid, i, j;
   Lisp_Object node_id, key;
 
-  max_nid = XINT (Fgethash (HASHKEY_MAX_NID, database, Qnil));
+  max_nid = XINT(Fgethash(HASHKEY_MAX_NID, database, Qnil));
 
-  XSETINT (node_id, 0);
-  for (j = 0; CONSP (quarks); quarks = XCDR (quarks))
+  XSETINT(node_id, 0);
+  for (j = 0; CONSP(quarks); quarks = XCDR(quarks))
     {
       j++;
-      key = Fcons (node_id, XCAR (quarks));
+      key = Fcons(node_id, XCAR(quarks));
       i = hash_lookup(h, key, (EMACS_UINT *)&hash_code);
       if (i < 0)
 	{
 	  max_nid++;
-	  XSETINT (node_id, max_nid);
-	  hash_put (h, key, node_id, hash_code);
+	  XSETINT(node_id, max_nid);
+	  hash_put(h, key, node_id, hash_code);
 	}
       else
-	node_id = HASH_VALUE (h, i);
+	node_id = HASH_VALUE(h, i);
     }
-  Fputhash (node_id, value, database);
+  Fputhash(node_id, value, database);
 
-  Fputhash (HASHKEY_MAX_NID, make_number (max_nid), database);
-  Fputhash (HASHKEY_QUERY_CACHE, Qnil, database);
+  Fputhash(HASHKEY_MAX_NID, make_number(max_nid), database);
+  Fputhash(HASHKEY_QUERY_CACHE, Qnil, database);
 }
 
 /* Merge multiple resource entries specified by DATA into a resource
@@ -1741,9 +1728,8 @@ void xrm_merge_string_database(XrmDatabase database, const char *data)
 }
 
 static Lisp_Object
-xrm_q_get_resource_1(database, node_id, quark_name, quark_class)
-     XrmDatabase database;
-     Lisp_Object node_id, quark_name, quark_class;
+xrm_q_get_resource_1(XrmDatabase database, Lisp_Object node_id,
+                     Lisp_Object quark_name, Lisp_Object quark_class)
 {
   struct Lisp_Hash_Table *h = XHASH_TABLE (database);
   Lisp_Object key, labels[3], value;
@@ -1771,29 +1757,30 @@ xrm_q_get_resource_1(database, node_id, quark_name, quark_class)
 	}
     }
 
-  /* Then, try loose bindings */
-  XSETCDR (key, LOOSE_BINDING);
-  i = hash_lookup (h, key, NULL);
+  /* Then, try loose bindings: */
+  XSETCDR(key, LOOSE_BINDING);
+  i = hash_lookup(h, key, NULL);
   if (i >= 0)
     {
-      value = xrm_q_get_resource_1 (database, HASH_VALUE (h, i),
-				    quark_name, quark_class);
-      if (!NILP (value))
+      value = xrm_q_get_resource_1(database, HASH_VALUE(h, i),
+                                   quark_name, quark_class);
+      if (!NILP(value)) {
 	return value;
-      else
-	return xrm_q_get_resource_1 (database, node_id,
-				     XCDR (quark_name), XCDR (quark_class));
+      } else {
+	return xrm_q_get_resource_1(database, node_id,
+                                    XCDR(quark_name), XCDR(quark_class));
+      }
     }
   else
     return Qnil;
 }
 
-static Lisp_Object xrm_q_get_resource(database, quark_name, quark_class)
-     XrmDatabase database;
-     Lisp_Object quark_name, quark_class;
+static Lisp_Object
+xrm_q_get_resource(XrmDatabase database, Lisp_Object quark_name,
+                   Lisp_Object quark_class)
 {
-  return xrm_q_get_resource_1 (database, make_number (0),
-			       quark_name, quark_class);
+  return xrm_q_get_resource_1(database, make_number(0), quark_name,
+                              quark_class);
 }
 
 /* Retrieve a resource value for the specified NAME and CLASS from the
@@ -1884,7 +1871,6 @@ static Lisp_Object xrm_cfproperty_list_to_value(CFPropertyListRef plist)
    application APPLICATION.  APPLICATION is either a string that
    specifies an application ID, or NULL that represents the current
    application.  */
-
 XrmDatabase xrm_get_preference_database(const char *application)
 {
 #if TARGET_API_MAC_CARBON
@@ -1923,8 +1909,8 @@ XrmDatabase xrm_get_preference_database(const char *application)
   key_set = CFSetCreateMutable (NULL, 0, &kCFCopyStringSetCallBacks);
   if (key_set == NULL)
     goto out;
-  for (iu = 0; iu < sizeof (user_doms) / sizeof (*user_doms) ; iu++)
-    for (ih = 0; ih < sizeof (host_doms) / sizeof (*host_doms); ih++)
+  for (iu = 0; iu < (sizeof(user_doms) / sizeof(*user_doms)); iu++)
+    for (ih = 0; ih < (sizeof(host_doms) / sizeof(*host_doms)); ih++)
       {
 	key_array = CFPreferencesCopyKeyList (app_id, user_doms[iu],
 					      host_doms[ih]);
@@ -1967,13 +1953,12 @@ XrmDatabase xrm_get_preference_database(const char *application)
 
   return database;
 #else
-  return xrm_create_database ();
-#endif
+  return xrm_create_database();
+#endif /* TARGET_API_MAC_CARBON */
 }
 
 
 #ifndef MAC_OSX
-
 /* The following functions with "sys_" prefix are stubs to Unix
    functions that have already been implemented by CW or MPW.  The
    calls to them in Emacs source course are #define'd to call the sys_
@@ -2137,7 +2122,7 @@ int fstat(int fildes, struct stat *buf)
   buf->st_mode = S_IFREG;  /* added by T.I. for the copy-file */
   return 0;  /* success */
 }
-#endif  /* __MRC__ */
+#endif /* __MRC__ */
 
 
 int mkdir(const char *dirname, int mode)
@@ -2168,10 +2153,12 @@ int mkdir(const char *dirname, int mode)
 int sys_rmdir(const char *dirname)
 {
   HFileParam hfpb;
-  char mac_pathname[MAXPATHLEN+1];
+  char mac_pathname[MAXPATHLEN + 1];
 
-  if (posix_to_mac_pathname (dirname, mac_pathname, MAXPATHLEN+1) == 0)
-    return -1;
+  if (posix_to_mac_pathname(dirname, mac_pathname, (MAXPATHLEN + 1)) == 0)
+    {
+      return -1;
+    }
 
   c2pstr (mac_pathname);
   hfpb.ioNamePtr = mac_pathname;
@@ -2194,21 +2181,22 @@ int execvp(const char *path, ...)
 
 int utime(const char *path, const struct utimbuf *times)
 {
-  char true_pathname[MAXPATHLEN+1], fully_resolved_name[MAXPATHLEN+1];
+  char true_pathname[MAXPATHLEN + 1], fully_resolved_name[MAXPATHLEN + 1];
   int len;
-  char mac_pathname[MAXPATHLEN+1];
+  char mac_pathname[MAXPATHLEN + 1];
   CInfoPBRec cipb;
 
-  if (find_true_pathname (path, true_pathname, MAXPATHLEN+1) == -1)
+  if (find_true_pathname(path, true_pathname, (MAXPATHLEN + 1)) == -1) {
     return -1;
+  }
 
-  len = readlink (true_pathname, fully_resolved_name, MAXPATHLEN);
+  len = readlink(true_pathname, fully_resolved_name, MAXPATHLEN);
   if (len > -1)
     fully_resolved_name[len] = '\0';
   else
     strcpy (fully_resolved_name, true_pathname);
 
-  if (!posix_to_mac_pathname (fully_resolved_name, mac_pathname, MAXPATHLEN+1))
+  if (!posix_to_mac_pathname(fully_resolved_name, mac_pathname, (MAXPATHLEN + 1)))
     return -1;
 
   c2pstr (mac_pathname);
@@ -2218,7 +2206,7 @@ int utime(const char *path, const struct utimbuf *times)
   cipb.hFileInfo.ioFDirIndex = 0;
     /* set to 0 to get information about specific dir or file */
 
-  errno = PBGetCatInfo (&cipb, false);
+  errno = PBGetCatInfo(&cipb, false);
   if (errno != noErr)
     return -1;
 
@@ -2255,12 +2243,12 @@ int utime(const char *path, const struct utimbuf *times)
 /* Like stat, but test for access mode in hfpb.ioFlAttrib */
 int access(const char *path, int mode)
 {
-  char true_pathname[MAXPATHLEN+1], fully_resolved_name[MAXPATHLEN+1];
+  char true_pathname[MAXPATHLEN + 1], fully_resolved_name[MAXPATHLEN + 1];
   int len;
-  char mac_pathname[MAXPATHLEN+1];
+  char mac_pathname[MAXPATHLEN + 1];
   CInfoPBRec cipb;
 
-  if (find_true_pathname (path, true_pathname, MAXPATHLEN+1) == -1)
+  if (find_true_pathname (path, true_pathname, MAXPATHLEN + 1) == -1)
     return -1;
 
   len = readlink (true_pathname, fully_resolved_name, MAXPATHLEN);
@@ -2398,10 +2386,10 @@ int sys_read(int fildes, char *buf, int count)
     return -1;
   else
 #if __MSL__ >= 0x6000
-    return _read (fildes, buf, count);
+    return _read(fildes, buf, count);
 #else
-    return read (fildes, buf, count);
-#endif
+    return read(fildes, buf, count);
+#endif /* __MSL__ >= 0x6000 */
 }
 
 
@@ -2415,7 +2403,7 @@ int sys_write(int fildes, const char *buf, int count)
     return _write (fildes, buf, count);
 #else
     return write (fildes, buf, count);
-#endif
+#endif /* __MSL__ >= 0x6000 */
 }
 
 
@@ -2499,15 +2487,13 @@ FILE *sys_fopen(const char *name, const char *mode)
 extern Boolean mac_wait_next_event P_ ((EventRecord *, UInt32, Boolean));
 
 int
-select (nfds, rfds, wfds, efds, timeout)
-     int nfds;
-     SELECT_TYPE *rfds, *wfds, *efds;
-     EMACS_TIME *timeout;
+select(int nfds, SELECT_TYPE *rfds, SELECT_TYPE *wfds, SELECT_TYPE *efds,
+       EMACS_TIME *timeout)
 {
   OSStatus err = noErr;
 
-  /* Can only handle wait for keyboard input.  */
-  if (nfds > 1 || wfds || efds)
+  /* Can only handle wait for keyboard input: */
+  if ((nfds > 1) || wfds || efds)
     return -1;
 
   /* Try detect_input_pending before ReceiveNextEvent in the same
@@ -3272,7 +3258,6 @@ You lose!!!
    newd if it already exists.  Then, attempt to dup oldd.  If not
    successful, call dup2 recursively until we are, then close the
    unsuccessful ones.  */
-
 int dup2(int oldd, int newd)
 {
   int fd, ret;
@@ -3365,7 +3350,6 @@ int getpid(void)
    files written by its subprocesses.  So here we write the files to a
    directory "Emacs" in the Preferences Folder.  This directory is
    created if it does not exist.  */
-
 char *get_temp_dir_name(void)
 {
   static char *temp_dir_name = NULL;
@@ -3386,7 +3370,7 @@ char *get_temp_dir_name(void)
 	return NULL;
 
       if (!path_from_vol_dir_name((char *)full_path, 255, vol_ref_num,
-                                  dir_id, "\p"))
+                                  dir_id, (ConstStr255Param)"\p"))
         return NULL;
 
       if ((strlen((const char *)full_path) + 6) <= MAXPATHLEN)
@@ -3648,33 +3632,37 @@ void mystrcpy(char *to, char *from)
 
 
 /* Start a Mac subprocess.  Arguments for it is passed in argv (null
-   terminated).  The process should run with the default directory
-   "workdir", read input from "infn", and write output and error to
-   "outfn" and "errfn", resp.  The Process Manager call
-   LaunchApplication is used to start the subprocess.  We use high
-   level events as the mechanism to pass arguments to the subprocess
-   and to make Emacs wait for the subprocess to terminate and pass
-   back a result code.  The bulk of the code here packs the arguments
-   into one message to be passed together with the high level event.
-   Emacs also sometimes starts a subprocess using a shell to perform
-   wildcard filename expansion.  Since we don't really have a shell on
-   the Mac, this case is detected and the starting of the shell is
-   by-passed.  We really need to add code here to do filename
-   expansion to support such functionality.
-
-   We cannot use this strategy in Carbon because the High Level Event
-   APIs are not available.  */
+ * terminated).  The process should run with the default directory
+ * "workdir", read input from "infn", and write output and error to
+ * "outfn" and "errfn", resp.  The Process Manager call
+ * LaunchApplication is used to start the subprocess.  We use high
+ * level events as the mechanism to pass arguments to the subprocess
+ * and to make Emacs wait for the subprocess to terminate and pass
+ * back a result code.  The bulk of the code here packs the arguments
+ * into one message to be passed together with the high level event.
+ * Emacs also sometimes starts a subprocess using a shell to perform
+ * wildcard filename expansion.  Since we don't really have a shell on
+ * the Mac, this case is detected and the starting of the shell is
+ * by-passed.  We really need to add code here to do filename
+ * expansion to support such functionality.
+ *
+ * We cannot use this strategy in Carbon because the High Level Event
+ * APIs are not available.  */
 int
-run_mac_command (argv, workdir, infn, outfn, errfn)
+run_mac_command(argv, workdir, infn, outfn, errfn)
      unsigned char **argv;
      const char *workdir;
      const char *infn, *outfn, *errfn;
 {
 #if TARGET_API_MAC_CARBON
+# if defined(__APPLE__) && defined(__APPLE_CC__) && (__APPLE_CC__ > 1)
+#  pragma unused (argv, workdir, infn, outfn, errfn)
+# endif /* __APPLE__ && (__APPLE_CC__ > 1) */
   return -1;
 #else /* not TARGET_API_MAC_CARBON */
-  char macappname[MAXPATHLEN+1], macworkdir[MAXPATHLEN+1];
-  char macinfn[MAXPATHLEN+1], macoutfn[MAXPATHLEN+1], macerrfn[MAXPATHLEN+1];
+  char macappname[MAXPATHLEN + 1], macworkdir[MAXPATHLEN + 1];
+  char macinfn[MAXPATHLEN + 1], macoutfn[MAXPATHLEN + 1];
+  char macerrfn[MAXPATHLEN + 1];
   int paramlen, argc, newargc, j, retries;
   char **newargv, *param, *p;
   OSErr iErr;
@@ -3909,21 +3897,21 @@ run_mac_command (argv, workdir, infn, outfn, errfn)
 
 DIR *opendir(const char *dirname)
 {
-  char true_pathname[MAXPATHLEN+1], fully_resolved_name[MAXPATHLEN+1];
-  char mac_pathname[MAXPATHLEN+1], vol_name[MAXPATHLEN+1];
+  char true_pathname[MAXPATHLEN + 1], fully_resolved_name[MAXPATHLEN + 1];
+  char mac_pathname[MAXPATHLEN + 1], vol_name[MAXPATHLEN + 1];
   DIR *dirp;
   CInfoPBRec cipb;
   HVolumeParam vpb;
   int len, vol_name_len;
 
-  if (find_true_pathname (dirname, true_pathname, MAXPATHLEN+1) == -1)
+  if (find_true_pathname(dirname, true_pathname, MAXPATHLEN+1) == -1)
     return 0;
 
-  len = readlink (true_pathname, fully_resolved_name, MAXPATHLEN);
+  len = readlink(true_pathname, fully_resolved_name, MAXPATHLEN);
   if (len > -1)
     fully_resolved_name[len] = '\0';
   else
-    strcpy (fully_resolved_name, true_pathname);
+    strcpy(fully_resolved_name, true_pathname);
 
   dirp = (DIR *) malloc (sizeof(DIR));
   if (!dirp)
@@ -3931,7 +3919,7 @@ DIR *opendir(const char *dirname)
 
   /* Handle special case when dirname is "/": sets up for readir to
      get all mount volumes.  */
-  if (strcmp (fully_resolved_name, "/") == 0)
+  if (strcmp(fully_resolved_name, "/") == 0)
     {
       dirp->getting_volumes = 1;  /* special all mounted volumes DIR struct */
       dirp->current_index = 1;  /* index for first volume */
@@ -4166,8 +4154,7 @@ mac_get_object_from_code(OSType defCode)
 
 DEFUN ("mac-get-file-creator", Fmac_get_file_creator, Smac_get_file_creator, 1, 1, 0,
        doc: /* Get the creator code of FILENAME as a four character string. */)
-     (filename)
-     Lisp_Object filename;
+     (Lisp_Object filename)
 {
   OSStatus status;
 #ifdef MAC_OSX
@@ -4220,8 +4207,7 @@ DEFUN ("mac-get-file-creator", Fmac_get_file_creator, Smac_get_file_creator, 1, 
 
 DEFUN ("mac-get-file-type", Fmac_get_file_type, Smac_get_file_type, 1, 1, 0,
        doc: /* Get the type code of FILENAME as a four character string. */)
-     (filename)
-     Lisp_Object filename;
+     (Lisp_Object filename)
 {
   OSStatus status;
 #ifdef MAC_OSX
@@ -4276,8 +4262,7 @@ DEFUN ("mac-set-file-creator", Fmac_set_file_creator, Smac_set_file_creator, 1, 
        doc: /* Set creator code of file FILENAME to CODE.
 If non-nil, CODE must be a 4-character string.  Otherwise, 'EMAx' is
 assumed. Return non-nil if successful.  */)
-     (filename, code)
-     Lisp_Object filename, code;
+     (Lisp_Object filename, Lisp_Object code)
 {
   OSStatus status;
 #ifdef MAC_OSX
@@ -4336,8 +4321,7 @@ assumed. Return non-nil if successful.  */)
 DEFUN ("mac-set-file-type", Fmac_set_file_type, Smac_set_file_type, 2, 2, 0,
        doc: /* Set file code of file FILENAME to CODE.
 CODE must be a 4-character string.  Return non-nil if successful.  */)
-     (filename, code)
-     Lisp_Object filename, code;
+     (Lisp_Object filename, Lisp_Object code)
 {
   OSStatus status;
 #ifdef MAC_OSX
@@ -4454,8 +4438,7 @@ If compilation and execution are successful, the resulting script
 value is returned as a string.  Otherwise the function aborts and
 displays the error message returned by the AppleScript scripting
 component.  */)
-    (script)
-    Lisp_Object script;
+    (Lisp_Object script)
 {
   Lisp_Object result;
   long status;
@@ -4477,8 +4460,7 @@ component.  */)
 DEFUN ("mac-file-name-to-posix", Fmac_file_name_to_posix,
        Smac_file_name_to_posix, 1, 1, 0,
        doc: /* Convert Macintosh FILENAME to Posix form.  */)
-     (filename)
-     Lisp_Object filename;
+     (Lisp_Object filename)
 {
   char posix_filename[MAXPATHLEN + 1];
 
@@ -4495,8 +4477,7 @@ DEFUN ("mac-file-name-to-posix", Fmac_file_name_to_posix,
 DEFUN ("posix-file-name-to-mac", Fposix_file_name_to_mac,
        Sposix_file_name_to_mac, 1, 1, 0,
        doc: /* Convert Posix FILENAME to Mac form.  */)
-     (filename)
-     Lisp_Object filename;
+     (Lisp_Object filename)
 {
   char mac_filename[MAXPATHLEN + 1];
 
@@ -4514,8 +4495,7 @@ DEFUN ("mac-coerce-ae-data", Fmac_coerce_ae_data, Smac_coerce_ae_data, 3, 3, 0,
        doc: /* Coerce Apple event data SRC-DATA of type SRC-TYPE to DST-TYPE.
 Each type should be a string of length 4 or the symbol
 `undecoded-file-name'.  */)
-  (src_type, src_data, dst_type)
-     Lisp_Object src_type, src_data, dst_type;
+  (Lisp_Object src_type, Lisp_Object src_data, Lisp_Object dst_type)
 {
   OSErr err;
   Lisp_Object result = Qnil;
@@ -4600,85 +4580,97 @@ CFDictionary.  If HASH-BOUND is a negative integer or nil, always
 generate alists.  If HASH-BOUND >= 0, generate an alist if the number
 of keys in the dictionary is smaller than HASH-BOUND, and a hash table
 otherwise.  */)
-     (key, application, format, hash_bound)
-     Lisp_Object key, application, format, hash_bound;
+     (Lisp_Object key, Lisp_Object application, Lisp_Object format,
+      Lisp_Object hash_bound)
 {
   CFStringRef app_id, key_str;
   CFPropertyListRef app_plist = NULL, plist;
   Lisp_Object result = Qnil, tmp;
   struct gcpro gcpro1, gcpro2;
 
-  if (STRINGP (key))
-    key = Fcons (key, Qnil);
+  if (STRINGP(key))
+    key = Fcons(key, Qnil);
   else
     {
-      CHECK_CONS (key);
-      for (tmp = key; CONSP (tmp); tmp = XCDR (tmp))
-	CHECK_STRING_CAR (tmp);
-      CHECK_LIST_END (tmp, key);
+      CHECK_CONS(key);
+      for (tmp = key; CONSP(tmp); tmp = XCDR(tmp)) {
+	CHECK_STRING_CAR(tmp);
+      }
+      CHECK_LIST_END(tmp, key);
     }
-  if (!NILP (application))
-    CHECK_STRING (application);
-  CHECK_SYMBOL (format);
-  if (!NILP (hash_bound))
-    CHECK_NUMBER (hash_bound);
+  if (!NILP(application)) {
+    CHECK_STRING(application);
+  }
+  CHECK_SYMBOL(format);
+  if (!NILP(hash_bound)) {
+    CHECK_NUMBER(hash_bound);
+  }
 
-  GCPRO2 (key, format);
+  GCPRO2(key, format);
 
   BLOCK_INPUT;
 
   app_id = kCFPreferencesCurrentApplication;
-  if (!NILP (application))
+  if (!NILP(application))
     {
-      app_id = cfstring_create_with_string (application);
-      if (app_id == NULL)
+      app_id = cfstring_create_with_string(application);
+      if (app_id == NULL) {
 	goto out;
+      }
     }
-  if (!CFPreferencesAppSynchronize (app_id))
+  if (!CFPreferencesAppSynchronize(app_id)) {
     goto out;
+  }
 
-  key_str = cfstring_create_with_string (XCAR (key));
-  if (key_str == NULL)
+  key_str = cfstring_create_with_string(XCAR(key));
+  if (key_str == NULL) {
     goto out;
-  app_plist = CFPreferencesCopyAppValue (key_str, app_id);
-  CFRelease (key_str);
-  if (app_plist == NULL)
+  }
+  app_plist = CFPreferencesCopyAppValue(key_str, app_id);
+  CFRelease(key_str);
+  if (app_plist == NULL) {
     goto out;
+  }
 
   plist = app_plist;
-  for (key = XCDR (key); CONSP (key); key = XCDR (key))
+  for (key = XCDR(key); CONSP(key); key = XCDR(key))
     {
-      if (CFGetTypeID (plist) != CFDictionaryGetTypeID ())
+      if (CFGetTypeID(plist) != CFDictionaryGetTypeID()) {
 	break;
-      key_str = cfstring_create_with_string (XCAR (key));
-      if (key_str == NULL)
+      }
+      key_str = cfstring_create_with_string(XCAR(key));
+      if (key_str == NULL) {
 	goto out;
-      plist = CFDictionaryGetValue (plist, key_str);
+      }
+      plist = CFDictionaryGetValue(plist, key_str);
       CFRelease (key_str);
-      if (plist == NULL)
+      if (plist == NULL) {
 	goto out;
+      }
     }
 
-  if (NILP (key))
+  if (NILP(key))
     {
-      if (EQ (format, Qxml))
+      if (EQ(format, Qxml))
 	{
-	  CFDataRef data = CFPropertyListCreateXMLData (NULL, plist);
-	  if (data == NULL)
+	  CFDataRef data = CFPropertyListCreateXMLData(NULL, plist);
+	  if (data == NULL) {
 	    goto out;
-	  result = cfdata_to_lisp (data);
-	  CFRelease (data);
+          }
+	  result = cfdata_to_lisp(data);
+	  CFRelease(data);
 	}
       else
 	result =
-	  cfproperty_list_to_lisp (plist, EQ (format, Qt),
-				   NILP (hash_bound) ? -1 : XINT (hash_bound));
+	  cfproperty_list_to_lisp(plist, EQ(format, Qt),
+                                  (NILP(hash_bound) ? -1 : XINT(hash_bound)));
     }
 
  out:
-  if (app_plist)
-    CFRelease (app_plist);
-  CFRelease (app_id);
+  if (app_plist) {
+    CFRelease(app_plist);
+  }
+  CFRelease(app_id);
 
   UNBLOCK_INPUT;
 
@@ -4698,31 +4690,34 @@ static CFStringEncoding get_cfstring_encoding_from_lisp(Lisp_Object obj)
   CFStringRef iana_name;
   CFStringEncoding encoding = kCFStringEncodingInvalidId;
 
-  if (NILP (obj))
+  if (NILP(obj))
     return kCFStringEncodingUnicode;
 
-  if (INTEGERP (obj))
-    return XINT (obj);
+  if (INTEGERP(obj))
+    return XINT(obj);
 
-  if (SYMBOLP (obj) && !NILP (Fcoding_system_p (obj)))
+  if (SYMBOLP(obj) && !NILP(Fcoding_system_p(obj)))
     {
-      Lisp_Object coding_spec, plist;
+      Lisp_Object coding_spec;
+      Lisp_Object plist;
 
-      coding_spec = Fget (obj, Qcoding_system);
-      plist = XVECTOR (coding_spec)->contents[3];
-      obj = Fplist_get (XVECTOR (coding_spec)->contents[3], Qmime_charset);
+      coding_spec = Fget(obj, Qcoding_system);
+      plist = XVECTOR(coding_spec)->contents[3];
+      obj = Fplist_get(XVECTOR(coding_spec)->contents[3], Qmime_charset);
+
+      IF_LINT((void)plist);
     }
 
-  if (SYMBOLP (obj))
-    obj = SYMBOL_NAME (obj);
+  if (SYMBOLP(obj))
+    obj = SYMBOL_NAME(obj);
 
-  if (STRINGP (obj))
+  if (STRINGP(obj))
     {
-      iana_name = cfstring_create_with_string (obj);
+      iana_name = cfstring_create_with_string(obj);
       if (iana_name)
 	{
-	  encoding = CFStringConvertIANACharSetNameToEncoding (iana_name);
-	  CFRelease (iana_name);
+	  encoding = CFStringConvertIANACharSetNameToEncoding(iana_name);
+	  CFRelease(iana_name);
 	}
     }
 
@@ -4735,39 +4730,39 @@ cfstring_create_normalized(CFStringRef str, Lisp_Object symbol)
 {
   int form = -1;
   TextEncodingVariant variant;
-  float initial_mag = 0.0;
+  float initial_mag = 0.0f;
   CFStringRef result = NULL;
 
-  if (EQ (symbol, QNFD))
+  if (EQ(symbol, QNFD))
     form = kCFStringNormalizationFormD;
-  else if (EQ (symbol, QNFKD))
+  else if (EQ(symbol, QNFKD))
     form = kCFStringNormalizationFormKD;
-  else if (EQ (symbol, QNFC))
+  else if (EQ(symbol, QNFC))
     form = kCFStringNormalizationFormC;
-  else if (EQ (symbol, QNFKC))
+  else if (EQ(symbol, QNFKC))
     form = kCFStringNormalizationFormKC;
-  else if (EQ (symbol, QHFS_plus_D))
+  else if (EQ(symbol, QHFS_plus_D))
     {
       variant = kUnicodeHFSPlusDecompVariant;
-      initial_mag = 1.5;
+      initial_mag = 1.5f;
     }
-  else if (EQ (symbol, QHFS_plus_C))
+  else if (EQ(symbol, QHFS_plus_C))
     {
       variant = kUnicodeHFSPlusCompVariant;
-      initial_mag = 1.0;
+      initial_mag = 1.0f;
     }
 
   if (form >= 0)
     {
-      CFMutableStringRef mut_str = CFStringCreateMutableCopy (NULL, 0, str);
+      CFMutableStringRef mut_str = CFStringCreateMutableCopy(NULL, 0, str);
 
       if (mut_str)
 	{
-	  CFStringNormalize (mut_str, form);
+	  CFStringNormalize(mut_str, form);
 	  result = mut_str;
 	}
     }
-  else if (initial_mag > 0.0)
+  else if (initial_mag > 0.0f)
     {
       UnicodeToTextInfo uni = NULL;
       UnicodeMapping map;
@@ -4776,60 +4771,60 @@ cfstring_create_normalized(CFStringRef str, Lisp_Object symbol)
       OSStatus err = noErr;
       ByteCount out_read, out_size, out_len;
 
-      map.unicodeEncoding = CreateTextEncoding (kTextEncodingUnicodeDefault,
-						kUnicodeNoSubset,
-						kTextEncodingDefaultFormat);
-      map.otherEncoding = CreateTextEncoding (kTextEncodingUnicodeDefault,
-					      variant,
-					      kTextEncodingDefaultFormat);
+      map.unicodeEncoding = CreateTextEncoding(kTextEncodingUnicodeDefault,
+                                               kUnicodeNoSubset,
+                                               kTextEncodingDefaultFormat);
+      map.otherEncoding = CreateTextEncoding(kTextEncodingUnicodeDefault,
+                                             variant,
+                                             kTextEncodingDefaultFormat);
       map.mappingVersion = kUnicodeUseLatestMapping;
 
-      length = CFStringGetLength (str);
-      out_size = (int)((float)length * initial_mag) * sizeof (UniChar);
+      length = CFStringGetLength(str);
+      out_size = (int)((float)length * initial_mag) * sizeof(UniChar);
       if (out_size < 32)
 	out_size = 32;
 
-      in_text = (UniChar *)CFStringGetCharactersPtr (str);
+      in_text = (UniChar *)CFStringGetCharactersPtr(str);
       if (in_text == NULL)
 	{
-	  buffer = xmalloc (sizeof (UniChar) * length);
-	  CFStringGetCharacters (str, CFRangeMake (0, length), buffer);
+	  buffer = xmalloc(sizeof(UniChar) * length);
+	  CFStringGetCharacters(str, CFRangeMake(0, length), buffer);
 	  in_text = buffer;
 	}
 
       if (in_text)
-	err = CreateUnicodeToTextInfo (&map, &uni);
+	err = CreateUnicodeToTextInfo(&map, &uni);
       while (err == noErr)
 	{
-	  out_buf = xmalloc (out_size);
-	  err = ConvertFromUnicodeToText (uni, length * sizeof (UniChar),
-					  in_text,
-					  kUnicodeDefaultDirectionMask,
-					  0, NULL, NULL, NULL,
-					  out_size, &out_read, &out_len,
-					  out_buf);
-	  if (err == noErr && out_read < length * sizeof (UniChar))
+	  out_buf = xmalloc(out_size);
+	  err = ConvertFromUnicodeToText(uni, (length * sizeof(UniChar)),
+                                         in_text,
+                                         kUnicodeDefaultDirectionMask,
+                                         0, NULL, NULL, NULL,
+                                         out_size, &out_read, &out_len,
+                                         out_buf);
+	  if ((err == noErr) && (out_read < (length * sizeof(UniChar))))
 	    {
-	      xfree (out_buf);
+	      xfree(out_buf);
 	      out_size += length;
 	    }
 	  else
 	    break;
 	}
       if (err == noErr)
-	result = CFStringCreateWithCharacters (NULL, out_buf,
-					       out_len / sizeof (UniChar));
+	result = CFStringCreateWithCharacters(NULL, out_buf,
+                                              (out_len / sizeof(UniChar)));
       if (uni)
-	DisposeUnicodeToTextInfo (&uni);
+	DisposeUnicodeToTextInfo(&uni);
       if (out_buf)
-	xfree (out_buf);
+	xfree(out_buf);
       if (buffer)
-	xfree (buffer);
+	xfree(buffer);
     }
   else
     {
       result = str;
-      CFRetain (result);
+      CFRetain(result);
     }
 
   return result;
@@ -4846,8 +4841,8 @@ On Mac OS X 10.2 and later, you can do Unicode Normalization by
 specifying the optional argument NORMALIZATION-FORM with a symbol NFD,
 NFKD, NFC, NFKC, HFS+D, or HFS+C.
 On successful conversion, return the result string, else return nil.  */)
-     (string, source, target, normalization_form)
-     Lisp_Object string, source, target, normalization_form;
+     (Lisp_Object string, Lisp_Object source, Lisp_Object target,
+      Lisp_Object normalization_form)
 {
   Lisp_Object result = Qnil;
   struct gcpro gcpro1, gcpro2, gcpro3, gcpro4;
@@ -4912,8 +4907,7 @@ DEFUN ("mac-process-hi-command", Fmac_process_hi_command, Smac_process_hi_comman
        doc: /* Send a HI command whose ID is COMMAND-ID to the command chain.
 COMMAND-ID must be a 4-character string.  Some common command IDs are
 defined in the Carbon Event Manager.  */)
-     (command_id)
-     Lisp_Object command_id;
+     (Lisp_Object command_id)
 {
   OSStatus err;
   HICommand command;
@@ -4978,7 +4972,6 @@ static Lisp_Object mac_get_system_locale(void)
 
 
 #ifdef MAC_OSX
-
 # ifndef EMACS_LISP_H
 extern int inhibit_window_system;
 extern int noninteractive;
@@ -5006,10 +4999,9 @@ extern int noninteractive;
       -> Periodically poll the window input channel while repeatedly
          executing `select' with a short timeout
          (SELECT_POLLING_PERIOD_USEC microseconds).  */
-
-#ifndef SELECT_USE_CFSOCKET
-# define SELECT_USE_CFSOCKET 1
-#endif /* !SELECT_USE_CFSOCKET */
+# ifndef SELECT_USE_CFSOCKET
+#  define SELECT_USE_CFSOCKET 1
+# endif /* !SELECT_USE_CFSOCKET */
 
 # ifndef SELECT_TYPE
 #  ifdef FD_SET
@@ -5019,15 +5011,15 @@ extern int noninteractive;
 #  endif /* FD_SET */
 # endif /* !SELECT_TYPE */
 
-#define SELECT_POLLING_PERIOD_USEC 100000
-#if SELECT_USE_CFSOCKET
-# define SELECT_TIMEOUT_THRESHOLD_RUNLOOP 0.2
-static void socket_callback(s, type, address, data, info)
-     CFSocketRef s;
-     CFSocketCallBackType type;
-     CFDataRef address;
-     const void *data;
-     void *info;
+extern int sys_select P_ ((int nfds, SELECT_TYPE *rfds, SELECT_TYPE *wfds,
+                           SELECT_TYPE *efds, EMACS_TIME *timeout));
+
+# define SELECT_POLLING_PERIOD_USEC 100000
+# if SELECT_USE_CFSOCKET
+#  define SELECT_TIMEOUT_THRESHOLD_RUNLOOP 0.2
+static void
+socket_callback(CFSocketRef s, CFSocketCallBackType type,
+                CFDataRef address, const void *data, void *info)
 {
   int fd = CFSocketGetNative (s);
   SELECT_TYPE *ofds = (SELECT_TYPE *)info;
@@ -5036,12 +5028,11 @@ static void socket_callback(s, type, address, data, info)
       || (type == kCFSocketConnectCallBack && FD_ISSET (fd, &ofds[1])))
     QuitEventLoop (GetCurrentEventLoop ());
 }
-#endif	/* SELECT_USE_CFSOCKET */
+# endif /* SELECT_USE_CFSOCKET */
 
-static int select_and_poll_event(nfds, rfds, wfds, efds, timeout)
-     int nfds;
-     SELECT_TYPE *rfds, *wfds, *efds;
-     EMACS_TIME *timeout;
+static int select_and_poll_event(int nfds, SELECT_TYPE *rfds,
+                                 SELECT_TYPE *wfds, SELECT_TYPE *efds,
+                                 EMACS_TIME *timeout)
 {
   OSStatus err = noErr;
   int r = 0;
@@ -5089,10 +5080,8 @@ static int select_and_poll_event(nfds, rfds, wfds, efds, timeout)
     return 0;
 }
 
-int sys_select(nfds, rfds, wfds, efds, timeout)
-     int nfds;
-     SELECT_TYPE *rfds, *wfds, *efds;
-     EMACS_TIME *timeout;
+int sys_select(int nfds, SELECT_TYPE *rfds, SELECT_TYPE *wfds,
+               SELECT_TYPE *efds, EMACS_TIME *timeout)
 {
   OSStatus err = noErr;
   int r;
@@ -5333,8 +5322,8 @@ void init_mac_osx_environment(void)
      should have three times that much room because EMACSLOADPATH can
      have the value "<path to lisp dir>:<path to leim dir>:<path to
      site-lisp dir>".  */
-  p = (char *) alloca (app_bundle_pathname_len + 50);
-  q = (char *) alloca (3 * app_bundle_pathname_len + 150);
+  p = (char *)alloca(app_bundle_pathname_len + 50);
+  q = (char *)alloca(3 * app_bundle_pathname_len + 150);
   if (!getenv ("EMACSLOADPATH"))
     {
       q[0] = '\0';
@@ -5417,39 +5406,39 @@ void init_mac_osx_environment(void)
 #if defined(TARGET_API_MAC_CARBON) && TARGET_API_MAC_CARBON
 void mac_wakeup_from_rne(void)
 {
-  if (wakeup_from_rne_enabled_p)
-    /* Post a harmless event so as to wake up from
-       ReceiveNextEvent.  */
-    mac_post_mouse_moved_event ();
+  if (wakeup_from_rne_enabled_p) {
+    /* Post a harmless event so as to wake up from ReceiveNextEvent: */
+    mac_post_mouse_moved_event();
+  }
 }
 #endif /* TARGET_API_MAC_CARBON */
 
 void syms_of_mac(void)
 {
-  Qundecoded_file_name = intern ("undecoded-file-name");
-  staticpro (&Qundecoded_file_name);
+  Qundecoded_file_name = intern("undecoded-file-name");
+  staticpro(&Qundecoded_file_name);
 
 #if defined(TARGET_API_MAC_CARBON) && TARGET_API_MAC_CARBON
-  Qstring  = intern ("string");		staticpro (&Qstring);
-  Qnumber  = intern ("number");		staticpro (&Qnumber);
-  Qboolean = intern ("boolean");	staticpro (&Qboolean);
-  Qdate	   = intern ("date");		staticpro (&Qdate);
-  Qdata    = intern ("data");		staticpro (&Qdata);
-  Qarray   = intern ("array");		staticpro (&Qarray);
-  Qdictionary = intern ("dictionary");	staticpro (&Qdictionary);
+  Qstring  = intern ("string");		staticpro(&Qstring);
+  Qnumber  = intern ("number");		staticpro(&Qnumber);
+  Qboolean = intern ("boolean");	staticpro(&Qboolean);
+  Qdate	   = intern ("date");		staticpro(&Qdate);
+  Qdata    = intern ("data");		staticpro(&Qdata);
+  Qarray   = intern ("array");		staticpro(&Qarray);
+  Qdictionary = intern ("dictionary");	staticpro(&Qdictionary);
 
-  Qxml = intern ("xml");
-  staticpro (&Qxml);
+  Qxml = intern("xml");
+  staticpro(&Qxml);
 
-  Qmime_charset = intern ("mime-charset");
-  staticpro (&Qmime_charset);
+  Qmime_charset = intern("mime-charset");
+  staticpro(&Qmime_charset);
 
-  QNFD  = intern ("NFD");		staticpro (&QNFD);
-  QNFKD = intern ("NFKD");		staticpro (&QNFKD);
-  QNFC  = intern ("NFC");		staticpro (&QNFC);
-  QNFKC = intern ("NFKC");		staticpro (&QNFKC);
-  QHFS_plus_D = intern ("HFS+D");	staticpro (&QHFS_plus_D);
-  QHFS_plus_C = intern ("HFS+C");	staticpro (&QHFS_plus_C);
+  QNFD  = intern("NFD");		staticpro(&QNFD);
+  QNFKD = intern("NFKD");		staticpro(&QNFKD);
+  QNFC  = intern("NFC");		staticpro(&QNFC);
+  QNFKC = intern("NFKC");		staticpro(&QNFKC);
+  QHFS_plus_D = intern("HFS+D");	staticpro(&QHFS_plus_D);
+  QHFS_plus_C = intern("HFS+C");	staticpro(&QHFS_plus_C);
 #endif /* TARGET_API_MAC_CARBON */
 
   {
@@ -5457,29 +5446,29 @@ void syms_of_mac(void)
 
     for (i = 0; i < sizeof(ae_attr_table) / sizeof(ae_attr_table[0]); i++)
       {
-	ae_attr_table[i].symbol = intern (ae_attr_table[i].name);
-	staticpro (&ae_attr_table[i].symbol);
+	ae_attr_table[i].symbol = intern(ae_attr_table[i].name);
+	staticpro(&ae_attr_table[i].symbol);
       }
   }
 
-  defsubr (&Smac_coerce_ae_data);
+  defsubr(&Smac_coerce_ae_data);
 #if defined(TARGET_API_MAC_CARBON) && TARGET_API_MAC_CARBON
-  defsubr (&Smac_get_preference);
-  defsubr (&Smac_code_convert_string);
-  defsubr (&Smac_process_hi_command);
+  defsubr(&Smac_get_preference);
+  defsubr(&Smac_code_convert_string);
+  defsubr(&Smac_process_hi_command);
 #endif /* TARGET_API_MAC_CARBON */
 
-  defsubr (&Smac_set_file_creator);
-  defsubr (&Smac_set_file_type);
-  defsubr (&Smac_get_file_creator);
-  defsubr (&Smac_get_file_type);
-  defsubr (&Sdo_applescript);
-  defsubr (&Smac_file_name_to_posix);
-  defsubr (&Sposix_file_name_to_mac);
+  defsubr(&Smac_set_file_creator);
+  defsubr(&Smac_set_file_type);
+  defsubr(&Smac_get_file_creator);
+  defsubr(&Smac_get_file_type);
+  defsubr(&Sdo_applescript);
+  defsubr(&Smac_file_name_to_posix);
+  defsubr(&Sposix_file_name_to_mac);
 
   DEFVAR_INT ("mac-system-script-code", mac_system_script_code,
     doc: /* The system script code.  */);
-  mac_system_script_code = (ScriptCode) GetScriptManagerVariable (smSysScript);
+  mac_system_script_code = (ScriptCode)GetScriptManagerVariable(smSysScript);
 
   DEFVAR_LISP ("mac-system-locale", Vmac_system_locale,
     doc: /* The system locale identifier string.
@@ -5487,6 +5476,7 @@ This is not a POSIX locale ID, but an ICU locale ID.  So encoding
 information is not included.  */);
 #if 1
   Vmac_system_locale = mac_get_system_locale();
+  IF_LINT((void)mac_get_system_locale_old_way());
 #else
   Vmac_system_locale = mac_get_system_locale_old_way();
 #endif /* 1 */

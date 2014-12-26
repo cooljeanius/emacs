@@ -1,7 +1,7 @@
 /* Image support for the NeXT/Open/GNUstep and MacOSX window system.
-   Copyright (C) 1989, 1992-1994, 2005-2006, 2008-2014 Free Software
-   Foundation, Inc.
-
+ * Copyright (C) 1989, 1992-1994, 2005-2006, 2008-2014 Free Software
+ * Foundation, Inc.  */
+/*
 This file is part of GNU Emacs.
 
 GNU Emacs is free software: you can redistribute it and/or modify
@@ -26,7 +26,7 @@ GNUstep port and post-20 update by Adrian Robert (arobert@cogsci.ucsd.edu)
 */
 
 /* This should be the first include, as it may set up #defines affecting
-   interpretation of even the system includes. */
+ * interpretation of even the system includes: */
 #include <config.h>
 
 #include "lisp.h"
@@ -36,28 +36,28 @@ GNUstep port and post-20 update by Adrian Robert (arobert@cogsci.ucsd.edu)
 
 extern Lisp_Object QCfile, QCdata;
 
-/* call tracing */
+/* call tracing: */
 #if 0
 int image_trace_num = 0;
 # define NSTRACE(x)        fprintf(stderr, "%s:%d: [%d] " #x "\n",        \
                                    __FILE__, __LINE__, ++image_trace_num)
 #else
 # define NSTRACE(x)
-#endif
+#endif /* 0 */
 
 
-/* ==========================================================================
+/* ========================================================================
 
    C interface.  This allows easy calling from C files.  We could just
    compile everything as Objective-C, but that might mean slower
    compilation and possible difficulties on some platforms..
 
-   ========================================================================== */
+   ===================================================================== */
 
 void *
 ns_image_from_XBM (unsigned char *bits, int width, int height)
 {
-  NSTRACE (ns_image_from_XBM);
+  NSTRACE(ns_image_from_XBM);
   return [[EmacsImage alloc] initFromXBM: bits
                                    width: width height: height
                                     flip: YES];
@@ -66,7 +66,7 @@ ns_image_from_XBM (unsigned char *bits, int width, int height)
 void *
 ns_image_for_XPM (int width, int height, int depth)
 {
-  NSTRACE (ns_image_for_XPM);
+  NSTRACE(ns_image_for_XPM);
   return [[EmacsImage alloc] initForXPMWithDepth: depth
                                            width: width height: height];
 }
@@ -74,7 +74,7 @@ ns_image_for_XPM (int width, int height, int depth)
 void *
 ns_image_from_file (Lisp_Object file)
 {
-  NSTRACE (ns_image_from_bitmap_file);
+  NSTRACE(ns_image_from_bitmap_file);
   return [EmacsImage allocInitFromFile: file];
 }
 
@@ -85,7 +85,7 @@ ns_load_image (struct frame *f, struct image *img,
   EmacsImage *eImg = nil;
   NSSize size;
 
-  NSTRACE (ns_load_image);
+  NSTRACE(ns_load_image);
 
   if (STRINGP (spec_file))
     {
@@ -152,11 +152,11 @@ ns_set_alpha (void *img, int x, int y, unsigned char a)
 }
 
 
-/* ==========================================================================
+/* ========================================================================
 
    Class supporting bitmaps and images of various sorts.
 
-   ========================================================================== */
+   ===================================================================== */
 
 @implementation EmacsImage
 
@@ -168,7 +168,7 @@ static EmacsImage *ImageList = nil;
   NSImageRep *imgRep;
   Lisp_Object found;
 
-  /* look for an existing image of the same name */
+  /* look for an existing image of the same name: */
   while (image != nil &&
          [[image name] compare: [NSString stringWithUTF8String: SSDATA (file)]]
              != NSOrderedSame)
@@ -355,7 +355,7 @@ static EmacsImage *ImageList = nil;
   {
     int i, len = s.width*s.height;
     int rr = r * 0xff, gg = g * 0xff, bb = b * 0xff;
-    for (i =0; i<len; i++)
+    for (i = 0; i < len; i++)
       if (planes[3][i] != 0)
         {
           planes[0][i] = rr;
@@ -384,7 +384,7 @@ static EmacsImage *ImageList = nil;
                                   bytesPerRow: width bitsPerPixel: 0];
 
   [bmRep getBitmapDataPlanes: pixmapData];
-  for (i =0; i<4; i++)
+  for (i = 0; i < 4; i++)
     memset (pixmapData[i], 0, width*height);
   [self addRepresentation: bmRep];
   return self;
@@ -427,7 +427,7 @@ static EmacsImage *ImageList = nil;
   if (bmRep == nil)
     return 0;
 
-  /* this method is faster but won't work for bitmaps */
+  /* this method is faster but will NOT work for bitmaps: */
   if (pixmapData[0] != NULL)
     {
       int loc = x + y * [self size].width;
@@ -490,7 +490,7 @@ static EmacsImage *ImageList = nil;
     }
 }
 
-/* returns a pattern color, which is cached here */
+/* returns a pattern color, which is cached here: */
 - (NSColor *)stippleMask
 {
   if (stippleMask == nil)
@@ -499,3 +499,5 @@ static EmacsImage *ImageList = nil;
 }
 
 @end
+
+/* EOF */

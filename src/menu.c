@@ -1397,17 +1397,16 @@ no quit occurs and `x-popup-menu' returns nil.  */)
   unbind_to (specpdl_count, Qnil);
 
 #ifdef HAVE_WINDOW_SYSTEM
-  /* Hide a previous tip, if any.  */
-  if (!FRAME_TERMCAP_P (f))
-    Fx_hide_tip ();
+  /* Hide a previous tip, if any: */
+  if (!FRAME_TERMCAP_P(f))
+    Fx_hide_tip();
 #endif /* HAVE_WINDOW_SYSTEM */
 
 #ifdef HAVE_NTGUI     /* FIXME: Is it really w32-specific?  --Stef  */
   /* If resources from a previous popup menu still exist, does nothing
-     until the `menu_free_timer' has freed them (see w32fns.c). This
-     can occur if you press ESC or click outside a menu without selecting
-     a menu item.
-  */
+   * until the `menu_free_timer' has freed them (see w32fns.c).
+   * This can occur if you press ESC or click outside a menu without
+   * selecting a menu item: */
   if (current_popup_menu && FRAME_W32_P (f))
     {
       discard_menu_items ();
@@ -1415,11 +1414,11 @@ no quit occurs and `x-popup-menu' returns nil.  */)
       UNGCPRO;
       return Qnil;
     }
-#endif
+#endif /* HAVE_NTGUI */
 
 #ifdef HAVE_NS			/* FIXME: ns-specific, why? --Stef  */
   record_unwind_protect_void (discard_menu_items);
-#endif
+#endif /* HAVE_NS */
 
   /* Display them in a menu.  */
 

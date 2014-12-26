@@ -2465,13 +2465,16 @@ or right side of FRAME.  If FRAME is omitted or nil, the selected frame
 is used.  */)
   (Lisp_Object frame)
 {
-#ifdef FRAME_TOOLBAR_WIDTH
-  struct frame *f = decode_any_frame (frame);
+  struct frame *f = decode_any_frame(frame);
 
-  if (FRAME_WINDOW_P (f))
-    return make_number (FRAME_TOOLBAR_WIDTH (f));
+  if (FRAME_WINDOW_P(f)) {
+#ifdef FRAME_TOOLBAR_WIDTH
+    return make_number(FRAME_TOOLBAR_WIDTH(f));
+#else
+    IF_LINT((void)f);
 #endif /* FRAME_TOOLBAR_WIDTH */
-  return make_number (0);
+  }
+  return make_number(0);
 }
 
 DEFUN ("frame-text-cols", Fframe_text_cols, Sframe_text_cols, 0, 1, 0,

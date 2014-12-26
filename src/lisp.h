@@ -91,6 +91,7 @@ INLINE_HEADER_BEGIN
 #endif /* WE_NEED_TO_TEMPORARILY_HUNT_A_BUG */
 
 #ifdef GC_CHECK_CONS_LIST
+/* from alloc.c: */
 # define CHECK_CONS_LIST() check_cons_list()
 #else
 # define CHECK_CONS_LIST() 0
@@ -194,7 +195,7 @@ typedef EMACS_INT printmax_t;
 typedef EMACS_UINT uprintmax_t;
 # define pMd pI"d"
 # define pMu pI"u"
-#endif
+#endif /* PRIdMAX */
 
 /* Use pD to format ptrdiff_t values, which suffice for indexes into
    buffers and strings.  Emacs never allocates objects larger than
@@ -349,10 +350,10 @@ enum Lisp_Bits
    So, default USE_LSB_TAG to true only on hosts where it might be useful.  */
 #   if VAL_MAX < UINTPTR_MAX
 #    define USE_LSB_TAG true
-#   endif
-#  endif
-# endif
-#endif
+#   endif /* VAL_MAX < UINTPTR_MAX */
+#  endif /* alignas */
+# endif /* malloc returns a multiple of 8 */
+#endif /* !USE_LSB_TAG */
 #ifdef USE_LSB_TAG
 # undef USE_LSB_TAG
 enum enum_USE_LSB_TAG { USE_LSB_TAG = true };
@@ -360,7 +361,7 @@ enum enum_USE_LSB_TAG { USE_LSB_TAG = true };
 #else
 enum enum_USE_LSB_TAG { USE_LSB_TAG = false };
 # define USE_LSB_TAG false
-#endif
+#endif /* USE_LSB_TAG */
 
 #ifndef alignas
 # define alignas(alignment) /* empty */
@@ -411,13 +412,13 @@ enum enum_USE_LSB_TAG { USE_LSB_TAG = false };
    Commentary for these macros can be found near their corresponding
    functions, below.  */
 
-#if CHECK_LISP_OBJECT_TYPE
+#if defined(CHECK_LISP_OBJECT_TYPE) && CHECK_LISP_OBJECT_TYPE
 # define lisp_h_XLI(o) ((o).i)
 # define lisp_h_XIL(i) ((Lisp_Object) { i })
 #else
 # define lisp_h_XLI(o) (o)
 # define lisp_h_XIL(i) (i)
-#endif
+#endif /* CHECK_LISP_OBJECT_TYPE */
 #define lisp_h_CHECK_LIST_CONS(x, y) CHECK_TYPE (CONSP (x), Qlistp, y)
 #define lisp_h_CHECK_NUMBER(x) CHECK_TYPE (INTEGERP (x), Qintegerp, x)
 #define lisp_h_CHECK_SYMBOL(x) CHECK_TYPE (SYMBOLP (x), Qsymbolp, x)
@@ -497,7 +498,7 @@ enum enum_USE_LSB_TAG { USE_LSB_TAG = false };
 #  define XTYPE(a) lisp_h_XTYPE (a)
 #  define XUNTAG(a, type) lisp_h_XUNTAG (a, type)
 # endif /* USE_LSB_TAG */
-#endif
+#endif /* check for inlining */
 
 /* Define NAME as a lisp.h inline function that returns TYPE and has
    arguments declared as ARGDECLS and passed as ARGS.  ARGDECLS and
@@ -527,10 +528,10 @@ enum enum_USE_LSB_TAG { USE_LSB_TAG = false };
    vociferously about them.  */
 #if (defined __STRICT_ANSI__ || defined _MSC_VER || defined __IBMC__ \
      || (defined __SUNPRO_C && __STDC__))
-#define ENUM_BF(TYPE) unsigned int
+# define ENUM_BF(TYPE) unsigned int
 #else
-#define ENUM_BF(TYPE) enum TYPE
-#endif
+# define ENUM_BF(TYPE) enum TYPE
+#endif /* pedantry */
 
 #ifndef SYMBOL_VALUE
 # define SYMBOL_VALUE(sym)			\
@@ -591,11 +592,11 @@ enum Lisp_Misc_Type
    C variables.  */
 enum Lisp_Fwd_Type
   {
-    Lisp_Fwd_Int,		/* Fwd to a C `int' variable.  */
-    Lisp_Fwd_Bool,		/* Fwd to a C boolean var.  */
-    Lisp_Fwd_Obj,		/* Fwd to a C Lisp_Object variable.  */
-    Lisp_Fwd_Buffer_Obj,	/* Fwd to a Lisp_Object field of buffers.  */
-    Lisp_Fwd_Kboard_Obj		/* Fwd to a Lisp_Object field of kboards.  */
+    Lisp_Fwd_Int,	 /* Fwd to a C `int' variable.  */
+    Lisp_Fwd_Bool,	 /* Fwd to a C boolean var.  */
+    Lisp_Fwd_Obj,	 /* Fwd to a C Lisp_Object variable.  */
+    Lisp_Fwd_Buffer_Obj, /* Fwd to a Lisp_Object field of buffers.  */
+    Lisp_Fwd_Kboard_Obj	 /* Fwd to a Lisp_Object field of kboards.  */
   };
 
 /* If you want to define a new Lisp data type, here are some
@@ -654,7 +655,7 @@ enum Lisp_Fwd_Type
 
 #ifdef CHECK_LISP_OBJECT_TYPE
 typedef struct { EMACS_INT i; } Lisp_Object;
-# define LISP_INITIALLY_ZERO {0}
+# define LISP_INITIALLY_ZERO { 0 }
 # undef CHECK_LISP_OBJECT_TYPE
 enum CHECK_LISP_OBJECT_TYPE { CHECK_LISP_OBJECT_TYPE = true };
 #else /* CHECK_LISP_OBJECT_TYPE */
@@ -979,8 +980,7 @@ XFLOAT (Lisp_Object a)
   return XUNTAG (a, Lisp_Float);
 }
 
-/* Pseudovector types.  */
-
+/* Pseudovector types: */
 INLINE struct Lisp_Process *
 XPROCESS (Lisp_Object a)
 {

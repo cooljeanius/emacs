@@ -1,6 +1,6 @@
-/* Implementation of GUI terminal on the Mac OS.
-   Copyright (C) 2000 Free Software Foundation, Inc.
-
+/* mac/src/macterm.c: Implementation of GUI terminal on the Mac OS.
+ * Copyright (C) 2000 Free Software Foundation, Inc.  */
+/*
 This file is part of GNU Emacs.
 
 GNU Emacs is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@ Boston, MA 02111-1307, USA.  */
 #include <config.h>
 
 /* On 4.3 these lose if they come after xterm.h.  */
-/* Putting these at the beginning seems to be standard for other .c files.  */
+/* Putting these at the beginning seems to be standard for other .c files: */
 #include <signal.h>
 
 #include <stdio.h>
@@ -32,7 +32,7 @@ Boston, MA 02111-1307, USA.  */
 #include "blockinput.h"
 
 /* Need syssignal.h for various externs and definitions that may be required
-   by some configurations for calls to signal later in this source file.  */
+ * by some configurations for calls to signal later in this source file: */
 #include "syssignal.h"
 
 /* This may include sys/types.h, and that somehow loses
@@ -53,13 +53,13 @@ Boston, MA 02111-1307, USA.  */
 #include <TextUtils.h>
 #include <LowMem.h>
 #include <Controls.h>
-#if defined (__MRC__) || defined (CODEWARRIOR_VERSION_6)
-#include <ControlDefinitions.h>
-#endif
+#if defined(__MRC__) || defined(CODEWARRIOR_VERSION_6)
+# include <ControlDefinitions.h>
+#endif /* __MRC__ || CODEWARRIOR_VERSION_6 */
 
 #if __profile__
-#include <profiler.h>
-#endif
+# include <profiler.h>
+#endif /* __profile__ */
 
 #include <sys/types.h>
 
@@ -67,8 +67,8 @@ Boston, MA 02111-1307, USA.  */
 #include "systime.h"
 
 #ifndef INCLUDED_FCNTL
-#include <fcntl.h>
-#endif
+# include <fcntl.h>
+#endif /* !INCLUDED_FCNTL */
 #include <ctype.h>
 #include <errno.h>
 #include <setjmp.h>
@@ -93,20 +93,20 @@ Boston, MA 02111-1307, USA.  */
 #include "coding.h"
 
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
+# include <unistd.h>
+#endif /* HAVE_UNISTD_H */
 
 #ifndef USE_X_TOOLKIT
-#define x_any_window_to_frame x_window_to_frame
-#define x_top_window_to_frame x_window_to_frame
-#endif
+# define x_any_window_to_frame x_window_to_frame
+# define x_top_window_to_frame x_window_to_frame
+#endif /* !USE_X_TOOLKIT */
 
 #ifndef min
-#define min(a,b) ((a) < (b) ? (a) : (b))
-#endif
+# define min(a,b) ((a) < (b) ? (a) : (b))
+#endif /* !min */
 #ifndef max
-#define max(a,b) ((a) > (b) ? (a) : (b))
-#endif
+# define max(a,b) ((a) > (b) ? (a) : (b))
+#endif /* !max */
 
 #define BETWEEN(X, LOWER, UPPER)  ((X) >= (LOWER) && (X) < (UPPER))
 
@@ -1555,24 +1555,20 @@ x_draw_row_bitmaps (w, row)
 
 /* External interface to control of standout mode.  Not used for X
    frames.  Aborts when called.  */
-
-void
-XTreassert_line_highlight (new, vpos)
-     int new, vpos;
+void XTreassert_line_highlight(int new, int vpos)
 {
-  abort ();
+  abort();
 }
 
 
 /* Call this when about to modify line at position VPOS and change
    whether it is highlighted.  Not used for X frames.  Aborts when
    called.  */
-
 void
-x_change_line_highlight (new_highlight, vpos, y, first_unused_hpos)
-     int new_highlight, vpos, y, first_unused_hpos;
+x_change_line_highlight(int new_highlight, int vpos, int y,
+                        int first_unused_hpos)
 {
-  abort ();
+  abort();
 }
 
 
@@ -1580,18 +1576,16 @@ x_change_line_highlight (new_highlight, vpos, y, first_unused_hpos)
    suspend.  When starting Emacs, no X window is mapped.  And nothing
    must be done to Emacs's own window if it is suspended (though that
    rarely happens).  */
-
-void
-XTset_terminal_modes ()
+void XTset_terminal_modes(void)
 {
+  return;
 }
 
 /* This is called when exiting or suspending Emacs.  Exiting will make
    the X-windows go away, and suspending requires no action.  */
-
-void
-XTreset_terminal_modes ()
+void XTreset_terminal_modes(void)
 {
+  return;
 }
 
 
@@ -1602,10 +1596,7 @@ XTreset_terminal_modes ()
 
 /* Set the global variable output_cursor to CURSOR.  All cursor
    positions are relative to updated_window.  */
-
-static void
-set_output_cursor (cursor)
-    struct cursor_pos *cursor;
+static void set_output_cursor(struct cursor_pos *cursor)
 {
   output_cursor.hpos = cursor->hpos;
   output_cursor.vpos = cursor->vpos;
@@ -1680,13 +1671,13 @@ static void x_produce_image_glyph P_ ((struct it *it));
 /* Return a pointer to per-char metric information in FONT of a
    character pointed by B which is a pointer to an XChar2b.  */
 
-#define PER_CHAR_METRIC(font, b)					   \
-  ((font)->per_char							   \
-   ? ((font)->per_char + (b)->byte2 - (font)->min_char_or_byte2		   \
-      + (((font)->min_byte1 || (font)->max_byte1)			   \
-	 ? (((b)->byte1 - (font)->min_byte1)				   \
+#define PER_CHAR_METRIC(font, b)					  \
+  ((font)->per_char							  \
+   ? ((font)->per_char + (b)->byte2 - (font)->min_char_or_byte2		  \
+      + (((font)->min_byte1 || (font)->max_byte1)			  \
+	 ? (((b)->byte1 - (font)->min_byte1)				  \
 	    * ((font)->max_char_or_byte2 - (font)->min_char_or_byte2 + 1)) \
-	 : 0))								   \
+	 : 0))								  \
    : &((font)->max_bounds))
 
 
@@ -1763,12 +1754,8 @@ x_per_char_metric (font, char2b)
 
 /* Encode CHAR2B using encoding information from FONT_INFO.  CHAR2B is
    the two-byte form of C.  Encoding is returned in *CHAR2B.  */
-
 static INLINE void
-x_encode_char (c, char2b, font_info)
-     int c;
-     XChar2b *char2b;
-     struct font_info *font_info;
+x_encode_char(int c, XChar2b *char2b, struct font_info *font_info)
 {
   int charset = CHAR_CHARSET (c);
   XFontStruct *font = font_info->font;
@@ -2872,12 +2859,11 @@ x_estimate_mode_line_height (f, face_id)
  ***********************************************************************/
 
 /* A sequence of glyphs to be drawn in the same face.
-
-   This data structure is not really completely X specific, so it
-   could possibly, at least partially, be useful for other systems.  It
-   is currently not part of the external redisplay interface because
-   it's not clear what other systems will need.  */
-
+ *
+ * This data structure is not really completely X specific, so it
+ * could possibly, at least partially, be useful for other systems.  It
+ * is currently not part of the external redisplay interface because
+ * it is not clear what other systems will need.  */
 struct glyph_string
 {
   /* X-origin of the string.  */
@@ -2973,7 +2959,7 @@ struct glyph_string
      string appears in as clip rect.  */
   unsigned for_overlaps_p : 1;
 
-  /* The GC to use for drawing this glyph string.  */
+  /* The GC to use for drawing this glyph string: */
   GC gc;
 
   /* A pointer to the first glyph in the string.  This glyph
@@ -2988,27 +2974,24 @@ struct glyph_string
 };
 
 
-#if 0
-
-static void
-x_dump_glyph_string (s)
-     struct glyph_string *s;
+#if defined(GLYPH_DEBUG) && !defined(lint)
+/* this function is probably unused; I have NOT actually checked though: */
+static void x_dump_glyph_string(struct glyph_string *s)
 {
-  fprintf (stderr, "glyph string\n");
-  fprintf (stderr, "  x, y, w, h = %d, %d, %d, %d\n",
-	   s->x, s->y, s->width, s->height);
-  fprintf (stderr, "  ybase = %d\n", s->ybase);
-  fprintf (stderr, "  hl = %d\n", s->hl);
-  fprintf (stderr, "  left overhang = %d, right = %d\n",
-	   s->left_overhang, s->right_overhang);
-  fprintf (stderr, "  nchars = %d\n", s->nchars);
-  fprintf (stderr, "  extends to end of line = %d\n",
-	   s->extends_to_end_of_line_p);
-  fprintf (stderr, "  font height = %d\n", FONT_HEIGHT (s->font));
-  fprintf (stderr, "  bg width = %d\n", s->background_width);
+  fprintf(stderr, "glyph string\n");
+  fprintf(stderr, "  x, y, w, h = %d, %d, %d, %d\n",
+	  s->x, s->y, s->width, s->height);
+  fprintf(stderr, "  ybase = %d\n", s->ybase);
+  fprintf(stderr, "  hl = %d\n", s->hl);
+  fprintf(stderr, "  left overhang = %d, right = %d\n",
+	  s->left_overhang, s->right_overhang);
+  fprintf(stderr, "  nchars = %d\n", s->nchars);
+  fprintf(stderr, "  extends to end of line = %d\n",
+	  s->extends_to_end_of_line_p);
+  fprintf(stderr, "  font height = %d\n", FONT_HEIGHT(s->font));
+  fprintf(stderr, "  bg width = %d\n", s->background_width);
 }
-
-#endif /* GLYPH_DEBUG */
+#endif /* GLYPH_DEBUG && !lint */
 
 
 
@@ -3076,23 +3059,24 @@ static int x_fill_stretch_glyph_string P_ ((struct glyph_string *,
 
 #if GLYPH_DEBUG
 static void x_check_font P_ ((struct frame *, XFontStruct *));
-#endif
+#endif /* GLYPH_DEBUG */
 
 
 /* Append the list of glyph strings with head H and tail T to the list
    with head *HEAD and tail *TAIL.  Set *HEAD and *TAIL to the result.  */
-
 static INLINE void
-x_append_glyph_string_lists (head, tail, h, t)
-     struct glyph_string **head, **tail;
-     struct glyph_string *h, *t;
+x_append_glyph_string_lists(struct glyph_string **head,
+                            struct glyph_string **tail,
+                            struct glyph_string *h,
+                            struct glyph_string *t)
 {
   if (h)
     {
-      if (*head)
+      if (*head) {
 	(*tail)->next = h;
-      else
+      } else {
 	*head = h;
+      }
       h->prev = *tail;
       *tail = t;
     }
@@ -3104,16 +3088,18 @@ x_append_glyph_string_lists (head, tail, h, t)
    result.  */
 
 static INLINE void
-x_prepend_glyph_string_lists (head, tail, h, t)
-     struct glyph_string **head, **tail;
-     struct glyph_string *h, *t;
+x_prepend_glyph_string_lists(struct glyph_string **head,
+                             struct glyph_string **tail,
+                             struct glyph_string *h,
+                             struct glyph_string *t)
 {
   if (h)
     {
-      if (*head)
+      if (*head) {
 	(*head)->prev = t;
-      else
+      } else {
 	*tail = t;
+      }
       t->next = *head;
       *head = h;
     }
@@ -3122,23 +3108,18 @@ x_prepend_glyph_string_lists (head, tail, h, t)
 
 /* Append glyph string S to the list with head *HEAD and tail *TAIL.
    Set *HEAD and *TAIL to the resulting list.  */
-
 static INLINE void
-x_append_glyph_string (head, tail, s)
-     struct glyph_string **head, **tail;
-     struct glyph_string *s;
+x_append_glyph_string(struct glyph_string **head,
+                      struct glyph_string **tail,
+                      struct glyph_string *s)
 {
   s->next = s->prev = NULL;
-  x_append_glyph_string_lists (head, tail, s, s);
+  x_append_glyph_string_lists(head, tail, s, s);
 }
 
 
-/* Set S->gc to a suitable GC for drawing glyph string S in cursor
-   face.  */
-
-static void
-x_set_cursor_gc (s)
-     struct glyph_string *s;
+/* Set S->gc to a suitable GC for drawing glyph string S in cursor face: */
+static void x_set_cursor_gc(struct glyph_string *s)
 {
   if (s->font == FRAME_FONT (s->f)
       && s->face->background == FRAME_BACKGROUND_PIXEL (s->f)
@@ -3186,11 +3167,8 @@ x_set_cursor_gc (s)
 }
 
 
-/* Set up S->gc of glyph string S for drawing text in mouse face.  */
-
-static void
-x_set_mouse_face_gc (s)
-     struct glyph_string *s;
+/* Set up S->gc of glyph string S for drawing text in mouse face: */
+static void x_set_mouse_face_gc(struct glyph_string *s)
 {
   int face_id;
   struct face *face;
@@ -3237,11 +3215,8 @@ x_set_mouse_face_gc (s)
 
 /* Set S->gc of glyph string S to a GC suitable for drawing a mode line.
    Faces to use in the mode line have already been computed when the
-   matrix was built, so there isn't much to do, here.  */
-
-static INLINE void
-x_set_mode_line_face_gc (s)
-     struct glyph_string *s;
+   matrix was built, so there is NOT much to do, here.  */
+static INLINE void x_set_mode_line_face_gc(struct glyph_string *s)
 {
   s->gc = s->face->gc;
 }
@@ -3250,10 +3225,7 @@ x_set_mode_line_face_gc (s)
 /* Set S->gc of glyph string S for drawing that glyph string.  Set
    S->stippled_p to a non-zero value if the face of S has a stipple
    pattern.  */
-
-static INLINE void
-x_set_glyph_string_gc (s)
-     struct glyph_string *s;
+static INLINE void x_set_glyph_string_gc(struct glyph_string *s)
 {
   PREPARE_FACE_FOR_DISPLAY (s->f, s->face);
 
@@ -3289,17 +3261,13 @@ x_set_glyph_string_gc (s)
       s->stippled_p = s->face->stipple != 0;
     }
 
-  /* GC must have been set.  */
-  xassert (s->gc != 0);
+  /* GC must have been set: */
+  xassert(s->gc != 0);
 }
 
 
-/* Return in *R the clipping rectangle for glyph string S.  */
-
-static void
-x_get_glyph_string_clip_rect (s, r)
-     struct glyph_string *s;
-     Rect *r;
+/* Return in *R the clipping rectangle for glyph string S: */
+static void x_get_glyph_string_clip_rect(struct glyph_string *s, Rect *r)
 {
   int r_height, r_width;
 
@@ -3360,17 +3328,15 @@ x_get_glyph_string_clip_rect (s, r)
 
   r->top = WINDOW_TO_FRAME_PIXEL_Y (s->w, r->top);
 
-  r->bottom = r->top + r_height;
-  r->right = r->left + r_width;
+  r->bottom = (r->top + r_height);
+  r->right = (r->left + r_width);
 }
 
 
 /* Set clipping for output of glyph string S.  S may be part of a mode
-   line or menu if we don't have X toolkit support.  */
-
+   line or menu if we do NOT have X toolkit support.  */
 static INLINE void
-x_set_glyph_string_clipping (s)
-     struct glyph_string *s;
+x_set_glyph_string_clipping(struct glyph_string *s)
 {
   Rect r;
   x_get_glyph_string_clip_rect (s, &r);
@@ -3379,14 +3345,11 @@ x_set_glyph_string_clipping (s)
 
 
 /* Compute left and right overhang of glyph string S.  If S is a glyph
-   string for a composition, assume overhangs don't exist.  */
-
-static INLINE void
-x_compute_glyph_string_overhangs (s)
-     struct glyph_string *s;
+   string for a composition, assume overhangs do NOT exist.  */
+static INLINE void x_compute_glyph_string_overhangs(struct glyph_string *s)
 {
-  if (s->cmp == NULL
-      && s->first_glyph->type == CHAR_GLYPH)
+  if ((s->cmp == NULL)
+      && (s->first_glyph->type == CHAR_GLYPH))
     {
       XCharStruct cs;
       int direction, font_ascent, font_descent;
@@ -3401,12 +3364,8 @@ x_compute_glyph_string_overhangs (s)
 /* Compute overhangs and x-positions for glyph string S and its
    predecessors, or successors.  X is the starting x-position for S.
    BACKWARD_P non-zero means process predecessors.  */
-
 static void
-x_compute_overhangs_and_x (s, x, backward_p)
-     struct glyph_string *s;
-     int x;
-     int backward_p;
+x_compute_overhangs_and_x(struct glyph_string *s, int x, int backward_p)
 {
   if (backward_p)
     {
@@ -3434,12 +3393,9 @@ x_compute_overhangs_and_x (s, x, backward_p)
 /* Set *LEFT and *RIGHT to the left and right overhang of GLYPH on
    frame F.  Overhangs of glyphs other than type CHAR_GLYPH are
    assumed to be zero.  */
-
 void
-x_get_glyph_overhangs (glyph, f, left, right)
-     struct glyph *glyph;
-     struct frame *f;
-     int *left, *right;
+x_get_glyph_overhangs(struct glyph *glyph, struct frame *f,
+                      int *left, int *right)
 {
   *left = *right = 0;
 
@@ -3469,10 +3425,7 @@ x_get_glyph_overhangs (glyph, f, left, right)
 /* Return the index of the first glyph preceding glyph string S that
    is overwritten by S because of S's left overhang.  Value is -1
    if no glyphs are overwritten.  */
-
-static int
-x_left_overwritten (s)
-     struct glyph_string *s;
+static int x_left_overwritten(struct glyph_string *s)
 {
   int k;
 
@@ -3480,12 +3433,12 @@ x_left_overwritten (s)
     {
       int x = 0, i;
       struct glyph *glyphs = s->row->glyphs[s->area];
-      int first = s->first_glyph - glyphs;
+      int first = (s->first_glyph - glyphs);
 
-      for (i = first - 1; i >= 0 && x > -s->left_overhang; --i)
+      for (i = (first - 1); (i >= 0) && (x > -s->left_overhang); --i)
 	x -= glyphs[i].pixel_width;
 
-      k = i + 1;
+      k = (i + 1);
     }
   else
     k = -1;
@@ -3497,22 +3450,19 @@ x_left_overwritten (s)
 /* Return the index of the first glyph preceding glyph string S that
    is overwriting S because of its right overhang.  Value is -1 if no
    glyph in front of S overwrites S.  */
-
-static int
-x_left_overwriting (s)
-     struct glyph_string *s;
+static int x_left_overwriting(struct glyph_string *s)
 {
   int i, k, x;
   struct glyph *glyphs = s->row->glyphs[s->area];
-  int first = s->first_glyph - glyphs;
+  int first = (s->first_glyph - glyphs);
 
   k = -1;
   x = 0;
-  for (i = first - 1; i >= 0; --i)
+  for (i = (first - 1); i >= 0; --i)
     {
       int left, right;
-      x_get_glyph_overhangs (glyphs + i, s->f, &left, &right);
-      if (x + right > 0)
+      x_get_glyph_overhangs((glyphs + i), s->f, &left, &right);
+      if ((x + right) > 0)
 	k = i;
       x -= glyphs[i].pixel_width;
     }
@@ -3524,10 +3474,7 @@ x_left_overwriting (s)
 /* Return the index of the last glyph following glyph string S that is
    not overwritten by S because of S's right overhang.  Value is -1 if
    no such glyph is found.  */
-
-static int
-x_right_overwritten (s)
-     struct glyph_string *s;
+static int x_right_overwritten(struct glyph_string *s)
 {
   int k = -1;
 
@@ -3551,10 +3498,7 @@ x_right_overwritten (s)
 /* Return the index of the last glyph following glyph string S that
    overwrites S because of its left overhang.  Value is negative
    if no such glyph is found.  */
-
-static int
-x_right_overwriting (s)
-     struct glyph_string *s;
+static int x_right_overwriting(struct glyph_string *s)
 {
   int i, k, x;
   int end = s->row->used[s->area];
@@ -3577,11 +3521,8 @@ x_right_overwriting (s)
 
 
 /* Fill rectangle X, Y, W, H with background color of glyph string S.  */
-
-static INLINE void
-x_clear_glyph_string_rect (s, x, y, w, h)
-     struct glyph_string *s;
-     int x, y, w, h;
+static INLINE void x_clear_glyph_string_rect(struct glyph_string *s,
+                                             int x, int y, int w, int h)
 {
   XGCValues xgcv;
 
@@ -3591,15 +3532,12 @@ x_clear_glyph_string_rect (s, x, y, w, h)
 
 
 /* Draw the background of glyph_string S.  If S->background_filled_p
-   is non-zero don't draw it.  FORCE_P non-zero means draw the
-   background even if it wouldn't be drawn normally.  This is used
+   is non-zero do NOT draw it.  FORCE_P non-zero means draw the
+   background even if it would NOT be drawn normally.  This is used
    when a string preceding S draws into the background of S, or S
    contains the first component of a composition.  */
-
 static void
-x_draw_glyph_string_background (s, force_p)
-     struct glyph_string *s;
-     int force_p;
+x_draw_glyph_string_background(struct glyph_string *s, int force_p)
 {
   /* Nothing to do if background has already been drawn or if it
      shouldn't be drawn in the first place.  */
@@ -3618,7 +3556,7 @@ x_draw_glyph_string_background (s, force_p)
 	  s->background_filled_p = 1;
 	}
       else
-#endif
+#endif /* 0 (MAC_TODO) */
       if (FONT_HEIGHT (s->font) < s->height - 2 * s->face->box_line_width
 	       || s->font_not_found_p
 	       || s->extends_to_end_of_line_p
@@ -3633,11 +3571,9 @@ x_draw_glyph_string_background (s, force_p)
 }
 
 
-/* Draw the foreground of glyph string S.  */
-
+/* Draw the foreground of glyph string S: */
 static void
-x_draw_glyph_string_foreground (s)
-     struct glyph_string *s;
+x_draw_glyph_string_foreground(struct glyph_string *s)
 {
   int i, x;
 
@@ -3703,11 +3639,9 @@ x_draw_glyph_string_foreground (s)
     }
 }
 
-/* Draw the foreground of composite glyph string S.  */
-
+/* Draw the foreground of composite glyph string S: */
 static void
-x_draw_composite_glyph_string_foreground (s)
-     struct glyph_string *s;
+x_draw_composite_glyph_string_foreground(struct glyph_string *s)
 {
   int i, x;
 
@@ -3748,12 +3682,10 @@ x_draw_composite_glyph_string_foreground (s)
 static struct frame *x_frame_of_widget P_ ((Widget));
 
 
-/* Return the frame on which widget WIDGET is used.. Abort if frame
+/* Return the frame on which widget WIDGET is used... Abort if frame
    cannot be determined.  */
-
 static struct frame *
-x_frame_of_widget (widget)
-     Widget widget;
+x_frame_of_widget(Widget widget)
 {
   struct x_display_info *dpyinfo;
   Lisp_Object tail;
@@ -3786,12 +3718,8 @@ x_frame_of_widget (widget)
    widget WIDGET in colormap CMAP.  If an exact match cannot be
    allocated, try the nearest color available.  Value is non-zero
    if successful.  This is called from lwlib.  */
-
-int
-x_alloc_nearest_color_for_widget (widget, cmap, color)
-     Widget widget;
-     Colormap cmap;
-     XColor *color;
+int x_alloc_nearest_color_for_widget(Widget widget, Colormap cmap,
+                                     XColor *color)
 {
   struct frame *f = x_frame_of_widget (widget);
   return x_alloc_nearest_color (f, cmap, color);
@@ -3801,24 +3729,18 @@ x_alloc_nearest_color_for_widget (widget, cmap, color)
 #endif /* USE_X_TOOLKIT */
 
 #if 0
-
 /* Allocate the color COLOR->pixel on SCREEN of DISPLAY, colormap
    CMAP.  If an exact match can't be allocated, try the nearest color
    available.  Value is non-zero if successful.  Set *COLOR to the
    color allocated.  */
-
-int
-x_alloc_nearest_color (f, cmap, color)
-     struct frame *f;
-     Colormap cmap;
-     XColor *color;
+int x_alloc_nearest_color(struct frame *f, Colormap cmap, XColor *color)
 {
-  Display *display = FRAME_X_DISPLAY (f);
-  Screen *screen = FRAME_X_SCREEN (f);
+  Display *display = FRAME_X_DISPLAY(f);
+  Screen *screen = FRAME_X_SCREEN(f);
   int rc;
 
-  gamma_correct (f, color);
-  rc = XAllocColor (display, cmap, color);
+  gamma_correct(f, color);
+  rc = XAllocColor(display, cmap, color);
   if (rc == 0)
     {
       /* If we got to this point, the colormap is full, so we're going
@@ -3854,23 +3776,19 @@ x_alloc_nearest_color (f, cmap, color)
       rc = XAllocColor (display, cmap, color);
     }
 
-#ifdef DEBUG_X_COLORS
+# ifdef DEBUG_X_COLORS
   if (rc)
     register_color (color->pixel);
-#endif /* DEBUG_X_COLORS */
+# endif /* DEBUG_X_COLORS */
 
   return rc;
 }
 
 
 /* Allocate color PIXEL on frame F.  PIXEL must already be allocated.
-   It's necessary to do this instead of just using PIXEL directly to
+   It is necessary to do this instead of just using PIXEL directly to
    get color reference counts right.  */
-
-unsigned long
-x_copy_color (f, pixel)
-     struct frame *f;
-     unsigned long pixel;
+unsigned long x_copy_color(struct frame *f, unsigned long pixel)
 {
   XColor color;
 
@@ -3879,37 +3797,32 @@ x_copy_color (f, pixel)
   XQueryColor (FRAME_X_DISPLAY (f), FRAME_X_COLORMAP (f), &color);
   XAllocColor (FRAME_X_DISPLAY (f), FRAME_X_COLORMAP (f), &color);
   UNBLOCK_INPUT;
-#ifdef DEBUG_X_COLORS
+# ifdef DEBUG_X_COLORS
   register_color (pixel);
-#endif
+# endif /* DEBUG_X_COLORS */
   return color.pixel;
 }
 
 
 /* Allocate color PIXEL on display DPY.  PIXEL must already be allocated.
-   It's necessary to do this instead of just using PIXEL directly to
+   It is necessary to do this instead of just using PIXEL directly to
    get color reference counts right.  */
-
 unsigned long
-x_copy_dpy_color (dpy, cmap, pixel)
-     Display *dpy;
-     Colormap cmap;
-     unsigned long pixel;
+x_copy_dpy_color(Display *dpy, Colormap cmap, unsigned long pixel)
 {
   XColor color;
 
   color.pixel = pixel;
   BLOCK_INPUT;
-  XQueryColor (dpy, cmap, &color);
-  XAllocColor (dpy, cmap, &color);
+  XQueryColor(dpy, cmap, &color);
+  XAllocColor(dpy, cmap, &color);
   UNBLOCK_INPUT;
-#ifdef DEBUG_X_COLORS
-  register_color (pixel);
-#endif
+# ifdef DEBUG_X_COLORS
+  register_color(pixel);
+# endif /* DEBUG_X_COLORS */
   return color.pixel;
 }
-
-#endif
+#endif /* 0 */
 
 /* Allocate a color which is lighter or darker than *COLOR by FACTOR
    or DELTA.  Try a color with RGB values multiplied by FACTOR first.
@@ -3917,7 +3830,6 @@ x_copy_dpy_color (dpy, cmap, pixel)
    values have DELTA added.  Return the allocated color in *COLOR.
    DISPLAY is the X display, CMAP is the colormap to operate on.
    Value is non-zero if successful.  */
-
 static int
 mac_alloc_lighter_color (f, color, factor, delta)
      struct frame *f;
@@ -5484,12 +5396,9 @@ x_insert_glyphs (start, len)
 
 /* Delete N glyphs at the nominal cursor position.  Not implemented
    for X frames.  */
-
-void
-x_delete_glyphs (n)
-     register int n;
+void x_delete_glyphs(register int n)
 {
-  abort ();
+  abort();
 }
 
 
@@ -8765,20 +8674,14 @@ x_update_window_cursor (w, on)
 
 /* Refresh bitmap kitchen sink icon for frame F
    when we get an expose event for it.  */
-
-void
-refreshicon (f)
-     struct frame *f;
+void refreshicon(struct frame *f)
 {
   /* Normally, the window manager handles this function.  */
+  return;
 }
 
-/* Make the x-window of frame F use the gnu icon bitmap.  */
-
-int
-x_bitmap_icon (f, file)
-     struct frame *f;
-     Lisp_Object file;
+/* Make the x-window of frame F use the gnu icon bitmap: */
+int x_bitmap_icon(struct frame *f, Lisp_Object file)
 {
   int bitmap_id;
 
@@ -8818,32 +8721,28 @@ x_bitmap_icon (f, file)
 
 /* Make the x-window of frame F use a rectangle with text.
    Use ICON_NAME as the text.  */
-
-int
-x_text_icon (f, icon_name)
-     struct frame *f;
-     char *icon_name;
+int x_text_icon(struct frame *f, char *icon_name)
 {
   if (FRAME_X_WINDOW (f) == 0)
     return 1;
 
-#ifdef HAVE_X11R4
+# ifdef HAVE_X11R4
   {
     XTextProperty text;
-    text.value = (unsigned char *) icon_name;
+    text.value = (unsigned char *)icon_name;
     text.encoding = XA_STRING;
     text.format = 8;
-    text.nitems = strlen (icon_name);
-#ifdef USE_X_TOOLKIT
-    XSetWMIconName (FRAME_X_DISPLAY (f), XtWindow (f->output_data.x->widget),
-		    &text);
-#else /* not USE_X_TOOLKIT */
+    text.nitems = strlen(icon_name);
+#  ifdef USE_X_TOOLKIT
+    XSetWMIconName(FRAME_X_DISPLAY(f), XtWindow(f->output_data.x->widget),
+                   &text);
+#  else /* not USE_X_TOOLKIT */
     XSetWMIconName (FRAME_X_DISPLAY (f), FRAME_X_WINDOW (f), &text);
-#endif /* not USE_X_TOOLKIT */
+#  endif /* not USE_X_TOOLKIT */
   }
-#else /* not HAVE_X11R4 */
+# else /* not HAVE_X11R4 */
   XSetIconName (FRAME_X_DISPLAY (f), FRAME_X_WINDOW (f), icon_name);
-#endif /* not HAVE_X11R4 */
+# endif /* not HAVE_X11R4 */
 
   if (f->output_data.x->icon_bitmap > 0)
     x_destroy_bitmap (f, f->output_data.x->icon_bitmap);
@@ -8853,21 +8752,16 @@ x_text_icon (f, icon_name)
   return 0;
 }
 
-#define X_ERROR_MESSAGE_SIZE 200
+# define X_ERROR_MESSAGE_SIZE 200
 
 /* If non-nil, this should be a string.
    It means catch X errors  and store the error message in this string.  */
-
 static Lisp_Object x_error_message_string;
 
 /* An X error handler which stores the error message in
    x_error_message_string.  This is called from x_error_handler if
    x_catch_errors is in effect.  */
-
-static void
-x_error_catcher (display, error)
-     Display *display;
-     XErrorEvent *error;
+static void x_error_catcher(Display *display, XErrorEvent *error)
 {
   XGetErrorText (display, error->error_code,
 		 XSTRING (x_error_message_string)->data,
@@ -8886,32 +8780,26 @@ x_error_catcher (display, error)
    occurred since the last call to x_catch_errors or x_check_errors.
 
    Calling x_uncatch_errors resumes the normal error handling.  */
+void x_check_errors P_ ((void));
+static Lisp_Object x_catch_errors_unwind P_ ((void));
 
-void x_check_errors ();
-static Lisp_Object x_catch_errors_unwind ();
-
-int
-x_catch_errors (dpy)
-     Display *dpy;
+int x_catch_errors(Display *dpy)
 {
-  int count = specpdl_ptr - specpdl;
+  int count = (specpdl_ptr - specpdl);
 
-  /* Make sure any errors from previous requests have been dealt with.  */
-  XSync (dpy, False);
+  /* Make sure any errors from previous requests have been dealt with: */
+  XSync(dpy, False);
 
-  record_unwind_protect (x_catch_errors_unwind, x_error_message_string);
+  record_unwind_protect(x_catch_errors_unwind, x_error_message_string);
 
-  x_error_message_string = make_uninit_string (X_ERROR_MESSAGE_SIZE);
-  XSTRING (x_error_message_string)->data[0] = 0;
+  x_error_message_string = make_uninit_string(X_ERROR_MESSAGE_SIZE);
+  XSTRING(x_error_message_string)->data[0] = 0;
 
   return count;
 }
 
-/* Unbind the binding that we made to check for X errors.  */
-
-static Lisp_Object
-x_catch_errors_unwind (old_val)
-     Lisp_Object old_val;
+/* Unbind the binding that we made to check for X errors: */
+static Lisp_Object x_catch_errors_unwind(Lisp_Object old_val)
 {
   x_error_message_string = old_val;
   return Qnil;
@@ -8920,11 +8808,7 @@ x_catch_errors_unwind (old_val)
 /* If any X protocol errors have arrived since the last call to
    x_catch_errors or x_check_errors, signal an Emacs error using
    sprintf (a buffer, FORMAT, the x error message text) as the text.  */
-
-void
-x_check_errors (dpy, format)
-     Display *dpy;
-     char *format;
+void x_check_errors(Display *dpy, char *format)
 {
   /* Make sure to catch any errors incurred so far.  */
   XSync (dpy, False);
@@ -8935,10 +8819,7 @@ x_check_errors (dpy, format)
 
 /* Nonzero if we had any X protocol errors
    since we did x_catch_errors on DPY.  */
-
-int
-x_had_errors_p (dpy)
-     Display *dpy;
+int x_had_errors_p(Display *dpy)
 {
   /* Make sure to catch any errors incurred so far.  */
   XSync (dpy, False);
@@ -8946,11 +8827,8 @@ x_had_errors_p (dpy)
   return XSTRING (x_error_message_string)->data[0] != 0;
 }
 
-/* Forget about any errors we have had, since we did x_catch_errors on DPY.  */
-
-void
-x_clear_errors (dpy)
-     Display *dpy;
+/* Forget about any errors we had, since we did x_catch_errors on DPY: */
+void x_clear_errors(Display *dpy)
 {
   XSTRING (x_error_message_string)->data[0] = 0;
 }
@@ -8959,60 +8837,51 @@ x_clear_errors (dpy)
    DPY should be the display that was passed to x_catch_errors.
    COUNT should be the value that was returned by
    the corresponding call to x_catch_errors.  */
-
-void
-x_uncatch_errors (dpy, count)
-     Display *dpy;
-     int count;
+void x_uncatch_errors(Display *dpy, int count)
 {
-  unbind_to (count, Qnil);
+  unbind_to(count, Qnil);
 }
 
-#if 0
+# if 0
 static unsigned int x_wire_count;
-x_trace_wire ()
+void x_trace_wire(void)
 {
-  fprintf (stderr, "Lib call: %d\n", ++x_wire_count);
+  fprintf(stderr, "Lib call: %d\n", ++x_wire_count);
 }
-#endif /* ! 0 */
+# endif /* ! 0 */
 
 
 /* Handle SIGPIPE, which can happen when the connection to a server
    simply goes away.  SIGPIPE is handled by x_connection_signal.
-   Don't need to do anything, because the write which caused the
+   Do NOT need to do anything, because the write which caused the
    SIGPIPE will fail, causing Xlib to invoke the X IO error handler,
    which will do the appropriate cleanup for us.  */
-
-static SIGTYPE
-x_connection_signal (signalnum)	/* If we don't have an argument, */
-     int signalnum;		/* some compilers complain in signal calls.  */
+static SIGTYPE x_connection_signal(int signalnum)
 {
-#ifdef USG
+  /* If we do NOT have a parameter, some compilers complained in signal
+   * calls.  It is unused here though. */
+# ifdef USG
   /* USG systems forget handlers when they are used;
      must reestablish each time */
-  signal (signalnum, x_connection_signal);
-#endif /* USG */
+  signal(signalnum, x_connection_signal);
+# endif /* USG */
 }
 
 /* Handling X errors.  */
 
-/* Handle the loss of connection to display DISPLAY.  */
-
-static SIGTYPE
-x_connection_closed (display, error_message)
-     Display *display;
-     char *error_message;
+/* Handle the loss of connection to display DISPLAY: */
+static SIGTYPE x_connection_closed(Display *display, char *error_message)
 {
   struct x_display_info *dpyinfo = x_display_info_for_display (display);
   Lisp_Object frame, tail;
 
   /* Indicate that this display is dead.  */
 
-#if 0 /* Closing the display caused a bus error on OpenWindows.  */
-#ifdef USE_X_TOOLKIT
+# if 0 /* Closing the display caused a bus error on OpenWindows.  */
+#  ifdef USE_X_TOOLKIT
   XtCloseDisplay (display);
-#endif
-#endif
+#  endif /* USE_X_TOOLKIT */
+# endif /* 0 */
 
   if (dpyinfo)
     dpyinfo->display = 0;
@@ -9054,25 +8923,21 @@ x_connection_closed (display, error_message)
       exit (70);
     }
 
-  /* Ordinary stack unwind doesn't deal with these.  */
-#ifdef SIGIO
-  sigunblock (sigmask (SIGIO));
-#endif
-  sigunblock (sigmask (SIGALRM));
+  /* Ordinary stack unwind does NOT deal with these: */
+# ifdef SIGIO
+  sigunblock(sigmask(SIGIO));
+# endif /* SIGIO */
+  sigunblock(sigmask(SIGALRM));
   TOTALLY_UNBLOCK_INPUT;
 
-  clear_waiting_for_input ();
-  error ("%s", error_message);
+  clear_waiting_for_input();
+  error("%s", error_message);
 }
 
 /* This is the usual handler for X protocol errors.
    It kills all frames on the display that we got the error for.
-   If that was the only one, it prints an error message and kills Emacs.  */
-
-static void
-x_error_quitter (display, error)
-     Display *display;
-     XErrorEvent *error;
+   If that was the only one, it prints an error message and kills Emacs: */
+static void x_error_quitter(Display *display, XErrorEvent *error)
 {
   char buf[256], buf1[356];
 
@@ -9087,11 +8952,7 @@ x_error_quitter (display, error)
 
 /* This is the first-level handler for X protocol errors.
    It calls x_error_quitter or x_error_catcher.  */
-
-static int
-x_error_handler (display, error)
-     Display *display;
-     XErrorEvent *error;
+static int x_error_handler(Display *display, XErrorEvent *error)
 {
   if (! NILP (x_error_message_string))
     x_error_catcher (display, error);
@@ -9102,19 +8963,16 @@ x_error_handler (display, error)
 
 /* This is the handler for X IO errors, always.
    It kills all frames on the display that we lost touch with.
-   If that was the only one, it prints an error message and kills Emacs.  */
-
-static int
-x_io_error_quitter (display)
-     Display *display;
+   If that was the only one, it prints an error message and kills Emacs: */
+static int x_io_error_quitter(Display *display)
 {
   char buf[256];
 
-  sprintf (buf, "Connection lost to X server `%s'", DisplayString (display));
+  sprintf(buf, "Connection lost to X server `%s'", DisplayString(display));
   x_connection_closed (display, buf);
   return 0;
 }
-#endif
+#endif /* 0 (MAC_TODO) */
 
 /* Changing the font of the frame.  */
 
@@ -9122,11 +8980,7 @@ x_io_error_quitter (display)
    return the full name of that font.  FONTNAME may be a wildcard
    pattern; in that case, we choose some font that fits the pattern.
    The return value shows which font we chose.  */
-
-Lisp_Object
-x_new_font (f, fontname)
-     struct frame *f;
-     register char *fontname;
+Lisp_Object x_new_font(struct frame *f, register char *fontname)
 {
   struct font_info *fontp
     = FS_LOAD_FONT (f, 0, fontname, -1);
@@ -9818,7 +9672,7 @@ x_iconify_frame (f)
   UNBLOCK_INPUT;
 
   if (!result)
-    error ("Can't notify window manager of iconification");
+    error("Cannot notify window manager of iconification");
 
   f->async_iconified = 1;
   f->async_visible = 0;
@@ -10072,32 +9926,25 @@ x_wm_set_size_hint (f, flags, user_position)
 }
 
 #if 0 /* MACTODO: hide application instead of iconify? */
-/* Used for IconicState or NormalState */
-
-void
-x_wm_set_window_state (f, state)
-     struct frame *f;
-     int state;
+/* Used for IconicState or NormalState: */
+void x_wm_set_window_state(struct frame *f, int state)
 {
-#ifdef USE_X_TOOLKIT
+# ifdef USE_X_TOOLKIT
   Arg al[1];
 
   XtSetArg (al[0], XtNinitialState, state);
   XtSetValues (f->output_data.x->widget, al, 1);
-#else /* not USE_X_TOOLKIT */
+# else /* not USE_X_TOOLKIT */
   Window window = FRAME_X_WINDOW (f);
 
   f->output_data.x->wm_hints.flags |= StateHint;
   f->output_data.x->wm_hints.initial_state = state;
 
   XSetWMHints (FRAME_X_DISPLAY (f), window, &f->output_data.x->wm_hints);
-#endif /* not USE_X_TOOLKIT */
+# endif /* not USE_X_TOOLKIT */
 }
 
-void
-x_wm_set_icon_pixmap (f, pixmap_id)
-     struct frame *f;
-     int pixmap_id;
+void x_wm_set_icon_pixmap(struct frame *f, int pixmap_id)
 {
   Pixmap icon_pixmap;
 
@@ -10119,14 +9966,14 @@ x_wm_set_icon_pixmap (f, pixmap_id)
 	 but that doesn't work, and the X consortium said it isn't the
 	 right thing at all.  Since there is no way to win,
 	 best to explicitly give up.  */
-#if 0
+# if 0
       f->output_data.x->wm_hints.icon_pixmap = None;
-#else
+# else
       return;
-#endif
+# endif /* 0 */
     }
 
-#ifdef USE_X_TOOLKIT /* same as in x_wm_set_window_state.  */
+# ifdef USE_X_TOOLKIT /* same as in x_wm_set_window_state.  */
 
   {
     Arg al[1];
@@ -10134,34 +9981,30 @@ x_wm_set_icon_pixmap (f, pixmap_id)
     XtSetValues (f->output_data.x->widget, al, 1);
   }
 
-#else /* not USE_X_TOOLKIT */
+# else /* not USE_X_TOOLKIT */
 
   f->output_data.x->wm_hints.flags |= IconPixmapHint;
   XSetWMHints (FRAME_X_DISPLAY (f), window, &f->output_data.x->wm_hints);
 
-#endif /* not USE_X_TOOLKIT */
+# endif /* not USE_X_TOOLKIT */
 }
+#endif /* 0 (MACTODO) */
 
-#endif
-
-void
-x_wm_set_icon_position (f, icon_x, icon_y)
-     struct frame *f;
-     int icon_x, icon_y;
+void x_wm_set_icon_position(struct frame *f, int icon_x, int icon_y)
 {
 #if 0 /* MAC_TODO: no icons on Mac */
-#ifdef USE_X_TOOLKIT
-  Window window = XtWindow (f->output_data.x->widget);
-#else
-  Window window = FRAME_X_WINDOW (f);
-#endif
+# ifdef USE_X_TOOLKIT
+  Window window = XtWindow(f->output_data.x->widget);
+# else
+  Window window = FRAME_X_WINDOW(f);
+# endif /* USE_X_TOOLKIT */
 
   f->output_data.x->wm_hints.flags |= IconPositionHint;
   f->output_data.x->wm_hints.icon_x = icon_x;
   f->output_data.x->wm_hints.icon_y = icon_y;
 
   XSetWMHints (FRAME_X_DISPLAY (f), window, &f->output_data.x->wm_hints);
-#endif
+#endif /* 0 */
 }
 
 
@@ -10169,53 +10012,44 @@ x_wm_set_icon_position (f, icon_x, icon_y)
 				Fonts
  ***********************************************************************/
 
-/* Return a pointer to struct font_info of font FONT_IDX of frame F.  */
-
-struct font_info *
-x_get_font_info (f, font_idx)
-     FRAME_PTR f;
-     int font_idx;
+/* Return a pointer to struct font_info of font FONT_IDX of frame F: */
+struct font_info *x_get_font_info(FRAME_PTR f, int font_idx)
 {
-  return (FRAME_MAC_FONT_TABLE (f) + font_idx);
+  return (FRAME_MAC_FONT_TABLE(f) + font_idx);
 }
 
-/* the global font name table */
+/* the global font name table: */
 char **font_name_table = NULL;
 int font_name_table_size = 0;
 int font_name_count = 0;
 
-/* compare two strings ignoring case */
-static int
-stricmp (const char *s, const char *t)
+/* compare two strings ignoring case: */
+static int stricmp(const char *s, const char *t)
 {
-  for ( ; tolower (*s) == tolower (*t); s++, t++)
+  for ( ; tolower(*s) == tolower(*t); s++, t++)
     if (*s == '\0')
       return 0;
-  return tolower (*s) - tolower (*t);
+  return (tolower(*s) - tolower(*t));
 }
 
-/* compare two strings ignoring case and handling wildcard */
-static int
-wildstrieq (char *s1, char *s2)
+/* compare two strings ignoring case and handling wildcard: */
+static int wildstrieq(char *s1, char *s2)
 {
-  if (strcmp (s1, "*") == 0 || strcmp (s2, "*") == 0)
+  if ((strcmp(s1, "*") == 0) || (strcmp(s2, "*") == 0))
     return true;
 
-  return stricmp (s1, s2) == 0;
+  return (stricmp(s1, s2) == 0);
 }
 
-/* Assume parameter 1 is fully qualified, no wildcards. */
-static int
-mac_font_pattern_match (fontname, pattern)
-    char * fontname;
-    char * pattern;
+/* Assume parameter 1 is fully qualified, no wildcards: */
+static int mac_font_pattern_match(char *fontname, char *pattern)
 {
-  char *regex = (char *) alloca (strlen (pattern) * 2 + 3);
-  char *font_name_copy = (char *) alloca (strlen (fontname) + 1);
+  char *regex = (char *)alloca(strlen(pattern) * 2 + 3);
+  char *font_name_copy = (char *)alloca(strlen(fontname) + 1);
   char *ptr;
 
-  /* Copy fontname so we can modify it during comparison.  */
-  strcpy (font_name_copy, fontname);
+  /* Copy fontname so we can modify it during comparison: */
+  strcpy(font_name_copy, fontname);
 
   ptr = regex;
   *ptr++ = '^';
@@ -10561,15 +10395,15 @@ x_compute_min_glyph_bounds (f)
   for (i = 0; i < dpyinfo->n_fonts; ++i)
     if (dpyinfo->font_table[i].name)
       {
-	struct font_info *fontp = dpyinfo->font_table + i;
+	struct font_info *fontp = (dpyinfo->font_table + i);
 	int w, h;
 
 	font = (MacFontStruct *) fontp->font;
 	xassert (font != (MacFontStruct *) ~0);
 	x_font_min_bounds (font, &w, &h);
 
-	dpyinfo->smallest_font_height = min (dpyinfo->smallest_font_height, h);
-	dpyinfo->smallest_char_width = min (dpyinfo->smallest_char_width, w);
+	dpyinfo->smallest_font_height = min(dpyinfo->smallest_font_height, h);
+	dpyinfo->smallest_char_width = min(dpyinfo->smallest_char_width, w);
       }
 
   xassert (dpyinfo->smallest_char_width > 0
@@ -10782,14 +10616,10 @@ XLoadQueryFont (Display *dpy, char *fontname)
    pointer to the structure font_info while allocating it dynamically.
    If SIZE is 0, load any size of font.
    If loading is failed, return NULL.  */
-
 struct font_info *
-x_load_font (f, fontname, size)
-     struct frame *f;
-     register char *fontname;
-     int size;
+x_load_font(struct frame *f, register char *fontname, int size)
 {
-  struct mac_display_info *dpyinfo = FRAME_MAC_DISPLAY_INFO (f);
+  struct mac_display_info *dpyinfo = FRAME_MAC_DISPLAY_INFO(f);
   Lisp_Object font_names;
 
   /* Get a list of all the fonts that match this name.  Once we
@@ -10812,7 +10642,7 @@ x_load_font (f, fontname, size)
 	    return (dpyinfo->font_table + i);
     }
 
-  /* Load the font and add it to the table.  */
+  /* Load the font and add it to the table: */
   {
     char *full_name;
     struct MacFontStruct *font;
@@ -10845,7 +10675,7 @@ x_load_font (f, fontname, size)
 	dpyinfo->font_table_size = max (16, 2 * dpyinfo->font_table_size);
 	sz = dpyinfo->font_table_size * sizeof *dpyinfo->font_table;
 	dpyinfo->font_table
-	  = (struct font_info *) xrealloc (dpyinfo->font_table, sz);
+	  = (struct font_info *)xrealloc(dpyinfo->font_table, sz);
       }
 
     fontp = dpyinfo->font_table + i;
@@ -10921,7 +10751,7 @@ x_load_font (f, fontname, size)
     fontp->baseline_offset = 0;
     fontp->relative_compose = 0;
     fontp->default_ascent = 0;
-#endif
+#endif /* 0 (MAC_TODO) */
 
     /* Set global flag fonts_changed_p to non-zero if the font loaded
        has a character with a smaller width than any other character
@@ -10937,11 +10767,7 @@ x_load_font (f, fontname, size)
 
 /* Return a pointer to struct font_info of a font named FONTNAME for
    frame F.  If no such font is loaded, return NULL.  */
-
-struct font_info *
-x_query_font (f, fontname)
-     struct frame *f;
-     register char *fontname;
+struct font_info *x_query_font(struct frame *f, register char *fontname)
 {
   struct mac_display_info *dpyinfo = FRAME_MAC_DISPLAY_INFO (f);
   int i;
@@ -10957,10 +10783,7 @@ x_query_font (f, fontname)
 
 /* Find a CCL program for a font specified by FONTP, and set the member
  `encoder' of the structure.  */
-
-void
-x_find_ccl_program (fontp)
-     struct font_info *fontp;
+void x_find_ccl_program(struct font_info *fontp)
 {
   Lisp_Object list, elt;
 
@@ -12363,8 +12186,7 @@ mac_initialize_display_info ()
 
 }
 
-void
-x_initialize ()
+void x_initialize(void)
 {
   rif = &x_redisplay_interface;
 
@@ -12422,12 +12244,12 @@ x_initialize ()
     EMACS_SET_SECS_USECS (interval, 0, 100000);
     start_atimer (ATIMER_CONTINUOUS, interval, x_process_timeouts, 0);
   }
-#endif
+#endif /* USE_X_TOOLKIT */
 
 #if USE_TOOLKIT_SCROLL_BARS
   xaw3d_arrow_scroll = False;
   xaw3d_pick_top = True;
-#endif
+#endif /* USE_TOOLKIT_SCROLL_BARS */
 
 #if 0
   /* Note that there is no real way portable across R3/R4 to get the
@@ -12436,24 +12258,23 @@ x_initialize ()
   XSetIOErrorHandler (x_io_error_quitter);
 
   /* Disable Window Change signals;  they are handled by X events.  */
-#ifdef SIGWINCH
+# ifdef SIGWINCH
   signal (SIGWINCH, SIG_DFL);
-#endif /* ! defined (SIGWINCH) */
+# endif /* ! defined (SIGWINCH) */
 
   signal (SIGPIPE, x_connection_signal);
-#endif
+#endif /* 0 */
 
   mac_initialize_display_info ();
 }
 
 
-void
-syms_of_macterm ()
+void syms_of_macterm(void)
 {
 #if 0
-  staticpro (&x_error_message_string);
+  staticpro(&x_error_message_string);
   x_error_message_string = Qnil;
-#endif
+#endif /* 0 */
 
   staticpro (&x_display_name_list);
   x_display_name_list = Qnil;
@@ -12492,7 +12313,7 @@ wide as that tab on the display.");
   x_toolkit_scroll_bars_p = 1;
 #else
   x_toolkit_scroll_bars_p = 0;
-#endif
+#endif /* USE_TOOLKIT_SCROLL_BARS */
 
   staticpro (&last_mouse_motion_frame);
   last_mouse_motion_frame = Qnil;
@@ -12517,3 +12338,5 @@ command, this enables the Mac keyboard to be used to enter non-ASCII\n\
 characters directly.");
   mac_keyboard_text_encoding = kTextEncodingMacRoman;
 }
+
+/* EOF */

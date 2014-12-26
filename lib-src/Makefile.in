@@ -223,6 +223,26 @@ WINDRES = @WINDRES@
 ## Some systems define this to request special libraries.
 LIBS_SYSTEM = @LIBS_SYSTEM@
 
+## gnulib-tool says it might be necessary to use the following Makefile
+## variables when linking:
+GETLOADAVG_LIBS = @GETLOADAVG_LIBS@
+LIB_ACL = @LIB_ACL@
+# (LIB_CLOCK_GETTIME is already done above)
+LIB_CRYPTO = @LIB_CRYPTO@
+LIB_EACCESS = @LIB_EACCESS@
+LIB_EXECINFO = @LIB_EXECINFO@
+# (LIB_FDATASYNC is already done above)
+LIB_PTHREAD_SIGMASK = @LIB_PTHREAD_SIGMASK@
+LIB_SELECT = @LIB_SELECT@
+LIB_THREADED_SELECT = $(LIB_SELECT) $(LIB_PTHREAD_SIGMASK)
+LIB_TIMER_TIME = @LIB_TIMER_TIME@
+LTLIBINTL = @LTLIBINTL@
+LIBINTL = @LIBINTL@
+NEXTAFTER_LIBM = @NEXTAFTER_LIBM@
+LIBM = @LIBM@
+LIBM_WITH_NEXTAFTER = $(LIBM) $(NEXTAFTER_LIBM)
+OPENMP_CFLAGS = @OPENMP_CFLAGS@
+
 BASE_CFLAGS = $(C_SWITCH_SYSTEM) $(C_SWITCH_MACHINE) \
 	      -I. -I../src -I$(lib) \
 	      -I${srcdir} -I${srcdir}/../src -I${srcdir}/$(lib) \
@@ -231,7 +251,8 @@ BASE_CFLAGS = $(C_SWITCH_SYSTEM) $(C_SWITCH_MACHINE) \
 DEFS = @DEFS@ -DDEBUG
 LDFLAGS = @LDFLAGS@
 CPPFLAGS = @CPPFLAGS@ ${DEFS}
-ALL_CFLAGS = ${BASE_CFLAGS} ${PROFILING_CFLAGS} ${LDFLAGS} ${CPPFLAGS} ${CFLAGS}
+ALL_CFLAGS = ${BASE_CFLAGS} ${PROFILING_CFLAGS} ${LDFLAGS} ${CPPFLAGS} \
+	     ${CFLAGS}
 LINK_CFLAGS = ${BASE_CFLAGS} ${LDFLAGS} ${CFLAGS}
 CPP_CFLAGS = ${BASE_CFLAGS} ${PROFILING_CFLAGS} ${CPPFLAGS} ${CFLAGS}
 
@@ -389,8 +410,9 @@ TAGS: etags${EXEEXT}
 ## have not been clobbered by whatever means were used to copy and
 ## distribute Emacs.  If they were clobbered, all the .elc files were
 ## clobbered too.
-test-distrib${EXEEXT}: ${srcdir}/test-distrib.c
-	$(CC) ${ALL_CFLAGS} -o test-distrib${EXEEXT} ${srcdir}/test-distrib.c
+test-distrib${EXEEXT}: ${srcdir}/test-distrib.c ${srcdir}/testfile
+	$(AM_V_CCLD)$(CC) ${ALL_CFLAGS} -o test-distrib${EXEEXT} \
+	  ${srcdir}/test-distrib.c
 	./test-distrib ${srcdir}/testfile
 
 $(lib)/libgnu.a: $(config_h)
@@ -413,11 +435,13 @@ GETOPTDEPS = $(GETOPTOBJS) $(GETOPT_H)
 getopt.o: ${srcdir}/getopt.c $(GETOPT_H) ${srcdir}/gettext.h
 	$(AM_V_CC)${CC} -c ${CPP_CFLAGS} ${srcdir}/getopt.c
 getopt_test${EXEEXT}: ${srcdir}/getopt.c $(GETOPT_H) ${srcdir}/gettext.h
-	${CC} -DTEST ${CPP_CFLAGS} ${srcdir}/getopt.c $(LOADLIBES) -o $@
+	$(AM_V_CCLD)${CC} -DTEST ${CPP_CFLAGS} ${srcdir}/getopt.c \
+	  $(LOADLIBES) $(LIBINTL) -o $@
 getopt1.o: ${srcdir}/getopt1.c $(GETOPT_H)
 	$(AM_V_CC)${CC} -c ${CPP_CFLAGS} ${srcdir}/getopt1.c
 getopt_long_test${EXEEXT}: ${srcdir}/getopt1.c $(GETOPT_H) getopt.o
-	${CC} -DTEST ${CPP_CFLAGS} ${srcdir}/getopt1.c getopt.o $(LOADLIBES) -o $@
+	$(AM_V_CCLD)${CC} -DTEST ${CPP_CFLAGS} ${srcdir}/getopt1.c \
+	  getopt.o $(LOADLIBES) $(LIBINTL) -o $@
 alloca.o: ${srcdir}/alloca.c
 	$(AM_V_CC)${CC} -Demacs -c ${BASE_CFLAGS} ${srcdir}/alloca.c
 
@@ -430,7 +454,7 @@ REGEXPDEPS = $(REGEXPOBJ) $(srcdir)/../src/regex.h
 #endif /* REGEXP_IN_LIBC */
 
 ALL_OBJS = getopt.o getopt1.o alloca.o regex.o movemail.o pop.o ntlib.o \
-	   update-game-score.o wincompat_test.o
+	   update-game-score.o wincompat_test.o leditcfns.o qsort.o tcp.o
 
 all-obj: $(ALL_OBJS)
 	@echo "ensuring all objects have been built..."
@@ -441,16 +465,16 @@ regex.o: $(srcdir)/../src/regex.c $(srcdir)/../src/regex.h $(config_h)
 	$(AM_V_CC)$(CC) -c $(CPP_CFLAGS) ${srcdir}/../src/regex.c
 
 etags_deps = ${srcdir}/etags.c regex.o $(stddep) chkmalloc.h
-etags_cflags=-DEMACS_NAME="\"GNU Emacs\"" -DVERSION="\"${version}\"" -o $@
-etags_libs = regex.o $(LOADLIBES) $(NTLIB)
+etags_DEFS = -DEMACS_NAME="\"GNU Emacs\"" -DVERSION="\"${version}\""
+etags_cflags = $(etags_DEFS) -o $@
+etags_libs = regex.o $(LOADLIBES) $(NTLIB) $(LIBINTL)
 
-etags${EXEEXT}: ${srcdir}/etags.c regex.o $(stddep)
-	$(CC) ${ALL_CFLAGS} -DEMACS_NAME="\"GNU Emacs\"" \
-	  -DVERSION="\"${version}\"" ${srcdir}/etags.c \
-	  regex.o $(LOADLIBES) $(NTLIB) -o etags${EXEEXT}
+etags${EXEEXT}: $(etags_deps)
+	$(AM_V_CCLD)$(CC) ${ALL_CFLAGS} $(etags_DEFS) ${srcdir}/etags.c \
+	  $(etags_libs) -o etags${EXEEXT}
 
 ebrowse${EXEEXT}: ${srcdir}/ebrowse.c ${srcdir}/$(lib)/min-max.h $(stddep)
-	$(CC) ${ALL_CFLAGS} -DVERSION="\"${version}\"" \
+	$(AM_V_CCLD)$(CC) ${ALL_CFLAGS} -DVERSION="\"${version}\"" \
 	  ${srcdir}/ebrowse.c $(LOADLIBES) $(NTLIB) -o ebrowse${EXEEXT}
 
 ## We depend on etags to assure that parallel makes do not write two
@@ -458,64 +482,71 @@ ebrowse${EXEEXT}: ${srcdir}/ebrowse.c ${srcdir}/$(lib)/min-max.h $(stddep)
 ## FIXME?
 ## Can we not use a wrapper that calls 'etags --ctags'?
 ctags${EXEEXT}: etags${EXEEXT}
-	$(CC) ${ALL_CFLAGS} -DCTAGS -DEMACS_NAME="\"GNU Emacs\"" \
-	  -DVERSION="\"${version}\"" ${srcdir}/etags.c \
-	  regex.o $(LOADLIBES) $(NTLIB) -o ctags${EXEEXT}
+	$(AM_V_CCLD)$(CC) ${ALL_CFLAGS} -DCTAGS \
+	  $(etags_DEFS) ${srcdir}/etags.c $(etags_libs) -o ctags${EXEEXT}
 
 profile${EXEEXT}: ${srcdir}/profile.c $(stddep)
-	$(CC) ${ALL_CFLAGS} ${srcdir}/profile.c \
+	$(AM_V_CCLD)$(CC) ${ALL_CFLAGS} ${srcdir}/profile.c \
 	  $(LOADLIBES) $(NTLIB) $(LIB_CLOCK_GETTIME) -o profile${EXEEXT}
 
 make-docfile${EXEEXT}: ${srcdir}/make-docfile.c $(stddep) gnulib_headers
-	$(CC) ${ALL_CFLAGS} ${srcdir}/make-docfile.c $(LOADLIBES) $(NTLIB) \
-	  -o make-docfile${EXEEXT}
+	$(AM_V_CCLD)$(CC) ${ALL_CFLAGS} ${srcdir}/make-docfile.c \
+	  $(LOADLIBES) $(NTLIB) -o make-docfile${EXEEXT}
 
 digest-doc${EXEEXT}: ${srcdir}/digest-doc.c
-	$(CC) ${ALL_CFLAGS} ${srcdir}/digest-doc.c $(LOADLIBES) -o digest-doc
+	$(AM_V_CCLD)$(CC) ${ALL_CFLAGS} ${srcdir}/digest-doc.c \
+	   $(LOADLIBES) -o digest-doc
 
+# we use this hack a lot, so make it a variable:
 EMACS_DEFS = ${CPP_CFLAGS} -Demacs
 sorted-doc${EXEEXT}: ${srcdir}/sorted-doc.c
-	$(CC) ${ALL_CFLAGS} ${srcdir}/sorted-doc.c ${EMACS_DEFS} \
-	   $(LOADLIBES) -o sorted-doc
+	$(AM_V_CCLD)$(CC) ${ALL_CFLAGS} ${srcdir}/sorted-doc.c \
+	   ${EMACS_DEFS} $(LOADLIBES) -o sorted-doc
 
 b2m${EXEEXT}: ${srcdir}/b2m.c $(config_h) $(GETOPTDEPS)
-	$(CC) ${ALL_CFLAGS} ${srcdir}/b2m.c  -DVERSION="\"${version}\"" \
-	   ${EMACS_DEFS} $(GETOPTOBJS) $(LOADLIBES) -o b2m
+	$(AM_V_CCLD)$(CC) ${ALL_CFLAGS} ${srcdir}/b2m.c \
+	   -DVERSION="\"${version}\"" ${EMACS_DEFS} $(GETOPTOBJS) \
+	   $(LOADLIBES) -o b2m
 
 movemail${EXEEXT}: ${srcdir}/movemail.c pop.o $(stddep)
-	$(CC) ${ALL_CFLAGS} ${MOVE_FLAGS} ${srcdir}/movemail.c pop.o \
-	  $(LOADLIBES) $(NTLIB) $(LIBS_MOVE) -o movemail${EXEEXT}
+	$(AM_V_CCLD)$(CC) ${ALL_CFLAGS} ${MOVE_FLAGS} \
+	  ${srcdir}/movemail.c pop.o $(LOADLIBES) $(NTLIB) $(LIBS_MOVE) \
+	  -o movemail${EXEEXT}
 
 movemail.o: ${srcdir}/movemail.c $(config_h) $(GETOPT_H)
 	$(AM_V_CC)$(CC) -c ${EMACS_DEFS} ${MOVE_FLAGS} ${srcdir}/movemail.c
 
-pop.o: ${srcdir}/pop.c ${srcdir}/pop.h ${srcdir}/$(lib)/min-max.h $(config_h)
+pop_srcs = ${srcdir}/pop.c ${srcdir}/pop.h
+pop.o: ${pop_srcs} ${srcdir}/$(lib)/min-max.h $(config_h)
 	$(AM_V_CC)$(CC) -c ${CPP_CFLAGS} ${MOVE_FLAGS} ${srcdir}/pop.c
 
 cvtmail${EXEEXT}: ${srcdir}/cvtmail.c
-	$(CC) ${ALL_CFLAGS} ${srcdir}/cvtmail.c ${EMACS_DEFS} \
+	$(AM_V_CCLD)$(CC) ${ALL_CFLAGS} ${srcdir}/cvtmail.c ${EMACS_DEFS} \
 	   $(LOADLIBES) -o cvtmail
 
 fakemail${EXEEXT}: ${srcdir}/fakemail.c $(config_h)
-	$(CC) ${ALL_CFLAGS} ${srcdir}/fakemail.c ${EMACS_DEFS} \
-	   $(LOADLIBES) -o fakemail
+	$(AM_V_CCLD)$(CC) ${ALL_CFLAGS} ${srcdir}/fakemail.c \
+	   ${EMACS_DEFS} $(LOADLIBES) -o fakemail
 
 yow: ${srcdir}/yow.c ../src/epaths.h
 	$(AM_V_CCLD)$(CC) ${ALL_CFLAGS} ${srcdir}/yow.c ${EMACS_DEFS} \
 	   $(LOADLIBES) -o yow
 
 emacsserver: ${srcdir}/emacsserver.c $(config_h)
-	$(CC) ${ALL_CFLAGS} ${srcdir}/emacsserver.c $(LOADLIBES) -o emacsserver
+	$(AM_V_CCLD)$(CC) ${ALL_CFLAGS} ${srcdir}/emacsserver.c \
+	   $(LOADLIBES) -o emacsserver
 
 emacsclient${EXEEXT}: ${srcdir}/emacsclient.c $(stddep)
-	$(CC) ${ALL_CFLAGS} ${srcdir}/emacsclient.c \
-	   -DVERSION="\"${version}\"" $(NTLIB) $(LOADLIBES) $(LIB_FDATASYNC) \
-	   $(LIB_WSOCK32) $(LIBS_ECLIENT) -o emacsclient${EXEEXT}
+	$(AM_V_CCLD)$(CC) ${ALL_CFLAGS} ${srcdir}/emacsclient.c \
+	   -DVERSION="\"${version}\"" $(NTLIB) $(LOADLIBES) \
+	   $(LIB_FDATASYNC) $(LIB_WSOCK32) $(LIBS_ECLIENT) \
+	   -o emacsclient${EXEEXT}
 
 emacsclientw${EXEEXT}: ${srcdir}/emacsclient.c $(CLIENTRES) $(stddep)
-	$(CC) ${ALL_CFLAGS} $(CLIENTRES) -mwindows ${srcdir}/emacsclient.c \
-	   -DVERSION="\"${version}\"" $(LOADLIBES) $(LIB_FDATASYNC) \
-	   $(LIB_WSOCK32) $(LIBS_ECLIENT) -o emacsclientw${EXEEXT}
+	$(AM_V_CCLD)$(CC) ${ALL_CFLAGS} $(CLIENTRES) -mwindows \
+	   ${srcdir}/emacsclient.c -DVERSION="\"${version}\"" \
+	   $(LOADLIBES) $(LIB_FDATASYNC) $(LIB_WSOCK32) $(LIBS_ECLIENT) \
+	   -o emacsclientw${EXEEXT}
 
 #ifdef _WIN32
 WINDEFS =
@@ -536,10 +567,12 @@ ntlib.o: ${srcdir}/ntlib.c ${srcdir}/ntlib.h $(NTDEPS) ${wincompat_h}
 	$(AM_V_CC)$(CC) -c ${CPP_CFLAGS} ${WINDEFS} ${srcdir}/ntlib.c
 
 hexl${EXEEXT}: ${srcdir}/hexl.c $(stddep)
-	$(CC) ${ALL_CFLAGS} ${srcdir}/hexl.c $(LOADLIBES) -o hexl${EXEEXT}
+	$(AM_V_CCLD)$(CC) ${ALL_CFLAGS} ${srcdir}/hexl.c $(LOADLIBES) \
+	  -o hexl${EXEEXT}
 
 update-game-score${EXEEXT}: ${srcdir}/update-game-score.c $(stddep)
-	$(CC) ${ALL_CFLAGS} -DHAVE_SHARED_GAME_DIR="\"$(gamedir)\"" \
+	$(AM_V_CCLD)$(CC) ${ALL_CFLAGS} \
+	  -DHAVE_SHARED_GAME_DIR="\"$(gamedir)\"" \
 	  ${srcdir}/update-game-score.c $(LOADLIBES) $(NTLIB) \
 	  -o update-game-score${EXEEXT}
 
@@ -556,27 +589,42 @@ wincompat_src = ${srcdir}/wincompat_test.c
 wincompat_test.o: ${srcdir}/wincompat_test.c ${srcdir}/wincompat.h
 	$(AM_V_CC)${CC} -c ${CPP_CFLAGS} ${WINDEFS} ${wincompat_src}
 wincompat_test${EXEEXT}: ${srcdir}/wincompat_test.c ${srcdir}/wincompat.h
-	$(CC) ${ALL_CFLAGS} -DTEST ${WINDEFS} ${wincompat_src} -o $@
+	$(AM_V_CCLD)$(CC) ${ALL_CFLAGS} -DTEST ${WINDEFS} \
+	  ${wincompat_src} -o $@
+
+## other misc. objects:
+leditcfns.o: ${srcdir}/leditcfns.c
+	$(AM_V_CC)$(CC) -c ${CPP_CFLAGS} ${srcdir}/leditcfns.c
+qsort.o: ${srcdir}/qsort.c
+	$(AM_V_CC)$(CC) -c ${CPP_CFLAGS} ${srcdir}/qsort.c
+tcp.o: ${srcdir}/tcp.c
+	$(AM_V_CC)$(CC) -c $(WARN_CFLAGS) ${PROFILING_CFLAGS} ${CPPFLAGS} \
+	  ${CFLAGS} ${srcdir}/tcp.c
 
 ## These are NOT included in INSTALLABLES or UTILITIES.
 ## See ../src/Makefile.in.
 emacstool${EXEEXT}: ${srcdir}/emacstool.c
-	$(CC) ${srcdir}/emacstool.c -o emacstool ${ALL_CFLAGS} \
-	  -lsuntool -lsunwindow -lpixrect $(LOADLIBES)
+	$(AM_V_CCLD)$(CC) ${srcdir}/emacstool.c -o emacstool \
+	  ${ALL_CFLAGS} -lsuntool -lsunwindow -lpixrect $(LOADLIBES)
 
 ## For SUN Japanese Language Environment.
 nemacstool${EXEEXT}: ${srcdir}/emacstool.c
-	$(CC) -o nemacstool -DJLE ${ALL_CFLAGS} ${srcdir}/emacstool.c \
-	  -lsuntool -lmle -lsunwindow -lpixrect $(LOADLIBES)
+	$(AM_V_CCLD)$(CC) -o nemacstool -DJLE ${ALL_CFLAGS} \
+	  ${srcdir}/emacstool.c -lsuntool -lmle -lsunwindow -lpixrect \
+	  $(LOADLIBES)
 
 xvetool${EXEEXT}: ${srcdir}/emacstool.c
-	$(CC) -o xvetool -DXVIEW ${ALL_CFLAGS} ${srcdir}/emacstool.c \
-	  -lxview -lX -I$(OPENWINHOME)/include -L$(OPENWINHOME)/lib \
-	  $(LOADLIBES)
+	$(AM_V_CCLD)$(CC) -o xvetool -DXVIEW ${ALL_CFLAGS} \
+	  ${srcdir}/emacstool.c -lxview -lX -I$(OPENWINHOME)/include \
+	  -L$(OPENWINHOME)/lib $(LOADLIBES)
 
 xveterm${EXEEXT}: ${srcdir}/emacstool.c
-	$(CC) -o xveterm -DXVIEW -DTTERM ${ALL_CFLAGS} ${srcdir}/emacstool.c \
-	  -lxview -lolgx -lX  -I$(OPENWINHOME)/include -L$(OPENWINHOME)/lib \
-	  $(LOADLIBES)
+	$(AM_V_CCLD)$(CC) -o xveterm -DXVIEW -DTTERM ${ALL_CFLAGS} \
+	  ${srcdir}/emacstool.c -lxview -lolgx -lX \
+	  -I$(OPENWINHOME)/include -L$(OPENWINHOME)/lib $(LOADLIBES)
+
+## For Fujitsu UTS:
+tcp${EXEEXT}: ${srcdir}/tcp.c
+	cc -O -o tcp tcp.c -DFUJITSU_UTS -lu -lsocket
 
 ## Makefile ends here.

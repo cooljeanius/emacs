@@ -455,16 +455,16 @@ struct frame
   int menu_bar_height;
 
 #if defined (HAVE_X_WINDOWS)
-  /* Used by x_wait_for_event when watching for an X event on this frame.  */
+  /* Used by x_wait_for_event when watching for an X event on this frame: */
   int wait_event_type;
-#endif
+#endif /* HAVE_X_WINDOWS */
 
-#if defined (USE_X_TOOLKIT) || defined (HAVE_NTGUI) \
-    || defined (HAVE_NS) || defined (USE_GTK)
-  /* True means using a menu bar that comes from the X toolkit.  */
+#if defined(USE_X_TOOLKIT) || defined(HAVE_NTGUI) \
+    || defined(HAVE_NS) || defined(USE_GTK)
+  /* True means using a menu bar that comes from the X toolkit: */
   bool_bf external_menu_bar : 1;
-#elif defined (MAC_OS)
-  /* Nonzero means using a menu bar that comes from the X toolkit.  */
+#elif ((defined(HAVE_CARBON) && defined(TARGET_API_MAC_CARBON)) || defined(MAC_OS))
+  /* Nonzero means using a menu bar that comes from the X toolkit: */
   int external_menu_bar;
 #endif
 
@@ -511,11 +511,11 @@ struct frame
      show no modeline for that window.  */
   bool_bf wants_modeline : 1; /* used to be: 'char wants_modeline;' */
 
-#if 0
+#if ((defined(HAVE_CARBON) && defined(TARGET_API_MAC_CARBON)) || defined(MAC_OS))
   /* Non-zero if the hardware device this frame is displaying on can
-     support scroll bars.  */
+   * support scroll bars: */
   char can_have_scroll_bars;
-#endif /* 0 */
+#endif /* (HAVE_CARBON && TARGET_API_MAC_CARBON) || MAC_OS */
 
   /* True means raise this frame to the top of the heap when selected.  */
   bool_bf auto_raise : 1; /* used to be: 'char auto_raise;' below */
@@ -912,11 +912,12 @@ default_pixels_per_inch_y (void)
 
 /* True if this frame should display a menu bar
    in a way that does not use any text lines.  */
-#if defined (USE_X_TOOLKIT) || defined (HAVE_NTGUI) || defined (MAC_OS) \
-     || defined (HAVE_NS) || defined (USE_GTK)
-#define FRAME_EXTERNAL_MENU_BAR(f) (f)->external_menu_bar
+#if defined(USE_X_TOOLKIT) || defined(HAVE_NTGUI) || defined(HAVE_NS) \
+     || ((defined(HAVE_CARBON) && defined(TARGET_API_MAC_CARBON)) || defined(MAC_OS)) \
+     || defined(USE_GTK)
+# define FRAME_EXTERNAL_MENU_BAR(f) (f)->external_menu_bar
 #else
-#define FRAME_EXTERNAL_MENU_BAR(f) false
+# define FRAME_EXTERNAL_MENU_BAR(f) false
 #endif
 #define FRAME_VISIBLE_P(f) (f)->visible
 
@@ -963,8 +964,17 @@ default_pixels_per_inch_y (void)
 #define FRAME_DELETEN_COST(f) (f)->delete_n_lines_cost
 #define FRAME_FOCUS_FRAME(f) f->focus_frame
 
-/* This frame slot says whether scroll bars are currently enabled for frame F,
-   and which side they are on.  */
+#if ((defined(HAVE_CARBON) && defined(TARGET_API_MAC_CARBON)) || defined(MAC_OS))
+# ifndef FRAME_CAN_HAVE_SCROLL_BARS
+/* Nonzero if frame F supports scroll bars.
+ * If this is zero, then it is impossible to enable scroll bars
+ * on frame F.  */
+#  define FRAME_CAN_HAVE_SCROLL_BARS(f) ((f)->can_have_scroll_bars)
+# endif /* !FRAME_CAN_HAVE_SCROLL_BARS */
+#endif /* (HAVE_CARBON && TARGET_API_MAC_CARBON) || MAC_OS */
+
+/* This frame slot says whether scroll bars are currently enabled for
+ * frame F, and which side they are on: */
 #define FRAME_VERTICAL_SCROLL_BAR_TYPE(f) ((f)->vertical_scroll_bar_type)
 #define FRAME_HAS_VERTICAL_SCROLL_BARS(f) \
   ((f)->vertical_scroll_bar_type != vertical_scroll_bar_none)
@@ -1452,15 +1462,20 @@ extern void x_set_scroll_bar_default_width (struct frame *);
 extern void x_set_offset (struct frame *, int, int, int);
 extern void x_wm_set_size_hint (struct frame *f, long flags, bool user_position);
 
+# if !((defined(HAVE_CARBON) && defined(TARGET_API_MAC_CARBON)) || defined(MAC_OS)) \
+      || !(defined(_EMACS_MACTERM_H) && defined(COMING_FROM_MACTERM_C))
+/* "macterm.h" has a different prototype: */
 extern Lisp_Object x_new_font (struct frame *, Lisp_Object, int);
+# endif /* !((HAVE_CARBON && TARGET_API_MAC_CARBON) || MAC_OS) || \
+         * !(_EMACS_MACTERM_H && COMING_FROM_MACTERM_C) */
 
 
 extern Lisp_Object Qface_set_after_frame_default;
 
-#ifdef HAVE_NTGUI
+# ifdef HAVE_NTGUI
 extern void x_fullscreen_adjust (struct frame *f, int *, int *,
                                  int *, int *);
-#endif /* HAVE_NTGUI */
+# endif /* HAVE_NTGUI */
 
 extern void x_set_frame_parameters (struct frame *, Lisp_Object);
 
@@ -1519,9 +1534,9 @@ extern void x_free_frame_resources (struct frame *);
 
 #if defined HAVE_X_WINDOWS
 extern void x_wm_set_icon_position (struct frame *, int, int);
-#if !defined USE_X_TOOLKIT
+# if !defined USE_X_TOOLKIT
 extern char *x_get_resource_string (const char *, const char *);
-#endif
+# endif /* !USE_X_TOOLKIT */
 extern void x_sync (struct frame *);
 #endif /* HAVE_X_WINDOWS */
 

@@ -205,9 +205,15 @@ struct window
     int pixel_width;
     int pixel_height;
 
-    /* The size of the window.  */
+    /* The size of the window: */
     int total_cols;
     int total_lines;
+
+#if ((defined(HAVE_CARBON) && defined(TARGET_API_MAC_CARBON)) || defined(MAC_OS))
+    /* The buffer displayed in this window */
+    /* Of the fields vchild, hchild and buffer, only one is non-nil.  */
+    Lisp_Object buffer;
+#endif /* (HAVE_CARBON && TARGET_API_MAC_CARBON) || MAC_OS */
 
     /* Number of columns display within the window is scrolled to the left.  */
     ptrdiff_t hscroll;
@@ -261,16 +267,14 @@ struct window
     int last_cursor_vpos;
 
 #ifdef HAVE_WINDOW_SYSTEM
-
-    /* Cursor type of last cursor drawn on the window.  */
+    /* Cursor type of last cursor drawn on the window: */
     enum text_cursor_kinds phys_cursor_type;
 
-    /* Width of the cursor above.  */
+    /* Width of the cursor above: */
     int phys_cursor_width;
 
-    /* This is handy for undrawing the cursor.  */
+    /* This is handy for undrawing the cursor: */
     int phys_cursor_ascent, phys_cursor_height;
-
 #endif /* HAVE_WINDOW_SYSTEM */
 
     /* Width of left and right fringes, in pixels.

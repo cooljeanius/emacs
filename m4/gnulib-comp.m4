@@ -44,6 +44,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module alloca-opt:
   # Code from module allocator:
   # Code from module assert-h:
+  # Code from module assure:
   # Code from module at-internal:
   # Code from module autobuild:
   AB_INIT
@@ -206,6 +207,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module stdio:
   # Code from module stdlib:
   # Code from module stdnoreturn:
+  # Code from module stpcpy:
   # Code from module strchrnul:
   # Code from module streq:
   # Code from module strerror:
@@ -651,6 +653,12 @@ AC_DEFUN([gl_INIT],
   gl_STDIO_H
   gl_STDLIB_H
   gl_STDNORETURN_H
+  gl_FUNC_STPCPY
+  if test $HAVE_STPCPY = 0; then
+    AC_LIBOBJ([stpcpy])
+    gl_PREREQ_STPCPY
+  fi
+  gl_STRING_MODULE_INDICATOR([stpcpy])
   gl_FUNC_STRERROR
   if test $REPLACE_STRERROR = 1; then
     AC_LIBOBJ([strerror])
@@ -1149,6 +1157,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/allocator.c
   lib/allocator.h
   lib/assert.in.h
+  lib/assure.h
   lib/at-func.c
   lib/basename-lgpl.c
   lib/binary-io.c
@@ -1306,6 +1315,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/stdio.in.h
   lib/stdlib.in.h
   lib/stdnoreturn.in.h
+  lib/stpcpy.c
   lib/str-two-way.h
   lib/strchrnul.c
   lib/strchrnul.valgrind
@@ -1520,6 +1530,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/stdio_h.m4
   m4/stdlib_h.m4
   m4/stdnoreturn.m4
+  m4/stpcpy.m4
   m4/strchrnul.m4
   m4/strerror.m4
   m4/strftime.m4

@@ -68,7 +68,7 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 # define COLOR_TABLE_SUPPORT 1
 
 typedef struct x_bitmap_record Bitmap_Record;
-# define GET_PIXEL(ximg, x, y) XGetPixel (ximg, x, y)
+# define GET_PIXEL(ximg, x, y) XGetPixel(ximg, x, y)
 # define NO_PIXMAP None
 
 # define PIX_MASK_RETAIN 0
@@ -187,12 +187,16 @@ static void x_disable_image (struct frame *, struct image *);
 static void x_edge_detection (struct frame *, struct image *, Lisp_Object,
                               Lisp_Object);
 
-static void init_color_table (void);
-static unsigned long lookup_rgb_color (struct frame *f, int r, int g, int b);
+static void init_color_table(void);
+static unsigned long lookup_rgb_color(struct frame *f, int r, int g, int b);
 #ifdef COLOR_TABLE_SUPPORT
-static void free_color_table (void);
-static unsigned long *colors_in_color_table (int *n);
+static void free_color_table(void);
+static unsigned long *colors_in_color_table(int *n);
 #endif /* COLOR_TABLE_SUPPORT */
+
+#if defined(MAC_OS) || defined(HAVE_CARBON)
+extern void init_image(void);
+#endif /* MAC_OS || HAVE_CARBON */
 
 static Lisp_Object QCmax_width, QCmax_height;
 
@@ -206,17 +210,12 @@ static Lisp_Object QCmax_width, QCmax_height;
    If you use x_create_bitmap_from_data, then you must keep track of
    the bitmaps yourself.  That is, creating a bitmap from the same
    data more than once will not be caught.  */
-
 #if defined(MAC_OS) || \
     (defined(HAVE_CARBON) && !defined(HAVE_NS) && (!defined(__LP64__) || !__LP64__))
 static XImagePtr
-XGetImage(display, pixmap, x, y, width, height, plane_mask, format)
-    Display *display;		/* not used */
-    Pixmap pixmap;
-    int x, y;			/* not used */
-    unsigned int width, height; /* not used */
-    unsigned long plane_mask; 	/* not used */
-    int format;		/* not used */
+XGetImage(Display *display, Pixmap pixmap, int x, int y,
+          unsigned int width, unsigned int height,
+          unsigned long plane_mask, int format)
 {
 # pragma unused (display, x, y, width, height, plane_mask, format)
 # if defined(GLYPH_DEBUG) && GLYPH_DEBUG
@@ -493,15 +492,13 @@ x_create_bitmap_from_data(struct frame *f, char *bits, unsigned int width, unsig
   return id;
 }
 
-/* Create bitmap from file FILE for frame F.  */
-
-ptrdiff_t
-x_create_bitmap_from_file (struct frame *f, Lisp_Object file)
+/* Create bitmap from file FILE for frame F: */
+ptrdiff_t x_create_bitmap_from_file(struct frame *f, Lisp_Object file)
 {
   Display_Info *dpyinfo = FRAME_DISPLAY_INFO(f);
 
 #ifdef MAC_OS
-# pragma unused(dpyinfo)
+# pragma unused (dpyinfo)
   return -1;  /* MAC_TODO : bitmap support */
 #endif  /* MAC_OS */
 
@@ -517,16 +514,18 @@ x_create_bitmap_from_file (struct frame *f, Lisp_Object file)
     return -1;
   }
 
-  id = x_allocate_bitmap_record (f);
+  id = x_allocate_bitmap_record(f);
   dpyinfo->bitmaps[id - 1].img = bitmap;
   dpyinfo->bitmaps[id - 1].refcount = 1;
-  dpyinfo->bitmaps[id - 1].file = xlispstrdup (file);
+  dpyinfo->bitmaps[id - 1].file = xlispstrdup(file);
   dpyinfo->bitmaps[id - 1].depth = 1;
-  dpyinfo->bitmaps[id - 1].height = ns_image_width (bitmap);
-  dpyinfo->bitmaps[id - 1].width = ns_image_height (bitmap);
+  dpyinfo->bitmaps[id - 1].height = ns_image_width(bitmap);
+  dpyinfo->bitmaps[id - 1].width = ns_image_height(bitmap);
   return id;
 #else
 # if defined(MAC_OS) || defined(HAVE_CARBON)
+  IF_LINT((void)dpyinfo);
+  IF_LINT((void)fprintf(stderr, "bitmap support is unimplemented.\n"));
   return -1;
 # endif /* MAC_OS || HAVE_CARBON */
 #endif /* HAVE_NS */
@@ -1357,13 +1356,13 @@ four_corners_best (XImagePtr_or_DC ximg, int *corners,
   RGB_PIXEL_COLOR corner_pixels[4], best IF_LINT (= 0);
   int i, best_count;
 
-  if (corners && corners[BOT_CORNER] >= 0)
+  if (corners && (corners[BOT_CORNER] >= 0))
     {
-      /* Get the colors at the corner_pixels of ximg.  */
-      corner_pixels[0] = GET_PIXEL (ximg, corners[LEFT_CORNER], corners[TOP_CORNER]);
-      corner_pixels[1] = GET_PIXEL (ximg, corners[RIGHT_CORNER] - 1, corners[TOP_CORNER]);
-      corner_pixels[2] = GET_PIXEL (ximg, corners[RIGHT_CORNER] - 1, corners[BOT_CORNER] - 1);
-      corner_pixels[3] = GET_PIXEL (ximg, corners[LEFT_CORNER], corners[BOT_CORNER] - 1);
+      /* Get the colors at the corner_pixels of ximg: */
+      corner_pixels[0] = GET_PIXEL(ximg, corners[LEFT_CORNER], corners[TOP_CORNER]);
+      corner_pixels[1] = GET_PIXEL(ximg, (corners[RIGHT_CORNER] - 1), corners[TOP_CORNER]);
+      corner_pixels[2] = GET_PIXEL(ximg, (corners[RIGHT_CORNER] - 1), (corners[BOT_CORNER] - 1));
+      corner_pixels[3] = GET_PIXEL(ximg, corners[LEFT_CORNER], (corners[BOT_CORNER] - 1));
     }
   else
     {
@@ -1389,23 +1388,16 @@ four_corners_best (XImagePtr_or_DC ximg, int *corners,
   return best;
 }
 
-/* Portability macros */
-
+/* Portability macros: */
 #ifdef HAVE_NTGUI
-
-#define Free_Pixmap(display, pixmap) \
-  DeleteObject (pixmap)
-
-#elif defined (HAVE_NS)
-
-#define Free_Pixmap(display, pixmap) \
-  ns_release_object (pixmap)
-
+# define Free_Pixmap(display, pixmap) \
+   DeleteObject (pixmap)
+#elif defined(HAVE_NS)
+# define Free_Pixmap(display, pixmap) \
+   ns_release_object(pixmap)
 #else
-
-#define Free_Pixmap(display, pixmap) \
-  XFreePixmap (display, pixmap)
-
+# define Free_Pixmap(display, pixmap) \
+   XFreePixmap(display, pixmap)
 #endif /* !HAVE_NTGUI && !HAVE_NS */
 
 
@@ -1414,7 +1406,7 @@ four_corners_best (XImagePtr_or_DC ximg, int *corners,
    XImage object (or device context with the image selected on W32) to
    use for the heuristic.  */
 RGB_PIXEL_COLOR
-image_background (struct image *img, struct frame *f, XImagePtr_or_DC ximg)
+image_background(struct image *img, struct frame *f, XImagePtr_or_DC ximg)
 {
   if (! img->background_valid)
     /* IMG does NOT have a background yet, so try to guess a reasonable
@@ -2784,8 +2776,7 @@ typedef CGImageRef (*CGImageCreateWithPNGDataProviderProcType)
 static CGImageCreateWithPNGDataProviderProcType MyCGImageCreateWithPNGDataProvider;
 
 
-static void
-init_image_func_pointer (void)
+static void init_image_func_pointer(void)
 {
   if (NSIsSymbolNameDefined ("_CGImageCreateWithPNGDataProvider")) {
     MyCGImageCreateWithPNGDataProvider
@@ -8444,8 +8435,9 @@ static int gif_load(struct frame *f, struct image *img)
   DisposeTrackMedia (media);
   DisposeMovieTrack (track);
   DisposeMovie (movie);
-  if (dh)
+  if (dh) {
     DisposeHandle(dh);
+  }
 
   /* Save GIF image extension data for `image-extension-data'.
    * Format is (count IMAGES 0xf9 GRAPHIC_CONTROL_EXTENSION_BLOCK).  */
@@ -9971,7 +9963,7 @@ void x_kill_gs_process (Pixmap pixmap, struct frame *f)
   Fkill_process (img->lisp_data, Qnil);
   img->lisp_data = Qnil;
 
-#if defined (HAVE_X_WINDOWS)
+# if defined(HAVE_X_WINDOWS)
 
   /* On displays with a mutable colormap, figure out the colors
      allocated for the image by looking at the pixels of an XImage for
@@ -10004,21 +9996,22 @@ void x_kill_gs_process (Pixmap pixmap, struct frame *f)
 	      }
 
 	  /* Record colors in the image.  Free color table and XImage.  */
-#ifdef COLOR_TABLE_SUPPORT
+#  ifdef COLOR_TABLE_SUPPORT
 	  img->colors = colors_in_color_table (&img->ncolors);
 	  free_color_table ();
-#endif
+#  endif /* COLOR_TABLE_SUPPORT */
 	  XDestroyImage (ximg);
 
-#if 0 /* This doesn't seem to be the case.  If we free the colors
-	 here, we get a BadAccess later in x_clear_image when
-	 freeing the colors.  */
+#  if 0 /* This does NOT seem to be the case.  If we free the colors
+	 * here, we get a BadAccess later in x_clear_image when
+	 * freeing the colors.  */
 	  /* We have allocated colors once, but Ghostscript has also
-	     allocated colors on behalf of us.  So, to get the
-	     reference counts right, free them once.  */
-	  if (img->ncolors)
-	    x_free_colors (f, img->colors, img->ncolors);
-#endif
+	   * allocated colors on behalf of us.  So, to get the
+	   * reference counts right, free them once.  */
+	  if (img->ncolors) {
+	    x_free_colors(f, img->colors, img->ncolors);
+          }
+#  endif /* 0 */
 	}
       else
 	image_error ("Cannot get X image of `%s'; colors will not be freed",
@@ -10026,7 +10019,7 @@ void x_kill_gs_process (Pixmap pixmap, struct frame *f)
 
       unblock_input ();
     }
-#endif /* HAVE_X_WINDOWS */
+# endif /* HAVE_X_WINDOWS */
 
   /* Now that we have the pixmap, compute mask and transform the
      image if requested.  */
@@ -10057,8 +10050,8 @@ DEFUN ("lookup-image", Flookup_image, Slookup_image, 1, 1, 0, "")
 {
   ptrdiff_t id = -1;
 
-  if (valid_image_p (spec))
-    id = lookup_image (SELECTED_FRAME (), spec);
+  if (valid_image_p(spec))
+    id = lookup_image(SELECTED_FRAME(), spec);
 
   debug_print (spec);
   return make_number (id);
@@ -10139,21 +10132,18 @@ lookup_image_type (Lisp_Object type)
 }
 
 /* Reset image_types before dumping.
-   Called from Fdump_emacs.  */
-
-void
-reset_image_types (void)
+ * Called from Fdump_emacs: */
+void reset_image_types(void)
 {
   while (image_types)
     {
       struct image_type *next = image_types->next;
-      xfree (image_types);
+      xfree(image_types);
       image_types = next;
     }
 }
 
-void
-syms_of_image (void)
+void syms_of_image(void)
 {
   /* Initialize this only once; it will be reset before dumping.  */
   image_types = NULL;
@@ -10178,38 +10168,38 @@ as a ratio to the frame height and width.  If the value is
 non-numeric, there is no explicit limit on the size of images.  */);
   Vmax_image_size = make_float (MAX_IMAGE_SIZE);
 
-  DEFSYM (Qcount, "count");
-  DEFSYM (Qextension_data, "extension-data");
-  DEFSYM (Qdelay, "delay");
+  DEFSYM(Qcount, "count");
+  DEFSYM(Qextension_data, "extension-data");
+  DEFSYM(Qdelay, "delay");
 
-  DEFSYM (QCascent, ":ascent");
-  DEFSYM (QCmargin, ":margin");
-  DEFSYM (QCrelief, ":relief");
-  DEFSYM (QCconversion, ":conversion");
-  DEFSYM (QCcolor_symbols, ":color-symbols");
-  DEFSYM (QCheuristic_mask, ":heuristic-mask");
-  DEFSYM (QCindex, ":index");
-  DEFSYM (QCgeometry, ":geometry");
-  DEFSYM (QCcrop, ":crop");
-  DEFSYM (QCrotation, ":rotation");
-  DEFSYM (QCmatrix, ":matrix");
-  DEFSYM (QCcolor_adjustment, ":color-adjustment");
-  DEFSYM (QCmask, ":mask");
+  DEFSYM(QCascent, ":ascent");
+  DEFSYM(QCmargin, ":margin");
+  DEFSYM(QCrelief, ":relief");
+  DEFSYM(QCconversion, ":conversion");
+  DEFSYM(QCcolor_symbols, ":color-symbols");
+  DEFSYM(QCheuristic_mask, ":heuristic-mask");
+  DEFSYM(QCindex, ":index");
+  DEFSYM(QCgeometry, ":geometry");
+  DEFSYM(QCcrop, ":crop");
+  DEFSYM(QCrotation, ":rotation");
+  DEFSYM(QCmatrix, ":matrix");
+  DEFSYM(QCcolor_adjustment, ":color-adjustment");
+  DEFSYM(QCmask, ":mask");
 
-  DEFSYM (Qlaplace, "laplace");
-  DEFSYM (Qemboss, "emboss");
-  DEFSYM (Qedge_detection, "edge-detection");
-  DEFSYM (Qheuristic, "heuristic");
+  DEFSYM(Qlaplace, "laplace");
+  DEFSYM(Qemboss, "emboss");
+  DEFSYM(Qedge_detection, "edge-detection");
+  DEFSYM(Qheuristic, "heuristic");
 
-  DEFSYM (Qpostscript, "postscript");
-  DEFSYM (QCmax_width, ":max-width");
-  DEFSYM (QCmax_height, ":max-height");
+  DEFSYM(Qpostscript, "postscript");
+  DEFSYM(QCmax_width, ":max-width");
+  DEFSYM(QCmax_height, ":max-height");
 #ifdef HAVE_GHOSTSCRIPT
   ADD_IMAGE_TYPE (Qpostscript);
-  DEFSYM (QCloader, ":loader");
-  DEFSYM (QCbounding_box, ":bounding-box");
-  DEFSYM (QCpt_width, ":pt-width");
-  DEFSYM (QCpt_height, ":pt-height");
+  DEFSYM(QCloader, ":loader");
+  DEFSYM(QCbounding_box, ":bounding-box");
+  DEFSYM(QCpt_width, ":pt-width");
+  DEFSYM(QCpt_height, ":pt-height");
 #endif /* HAVE_GHOSTSCRIPT */
 
 #ifdef HAVE_NTGUI
@@ -10278,29 +10268,29 @@ non-numeric, there is no explicit limit on the size of images.  */);
 #endif /* HAVE_IMAGEMAGICK */
 
 #if defined (HAVE_RSVG)
-  DEFSYM (Qsvg, "svg");
-  ADD_IMAGE_TYPE (Qsvg);
+  DEFSYM(Qsvg, "svg");
+  ADD_IMAGE_TYPE(Qsvg);
 # ifdef HAVE_NTGUI
   /* Other libraries used directly by svg code.  */
-  DEFSYM (Qgdk_pixbuf, "gdk-pixbuf");
-  DEFSYM (Qglib, "glib");
-  DEFSYM (Qgobject, "gobject");
+  DEFSYM(Qgdk_pixbuf, "gdk-pixbuf");
+  DEFSYM(Qglib, "glib");
+  DEFSYM(Qgobject, "gobject");
 # endif /* HAVE_NTGUI  */
 #endif /* HAVE_RSVG  */
 
-  defsubr (&Sinit_image_library);
+  defsubr(&Sinit_image_library);
 #ifdef HAVE_IMAGEMAGICK
-  defsubr (&Simagemagick_types);
+  defsubr(&Simagemagick_types);
 #endif /* HAVE_IMAGEMAGICK */
-  defsubr (&Sclear_image_cache);
-  defsubr (&Simage_flush);
-  defsubr (&Simage_size);
-  defsubr (&Simage_mask_p);
-  defsubr (&Simage_metadata);
+  defsubr(&Sclear_image_cache);
+  defsubr(&Simage_flush);
+  defsubr(&Simage_size);
+  defsubr(&Simage_mask_p);
+  defsubr(&Simage_metadata);
 
 #ifdef GLYPH_DEBUG
-  defsubr (&Simagep);
-  defsubr (&Slookup_image);
+  defsubr(&Simagep);
+  defsubr(&Slookup_image);
 #endif /* GLYPH_DEBUG */
 
   DEFVAR_BOOL ("cross-disabled-images", cross_disabled_images,
@@ -10345,10 +10335,29 @@ void init_image(void)
 # if defined(MAC_OS) && defined(MAC_OSX) && \
      (defined(TARGET_API_MAC_CARBON) && TARGET_API_MAC_CARBON)
   init_image_func_pointer();
+# else
+#  if defined(lint) && lint
+  int ret = fprintf(stderr, "init_image()\n");
+  if (ret != 0) {
+    ;
+  }
+#  endif /* lint */
 # endif /* MAC_OS && MAC_OSX && TARGET_API_MAC_CARBON */
   return;
 }
 #endif /* MAC_OS || HAVE_CARBON */
+
+#ifdef ZPixmap
+# undef ZPixmap
+#endif /* ZPixmap */
+
+#ifdef XLIB_ILLEGAL_ACCESS
+# undef XLIB_ILLEGAL_ACCESS
+#endif /* XLIB_ILLEGAL_ACCESS */
+
+#ifdef FRAME_X_VISUAL
+# undef FRAME_X_VISUAL
+#endif /* FRAME_X_VISUAL */
 
 /* arch-tag: 123c2a5e-14a8-4c53-ab95-af47d7db49b9
    (do not change this comment) */

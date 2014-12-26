@@ -542,7 +542,7 @@ struct buffer
   /* 'struct buffer *base_buffer;' now moved farther below */
 #endif /* _USE_OLD_LISP_DATA_STRUCTURES */
 
-  /* The name of this buffer.  */
+  /* The name of this buffer: */
   Lisp_Object INTERNAL_FIELD (name);
 
   /* The name of the file visited in this buffer, or nil.  */

@@ -2595,10 +2595,9 @@ x_set_visibility (f, value, oldval)
 }
 
 
-/* Change window heights in windows rooted in WINDOW by N lines.  */
-
+/* Change window heights in windows rooted in WINDOW by N lines: */
 static void
-x_change_window_heights (window, n)
+x_change_window_heights(window, n)
   Lisp_Object window;
   int n;
 {

@@ -23,6 +23,10 @@
 		A540EEB51A0C33390008DA29 /* isemacsvalid.c in Sources */ = {isa = PBXBuildFile; fileRef = A540EEB41A0C33390008DA29 /* isemacsvalid.c */; };
 		A540EEB81A0C33DF0008DA29 /* runit.c in Sources */ = {isa = PBXBuildFile; fileRef = A540E9D31A0C1FF60008DA29 /* runit.c */; };
 		A540F1951A0EBC5D0008DA29 /* emacs-ppc.c in Sources */ = {isa = PBXBuildFile; fileRef = A540E9BC1A0C1F270008DA29 /* emacs-ppc.c */; };
+		A5B3C7181A2C2FA300D553ED /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5B3C7171A2C2FA200D553ED /* ApplicationServices.framework */; };
+		A5B3C7EA1A2C32D900D553ED /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5B3C7E91A2C32D900D553ED /* Cocoa.framework */; };
+		A5B3C8A81A2C333700D553ED /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5B3C8A71A2C333700D553ED /* CoreData.framework */; };
+		A5B3C8C51A2C335D00D553ED /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5B3C8C41A2C335D00D553ED /* Foundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -281,7 +285,7 @@
 		A540EB0B1A0C28680008DA29 /* lwlib-Xaw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "lwlib-Xaw.h"; sourceTree = "<group>"; };
 		A540EB0C1A0C28680008DA29 /* lwlib-Xlw.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "lwlib-Xlw.c"; sourceTree = "<group>"; };
 		A540EB0D1A0C28680008DA29 /* lwlib-Xlw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "lwlib-Xlw.h"; sourceTree = "<group>"; };
-		A540EB0E1A0C28680008DA29 /* lwlib-Xm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "lwlib-Xm.c"; sourceTree = "<group>"; };
+		A540EB0E1A0C28680008DA29 /* lwlib-Xm.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = "lwlib-Xm.c"; sourceTree = "<group>"; tabWidth = 8; };
 		A540EB0F1A0C28680008DA29 /* lwlib-Xm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "lwlib-Xm.h"; sourceTree = "<group>"; };
 		A540EB101A0C28680008DA29 /* lwlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lwlib.c; sourceTree = "<group>"; };
 		A540EB111A0C28680008DA29 /* lwlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lwlib.h; sourceTree = "<group>"; };
@@ -392,7 +396,7 @@
 		A540EC0E1A0C29D40008DA29 /* casetab.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = casetab.c; sourceTree = "<group>"; tabWidth = 8; };
 		A540EC0F1A0C29D40008DA29 /* category.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = category.c; sourceTree = "<group>"; };
 		A540EC101A0C29D40008DA29 /* category.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = category.h; sourceTree = "<group>"; };
-		A540EC111A0C29D40008DA29 /* ccl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ccl.c; sourceTree = "<group>"; };
+		A540EC111A0C29D40008DA29 /* ccl.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = ccl.c; sourceTree = "<group>"; tabWidth = 8; };
 		A540EC121A0C29D40008DA29 /* ccl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ccl.h; sourceTree = "<group>"; };
 		A540EC201A0C29D40008DA29 /* character.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = character.c; sourceTree = "<group>"; };
 		A540EC211A0C29D40008DA29 /* character.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = character.h; sourceTree = "<group>"; tabWidth = 8; };
@@ -592,7 +596,7 @@
 		A540ECE91A0C29D50008DA29 /* macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = macros.h; sourceTree = "<group>"; };
 		A540ECEA1A0C29D50008DA29 /* macselect.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = macselect.c; sourceTree = "<group>"; tabWidth = 8; };
 		A540ECEB1A0C29D50008DA29 /* macterm.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = macterm.c; sourceTree = "<group>"; tabWidth = 8; };
-		A540ECEC1A0C29D50008DA29 /* macterm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = macterm.h; sourceTree = "<group>"; };
+		A540ECEC1A0C29D50008DA29 /* macterm.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = macterm.h; sourceTree = "<group>"; tabWidth = 8; };
 		A540ECED1A0C29D50008DA29 /* macuvs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = macuvs.h; sourceTree = "<group>"; };
 		A540ECF11A0C29D50008DA29 /* marker.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = marker.c; sourceTree = "<group>"; };
 		A540ECF21A0C29D50008DA29 /* md5.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = md5.c; sourceTree = "<group>"; };
@@ -837,7 +841,7 @@
 		A540EDE71A0C29D50008DA29 /* widget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = widget.h; sourceTree = "<group>"; };
 		A540EDE81A0C29D50008DA29 /* widgetprv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = widgetprv.h; sourceTree = "<group>"; };
 		A540EDE91A0C29D50008DA29 /* window.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = window.c; sourceTree = "<group>"; tabWidth = 8; };
-		A540EDEA1A0C29D50008DA29 /* window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = window.h; sourceTree = "<group>"; };
+		A540EDEA1A0C29D50008DA29 /* window.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = window.h; sourceTree = "<group>"; tabWidth = 8; };
 		A540EDEB1A0C29D50008DA29 /* x-list-font.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "x-list-font.c"; sourceTree = "<group>"; };
 		A540EDEC1A0C29D50008DA29 /* xdisp.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = xdisp.c; sourceTree = "<group>"; tabWidth = 8; };
 		A540EDED1A0C29D50008DA29 /* xfaces.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = xfaces.c; sourceTree = "<group>"; tabWidth = 8; };
@@ -867,6 +871,10 @@
 		A5513EFC1A0FEB5300E9E9C5 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = /System/Library/Frameworks/IOKit.framework; sourceTree = "<absolute>"; };
 		A5B3C7021A2A191F00D553ED /* wincompat_test.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = wincompat_test.c; sourceTree = "<group>"; };
 		A5B3C7031A2A191F00D553ED /* wincompat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wincompat.h; sourceTree = "<group>"; };
+		A5B3C7171A2C2FA200D553ED /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = /System/Library/Frameworks/ApplicationServices.framework; sourceTree = "<absolute>"; };
+		A5B3C7E91A2C32D900D553ED /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		A5B3C8A71A2C333700D553ED /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
+		A5B3C8C41A2C335D00D553ED /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -881,6 +889,10 @@
 				A5361DB31A2126260058110B /* IOKit.framework in Frameworks */,
 				A5361DB41A2126260058110B /* QuickTime.framework in Frameworks */,
 				A5361DB51A2126260058110B /* System.framework in Frameworks */,
+				A5B3C7181A2C2FA300D553ED /* ApplicationServices.framework in Frameworks */,
+				A5B3C7EA1A2C32D900D553ED /* Cocoa.framework in Frameworks */,
+				A5B3C8A81A2C333700D553ED /* CoreData.framework in Frameworks */,
+				A5B3C8C51A2C335D00D553ED /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1900,9 +1912,13 @@
 			isa = PBXGroup;
 			children = (
 				A5513A131A0FEAFD00E9E9C5 /* AppKit.framework */,
+				A5B3C7171A2C2FA200D553ED /* ApplicationServices.framework */,
 				A5513ACE1A0FEB0F00E9E9C5 /* Carbon.framework */,
+				A5B3C7E91A2C32D900D553ED /* Cocoa.framework */,
+				A5B3C8A71A2C333700D553ED /* CoreData.framework */,
 				A5513B8A1A0FEB1F00E9E9C5 /* CoreFoundation.framework */,
 				A5513BCC1A0FEB2700E9E9C5 /* CoreServices.framework */,
+				A5B3C8C41A2C335D00D553ED /* Foundation.framework */,
 				A5513EFC1A0FEB5300E9E9C5 /* IOKit.framework */,
 				A5513C841A0FEB3300E9E9C5 /* QuickTime.framework */,
 				A5513CA91A0FEB4200E9E9C5 /* System.framework */,
@@ -2275,6 +2291,7 @@
 				GCC_WARN_ABOUT_GLOBAL_CONSTRUCTORS = YES;
 				INFOPLIST_FILE = "dummy-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				OTHER_LDFLAGS = (
 					"-no_pie",
 					"-warn_commons",
@@ -2348,6 +2365,7 @@
 				GCC_PREFIX_HEADER = dummy_Prefix.pch;
 				INFOPLIST_FILE = "dummy-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				OTHER_LDFLAGS = (
 					"-no_pie",
 					"-framework",

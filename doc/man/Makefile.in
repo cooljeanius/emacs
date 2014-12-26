@@ -170,12 +170,12 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/00gnulib.m4 \
 	$(top_srcdir)/m4/stddef_h.m4 $(top_srcdir)/m4/stdint.m4 \
 	$(top_srcdir)/m4/stdint_h.m4 $(top_srcdir)/m4/stdio_h.m4 \
 	$(top_srcdir)/m4/stdlib_h.m4 $(top_srcdir)/m4/stdnoreturn.m4 \
-	$(top_srcdir)/m4/strchrnul.m4 $(top_srcdir)/m4/strerror.m4 \
-	$(top_srcdir)/m4/strftime.m4 $(top_srcdir)/m4/string_h.m4 \
-	$(top_srcdir)/m4/strstr.m4 $(top_srcdir)/m4/strtoimax.m4 \
-	$(top_srcdir)/m4/strtoll.m4 $(top_srcdir)/m4/strtoull.m4 \
-	$(top_srcdir)/m4/strtoumax.m4 $(top_srcdir)/m4/symlink.m4 \
-	$(top_srcdir)/m4/sys_ioctl_h.m4 \
+	$(top_srcdir)/m4/stpcpy.m4 $(top_srcdir)/m4/strchrnul.m4 \
+	$(top_srcdir)/m4/strerror.m4 $(top_srcdir)/m4/strftime.m4 \
+	$(top_srcdir)/m4/string_h.m4 $(top_srcdir)/m4/strstr.m4 \
+	$(top_srcdir)/m4/strtoimax.m4 $(top_srcdir)/m4/strtoll.m4 \
+	$(top_srcdir)/m4/strtoull.m4 $(top_srcdir)/m4/strtoumax.m4 \
+	$(top_srcdir)/m4/symlink.m4 $(top_srcdir)/m4/sys_ioctl_h.m4 \
 	$(top_srcdir)/m4/sys_resource_h.m4 \
 	$(top_srcdir)/m4/sys_select_h.m4 \
 	$(top_srcdir)/m4/sys_socket_h.m4 \
@@ -191,7 +191,7 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/00gnulib.m4 \
 	$(top_srcdir)/m4/wctype_h.m4 $(top_srcdir)/m4/wint_t.m4 \
 	$(top_srcdir)/m4/x11.m4 $(top_srcdir)/m4/xalloc.m4 \
 	$(top_srcdir)/m4/options.m4 $(top_srcdir)/m4/grep.m4 \
-	$(top_srcdir)/m4/gcc-version.m4 \
+	$(top_srcdir)/m4/override.m4 $(top_srcdir)/m4/gcc-version.m4 \
 	$(top_srcdir)/m4/compiler_id.m4 $(top_srcdir)/m4/pkg_extra.m4 \
 	$(top_srcdir)/m4/headers_extra.m4 \
 	$(top_srcdir)/m4/timezone_structs.m4 \
@@ -915,6 +915,7 @@ HAVE_LOGL = @HAVE_LOGL@
 HAVE_LONG_LONG_INT = @HAVE_LONG_LONG_INT@
 HAVE_LSTAT = @HAVE_LSTAT@
 HAVE_MAKEINFO = @HAVE_MAKEINFO@
+HAVE_MAX_ALIGN_T = @HAVE_MAX_ALIGN_T@
 HAVE_MBRLEN = @HAVE_MBRLEN@
 HAVE_MBRTOWC = @HAVE_MBRTOWC@
 HAVE_MBSINIT = @HAVE_MBSINIT@
@@ -1145,6 +1146,7 @@ LIBX_OTHER = @LIBX_OTHER@
 LIBZ = @LIBZ@
 LIB_ACL = @LIB_ACL@
 LIB_CLOCK_GETTIME = @LIB_CLOCK_GETTIME@
+LIB_CRYPTO = @LIB_CRYPTO@
 LIB_EACCESS = @LIB_EACCESS@
 LIB_EXECINFO = @LIB_EXECINFO@
 LIB_FDATASYNC = @LIB_FDATASYNC@
@@ -1152,6 +1154,7 @@ LIB_MATH = @LIB_MATH@
 LIB_POSIX_SPAWN = @LIB_POSIX_SPAWN@
 LIB_PTHREAD = @LIB_PTHREAD@
 LIB_PTHREAD_SIGMASK = @LIB_PTHREAD_SIGMASK@
+LIB_SELECT = @LIB_SELECT@
 LIB_TIMER_TIME = @LIB_TIMER_TIME@
 LIB_WSOCK32 = @LIB_WSOCK32@
 LIPO = @LIPO@

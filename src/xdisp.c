@@ -322,14 +322,14 @@ static Lisp_Object Qinhibit_eval_during_redisplay;
 static Lisp_Object Qbuffer_position, Qposition, Qobject;
 static Lisp_Object Qright_to_left, Qleft_to_right;
 
-/* Cursor shapes.  */
+/* Cursor shapes: */
 Lisp_Object Qbar, Qhbar, Qbox, Qhollow;
 
-/* Pointer shapes.  */
+/* Pointer shapes: */
 static Lisp_Object Qarrow, Qhand;
 Lisp_Object Qtext;
 
-/* Holds the list (error).  */
+/* Holds the list (error): */
 static Lisp_Object list_of_error;
 
 static Lisp_Object Qfontification_functions;
@@ -338,12 +338,10 @@ static Lisp_Object Qwrap_prefix;
 static Lisp_Object Qline_prefix;
 static Lisp_Object Qredisplay_internal;
 
-/* Non-nil means don't actually do any redisplay.  */
-
+/* Non-nil means do NOT actually do any redisplay: */
 Lisp_Object Qinhibit_redisplay;
 
-/* Names of text properties relevant for redisplay.  */
-
+/* Names of text properties relevant for redisplay: */
 Lisp_Object Qdisplay;
 
 Lisp_Object Qspace, QCalign_to;
@@ -388,38 +386,32 @@ static Lisp_Object Qline_height;
 	   && (*BYTE_POS_ADDR (IT_BYTEPOS (*it)) == ' '			\
 	       || *BYTE_POS_ADDR (IT_BYTEPOS (*it)) == '\t'))))		\
 
-/* Name of the face used to highlight trailing whitespace.  */
-
+/* Name of the face used to highlight trailing whitespace: */
 static Lisp_Object Qtrailing_whitespace;
 
-/* Name and number of the face used to highlight escape glyphs.  */
-
+/* Name and number of the face used to highlight escape glyphs: */
 static Lisp_Object Qescape_glyph;
 
-/* Name and number of the face used to highlight non-breaking spaces.  */
-
+/* Name and number of the face used to highlight non-breaking spaces: */
 static Lisp_Object Qnobreak_space;
 
 /* The symbol `image' which is the car of the lists used to represent
    images in Lisp.  Also a tool bar style.  */
-
 Lisp_Object Qimage;
 
-/* The image map types.  */
+/* The image map types: */
 Lisp_Object QCmap;
 static Lisp_Object QCpointer;
 static Lisp_Object Qrect, Qcircle, Qpoly;
 
-/* Tool bar styles */
+/* Tool bar styles: */
 Lisp_Object Qboth, Qboth_horiz, Qtext_image_horiz;
 
 /* Non-zero means print newline to stdout before next mini-buffer
    message.  */
-
 bool noninteractive_need_newline;
 
-/* Non-zero means print newline to message log before next message.  */
-
+/* Non-zero means print newline to message log before next message: */
 static bool message_log_need_newline;
 
 /* Three markers that message_dolog uses.
@@ -433,33 +425,27 @@ static Lisp_Object message_dolog_marker3;
    partially on the line of the selected window which contains the
    cursor; <= 0 if not known.  Set by set_cursor_from_row, used for
    redisplay optimization in redisplay_internal.  */
-
 static struct text_pos this_line_start_pos;
 
 /* Number of characters past the end of the line above, including the
    terminating newline.  */
-
 static struct text_pos this_line_end_pos;
 
-/* The vertical positions and the height of this line.  */
-
+/* The vertical positions and the height of this line: */
 static int this_line_vpos;
 static int this_line_y;
 static int this_line_pixel_height;
 
 /* X position at which this display line starts.  Usually zero;
    negative if first character is partially visible.  */
-
 static int this_line_start_x;
 
 /* The smallest character position seen by move_it_* functions as they
    move across display lines.  Used to set MATRIX_ROW_START_CHARPOS of
    hscrolled lines, see display_line.  */
-
 static struct text_pos this_line_min_pos;
 
 /* Buffer that this_line_.* variables are referring to.  */
-
 static struct buffer *this_line_buffer;
 
 
@@ -467,40 +453,33 @@ static struct buffer *this_line_buffer;
    properties on `overlay-arrow-position' symbol.  However, if
    Voverlay_arrow_position is a marker, last-arrow-position is its
    numerical position.  */
-
 static Lisp_Object Qlast_arrow_position, Qlast_arrow_string;
 
 /* Alternative overlay-arrow-string and overlay-arrow-bitmap
    properties on a symbol in overlay-arrow-variable-list.  */
-
 static Lisp_Object Qoverlay_arrow_string, Qoverlay_arrow_bitmap;
 
 Lisp_Object Qmenu_bar_update_hook;
 
 /* Nonzero if an overlay arrow has been displayed in this window.  */
-
 static bool overlay_arrow_seen;
 
 /* Vector containing glyphs for an ellipsis `...'.  */
-
 static Lisp_Object default_invis_vector[3];
 
 /* This is the window where the echo area message was displayed.  It
    is always a mini-buffer window, but it may not be the same window
    currently active as a mini-buffer.  */
-
 Lisp_Object echo_area_window;
 
 /* List of pairs (MESSAGE . MULTIBYTE).  The function save_message
    pushes the current message and the value of
    message_enable_multibyte on the stack, the function restore_message
    pops the stack and displays MESSAGE again.  */
-
 static Lisp_Object Vmessage_stack;
 
 /* Nonzero means multibyte characters were enabled when the echo area
    message was specified.  */
-
 static bool message_enable_multibyte;
 
 /* Nonzero if we should redraw the mode lines on the next redisplay.
@@ -508,7 +487,6 @@ static bool message_enable_multibyte;
    the `redisplay' bit has been set.  Otherwise, redisplay all mode lines
    (the number used is then only used to track down the cause for this
    full-redisplay).  */
-
 int update_mode_lines;
 
 /* Nonzero if window sizes or contents other than selected-window have changed
@@ -517,64 +495,51 @@ int update_mode_lines;
    the `redisplay' bit has been set.  Otherwise, redisplay all windows
    (the number used is then only used to track down the cause for this
    full-redisplay).  */
-
 int windows_or_buffers_changed;
 
 /* Nonzero after display_mode_line if %l was used and it displayed a
    line number.  */
-
 static bool line_number_displayed;
 
-/* The name of the *Messages* buffer, a string.  */
-
+/* The name of the *Messages* buffer, a string: */
 static Lisp_Object Vmessages_buffer_name;
 
 /* Current, index 0, and last displayed echo area message.  Either
    buffers from echo_buffers, or nil to indicate no message.  */
-
 Lisp_Object echo_area_buffer[2];
 
-/* The buffers referenced from echo_area_buffer.  */
-
+/* The buffers referenced from echo_area_buffer: */
 static Lisp_Object echo_buffer[2];
 
-/* A vector saved used in with_area_buffer to reduce consing.  */
-
+/* A vector saved used in with_area_buffer to reduce consing: */
 static Lisp_Object Vwith_echo_area_save_vector;
 
 /* Non-zero means display_echo_area should display the last echo area
    message again.  Set by redisplay_preserve_echo_area.  */
-
 static bool display_last_displayed_message_p;
 
 /* Nonzero if echo area is being used by print; zero if being used by
    message.  */
-
 static bool message_buf_print;
 
-/* The symbol `inhibit-menubar-update' and its DEFVAR_BOOL variable.  */
-
+/* The symbol `inhibit-menubar-update' and its DEFVAR_BOOL variable: */
 static Lisp_Object Qinhibit_menubar_update;
 static Lisp_Object Qmessage_truncate_lines;
 
 /* Set to 1 in clear_message to make redisplay_internal aware
    of an emptied echo area.  */
-
 static bool message_cleared_p;
 
 /* A scratch glyph row with contents used for generating truncation
    glyphs.  Also used in direct_output_for_insert.  */
-
 #define MAX_SCRATCH_GLYPHS 100
 static struct glyph_row scratch_glyph_row;
 static struct glyph scratch_glyphs[MAX_SCRATCH_GLYPHS];
 
-/* Ascent and height of the last line processed by move_it_to.  */
-
+/* Ascent and height of the last line processed by move_it_to: */
 static int last_height;
 
-/* Non-zero if there's a help-echo in the echo area.  */
-
+/* Non-zero if there is a help-echo in the echo area: */
 bool help_echo_showing_p;
 
 /* The maximum distance to look ahead for text properties.  Values
@@ -582,7 +547,6 @@ bool help_echo_showing_p;
    functions too often which is expensive.  Values that are too large
    let us call compute_char_face and alike too often because we
    might not be interested in text properties that far away.  */
-
 #define TEXT_PROP_DISTANCE_LIMIT 100
 
 /* SAVE_IT and RESTORE_IT are called when we save a snapshot of the
@@ -608,50 +572,45 @@ bool help_echo_showing_p;
     CACHE = NULL;				\
   } while (0)
 
-/* Functions to mark elements as needing redisplay.  */
-enum { REDISPLAY_SOME = 2};	/* Arbitrary choice.  */
+/* Functions to mark elements as needing redisplay: */
+enum { REDISPLAY_SOME = 2 };	/* Arbitrary choice.  */
 
-void
-redisplay_other_windows (void)
+void redisplay_other_windows(void)
 {
   if (!windows_or_buffers_changed)
     windows_or_buffers_changed = REDISPLAY_SOME;
 }
 
-void
-wset_redisplay (struct window *w)
+void wset_redisplay(struct window *w)
 {
-  /* Beware: selected_window can be nil during early stages.  */
-  if (!EQ (make_lisp_ptr (w, Lisp_Vectorlike), selected_window))
-    redisplay_other_windows ();
+  /* Beware: selected_window can be nil during early stages: */
+  if (!EQ(make_lisp_ptr(w, Lisp_Vectorlike), selected_window))
+    redisplay_other_windows();
   w->redisplay = true;
 }
 
-void
-fset_redisplay (struct frame *f)
+void fset_redisplay(struct frame *f)
 {
-  redisplay_other_windows ();
+  redisplay_other_windows();
   f->redisplay = true;
 }
 
-void
-bset_redisplay (struct buffer *b)
+void bset_redisplay(struct buffer *b)
 {
-  int count = buffer_window_count (b);
+  int count = buffer_window_count(b);
   if (count > 0)
     {
-      /* ... it's visible in other window than selected,  */
-      if (count > 1 || b != XBUFFER (XWINDOW (selected_window)->contents))
-	redisplay_other_windows ();
-      /* Even if we don't set windows_or_buffers_changed, do set `redisplay'
-	 so that if we later set windows_or_buffers_changed, this buffer will
-	 not be omitted.  */
+      /* ... it is visible in other window than selected,  */
+      if (count > 1 || b != XBUFFER(XWINDOW(selected_window)->contents))
+	redisplay_other_windows();
+      /* Even if we do NOT set windows_or_buffers_changed, do set
+       * `redisplay' so that if we later set windows_or_buffers_changed,
+       * this buffer will not be omitted: */
       b->text->redisplay = true;
     }
 }
 
-void
-bset_update_mode_line (struct buffer *b)
+void bset_update_mode_line(struct buffer *b)
 {
   if (!update_mode_lines)
     update_mode_lines = REDISPLAY_SOME;
@@ -662,28 +621,25 @@ bset_update_mode_line (struct buffer *b)
 
 /* Non-zero means print traces of redisplay if compiled with
    GLYPH_DEBUG defined.  */
-
 bool trace_redisplay_p;
 
 #endif /* GLYPH_DEBUG */
 
 #ifdef DEBUG_TRACE_MOVE
-/* Non-zero means trace with TRACE_MOVE to stderr.  */
+/* Non-zero means trace with TRACE_MOVE to stderr: */
 int trace_move;
 
-#define TRACE_MOVE(x)	if (trace_move) fprintf x; else (void) 0
+# define TRACE_MOVE(x)	if (trace_move) fprintf x; else (void) 0
 #else
-#define TRACE_MOVE(x)	(void) 0
-#endif
+# define TRACE_MOVE(x)	(void) 0
+#endif /* DEBUG_TRACE_MOVE */
 
 static Lisp_Object Qauto_hscroll_mode;
 
-/* Buffer being redisplayed -- for redisplay_window_error.  */
-
+/* Buffer being redisplayed -- for redisplay_window_error: */
 static struct buffer *displayed_buffer;
 
-/* Value returned from text property handlers (see below).  */
-
+/* Value returned from text property handlers (see below): */
 enum prop_handled
 {
   HANDLED_NORMALLY,
@@ -692,15 +648,13 @@ enum prop_handled
   HANDLED_RETURN
 };
 
-/* A description of text properties that redisplay is interested
-   in.  */
-
+/* A description of text properties in which redisplay is interested: */
 struct props
 {
-  /* The name of the property.  */
+  /* The name of the property:: */
   Lisp_Object *name;
 
-  /* A unique index for the property.  */
+  /* A unique index for the property: */
   enum prop_idx idx;
 
   /* A handler function called to set up iterator IT from the property
@@ -715,8 +669,7 @@ static enum prop_handled handle_composition_prop (struct it *);
 static enum prop_handled handle_overlay_change (struct it *);
 static enum prop_handled handle_fontified_prop (struct it *);
 
-/* Properties handled by iterators.  */
-
+/* Properties handled by iterators: */
 static struct props it_props[] =
 {
   {&Qfontified,		FONTIFIED_PROP_IDX,	handle_fontified_prop},
@@ -731,11 +684,9 @@ static struct props it_props[] =
 
 /* Value is the position described by X.  If X is a marker, value is
    the marker_position of X.  Otherwise, value is X.  */
-
 #define COERCE_MARKER(X) (MARKERP ((X)) ? Fmarker_position (X) : (X))
 
-/* Enumeration returned by some move_it_.* functions internally.  */
-
+/* Enumeration returned by some move_it_.* functions internally: */
 enum move_it_result
 {
   /* Not used.  Undefined value.  */
@@ -763,22 +714,19 @@ enum move_it_result
    in redisplay_internal.  It is incremented for each redisplay.
    Every CLEAR_FACE_CACHE_COUNT full redisplays, the face cache is
    cleared.  */
-
 #define CLEAR_FACE_CACHE_COUNT	500
 static int clear_face_cache_count;
 
-/* Similarly for the image cache.  */
-
+/* Similarly for the image cache: */
 #ifdef HAVE_WINDOW_SYSTEM
-#define CLEAR_IMAGE_CACHE_COUNT	101
+# define CLEAR_IMAGE_CACHE_COUNT 101
 static int clear_image_cache_count;
 
-/* Null glyph slice */
+/* Null glyph slice: */
 static struct glyph_slice null_glyph_slice = { 0, 0, 0, 0 };
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
 
-/* True while redisplay_internal is in progress.  */
-
+/* True while redisplay_internal is in progress: */
 bool redisplaying_p;
 
 static Lisp_Object Qinhibit_free_realized_faces;
@@ -786,21 +734,18 @@ static Lisp_Object Qmode_line_default_help_echo;
 
 /* If a string, XTread_socket generates an event to display that string.
    (The display is done in read_char.)  */
-
 Lisp_Object help_echo_string;
 Lisp_Object help_echo_window;
 Lisp_Object help_echo_object;
 ptrdiff_t help_echo_pos;
 
-/* Temporary variable for XTread_socket.  */
-
+/* Temporary variable for XTread_socket: */
 Lisp_Object previous_help_echo_string;
 
-/* Platform-independent portion of hourglass implementation.  */
-
+/* Platform-independent portion of hourglass implementation: */
 #ifdef HAVE_WINDOW_SYSTEM
 
-/* Non-zero means an hourglass cursor is currently shown.  */
+/* Non-zero means an hourglass cursor is currently shown: */
 bool hourglass_shown_p;
 
 /* If non-null, an asynchronous timer that, when it expires, displays
@@ -809,13 +754,13 @@ struct atimer *hourglass_atimer;
 
 #endif /* HAVE_WINDOW_SYSTEM */
 
-/* Name of the face used to display glyphless characters.  */
+/* Name of the face used to display glyphless characters: */
 static Lisp_Object Qglyphless_char;
 
-/* Symbol for the purpose of Vglyphless_char_display.  */
+/* Symbol for the purpose of Vglyphless_char_display: */
 static Lisp_Object Qglyphless_char_display;
 
-/* Method symbols for Vglyphless_char_display.  */
+/* Method symbols for Vglyphless_char_display: */
 static Lisp_Object Qhex_code, Qempty_box, Qthin_space, Qzero_width;
 
 /* Default number of seconds to wait before displaying an hourglass
@@ -823,14 +768,11 @@ static Lisp_Object Qhex_code, Qempty_box, Qthin_space, Qzero_width;
 #define DEFAULT_HOURGLASS_DELAY 1
 
 #ifdef HAVE_WINDOW_SYSTEM
-
-/* Default pixel width of `thin-space' display method.  */
-#define THIN_SPACE_WIDTH 1
-
+/* Default pixel width of `thin-space' display method: */
+# define THIN_SPACE_WIDTH 1
 #endif /* HAVE_WINDOW_SYSTEM */
 
-/* Function prototypes.  */
-
+/* Function prototypes: */
 static void setup_for_ellipsis (struct it *, int);
 static void set_iterator_to_next (struct it *, int);
 static void mark_window_display_accurate_1 (struct window *, int);
@@ -986,7 +928,6 @@ static void append_stretch_glyph (struct it *, Lisp_Object,
 static void produce_special_glyphs (struct it *, enum display_element_type);
 static void show_mouse_face (Mouse_HLInfo *, enum draw_glyphs_face);
 static bool coords_in_mouse_face_p (struct window *, int, int);
-
 
 
 /***********************************************************************
@@ -13322,12 +13263,12 @@ redisplay_internal (void)
   if (!fr->glyphs_initialized_p)
     return;
 
-#if defined (USE_X_TOOLKIT) || defined (USE_GTK) || defined (MAC_OS) || defined (HAVE_NS)
-  if (popup_activated ())
+#if defined(USE_X_TOOLKIT) || defined(USE_GTK) || defined(MAC_OS) || defined(HAVE_NS)
+  if (popup_activated())
     return;
-#endif
+#endif /* USE_X_TOOLKIT || USE_GTK || MAC_OS || HAVE_NS */
 
-  /* I don't think this happens but let's be paranoid.  */
+  /* I do NOT think that this happens, but let us be paranoid: */
   if (redisplaying_p)
     return;
 
@@ -13345,7 +13286,7 @@ redisplay_internal (void)
     XFRAME (frame)->already_hscrolled_p = 0;
 
  retry:
-  /* Remember the currently selected window.  */
+  /* Remember the currently selected window: */
   sw = w;
 
   pending = 0;
@@ -13369,7 +13310,7 @@ redisplay_internal (void)
       SET_FRAME_GARBAGED (sf);
 #ifndef DOS_NT
       set_tty_color_mode (FRAME_TTY (sf), sf);
-#endif
+#endif /* !DOS_NT */
       FRAME_TTY (sf)->previous_frame = sf;
     }
 
@@ -13629,16 +13570,16 @@ redisplay_internal (void)
 #ifdef GLYPH_DEBUG
 	      *w->desired_matrix->method = 0;
 	      debug_method_add (w, "optimization 1");
-#endif
+#endif /* GLYPH_DEBUG */
 #ifdef HAVE_WINDOW_SYSTEM
 	      update_window_fringes (w, 0);
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
 	      goto update;
 	    }
 	  else
 	    goto cancel;
 	}
-      else if (/* Cursor position hasn't changed.  */
+      else if (/* Cursor position has NOT changed: */
 	       PT == w->last_point
 	       /* Make sure the cursor was last displayed
 		  in this window.  Otherwise we have to reposition it.  */
@@ -13693,7 +13634,7 @@ redisplay_internal (void)
 #ifdef GLYPH_DEBUG
 	      *w->desired_matrix->method = 0;
 	      debug_method_add (w, "optimization 3");
-#endif
+#endif /* GLYPH_DEBUG */
 	      goto update;
 	    }
 	  else
@@ -13709,7 +13650,7 @@ redisplay_internal (void)
   ++clear_face_cache_count;
 #ifdef HAVE_WINDOW_SYSTEM
   ++clear_image_cache_count;
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
 
   /* Build desired matrices, and update the display.  If
      consider_all_windows_p is non-zero, do it for all windows on all
@@ -23677,7 +23618,6 @@ get_char_glyph_code (int c, struct font *font, XChar2b *char2b)
    its physical height for clipping.  See also draw_glyphs.
 
    Value is the index of a component not in S.  */
-
 static int
 fill_composite_glyph_string (struct glyph_string *s, struct face *base_face,
 			     int overlaps)
@@ -23688,7 +23628,7 @@ fill_composite_glyph_string (struct glyph_string *s, struct face *base_face,
      glyph that requires the different face, add it to S.  */
   struct face *face;
 
-  eassert (s);
+  eassert(s);
 
   s->for_overlaps = overlaps;
   s->face = NULL;
@@ -23738,7 +23678,11 @@ fill_composite_glyph_string (struct glyph_string *s, struct face *base_face,
   if (s->font == NULL)
     {
       s->font_not_found_p = 1;
-      s->font = FRAME_FONT (s->f);
+#if defined(_XFONTSTRUCT_DEFINED) && 0
+      s->font = (XFontStruct *)FRAME_FONT(s->f); /* FIXME */
+#else
+      s->font = (struct font *)FRAME_FONT(s->f);
+#endif /* _XFONTSTRUCT_DEFINED && 0 */
     }
 
   /* Adjust base line for subscript/superscript text.  */
@@ -23789,8 +23733,6 @@ fill_gstring_glyph_string (struct glyph_string *s, int face_id,
 /* Fill glyph string S from a sequence glyphs for glyphless characters.
    See the comment of fill_glyph_string for arguments.
    Value is the index of the first glyph not in S.  */
-
-
 static int
 fill_glyphless_glyph_string (struct glyph_string *s, int face_id,
 			     int start, int end, int overlaps)
@@ -23798,27 +23740,27 @@ fill_glyphless_glyph_string (struct glyph_string *s, int face_id,
   struct glyph *glyph, *last;
   int voffset;
 
-  eassert (s->first_glyph->type == GLYPHLESS_GLYPH);
+  eassert(s->first_glyph->type == GLYPHLESS_GLYPH);
   s->for_overlaps = overlaps;
-  glyph = s->row->glyphs[s->area] + start;
-  last = s->row->glyphs[s->area] + end;
+  glyph = (s->row->glyphs[s->area] + start);
+  last = (s->row->glyphs[s->area] + end);
   voffset = glyph->voffset;
-  s->face = FACE_FROM_ID (s->f, face_id);
-  s->font = s->face->font ? s->face->font : FRAME_FONT (s->f);
+  s->face = FACE_FROM_ID(s->f, face_id);
+  s->font = (s->face->font ? s->face->font : (struct font *)FRAME_FONT(s->f));
   s->nchars = 1;
   s->width = glyph->pixel_width;
   glyph++;
-  while (glyph < last
-	 && glyph->type == GLYPHLESS_GLYPH
-	 && glyph->voffset == voffset
-	 && glyph->face_id == face_id)
+  while ((glyph < last)
+	 && (glyph->type == GLYPHLESS_GLYPH)
+	 && (glyph->voffset == voffset)
+	 && (glyph->face_id == face_id))
     {
       s->nchars++;
       s->width += glyph->pixel_width;
       glyph++;
     }
   s->ybase += voffset;
-  return glyph - s->row->glyphs[s->area];
+  return (glyph - s->row->glyphs[s->area]);
 }
 
 
@@ -23830,7 +23772,6 @@ fill_glyphless_glyph_string (struct glyph_string *s, int face_id,
    its physical height for clipping.  See also draw_glyphs.
 
    Value is the index of the first glyph not in S.  */
-
 static int
 fill_glyph_string (struct glyph_string *s, int face_id,
 		   int start, int end, int overlaps)
@@ -23839,13 +23780,13 @@ fill_glyph_string (struct glyph_string *s, int face_id,
   int voffset;
   int glyph_not_available_p;
 
-  eassert (s->f == XFRAME (s->w->frame));
-  eassert (s->nchars == 0);
-  eassert (start >= 0 && end > start);
+  eassert(s->f == XFRAME(s->w->frame));
+  eassert(s->nchars == 0);
+  eassert((start >= 0) && (end > start));
 
   s->for_overlaps = overlaps;
-  glyph = s->row->glyphs[s->area] + start;
-  last = s->row->glyphs[s->area] + end;
+  glyph = (s->row->glyphs[s->area] + start);
+  last = (s->row->glyphs[s->area] + end);
   voffset = glyph->voffset;
   s->padding_p = glyph->padding_p;
   glyph_not_available_p = glyph->glyph_not_available_p;
@@ -23876,24 +23817,26 @@ fill_glyph_string (struct glyph_string *s, int face_id,
      but record the fact that we couldn't load it in
      S->font_not_found_p so that we can draw rectangles for the
      characters of the glyph string.  */
-  if (s->font == NULL || glyph_not_available_p)
+  if ((s->font == NULL) || glyph_not_available_p)
     {
       s->font_not_found_p = 1;
-      s->font = FRAME_FONT (s->f);
+#if defined(_XFONTSTRUCT_DEFINED) && 0
+      s->font = (XFontStruct *)FRAME_FONT(s->f); /* FIXME */
+#else
+      s->font = (struct font *)FRAME_FONT(s->f);
+#endif /* _XFONTSTRUCT_DEFINED && 0 */
     }
 
-  /* Adjust base line for subscript/superscript text.  */
+  /* Adjust base line for subscript/superscript text: */
   s->ybase += voffset;
 
-  eassert (s->face && s->face->gc);
-  return glyph - s->row->glyphs[s->area];
+  eassert(s->face && s->face->gc);
+  return (glyph - s->row->glyphs[s->area]);
 }
 
 
-/* Fill glyph string S from image glyph S->first_glyph.  */
-
-static void
-fill_image_glyph_string (struct glyph_string *s)
+/* Fill glyph string S from image glyph S->first_glyph: */
+static void fill_image_glyph_string(struct glyph_string *s)
 {
   eassert (s->first_glyph->type == IMAGE_GLYPH);
   s->img = IMAGE_FROM_ID (s->f, s->first_glyph->u.img_id);
@@ -24720,7 +24663,7 @@ append_glyph (struct it *it)
 	}
       else
 	{
-	  /* Assure at least 1-pixel width.  Otherwise, cursor can't
+	  /* Assure at least 1-pixel width.  Otherwise, cursor cannot
 	     be displayed correctly.  */
 	  glyph->pixel_width = 1;
 	  glyph->padding_p = 1;
@@ -24771,9 +24714,7 @@ append_glyph (struct it *it)
 /* Store one glyph for the composition IT->cmp_it.id in
    IT->glyph_row.  Called from x_produce_glyphs when IT->glyph_row is
    non-null.  */
-
-static void
-append_composite_glyph (struct it *it)
+static void append_composite_glyph(struct it *it)
 {
   struct glyph *glyph;
   enum glyph_row_area area = it->area;
@@ -24838,7 +24779,7 @@ append_composite_glyph (struct it *it)
 	{
 	  glyph->resolved_level = it->bidi_it.resolved_level;
 	  if ((it->bidi_it.type & 7) != it->bidi_it.type)
-	    emacs_abort ();
+	    emacs_abort();
 	  glyph->bidi_type = it->bidi_it.type;
 	}
       ++it->glyph_row->used[area];
@@ -24850,9 +24791,7 @@ append_composite_glyph (struct it *it)
 
 /* Change IT->ascent and IT->height according to the setting of
    IT->voffset.  */
-
-static void
-take_vertical_position_into_account (struct it *it)
+static void take_vertical_position_into_account(struct it *it)
 {
   if (it->voffset)
     {
@@ -24871,9 +24810,7 @@ take_vertical_position_into_account (struct it *it)
 /* Produce glyphs/get display metrics for the image IT is loaded with.
    See the description of struct display_iterator in dispextern.h for
    an overview of struct display_iterator.  */
-
-static void
-produce_image_glyph (struct it *it)
+static void produce_image_glyph(struct it *it)
 {
   struct image *img;
   struct face *face;
@@ -25041,7 +24978,6 @@ produce_image_glyph (struct it *it)
 /* Append a stretch glyph to IT->glyph_row.  OBJECT is the source
    of the glyph, WIDTH and HEIGHT are the width and height of the
    stretch.  ASCENT is the ascent of the glyph (0 <= ASCENT <= HEIGHT).  */
-
 static void
 append_stretch_glyph (struct it *it, Lisp_Object object,
 		      int width, int height, int ascent)
@@ -25111,7 +25047,6 @@ append_stretch_glyph (struct it *it, Lisp_Object object,
   else
     IT_EXPAND_MATRIX_WIDTH (it, area);
 }
-
 #endif	/* HAVE_WINDOW_SYSTEM */
 
 /* Produce a stretch glyph for iterator IT.  IT->object is the value
@@ -25144,32 +25079,30 @@ append_stretch_glyph (struct it *it, Lisp_Object object,
    6. `:ascent ASCENT'  specifies that ASCENT percent of the height
    of the stretch should be used for the ascent of the stretch.
    ASCENT must be in the range 0 <= ASCENT <= 100.  */
-
-void
-produce_stretch_glyph (struct it *it)
+void produce_stretch_glyph(struct it *it)
 {
   /* (space :width WIDTH :height HEIGHT ...)  */
   Lisp_Object prop, plist;
   int width = 0, height = 0, align_to = -1;
   int zero_width_ok_p = 0;
   double tem;
-  struct font *font = NULL;
+  struct font *font = (struct font *)NULL;
 
 #ifdef HAVE_WINDOW_SYSTEM
   int ascent = 0;
   int zero_height_ok_p = 0;
 
-  if (FRAME_WINDOW_P (it->f))
+  if (FRAME_WINDOW_P(it->f))
     {
-      struct face *face = FACE_FROM_ID (it->f, it->face_id);
-      font = face->font ? face->font : FRAME_FONT (it->f);
-      PREPARE_FACE_FOR_DISPLAY (it->f, face);
+      struct face *face = FACE_FROM_ID(it->f, it->face_id);
+      font = (face->font ? face->font : (struct font *)FRAME_FONT(it->f));
+      PREPARE_FACE_FOR_DISPLAY(it->f, face);
     }
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
 
-  /* List should start with `space'.  */
-  eassert (CONSP (it->object) && EQ (XCAR (it->object), Qspace));
-  plist = XCDR (it->object);
+  /* List should start with `space': */
+  eassert(CONSP(it->object) && EQ(XCAR(it->object), Qspace));
+  plist = XCDR(it->object);
 
   /* Compute the width of the stretch.  */
   if ((prop = Fplist_get (plist, QCwidth), !NILP (prop))
@@ -25267,7 +25200,7 @@ produce_stretch_glyph (struct it *it)
       /* Subtract one more pixel from the stretch width, but only on
 	 GUI frames, since on a TTY each glyph is one "pixel" wide.  */
       width -= FRAME_WINDOW_P (it->f);
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
     }
 
   if (width > 0 && height > 0 && it->glyph_row)
@@ -25282,7 +25215,7 @@ produce_stretch_glyph (struct it *it)
       if (FRAME_WINDOW_P (it->f))
 	append_stretch_glyph (it, object, width, height, ascent);
       else
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
 	{
 	  it->object = object;
 	  it->char_to_display = ' ';
@@ -25298,12 +25231,12 @@ produce_stretch_glyph (struct it *it)
   if (FRAME_WINDOW_P (it->f))
     {
       it->ascent = it->phys_ascent = ascent;
-      it->descent = it->phys_descent = height - it->ascent;
-      it->nglyphs = width > 0 && height > 0 ? 1 : 0;
-      take_vertical_position_into_account (it);
+      it->descent = it->phys_descent = (height - it->ascent);
+      it->nglyphs = (((width > 0) && (height > 0)) ? 1 : 0);
+      take_vertical_position_into_account(it);
     }
   else
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
     it->nglyphs = width;
 }
 
@@ -25373,32 +25306,32 @@ produce_special_glyphs (struct it *it, enum display_element_type what)
 	  ? WINDOW_LEFT_FRINGE_WIDTH (temp_it.w)
 	  : WINDOW_RIGHT_FRINGE_WIDTH (temp_it.w)) == 0)
     {
-      int stretch_width = temp_it.last_visible_x - temp_it.current_x;
+      int stretch_width = (temp_it.last_visible_x - temp_it.current_x);
 
       if (stretch_width > 0)
 	{
-	  struct face *face = FACE_FROM_ID (temp_it.f, temp_it.face_id);
+	  struct face *face = FACE_FROM_ID(temp_it.f, temp_it.face_id);
 	  struct font *font =
-	    face->font ? face->font : FRAME_FONT (temp_it.f);
+	    (face->font ? face->font : (struct font *)FRAME_FONT(temp_it.f));
 	  int stretch_ascent =
 	    (((temp_it.ascent + temp_it.descent)
-	      * FONT_BASE (font)) / FONT_HEIGHT (font));
+	      * FONT_BASE(font)) / FONT_HEIGHT(font));
 
-	  append_stretch_glyph (&temp_it, make_number (0), stretch_width,
-				temp_it.ascent + temp_it.descent,
-				stretch_ascent);
+	  append_stretch_glyph(&temp_it, make_number(0), stretch_width,
+                               (temp_it.ascent + temp_it.descent),
+                               stretch_ascent);
 	}
     }
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
 
   temp_it.dp = NULL;
   temp_it.what = IT_CHARACTER;
   temp_it.len = 1;
-  temp_it.c = temp_it.char_to_display = GLYPH_CHAR (glyph);
-  temp_it.face_id = GLYPH_FACE (glyph);
-  temp_it.len = CHAR_BYTES (temp_it.c);
+  temp_it.c = temp_it.char_to_display = GLYPH_CHAR(glyph);
+  temp_it.face_id = GLYPH_FACE(glyph);
+  temp_it.len = CHAR_BYTES(temp_it.c);
 
-  PRODUCE_GLYPHS (&temp_it);
+  PRODUCE_GLYPHS(&temp_it);
   it->pixel_width = temp_it.pixel_width;
   it->nglyphs = temp_it.pixel_width;
 }
@@ -25412,37 +25345,35 @@ produce_special_glyphs (struct it *it, enum display_element_type what)
    height of specified face font.
 
    Returns height in pixels, or nil.  */
-
-
 static Lisp_Object
-calc_line_height_property (struct it *it, Lisp_Object val, struct font *font,
-			   int boff, int override)
+calc_line_height_property(struct it *it, Lisp_Object val, struct font *font,
+                          int boff, int override)
 {
   Lisp_Object face_name = Qnil;
   int ascent, descent, height;
 
-  if (NILP (val) || INTEGERP (val) || (override && EQ (val, Qt)))
+  if (NILP(val) || INTEGERP(val) || (override && EQ(val, Qt)))
     return val;
 
   if (CONSP (val))
     {
-      face_name = XCAR (val);
-      val = XCDR (val);
-      if (!NUMBERP (val))
-	val = make_number (1);
-      if (NILP (face_name))
+      face_name = XCAR(val);
+      val = XCDR(val);
+      if (!NUMBERP(val))
+	val = make_number(1);
+      if (NILP(face_name))
 	{
-	  height = it->ascent + it->descent;
+	  height = (it->ascent + it->descent);
 	  goto scale;
 	}
     }
 
-  if (NILP (face_name))
+  if (NILP(face_name))
     {
-      font = FRAME_FONT (it->f);
-      boff = FRAME_BASELINE_OFFSET (it->f);
+      font = (struct font *)FRAME_FONT(it->f);
+      boff = FRAME_BASELINE_OFFSET(it->f);
     }
-  else if (EQ (face_name, Qt))
+  else if (EQ(face_name, Qt))
     {
       override = 0;
     }
@@ -25451,9 +25382,9 @@ calc_line_height_property (struct it *it, Lisp_Object val, struct font *font,
       int face_id;
       struct face *face;
 
-      face_id = lookup_named_face (it->f, face_name, 0);
+      face_id = lookup_named_face(it->f, face_name, 0);
       if (face_id < 0)
-	return make_number (-1);
+	return make_number(-1);
 
       face = FACE_FROM_ID (it->f, face_id);
       font = face->font;
@@ -25497,11 +25428,10 @@ calc_line_height_property (struct it *it, Lisp_Object val, struct font *font,
    LOWER_XOFF and LOWER_YOFF are for the lower part.
 
    For the other display methods, LEN through LOWER_YOFF are zero.  */
-
 static void
-append_glyphless_glyph (struct it *it, int face_id, int for_no_font, int len,
-			short upper_xoff, short upper_yoff,
-			short lower_xoff, short lower_yoff)
+append_glyphless_glyph(struct it *it, int face_id, int for_no_font,
+                       int len, short upper_xoff, short upper_yoff,
+                       short lower_xoff, short lower_yoff)
 {
   struct glyph *glyph;
   enum glyph_row_area area = it->area;
@@ -25589,15 +25519,15 @@ produce_glyphless_glyph (struct it *it, int for_no_font, Lisp_Object acronym)
   int len;
 
   /* Get the metrics of the base font.  We always refer to the current
-     ASCII face.  */
-  face = FACE_FROM_ID (it->f, it->face_id)->ascii_face;
-  font = face->font ? face->font : FRAME_FONT (it->f);
-  it->ascent = FONT_BASE (font) + font->baseline_offset;
-  it->descent = FONT_DESCENT (font) - font->baseline_offset;
-  base_height = it->ascent + it->descent;
+   * ASCII face: */
+  face = FACE_FROM_ID(it->f, it->face_id)->ascii_face;
+  font = (face->font ? face->font : (struct font *)FRAME_FONT(it->f));
+  it->ascent = (FONT_BASE(font) + font->baseline_offset);
+  it->descent = (FONT_DESCENT(font) - font->baseline_offset);
+  base_height = (it->ascent + it->descent);
   base_width = font->average_width;
 
-  face_id = merge_glyphless_glyph_face (it);
+  face_id = merge_glyphless_glyph_face(it);
 
   if (it->glyphless_method == GLYPHLESS_DISPLAY_THIN_SPACE)
     {
@@ -25607,12 +25537,12 @@ produce_glyphless_glyph (struct it *it, int for_no_font, Lisp_Object acronym)
     }
   else if (it->glyphless_method == GLYPHLESS_DISPLAY_EMPTY_BOX)
     {
-      width = CHAR_WIDTH (it->c);
+      width = CHAR_WIDTH(it->c);
       if (width == 0)
 	width = 1;
       else if (width > 4)
 	width = 4;
-      it->pixel_width = base_width * width;
+      it->pixel_width = (base_width * width);
       len = 0;
       upper_xoff = upper_yoff = lower_xoff = lower_yoff = 0;
     }
@@ -25625,17 +25555,17 @@ produce_glyphless_glyph (struct it *it, int for_no_font, Lisp_Object acronym)
       int ascent, descent;
       struct font_metrics metrics_upper, metrics_lower;
 
-      face = FACE_FROM_ID (it->f, face_id);
-      font = face->font ? face->font : FRAME_FONT (it->f);
-      PREPARE_FACE_FOR_DISPLAY (it->f, face);
+      face = FACE_FROM_ID(it->f, face_id);
+      font = (face->font ? face->font : (struct font *)FRAME_FONT(it->f));
+      PREPARE_FACE_FOR_DISPLAY(it->f, face);
 
       if (it->glyphless_method == GLYPHLESS_DISPLAY_ACRONYM)
 	{
-	  if (! STRINGP (acronym) && CHAR_TABLE_P (Vglyphless_char_display))
-	    acronym = CHAR_TABLE_REF (Vglyphless_char_display, it->c);
-	  if (CONSP (acronym))
-	    acronym = XCAR (acronym);
-	  str = STRINGP (acronym) ? SSDATA (acronym) : "";
+	  if (! STRINGP(acronym) && CHAR_TABLE_P(Vglyphless_char_display))
+	    acronym = CHAR_TABLE_REF(Vglyphless_char_display, it->c);
+	  if (CONSP(acronym))
+	    acronym = XCAR(acronym);
+	  str = (STRINGP(acronym) ? SSDATA(acronym) : "");
 	}
       else
 	{
@@ -25646,32 +25576,29 @@ produce_glyphless_glyph (struct it *it, int for_no_font, Lisp_Object acronym)
       for (len = 0; str[len] && ASCII_BYTE_P (str[len]) && len < 6; len++)
 	code[len] = font->driver->encode_char (font, str[len]);
       upper_len = (len + 1) / 2;
-      font->driver->text_extents (font, code, upper_len,
-				  &metrics_upper);
-      font->driver->text_extents (font, code + upper_len, len - upper_len,
-				  &metrics_lower);
+      font->driver->text_extents(font, code, upper_len, &metrics_upper);
+      font->driver->text_extents(font, (code + upper_len),
+                                 (len - upper_len), &metrics_lower);
 
-
-
-      /* +4 is for vertical bars of a box plus 1-pixel spaces at both side.  */
-      width = max (metrics_upper.width, metrics_lower.width) + 4;
+      /* +4 is for vertical bars of a box + 1px. spaces at both sides: */
+      width = (max(metrics_upper.width, metrics_lower.width) + 4);
       upper_xoff = upper_yoff = 2; /* the typical case */
       if (base_width >= width)
 	{
-	  /* Align the upper to the left, the lower to the right.  */
+	  /* Align the upper to the left, the lower to the right: */
 	  it->pixel_width = base_width;
-	  lower_xoff = base_width - 2 - metrics_lower.width;
+	  lower_xoff = (base_width - 2 - metrics_lower.width);
 	}
       else
 	{
-	  /* Center the shorter one.  */
+	  /* Center the shorter one: */
 	  it->pixel_width = width;
 	  if (metrics_upper.width >= metrics_lower.width)
 	    lower_xoff = (width - metrics_lower.width) / 2;
 	  else
 	    {
-	      /* FIXME: This code doesn't look right.  It formerly was
-		 missing the "lower_xoff = 0;", which couldn't have
+	      /* FIXME: This code does NOT look right.  It formerly was
+		 missing the "lower_xoff = 0;", which could NOT have
 		 been right since it left lower_xoff uninitialized.  */
 	      lower_xoff = 0;
 	      upper_xoff = (width - metrics_upper.width) / 2;
@@ -25695,7 +25622,7 @@ produce_glyphless_glyph (struct it *it, int for_no_font, Lisp_Object acronym)
       lower_yoff = descent - 2 - metrics_lower.descent;
       upper_yoff = (lower_yoff - metrics_lower.ascent - 1
 		    - metrics_upper.descent);
-      /* Don't make the height shorter than the base height.  */
+      /* Do NOT make the height shorter than the base height: */
       if (height > base_height)
 	{
 	  it->ascent = ascent;
@@ -25718,9 +25645,7 @@ produce_glyphless_glyph (struct it *it, int for_no_font, Lisp_Object acronym)
    Produce glyphs/get display metrics for the display element IT is
    loaded with.  See the description of struct it in dispextern.h
    for an overview of struct it.  */
-
-void
-x_produce_glyphs (struct it *it)
+void x_produce_glyphs(struct it *it)
 {
   int extra_line_spacing = it->extra_line_spacing;
 
@@ -27673,9 +27598,9 @@ mouse_face_from_buffer_pos (Lisp_Object window,
   ptrdiff_t ignore, pos;
   int x;
 
-  eassert (NILP (disp_string) || STRINGP (disp_string));
-  eassert (NILP (before_string) || STRINGP (before_string));
-  eassert (NILP (after_string) || STRINGP (after_string));
+  eassert(NILP(disp_string) || STRINGP (disp_string));
+  eassert(NILP(before_string) || STRINGP (before_string));
+  eassert(NILP(after_string) || STRINGP (after_string));
 
   /* Find the rows corresponding to START_CHARPOS and END_CHARPOS.  */
   rows_from_pos_range (w, start_charpos, end_charpos, disp_string, &r1, &r2);
@@ -29468,10 +29393,8 @@ x_draw_vertical_border (struct window *w)
 }
 
 
-/* Draw window dividers for window W.  */
-
-void
-x_draw_right_divider (struct window *w)
+/* Draw window dividers for window W: */
+void x_draw_right_divider(struct window *w)
 {
   struct frame *f = WINDOW_XFRAME (w);
 
@@ -29489,8 +29412,7 @@ x_draw_right_divider (struct window *w)
     }
 }
 
-static void
-x_draw_bottom_divider (struct window *w)
+static void x_draw_bottom_divider(struct window *w)
 {
   struct frame *f = XFRAME (WINDOW_FRAME (w));
 
@@ -29498,12 +29420,12 @@ x_draw_bottom_divider (struct window *w)
     return;
   else if (WINDOW_BOTTOM_DIVIDER_WIDTH (w))
     {
-      int x0 = WINDOW_LEFT_EDGE_X (w);
-      int x1 = WINDOW_RIGHT_EDGE_X (w);
-      int y0 = WINDOW_BOTTOM_EDGE_Y (w) - WINDOW_BOTTOM_DIVIDER_WIDTH (w);
-      int y1 = WINDOW_BOTTOM_EDGE_Y (w);
+      int x0 = WINDOW_LEFT_EDGE_X(w);
+      int x1 = WINDOW_RIGHT_EDGE_X(w);
+      int y0 = WINDOW_BOTTOM_EDGE_Y(w) - WINDOW_BOTTOM_DIVIDER_WIDTH(w);
+      int y1 = WINDOW_BOTTOM_EDGE_Y(w);
 
-      FRAME_RIF (f)->draw_window_divider (w, x0, x1, y0, y1);
+      FRAME_RIF(f)->draw_window_divider(w, x0, x1, y0, y1);
     }
 }
 
@@ -29511,7 +29433,6 @@ x_draw_bottom_divider (struct window *w)
    coordinates in FR are frame-relative.  Call this function with
    input blocked.  Value is non-zero if the exposure overwrites
    mouse-face.  */
-
 static int
 expose_window (struct window *w, XRectangle *fr)
 {
@@ -29658,7 +29579,6 @@ expose_window (struct window *w, XRectangle *fr)
 /* Redraw (parts) of all windows in the window tree rooted at W that
    intersect R.  R contains frame pixel coordinates.  Value is
    non-zero if the exposure overwrites mouse-face.  */
-
 static int
 expose_window_tree (struct window *w, XRectangle *r)
 {
@@ -29685,7 +29605,6 @@ expose_window_tree (struct window *w, XRectangle *r)
    corner of the exposed rectangle.  W and H are width and height of
    the exposed area.  All are pixel values.  W or H zero means redraw
    the entire frame.  */
-
 void
 expose_frame (struct frame *f, int x, int y, int w, int h)
 {
@@ -29735,14 +29654,14 @@ expose_frame (struct frame *f, int x, int y, int w, int h)
 #endif
 
 #ifdef HAVE_X_WINDOWS
-#ifndef MSDOS
-#if ! defined (USE_X_TOOLKIT) && ! defined (USE_GTK)
-  if (WINDOWP (f->menu_bar_window))
+# ifndef MSDOS
+#  if !defined(USE_X_TOOLKIT) && !defined(USE_GTK)
+  if (WINDOWP(f->menu_bar_window))
     mouse_face_overwritten_p
-      |= expose_window (XWINDOW (f->menu_bar_window), &r);
-#endif /* not USE_X_TOOLKIT and not USE_GTK */
-#endif
-#endif
+      |= expose_window(XWINDOW(f->menu_bar_window), &r);
+#  endif /* not USE_X_TOOLKIT and not USE_GTK */
+# endif /* !MSDOS */
+#endif /* HAVE_X_WINDOWS */
 
   /* Some window managers support a focus-follows-mouse style with
      delayed raising of frames.  Imagine a partially obscured frame,
@@ -29775,7 +29694,6 @@ expose_frame (struct frame *f, int x, int y, int w, int h)
    Determine the intersection of two rectangles R1 and R2.  Return
    the intersection in *RESULT.  Value is non-zero if RESULT is not
    empty.  */
-
 int
 x_intersect_rectangles (XRectangle *r1, XRectangle *r2, XRectangle *result)
 {
@@ -29831,8 +29749,7 @@ x_intersect_rectangles (XRectangle *r1, XRectangle *r2, XRectangle *result)
 			    Initialization
  ***********************************************************************/
 
-void
-syms_of_xdisp (void)
+void syms_of_xdisp(void)
 {
   Vwith_echo_area_save_vector = Qnil;
   staticpro (&Vwith_echo_area_save_vector);
@@ -29857,11 +29774,11 @@ syms_of_xdisp (void)
   defsubr (&Sdump_tool_bar_row);
   defsubr (&Strace_redisplay);
   defsubr (&Strace_to_stderr);
-#endif
+#endif /* GLYPH_DEBUG */
 #ifdef HAVE_WINDOW_SYSTEM
   defsubr (&Stool_bar_height);
   defsubr (&Slookup_image_map);
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
   defsubr (&Sline_pixel_height);
   defsubr (&Sformat_mode_line);
   defsubr (&Sinvisible_p);
@@ -30561,17 +30478,16 @@ void start_hourglass (void)
 
 /* Cancel the hourglass cursor timer if active, hide a busy cursor if
    shown.  */
-void cancel_hourglass (void)
+void cancel_hourglass(void)
 {
   if (hourglass_atimer) {
-      cancel_atimer (hourglass_atimer);
+      cancel_atimer(hourglass_atimer);
       hourglass_atimer = NULL;
   }
 
   if (hourglass_shown_p)
-    hide_hourglass ();
+    hide_hourglass();
 }
-
 #endif /* HAVE_WINDOW_SYSTEM */
 
 /* arch-tag: eacc864d-bb6a-4b74-894a-1a4399a1358b

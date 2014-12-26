@@ -269,19 +269,17 @@ extern Lisp_Object Qp;
 extern Lisp_Object Qascii_0;
 extern Lisp_Object Qiso8859_1, Qiso10646_1, Qunicode_bmp, Qunicode_sip;
 
-/* Special ADSTYLE properties to avoid fonts used for Latin characters.  */
+/* Special ADSTYLE properties to avoid fonts used for Latin characters: */
 extern Lisp_Object Qja, Qko;
 
-/* Structure for a font-spec.  */
-
+/* Structure for a font-spec: */
 struct font_spec
 {
   struct vectorlike_header header;
   Lisp_Object props[FONT_SPEC_MAX];
 };
 
-/* Structure for a font-entity.  */
-
+/* Structure for a font-entity: */
 struct font_entity
 {
   struct vectorlike_header header;
@@ -289,12 +287,11 @@ struct font_entity
 };
 
 /* A value which may appear in the member `encoding' of struct font
-   indicating that a font itself doesn't tell which encoding to be
+   indicating that a font itself does NOT tell which encoding to be
    used.  */
 #define FONT_ENCODING_NOT_DECIDED 255
 
-/* Structure for a font-object.  */
-
+/* Structure for a font-object: */
 struct font
 {
   struct vectorlike_header header;

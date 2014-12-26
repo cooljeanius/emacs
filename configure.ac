@@ -660,7 +660,6 @@ AC_REQUIRE_SED
 #### names of the m/*.h and s/*.h files we should use.
 
 ### Canonicalize the configuration name.
-
 AC_MSG_CHECKING([canonical system])
 AC_MSG_RESULT([ ])dnl
 
@@ -2593,8 +2592,9 @@ if test "x${with_gcc}" != "x"; then
   esac
 fi
 
-dnl# Do NOT bother to test for C89:
-AC_DEFUN([_AC_PROG_CC_C89],[$2])dnl
+dnl# Suppression of test for C89 has been moved to m4/override.m4, which is
+dnl# included below.
+test -f m4/override.m4
 
 dnl# This will set GCC=yes if using gcc:
 AC_PROG_CC([gcc cc cl clang "${XCRUN} gcc" "${XCRUN} clang"])
@@ -2670,14 +2670,8 @@ dnl# that clash with MinGW.
 AM_CONDITIONAL([BUILDING_FOR_WINDOWSNT],[test "x${opsys}" = "xmingw32"])dnl
 
 AC_MSG_NOTICE([done with initial compiler checks, now initializing gnulib])
-# Avoid gnulib's tests for -lcrypto, so that there is no static
-# dependency on it:
-AC_DEFUN([gl_CRYPTO_CHECK],[:])
-# Avoid gnulib's tests for HAVE_WORKING_O_NOATIME and
-# HAVE_WORKING_O_NOFOLLOW, as we do NOT use them:
-AC_DEFUN([gl_FCNTL_O_FLAGS],[:])
-# Avoid gnulib's threadlib module, as we do threads our own way:
-AC_DEFUN([gl_THREADLIB],[:])dnl
+dnl# overrides for some gnulib macros have been moved to:
+m4_include([m4/override.m4])dnl
 
 dnl# make sure this is required before it is expanded:
 m4_ifdef([gl_DOUBLE_SLASH_ROOT],[
@@ -3523,7 +3517,7 @@ fi
 ])dnl
 dnl# this is ifdef-ed the other way (i.e. "in" instead of "out"):
 m4_ifdef([AM_PROG_AR],[
-AM_PROG_AR
+  AM_PROG_AR
 ],[:])dnl
 
 dnl# not sure where else to put these:
@@ -3831,7 +3825,6 @@ case "${opsys}" in
          LD_SWITCH_SYSTEM='-L/usr/local/lib'
       fi
    ;;
-
   gnu-linux)
    ## cpp test was "ifdef __mips__", but presumably this is equivalent...
    case ${host_cpu} in
@@ -3840,7 +3833,6 @@ case "${opsys}" in
       ;;
    esac
    ;;
-
   netbsd)
 ### It is not our place to do this.  See bug#10313#17.
 ### (hence the "BE_PRESUMPTUOUS" environment variable)
@@ -3848,7 +3840,6 @@ case "${opsys}" in
          LD_SWITCH_SYSTEM="-Wl,-rpath,/usr/pkg/lib -L/usr/pkg/lib -Wl,-rpath,/usr/local/lib -L/usr/local/lib"
       fi
    ;;
-
   openbsd)
    ## Han Boetes <han@boetes.org> says this is necessary,
    ## otherwise Emacs dumps core on elf systems.
@@ -3970,7 +3961,6 @@ AC_SUBST([LIBS_SYSTEM])dnl
 dnl# m4-quotation block 8 begins:
 [
 ### Make sure subsequent tests use flags consistent with the build flags.
-
 if test x"${OVERRIDE_CPPFLAGS}" != x""; then
   CPPFLAGS="${OVERRIDE_CPPFLAGS}"
 else
@@ -3990,11 +3980,9 @@ fi
 esac
 
 #### Types section:
-dnl# Suppress obsolescent Autoconf test for size_t; Emacs assumes C89 or
-dnl# better.
-AC_DEFUN([AC_TYPE_SIZE_T],[:])dnl
-dnl# Likewise for obsolescent test for uid_t, gid_t; Emacs assumes them.
-AC_DEFUN([AC_TYPE_UID_T],[:])dnl
+dnl# Suppression of obsolescent Autoconf test for size_t, uid_t, and gid_t
+dnl# has been moved to m4/override.m4, which is already included.
+test -e m4/override.m4
 
 dnl# other type tests that autoscan wants:
 AC_MSG_CHECKING([types])
@@ -4195,7 +4183,7 @@ if test "x${with_sound}" != "xno"; then
   fi
 
   AC_SUBST([CFLAGS_SOUND])dnl
-  # end of sound support checks
+  ##end sound support checks
 else
   AC_MSG_NOTICE([actually skipping the sound support checks])
 fi
@@ -4328,7 +4316,7 @@ AC_CHECK_HEADERS([net/if.h],[],[],[AC_INCLUDES_DEFAULT
 #  warning "This conftest for <net/if.h> wants to include <sys/socket.h>"
 # endif /* __GNUC__ && !__STRICT_ANSI__ */
 #endif /* HAVE_SYS_SOCKET_H */
-])
+])dnl
 AC_CHECK_HEADERS([ifaddrs.h],[],[],[AC_INCLUDES_DEFAULT
 #if defined(HAVE_SYS_SOCKET_H) && HAVE_SYS_SOCKET_H
 # include <sys/socket.h>
@@ -4337,7 +4325,7 @@ AC_CHECK_HEADERS([ifaddrs.h],[],[],[AC_INCLUDES_DEFAULT
 #  warning "This conftest for <ifaddrs.h> wants to include <sys/socket.h>"
 # endif /* __GNUC__ && !__STRICT_ANSI__ */
 #endif /* HAVE_SYS_SOCKET_H */
-])
+])dnl
 AC_CHECK_HEADERS([net/if_dl.h],[],[],[AC_INCLUDES_DEFAULT
 #if defined(HAVE_SYS_SOCKET_H) && HAVE_SYS_SOCKET_H
 # include <sys/socket.h>
@@ -4351,7 +4339,7 @@ AC_CHECK_HEADERS([net/if_dl.h],[],[],[AC_INCLUDES_DEFAULT
 dnl# checks for structures and structure members:
 AC_MSG_CHECKING([structures and structure members])
 AC_MSG_RESULT([ ])
-AC_CHECK_MEMBERS([struct stat.st_rdev])
+AC_CHECK_MEMBERS([struct stat.st_rdev])dnl
 AC_CHECK_MEMBERS([struct ifreq.ifr_flags, struct ifreq.ifr_hwaddr,
 		  struct ifreq.ifr_netmask, struct ifreq.ifr_broadaddr,
 		  struct ifreq.ifr_addr,
@@ -4591,7 +4579,6 @@ LDFLAGS="${ORIG_LDFLAGS}"
 AC_LANG_POP
 
 #### Choose a window system.
-
 AC_MSG_CHECKING([windowing system])
 AC_MSG_RESULT([ ])dnl
 
@@ -4674,7 +4661,11 @@ if test "x${with_carbon}" != "xno"; then
   AC_CHECK_HEADER([Carbon/Carbon.h],[HAVE_CARBON=yes])
   AC_CHECK_HEADERS([CarbonCore/Files.h CarbonCore/MacTypes.h \
                     CarbonCore/Script.h CarbonCore/TextUtils.h \
-                    HIToolbox/Drag.h MacTypes.h QD/QuickdrawAPI.h])
+                    HIToolbox/Controls.h HIToolbox/Drag.h \
+                    HIToolbox/Events.h HIToolbox/HIProgressViews.h \
+                    HIToolbox/MacWindows.h MacTypes.h \
+                    NavigationServices/Navigation.h QD/QuickdrawAPI.h])dnl
+  ## end Carbon headers check
 fi
 if test "x${window_system}" = "xx11" && test "x${HAVE_CARBON}" = "xyes"; then
   if test "x${with_carbon+set}" != "xset" \
@@ -4955,7 +4946,7 @@ else
   ac_cv_func_dispatch_group_async=no
   AC_MSG_NOTICE([skipping tests for things that require cblocks support])
 fi
-
+dnl# now subst from before that:
 AC_SUBST([LIBS_GNUSTEP])dnl
 AC_SUBST([NS_IMPL])dnl
 
@@ -5143,6 +5134,7 @@ if test "x${window_system}" = "xnone" && test "x${gl_gcc_warnings}" = "xyes"; th
    fi  ##end check for '-g3' flag
 fi  ##end check for no windowing system, plus warnings
 
+AC_MSG_CHECKING([initial X toolkit to go with])
 term_header=""
 HAVE_X_WINDOWS=no
 HAVE_X11=no
@@ -5189,8 +5181,9 @@ dnl# later: use the toolkit if we have gtk, or X11R5 or newer.
     USE_X_TOOLKIT=none
   ;;
 esac
+AC_MSG_RESULT(["${USE_X_TOOLKIT}"])dnl
 
-### If we are using X11, then we should use the X menu package.
+### If we are using X11, then we should use the X menu package:
 HAVE_MENUS=no
 if test "x${HAVE_X11}" != "x"; then
   test -n "${HAVE_X11}"
@@ -5229,6 +5222,8 @@ If you are sure you want Emacs compiled without X window support, pass
   --without-x
 to configure.])
    fi
+else
+   AC_MSG_NOTICE([skipping additional X server checks])
 fi
 
 # Does the opsystem file prohibit the use of the GNU malloc?
@@ -5430,8 +5425,9 @@ aix*)
 
     LDFLAGS="${LDFLAGS}\ ${gdb_cv_bigtoc}"
     AC_LINK_IFELSE([AC_LANG_PROGRAM([[]],[[int i;]])],[],
-                   [gdb_cv_bigtoc=""])
-  ])
+                   [gdb_cv_bigtoc=""])dnl
+  ])dnl
+  ##end AIX case
   ;;
 esac
 
@@ -5517,10 +5513,11 @@ if test "x${HAVE_X11}" = "xyes"; then
 
   dnl# check some misc. X funcs:
   AC_CHECK_FUNCS([XrmSetDatabase XScreenResourceString \
-                  XScreenNumberOfScreen XSetWMProtocols])
+                  XScreenNumberOfScreen XSetWMProtocols])dnl
   dnl# and also these:
-  AC_CHECK_FUNCS([check_x_display_info x_get_arg x_get_string_resource])
+  AC_CHECK_FUNCS([check_x_display_info x_get_arg x_get_string_resource])dnl
   dnl# and some misc. X headers, if not yet checked:
+  ## use cache value as guard:
   if test "x${ac_cv_header_X11_X_h}" = "x"; then
     test -z "${ac_cv_header_X11_X_h}"
     AC_CHECK_HEADER([X11/X.h])
@@ -5588,7 +5585,7 @@ if test "x${HAVE_X11}" = "xyes" || test "x${HAVE_NS}" = "xyes" || test "x${opsys
     RSVG_REQUIRED=2.11.0
     RSVG_MODULE="librsvg-2.0 >= ${RSVG_REQUIRED}"
 
-    PKG_CHECK_MODULES([RSVG],[${RSVG_MODULE}],[HAVE_RSVG=yes],[:])
+    PKG_CHECK_MODULES([RSVG],[${RSVG_MODULE}],[HAVE_RSVG=yes],[:])dnl
     AC_SUBST([RSVG_CFLAGS])dnl
     AC_SUBST([RSVG_LIBS])dnl
 
@@ -5705,7 +5702,7 @@ if test "x${opsys}" != "xmingw32"; then
     GTK_REQUIRED=2.10
     GTK_MODULES="gtk+-2.0 >= ${GTK_REQUIRED} glib-2.0 >= ${GLIB_REQUIRED}"
 
-    dnl# Checks for libraries.
+    dnl# Checks for libraries:
     PKG_CHECK_MODULES([GTK],[${GTK_MODULES}],
                       [pkg_check_gtk=yes],[pkg_check_gtk=no])
     if test "x${pkg_check_gtk}" = "xno" &&
@@ -5728,21 +5725,21 @@ if test x"${pkg_check_gtk}" = x"yes"; then
   CFLAGS="${CFLAGS} ${GTK_CFLAGS}"
   CPPFLAGS="${CPPFLAGS} ${GTK_CFLAGS}"
   LIBS="${GTK_LIBS} ${LIBS}"
-  dnl# Try to compile a simple GTK program.
+  dnl# Try to compile a simple GTK program, after checking the headers that
+  dnl# it needs:
   AC_CHECK_HEADERS([gtk/gtk.h glib-object.h])
   AC_CHECK_FUNCS([gtk_main])
   AC_MSG_CHECKING([whether GTK compiles])
   GTK_COMPILES=no
   AC_LINK_IFELSE(
     [AC_LANG_PROGRAM(
-       [[/* Check the Gtk and Glib APIs.  */
+       [[/* Check the Gtk and Glib APIs: */
 	 #include <gtk/gtk.h>
 	 #include <glib-object.h>
 	 static void
 	 callback(GObject *go, GParamSpec *spec, gpointer user_data)
 	 {}
-       ]],
-       [[
+       ]],[[
 	 GtkSettings *gs = 0;
 	 /* Use G_CALLBACK to make sure function pointers can be cast to
 	  * void *; strict C prohibits this. Use gtk_main_iteration to
@@ -5782,9 +5779,8 @@ AC_SUBST([GTK_OBJ])dnl
 
 dnl# more GTK stuff:
 if test "x${HAVE_GTK}" = "xyes"; then
-
   dnl# GTK scrollbars resemble toolkit scrollbars a lot, so to avoid
-  dnl# a lot if #ifdef:s, say we have toolkit scrollbars.
+  dnl# a lot if #ifdef:s, say we have toolkit scrollbars:
   if test "x${with_toolkit_scroll_bars}" != "xno"; then
     with_toolkit_scroll_bars=yes
   fi
@@ -5868,7 +5864,7 @@ if test "x${HAVE_GTK}" = "xyes"; then
                   gtk_widget_get_mapped gtk_adjustment_get_page_size \
                   gtk_orientable_set_orientation \
 		  gtk_window_set_has_resize_grip])dnl
-
+  ## this will be the header regardless:
   term_header=gtkutil.h
 else
   AC_MSG_NOTICE([skipping even more gtk checks])
@@ -5888,12 +5884,10 @@ if test "x${with_dbus}" = "xyes"; then
      dnl# dbus_watch_get_unix_fd has been introduced in D-Bus 1.1.1.
      dnl# dbus_type_is_valid and dbus_validate_* have been introduced in
      dnl# D-Bus 1.5.12.
-     AC_CHECK_FUNCS([dbus_watch_get_unix_fd \
-		     dbus_type_is_valid \
-		     dbus_validate_bus_name \
-                     dbus_validate_path \
-		     dbus_validate_interface \
-		     dbus_validate_member])
+     AC_CHECK_FUNCS([dbus_watch_get_unix_fd dbus_type_is_valid \
+		     dbus_validate_bus_name dbus_validate_path \
+		     dbus_validate_interface dbus_validate_member])dnl
+     ## set object file name:
      DBUS_OBJ=dbusbind.o
    fi
 else
@@ -5917,8 +5911,7 @@ if test "x${HAVE_X11}" = "xyes" && test "x${with_gsettings}" = "xyes"; then
              [[/* Check that gsettings really is present: */
              #include <glib-object.h>
              #include <gio/gio.h>
-             ]],
-             [[
+             ]],[[
                GSettings *settings;
                GVariant *val = g_settings_get_value(settings, "");
              ]])],
@@ -6020,7 +6013,7 @@ if test "x${with_gnutls}" = "xyes"; then
 else
   AC_MSG_NOTICE([skipping gnutls checks])
 fi
-
+dnl# now subst:
 AC_SUBST([LIBGNUTLS_LIBS])dnl
 AC_SUBST([LIBGNUTLS_CFLAGS])dnl
 
@@ -6172,7 +6165,12 @@ else
   AC_MSG_NOTICE([skipping Lucid toolkit checks for Xaw/Xaw3d])
 fi
 
+AC_MSG_CHECKING([what X toolkit type we ended up with])
 X_TOOLKIT_TYPE="${USE_X_TOOLKIT}"
+AC_MSG_RESULT(["${X_TOOLKIT_TYPE}"])dnl
+dnl# since this is the same as USE_X_TOOLKIT, we only need to subst one
+dnl# of them here:
+AC_SUBST([X_TOOLKIT_TYPE])dnl
 
 LIBXTR6=""
 LIBXMU=""
@@ -6250,7 +6248,7 @@ AC_SUBST([LIBXMU])dnl
 # On Irix 6.5, at least, we need XShapeQueryExtension from -lXext for
 # Xaw3D.
 if test "x${HAVE_X11}" = "xyes"; then
-  if test "x${USE_X_TOOLKIT}" != "xnone"; then
+  if test "x${USE_X_TOOLKIT}" != "xnone" || test -e ${prefix}/lib/libXext.a; then
     AC_CHECK_LIB([Xext],[XShapeQueryExtension])
   fi
 fi
@@ -6463,7 +6461,10 @@ if test "x${HAVE_X11}" = "xyes"; then
 	CFLAGS="${CFLAGS} ${XFT_CFLAGS}"
 	XFT_LIBS="-lXrender ${XFT_LIBS}"
 	LIBS="${XFT_LIBS} ${LIBS}"
-        AC_CHECK_HEADER([X11/X.h])
+        if test "x${ac_cv_header_X11_X_h}" != "x"; then
+          test -z "${ac_cv_header_X11_X_h}"
+          AC_CHECK_HEADER([X11/X.h])
+        fi
 	AC_CHECK_HEADER([X11/Xft/Xft.h],
 	  [AC_CHECK_LIB([Xft],[XftFontOpen],[HAVE_XFT=yes],[],
                         [${XFT_LIBS}])],[],
@@ -6545,7 +6546,7 @@ else
 fi
 
 ### End of font-backend (under X11) section.
-
+dnl# subst the stuff from the previous section:
 AC_SUBST([FREETYPE_CFLAGS])dnl
 AC_SUBST([FREETYPE_LIBS])dnl
 AC_SUBST([FONTCONFIG_CFLAGS])dnl
@@ -6666,7 +6667,7 @@ if test "x${HAVE_XPM}" = "x" && test "x${LIBXPM}" = "x"; then
   test -z "${HAVE_XPM}" && test -z "${LIBXPM}"
   AC_MSG_NOTICE([skipped all checks for xpm])
 fi
-
+dnl# now subst:
 AC_SUBST([LIBXPM])dnl
 
 ### Use -ljpeg if available, unless `--with-jpeg=no'.
@@ -6804,7 +6805,7 @@ elif test "x${HAVE_X11}" = "xyes" || test "x${HAVE_W32}" = "xyes"; then
     LIBS="${png_libs} -lz -lm ${LIBS}"
     AC_LINK_IFELSE(
       [AC_LANG_PROGRAM([[#include <png.h>]],
-	 [[return !png_get_channels (0, 0);]])],
+	 [[return !png_get_channels(0, 0);]])],
       [HAVE_PNG=yes
        test -n "${edit_cflags}"
        PNG_CFLAGS=`AS_ECHO(["${png_cflags}"]) | sed -e "${edit_cflags}"`
@@ -7261,7 +7262,8 @@ if test "x${opsys}" != "xmingw32"; then
     else
       AC_MSG_WARN([your libm is missing symbols])
     fi
-  ])
+  ])dnl
+  ## (else do nothing)
 fi
 
 AC_MSG_CHECKING([mail libraries])
@@ -7437,9 +7439,9 @@ if test "x${libm_has_fmod}" = "x" && test "x${ac_cv_func_fmod}" = "x"; then
 fi
 dnl# these ones should be in alphabetical order:
 AC_CHECK_FUNCS([__fpending _stricmp acl atexit atof atoi btowc bzero \
-                cuserid doprnt errc fabs fabsf fchdir floor ftime \
-                ftruncate geteuid getpass getpwuid inet_ntoa isascii \
-                iswprint mbrlen  memmove memset mkdir munmap nl_langinfo \
+                cuserid doprnt errc fabs fabsf floor ftime ftruncate \
+                geteuid getpass getpwuid inet_ntoa isascii iswprint \
+                mbrlen  memmove memset mkdir munmap nl_langinfo \
                 posix_spawnp pow putenv re_comp regcomp rmdir \
                 setenv socket sqrt strcasecmp strcasestr strchr strcmp \
                 strcspn strdup strerror stricmp strncmp strnicmp strnstr \
@@ -7452,7 +7454,7 @@ if test "x" = "Y0"; then
     test -z "${ac_cv_lib_error_at_line}"
     AC_FUNC_ERROR_AT_LINE
   fi
-  AC_CHECK_FUNCS([alarm dup2 getcwd gethostbyname getpagesize \
+  AC_CHECK_FUNCS([alarm dup2 fchdir getcwd gethostbyname getpagesize \
                   gettimeofday localtime_r strtoumax tzset])
 fi
 
@@ -7497,7 +7499,7 @@ AC_DEFUN([AC_REQUIRE_FUNC_FSEEKO],[
 ])dnl
 AC_REQUIRE_FUNC_FSEEKO
 
-# Configure getopt.
+# Configure getopt:
 m4_include([m4/getopt.m4])dnl
 m4_ifdef([gl_GETOPT_IFELSE],[
   gl_GETOPT_IFELSE([
@@ -7513,10 +7515,10 @@ m4_ifdef([gl_GETOPT_IFELSE],[
 ])dnl
 AC_SUBST([GETOPTOBJS])dnl
 
-# UNIX98 PTYs.
+# UNIX98 PTYs:
 AC_CHECK_FUNCS([grantpt])dnl
 
-# PTY-related GNU extensions.
+# PTY-related GNU extensions:
 AC_CHECK_FUNCS([getpt posix_openpt])dnl
 
 # Check this now, so that we will NOT find the above functions in ncurses.
@@ -7596,10 +7598,12 @@ case "${opsys}" in
   ##  The ncurses library has been moved out of the System framework in
   ##  Mac OS X 10.2.  So if configure detects it, set the command-line
   ##  option to use it.
-  darwin) LIBS_TERMCAP="-lncurses" ;;
-
-  gnu*) test -z "${LIBS_TERMCAP}" && LIBS_TERMCAP="-lncurses" ;;
-
+  darwin)
+    LIBS_TERMCAP="-lncurses"
+    ;;
+  gnu*)
+    test -z "${LIBS_TERMCAP}" && LIBS_TERMCAP="-lncurses"
+    ;;
   freebsd)
     dnl# "_ONCE" causes test to jump out of the conditional and be done at
     dnl# wrong location
@@ -7621,28 +7625,28 @@ fail;
       LIBS_TERMCAP="-ltermcap"
     fi
     ;;
-
   mingw32)
     TERMINFO=no
     LIBS_TERMCAP=""
     ;;
-
   netbsd)
     if test "x${LIBS_TERMCAP}" != "x-lterminfo"; then
       TERMINFO=no
       LIBS_TERMCAP="-ltermcap"
     fi
     ;;
-
-  openbsd | dragonfly) LIBS_TERMCAP="-lncurses" ;;
+  openbsd | dragonfly)
+    LIBS_TERMCAP="-lncurses"
+    ;;
 
   ## hpux: Make sure we get select from libc rather than from libcurses
   ##  because libcurses on HPUX 10.10 has a broken version of select.
   ##  We used to use -lc -lcurses, but this may be cleaner.
   ## FIXME?  But TERMINFO = yes on hpux (it used to be explicitly
   # set that way, now it uses the default). Is this not a contradiction?
-  hpux*) LIBS_TERMCAP="-ltermcap" ;;
-
+  hpux*)
+    LIBS_TERMCAP="-ltermcap"
+    ;;
 esac
 
 TERMCAP_OBJ=tparam.o
@@ -7765,7 +7769,7 @@ CRYPTOLIB=""
 KRB5LIB=""
 DESLIB=""
 KRB4LIB=""
-
+dnl# now actually check stuff:
 if test "x${with_kerberos}" != "xno"; then
   OLD_LIBS="${LIBS}"
   AC_CHECK_LIB([com_err],[com_err],[have_com_err=yes],[have_com_err=no])
@@ -7834,7 +7838,7 @@ if test "x${with_kerberos}" != "xno"; then
 else
   AC_MSG_NOTICE([skipping kerberos checks])
 fi
-
+dnl# now subst values set by all of that:
 AC_SUBST([COM_ERRLIB])dnl
 AC_SUBST([CRYPTOLIB])dnl
 AC_SUBST([KRB5LIB])dnl
@@ -8026,8 +8030,8 @@ if test "x${links_glib}" = "xyes"; then
     XGSELOBJ=xgselect.o
   fi
 fi
-CFLAGS="$OLDCFLAGS"
-LIBS="$OLDLIBS"
+CFLAGS="${OLDCFLAGS}"
+LIBS="${OLDLIBS}"
 AC_SUBST([XGSELOBJ])dnl
 
 dnl# Adapted from Haible's version.
@@ -8111,7 +8115,8 @@ AH_TEMPLATE([INTERNAL_TERMINAL],
             [This is substituted when ${TERM} is "internal".])dnl
 
 AH_TEMPLATE([NULL_DEVICE],
-            [Name of the file to open to get a null file, or a data sink.])
+            [Name of the file to open to get a null file or data sink.])dnl
+## just assume based on system:
 if test "x${opsys}" = "xmingw32"; then
   AC_DEFINE([NULL_DEVICE],["NUL:"])
 else
@@ -8163,7 +8168,7 @@ else
   AC_DEFINE([IS_DIRECTORY_SEP(_c_)],[((_c_) == DIRECTORY_SEP)],
     [Returns true if character is a directory separator.])dnl
 
-  AC_DEFINE([IS_ANY_SEP(_c_)],[(IS_DIRECTORY_SEP (_c_))],
+  AC_DEFINE([IS_ANY_SEP(_c_)],[(IS_DIRECTORY_SEP(_c_))],
     [Returns true if character is any form of separator.])
 fi
 
@@ -8204,7 +8209,6 @@ case ${opsys} in
   hpux* | irix6-5 | openbsd | sol2* | unixware )
     emacs_broken_SIGIO=yes
     ;;
-
   aix4-2)
     dnl# On AIX Emacs uses the gmalloc.c malloc implementation. But given
     dnl# the way this system works, libc functions that return malloced
@@ -8229,7 +8233,6 @@ case ${opsys} in
     AC_DEFINE([BROKEN_GET_CURRENT_DIR_NAME],[1],
               [Define if get_current_dir_name should not be used.])
     ;;
-
   freebsd)
     dnl# Circumvent a bug in FreeBSD. In the following sequence of
     dnl# writes/reads on a PTY, read(2) returns bogus data:
@@ -8326,57 +8329,54 @@ AC_REQUIRE_PROTOTYPES
 dnl########################################################################
 dnl# Used in process.c, this must be a loop, even if it only runs once.
 dnl# (Except on SGI; see below. Take that, clarity and consistency!)
-AH_TEMPLATE([PTY_ITERATION],[How to iterate over PTYs.])
+AH_TEMPLATE([PTY_ITERATION],[How to iterate over PTYs.])dnl
 dnl# Only used if !PTY_ITERATION. Iterate from FIRST_PTY_LETTER to z,
 dnl# trying suffixes 0-16.
 AH_TEMPLATE([FIRST_PTY_LETTER],[Letter to use in finding device name of
-  first PTY, if PTYs are supported.])
-AH_TEMPLATE([PTY_OPEN],[How to open a PTY, if non-standard.])
+  first PTY, if PTYs are supported.])dnl
+AH_TEMPLATE([PTY_OPEN],[How to open a PTY, if non-standard.])dnl
 AH_TEMPLATE([PTY_NAME_SPRINTF],[How to get the device name of the control
-  end of a PTY, if non-standard.])
+  end of a PTY, if non-standard.])dnl
 AH_TEMPLATE([PTY_TTY_NAME_SPRINTF],[How to get device name of the tty
   end of a PTY, if non-standard.])dnl
 
 case ${opsys} in
   aix4-2 )
-    AC_DEFINE([PTY_ITERATION],[int c; for (c = 0; !c ; c++)])
+    AC_DEFINE([PTY_ITERATION],[int c; for (c = 0; !c ; c++)])dnl
     dnl# You allocate a pty by opening /dev/ptc to get the master side.
     dnl# To get the name of the slave side, you just ttyname() the master
     dnl# side.
-    AC_DEFINE([PTY_NAME_SPRINTF],[strcpy(pty_name, "/dev/ptc");])
+    AC_DEFINE([PTY_NAME_SPRINTF],[strcpy(pty_name, "/dev/ptc");])dnl
     AC_DEFINE([PTY_TTY_NAME_SPRINTF],[strcpy(pty_name, ttyname(fd));])
     ;;
-
   cygwin )
-    AC_DEFINE([PTY_ITERATION],[int i; for (i = 0; i < 1; i++)])
+    AC_DEFINE([PTY_ITERATION],[int i; for (i = 0; i < 1; i++)])dnl
     dnl# multi-line AC_DEFINEs are hard. Oh well.
     AC_DEFINE([PTY_OPEN],[ do { int dummy; sigset_t blocked, procmask; sigemptyset(&blocked); sigaddset(&blocked, SIGCHLD); pthread_sigmask(SIG_BLOCK, &blocked, &procmask); if (-1 == openpty(&fd, &dummy, pty_name, 0, 0)) fd = -1; pthread_sigmask(SIG_SETMASK, &procmask, 0); if (fd >= 0) emacs_close(dummy); } while (false)])
-    AC_DEFINE([PTY_NAME_SPRINTF],[])
+    AC_DEFINE([PTY_NAME_SPRINTF],[])dnl
     AC_DEFINE([PTY_TTY_NAME_SPRINTF],[])
     ;;
 
   dnl# FIXME?  Maybe use same as freebsd - see bug#12040.
   darwin )
-    AC_DEFINE([PTY_ITERATION],[int i; for (i = 0; i < 1; i++)])
-    dnl# Not used, because PTY_ITERATION is defined.
-    AC_DEFINE([FIRST_PTY_LETTER],['p'])
+    AC_DEFINE([PTY_ITERATION],[int i; for (i = 0; i < 1; i++)])dnl
+    dnl# Not used, because PTY_ITERATION is defined:
+    AC_DEFINE([FIRST_PTY_LETTER],['p'])dnl
     dnl# Note that openpty may fork via grantpt on Mac OS X 10.4/Darwin 8.
     dnl# But we do NOT have to block SIGCHLD because it is blocked in the
-    dnl# implementation of grantpt.
+    dnl# implementation of grantpt:
     AC_DEFINE([PTY_OPEN],[ do { int slave; if (openpty(&fd, &slave, pty_name, NULL, NULL) == -1) fd = -1; else emacs_close(slave); } while (false)])
-    AC_DEFINE([PTY_NAME_SPRINTF],[])
+    AC_DEFINE([PTY_NAME_SPRINTF],[])dnl
     AC_DEFINE([PTY_TTY_NAME_SPRINTF],[])
     ;;
-
   gnu | openbsd )
     AC_DEFINE([FIRST_PTY_LETTER],['p'])
     ;;
-
   gnu-linux | gnu-kfreebsd | dragonfly | freebsd | netbsd )
     dnl# if HAVE_GRANTPT
     if test "x${ac_cv_func_grantpt}" = "xyes"; then
       AC_DEFINE([UNIX98_PTYS],[1],[Define if the system has Unix98 PTYs.])
-      AC_DEFINE([PTY_ITERATION],[int i; for (i = 0; i < 1; i++)])
+      AC_DEFINE([PTY_ITERATION],[int i; for (i = 0; i < 1; i++)])dnl
       dnl# Note that grantpt and unlockpt may fork. We must block SIGCHLD
       dnl# to prevent sigchld_handler from intercepting the child's death.
       AC_DEFINE([PTY_TTY_NAME_SPRINTF],[{ char *ptyname = 0; sigset_t blocked; sigemptyset(&blocked); sigaddset(&blocked, SIGCHLD); pthread_sigmask(SIG_BLOCK, &blocked, 0); if ((grantpt(fd) != -1) && (unlockpt(fd) != -1)) ptyname = ptsname(fd); pthread_sigmask(SIG_UNBLOCK, &blocked, 0); if (!ptyname) { emacs_close(fd); return -1; } snprintf(pty_name, PTY_NAME_SIZE, "%s", ptyname); }])
@@ -8386,7 +8386,7 @@ case ${opsys} in
         AC_DEFINE([PTY_NAME_SPRINTF],[])
       dnl# if HAVE_GETPT
       elif test "x${ac_cv_func_getpt}" = "xyes"; then
-        AC_DEFINE([PTY_OPEN],[fd = getpt()])
+        AC_DEFINE([PTY_OPEN],[fd = getpt()])dnl
         AC_DEFINE([PTY_NAME_SPRINTF],[])
       else
         AC_DEFINE([PTY_NAME_SPRINTF],[strcpy(pty_name, "/dev/ptmx");])
@@ -8395,15 +8395,13 @@ case ${opsys} in
       AC_DEFINE([FIRST_PTY_LETTER],['p'])
     fi
     ;;
-
   hpux*)
-    AC_DEFINE([FIRST_PTY_LETTER],['p'])
+    AC_DEFINE([FIRST_PTY_LETTER],['p'])dnl
     AC_DEFINE([PTY_NAME_SPRINTF],
               [sprintf(pty_name, "/dev/ptym/pty%c%x", c, i);])
     AC_DEFINE([PTY_TTY_NAME_SPRINTF],
               [sprintf(pty_name, "/dev/pty/tty%c%x", c, i);])
     ;;
-
   irix6-5 )
     dnl# It looks like this cannot be right, because it is not a loop.
     dnl# However, process.c actually does this:
@@ -8415,17 +8413,16 @@ case ${opsys} in
     dnl# which presumably makes it OK, since irix == sgi (?).
     dnl# FIXME: it seems like this special treatment is unnecessary?
     dnl# Why can irix not use a single-trip loop like e.g. cygwin?
-    AC_DEFINE([PTY_ITERATION],[])
-    dnl# Not used, because PTY_ITERATION is defined.
-    AC_DEFINE([FIRST_PTY_LETTER],['q'])
+    AC_DEFINE([PTY_ITERATION],[])dnl
+    dnl# Not used, because PTY_ITERATION is defined:
+    AC_DEFINE([FIRST_PTY_LETTER],['q'])dnl
     AC_DEFINE([PTY_OPEN],[ { struct sigaction ocstat, cstat; struct stat stb; char * name; sigemptyset(&cstat.sa_mask); cstat.sa_handler = SIG_DFL; cstat.sa_flags = 0; sigaction(SIGCHLD, &cstat, &ocstat); name = _getpty(&fd, (O_RDWR | O_NDELAY), 0600, 0); sigaction(SIGCHLD, &ocstat, (struct sigaction *)0); if (name == 0) return -1; if (fd < 0) return -1; if (fstat(fd, &stb) < 0) return -1; strcpy(pty_name, name); }])
-    dnl# No need to get the pty name at all.
-    AC_DEFINE([PTY_NAME_SPRINTF],[])
+    dnl# No need to get the pty name at all:
+    AC_DEFINE([PTY_NAME_SPRINTF],[])dnl
     dnl# No need to use sprintf to get the tty name--we get that from the
-    dnl# _getpty() function.
+    dnl# _getpty() function:
     AC_DEFINE([PTY_TTY_NAME_SPRINTF],[])
     ;;
-
   sol2* )
     dnl# On SysVr4, grantpt(3) forks a subprocess, so keep
     dnl# sigchld_handler() from intercepting that death. If any child but
@@ -8433,7 +8430,6 @@ case ${opsys} in
     dnl# sigrelse(2).
     AC_DEFINE([PTY_TTY_NAME_SPRINTF],[{ char *ptsname(int), *ptyname; int grantpt_result; sigset_t blocked; sigemptyset(&blocked); sigaddset(&blocked, SIGCHLD); pthread_sigmask(SIG_BLOCK, &blocked, 0); grantpt_result = grantpt(fd); pthread_sigmask(SIG_UNBLOCK, &blocked, 0); if ((grantpt_result == -1) || (unlockpt(fd) == -1) || !(ptyname = ptsname (fd))) { emacs_close(fd); return -1; } snprintf(pty_name, PTY_NAME_SIZE, "%s", ptyname); }])
     ;;
-
   unixware )
     dnl# Comments are as per sol2*.
     AC_DEFINE([PTY_TTY_NAME_SPRINTF],[{ char *ptsname(int), *ptyname; int grantpt_result; sigset_t blocked; sigemptyset(&blocked); sigaddset(&blocked, SIGCHLD); pthread_sigmask(SIG_BLOCK, &blocked, 0); grantpt_result = grantpt(fd); pthread_sigmask(SIG_UNBLOCK, &blocked, 0); if (grantpt_result == -1) fatal("could not grant slave pty"); if (unlockpt(fd) == -1) fatal("could not unlock slave pty"); if (!(ptyname = ptsname(fd))) fatal("could not enable slave pty"); snprintf(pty_name, PTY_NAME_SIZE, "%s", ptyname); }])
@@ -8441,12 +8437,13 @@ case ${opsys} in
 esac
 
 dnl# why not combine this set of case(s) with the previous?
+dnl# (because unixware does separate things in both)
 case ${opsys} in
   sol2* | unixware )
     dnl# This change means that we do NOT loop through allocate_pty too
     dnl# many times in the (rare) event of a failure.
-    AC_DEFINE([FIRST_PTY_LETTER],['z'])
-    AC_DEFINE([PTY_NAME_SPRINTF],[strcpy(pty_name, "/dev/ptmx");])
+    AC_DEFINE([FIRST_PTY_LETTER],['z'])dnl
+    AC_DEFINE([PTY_NAME_SPRINTF],[strcpy(pty_name, "/dev/ptmx");])dnl
     dnl# Push various streams modules onto a PTY channel.
     dnl# Used in process.c.
     AC_DEFINE([SETUP_SLAVE_PTY],[if (ioctl(xforkin, I_PUSH, "ptem") == -1) fatal("ioctl I_PUSH ptem"); if (ioctl(xforkin, I_PUSH, "ldterm") == -1) fatal("ioctl I_PUSH ldterm"); if (ioctl(xforkin, I_PUSH, "ttcompat") == -1) fatal("ioctl I_PUSH ttcompat");],[How to set up a slave PTY, if needed.])
@@ -8465,11 +8462,12 @@ case ${opsys} in
     ;;
 
   dnl# 21 Jun 06: Eric Hanchrow <offby1@blarg.net> says this works.
-  dnl# FIXME Does gnu-kfreebsd have linux/version.h?  It seems unlikely...
+  dnl# FIXME: Does gnu-kfreebsd have linux/version.h?  It seems unlikely...
   gnu-linux | gnu-kfreebsd )
     dnl# "_ONCE" causes test to jump out of the conditional and be done at
-    dnl# wrong location
-    AC_CHECK_HEADERS([linux/version.h])
+    dnl# wrong location:
+    AC_CHECK_HEADERS([linux/version.h])dnl
+    ## now we can do the conftest that uses that header:
     AC_MSG_CHECKING([for signals via characters])
     AC_PREPROC_IFELSE([AC_LANG_PROGRAM([[
 #include <linux/version.h>
@@ -8488,8 +8486,8 @@ dnl########################################################################
 dnl# Used in lisp.h, emacs.c, vm-limit.c
 dnl# NEWS.18 describes this as "a number which contains
 dnl# the high bits to be inclusive or'ed with pointers that are unpacked."
-AH_TEMPLATE([DATA_SEG_BITS],[Extra bits to be or'd in with any pointers
-stored in a Lisp_Object.])
+AH_TEMPLATE([DATA_SEG_BITS],
+  [Extra bits to be or'd in with any pointers stored in a Lisp_Object.])dnl
 dnl# if Emacs uses fewer than 32 bits for the value field of a LISP_OBJECT.
 
 case ${opsys} in
@@ -8509,13 +8507,13 @@ esac
 AH_TEMPLATE([TAB3],[Undocumented.])dnl
 
 case ${opsys} in
-  darwin) AC_DEFINE([TAB3],[OXTABS]) ;;
-
-  gnu | dragonfly | freebsd | netbsd | openbsd )
-    AC_DEFINE([TABDLY],[OXTABS],[Undocumented.])
+  darwin)
     AC_DEFINE([TAB3],[OXTABS])
     ;;
-
+  gnu | dragonfly | freebsd | netbsd | openbsd )
+    AC_DEFINE([TABDLY],[OXTABS],[Undocumented.])dnl
+    AC_DEFINE([TAB3],[OXTABS])
+    ;;
   gnu-linux | gnu-kfreebsd )
     AC_PREPROC_IFELSE([AC_LANG_PROGRAM([[
 #ifndef __ia64__
@@ -8526,7 +8524,6 @@ case ${opsys} in
         [Mark a secondary stack, like the register stack on the ia64.])],
         [])
     ;;
-
   hpux*)
     AC_DEFINE([RUN_TIME_REMAP],[1],
               [Define if emacs.c needs to call run_time_remap; for HPUX.])
@@ -8585,8 +8582,8 @@ AC_CACHE_CHECK([for _setjmp],[emacs_cv_func__setjmp],
          #endif /* __MINGW32__ */
        ]],
        [[jmp_buf j;
-	 if (! _setjmp (j))
-	   _longjmp (j, 1);]])],
+	 if (! _setjmp(j))
+	   _longjmp(j, 1);]])],
      [emacs_cv_func__setjmp=yes],
      [emacs_cv_func__setjmp=no])])
 if test "x${emacs_cv_func__setjmp}" = "xyes"; then
@@ -8628,6 +8625,7 @@ case ${opsys} in
 esac
 
 dnl# why not combine this set of case(s) with the previous?
+dnl# (because sol2 is in both, and needs both to happen instead of just 1)
 case ${opsys} in
   hpux* | sol2* )
     dnl# Used in xfaces.c.
@@ -8639,27 +8637,25 @@ esac
 dnl########################################################################
 dnl# Define symbols to identify the version of Unix this is.
 dnl# Define all the symbols that apply correctly.
-AH_TEMPLATE([DOS_NT],[Define if the system is MS DOS or MS Windows.])
-AH_TEMPLATE([MSDOS],[Define if the system is MS DOS.])
-AH_TEMPLATE([USG],[Define if the system is compatible with System III.])
+AH_TEMPLATE([DOS_NT],[Define if the system is MS DOS or MS Windows.])dnl
+AH_TEMPLATE([MSDOS],[Define if the system is MS DOS.])dnl
+AH_TEMPLATE([USG],[Define if the system is compatible with System III.])dnl
 AH_TEMPLATE([USG5_4],
             [Define if system is compatible with System V Release 4])dnl
 
 case ${opsys} in
   aix4-2)
-    AC_DEFINE([USG],[])
-    dnl# This symbol should be defined on AIX Version 3  ???????
+    AC_DEFINE([USG],[])dnl
+    dnl# This symbol should be defined on AIX Version 3 ???????
     AC_PREPROC_IFELSE([AC_LANG_PROGRAM([[
 #ifndef _AIX
 # error "_AIX not defined"
 #endif /* !_AIX */
     ]],[[]])],[],[AC_DEFINE([_AIX],[],[Define if the system is AIX.])])
     ;;
-
   cygwin)
     AC_DEFINE([CYGWIN],[1],[Define if the system is Cygwin.])
     ;;
-
   darwin)
     dnl# Not __APPLE__, as this may not be defined on non-OSX Darwin.
     dnl# (lol, if only people used non-OSX Darwin... one can dream...)
@@ -8674,42 +8670,37 @@ case ${opsys} in
       test -n "${host_vendor}" ##...and do something else...
     fi
     ;;
-
   gnu-linux | gnu-kfreebsd )
-    AC_DEFINE([USG],[])
+    AC_DEFINE([USG],[])dnl
     AC_DEFINE([GNU_LINUX],[],
               [Define if this system is compatible with GNU/Linux.])
     ;;
-
   hpux*)
-    AC_DEFINE([USG],[])
+    AC_DEFINE([USG],[])dnl
     AC_DEFINE([HPUX],[],[Define if the system is HPUX.])
     ;;
-
   irix6-5)
-    AC_DEFINE([USG],[])
-    AC_DEFINE([USG5_4],[])
+    AC_DEFINE([USG],[])dnl
+    AC_DEFINE([USG5_4],[])dnl
     AC_DEFINE([IRIX6_5],[],[Define if the system is IRIX.])
     ;;
-
   mingw32)
-    AC_DEFINE([DOS_NT],[])
+    AC_DEFINE([DOS_NT],[])dnl
     AC_DEFINE([WINDOWSNT],[1],[Define if compiling for native MS Windows.])
     if test "x${ac_enable_checking}" != "x"; then
       AC_DEFINE([EMACSDEBUG],[1],
                 [Define to 1 to enable w32 debug facilities.])
     fi
     ;;
-
   sol2*)
-    AC_DEFINE([USG],[])
-    AC_DEFINE([USG5_4],[])
+    AC_DEFINE([USG],[])dnl
+    AC_DEFINE([USG5_4],[])dnl
     AC_DEFINE([SOLARIS2],[],[Define if the system is Solaris.])
     ;;
-
   unixware)
-    AC_DEFINE([USG],[])
-    AC_DEFINE([USG5_4],[])
+    AC_DEFINE([USG],[])dnl
+    AC_DEFINE([USG5_4],[])dnl
+    AC_DEFINE([SCO_UNIXWARE_IS_EVIL],[1],[Just because.])
     ;;
 esac
 
@@ -8765,12 +8756,11 @@ case ${opsys} in
   dnl# malloc, the Cygwin posix_memalign always returns ENOSYS.  A
   dnl# workaround is to set G_SLICE=always-malloc. This is no longer
   dnl# needed starting with cygwin-1.7.24, and it is no longer
-  dnl# effective starting with glib-2.36. */
+  dnl# effective starting with glib-2.36:
   cygwin)
     AC_DEFINE([G_SLICE_ALWAYS_MALLOC],[1],[Define to set the
       G_SLICE environment variable to "always-malloc" at startup.])
     ;;
-
   hpux11)
     dnl# It works to open the pty's tty in the parent (Emacs), then
     dnl# close and reopen it in the child.
@@ -8778,12 +8768,10 @@ case ${opsys} in
       works to open a pty's tty in the parent process, then close and
       reopen it in the child.])
     ;;
-
   irix6-5)
     AC_DEFINE([PREFER_VSUSP],[1],[Define if process_send_signal should
       use VSUSP instead of VSWTCH.])
     ;;
-
   sol2-10)
     AC_DEFINE([_STRUCTURED_PROC],[1],[Needed for system_process_attributes
       on Solaris.])
@@ -8904,11 +8892,11 @@ else
 fi
 
 AC_DEFINE_UNQUOTED([EMACS_CONFIGURATION],["${canonical}"],
-		   [Define to the canonical Emacs configuration name.])
+		   [Define to the canonical Emacs configuration name.])dnl
 AC_DEFINE_UNQUOTED([EMACS_CONFIG_OPTIONS],["${emacs_config_options}"],
-		   [Define to the options passed to configure.])
+		   [Define to the options passed to configure.])dnl
 AC_DEFINE_UNQUOTED([config_machfile],["${machfile}"],
-		   [Define to the used machine dependent file.])
+		   [Define to the used machine dependent file.])dnl
 AH_TEMPLATE([config_opsysfile],[Some platforms that do not use configure
   define this to include extra configuration information.])dnl
 
@@ -8954,23 +8942,24 @@ if test "x${USE_X_TOOLKIT}" != "xnone"; then
         ## needed.
         MOTIF_LIBW="${MOTIF_LIBW} -lXpm"
         ;;
-
       unixware)
         ## Richard Anthony Ryan <ryanr at ellingtn.ftc.nrcs.usda.gov>
         ## says -lXimp is needed in UNIX_SV ... 4.2 1.1.2.
         MOTIF_LIBW="${MOTIF_LIBW} -lXimp"
         ;;
-
       aix4-2)
         ## olson@mcs.anl.gov says -li18n is needed by -lXm.
         MOTIF_LIBW="${MOTIF_LIBW} -li18n"
         ;;
     esac
     MOTIF_LIBW="${MOTIF_LIBW} ${LIBXP}"
+  else
+    AC_MSG_WARN([not sure what to use for libw with unknown toolkit ${USE_X_TOOLKIT}])
   fi
 fi
 AC_SUBST([WIDGET_OBJ])dnl
 
+AC_MSG_CHECKING([libs to use for TOOLKIT_LIBW])
 TOOLKIT_LIBW=""
 case "${USE_X_TOOLKIT}" in
   MOTIF) TOOLKIT_LIBW="${MOTIF_LIBW}" ;;
@@ -8978,32 +8967,54 @@ case "${USE_X_TOOLKIT}" in
   none) test "x${HAVE_GTK}" = "xyes" && export TOOLKIT_LIBW="${GTK_LIBS}"
         ;;
 esac
+AC_MSG_RESULT(['${TOOLKIT_LIBW}'])dnl
 AC_SUBST([TOOLKIT_LIBW])dnl
 
+AC_MSG_CHECKING([libs to use for LIBXT_OTHER])
+LIBXT_OTHER=""
 if test "x${opsys}" != "xmingw32"; then
   if test "x${USE_X_TOOLKIT}" = "xnone"; then
     LIBXT_OTHER="\$(LIBXSM)"
+    if test "x${LIBXMU}" != "x"; then
+      test -n "${LIBXMU}" && LIBXT_OTHER="${LIBXT_OTHER} \$(LIBXMU)"
+    fi
+    if test "x${LIBXTR6}" != "x"; then
+      test -n "${LIBXTR6}" && LIBXT_OTHER="${LIBXT_OTHER} \$(LIBXTR6)"
+    fi
   else
     LIBXT_OTHER="\$(LIBXMU) -lXt \$(LIBXTR6) -lXext"
   fi
 fi
+AC_MSG_RESULT([${LIBXT_OTHER}])dnl
 AC_SUBST([LIBXT_OTHER])dnl
 
-if test "x${HAVE_X11}" = "xyes" ; then
+AC_MSG_CHECKING([libs to use for LIBX_OTHER])
+LIBX_OTHER=""
+if test "x${HAVE_X11}" = "xyes"; then
   AC_DEFINE([HAVE_X11],[1],
 	    [Define to 1 if you want to use version 11 of X windows.])
   LIBX_OTHER="\$(LIBXT) \$(LIBX_EXTRA)"
 else
   LIBX_OTHER=""
 fi
+AC_MSG_RESULT([${LIBX_OTHER}])dnl
 AC_SUBST([LIBX_OTHER])dnl
 
+AC_MSG_CHECKING([what to use for LIBXMENU])
+LIBXMENU=""
 if test "x${HAVE_GTK}" = "xyes" || test "x${HAVE_X11}" != "xyes"; then
   LIBXMENU=""
 elif test "x${USE_X_TOOLKIT}" = "xnone"; then
   LIBXMENU='$(oldXMenudir)/libXMenu11.a'
 else
   LIBXMENU='$(lwlibdir)/liblw.a'
+fi
+if test "x${LIBXMENU}" != "x"; then
+  test -n "${LIBXMENU}"
+  AC_MSG_RESULT([${LIBXMENU}])
+else
+  test -z "${LIBXMENU}"
+  AC_MSG_RESULT([nothing])
 fi
 AC_SUBST([LIBXMENU])dnl
 
@@ -9023,7 +9034,8 @@ AC_CACHE_CHECK([for struct alignment],
 			char verify[offsetof (struct t, s) == 8 ? 1 : -1];
 		      ]])],
      [emacs_cv_struct_alignment=yes],
-     [emacs_cv_struct_alignment=no])])
+     [emacs_cv_struct_alignment=no])])dnl
+  ## definition to go with that:
 if test "x${emacs_cv_struct_alignment}" = "xyes"; then
   AC_DEFINE([HAVE_STRUCT_ATTRIBUTE_ALIGNED],[1],
     [Define to 1 if 'struct __attribute__ ((aligned (N)))' aligns the
@@ -9149,6 +9161,29 @@ for i in ${LIBS}; do
   esac
 done
 LIBS="${f}"
+unset f
+## ...and in some other library variables:
+# (not cflags though, because they could have ${isystem} splitting them up)
+# 1: SETTINGS_LIBS:
+f=""
+for i in ${SETTINGS_LIBS}; do
+  case " ${f} " in
+    *" ${i} "*) ;;
+    *) f="${f} ${i}" ;;
+  esac
+done
+SETTINGS_LIBS="${f}"
+unset f
+# 2: LIBOTF_LIBS:
+f=""
+for i in ${LIBOTF_LIBS}; do
+  case " ${f} " in
+    *" ${i} "*) ;;
+    *) f="${f} ${i}" ;;
+  esac
+done
+LIBOTF_LIBS="${f}"
+unset f
 
 if test "x${opsys}" = "xmingw32"; then
   CPPFLAGS="${CPPFLAGS} -DUSE_CRT_DLL=1 -I \${abs_top_srcdir}/nt/inc"
@@ -9277,7 +9312,7 @@ if test "${opsys}" = "mingw32"; then
     *) EMACS_HEAPSIZE=27 ;;
   esac
 fi
-
+dnl# now subst them:
 AC_SUBST([ADDSECTION])dnl
 AC_SUBST([TEMACS_POST_LINK])dnl
 AC_SUBST([EMACS_HEAPSIZE])dnl
@@ -9289,7 +9324,7 @@ if test "x${window_system}" != "xnone"; then
             [Define to 1 if you poll periodically to detect C-g.])
   WINDOW_SYSTEM_OBJ="fontset.o fringe.o image.o"
 fi
-
+dnl# now subst it:
 AC_SUBST([WINDOW_SYSTEM_OBJ])dnl
 
 ## this cache value should be set by now, probably by gnulib:
@@ -9413,6 +9448,7 @@ Configured for \`${canonical}'.
   What operating system and machine description files should Emacs use?
         \`${opsysfile}' and \`${machfile}'
   What compiler should emacs be built with?            ${CC} ${CFLAGS}
+  What preprocessor should emacs be built with?        ${CPP} ${CPPFLAGS}
   What linker should emacs be built with?              ${LD} ${LDFLAGS}
   Should Emacs use the GNU version of malloc?          ${GNU_MALLOC}${GNU_MALLOC_reason}
   Should Emacs use a relocating allocator for buffers? ${REL_ALLOC}

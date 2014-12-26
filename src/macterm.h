@@ -1,7 +1,7 @@
 /* macterm.h: Display module for Mac OS.
-   Copyright (C) 2000, 2001, 2002, 2003, 2004,
-                 2005, 2006, 2007 Free Software Foundation, Inc.
-
+ * Copyright (C) 2000, 2001, 2002, 2003, 2004,
+ *************** 2005, 2006, 2007 Free Software Foundation, Inc.  */
+/*
 This file is part of GNU Emacs.
 
 GNU Emacs is free software; you can redistribute it and/or modify
@@ -51,25 +51,24 @@ Boston, MA 02110-1301, USA.  */
 #define WHITE_PIX_DEFAULT(f) RGB_TO_ULONG(255,255,255)
 
 #ifndef FONT_WIDTH
-# ifdef MAC_OS
+# if (defined(HAVE_CARBON) && defined(TARGET_API_MAC_CARBON)) || defined(MAC_OS)
 #  define FONT_WIDTH(f)	((f)->max_bounds.width) /* (what was originally in this file) */
 # else
 #  define FONT_WIDTH(f) ((f)->max_width) /* (definition in "font.h") */
-# endif /* MAC_OS */
+# endif /* (HAVE_CARBON && TARGET_API_MAC_CARBON) || MAC_OS */
 #endif /* !FONT_WIDTH */
 #ifndef FONT_HEIGHT
-# ifdef MAC_OS
+# if (defined(HAVE_CARBON) && defined(TARGET_API_MAC_CARBON)) || defined(MAC_OS)
 #  define FONT_HEIGHT(f) ((f)->ascent + (f)->descent) /* (what was originally in this file) */
 # else
 #  define FONT_HEIGHT(f) ((f)->height) /* (definition in "font.h") */
-# endif /* MAC_OS */
+# endif /* (HAVE_CARBON && TARGET_API_MAC_CARBON) || MAC_OS */
 #endif /* !FONT_HEIGHT */
 #define FONT_BASE(f)    ((f)->ascent)
 #define FONT_DESCENT(f) ((f)->descent)
 
 /* Structure recording bitmaps and reference count.
    If REFCOUNT is 0 then this record is free to be reused.  */
-
 struct mac_bitmap_record
 {
   char *bitmap_data;
@@ -81,23 +80,22 @@ struct mac_bitmap_record
 
 /* For each display (currently only one on mac), we have a structure that
    records information about it.  */
-
 struct mac_display_info
 {
-  /* Chain of all mac_display_info structures.  */
+  /* Chain of all mac_display_info structures: */
   struct mac_display_info *next;
 
   /* This is a cons cell of the form (NAME . FONT-LIST-CACHE).
      The same cons cell also appears in x_display_name_list.  */
   Lisp_Object name_list_element;
 
-  /* Number of frames that are on this display.  */
+  /* Number of frames that are on this display: */
   int reference_count;
 
-  /* Dots per inch of the screen.  */
+  /* Dots per inch of the screen: */
   double resx, resy;
 
-  /* Number of planes on this screen.  */
+  /* Number of planes on this screen: */
   int n_planes;
 
   /* Whether the screen supports color */
@@ -113,18 +111,18 @@ struct mac_display_info
   /* Emacs bitmap-id of the default icon bitmap for this frame.
      Or -1 if none has been allocated yet.  */
   int icon_bitmap_id;
-
 #endif /* 0 */
-  /* The root window of this screen.  */
+
+  /* The root window of this screen: */
   Window root_window;
 
-  /* The cursor to use for vertical scroll bars.  */
+  /* The cursor to use for vertical scroll bars: */
   Cursor vertical_scroll_bar_cursor;
 
-  /* Resource data base */
+  /* Resource data base: */
   XrmDatabase xrdb;
 
-  /* A table of all the fonts we have already loaded.  */
+  /* A table of all the fonts we have already loaded: */
   struct font_info *font_table;
 
   /* The current capacity of font_table.  */
@@ -153,8 +151,8 @@ struct mac_display_info
   int mouse_face_face_id;
   Lisp_Object mouse_face_overlay;
 
-  /* 1 if a mouse motion event came and we didn't handle it right away because
-     gc was in progress.  */
+  /* 1 if a mouse motion event came and we did NOT handle it right away
+   * because gc was in progress: */
   int mouse_face_deferred_gc;
 
   /* FRAME and X, Y position of mouse when last checked for
@@ -202,7 +200,7 @@ struct mac_display_info
   /* The frame which currently has the visual highlight, and should get
      keyboard input (other sorts of input have the frame encoded in the
      event).  It points to the focus frame's selected window's
-     frame.  It differs from x_focus_frame when we're using a global
+     frame.  It differs from x_focus_frame when we are using a global
      minibuffer.  */
   struct frame *x_highlight_frame;
 
@@ -321,7 +319,6 @@ struct mac_output
 
   /* Flag to set when the window needs to be completely repainted.  */
   int needs_exposure;
-
 #endif /* 0 */
 
 #if TARGET_API_MAC_CARBON
@@ -430,20 +427,20 @@ typedef struct mac_output mac_output;
 /* Mac-specific scroll bar stuff.  */
 
 /* We represent scroll bars as lisp vectors.  This allows us to place
-   references to them in windows without worrying about whether we'll
+   references to them in windows without worrying about whether we will
    end up with windows referring to dead scroll bars; the garbage
    collector will free it when its time comes.
 
    We use struct scroll_bar as a template for accessing fields of the
    vector.  */
 
-struct scroll_bar {
-
+struct scroll_bar
+{
   /* These fields are shared by all vectors.  */
   EMACS_INT size_from_Lisp_Vector_struct;
   struct Lisp_Vector *next_from_Lisp_Vector_struct;
 
-  /* The window we're a scroll bar for.  */
+  /* The window for which we are a scroll bar: */
   Lisp_Object window;
 
   /* The next and previous in the chain of scroll bars in this frame.  */
@@ -459,8 +456,8 @@ struct scroll_bar {
 
   /* The starting and ending positions of the handle, relative to the
      handle area (i.e. zero is the top position, not
-     SCROLL_BAR_TOP_BORDER).  If they're equal, that means the handle
-     hasn't been drawn yet.
+     SCROLL_BAR_TOP_BORDER).  If they are equal, that means the handle
+     has NOT been drawn yet.
 
      These are not actually the locations where the beginning and end
      are drawn; in order to keep handles from becoming invisible when
@@ -474,7 +471,7 @@ struct scroll_bar {
      this is the number of pixels from the top of the handle to the
      place where the user grabbed it.  If the handle is pressed but
      not dragged yet, this is a negative integer whose absolute value
-     is the number of pixels plus 1.  If the handle isn't currently
+     is the number of pixels plus 1.  If the handle is NOT currently
      being dragged, this is Qnil.  */
   Lisp_Object dragging;
 
@@ -527,10 +524,10 @@ struct scroll_bar {
    - VERTICAL_SCROLL_BAR_WIDTH_TRIM * 2)
 
 /* Return the length of the rectangle within which the top of the
-   handle must stay.  This isn't equivalent to the inside height,
+   handle must stay.  This is NOT equivalent to the inside height,
    because the scroll bar handle has a minimum height.
 
-   This is the real range of motion for the scroll bar, so when we're
+   This is the real range of motion for the scroll bar, so when we are
    scaling buffer positions to scroll bar positions, we use this, not
    VERTICAL_SCROLL_BAR_INSIDE_HEIGHT.  */
 #define VERTICAL_SCROLL_BAR_TOP_RANGE(f,height) \
@@ -546,9 +543,9 @@ struct scroll_bar {
 
 /* Border widths for scroll bars.
 
-   Scroll bar windows don't have any borders; their border width is
+   Scroll bar windows do NOT have any borders; their border width is
    set to zero, and we redraw borders ourselves.  This makes the code
-   a bit cleaner, since we don't have to convert between outside width
+   a bit cleaner, since we do NOT have to convert between outside width
    (used when relating to the rest of the screen) and inside width
    (used when sizing and drawing the scroll bar window itself).
 
@@ -599,17 +596,17 @@ enum {
   MAC_EMACS_CREATOR_CODE	= 'EMAx'
 };
 
-/* Apple event descriptor types */
+/* Apple event descriptor types: */
 enum {
   TYPE_FILE_NAME		= 'fNam'
 };
 
-/* Keywords for Apple event attributes */
+/* Keywords for Apple event attributes: */
 enum {
   KEY_EMACS_SUSPENSION_ID_ATTR	= 'esId' /* typeUInt32 */
 };
 
-/* Carbon event parameter names.  */
+/* Carbon event parameter names: */
 enum {
   EVENT_PARAM_TEXT_INPUT_SEQUENCE_NUMBER = 'tsSn' /* typeUInt32 */
 };
@@ -667,7 +664,6 @@ extern int XParseGeometry P_ ((char *, int *, int *, unsigned int *,
 			       unsigned int *));
 
 /* Defined in macterm.c.  */
-
 extern void x_set_window_size P_ ((struct frame *, int, int, int, bool));
 extern void x_set_mouse_position P_ ((struct frame *, int, int));
 extern void x_set_mouse_pixel_position P_ ((struct frame *, int, int));
@@ -677,6 +673,8 @@ extern void x_iconify_frame P_ ((struct frame *));
 extern void x_free_frame_resources P_ ((struct frame *));
 extern void x_destroy_window P_ ((struct frame *));
 extern void x_wm_set_size_hint P_ ((struct frame *, long, bool));
+extern void x_wm_set_icon_position P_ ((struct frame *f,
+                                        int icon_x, int icon_y));
 extern void x_delete_display P_ ((struct x_display_info *));
 extern void mac_initialize P_ ((void));
 extern Pixmap XCreatePixmap P_ ((Display *, WindowPtr, unsigned int,
@@ -708,16 +706,20 @@ extern void do_apple_menu P_ ((SInt16));
 extern void mac_prepare_for_quickdraw P_ ((struct frame *));
 #endif /* USE_CG_DRAWING */
 extern int mac_quit_char_key_p P_ ((UInt32, UInt32));
+#if 0
+Lisp_Object x_new_font P_ ((struct frame *, register const char *));
+#endif /* 0 */
+Lisp_Object x_new_fontset P_ ((struct frame *, const char *));
+extern void mac_initialize P_ ((void));
+extern void syms_of_macterm P_ ((void));
 
 #define FONT_TYPE_FOR_UNIBYTE(font, ch) 0
 #define FONT_TYPE_FOR_MULTIBYTE(font, ch) 0
 
 /* Defined in macselect.c */
-
 extern void x_clear_frame_selections P_ ((struct frame *));
 
 /* Defined in macfns.c */
-
 extern int have_menus_p P_ ((void));
 
 extern void x_real_positions P_ ((struct frame *, int *, int *));
@@ -732,15 +734,20 @@ extern void mac_update_title_bar P_ ((struct frame *, int));
 extern Lisp_Object x_get_focus_frame P_ ((struct frame *));
 
 /* Defined in macmenu.c */
-
 extern void x_activate_menubar P_ ((struct frame *));
 extern void free_frame_menubar P_ ((struct frame *));
 
 /* Defined in mac.c.  */
-
+extern void string_cat_and_replace P_ ((char *, const char *, int,
+                                        char, char));
+extern int mac_to_posix_pathname P_ ((const char *mfn, char *ufn,
+                                      int ufnbuflen));
+extern int posix_to_mac_pathname P_ ((const char *ufn, char *mfn,
+                                      int mfnbuflen));
 extern void mac_clear_font_name_table P_ ((void));
 extern Lisp_Object mac_aedesc_to_lisp P_ ((const AEDesc *));
 extern OSErr mac_ae_put_lisp P_ ((AEDescList *, UInt32, Lisp_Object));
+extern OSErr init_coercion_handler P_ ((void));
 #if TARGET_API_MAC_CARBON
 extern OSStatus create_apple_event_from_event_ref P_ ((EventRef, UInt32,
 						       const EventParamName *,
@@ -765,7 +772,13 @@ extern void xrm_merge_string_database P_ ((XrmDatabase, const char *));
 extern Lisp_Object xrm_get_resource P_ ((XrmDatabase, const char *,
 					 const char *));
 extern XrmDatabase xrm_get_preference_database P_ ((const char *));
+extern void initialize_applescript P_ ((void));
+extern void terminate_applescript P_ ((void));
+extern OSType mac_get_code_from_arg P_ ((Lisp_Object, OSType));
+extern Lisp_Object mac_get_object_from_code P_ ((OSType));
 EXFUN (Fmac_get_preference, 4);
+extern void init_mac_osx_environment P_ ((void));
+extern void syms_of_mac P_ ((void));
 
 #endif /* !_EMACS_MACTERM_H */
 

@@ -1,7 +1,7 @@
-/* macfns.c: Graphical user interface functions for Mac OS.
-   Copyright (C) 2000, 2001, 2002, 2003, 2004,
-                 2005, 2006, 2007 Free Software Foundation, Inc.
-
+/* src/macfns.c: Graphical user interface functions for Mac OS.
+ * Copyright (C) 2000, 2001, 2002, 2003, 2004,
+ *************** 2005, 2006, 2007 Free Software Foundation, Inc.  */
+/*
 This file is part of GNU Emacs.
 
 GNU Emacs is free software; you can redistribute it and/or modify
@@ -55,7 +55,259 @@ Boston, MA 02110-1301, USA.  */
 #include <errno.h>
 #include <sys/param.h>
 
-extern void free_frame_menubar();
+#if TARGET_API_MAC_CARBON
+# if defined(HAVE_CARBON) && defined(HAVE_HITOOLBOX_CONTROLS_H)
+#  include <HIToolbox/Controls.h>
+# else
+#  if !defined(__CONTROLS__) || defined(__LP64__)
+/* inline the prototypes we need: */
+extern void HideControl(ControlRef theControl);
+extern void ShowControl(ControlRef theControl);
+#  endif /* !__CONTROLS__ || __LP64__ */
+# endif /* HAVE_CARBON && HAVE_HITOOLBOX_CONTROLS_H */
+# if defined(HAVE_CARBON) && defined(HAVE_HITOOLBOX_EVENTS_H)
+#  include <HIToolbox/Events.h>
+# else
+#  if !defined(__EVENTS__) || defined(__LP64__)
+/* inline the prototype we need: */
+extern void GetMouse(Point *mouseLoc); /* deprecated in 10.5 */
+#  endif /* !__EVENTS__ || __LP64__ */
+# endif /* HAVE_CARBON && HAVE_HITOOLBOX_EVENTS_H */
+# if defined(HAVE_CARBON) && defined(HAVE_HITOOLBOX_HIPROGRESSVIEWS_H)
+#  include <HIToolbox/Events.h>
+# else
+#  if !defined(__HIPROGRESSVIEWS__) || defined(__LP64__)
+/* inline the prototype we need: */
+extern OSStatus CreateChasingArrowsControl(WindowRef window,
+                                           const Rect *boundsRect,
+                                           ControlRef *outControl);
+#  endif /* !__HIPROGRESSVIEWS__ || __LP64__ */
+# endif /* HAVE_CARBON && HAVE_HITOOLBOX_HIPROGRESSVIEWS_H */
+# if defined(HAVE_CARBON) && defined(HAVE_HITOOLBOX_MACWINDOWS_H)
+#  include <HIToolbox/MacWindows.h>
+# else
+#  if !defined(__MACWINDOWS__) || defined(__LP64__)
+/* inline the prototypes we need: */
+extern OSStatus ActivateWindow(WindowRef inWindow, Boolean inActivate);
+extern WindowRef ActiveNonFloatingWindow(void);
+extern void BringToFront(WindowRef window);
+extern OSStatus CreateNewWindow(WindowClass windowClass,
+                                WindowAttributes attributes,
+                                const Rect *contentBounds,
+                                WindowRef *outWindow);
+extern void DisposeWindow(WindowRef window);
+extern WindowRef FrontNonFloatingWindow(void);
+extern Rect *GetWindowPortBounds(WindowRef window, Rect *bounds);
+extern OSStatus GetWindowProxyAlias(WindowRef window, AliasHandle *alias);
+#   if defined(TARGET_OS_MAC) && TARGET_OS_MAC
+#    define MacMoveWindow MoveWindow
+#   endif /* TARGET_OS_MAC */
+extern void MacMoveWindow(WindowRef window, short hGlobal, short vGlobal,
+                          Boolean front);
+extern OSStatus RemoveWindowProxy(WindowRef window);
+extern OSStatus SetWindowModified(WindowRef window, Boolean modified);
+extern OSStatus SetWindowProxyAlias(WindowRef inWindow,
+                                    AliasHandle inAlias);
+extern OSStatus SetWindowTitleWithCFString(WindowRef inWindow,
+                                           CFStringRef inString);
+extern void SetWRefCon(WindowRef window, SRefCon data);
+#   if defined(TARGET_OS_MAC) && TARGET_OS_MAC
+#    define MacShowWindow ShowWindow
+#   endif /* TARGET_OS_MAC */
+extern void MacShowWindow(WindowRef window);
+extern void SizeWindow(WindowRef window, short w, short h,
+                       Boolean fUpdate);
+#  endif /* !__MACWINDOWS__ || __LP64__ */
+# endif /* HAVE_CARBON && HAVE_HITOOLBOX_MACWINDOWS_H */
+# if defined(HAVE_CARBON) && defined(HAVE_NAVIGATIONSERVICES_NAVIGATION_H)
+#  include <NavigationServices/Navigation.h>
+# else
+#  if !defined(__NAVIGATION__)
+/* inline the parts we need; see the original header for commentary: */
+struct NavCBRec;
+typedef struct NavCBRec NavCBRec;
+typedef NavCBRec *NavCBRecPtr;
+typedef SInt32 NavEventCallbackMessage;
+typedef SInt16 NavFilterModes;
+typedef CALLBACK_API(void, NavEventProcPtr)(NavEventCallbackMessage callBackSelector,
+                                            NavCBRecPtr callBackParms,
+                                            void *callBackUD);
+typedef CALLBACK_API(Boolean, NavPreviewProcPtr)(NavCBRecPtr callBackParms,
+                                                 void *callBackUD);
+typedef CALLBACK_API(Boolean, NavObjectFilterProcPtr)(AEDesc *theItem,
+                                                      void *info,
+                                                      void *callBackUD,
+                                                      NavFilterModes filterMode);
+typedef STACK_UPP_TYPE(NavEventProcPtr) NavEventUPP;
+typedef STACK_UPP_TYPE(NavPreviewProcPtr) NavPreviewUPP;
+typedef STACK_UPP_TYPE(NavObjectFilterProcPtr) NavObjectFilterUPP;
+typedef OptionBits NavDialogOptionFlags;
+enum {
+  kNavDefaultNavDlogOptions = 0x000000E4,
+  kNavNoTypePopup = 0x00000001,
+  kNavDontAutoTranslate = 0x00000002,
+  kNavDontAddTranslateItems = 0x00000004,
+  kNavAllFilesInPopup = 0x00000010,
+  kNavAllowStationery = 0x00000020,
+  kNavAllowPreviews = 0x00000040,
+  kNavAllowMultipleFiles = 0x00000080,
+  kNavAllowInvisibleFiles = 0x00000100,
+  kNavDontResolveAliases = 0x00000200,
+  kNavSelectDefaultLocation = 0x00000400,
+  kNavSelectAllReadableItem = 0x00000800,
+  kNavSupportPackages = 0x00001000,
+  kNavAllowOpenPackages = 0x00002000,
+  kNavDontAddRecents = 0x00004000,
+  kNavDontUseCustomFrame = 0x00008000,
+  kNavDontConfirmReplacement = 0x00010000,
+  kNavPreserveSaveFileExtension = 0x00020000
+};
+struct NavDialogCreationOptions {
+  UInt16 version;
+  NavDialogOptionFlags optionFlags;
+  Point location;
+  CFStringRef clientName;
+  CFStringRef windowTitle;
+  CFStringRef actionButtonLabel;
+  CFStringRef cancelButtonLabel;
+  CFStringRef saveFileName;
+  CFStringRef message;
+  UInt32 preferenceKey;
+  CFArrayRef popupExtension;
+  WindowModality modality;
+  WindowRef parentWindow;
+  char reserved[16];
+};
+typedef struct NavDialogCreationOptions NavDialogCreationOptions;
+typedef struct __NavDialog* NavDialogRef;
+#   if defined(CALL_NOT_IN_CARBON) && CALL_NOT_IN_CARBON
+typedef NavDialogRef NavContext;
+#   endif /* CALL_NOT_IN_CARBON */
+struct NavTypeList {
+  OSType componentSignature;
+  short reserved;
+  short osTypeCount;
+  OSType osType[1];
+};
+typedef struct NavTypeList NavTypeList;
+typedef NavTypeList *NavTypeListPtr;
+typedef NavTypeListPtr *NavTypeListHandle;
+typedef UInt32 NavUserAction;
+enum {
+  kNavUserActionNone = 0,
+  kNavUserActionCancel = 1,
+  kNavUserActionOpen = 2,
+  kNavUserActionSaveAs = 3,
+  kNavUserActionChoose = 4,
+  kNavUserActionNewFolder = 5,
+  kNavUserActionSaveChanges = 6,
+  kNavUserActionDontSaveChanges = 7,
+  kNavUserActionDiscardChanges = 8,
+  kNavUserActionReviewDocuments = 9,
+  kNavUserActionDiscardDocuments = 10
+};
+struct NavReplyRecord {
+  UInt16 version;
+  Boolean validRecord;
+  Boolean replacing;
+  Boolean isStationery;
+  Boolean translationNeeded;
+  AEDescList selection;
+  ScriptCode keyScript;
+  FileTranslationSpecArrayHandle fileTranslation;
+  UInt32 reserved1;
+  CFStringRef saveFileName;
+  Boolean saveFileExtensionHidden;
+  UInt8 reserved2;
+  char reserved[225];
+};
+typedef struct NavReplyRecord NavReplyRecord;
+enum {
+  kNavGenericSignature = '****'
+};
+enum {
+  kNavCtlShowDesktop = 0,
+  kNavCtlSortBy = 1,
+  kNavCtlSortOrder = 2,
+  kNavCtlScrollHome = 3,
+  kNavCtlScrollEnd = 4,
+  kNavCtlPageUp = 5,
+  kNavCtlPageDown = 6,
+  kNavCtlGetLocation = 7,
+  kNavCtlSetLocation = 8,
+  kNavCtlGetSelection = 9,
+  kNavCtlSetSelection = 10,
+  kNavCtlShowSelection = 11,
+  kNavCtlOpenSelection = 12,
+  kNavCtlEjectVolume = 13,
+  kNavCtlNewFolder = 14,
+  kNavCtlCancel = 15,
+  kNavCtlAccept = 16,
+  kNavCtlIsPreviewShowing = 17,
+  kNavCtlAddControl = 18,
+  kNavCtlAddControlList = 19,
+  kNavCtlGetFirstControlID = 20,
+  kNavCtlSelectCustomType = 21,
+  kNavCtlSelectAllType = 22,
+  kNavCtlGetEditFileName = 23,
+  kNavCtlSetEditFileName = 24,
+  kNavCtlSelectEditFileName = 25,
+  kNavCtlBrowserSelectAll = 26,
+  kNavCtlGotoParent = 27,
+  kNavCtlSetActionState = 28,
+  kNavCtlBrowserRedraw = 29,
+  kNavCtlTerminate = 30
+};
+typedef SInt32 NavCustomControlMessage;
+#  endif /* !__NAVIGATION__ */
+#  if !defined(__NAVIGATION__) || defined(__LP64__)
+/* the previous parts of this header are normally available
+ * unconditionally, but these prototypes are 32bit-only; hence the separate
+ * ifdef around this section: */
+extern OSStatus
+NavCreateChooseFileDialog(const NavDialogCreationOptions *inOptions,
+                          NavTypeListHandle inTypeList,
+                          NavEventUPP inEventProc,
+                          NavPreviewUPP inPreviewProc,
+                          NavObjectFilterUPP inFilterProc,
+                          void *inClientData, NavDialogRef *outDialog);
+extern OSStatus
+NavCreateChooseFolderDialog(const NavDialogCreationOptions *inOptions,
+                            NavEventUPP inEventProc,
+                            NavObjectFilterUPP inFilterProc,
+                            void *inClientData, NavDialogRef *outDialog);
+extern OSStatus
+NavCreatePutFileDialog(const NavDialogCreationOptions *inOptions,
+                       OSType inFileType, OSType inFileCreator,
+                       NavEventUPP inEventProc, void *inClientData,
+                       NavDialogRef *outDialog);
+extern OSErr NavCustomControl(NavDialogRef dialog,
+                              NavCustomControlMessage selector,
+                              void *parms);
+extern void NavDialogDispose(NavDialogRef inDialog);
+extern OSStatus NavDialogGetReply(NavDialogRef inDialog,
+                                  NavReplyRecord *outReply);
+extern NavUserAction NavDialogGetUserAction(NavDialogRef inDialog);
+extern OSStatus NavDialogRun(NavDialogRef inDialog);
+extern OSErr NavDisposeReply(NavReplyRecord * reply);
+extern OSStatus
+NavGetDefaultDialogCreationOptions(NavDialogCreationOptions *outOptions);
+extern NavEventUPP NewNavEventUPP(NavEventProcPtr userRoutine);
+#  endif /* !__NAVIGATION__ || __LP64__ */
+# endif /* HAVE_CARBON && HAVE_NAVIGATIONSERVICES_NAVIGATION_H */
+# if defined(HAVE_CARBON) && defined(HAVE_QD_QUICKDRAWAPI_H)
+#  include <QD/QuickdrawAPI.h>
+# else
+#  if !defined(__QUICKDRAWAPI__) || defined(__LP64__)
+/* inline the prototype we need: */
+extern void LocalToGlobal(Point *pt); /* deprecated in 10.4 */
+#  endif /* !__QUICKDRAWAPI__ || __LP64__ */
+# endif /* HAVE_CARBON && HAVE_QD_QUICKDRAWAPI_H */
+#endif /* TARGET_API_MAC_CARBON */
+
+#ifndef _EMACS_MACTERM_H
+extern void free_frame_menubar(struct frame *);
+#endif /* !_EMACS_MACTERM_H */
 
 #if TARGET_API_MAC_CARBON
 # ifndef EMACS_GLOBALS_H
@@ -199,6 +451,7 @@ struct mac_display_info *check_x_display_info(Lisp_Object frame)
     {
       FRAME_PTR f = check_x_frame(frame);
       dpyinfo = FRAME_MAC_DISPLAY_INFO(f);
+      IF_LINT((void)f);
     }
 
   return dpyinfo;
@@ -243,7 +496,7 @@ void x_real_positions(FRAME_PTR f, int *xptr, int *yptr)
 }
 
 
-/* The default colors for the Mac color map */
+/* The default colors for the Mac color map: */
 typedef struct colormap_t
 {
   unsigned long color;
@@ -1351,8 +1604,12 @@ void x_set_background_color(struct frame *f, Lisp_Object arg,
     }
 }
 
-void x_set_mouse_color(struct frame *f, Lisp_Object arg, Lisp_Object oldval)
+void
+x_set_mouse_color(struct frame *f, Lisp_Object arg, Lisp_Object oldval)
 {
+#ifndef _USE_OLD_LISP_DATA_STRUCTURES
+  struct redisplay_interface *rif = (struct redisplay_interface *)NULL;
+#endif /* !_USE_OLD_LISP_DATA_STRUCTURES */
   struct x_output *x = f->output_data.x;
   Cursor cursor, nontext_cursor, mode_cursor, hand_cursor;
   Cursor hourglass_cursor, horizontal_drag_cursor;
@@ -1526,13 +1783,17 @@ x_set_border_color(struct frame *f, Lisp_Object arg, Lisp_Object oldval)
 
 void x_set_cursor_type(FRAME_PTR f, Lisp_Object arg, Lisp_Object oldval)
 {
-  set_frame_cursor_types (f, arg);
+  set_frame_cursor_types(f, arg);
 
-  /* Make sure the cursor gets redrawn.  */
+  /* Make sure the cursor gets redrawn: */
+#ifndef _USE_OLD_LISP_DATA_STRUCTURES
+  f->cursor_type_changed = 1;
+#else
   cursor_type_changed = 1;
+#endif /* !_USE_OLD_LISP_DATA_STRUCTURES */
 }
 
-#if 0 /* MAC_TODO: really no icon for Mac */
+#if 0 /* MAC_TODO: really no icon for Mac: */
 void x_set_icon_type(struct frame *f, Lisp_Object arg, Lisp_Object oldval)
 {
   int result;
@@ -1610,21 +1871,63 @@ void x_set_icon_name(struct frame *f, Lisp_Object arg, Lisp_Object oldval)
 #endif /* MAC_TODO */
 }
 
+
+/* Change window heights in windows rooted in WINDOW by N lines: */
+static void
+x_change_window_heights(Lisp_Object window, int n)
+{
+  struct window *w = XWINDOW(window);
+
+#if 0
+  XSETFASTINT(w->top, (XFASTINT(w->top) + n));
+  XSETFASTINT(w->height, (XFASTINT(w->height) - n));
+
+  if (INTEGERP(w->orig_top)) {
+    XSETFASTINT(w->orig_top, (XFASTINT(w->orig_top) + n));
+  }
+  if (INTEGERP(w->orig_height)) {
+    XSETFASTINT(w->orig_height, (XFASTINT(w->orig_height) - n));
+  }
+
+  /* Handle just the top child in a vertical split: */
+  if (!NILP(w->vchild)) {
+    x_change_window_heights(w->vchild, n);
+  }
+
+  /* Adjust all children in a horizontal split: */
+  for (window = w->hchild; !NILP(window); window = w->next) {
+    w = XWINDOW (window);
+    x_change_window_heights(window, n);
+  }
+#else
+  IF_LINT((void)w);
+#endif /* 0 */
+
+  return;
+}
+
 /* x...? */
 void x_set_menu_bar_lines(f, value, oldval)
      struct frame *f;
      Lisp_Object value, oldval;
 {
-  /* Make sure we redisplay all windows in this frame.  */
+  /* Make sure we redisplay all windows in this frame: */
   windows_or_buffers_changed++;
 
-  FRAME_MENU_BAR_LINES (f) = 0;
-  /* The menu bar is always shown.  */
-  FRAME_EXTERNAL_MENU_BAR (f) = 1;
-  if (FRAME_MAC_P (f) && f->output_data.mac->menubar_widget == 0)
-    /* Make sure next redisplay shows the menu bar.  */
-    XWINDOW (FRAME_SELECTED_WINDOW (f))->update_mode_line = Qt;
-  adjust_glyphs (f);
+  FRAME_MENU_BAR_LINES(f) = 0;
+  /* The menu bar is always shown: */
+  FRAME_EXTERNAL_MENU_BAR(f) = 1;
+  if (FRAME_MAC_P(f) && (f->output_data.mac->menubar_widget == 0)) {
+    /* Make sure next redisplay shows the menu bar: */
+    XWINDOW(FRAME_SELECTED_WINDOW(f))->update_mode_line = Qt;
+  }
+#ifndef _USE_OLD_LISP_DATA_STRUCTURES
+  adjust_frame_glyphs(f);
+#else
+  adjust_glyphs(f);
+#endif /* !_USE_OLD_LISP_DATA_STRUCTURES */
+
+  return;
 }
 
 
@@ -1650,23 +1953,31 @@ void x_set_tool_bar_lines(f, value, oldval)
   else
     nlines = 0;
 
-  /* Make sure we redisplay all windows in this frame.  */
+  /* Make sure we redisplay all windows in this frame: */
   ++windows_or_buffers_changed;
 
-  delta = nlines - FRAME_TOOL_BAR_LINES (f);
+  delta = (nlines - FRAME_TOOL_BAR_LINES(f));
 
-  /* Do NOT resize the tool-bar to more than we have room for.  */
-  root_window = FRAME_ROOT_WINDOW (f);
-  root_height = WINDOW_TOTAL_LINES (XWINDOW (root_window));
+  /* Do NOT resize the tool-bar to more than we have room for: */
+  root_window = FRAME_ROOT_WINDOW(f);
+  root_height = WINDOW_TOTAL_LINES(XWINDOW(root_window));
   if ((root_height - delta) < 1)
     {
-      delta = root_height - 1;
-      nlines = FRAME_TOOL_BAR_LINES (f) + delta;
+      delta = (root_height - 1);
+      nlines = (FRAME_TOOL_BAR_LINES(f) + delta);
     }
 
-  FRAME_TOOL_BAR_LINES (f) = nlines;
-  change_window_heights (root_window, delta);
-  adjust_glyphs (f);
+  FRAME_TOOL_BAR_LINES(f) = nlines;
+#if 1
+  x_change_window_heights(root_window, delta);
+#else
+  change_window_heights(root_window, delta);
+#endif /* 1 */
+#ifndef _USE_OLD_LISP_DATA_STRUCTURES
+  adjust_frame_glyphs(f);
+#else
+  adjust_glyphs(f);
+#endif /* !_USE_OLD_LISP_DATA_STRUCTURES */
 
   /* We also have to make sure that the internal border at the top of
      the frame, below the menu bar or tool bar, is redrawn when the
@@ -1721,8 +2032,8 @@ static void x_set_name_internal(FRAME_PTR f, Lisp_Object name)
 	CFStringRef windowTitle =
 	  cfstring_create_with_utf8_cstring((const char *)SDATA(name));
 
-	SetWindowTitleWithCFString (FRAME_MAC_WINDOW (f), windowTitle);
-	CFRelease (windowTitle);
+	SetWindowTitleWithCFString(FRAME_MAC_WINDOW (f), windowTitle);
+	CFRelease(windowTitle);
 #else
 	Str255 windowTitle;
 	if (strlen(SDATA(name)) < 255)
@@ -1889,7 +2200,7 @@ mac_set_font (f, arg, oldval)
 	UNBLOCK_INPUT;
       }
   }
-#endif
+#endif /* USE_MAC_FONT_PANEL */
 }
 
 #if TARGET_API_MAC_CARBON
@@ -1899,42 +2210,42 @@ mac_update_proxy_icon (f)
 {
   OSStatus err;
   Lisp_Object file_name =
-    XBUFFER (XWINDOW (FRAME_SELECTED_WINDOW (f))->buffer)->filename;
-  Window w = FRAME_MAC_WINDOW (f);
+    XBUFFER(XWINDOW(FRAME_SELECTED_WINDOW(f))->buffer)->INTERNAL_FIELD(filename);
+  Window w = FRAME_MAC_WINDOW(f);
   AliasHandle alias = NULL;
 
   BLOCK_INPUT;
 
-  err = GetWindowProxyAlias (w, &alias);
-  if (err == errWindowDoesNotHaveProxy && !STRINGP (file_name))
+  err = GetWindowProxyAlias(w, &alias);
+  if (err == errWindowDoesNotHaveProxy && !STRINGP(file_name))
     goto out;
 
   if (STRINGP (file_name))
     {
       AEDesc desc;
-#ifdef MAC_OSX
+# ifdef MAC_OSX
       FSRef fref, fref_proxy;
-#else
+# else
       FSSpec fss, fss_proxy;
-#endif
+# endif /* MAC_OSX */
       Boolean changed;
       Lisp_Object encoded_file_name = ENCODE_FILE (file_name);
 
-#ifdef MAC_OSX
+# ifdef MAC_OSX
       err = AECoercePtr (TYPE_FILE_NAME, SDATA (encoded_file_name),
 			 SBYTES (encoded_file_name), typeFSRef, &desc);
-#else
+# else
       SetPortWindowPort (w);
       err = AECoercePtr (TYPE_FILE_NAME, SDATA (encoded_file_name),
 			 SBYTES (encoded_file_name), typeFSS, &desc);
-#endif
+# endif /* MAC_OSX */
       if (err == noErr)
 	{
-#ifdef MAC_OSX
+# ifdef MAC_OSX
 	  err = AEGetDescData (&desc, &fref, sizeof (FSRef));
-#else
+# else
 	  err = AEGetDescData (&desc, &fss, sizeof (FSSpec));
-#endif
+# endif /* MAC_OSX */
 	  AEDisposeDesc (&desc);
 	}
       if (err == noErr)
@@ -1943,46 +2254,46 @@ mac_update_proxy_icon (f)
 	    {
 	      /* (FS)ResolveAlias never sets `changed' to true if
 		 `alias' is minimal.  */
-#ifdef MAC_OSX
+# ifdef MAC_OSX
 	      err = FSResolveAlias (NULL, alias, &fref_proxy, &changed);
 	      if (err == noErr)
 		err = FSCompareFSRefs (&fref, &fref_proxy);
-#else
+# else
 	      err = ResolveAlias (NULL, alias, &fss_proxy, &changed);
 	      if (err == noErr)
 		err = !(fss.vRefNum == fss_proxy.vRefNum
 			&& fss.parID == fss_proxy.parID
 			&& EqualString (fss.name, fss_proxy.name,
 					false, true));
-#endif
+# endif /* MAC_OSX */
 	    }
 	  if (err != noErr || alias == NULL)
 	    {
 	      if (alias)
 		DisposeHandle ((Handle) alias);
-#ifdef MAC_OSX
-	      err = FSNewAliasMinimal (&fref, &alias);
-#else
-	      err = NewAliasMinimal (&fss, &alias);
-#endif
+# ifdef MAC_OSX
+	      err = FSNewAliasMinimal(&fref, &alias);
+# else
+	      err = NewAliasMinimal(&fss, &alias);
+# endif /* MAC_OSX */
 	      changed = true;
 	    }
 	}
       if (err == noErr)
 	if (changed)
-	  err = SetWindowProxyAlias (w, alias);
+	  err = SetWindowProxyAlias(w, alias);
     }
 
   if (alias)
-    DisposeHandle ((Handle) alias);
+    DisposeHandle((Handle)alias);
 
-  if (err != noErr || !STRINGP (file_name))
-    RemoveWindowProxy (w);
+  if ((err != noErr) || !STRINGP(file_name))
+    RemoveWindowProxy(w);
 
  out:
   UNBLOCK_INPUT;
 }
-#endif
+#endif /* TARGET_API_MAC_CARBON */
 
 void
 mac_update_title_bar (f, save_match_data)
@@ -2005,11 +2316,13 @@ mac_update_title_bar (f, save_match_data)
       || (!MINI_WINDOW_P (w)
 	  && (modified_p != !NILP (w->last_had_star))))
     {
-      SetWindowModified (FRAME_MAC_WINDOW (f),
-			 !MINI_WINDOW_P (w) && modified_p);
+      SetWindowModified(FRAME_MAC_WINDOW(f),
+                        (!MINI_WINDOW_P(w) && modified_p));
       mac_update_proxy_icon (f);
     }
-#endif
+#else
+  return;
+#endif /* TARGET_API_MAC_CARBON */
 }
 
 
@@ -2021,9 +2334,9 @@ mac_update_title_bar (f, save_match_data)
    The return value points to the contents of a Lisp string.  So it
    will not be valid after the next GC where string compaction will
    occur.  */
-char *x_get_string_resource(XrmDatabase rdb, char *name, char *class)
+char *x_get_string_resource(XrmDatabase rdb, const char *name, const char *class)
 {
-  Lisp_Object value = xrm_get_resource (rdb, name, class);
+  Lisp_Object value = xrm_get_resource(rdb, name, class);
 
   if (STRINGP(value))
     return (char *)SDATA(value);
@@ -2204,24 +2517,24 @@ mac_window (f)
 #if TARGET_API_MAC_CARBON
   CreateNewWindow (kDocumentWindowClass,
 		   kWindowStandardDocumentAttributes
-#ifdef MAC_OSX
+# ifdef MAC_OSX
 		   | kWindowToolbarButtonAttribute
-#endif
-		   , &r, &FRAME_MAC_WINDOW (f));
-  if (FRAME_MAC_WINDOW (f))
+# endif /* MAC_OSX */
+		   , &r, &FRAME_MAC_WINDOW(f));
+  if (FRAME_MAC_WINDOW(f))
     {
-      SetWRefCon (FRAME_MAC_WINDOW (f), (long) f->output_data.mac);
-      if (install_window_handler (FRAME_MAC_WINDOW (f)) != noErr)
+      SetWRefCon(FRAME_MAC_WINDOW(f), (SRefCon)f->output_data.mac);
+      if (install_window_handler(FRAME_MAC_WINDOW(f)) != noErr)
 	{
-	  DisposeWindow (FRAME_MAC_WINDOW (f));
-	  FRAME_MAC_WINDOW (f) = NULL;
+	  DisposeWindow(FRAME_MAC_WINDOW(f));
+	  FRAME_MAC_WINDOW(f) = NULL;
 	}
     }
 #else
-  FRAME_MAC_WINDOW (f)
-    = NewCWindow (NULL, &r, "\p", false, zoomDocProc,
-		  (WindowPtr) -1, 1, (long) f->output_data.mac);
-#endif
+  FRAME_MAC_WINDOW(f)
+    = NewCWindow(NULL, &r, "\p", false, zoomDocProc,
+                 (WindowPtr)-1, 1, (long)f->output_data.mac);
+#endif /* TARGET_API_MAC_CARBON || not */
   /* so that update events can find this mac_output struct */
   f->output_data.mac->mFP = f;  /* point back to emacs frame */
 
@@ -2236,7 +2549,7 @@ mac_window (f)
 	  FRAME_MAC_WINDOW (f) = NULL;
 	}
     }
-#endif
+#endif /* !MAC_OSX */
   if (FRAME_MAC_WINDOW (f))
     XSetWindowBackground (FRAME_MAC_DISPLAY(f), FRAME_MAC_WINDOW (f),
 			  FRAME_BACKGROUND_PIXEL (f));
@@ -2244,9 +2557,9 @@ mac_window (f)
   validate_x_resource_name ();
 
   /* x_set_name normally ignores requests to set the name if the
-     requested name is the same as the current name.  This is the one
-     place where that assumption isn't correct; f->name is set, but
-     the server hasn't been told.  */
+   * requested name is the same as the current name.  This is the one
+   * place where that assumption is NOT correct; f->name is set, but
+   * the server has NOT been told: */
   {
     Lisp_Object name;
     int explicit = f->explicit_name;
@@ -2254,7 +2567,7 @@ mac_window (f)
     f->explicit_name = 0;
     name = f->name;
     f->name = Qnil;
-    x_set_name (f, name, explicit);
+    x_set_name(f, name, explicit);
   }
 
   UNBLOCK_INPUT;
@@ -2288,8 +2601,8 @@ x_icon (f, parms)
 
   BLOCK_INPUT;
 
-  if (! EQ (icon_x, Qunbound))
-    x_wm_set_icon_position (f, XINT (icon_x), XINT (icon_y));
+  if (! EQ(icon_x, Qunbound))
+    x_wm_set_icon_position(f, XINT(icon_x), XINT(icon_y));
 
 #if 0 /* TODO */
   /* Start up iconic or window? */
@@ -2301,7 +2614,7 @@ x_icon (f, parms)
   x_text_icon (f, (char *) SDATA ((!NILP (f->icon_name)
 				     ? f->icon_name
 				     : f->name)));
-#endif
+#endif /* 0 (TODO) */
 
   UNBLOCK_INPUT;
 }
@@ -2358,7 +2671,7 @@ x_make_gc (f)
 	f->output_data.x->foreground_pixel,
 	f->output_data.x->background_pixel,
 	DefaultDepth (FRAME_X_DISPLAY (f), FRAME_X_SCREEN_NUMBER (f))));
-#endif
+#endif /* 0 */
 
   UNBLOCK_INPUT;
 }
@@ -2398,7 +2711,7 @@ x_free_gcs (f)
       XFreePixmap (dpy, f->output_data.mac->border_tile);
       f->output_data.mac->border_tile = 0;
     }
-#endif
+#endif /* 0 */
 
   if (f->output_data.mac->white_relief.gc)
     {
@@ -2417,30 +2730,31 @@ x_free_gcs (f)
 
 
 /* Handler for signals raised during x_create_frame and
-   x_create_top_frame.  FRAME is the frame which is partially
-   constructed.  */
-
+ * x_create_top_frame.  FRAME is the frame which is partially
+ * constructed.  */
 static Lisp_Object
-unwind_create_frame (frame)
-     Lisp_Object frame;
+unwind_create_frame(Lisp_Object frame)
 {
   struct frame *f = XFRAME (frame);
 
-  /* If frame is ``official'', nothing to do.  */
-  if (!CONSP (Vframe_list) || !EQ (XCAR (Vframe_list), frame))
+  /* If frame is ``official'', then there is nothing to do: */
+  if (!CONSP(Vframe_list) || !EQ(XCAR(Vframe_list), frame))
     {
 #if GLYPH_DEBUG
-      struct x_display_info *dpyinfo = FRAME_X_DISPLAY_INFO (f);
-#endif
+      struct x_display_info *dpyinfo = FRAME_X_DISPLAY_INFO(f);
+#endif /* GLYPH_DEBUG */
 
-      x_free_frame_resources (f);
+      x_free_frame_resources(f);
 
 #if GLYPH_DEBUG
-      /* Check that reference counts are indeed correct.  */
-      xassert (dpyinfo->reference_count == dpyinfo_refcount);
-      xassert (dpyinfo->image_cache->refcount == image_cache_refcount);
-#endif
+      /* Check that reference counts are indeed correct: */
+      xassert(dpyinfo->reference_count == dpyinfo_refcount);
+      xassert(dpyinfo->image_cache->refcount == image_cache_refcount);
+
+      IF_LINT((void)dpyinfo);
+#endif /* GLYPH_DEBUG */
       return Qt;
+
     }
 
   return Qnil;
@@ -2490,7 +2804,7 @@ This function is an internal primitive--use `make-frame' instead.  */)
   kb = dpyinfo->kboard;
 #else
   kb = &the_only_kboard;
-#endif
+#endif /* MULTI_KBOARD */
 
   name = mac_get_arg (parms, Qname, "name", "Name", RES_TYPE_STRING);
   if (!STRINGP (name)
@@ -2519,67 +2833,68 @@ This function is an internal primitive--use `make-frame' instead.  */)
     f = make_frame_without_minibuffer (Qnil, kb, display);
   else if (EQ (tem, Qonly))
     {
-      f = make_minibuffer_frame ();
+      f = make_minibuffer_frame();
       minibuffer_only = 1;
     }
-  else if (WINDOWP (tem))
-    f = make_frame_without_minibuffer (tem, kb, display);
+  else if (WINDOWP(tem))
+    f = make_frame_without_minibuffer(tem, kb, display);
   else
-    f = make_frame (1);
+    f = make_frame(1);
 
-  XSETFRAME (frame, f);
+  XSETFRAME(frame, f);
 
-  /* Note that X Windows does support scroll bars.  */
-  FRAME_CAN_HAVE_SCROLL_BARS (f) = 1;
+  /* Note that X Windows does support scroll bars: */
+  FRAME_CAN_HAVE_SCROLL_BARS(f) = 1;
 
   f->output_method = output_mac;
-  f->output_data.mac = (struct mac_output *) xmalloc (sizeof (struct mac_output));
-  bzero (f->output_data.mac, sizeof (struct mac_output));
-  FRAME_FONTSET (f) = -1;
+  f->output_data.mac = (struct mac_output *)xmalloc(sizeof(struct mac_output));
+  bzero(f->output_data.mac, sizeof(struct mac_output));
+  FRAME_FONTSET(f) = -1;
 
   f->icon_name
     = mac_get_arg (parms, Qicon_name, "iconName", "Title", RES_TYPE_STRING);
   if (! STRINGP (f->icon_name))
     f->icon_name = Qnil;
 
-/*   FRAME_MAC_DISPLAY_INFO (f) = dpyinfo; */
+#if defined(FRAME_MAC_DISPLAY_INFO) && 0
+  FRAME_MAC_DISPLAY_INFO(f) = dpyinfo;
+#endif /* FRAME_MAC_DISPLAY_INFO && 0 */
 
-  /* With FRAME_MAC_DISPLAY_INFO set up, this unwind-protect is safe.  */
-  record_unwind_protect (unwind_create_frame, frame);
+  /* With FRAME_MAC_DISPLAY_INFO set up, this unwind-protect is safe: */
+  record_unwind_protect((void (*)(Lisp_Object))unwind_create_frame, frame);
 #if GLYPH_DEBUG
-  image_cache_refcount = FRAME_X_IMAGE_CACHE (f)->refcount;
+  image_cache_refcount = FRAME_X_IMAGE_CACHE(f)->refcount;
   dpyinfo_refcount = dpyinfo->reference_count;
 #endif /* GLYPH_DEBUG */
 #ifdef MULTI_KBOARD
   FRAME_KBOARD (f) = kb;
-#endif
+#endif /* MULTI_KBOARD */
 
-  /* Specify the parent under which to make this window.  */
-
+  /* Specify the parent under which to make this window: */
   if (!NILP (parent))
     {
-      f->output_data.mac->parent_desc = (Window) XFASTINT (parent);
+      f->output_data.mac->parent_desc = (Window)XFASTINT(parent);
       f->output_data.mac->explicit_parent = 1;
     }
   else
     {
-      f->output_data.mac->parent_desc = FRAME_MAC_DISPLAY_INFO (f)->root_window;
+      f->output_data.mac->parent_desc = FRAME_MAC_DISPLAY_INFO(f)->root_window;
       f->output_data.mac->explicit_parent = 0;
     }
 
-  /* Set the name; the functions to which we pass f expect the name to
-     be set.  */
-  if (EQ (name, Qunbound) || NILP (name))
+  /* Set the name; the functions to which we pass f expect the name
+   * to be set: */
+  if (EQ(name, Qunbound) || NILP(name))
     {
-      f->name = build_string (dpyinfo->mac_id_name);
+      f->name = build_string(dpyinfo->mac_id_name);
       f->explicit_name = 0;
     }
   else
     {
       f->name = name;
       f->explicit_name = 1;
-      /* use the frame's title when getting resources for this frame.  */
-      specbind (Qx_resource_name, name);
+      /* use the title of the frame when getting resources for it:  */
+      specbind(Qx_resource_name, name);
     }
 
   /* Extract the window parameters from the supplied values
@@ -2590,24 +2905,24 @@ This function is an internal primitive--use `make-frame' instead.  */)
     font = mac_get_arg (parms, Qfont, "font", "Font", RES_TYPE_STRING);
 
     BLOCK_INPUT;
-    /* First, try whatever font the caller has specified.  */
-    if (STRINGP (font))
+    /* First, try whatever font the caller has specified: */
+    if (STRINGP(font))
       {
-	tem = Fquery_fontset (font, Qnil);
-	if (STRINGP (tem))
-	  font = x_new_fontset (f, SDATA (tem));
+	tem = Fquery_fontset(font, Qnil);
+	if (STRINGP(tem))
+	  font = x_new_fontset(f, (const char *)SDATA(tem));
 	else
-	  font = x_new_font (f, SDATA (font));
+	  font = x_new_font(f, (const char *)SDATA(font));
       }
 
-    /* Try out a font which we hope has bold and italic variations.  */
+    /* Try out a font which we hope has bold and italic variations: */
 #if USE_ATSUI
     if (! STRINGP (font))
       font = x_new_font (f, "-*-monaco-medium-r-normal--12-*-*-*-*-*-iso10646-1");
-#endif
+#endif /* USE_ATSUI */
     if (! STRINGP (font))
       font = x_new_font (f, "-ETL-fixed-medium-r-*--*-160-*-*-*-*-iso8859-1");
-    /* If those didn't work, look for something which will at least work.  */
+    /* If those failed, look for something which will at least work: */
     if (! STRINGP (font))
       font = x_new_fontset (f, "fontset-standard");
     if (! STRINGP (font))
@@ -2748,16 +3063,18 @@ This function is an internal primitive--use `make-frame' instead.  */)
       else if (! NILP (visibility))
 	x_make_frame_visible (f);
       else
-	/* Must have been Qnil.  */
-	;
+        {
+          /* Must have been Qnil: */
+          ;
+        }
     }
 
   /* Initialize `default-minibuffer-frame' in case this is the first
-     frame on this display device.  */
-  if (FRAME_HAS_MINIBUF_P (f)
-      && (!FRAMEP (kb->Vdefault_minibuffer_frame)
-          || !FRAME_LIVE_P (XFRAME (kb->Vdefault_minibuffer_frame))))
-    kb->Vdefault_minibuffer_frame = frame;
+   * frame on this display device: */
+  if (FRAME_HAS_MINIBUF_P(f)
+      && (!FRAMEP(kb->INTERNAL_FIELD(Vdefault_minibuffer_frame))
+          || !FRAME_LIVE_P(XFRAME(kb->INTERNAL_FIELD(Vdefault_minibuffer_frame)))))
+    kb->INTERNAL_FIELD(Vdefault_minibuffer_frame) = frame;
 
   /* All remaining specified parameters, which have not been "used"
      by x_get_arg and friends, now go in the misc. alist of the frame.  */
@@ -2816,27 +3133,27 @@ FRAME nil means use the selected frame.  */)
     if (!front_p)
       {
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= 1020
-	if (FrontNonFloatingWindow () == FRAME_MAC_WINDOW (f))
-	  SetFrontProcessWithOptions (&current_psn,
-				      kSetFrontProcessFrontWindowOnly);
-	else
-#endif
-	  SetFrontProcess (&current_psn);
+	if (FrontNonFloatingWindow() == FRAME_MAC_WINDOW(f)) {
+	  SetFrontProcessWithOptions(&current_psn,
+                                     kSetFrontProcessFrontWindowOnly);
+	} else
+#endif /* 10.2+ */
+	  SetFrontProcess(&current_psn);
       }
 
 #ifdef MAC_OSX
-  ActivateWindow (ActiveNonFloatingWindow (), false);
-  ActivateWindow (FRAME_MAC_WINDOW (f), true);
+  ActivateWindow(ActiveNonFloatingWindow(), false);
+  ActivateWindow(FRAME_MAC_WINDOW(f), true);
 #else
-#if !TARGET_API_MAC_CARBON
+# if !TARGET_API_MAC_CARBON
   /* SelectWindow (Non-Carbon) does not issue deactivate events if the
      possibly inactive window that is to be selected is already the
      frontmost one.  */
   SendBehind (FRAME_MAC_WINDOW (f), NULL);
-#endif
+# endif /* !TARGET_API_MAC_CARBON */
   /* This brings the window to the front.  */
   SelectWindow (FRAME_MAC_WINDOW (f));
-#endif
+#endif /* MAC_OSX */
   UNBLOCK_INPUT;
 
   return Qnil;
@@ -2853,7 +3170,7 @@ DEFUN ("xw-color-defined-p", Fxw_color_defined_p, Sxw_color_defined_p, 1, 2, 0,
 
   CHECK_STRING (color);
 
-  if (mac_defined_color (f, SDATA (color), &foo, 0))
+  if (mac_defined_color(f, (char *)SDATA(color), &foo, 0))
     return Qt;
   else
     return Qnil;
@@ -2869,7 +3186,7 @@ DEFUN ("xw-color-values", Fxw_color_values, Sxw_color_values, 1, 2, 0,
 
   CHECK_STRING (color);
 
-  if (mac_defined_color (f, SDATA (color), &foo, 0))
+  if (mac_defined_color (f, (char *)SDATA(color), &foo, 0))
     return list3 (make_number (foo.red),
 		  make_number (foo.green),
 		  make_number (foo.blue));
@@ -2975,9 +3292,11 @@ If omitted or nil, that stands for the selected frame's display.  */)
      (display)
      Lisp_Object display;
 {
-  struct mac_display_info *dpyinfo = check_x_display_info (display);
+  struct mac_display_info *dpyinfo = check_x_display_info(display);
 
-  return make_number (1);
+  IF_LINT((void)dpyinfo);
+
+  return make_number(1);
 }
 
 DEFUN ("x-server-vendor", Fx_server_vendor, Sx_server_vendor, 0, 1, 0,
@@ -3007,31 +3326,31 @@ If omitted or nil, that stands for the selected frame's display.  */)
   OSErr err;
 
   BLOCK_INPUT;
-  err = Gestalt (gestaltSystemVersion, &response);
+  err = Gestalt(gestaltSystemVersion, (SInt32 *)&response);
   if (err == noErr)
     {
       if (response >= 0x00001040)
 	{
-	  err = Gestalt (gestaltSystemVersionMajor, &major);
+	  err = Gestalt(gestaltSystemVersionMajor, (SInt32 *)&major);
 	  if (err == noErr)
-	    err = Gestalt (gestaltSystemVersionMinor, &minor);
+	    err = Gestalt(gestaltSystemVersionMinor, (SInt32 *)&minor);
 	  if (err == noErr)
-	    err = Gestalt (gestaltSystemVersionBugFix, &bugfix);
+	    err = Gestalt(gestaltSystemVersionBugFix, (SInt32 *)&bugfix);
 	}
       else
 	{
-	  bugfix = response & 0xf;
+	  bugfix = (response & 0xf);
 	  response >>= 4;
-	  minor = response & 0xf;
+	  minor = (response & 0xf);
 	  response >>= 4;
-	  /* convert BCD to int */
-	  major = response - (response >> 4) * 6;
+	  /* convert BCD to int: */
+	  major = (response - (response >> 4) * 6);
 	}
     }
   UNBLOCK_INPUT;
 
   if (err != noErr)
-    error ("Cannot get Mac OS version");
+    error("Cannot get Mac OS version");
 
   return Fcons (make_number (major),
 		Fcons (make_number (minor),
@@ -3047,7 +3366,7 @@ If omitted or nil, that stands for the selected frame's display.  */)
      (display)
      Lisp_Object display;
 {
-  return make_number (1);
+  return make_number(1);
 }
 
 DEFUN ("x-display-mm-height", Fx_display_mm_height, Sx_display_mm_height, 0, 1, 0,
@@ -3058,33 +3377,33 @@ If omitted or nil, that stands for the selected frame's display.  */)
      (display)
      Lisp_Object display;
 {
-  struct mac_display_info *dpyinfo = check_x_display_info (display);
+  struct mac_display_info *dpyinfo = check_x_display_info(display);
   float mm_per_pixel;
 
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= 1030
-#if MAC_OS_X_VERSION_MIN_REQUIRED == 1020
+# if MAC_OS_X_VERSION_MIN_REQUIRED == 1020
   if (CGDisplayScreenSize != NULL)
-#endif
+# endif /* 10.2 */
     {
       CGSize size;
 
       BLOCK_INPUT;
-      size = CGDisplayScreenSize (kCGDirectMainDisplay);
-      mm_per_pixel = size.height / CGDisplayPixelsHigh (kCGDirectMainDisplay);
+      size = CGDisplayScreenSize(kCGDirectMainDisplay);
+      mm_per_pixel = (size.height / CGDisplayPixelsHigh(kCGDirectMainDisplay));
       UNBLOCK_INPUT;
     }
-#if MAC_OS_X_VERSION_MIN_REQUIRED == 1020
+# if MAC_OS_X_VERSION_MIN_REQUIRED == 1020
   else
-#endif
+# endif /* 10.2 */
 #endif	/* MAC_OS_X_VERSION_MAX_ALLOWED >= 1030  */
-#if MAC_OS_X_VERSION_MAX_ALLOWED < 1030 || MAC_OS_X_VERSION_MIN_REQUIRED == 1020
+#if (MAC_OS_X_VERSION_MAX_ALLOWED < 1030) || (MAC_OS_X_VERSION_MIN_REQUIRED == 1020)
     {
-      /* This is an approximation.  */
-      mm_per_pixel = 25.4f / dpyinfo->resy;
+      /* This is an approximation: */
+      mm_per_pixel = (25.4f / dpyinfo->resy);
     }
-#endif
+#endif /* pre-10.3 || exactly 10.2 */
 
-  return make_number ((int) (dpyinfo->height * mm_per_pixel + 0.5f));
+  return make_number((int)(dpyinfo->height * mm_per_pixel + 0.5f));
 }
 
 DEFUN ("x-display-mm-width", Fx_display_mm_width, Sx_display_mm_width, 0, 1, 0,
@@ -3095,33 +3414,33 @@ If omitted or nil, that stands for the selected frame's display.  */)
      (display)
      Lisp_Object display;
 {
-  struct mac_display_info *dpyinfo = check_x_display_info (display);
+  struct mac_display_info *dpyinfo = check_x_display_info(display);
   float mm_per_pixel;
 
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= 1030
-#if MAC_OS_X_VERSION_MIN_REQUIRED == 1020
+# if MAC_OS_X_VERSION_MIN_REQUIRED == 1020
   if (CGDisplayScreenSize != NULL)
-#endif
+# endif /* 10.2 */
     {
       CGSize size;
 
       BLOCK_INPUT;
-      size = CGDisplayScreenSize (kCGDirectMainDisplay);
-      mm_per_pixel = size.width / CGDisplayPixelsWide (kCGDirectMainDisplay);
+      size = CGDisplayScreenSize(kCGDirectMainDisplay);
+      mm_per_pixel = (size.width / CGDisplayPixelsWide(kCGDirectMainDisplay));
       UNBLOCK_INPUT;
     }
-#if MAC_OS_X_VERSION_MIN_REQUIRED == 1020
+# if MAC_OS_X_VERSION_MIN_REQUIRED == 1020
   else
-#endif
+# endif /* 10.2 */
 #endif	/* MAC_OS_X_VERSION_MAX_ALLOWED >= 1030  */
-#if MAC_OS_X_VERSION_MAX_ALLOWED < 1030 || MAC_OS_X_VERSION_MIN_REQUIRED == 1020
+#if (MAC_OS_X_VERSION_MAX_ALLOWED < 1030) || (MAC_OS_X_VERSION_MIN_REQUIRED == 1020)
     {
       /* This is an approximation.  */
-      mm_per_pixel = 25.4f / dpyinfo->resx;
+      mm_per_pixel = (25.4f / dpyinfo->resx);
     }
-#endif
+#endif /* pre-10.3 || exactly 10.2 */
 
-  return make_number ((int) (dpyinfo->width * mm_per_pixel + 0.5f));
+  return make_number((int)(dpyinfo->width * mm_per_pixel + 0.5f));
 }
 
 DEFUN ("x-display-backing-store", Fx_display_backing_store,
@@ -3134,7 +3453,7 @@ If omitted or nil, that stands for the selected frame's display.  */)
      (display)
      Lisp_Object display;
 {
-  return intern ("not-useful");
+  return intern("not-useful");
 }
 
 DEFUN ("x-display-visual-class", Fx_display_visual_class,
@@ -3149,23 +3468,25 @@ If omitted or nil, that stands for the selected frame's display.  */)
      (display)
      Lisp_Object display;
 {
-  struct mac_display_info *dpyinfo = check_x_display_info (display);
+  struct mac_display_info *dpyinfo = check_x_display_info(display);
 
 #if 0
   switch (dpyinfo->visual->class)
     {
-    case StaticGray:  return (intern ("static-gray"));
-    case GrayScale:   return (intern ("gray-scale"));
-    case StaticColor: return (intern ("static-color"));
-    case PseudoColor: return (intern ("pseudo-color"));
-    case TrueColor:   return (intern ("true-color"));
-    case DirectColor: return (intern ("direct-color"));
+    case StaticGray:  return (intern("static-gray"));
+    case GrayScale:   return (intern("gray-scale"));
+    case StaticColor: return (intern("static-color"));
+    case PseudoColor: return (intern("pseudo-color"));
+    case TrueColor:   return (intern("true-color"));
+    case DirectColor: return (intern("direct-color"));
     default:
-      error ("Display has an unknown visual class");
+      error("Display has an unknown visual class");
     }
+#else
+  IF_LINT((void)dpyinfo);
 #endif /* 0 */
 
-  return (intern ("true-color"));
+  return (intern("true-color"));
 }
 
 DEFUN ("x-display-save-under", Fx_display_save_under,
@@ -3235,18 +3556,18 @@ x_display_info_for_name (name)
        dpyinfo = dpyinfo->next, names = XCDR (names))
     {
       Lisp_Object tem;
-      tem = Fstring_equal (XCAR (XCAR (names)), name);
-      if (!NILP (tem))
+      tem = Fstring_equal(XCAR(XCAR(names)), name);
+      if (!NILP(tem))
 	return dpyinfo;
     }
 
-  /* Use this general default value to start with.  */
+  /* Use this general default value to start with: */
   Vx_resource_name = Vinvocation_name;
 
-  validate_x_resource_name ();
+  validate_x_resource_name();
 
-  dpyinfo = mac_term_init (name, (unsigned char *) 0,
-			   (char *) SDATA (Vx_resource_name));
+  dpyinfo = mac_term_init(name, (char *)0,
+                          (char *)SDATA(Vx_resource_name));
 
   if (dpyinfo == 0)
     error ("Cannot connect to server %s", SDATA (name));
@@ -3263,31 +3584,31 @@ DEFUN ("x-open-connection", Fx_open_connection, Sx_open_connection,
 DISPLAY is the name of the display to connect to.
 Optional second arg XRM-STRING is a string of resources in xrdb format.
 If the optional third arg MUST-SUCCEED is non-nil,
-terminate Emacs if we can't open the connection.  */)
+terminate Emacs if we cannot open the connection.  */)
      (display, xrm_string, must_succeed)
      Lisp_Object display, xrm_string, must_succeed;
 {
   unsigned char *xrm_option;
   struct mac_display_info *dpyinfo;
 
-  CHECK_STRING (display);
-  if (! NILP (xrm_string))
-    CHECK_STRING (xrm_string);
+  CHECK_STRING(display);
+  if (! NILP(xrm_string))
+    CHECK_STRING(xrm_string);
 
-  if (! EQ (Vwindow_system, intern ("mac")))
-    error ("Not using Mac native windows");
+  if (! EQ(Vwindow_system, intern("mac")))
+    error("Not using Mac native windows");
 
-  if (! NILP (xrm_string))
-    xrm_option = (unsigned char *) SDATA (xrm_string);
+  if (! NILP(xrm_string))
+    xrm_option = (unsigned char *)SDATA(xrm_string);
   else
-    xrm_option = (unsigned char *) 0;
+    xrm_option = (unsigned char *)0;
 
-  validate_x_resource_name ();
+  validate_x_resource_name();
 
   /* This is what opens the connection and sets x_current_display.
-     This also initializes many symbols, such as those used for input.  */
-  dpyinfo = mac_term_init (display, xrm_option,
-			     (char *) SDATA (Vx_resource_name));
+   * This also initializes many symbols, such as those used for input: */
+  dpyinfo = mac_term_init(display, (char *)xrm_option,
+                          (char *)SDATA(Vx_resource_name));
 
   if (dpyinfo == 0)
     {
@@ -3492,46 +3813,48 @@ value.  */)
   return Qnil;
 }
 
-
 
 /***********************************************************************
 				Busy cursor
  ***********************************************************************/
 
+#ifndef DISPEXTERN_H_INCLUDED
 /* If non-null, an asynchronous timer that, when it expires, displays
-   an hourglass cursor on all frames.  */
-
+ * an hourglass cursor on all frames: */
 static struct atimer *hourglass_atimer;
+#endif /* !DISPEXTERN_H_INCLUDED */
 
-/* Non-zero means an hourglass cursor is currently shown.  */
-
+#ifndef EMACS_GLOBALS_H
+/* Non-zero means an hourglass cursor is currently shown: */
 static int hourglass_shown_p;
 
-/* Number of seconds to wait before displaying an hourglass cursor.  */
-
+/* Number of seconds to wait before displaying an hourglass cursor: */
 static Lisp_Object Vhourglass_delay;
+#endif /* !EMACS_GLOBALS_H */
 
-/* Default number of seconds to wait before displaying an hourglass
-   cursor.  */
+#ifndef _TIP_WINDOW_DECLARED
+# define _TIP_WINDOW_DECLARED 1
+Window tip_window;
+#endif /* !_TIP_WINDOW_DECLARED */
 
+/* Default number of secs to wait before displaying an hourglass cursor: */
 #define DEFAULT_HOURGLASS_DELAY 1
 
-/* Function prototypes.  */
-
+#if defined(P_) && !defined(DISPEXTERN_H_INCLUDED)
+/* Function prototypes: */
 static void show_hourglass P_ ((struct atimer *));
 static void hide_hourglass P_ ((void));
+#endif /* P_ && !DISPEXTERN_H_INCLUDED */
 
-/* Return non-zero if houglass timer has been started or hourglass is shown.  */
-
+/* Return non-0 if hourglass timer has been started or hourglass is shown: */
 int
 hourglass_started ()
 {
-  return hourglass_shown_p || hourglass_atimer != NULL;
+  return (hourglass_shown_p || (hourglass_atimer != NULL));
 }
 
 
-/* Cancel a currently active hourglass timer, and start a new one.  */
-
+/* Cancel a currently active hourglass timer, and start a new one: */
 void
 start_hourglass ()
 {
@@ -3568,7 +3891,6 @@ start_hourglass ()
 
 /* Cancel the hourglass cursor timer if active, hide a busy cursor if
    shown.  */
-
 void
 cancel_hourglass ()
 {
@@ -3584,15 +3906,16 @@ cancel_hourglass ()
 #endif /* MAC_OSX */
 }
 
-
 /* Timer function of hourglass_atimer.  TIMER is equal to
    hourglass_atimer.
 
    On Mac, busy status is shown by the progress indicator (chasing
    arrows) at the upper-right corner of each frame instead of the
    hourglass pointer.  */
-
-static void
+#ifndef DISPEXTERN_H_INCLUDED
+static
+#endif /* !DISPEXTERN_H_INCLUDED */
+void
 show_hourglass (timer)
      struct atimer *timer;
 {
@@ -3608,45 +3931,49 @@ show_hourglass (timer)
 
       BLOCK_INPUT;
 
-      FOR_EACH_FRAME (rest, frame)
+      FOR_EACH_FRAME(rest, frame)
 	{
-	  struct frame *f = XFRAME (frame);
+	  struct frame *f = XFRAME(frame);
 
-	  if (FRAME_LIVE_P (f) && FRAME_MAC_P (f)
-	      && FRAME_MAC_WINDOW (f) != tip_window)
+	  if (FRAME_LIVE_P(f) && FRAME_MAC_P(f)
+	      && FRAME_MAC_WINDOW(f) != tip_window)
 	    {
-#if USE_CG_DRAWING
-	      mac_prepare_for_quickdraw (f);
-#endif
+# if USE_CG_DRAWING
+	      mac_prepare_for_quickdraw(f);
+# endif /* USE_CG_DRAWING */
 	      if (!f->output_data.mac->hourglass_control)
 		{
-		  Window w = FRAME_MAC_WINDOW (f);
+		  Window w = FRAME_MAC_WINDOW(f);
 		  Rect r;
 		  ControlRef c;
 
-		  GetWindowPortBounds (w, &r);
-		  r.left = r.right - HOURGLASS_WIDTH;
-		  r.bottom = r.top + HOURGLASS_HEIGHT;
-		  if (CreateChasingArrowsControl (w, &r, &c) == noErr)
+		  GetWindowPortBounds(w, &r);
+		  r.left = (r.right - HOURGLASS_WIDTH);
+		  r.bottom = (r.top + HOURGLASS_HEIGHT);
+		  if (CreateChasingArrowsControl(w, &r, &c) == noErr)
 		    f->output_data.mac->hourglass_control = c;
 		}
 
 	      if (f->output_data.mac->hourglass_control)
-		ShowControl (f->output_data.mac->hourglass_control);
+		ShowControl(f->output_data.mac->hourglass_control);
 	    }
 	}
 
       hourglass_shown_p = 1;
       UNBLOCK_INPUT;
     }
+#else
+  return;
 #endif /* TARGET_API_MAC_CARBON */
 }
 
 
 /* Hide the progress indicators on all frames, if it is currently
    shown.  */
-
-static void
+#ifndef DISPEXTERN_H_INCLUDED
+static
+#endif /* !DISPEXTERN_H_INCLUDED */
+void
 hide_hourglass ()
 {
 #if TARGET_API_MAC_CARBON
@@ -3655,27 +3982,28 @@ hide_hourglass ()
       Lisp_Object rest, frame;
 
       BLOCK_INPUT;
-      FOR_EACH_FRAME (rest, frame)
+      FOR_EACH_FRAME(rest, frame)
 	{
-	  struct frame *f = XFRAME (frame);
+	  struct frame *f = XFRAME(frame);
 
-	  if (FRAME_MAC_P (f)
-	      /* Watch out for newly created frames.  */
+	  if (FRAME_MAC_P(f)
+	      /* Watch out for newly created frames: */
 	      && f->output_data.mac->hourglass_control)
 	    {
-#if USE_CG_DRAWING
-	      mac_prepare_for_quickdraw (f);
-#endif
-	      HideControl (f->output_data.mac->hourglass_control);
+# if USE_CG_DRAWING
+	      mac_prepare_for_quickdraw(f);
+# endif /* USE_CG_DRAWING */
+	      HideControl(f->output_data.mac->hourglass_control);
 	    }
 	}
 
       hourglass_shown_p = 0;
       UNBLOCK_INPUT;
     }
+#else
+  return;
 #endif /* TARGET_API_MAC_CARBON */
 }
-
 
 
 /***********************************************************************
@@ -3687,29 +4015,29 @@ static Lisp_Object x_create_tip_frame P_ ((struct mac_display_info *,
 static void compute_tip_xy P_ ((struct frame *, Lisp_Object, Lisp_Object,
 				Lisp_Object, int, int, int *, int *));
 
-/* The frame of a currently visible tooltip.  */
-
+/* The frame of a currently visible tooltip: */
 Lisp_Object tip_frame;
 
-/* If non-nil, a timer started that hides the last tooltip when it
-   fires.  */
-
+/* If non-nil, a timer is started that hides the last tooltip when it
+ * fires: */
 Lisp_Object tip_timer;
+
+#ifndef _TIP_WINDOW_DECLARED
+# define _TIP_WINDOW_DECLARED 1
 Window tip_window;
+#endif /* !_TIP_WINDOW_DECLARED */
 
 /* If non-nil, a vector of 3 elements containing the last args
-   with which x-show-tip was called.  See there.  */
-
+ * with which x-show-tip was called.  See there: */
 Lisp_Object last_show_tip_args;
 
-/* Maximum size for tooltips; a cons (COLUMNS . ROWS).  */
-
+#ifndef EMACS_GLOBALS_H
+/* Maximum size for tooltips; a cons (COLUMNS . ROWS): */
 Lisp_Object Vx_max_tooltip_size;
-
+#endif /* !EMACS_GLOBALS_H */
 
 static Lisp_Object
-unwind_create_tip_frame (frame)
-     Lisp_Object frame;
+unwind_create_tip_frame(Lisp_Object frame)
 {
   Lisp_Object deleted;
 
@@ -3743,24 +4071,24 @@ x_create_tip_frame (dpyinfo, parms, text)
   Lisp_Object name;
   long window_prompting = 0;
   int width, height;
-  int count = SPECPDL_INDEX ();
+  int count = SPECPDL_INDEX();
   struct gcpro gcpro1, gcpro2, gcpro3;
   struct kboard *kb;
   int face_change_count_before = face_change_count;
   Lisp_Object buffer;
   struct buffer *old_buffer;
 
-  check_mac ();
+  check_mac();
 
-  parms = Fcopy_alist (parms);
+  parms = Fcopy_alist(parms);
 
 #ifdef MULTI_KBOARD
   kb = dpyinfo->kboard;
 #else
   kb = &the_only_kboard;
-#endif
+#endif /* MULTI_KBOARD */
 
-  /* Get the name of the frame to use for resource lookup.  */
+  /* Get the name of the frame to use for resource lookup: */
   name = mac_get_arg (parms, Qname, "name", "Name", RES_TYPE_STRING);
   if (!STRINGP (name)
       && !EQ (name, Qunbound)
@@ -3770,21 +4098,22 @@ x_create_tip_frame (dpyinfo, parms, text)
   frame = Qnil;
   GCPRO3 (parms, name, frame);
   f = make_frame (1);
-  XSETFRAME (frame, f);
+  XSETFRAME(frame, f);
 
-  buffer = Fget_buffer_create (build_string (" *tip*"));
-  Fset_window_buffer (FRAME_ROOT_WINDOW (f), buffer, Qnil);
+  buffer = Fget_buffer_create(build_string(" *tip*"));
+  Fset_window_buffer(FRAME_ROOT_WINDOW(f), buffer, Qnil);
   old_buffer = current_buffer;
-  set_buffer_internal_1 (XBUFFER (buffer));
-  current_buffer->truncate_lines = Qnil;
-  specbind (Qinhibit_read_only, Qt);
-  specbind (Qinhibit_modification_hooks, Qt);
-  Ferase_buffer ();
-  Finsert (1, &text);
-  set_buffer_internal_1 (old_buffer);
+  set_buffer_internal_1(XBUFFER(buffer));
+  current_buffer->INTERNAL_FIELD(truncate_lines) = Qnil;
+  specbind(Qinhibit_read_only, Qt);
+  specbind(Qinhibit_modification_hooks, Qt);
+  Ferase_buffer();
+  Finsert(1, &text);
+  set_buffer_internal_1(old_buffer);
 
-  FRAME_CAN_HAVE_SCROLL_BARS (f) = 0;
-  record_unwind_protect (unwind_create_tip_frame, frame);
+  FRAME_CAN_HAVE_SCROLL_BARS(f) = 0;
+  record_unwind_protect((void (*)(Lisp_Object))unwind_create_tip_frame,
+                        frame);
 
   /* By setting the output method, we're essentially saying that
      the frame is live, as per FRAME_LIVE_P.  If we get a signal
@@ -3792,10 +4121,10 @@ x_create_tip_frame (dpyinfo, parms, text)
      counts etc.  */
   f->output_method = output_mac;
   f->output_data.mac =
-    (struct mac_output *) xmalloc (sizeof (struct mac_output));
-  bzero (f->output_data.mac, sizeof (struct mac_output));
+    (struct mac_output *)xmalloc(sizeof(struct mac_output));
+  bzero(f->output_data.mac, sizeof(struct mac_output));
 
-  FRAME_FONTSET (f)  = -1;
+  FRAME_FONTSET(f)  = -1;
   f->icon_name = Qnil;
 /*   FRAME_X_DISPLAY_INFO (f) = dpyinfo; */
 #if GLYPH_DEBUG
@@ -3804,8 +4133,8 @@ x_create_tip_frame (dpyinfo, parms, text)
 #endif /* GLYPH_DEBUG */
 #ifdef MULTI_KBOARD
   FRAME_KBOARD (f) = kb;
-#endif
-  f->output_data.mac->parent_desc = FRAME_MAC_DISPLAY_INFO (f)->root_window;
+#endif /* MULTI_KBOARD */
+  f->output_data.mac->parent_desc = FRAME_MAC_DISPLAY_INFO(f)->root_window;
   f->output_data.mac->explicit_parent = 0;
 
   /* Set the name; the functions to which we pass f expect the name to
@@ -3828,27 +4157,27 @@ x_create_tip_frame (dpyinfo, parms, text)
   {
     Lisp_Object font;
 
-    font = mac_get_arg (parms, Qfont, "font", "Font", RES_TYPE_STRING);
+    font = mac_get_arg(parms, Qfont, "font", "Font", RES_TYPE_STRING);
 
     BLOCK_INPUT;
-    /* First, try whatever font the caller has specified.  */
-    if (STRINGP (font))
+    /* First, try whatever font the caller has specified: */
+    if (STRINGP(font))
       {
-	tem = Fquery_fontset (font, Qnil);
+	tem = Fquery_fontset(font, Qnil);
 	if (STRINGP (tem))
-	  font = x_new_fontset (f, SDATA (tem));
+	  font = x_new_fontset(f, (const char *)SDATA(tem));
 	else
-	  font = x_new_font (f, SDATA (font));
+	  font = x_new_font(f, (const char *)SDATA(font));
       }
 
-    /* Try out a font which we hope has bold and italic variations.  */
+    /* Try out a font which we hope has bold and italic variations: */
 #if USE_ATSUI
     if (! STRINGP (font))
       font = x_new_font (f, "-*-monaco-medium-r-normal--12-*-*-*-*-*-iso10646-1");
-#endif
+#endif /* USE_ATSUI */
     if (! STRINGP (font))
       font = x_new_font (f, "-ETL-fixed-medium-r-*--*-160-*-*-*-*-iso8859-1");
-    /* If those didn't work, look for something which will at least work.  */
+    /* If those failed, look for something which will at least work: */
     if (! STRINGP (font))
       font = x_new_fontset (f, "fontset-standard");
     if (! STRINGP (font))
@@ -3915,21 +4244,21 @@ x_create_tip_frame (dpyinfo, parms, text)
     SetRect (&r, 0, 0, 1, 1);
 #if TARGET_API_MAC_CARBON
     if (CreateNewWindow (kHelpWindowClass,
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1020
+# if MAC_OS_X_VERSION_MAX_ALLOWED >= 1020
 			 kWindowIgnoreClicksAttribute |
-#endif
+# endif /* 10.2+ */
 			 kWindowNoUpdatesAttribute |
 			 kWindowNoActivatesAttribute,
 			 &r, &tip_window) == noErr)
 #else
     if (tip_window = NewCWindow (NULL, &r, "\p", false, plainDBox,
 				 NULL, false, 0L))
-#endif
+#endif /* TARGET_API_MAC_CARBON */
       {
 	FRAME_MAC_WINDOW (f) = tip_window;
 	XSetWindowBackground (FRAME_MAC_DISPLAY(f), tip_window,
 			      FRAME_BACKGROUND_PIXEL (f));
-	SetWRefCon (tip_window, (long) f->output_data.mac);
+	SetWRefCon(tip_window, (SRefCon)f->output_data.mac);
 	/* so that update events can find this mac_output struct */
 	f->output_data.mac->mFP = f;
       }
@@ -4024,14 +4353,14 @@ compute_tip_xy (f, parms, dx, dy, width, height, root_x, root_y)
   top  = Fcdr (Fassq (Qtop, parms));
 
   /* Move the tooltip window where the mouse pointer is.  Resize and
-     show it.  */
-  if (!INTEGERP (left) || !INTEGERP (top))
+   * show it: */
+  if (!INTEGERP(left) || !INTEGERP(top))
     {
       Point mouse_pos;
 
       BLOCK_INPUT;
-      GetMouse (&mouse_pos);
-      LocalToGlobal (&mouse_pos);
+      GetMouse(&mouse_pos);
+      LocalToGlobal(&mouse_pos);
       *root_x = mouse_pos.h;
       *root_y = mouse_pos.v;
       UNBLOCK_INPUT;
@@ -4149,16 +4478,16 @@ Text larger than the specified size is clipped.  */)
 	    }
 
 	  BLOCK_INPUT;
-	  compute_tip_xy (f, parms, dx, dy, FRAME_PIXEL_WIDTH (f),
-			  FRAME_PIXEL_HEIGHT (f), &root_x, &root_y);
-	  MoveWindow (FRAME_MAC_WINDOW (f), root_x, root_y, false);
+	  compute_tip_xy(f, parms, dx, dy, FRAME_PIXEL_WIDTH(f),
+                         FRAME_PIXEL_HEIGHT(f), &root_x, &root_y);
+	  MoveWindow(FRAME_MAC_WINDOW(f), root_x, root_y, false);
 	  UNBLOCK_INPUT;
 	  goto start_timer;
 	}
     }
 
-  /* Hide a previous tip, if any.  */
-  Fx_hide_tip ();
+  /* Hide a previous tip, if any: */
+  Fx_hide_tip();
 
   ASET (last_show_tip_args, 0, string);
   ASET (last_show_tip_args, 1, frame);
@@ -4192,27 +4521,31 @@ Text larger than the specified size is clipped.  */)
       && INTEGERP (XCDR (Vx_max_tooltip_size))
       && XINT (XCDR (Vx_max_tooltip_size)) > 0)
     {
-      w->total_cols = XCAR (Vx_max_tooltip_size);
-      w->total_lines = XCDR (Vx_max_tooltip_size);
+      w->total_cols = XCAR(Vx_max_tooltip_size);
+      w->total_lines = XCDR(Vx_max_tooltip_size);
     }
   else
     {
-      w->total_cols = make_number (80);
-      w->total_lines = make_number (40);
+      w->total_cols = make_number(80);
+      w->total_lines = make_number(40);
     }
 
-  FRAME_TOTAL_COLS (f) = XINT (w->total_cols);
-  adjust_glyphs (f);
+  FRAME_TOTAL_COLS(f) = XINT(w->total_cols);
+#ifndef _USE_OLD_LISP_DATA_STRUCTURES
+  adjust_frame_glyphs(f);
+#else
+  adjust_glyphs(f);
+#endif /* !_USE_OLD_LISP_DATA_STRUCTURES */
   w->pseudo_window_p = 1;
 
-  /* Display the tooltip text in a temporary buffer.  */
+  /* Display the tooltip text in a temporary buffer: */
   old_buffer = current_buffer;
-  set_buffer_internal_1 (XBUFFER (XWINDOW (FRAME_ROOT_WINDOW (f))->buffer));
-  current_buffer->truncate_lines = Qnil;
-  clear_glyph_matrix (w->desired_matrix);
-  clear_glyph_matrix (w->current_matrix);
-  SET_TEXT_POS (pos, BEGV, BEGV_BYTE);
-  try_window (FRAME_ROOT_WINDOW (f), pos, 0);
+  set_buffer_internal_1(XBUFFER(XWINDOW(FRAME_ROOT_WINDOW(f))->buffer));
+  current_buffer->INTERNAL_FIELD(truncate_lines) = Qnil;
+  clear_glyph_matrix(w->desired_matrix);
+  clear_glyph_matrix(w->current_matrix);
+  SET_TEXT_POS(pos, BEGV, BEGV_BYTE);
+  try_window(FRAME_ROOT_WINDOW(f), pos, 0);
 
   /* Compute width and height of the tooltip.  */
   width = height = 0;
@@ -4253,21 +4586,21 @@ Text larger than the specified size is clipped.  */)
   compute_tip_xy (f, parms, dx, dy, width, height, &root_x, &root_y);
 
   BLOCK_INPUT;
-  MoveWindow (FRAME_MAC_WINDOW (f), root_x, root_y, false);
-  SizeWindow (FRAME_MAC_WINDOW (f), width, height, true);
-  ShowWindow (FRAME_MAC_WINDOW (f));
-  BringToFront (FRAME_MAC_WINDOW (f));
+  MoveWindow(FRAME_MAC_WINDOW(f), root_x, root_y, false);
+  SizeWindow(FRAME_MAC_WINDOW(f), width, height, true);
+  ShowWindow(FRAME_MAC_WINDOW(f));
+  BringToFront(FRAME_MAC_WINDOW(f));
   UNBLOCK_INPUT;
 
-  FRAME_PIXEL_WIDTH (f) = width;
-  FRAME_PIXEL_HEIGHT (f) = height;
+  FRAME_PIXEL_WIDTH(f) = width;
+  FRAME_PIXEL_HEIGHT(f) = height;
 
-  /* Draw into the window.  */
+  /* Draw into the window: */
   w->must_be_updated_p = 1;
-  update_single_window (w, 1);
+  update_single_window(w, 1);
 
-  /* Restore original current buffer.  */
-  set_buffer_internal_1 (old_buffer);
+  /* Restore original current buffer: */
+  set_buffer_internal_1(old_buffer);
   windows_or_buffers_changed = old_windows_or_buffers_changed;
 
  start_timer:
@@ -4283,7 +4616,7 @@ Text larger than the specified size is clipped.  */)
 DEFUN ("x-hide-tip", Fx_hide_tip, Sx_hide_tip, 0, 0, 0,
        doc: /* Hide the current tooltip window, if there is any.
 Value is t if tooltip was open, nil otherwise.  */)
-     ()
+     (void)
 {
   int count;
   Lisp_Object deleted, frame, timer;
@@ -4322,8 +4655,13 @@ Value is t if tooltip was open, nil otherwise.  */)
 			File selection dialog
  ***********************************************************************/
 
+# if defined(P_) && !(defined(PROTOTYPES) || defined(__PROTOTYPES))
 static pascal void mac_nav_event_callback P_ ((NavEventCallbackMessage,
 					       NavCBRecPtr, void *));
+# else
+static pascal void mac_nav_event_callback(NavEventCallbackMessage,
+                                          NavCBRecPtr, void *);
+# endif /* P_ && !(PROTOTYPES || __PROTOTYPES) */
 
 /**
    There is a relatively standard way to do this using applescript to run
@@ -4351,15 +4689,15 @@ If ONLY-DIR-P is non-nil, the user can only select directories.  */)
   char filename[MAXPATHLEN];
   static NavEventUPP mac_nav_event_callbackUPP = NULL;
 
-  check_mac ();
+  check_mac();
 
-  GCPRO6 (prompt, dir, default_filename, mustmatch, file, only_dir_p);
-  CHECK_STRING (prompt);
-  CHECK_STRING (dir);
+  GCPRO6(prompt, dir, default_filename, mustmatch, file, only_dir_p);
+  CHECK_STRING(prompt);
+  CHECK_STRING(dir);
 
   /* Create the dialog with PROMPT as title, using DIR as initial
-     directory and using "*" as pattern.  */
-  dir = Fexpand_file_name (dir, Qnil);
+   * directory and using "*" as pattern: */
+  dir = Fexpand_file_name(dir, Qnil);
 
   {
     OSStatus status;
@@ -4367,10 +4705,10 @@ If ONLY-DIR-P is non-nil, the user can only select directories.  */)
     NavDialogRef dialogRef;
     NavTypeListHandle fileTypes = NULL;
     NavUserAction userAction;
-    CFStringRef message=NULL, saveName = NULL;
+    CFStringRef message = NULL, saveName = NULL;
 
     BLOCK_INPUT;
-    /* No need for a callback function because we are modal */
+    /* No need for a callback function because we are modal: */
     NavGetDefaultDialogCreationOptions(&options);
     options.modality = kWindowModalityAppModal;
     options.location.h = options.location.v = -1;
@@ -4383,28 +4721,29 @@ If ONLY-DIR-P is non-nil, the user can only select directories.  */)
 	message = cfstring_create_with_string (prompt);
 	options.message = message;
       }
-    /* Don't set the application, let it use default.
-    options.clientName = CFSTR ("Emacs");
-    */
+    /* Do NOT set the application, let it use default: */
+#ifdef SET_THE_APPLICATION_INSTEAD_OF_USING_THE_DEFAULT
+    options.clientName = CFSTR("Emacs");
+#endif /* SET_THE_APPLICATION_INSTEAD_OF_USING_THE_DEFAULT */
 
     if (mac_nav_event_callbackUPP == NULL)
-      mac_nav_event_callbackUPP = NewNavEventUPP (mac_nav_event_callback);
+      mac_nav_event_callbackUPP = NewNavEventUPP(mac_nav_event_callback);
 
-    if (!NILP (only_dir_p))
+    if (!NILP(only_dir_p))
       status = NavCreateChooseFolderDialog(&options, mac_nav_event_callbackUPP,
 					   NULL, NULL, &dialogRef);
     else if (NILP (mustmatch))
       {
-	/* This is a save dialog */
+	/* This is a save dialog: */
 	options.optionFlags |= kNavDontConfirmReplacement;
-	options.actionButtonLabel = CFSTR ("Ok");
-	options.windowTitle = CFSTR ("Enter name");
+	options.actionButtonLabel = CFSTR("Ok");
+	options.windowTitle = CFSTR("Enter name");
 
 	if (STRINGP (default_filename))
 	  {
 	    Lisp_Object utf8 = ENCODE_UTF_8 (default_filename);
-	    char *begPtr = SDATA(utf8);
-	    char *filePtr = begPtr + SBYTES(utf8);
+	    char *begPtr = (char *)SDATA(utf8);
+	    char *filePtr = (begPtr + SBYTES(utf8));
 	    while (filePtr != begPtr && !IS_DIRECTORY_SEP(filePtr[-1]))
 	      filePtr--;
 	    saveName = cfstring_create_with_utf8_cstring (filePtr);
@@ -4418,7 +4757,7 @@ If ONLY-DIR-P is non-nil, the user can only select directories.  */)
 	}
     else
       {
-	/* This is an open dialog*/
+	/* This is an open dialog: */
 	status = NavCreateChooseFileDialog(&options, fileTypes,
 					   mac_nav_event_callbackUPP, NULL,
 					   NULL, NULL, &dialogRef);
@@ -4434,14 +4773,19 @@ If ONLY-DIR-P is non-nil, the user can only select directories.  */)
 			       SBYTES (encoded_dir), &defLocAed);
 	if (status == noErr)
 	  {
-	    NavCustomControl(dialogRef, kNavCtlSetLocation, (void*) &defLocAed);
+	    NavCustomControl(dialogRef, kNavCtlSetLocation,
+                             (void*)&defLocAed);
 	    AEDisposeDesc(&defLocAed);
 	  }
 	status = NavDialogRun(dialogRef);
       }
 
-    if (saveName) CFRelease(saveName);
-    if (message) CFRelease(message);
+    if (saveName) {
+      CFRelease(saveName);
+    }
+    if (message) {
+      CFRelease(message);
+    }
 
     if (status == noErr) {
       userAction = NavDialogGetUserAction(dialogRef);
@@ -4460,30 +4804,31 @@ If ONLY-DIR-P is non-nil, the user can only select directories.  */)
 	    status = NavDialogGetReply(dialogRef, &reply);
 	    if (status != noErr)
 	      break;
-	    status = AEGetNthPtr (&reply.selection, 1, TYPE_FILE_NAME,
-				  NULL, NULL, filename,
-				  sizeof (filename) - 1, &len);
+	    status = AEGetNthPtr(&reply.selection, 1, TYPE_FILE_NAME,
+                                 NULL, NULL, filename,
+                                 (sizeof(filename) - 1), &len);
 	    if (status == noErr)
 	      {
-		len = min (len, sizeof (filename) - 1);
+		len = min(len, (sizeof(filename) - 1));
 		filename[len] = '\0';
 		if (reply.saveFileName)
 		  {
-		    /* If it was a saved file, we need to add the file name */
-		    if (len && len < sizeof (filename) - 1
-			&& filename[len-1] != '/')
+		    /* If it was a saved file, then we need to add
+                     * the file name: */
+		    if (len && (len < (sizeof(filename) - 1))
+			&& (filename[len - 1] != '/'))
 		      filename[len++] = '/';
-		    CFStringGetCString(reply.saveFileName, filename+len,
-				       sizeof (filename) - len,
+		    CFStringGetCString(reply.saveFileName, (filename + len),
+				       (sizeof(filename) - len),
 #ifdef MAC_OSX
 				       kCFStringEncodingUTF8
 #else
-				       CFStringGetSystemEncoding ()
-#endif
+				       CFStringGetSystemEncoding()
+#endif /* MAC_OSX */
 				       );
 		  }
-		file = DECODE_FILE (make_unibyte_string (filename,
-							 strlen (filename)));
+		file = DECODE_FILE(make_unibyte_string(filename,
+                                                       strlen(filename)));
 	      }
 	    NavDisposeReply(&reply);
 	  }
@@ -4491,34 +4836,35 @@ If ONLY-DIR-P is non-nil, the user can only select directories.  */)
 	}
       NavDialogDispose(dialogRef);
       UNBLOCK_INPUT;
-    }
-    else {
+    } else {
       UNBLOCK_INPUT;
-      /* Fall back on minibuffer if there was a problem */
-      file = Fcompleting_read (prompt, intern ("read-file-name-internal"),
-			       dir, mustmatch, dir, Qfile_name_history,
-			       default_filename, Qnil);
+      /* Fall back on minibuffer if there was a problem: */
+      file = Fcompleting_read(prompt, intern("read-file-name-internal"),
+                              dir, mustmatch, dir, Qfile_name_history,
+                              default_filename, Qnil);
     }
   }
 
   UNGCPRO;
 
-  /* Make "Cancel" equivalent to C-g.  */
-  if (NILP (file))
-    Fsignal (Qquit, Qnil);
+  /* Make "Cancel" equivalent to C-g: */
+  if (NILP(file)) {
+    Fsignal(Qquit, Qnil);
+  }
 
-  return unbind_to (count, file);
+  return unbind_to(count, file);
 }
 
 
 /* Need to register some event callback function for enabling drag and
    drop in Navigation Service dialogs.  */
 static pascal void
-mac_nav_event_callback (selector, parms, data)
-     NavEventCallbackMessage selector;
-     NavCBRecPtr parms;
-     void *data;
+mac_nav_event_callback(NavEventCallbackMessage selector, NavCBRecPtr parms,
+                       void *data)
 {
+# if defined(__APPLE__) && defined(__APPLE_CC__) && (__APPLE_CC__ > 1)
+#  pragma unused (selector, parms, data)
+# endif /* __APPLE__ && (__APPLE_CC__ > 1) */
   return;
 }
 #endif /* TARGET_API_MAC_CARBON */
@@ -4753,13 +5099,15 @@ Chinese, Japanese, and Korean.  */);
     UInt32 response;
     char carbon_version[16] = "Unknown";
 
-    err = Gestalt (gestaltCarbonVersion, &response);
-    if (err == noErr)
-      sprintf (carbon_version, "%u.%u.%u",
-	       (response >> 8) & 0xf, (response >> 4) & 0xf, response & 0xf);
-    Vmac_carbon_version_string = build_string (carbon_version);
+    err = Gestalt(gestaltCarbonVersion, (SInt32 *)&response);
+    if (err == noErr) {
+      sprintf(carbon_version, "%u.%u.%u",
+              ((response >> 8) & 0xf), ((response >> 4) & 0xf),
+              (response & 0xf));
+    }
+    Vmac_carbon_version_string = build_string(carbon_version);
   }
-#endif	/* TARGET_API_MAC_CARBON */
+#endif /* TARGET_API_MAC_CARBON */
 
   /* X window properties.  */
   defsubr (&Sx_change_window_property);
@@ -4790,7 +5138,7 @@ Chinese, Japanese, and Korean.  */);
   defsubr (&Sx_synchronize);
   defsubr (&Sx_focus_frame);
 
-  /* Setting callback functions for fontset handler.  */
+  /* Setting callback functions for fontset handler: */
   get_font_info_func = x_get_font_info;
 
 #if 0 /* This function pointer does NOT seem to be used anywhere.

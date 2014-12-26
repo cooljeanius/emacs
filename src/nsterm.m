@@ -6255,10 +6255,10 @@ typedef id NSNotification_or_id;
       {
         result = defaultFrame;
       }
-  else if (next_maximized == FULLSCREEN_HEIGHT
-      || (next_maximized == -1
-          && abs (defaultFrame.size.height - result.size.height)
-          > FRAME_LINE_HEIGHT (emacsframe)))
+  else if ((next_maximized == FULLSCREEN_HEIGHT)
+      || ((next_maximized == -1)
+          && fabs(defaultFrame.size.height - result.size.height)
+          > FRAME_LINE_HEIGHT(emacsframe)))
     {
       /* first click */
       ns_userRect = result;
@@ -6278,10 +6278,10 @@ typedef id NSNotification_or_id;
       result.origin.x = defaultFrame.origin.x;
       [self setFSValue: FULLSCREEN_WIDTH];
     }
-  else if (next_maximized == FULLSCREEN_MAXIMIZED
-           || (next_maximized == -1
-               && abs (defaultFrame.size.width - result.size.width)
-               > FRAME_COLUMN_WIDTH (emacsframe)))
+  else if ((next_maximized == FULLSCREEN_MAXIMIZED)
+           || ((next_maximized == -1)
+               && fabs(defaultFrame.size.width - result.size.width)
+               > FRAME_COLUMN_WIDTH(emacsframe)))
     {
       result = defaultFrame;  /* second click */
       maximized_width = result.size.width;

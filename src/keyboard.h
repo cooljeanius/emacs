@@ -237,7 +237,20 @@ extern KBOARD *initial_kboard;
    right now considering input.  We can consider input from another
    kboard, but doing so requires throwing to wrong_kboard_jmpbuf.  */
 extern KBOARD *current_kboard;
-
+
+#ifndef MULTI_KBOARD
+extern KBOARD the_only_kboard;
+# if !defined(current_kboard) && 0
+#  define current_kboard (&the_only_kboard)
+# endif /* !current_kboard && 0 */
+# if !defined(all_kboards) && 0
+#  define all_kboards (&the_only_kboard)
+# endif /* !all_kboards && 0 */
+# if !defined(single_kboard) && 0
+#  define single_kboard 1
+# endif /* !single_kboard && 0 */
+#endif /* !MULTI_KBOARD */
+
 /* Total number of times read_char has returned, modulo UINTMAX_MAX + 1.  */
 extern uintmax_t num_input_events;
 

@@ -224,11 +224,7 @@ clear_face_cache ()
    These functions operate on param faces only.
    Computed faces get their fonts, colors and pixmaps
    by merging param faces.  */
-
-static XFontStruct *
-load_font (f, name)
-     struct frame *f;
-     Lisp_Object name;
+static XFontStruct *load_font(struct frame *f, Lisp_Object name)
 {
   struct font_info *fontinf;
   XFontStruct *font = NULL;

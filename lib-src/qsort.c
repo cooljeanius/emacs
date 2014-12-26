@@ -1,7 +1,7 @@
-/* Plug-compatible replacement for UNIX qsort.
-   Copyright (C) 1989 Free Software Foundation, Inc.
-   Written by Douglas C. Schmidt (schmidt@ics.uci.edu)
-
+/* qsort.c: Plug-compatible replacement for UNIX qsort.
+ * Copyright (C) 1989 Free Software Foundation, Inc.
+ * Written by Douglas C. Schmidt (schmidt@ics.uci.edu) */
+/*
 This file is part of GNU CC.
 
 GNU QSORT is free software; you can redistribute it and/or modify
@@ -19,34 +19,40 @@ along with GNU QSORT; see the file COPYING.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 Boston, MA 02111-1307, USA. */
 
-#ifdef sparc
+#if defined(sparc) || defined(HAVE_ALLOCA_H) || (defined(__APPLE__) && defined(__GNUC__))
 # include <alloca.h>
-#endif /* sparc */
+#endif /* sparc || HAVE_ALLOCA_H || (__APPLE__ && __GNUC__) */
 
-/* Invoke the comparison function, returns either 0, < 0, or > 0. */
+/* cannot include <stdlib.h> because that could have a conflicting
+ * declaration for qsort() in it.
+ * Instead, keep the prototype here: */
+extern int qsort(char *base_ptr, int total_elems, int size,
+                 int (*cmp)(const void *, const void *));
+
+/* Invoke the comparison function, returns either 0, < 0, or > 0: */
 #define CMP(A,B) ((*cmp)((A),(B)))
 
-/* Byte-wise swap two items of size SIZE. */
+/* Byte-wise swap two items of size SIZE: */
 #define SWAP(A,B,SIZE) do {int sz = (SIZE); char *a = (A); char *b = (B); \
     do { char _temp = *a;*a++ = *b;*b++ = _temp;} while (--sz);} while (0)
 
-/* Copy SIZE bytes from item B to item A. */
+/* Copy SIZE bytes from item B to item A: */
 #define COPY(A,B,SIZE) {int sz = (SIZE); do { *(A)++ = *(B)++; } while (--sz); }
 
-/* This should be replaced by a standard ANSI macro. */
+/* This should be replaced by a standard ANSI macro: */
 #define BYTES_PER_WORD 8
 
-/* The next 4 #defines implement a very fast in-line stack abstraction. */
-#define STACK_SIZE (BYTES_PER_WORD * sizeof (long))
+/* The next 4 #defines implement a very fast in-line stack abstraction: */
+#define STACK_SIZE (BYTES_PER_WORD * sizeof(long))
 #define PUSH(LOW,HIGH) do {top->lo = LOW;top++->hi = HIGH;} while (0)
 #define POP(LOW,HIGH)  do {LOW = (--top)->lo;HIGH = top->hi;} while (0)
 #define STACK_NOT_EMPTY (stack < top)
 
 /* Discontinue quicksort algorithm when partition gets below this size.
-   This particular magic number was chosen to work best on a Sun 4/260. */
+ * This particular magic number was chosen to work best on a Sun 4/260. */
 #define MAX_THRESH 4
 
-/* Stack node declarations used to store unfulfilled partition obligations. */
+/* Stack node declarations used to store unfulfilled partition obligations: */
 typedef struct
 {
   char *lo;
@@ -77,23 +83,20 @@ typedef struct
       stack size is needed (actually O(1) in this case)! */
 
 int
-qsort (base_ptr, total_elems, size, cmp)
-     char *base_ptr;
-     int total_elems;
-     int size;
-     int (*cmp)();
+qsort(char *base_ptr, int total_elems, int size,
+      int (*cmp)(const void *, const void *))
 {
   /* Allocating SIZE bytes for a pivot buffer facilitates a better
-     algorithm below since we can do comparisons directly on the pivot. */
-  char *pivot_buffer = (char *) alloca (size);
-  int   max_thresh   = MAX_THRESH * size;
+   * algorithm below since we can do comparisons directly on the pivot: */
+  char *pivot_buffer = (char *)alloca(size);
+  int max_thresh = (MAX_THRESH * size);
 
   if (total_elems > MAX_THRESH)
     {
-      char       *lo = base_ptr;
-      char       *hi = lo + size * (total_elems - 1);
-      stack_node stack[STACK_SIZE]; /* Largest size needed for 32-bit int!!! */
-      stack_node *top = stack + 1;
+      char *lo = base_ptr;
+      char *hi = (lo + size * (total_elems - 1));
+      stack_node stack[STACK_SIZE]; /* Largest size needed for 32bit int */
+      stack_node *top = (stack + 1);
 
       while (STACK_NOT_EMPTY)
         {
@@ -107,37 +110,36 @@ qsort (base_ptr, total_elems, size, cmp)
                  probability of picking a pathological pivot value and
                  skips a comparison for both the LEFT_PTR and RIGHT_PTR. */
 
-              char *mid = lo + size * ((hi - lo) / size >> 1);
+              char *mid = (lo + size * ((hi - lo) / size >> 1));
 
-              if (CMP (mid, lo) < 0)
-                SWAP (mid, lo, size);
-              if (CMP (hi, mid) < 0)
-                SWAP (mid, hi, size);
+              if (CMP(mid, lo) < 0)
+                SWAP(mid, lo, size);
+              if (CMP(hi, mid) < 0)
+                SWAP(mid, hi, size);
               else
                 goto jump_over;
-              if (CMP (mid, lo) < 0)
-                SWAP (mid, lo, size);
+              if (CMP(mid, lo) < 0)
+                SWAP(mid, lo, size);
             jump_over:
-              COPY (pivot, mid, size);
+              COPY(pivot, mid, size);
               pivot = pivot_buffer;
             }
-            left_ptr  = lo + size;
-            right_ptr = hi - size;
+            left_ptr = (lo + size);
+            right_ptr = (hi - size);
 
-            /* Here's the famous ``collapse the walls'' section of quicksort.
-               Gotta like those tight inner loops!  They are the main reason
-               that this algorithm runs much faster than others. */
-            do
-              {
-                while (CMP (left_ptr, pivot) < 0)
+            /* Here is the famous `collapse the walls' part of quicksort.
+             * Gotta like those tight inner loops!  They are the main
+             * reason that this algorithm runs much faster than others: */
+            do {
+                while (CMP(left_ptr, pivot) < 0)
                   left_ptr += size;
 
-                while (CMP (pivot, right_ptr) < 0)
+                while (CMP(pivot, right_ptr) < 0)
                   right_ptr -= size;
 
                 if (left_ptr < right_ptr)
                   {
-                    SWAP (left_ptr, right_ptr, size);
+                    SWAP(left_ptr, right_ptr, size);
                     left_ptr += size;
                     right_ptr -= size;
                   }
@@ -147,8 +149,7 @@ qsort (base_ptr, total_elems, size, cmp)
                     right_ptr -= size;
                     break;
                   }
-              }
-            while (left_ptr <= right_ptr);
+            } while (left_ptr <= right_ptr);
 
           }
 
@@ -160,7 +161,7 @@ qsort (base_ptr, total_elems, size, cmp)
           if ((right_ptr - lo) <= max_thresh)
             {
               if ((hi - left_ptr) <= max_thresh) /* Ignore both small partitions. */
-                POP (lo, hi);
+                POP(lo, hi);
               else              /* Ignore small left partition. */
                 lo = left_ptr;
             }
@@ -173,7 +174,7 @@ qsort (base_ptr, total_elems, size, cmp)
             }
           else                  /* Push larger right partition indices. */
             {
-              PUSH (left_ptr, hi);
+              PUSH(left_ptr, hi);
               hi = right_ptr;
             }
         }
@@ -188,36 +189,34 @@ qsort (base_ptr, total_elems, size, cmp)
 #define MIN(X,Y) ((X) < (Y) ? (X) : (Y))
 
   {
-    char *end_ptr = base_ptr + size * (total_elems - 1);
+    char *end_ptr = (base_ptr + size * (total_elems - 1));
     char *run_ptr;
     char *tmp_ptr = base_ptr;
-    char *thresh  = MIN (end_ptr, base_ptr + max_thresh);
+    char *thresh  = MIN(end_ptr, base_ptr + max_thresh);
 
     /* Find smallest element in first threshold and place it at the
-       array's beginning.  This is the smallest array element,
-       and the operation speeds up insertion sort's inner loop. */
-
-    for (run_ptr = tmp_ptr + size; run_ptr <= thresh; run_ptr += size)
-      if (CMP (run_ptr, tmp_ptr) < 0)
+     * array's beginning.  This is the smallest array element,
+     * and the operation speeds up insertion sort's inner loop: */
+    for (run_ptr = (tmp_ptr + size); run_ptr <= thresh; run_ptr += size)
+      if (CMP(run_ptr, tmp_ptr) < 0)
         tmp_ptr = run_ptr;
 
     if (tmp_ptr != base_ptr)
-      SWAP (tmp_ptr, base_ptr, size);
+      SWAP(tmp_ptr, base_ptr, size);
 
     /* Insertion sort, running from left-hand-side up to `right-hand-side.'
-       Pretty much straight out of the original GNU qsort routine. */
-
-    for (run_ptr = base_ptr + size; (tmp_ptr = run_ptr += size) <= end_ptr; )
+     * Pretty much straight out of the original GNU qsort routine: */
+    for (run_ptr = (base_ptr + size); (tmp_ptr = run_ptr += size) <= end_ptr; )
       {
 
-        while (CMP (run_ptr, tmp_ptr -= size) < 0)
+        while (CMP(run_ptr, tmp_ptr -= size) < 0)
           ;
 
         if ((tmp_ptr += size) != run_ptr)
           {
             char *trav;
 
-            for (trav = run_ptr + size; --trav >= run_ptr;)
+            for (trav = (run_ptr + size); --trav >= run_ptr;)
               {
                 char c = *trav;
                 char *hi, *lo;

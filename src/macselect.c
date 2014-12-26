@@ -39,6 +39,7 @@ typedef ResType ScrapFlavorType;
 #  include <QD/QuickdrawAPI.h>
 # else
 #  if !defined(__QUICKDRAWAPI__) || defined(__LP64__)
+/* inline the prototype we need: */
 RgnHandle NewRgn(void);
 #  endif /* !__QUICKDRAWAPI__ || __LP64__ */
 # endif /* HAVE_CARBON && HAVE_QD_QUICKDRAWAPI_H */

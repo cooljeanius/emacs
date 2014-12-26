@@ -1427,10 +1427,8 @@ compute_fringe_widths (struct frame *f, bool redraw_p)
 }
 
 
-/* Free resources used by a user-defined bitmap.  */
-
-static void
-destroy_fringe_bitmap (int n)
+/* Free resources used by a user-defined bitmap: */
+static void destroy_fringe_bitmap(int n)
 {
   struct fringe_bitmap **fbp;
 

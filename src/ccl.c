@@ -888,7 +888,7 @@ ccl_driver (struct ccl_program *ccl, int *source, int *destination, int src_size
   int eof_ic = ccl->eof_ic;
   int eof_hit = 0;
 
-  if (ccl->buf_magnification == 0) /* We can't read/produce any bytes.  */
+  if (ccl->buf_magnification == 0) /* We cannot read/produce any bytes: */
     dst = NULL;
 
   /* Set mapping stack pointer. */
@@ -896,7 +896,7 @@ ccl_driver (struct ccl_program *ccl, int *source, int *destination, int src_size
 
 #ifdef CCL_DEBUG
   ccl_backtrace_idx = 0;
-#endif
+#endif /* CCL_DEBUG */
 
   for (;;)
     {
