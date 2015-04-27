@@ -667,8 +667,6 @@ gl_GNULIB_ENABLED_strchrnul_FALSE
 gl_GNULIB_ENABLED_strchrnul_TRUE
 gl_GNULIB_ENABLED_9bc5f216d57e231e4834049d67d0db62_FALSE
 gl_GNULIB_ENABLED_9bc5f216d57e231e4834049d67d0db62_TRUE
-gl_GNULIB_ENABLED_rmdir_FALSE
-gl_GNULIB_ENABLED_rmdir_TRUE
 gl_GNULIB_ENABLED_61bcaca76b3e6f9ae55d57a1c3193bc4_FALSE
 gl_GNULIB_ENABLED_61bcaca76b3e6f9ae55d57a1c3193bc4_TRUE
 gl_GNULIB_ENABLED_rawmemchr_FALSE
@@ -681,12 +679,6 @@ gl_GNULIB_ENABLED_memmove_FALSE
 gl_GNULIB_ENABLED_memmove_TRUE
 gl_GNULIB_ENABLED_malloca_FALSE
 gl_GNULIB_ENABLED_malloca_TRUE
-gl_GNULIB_ENABLED_getdelim_FALSE
-gl_GNULIB_ENABLED_getdelim_TRUE
-gl_GNULIB_ENABLED_a691da99c1d83b83238e45f41a696f5c_FALSE
-gl_GNULIB_ENABLED_a691da99c1d83b83238e45f41a696f5c_TRUE
-gl_GNULIB_ENABLED_72dfd9a8bb8db9211d38af59105b03c0_FALSE
-gl_GNULIB_ENABLED_72dfd9a8bb8db9211d38af59105b03c0_TRUE
 gl_GNULIB_ENABLED_260941c0e5dc67ec9e87d1fb321c300b_FALSE
 gl_GNULIB_ENABLED_260941c0e5dc67ec9e87d1fb321c300b_TRUE
 REPLACE_TOWLOWER
@@ -719,6 +711,13 @@ GNULIB_GETRUSAGE
 NEXT_AS_FIRST_DIRECTIVE_SYS_IOCTL_H
 NEXT_SYS_IOCTL_H
 HAVE_SYS_IOCTL_H
+HAVE_STRINGS_H
+NEXT_AS_FIRST_DIRECTIVE_STRINGS_H
+NEXT_STRINGS_H
+HAVE_DECL_STRNCASECMP
+HAVE_STRCASECMP
+HAVE_FFS
+GNULIB_FFS
 NEXT_AS_FIRST_DIRECTIVE_STRING_H
 NEXT_STRING_H
 GL_GENERATE_STDNORETURN_H_FALSE
@@ -1183,6 +1182,7 @@ GL_GENERATE_FLOAT_H_TRUE
 FLOAT_H
 NEXT_AS_FIRST_DIRECTIVE_FLOAT_H
 NEXT_FLOAT_H
+LIB_HAS_ACL
 LIB_FDATASYNC
 NEXT_AS_FIRST_DIRECTIVE_FCNTL_H
 NEXT_FCNTL_H
@@ -1206,6 +1206,9 @@ LIB_CLOCK_GETTIME
 GL_GENERATE_BYTESWAP_H_FALSE
 GL_GENERATE_BYTESWAP_H_TRUE
 BYTESWAP_H
+ATAN2_LIBM
+ATAN_LIBM
+POW_LIBM
 GL_GENERATE_ASSERT_H_FALSE
 GL_GENERATE_ASSERT_H_TRUE
 ASSERT_H
@@ -1275,6 +1278,7 @@ version
 copyright_holder
 copyright
 FAKE_LIBS
+FAKE_LDFLAGS
 FAKE_CPPFLAGS
 FAKE_CFLAGS
 SEPCHAR
@@ -1767,6 +1771,8 @@ LIBPNG
 LIBZ
 LIBJPEG
 LIBXPM
+SAVE_LDFLAGS
+SAVE_CPPFLAGS
 M17N_FLT_LIBS
 M17N_FLT_CFLAGS
 LIBOTF_LIBS
@@ -1807,6 +1813,7 @@ IMAGEMAGICK_CFLAGS
 RSVG_LIBS
 RSVG_CFLAGS
 REAL_LIBS
+REAL_LDFLAGS
 REAL_CPPFLAGS
 REAL_CFLAGS
 LIB_PTHREAD
@@ -1844,6 +1851,7 @@ HAVE_CBLOCKS_FALSE
 HAVE_CBLOCKS_TRUE
 MAC_OBJ
 LIBS_CARBON
+NON_CARBON_LDFLAGS
 LD_SWITCH_X_SITE_RPATH
 X_EXTRA_LIBS
 X_LIBS
@@ -1853,12 +1861,14 @@ no_x
 have_x
 with_x
 XMKMF
+ORIG_LDFLAGS
 HEAD_BIN
 LOCATE_BIN
 DEPFLAGS
 MKDEPDIR
 ifGNUmake
 HAVE_STRUCT_EXCEPTION
+UNISTD_H_DEFINES_STRUCT_TIMESPEC
 PTHREAD_H_DEFINES_STRUCT_TIMESPEC
 SYS_TIME_H_DEFINES_STRUCT_TIMESPEC
 TIME_H_DEFINES_STRUCT_TIMESPEC
@@ -1960,6 +1970,7 @@ LD_SWITCH_SYSTEM
 UNEXEC_SRC
 UNEXEC_OBJ
 CANNOT_DUMP
+late_LDFLAGS
 DOCMISC_W32
 INFO_OPTS
 INFO_EXT
@@ -1969,6 +1980,7 @@ PAXCTL
 GZIP_PROG
 INSTALL_INFO
 LN_S_FILEONLY
+LT_SYS_LIBRARY_PATH
 OTOOL64
 OTOOL
 LIPO
@@ -1994,6 +2006,7 @@ WARN_LDFLAGS
 acl_cv_wl
 WERROR_CFLAGS
 WARN_CFLAGS
+old_LDFLAGS
 GETCONF_PROG
 GDB_BIN
 RANLIB
@@ -2231,6 +2244,7 @@ CXXCPP
 OBJC
 OBJCFLAGS
 OBJCPP
+LT_SYS_LIBRARY_PATH
 CANNOT_DUMP
 PKG_CONFIG
 PKG_CONFIG_PATH
@@ -3023,6 +3037,8 @@ Some influential environment variables:
   OBJC        Objective C compiler command
   OBJCFLAGS   Objective C compiler flags
   OBJCPP      Objective C preprocessor
+  LT_SYS_LIBRARY_PATH
+              User-defined run-time library search path.
   CANNOT_DUMP Set to "yes" to disable the dump-emacs function.
   PKG_CONFIG  path to pkg-config utility
   PKG_CONFIG_PATH
@@ -4671,9 +4687,12 @@ as_fn_append ac_func_list " getdelim"
 as_fn_append ac_func_list " pthread_sigmask"
 as_fn_append ac_func_list " tzalloc"
 gt_needs="$gt_needs "
+as_fn_append ac_func_list " canonicalize_file_name"
+as_fn_append ac_func_list " getcwd"
+as_fn_append ac_func_list " readlink"
+as_fn_append ac_func_list " realpath"
 as_fn_append ac_func_list " readlinkat"
 as_fn_append ac_header_list " dirent.h"
-as_fn_append ac_func_list " getdtablesize"
 as_fn_append ac_func_list " dup2"
 as_fn_append ac_func_list " faccessat"
 as_fn_append ac_func_list " fcntl"
@@ -4683,6 +4702,9 @@ as_fn_append ac_func_list " _set_invalid_parameter_handler"
 as_fn_append ac_header_list " sys/stat.h"
 as_fn_append ac_func_list " fstatat"
 as_fn_append ac_func_list " fsync"
+as_fn_append ac_func_list " strtof"
+as_fn_append ac_func_list " ftruncate"
+as_fn_append ac_func_list " getdtablesize"
 as_fn_append ac_func_list " getlogin"
 gl_getopt_required=GNU
 as_fn_append ac_header_list " getopt.h"
@@ -4701,11 +4723,11 @@ gl_printf_safe=yes
 as_fn_append ac_header_list " sys/select.h"
 as_fn_append ac_func_list " pselect"
 as_fn_append ac_func_list " fchmod"
-as_fn_append ac_func_list " readlink"
 as_fn_append ac_func_list " link"
 as_fn_append ac_func_list " secure_getenv"
 as_fn_append ac_func_list " sleep"
 as_fn_append ac_header_list " spawn.h"
+as_fn_append ac_header_list " strings.h"
 as_fn_append ac_func_list " strtoimax"
 as_fn_append ac_func_list " strtoumax"
 as_fn_append ac_func_list " symlink"
@@ -4720,9 +4742,6 @@ as_fn_append ac_func_list " lutimes"
 as_fn_append ac_func_list " mquery"
 as_fn_append ac_func_list " iswcntrl"
 as_fn_append ac_header_list " wctype.h"
-as_fn_append ac_func_list " canonicalize_file_name"
-as_fn_append ac_func_list " getcwd"
-as_fn_append ac_func_list " realpath"
 # Check that the precious variables saved in the cache have kept the same
 # value.
 ac_cache_corrupted=false
@@ -5134,7 +5153,7 @@ $as_echo_n "checking automake things... " >&6; }
 { $as_echo "$as_me:${as_lineno-$LINENO}: result:  " >&5
 $as_echo " " >&6; }
 unset am_cv_make_support_nested_variables
-am__api_version='1.14'
+am__api_version='1.15'
 
 # Find a good install program.  We prefer a C program (faster),
 # so one script is as good as another.  But avoid the broken or
@@ -5306,8 +5325,8 @@ test "$program_suffix" != NONE &&
 ac_script='s/[\\$]/&&/g;s/;s,x,x,$//'
 program_transform_name=`$as_echo "$program_transform_name" | sed "$ac_script"`
 
-# expand $ac_aux_dir to an absolute path
-am_aux_dir=`cd $ac_aux_dir && pwd`
+# Expand $ac_aux_dir to an absolute path.
+am_aux_dir=`cd "$ac_aux_dir" && pwd`
 
 if test x"${MISSING+set}" != xset; then
   case $am_aux_dir in
@@ -5326,7 +5345,7 @@ else
 $as_echo "$as_me: WARNING: 'missing' script is too old or missing" >&2;}
 fi
 
-if test x"${install_sh}" != xset; then
+if test x"${install_sh+set}" != xset; then
   case $am_aux_dir in
   *\ * | *\	*)
     install_sh="\${SHELL} '$am_aux_dir/install-sh'" ;;
@@ -5654,8 +5673,8 @@ MAKEINFO=${MAKEINFO-"${am_missing_run}makeinfo"}
 # <http://lists.gnu.org/archive/html/automake/2012-07/msg00014.html>
 mkdir_p='$(MKDIR_P)'
 
-# We need awk for the "check" target.  The system "awk" is bad on
-# some platforms.
+# We need awk for the "check" target (and possibly the TAP driver).  The
+# system "awk" is bad on some platforms.
 # Always define AMTAR for backward compatibility.  Yes, it's still used
 # in the wild :-(  We should find a proper way to deprecate it ...
 AMTAR='$${TAR-tar}'
@@ -5797,6 +5816,7 @@ END
     as_fn_error $? "Your 'rm' program is bad, sorry." "$LINENO" 5
   fi
 fi
+
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable maintainer-specific portions of Makefiles" >&5
 $as_echo_n "checking whether to enable maintainer-specific portions of Makefiles... " >&6; }
@@ -6366,8 +6386,8 @@ else
   #  which is non-obvious for non-emacs users.
   # Redirecting /dev/null should help a bit; pity we can't detect "broken"
   #  emacsen earlier and avoid running this altogether.
-  { { $as_echo "$as_me:${as_lineno-$LINENO}: \$EMACS -batch -q -eval '(while load-path (princ (concat (car load-path) \"\\n\")) (setq load-path (cdr load-path)))' </dev/null >conftest.out"; } >&5
-  ($EMACS -batch -q -eval '(while load-path (princ (concat (car load-path) "\n")) (setq load-path (cdr load-path)))' </dev/null >conftest.out) 2>&5
+  { { $as_echo "$as_me:${as_lineno-$LINENO}: \$EMACS -batch -Q -eval '(while load-path (princ (concat (car load-path) \"\\n\")) (setq load-path (cdr load-path)))' </dev/null >conftest.out"; } >&5
+  ($EMACS -batch -Q -eval '(while load-path (princ (concat (car load-path) "\n")) (setq load-path (cdr load-path)))' </dev/null >conftest.out) 2>&5
   ac_status=$?
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }
@@ -12216,6 +12236,8 @@ fi
   # Code from module assert-h:
   # Code from module assure:
   # Code from module at-internal:
+  # Code from module atan:
+  # Code from module atan2:
   # Code from module autobuild:
 
 
@@ -12250,6 +12272,7 @@ $as_echo "$as_me: autobuild hostname... $hostname" >&6;}
 $as_echo "$as_me: autobuild timestamp... $date" >&6;}
   fi
 
+  # Code from module bcopy:
   # Code from module binary-io:
   # Code from module byteswap:
   # Code from module c-ctype:
@@ -12269,6 +12292,7 @@ $as_echo "$as_me: autobuild timestamp... $date" >&6;}
   # Code from module crypto/sha256:
   # Code from module crypto/sha512:
   # Code from module dirent:
+  # Code from module dirfd:
   # Code from module dirname-lgpl:
   # Code from module dosname:
   # Code from module double-slash-root:
@@ -12290,6 +12314,7 @@ $as_echo "$as_me: autobuild timestamp... $date" >&6;}
   # Code from module fcntl-h:
   # Code from module fdatasync:
   # Code from module fdopendir:
+  # Code from module file-has-acl:
   # Code from module filemode:
   # Code from module float:
   # Code from module fopen:
@@ -12303,6 +12328,11 @@ $as_echo "$as_me: autobuild timestamp... $date" >&6;}
   # Code from module fstat:
   # Code from module fstatat:
   # Code from module fsync:
+  # Code from module ftell:
+  # Code from module ftello:
+
+  # Code from module ftoastr:
+  # Code from module ftruncate:
   # Code from module func:
   # Code from module gendocs:
   # Code from module getdelim:
@@ -12414,6 +12444,7 @@ $as_echo "$as_me: autobuild timestamp... $date" >&6;}
   # Code from module strerror-override:
   # Code from module strftime:
   # Code from module string:
+  # Code from module strings:
   # Code from module strstr:
   # Code from module strstr-simple:
   # Code from module strtoimax:
@@ -13048,6 +13079,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_ld_lto_supported" >&5
 $as_echo "$ac_cv_ld_lto_supported" >&6; }        ## reset:
         LDFLAGS="${old_LDFLAGS}"
+
      else
         { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: link-time optimization requested, but it currently requires a GCC-compatible compiler, which we do not have" >&5
 $as_echo "$as_me: WARNING: link-time optimization requested, but it currently requires a GCC-compatible compiler, which we do not have" >&2;}
@@ -13544,6 +13576,7 @@ fi
 
        if test "x${ac_cv_c_const}" = "xno" || test "x${ac_cv_c_const}" != "xyes"; then
          test -n "${ac_cv_c_const}"
+         nw="${nw} -Wsuggest-attribute=const"
          nw="${nw} -Wwrite-strings"
          ##FIXME: this used to be done unconditionally; adding the
          ## condition seems to have introduced new warnings...
@@ -13636,6 +13669,9 @@ fi
   # Emacs's use of partly-pure functions such as CHECK_TYPE make this
   # option problematic.
   nw="${nw} -Wsuggest-attribute=pure"
+
+  # This one is handled manually later:
+  nw="${nw} -Wodr"
 
   # This part is merely for shortening the command line,
   # since -Wno-FOO needs to be added below regardless.
@@ -13835,12 +13871,13 @@ $as_echo "$gl_cv_cc_uninitialized_supported" >&6; }
     -Waddress \
     -Waggressive-loop-optimizations \
     -Wall \
-    -Warray-bounds \
     -Wattributes \
     -Wbad-function-cast \
+    -Wbool-compare \
     -Wbuiltin-macro-redefined \
     -Wcast-align \
     -Wchar-subscripts \
+    -Wchkp \
     -Wclobbered \
     -Wcomment \
     -Wcomments \
@@ -13849,7 +13886,10 @@ $as_echo "$gl_cv_cc_uninitialized_supported" >&6; }
     -Wdate-time \
     -Wdeprecated \
     -Wdeprecated-declarations \
+    -Wdesignated-init \
     -Wdisabled-optimization \
+    -Wdiscarded-array-qualifiers \
+    -Wdiscarded-qualifiers \
     -Wdiv-by-zero \
     -Wdouble-promotion \
     -Wempty-body \
@@ -13860,6 +13900,7 @@ $as_echo "$gl_cv_cc_uninitialized_supported" >&6; }
     -Wformat-extra-args \
     -Wformat-nonliteral \
     -Wformat-security \
+    -Wformat-signedness \
     -Wformat-y2k \
     -Wformat-zero-length \
     -Wfree-nonheap-object \
@@ -13867,15 +13908,19 @@ $as_echo "$gl_cv_cc_uninitialized_supported" >&6; }
     -Wimplicit \
     -Wimplicit-function-declaration \
     -Wimplicit-int \
+    -Wincompatible-pointer-types \
     -Winit-self \
     -Winline \
+    -Wint-conversion \
     -Wint-to-pointer-cast \
     -Winvalid-memory-model \
     -Winvalid-pch \
     -Wjump-misses-init \
+    -Wlogical-not-parentheses \
     -Wlogical-op \
     -Wmain \
     -Wmaybe-uninitialized \
+    -Wmemset-transposed-args \
     -Wmissing-braces \
     -Wmissing-declarations \
     -Wmissing-field-initializers \
@@ -13886,6 +13931,7 @@ $as_echo "$gl_cv_cc_uninitialized_supported" >&6; }
     -Wnarrowing \
     -Wnested-externs \
     -Wnonnull \
+    -Wodr \
     -Wold-style-declaration \
     -Wold-style-definition \
     -Wopenmp-simd \
@@ -13903,6 +13949,9 @@ $as_echo "$gl_cv_cc_uninitialized_supported" >&6; }
     -Wreturn-type \
     -Wsequence-point \
     -Wshadow \
+    -Wshift-count-negative \
+    -Wshift-count-overflow \
+    -Wsizeof-array-argument \
     -Wsizeof-pointer-memaccess \
     -Wstack-protector \
     -Wstrict-aliasing \
@@ -13912,7 +13961,10 @@ $as_echo "$gl_cv_cc_uninitialized_supported" >&6; }
     -Wsuggest-attribute=format \
     -Wsuggest-attribute=noreturn \
     -Wsuggest-attribute=pure \
+    -Wsuggest-final-methods \
+    -Wsuggest-final-types \
     -Wswitch \
+    -Wswitch-bool \
     -Wswitch-default \
     -Wsync-nand \
     -Wsystem-headers \
@@ -13944,8 +13996,9 @@ $as_echo "$gl_cv_cc_uninitialized_supported" >&6; }
     gl_manywarn_set="$gl_manywarn_set $gl_manywarn_item"
   done
 
-  # gcc --help=warnings outputs an unusual form for this option; list
-  # it here so that the above 'comm' command doesn't report a false match.
+  # gcc --help=warnings outputs an unusual form for these options; list
+  # them here so that the above 'comm' command doesn't report a false match.
+  gl_manywarn_set="$gl_manywarn_set -Warray-bounds=2"
   gl_manywarn_set="$gl_manywarn_set -Wnormalized=nfc"
 
   # These are needed for older GCC versions.
@@ -16775,43 +16828,6 @@ _ACEOF
 if ac_fn_c_try_cpp "$LINENO"; then :
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wbool-compare" >&5
-$as_echo_n "checking whether C compiler handles -Wbool-compare... " >&6; }
-if ${gl_cv_warn_c__Wbool_compare+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-
-  gl_save_compiler_FLAGS="$CFLAGS"
-  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wbool-compare"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  gl_cv_warn_c__Wbool_compare=yes
-else
-  gl_cv_warn_c__Wbool_compare=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  CFLAGS="$gl_save_compiler_FLAGS"
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wbool_compare" >&5
-$as_echo "$gl_cv_warn_c__Wbool_compare" >&6; }
-if test "x$gl_cv_warn_c__Wbool_compare" = xyes; then :
-  as_fn_append WARN_CFLAGS " -Wbool-compare"
-fi
-
-
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wc90-c99-compat" >&5
 $as_echo_n "checking whether C compiler handles -Wc90-c99-compat... " >&6; }
 if ${gl_cv_warn_c__Wc90_c99_compat+:} false; then :
@@ -16885,192 +16901,7 @@ if test "x$gl_cv_warn_c__Wc99_c11_compat" = xyes; then :
 fi
 
 
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wlogical-not-parentheses" >&5
-$as_echo_n "checking whether C compiler handles -Wlogical-not-parentheses... " >&6; }
-if ${gl_cv_warn_c__Wlogical_not_parentheses+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-
-  gl_save_compiler_FLAGS="$CFLAGS"
-  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wlogical-not-parentheses"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  gl_cv_warn_c__Wlogical_not_parentheses=yes
-else
-  gl_cv_warn_c__Wlogical_not_parentheses=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  CFLAGS="$gl_save_compiler_FLAGS"
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wlogical_not_parentheses" >&5
-$as_echo "$gl_cv_warn_c__Wlogical_not_parentheses" >&6; }
-if test "x$gl_cv_warn_c__Wlogical_not_parentheses" = xyes; then :
-  as_fn_append WARN_CFLAGS " -Wlogical-not-parentheses"
-fi
-
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wsizeof-array-argument" >&5
-$as_echo_n "checking whether C compiler handles -Wsizeof-array-argument... " >&6; }
-if ${gl_cv_warn_c__Wsizeof_array_argument+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-
-  gl_save_compiler_FLAGS="$CFLAGS"
-  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wsizeof-array-argument"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  gl_cv_warn_c__Wsizeof_array_argument=yes
-else
-  gl_cv_warn_c__Wsizeof_array_argument=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  CFLAGS="$gl_save_compiler_FLAGS"
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wsizeof_array_argument" >&5
-$as_echo "$gl_cv_warn_c__Wsizeof_array_argument" >&6; }
-if test "x$gl_cv_warn_c__Wsizeof_array_argument" = xyes; then :
-  as_fn_append WARN_CFLAGS " -Wsizeof-array-argument"
-fi
-
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wswitch-bool" >&5
-$as_echo_n "checking whether C compiler handles -Wswitch-bool... " >&6; }
-if ${gl_cv_warn_c__Wswitch_bool+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-
-  gl_save_compiler_FLAGS="$CFLAGS"
-  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wswitch-bool"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  gl_cv_warn_c__Wswitch_bool=yes
-else
-  gl_cv_warn_c__Wswitch_bool=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  CFLAGS="$gl_save_compiler_FLAGS"
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wswitch_bool" >&5
-$as_echo "$gl_cv_warn_c__Wswitch_bool" >&6; }
-if test "x$gl_cv_warn_c__Wswitch_bool" = xyes; then :
-  as_fn_append WARN_CFLAGS " -Wswitch-bool"
-fi
-
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wshift-count-negative" >&5
-$as_echo_n "checking whether C compiler handles -Wshift-count-negative... " >&6; }
-if ${gl_cv_warn_c__Wshift_count_negative+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-
-  gl_save_compiler_FLAGS="$CFLAGS"
-  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wshift-count-negative"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  gl_cv_warn_c__Wshift_count_negative=yes
-else
-  gl_cv_warn_c__Wshift_count_negative=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  CFLAGS="$gl_save_compiler_FLAGS"
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wshift_count_negative" >&5
-$as_echo "$gl_cv_warn_c__Wshift_count_negative" >&6; }
-if test "x$gl_cv_warn_c__Wshift_count_negative" = xyes; then :
-  as_fn_append WARN_CFLAGS " -Wshift-count-negative"
-fi
-
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wshift-count-overflow" >&5
-$as_echo_n "checking whether C compiler handles -Wshift-count-overflow... " >&6; }
-if ${gl_cv_warn_c__Wshift_count_overflow+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-
-  gl_save_compiler_FLAGS="$CFLAGS"
-  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wshift-count-overflow"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  gl_cv_warn_c__Wshift_count_overflow=yes
-else
-  gl_cv_warn_c__Wshift_count_overflow=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  CFLAGS="$gl_save_compiler_FLAGS"
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wshift_count_overflow" >&5
-$as_echo "$gl_cv_warn_c__Wshift_count_overflow" >&6; }
-if test "x$gl_cv_warn_c__Wshift_count_overflow" = xyes; then :
-  as_fn_append WARN_CFLAGS " -Wshift-count-overflow"
-fi
-
-
-      if test "x${PRINT_CONVERSION_WARNINGS}" = "xyes"; then
+            if test "x${PRINT_CONVERSION_WARNINGS}" = "xyes"; then
         test -n "${PRINT_CONVERSION_WARNINGS}"
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wbitfield-conversion" >&5
@@ -17190,6 +17021,7 @@ $as_echo "#define GNULIB_PORTCHECK 1" >>confdefs.h
   # We use a slightly smaller set of warning options for lib/.
   # Remove the following and save the result in GNULIB_WARN_CFLAGS.
   nw=""
+  nw="${nw} -Wdouble-promotion"                     # warnings in ftoastr.c
   nw="${nw} -Wfloat-equal"                    # borderline, and hard to fix
   nw="${nw} -Wredundant-decls"                            # prints too many
   nw="${nw} -Wunsuffixed-float-constants"                             # meh
@@ -17629,8 +17461,8 @@ esac
 
 
 
-macro_version='2.4.4'
-macro_revision='2.4.4'
+macro_version='2.4.6'
+macro_revision='2.4.6'
 
 
 
@@ -19784,6 +19616,21 @@ $as_echo "$lt_cv_truncate_bin" >&6; }
 
 
 
+
+# Calculate cc_basename.  Skip known compiler wrappers and cross-prefix.
+func_cc_basename ()
+{
+    for cc_temp in $*""; do
+      case $cc_temp in
+        compile | *[\\/]compile | ccache | *[\\/]ccache ) ;;
+        distcc | *[\\/]distcc | purify | *[\\/]purify ) ;;
+        \-*) ;;
+        *) break;;
+      esac
+    done
+    func_cc_basename_result=`$ECHO "$cc_temp" | $SED "s%.*/%%; s%^$host_alias-%%"`
+}
+
 # Check whether --enable-libtool-lock was given.
 if test "${enable_libtool_lock+set}" = set; then :
   enableval=$enable_libtool_lock;
@@ -20791,6 +20638,41 @@ $as_echo "$lt_cv_ld_force_load" >&6; }
     ;;
   esac
 
+# func_munge_path_list VARIABLE PATH
+# -----------------------------------
+# VARIABLE is name of variable containing _space_ separated list of
+# directories to be munged by the contents of PATH, which is string
+# having a format:
+# "DIR[:DIR]:"
+#       string "DIR[ DIR]" will be prepended to VARIABLE
+# ":DIR[:DIR]"
+#       string "DIR[ DIR]" will be appended to VARIABLE
+# "DIRP[:DIRP]::[DIRA:]DIRA"
+#       string "DIRP[ DIRP]" will be prepended to VARIABLE and string
+#       "DIRA[ DIRA]" will be appended to VARIABLE
+# "DIR[:DIR]"
+#       VARIABLE will be replaced by "DIR[ DIR]"
+func_munge_path_list ()
+{
+    case x$2 in
+    x)
+        ;;
+    *:)
+        eval $1=\"`$ECHO $2 | $SED 's/:/ /g'` \$$1\"
+        ;;
+    x:*)
+        eval $1=\"\$$1 `$ECHO $2 | $SED 's/:/ /g'`\"
+        ;;
+    *::*)
+        eval $1=\"\$$1\ `$ECHO $2 | $SED -e 's/.*:://' -e 's/:/ /g'`\"
+        eval $1=\"`$ECHO $2 | $SED -e 's/::.*//' -e 's/:/ /g'`\ \$$1\"
+        ;;
+    *)
+        eval $1=\"`$ECHO $2 | $SED 's/:/ /g'`\"
+        ;;
+    esac
+}
+
 for ac_header in dlfcn.h
 do :
   ac_fn_c_check_header_compile "$LINENO" "dlfcn.h" "ac_cv_header_dlfcn_h" "$ac_includes_default
@@ -21120,15 +21002,8 @@ test -z "$LTCFLAGS" && LTCFLAGS=$CFLAGS
 test -z "$LD" && LD=ld
 test -z "$ac_objext" && ac_objext=o
 
-for cc_temp in $compiler""; do
-  case $cc_temp in
-    compile | *[\\/]compile | ccache | *[\\/]ccache ) ;;
-    distcc | *[\\/]distcc | purify | *[\\/]purify ) ;;
-    \-*) ;;
-    *) break;;
-  esac
-done
-cc_basename=`$ECHO "$cc_temp" | $SED "s%.*/%%; s%^$host_alias-%%"`
+func_cc_basename $compiler
+cc_basename=$func_cc_basename_result
 
 
 # Only perform the check for file, if the check method requires it
@@ -23587,6 +23462,8 @@ hardcode_into_libs=no
 # flags to be left without arguments
 need_version=unknown
 
+
+
 case $host_os in
 aix3*)
   version_type=linux # correct to gnu/linux during the next big refactor
@@ -23875,6 +23752,7 @@ freebsd* | dragonfly*)
   case $version_type in
     freebsd-elf*)
       library_names_spec='$libname$release$shared_ext$versuffix $libname$release$shared_ext$major $libname$shared_ext'
+      soname_spec='$libname$release$shared_ext$major'
       need_version=no
       need_lib_prefix=no
       ;;
@@ -23934,10 +23812,11 @@ hpux9* | hpux10* | hpux11*)
     soname_spec='$libname$release$shared_ext$major'
     if test 32 = "$HPUX_IA64_MODE"; then
       sys_lib_search_path_spec="/usr/lib/hpux32 /usr/local/lib/hpux32 /usr/local/lib"
+      sys_lib_dlsearch_path_spec=/usr/lib/hpux32
     else
       sys_lib_search_path_spec="/usr/lib/hpux64 /usr/local/lib/hpux64"
+      sys_lib_dlsearch_path_spec=/usr/lib/hpux64
     fi
-    sys_lib_dlsearch_path_spec=$sys_lib_search_path_spec
     ;;
   hppa*64*)
     shrext_cmds='.sl'
@@ -24089,7 +23968,12 @@ fi
   # before this can be enabled.
   hardcode_into_libs=yes
 
-  # Append ld.so.conf contents to the search path
+  # Ideally, we could use ldconfig to report *all* directores which are
+  # searched for libraries, however this is still not possible.  Aside from not
+  # being certain /sbin/ldconfig is available, command
+  # 'ldconfig -N -X -v | grep ^/' on 64bit Fedora does not report /usr/lib64,
+  # even though it is searched at run-time.  Try to do the best guess by
+  # appending ld.so.conf contents (and includes) to the search path.
   if test -f /etc/ld.so.conf; then
     lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s 2>/dev/null", \$2)); skip = 1; } { if (!skip) print \$0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;/^[	 ]*hwcap[	 ]/d;s/[:,	]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;s/"//g;/^$/d' | tr '\n' ' '`
     sys_lib_dlsearch_path_spec="/lib /usr/lib $lt_ld_extra"
@@ -24314,9 +24198,24 @@ fi
 if test set = "${lt_cv_sys_lib_search_path_spec+set}"; then
   sys_lib_search_path_spec=$lt_cv_sys_lib_search_path_spec
 fi
+
 if test set = "${lt_cv_sys_lib_dlsearch_path_spec+set}"; then
   sys_lib_dlsearch_path_spec=$lt_cv_sys_lib_dlsearch_path_spec
 fi
+
+# remember unaugmented sys_lib_dlsearch_path content for libtool script decls...
+configure_time_dlsearch_path=$sys_lib_dlsearch_path_spec
+
+# ... but it needs LT_SYS_LIBRARY_PATH munging for other configure-time code
+func_munge_path_list sys_lib_dlsearch_path_spec "$LT_SYS_LIBRARY_PATH"
+
+# to be used as default LT_SYS_LIBRARY_PATH value in generated libtool
+configure_time_lt_sys_library_path=$LT_SYS_LIBRARY_PATH
+
+
+
+
+
 
 
 
@@ -25316,15 +25215,8 @@ $RM -r conftest*
   CFLAGS=$CXXFLAGS
   compiler=$CC
   compiler_CXX=$CC
-  for cc_temp in $compiler""; do
-  case $cc_temp in
-    compile | *[\\/]compile | ccache | *[\\/]ccache ) ;;
-    distcc | *[\\/]distcc | purify | *[\\/]purify ) ;;
-    \-*) ;;
-    *) break;;
-  esac
-done
-cc_basename=`$ECHO "$cc_temp" | $SED "s%.*/%%; s%^$host_alias-%%"`
+  func_cc_basename $compiler
+cc_basename=$func_cc_basename_result
 
 
   if test -n "$compiler"; then
@@ -26711,51 +26603,6 @@ interix[3-9]*)
   postdep_objects_CXX=
   postdeps_CXX=
   ;;
-
-linux*)
-  case `$CC -V 2>&1 | sed 5q` in
-  *Sun\ C*)
-    # Sun C++ 5.9
-
-    # The more standards-conforming stlport4 library is
-    # incompatible with the Cstd library. Avoid specifying
-    # it if it's in CXXFLAGS. Ignore libCrun as
-    # -library=stlport4 depends on it.
-    case " $CXX $CXXFLAGS " in
-    *" -library=stlport4 "*)
-      solaris_use_stlport4=yes
-      ;;
-    esac
-
-    if test yes != "$solaris_use_stlport4"; then
-      postdeps_CXX='-library=Cstd -library=Crun'
-    fi
-    ;;
-  esac
-  ;;
-
-solaris*)
-  case $cc_basename in
-  CC* | sunCC*)
-    # The more standards-conforming stlport4 library is
-    # incompatible with the Cstd library. Avoid specifying
-    # it if it's in CXXFLAGS. Ignore libCrun as
-    # -library=stlport4 depends on it.
-    case " $CXX $CXXFLAGS " in
-    *" -library=stlport4 "*)
-      solaris_use_stlport4=yes
-      ;;
-    esac
-
-    # Adding this requires a known-good setup of shared libraries for
-    # Sun compiler versions before 5.6, else PIC objects from an old
-    # archive will be linked into the output, leading to subtle bugs.
-    if test yes != "$solaris_use_stlport4"; then
-      postdeps_CXX='-library=Cstd -library=Crun'
-    fi
-    ;;
-  esac
-  ;;
 esac
 
 
@@ -27579,6 +27426,8 @@ hardcode_into_libs=no
 # flags to be left without arguments
 need_version=unknown
 
+
+
 case $host_os in
 aix3*)
   version_type=linux # correct to gnu/linux during the next big refactor
@@ -27865,6 +27714,7 @@ freebsd* | dragonfly*)
   case $version_type in
     freebsd-elf*)
       library_names_spec='$libname$release$shared_ext$versuffix $libname$release$shared_ext$major $libname$shared_ext'
+      soname_spec='$libname$release$shared_ext$major'
       need_version=no
       need_lib_prefix=no
       ;;
@@ -27924,10 +27774,11 @@ hpux9* | hpux10* | hpux11*)
     soname_spec='$libname$release$shared_ext$major'
     if test 32 = "$HPUX_IA64_MODE"; then
       sys_lib_search_path_spec="/usr/lib/hpux32 /usr/local/lib/hpux32 /usr/local/lib"
+      sys_lib_dlsearch_path_spec=/usr/lib/hpux32
     else
       sys_lib_search_path_spec="/usr/lib/hpux64 /usr/local/lib/hpux64"
+      sys_lib_dlsearch_path_spec=/usr/lib/hpux64
     fi
-    sys_lib_dlsearch_path_spec=$sys_lib_search_path_spec
     ;;
   hppa*64*)
     shrext_cmds='.sl'
@@ -28079,7 +27930,12 @@ fi
   # before this can be enabled.
   hardcode_into_libs=yes
 
-  # Append ld.so.conf contents to the search path
+  # Ideally, we could use ldconfig to report *all* directores which are
+  # searched for libraries, however this is still not possible.  Aside from not
+  # being certain /sbin/ldconfig is available, command
+  # 'ldconfig -N -X -v | grep ^/' on 64bit Fedora does not report /usr/lib64,
+  # even though it is searched at run-time.  Try to do the best guess by
+  # appending ld.so.conf contents (and includes) to the search path.
   if test -f /etc/ld.so.conf; then
     lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s 2>/dev/null", \$2)); skip = 1; } { if (!skip) print \$0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;/^[	 ]*hwcap[	 ]/d;s/[:,	]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;s/"//g;/^$/d' | tr '\n' ' '`
     sys_lib_dlsearch_path_spec="/lib /usr/lib $lt_ld_extra"
@@ -28304,9 +28160,21 @@ fi
 if test set = "${lt_cv_sys_lib_search_path_spec+set}"; then
   sys_lib_search_path_spec=$lt_cv_sys_lib_search_path_spec
 fi
+
 if test set = "${lt_cv_sys_lib_dlsearch_path_spec+set}"; then
   sys_lib_dlsearch_path_spec=$lt_cv_sys_lib_dlsearch_path_spec
 fi
+
+# remember unaugmented sys_lib_dlsearch_path content for libtool script decls...
+configure_time_dlsearch_path=$sys_lib_dlsearch_path_spec
+
+# ... but it needs LT_SYS_LIBRARY_PATH munging for other configure-time code
+func_munge_path_list sys_lib_dlsearch_path_spec "$LT_SYS_LIBRARY_PATH"
+
+# to be used as default LT_SYS_LIBRARY_PATH value in generated libtool
+configure_time_lt_sys_library_path=$LT_SYS_LIBRARY_PATH
+
+
 
 
 
@@ -29011,7 +28879,13 @@ case "${opsys}" in
   unixware) LIBS_SYSTEM="-lsocket -lnsl -lelf -lgen" ;;
 
   darwin)
-    if test -e /usr/lib/libintl.dylib || test -e "${prefix}/lib/libintl.dylib"; then
+    if test "x${INTLLIBS}" != "x"; then
+      echo "Trying to add INTLLIBS to LIBS_SYSTEM here for darwin"
+      test -n "${INTLLIBS}" && LIBS_SYSTEM="${INTLLIBS}"
+    elif test "x${LIBINTL}" != "x"; then
+      echo "Trying to add LIBINTL to LIBS_SYSTEM here for darwin"
+      test -n "${LIBINTL}" && LIBS_SYSTEM="${LIBINTL}"
+    elif test -e /usr/lib/libintl.dylib || test -e "${prefix}/lib/libintl.dylib"; then
       echo "adding '-lintl' to LIBS_SYSTEM here for darwin"
       LIBS_SYSTEM="-lintl"
     elif test -e /usr/lib/libSystem.dylib; then
@@ -32239,6 +32113,7 @@ $as_echo "$gl_cv_sys_struct_timespec_in_time_h" >&6; }
   TIME_H_DEFINES_STRUCT_TIMESPEC=0
   SYS_TIME_H_DEFINES_STRUCT_TIMESPEC=0
   PTHREAD_H_DEFINES_STRUCT_TIMESPEC=0
+  UNISTD_H_DEFINES_STRUCT_TIMESPEC=0
   if test $gl_cv_sys_struct_timespec_in_time_h = yes; then
     TIME_H_DEFINES_STRUCT_TIMESPEC=1
   else
@@ -32299,9 +32174,40 @@ fi
 $as_echo "$gl_cv_sys_struct_timespec_in_pthread_h" >&6; }
       if test $gl_cv_sys_struct_timespec_in_pthread_h = yes; then
         PTHREAD_H_DEFINES_STRUCT_TIMESPEC=1
+      else
+        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for struct timespec in <unistd.h>" >&5
+$as_echo_n "checking for struct timespec in <unistd.h>... " >&6; }
+if ${gl_cv_sys_struct_timespec_in_unistd_h+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <unistd.h>
+
+int
+main ()
+{
+static struct timespec x; x.tv_sec = x.tv_nsec;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  gl_cv_sys_struct_timespec_in_unistd_h=yes
+else
+  gl_cv_sys_struct_timespec_in_unistd_h=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_sys_struct_timespec_in_unistd_h" >&5
+$as_echo "$gl_cv_sys_struct_timespec_in_unistd_h" >&6; }
+        if test $gl_cv_sys_struct_timespec_in_unistd_h = yes; then
+          UNISTD_H_DEFINES_STRUCT_TIMESPEC=1
+        fi
       fi
     fi
   fi
+
 
 
 
@@ -35030,10 +34936,11 @@ fi
 
   for ac_header in CarbonCore/Files.h CarbonCore/MacTypes.h \
                     CarbonCore/Script.h CarbonCore/TextUtils.h \
-                    HIToolbox/Controls.h HIToolbox/Drag.h \
-                    HIToolbox/Events.h HIToolbox/HIProgressViews.h \
-                    HIToolbox/MacWindows.h MacTypes.h \
-                    NavigationServices/Navigation.h QD/QuickdrawAPI.h
+                    HIToolbox/CarbonEvents.h HIToolbox/Controls.h \
+                    HIToolbox/Drag.h HIToolbox/Events.h \
+                    HIToolbox/HIProgressViews.h HIToolbox/MacWindows.h \
+                    MacTypes.h NavigationServices/Navigation.h \
+                    QD/QuickdrawAPI.h QD/QDOffscreen.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -35121,13 +35028,14 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $emacs_cv_carbon_sixtyfourbit" >&5
 $as_echo "$emacs_cv_carbon_sixtyfourbit" >&6; }
       LDFLAGS="${NON_CARBON_LDFLAGS}"
-      ##FIXME: see also if it is possible to force 32-bit compilation,
+            ##FIXME: see also if it is possible to force 32-bit compilation,
       ## if the above fails (which it should)...
     ;;
   esac
 fi
 
 HAVE_NS="no"
+NS_GNUSTEP_CONFIG="no"
 NS_IMPL=""
 NS_IMPL_COCOA="no"
 NS_IMPL_GNUSTEP="no"
@@ -35422,6 +35330,11 @@ $as_echo "$as_me: WARNING: the Objective C sources are better-tested with cblock
 $as_echo "#define HAVE_CBLOCKS_LANGUAGE_FEATURE 1" >>confdefs.h
 
      fi
+  elif flags=$( (gnustep-config --objc-flags) 2>/dev/null); then
+     NS_IMPL_GNUSTEP=yes
+     NS_GNUSTEP_CONFIG=yes
+     GNU_OBJC_CFLAGS="${flags}"
+     LIBS_GNUSTEP=$(gnustep-config --gui-libs) || exit
   elif test -f ${GNUSTEP_CONFIG_FILE}; then
      NS_IMPL=GNUstep
      NS_IMPL_GNUSTEP=yes
@@ -35491,6 +35404,13 @@ $as_echo "#define _NATIVE_OBJC_EXCEPTIONS 1" >>confdefs.h
 
        GNU_OBJC_CFLAGS="-fobjc-exceptions"
      fi
+  fi
+  if test "x${NS_IMPL_GNUSTEP}" = "xyes"; then
+     ns_appdir=`pwd`/nextstep/Emacs.app
+     ns_appbindir="${ns_appdir}"
+     ns_appresdir="${ns_appdir}/Resources"
+     ns_appsrc=GNUstep/Emacs.base
+     ns_fontfile=nsfont.o
   fi
 
   if test "x${gl_gcc_warnings}" = "xyes" && test "x${WERROR_CFLAGS}" = "x"; then
@@ -35647,6 +35567,68 @@ if test "x$gl_cv_warn_objc__Wprotocol" = xyes; then :
 fi
 
 
+
+
+      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#if (5) < __GNUC__ || ((5) == __GNUC__ && (0) <= __GNUC_MINOR__)
+/* ok */
+#else
+# error "your version of gcc is older than 5.0"
+#endif /* GCC version check */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+},
+
+_ACEOF
+if ac_fn_objc_try_cpp "$LINENO"; then :
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether Objective C compiler handles -Wshadow-ivar" >&5
+$as_echo_n "checking whether Objective C compiler handles -Wshadow-ivar... " >&6; }
+if ${gl_cv_warn_objc__Wshadow_ivar+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$OBJCFLAGS"
+  as_fn_append OBJCFLAGS " $gl_unknown_warnings_are_errors -Wshadow-ivar"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_objc_try_link "$LINENO"; then :
+  gl_cv_warn_objc__Wshadow_ivar=yes
+else
+  gl_cv_warn_objc__Wshadow_ivar=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  OBJCFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_objc__Wshadow_ivar" >&5
+$as_echo "$gl_cv_warn_objc__Wshadow_ivar" >&6; }
+if test "x$gl_cv_warn_objc__Wshadow_ivar" = xyes; then :
+  as_fn_append GNU_OBJC_WARN_CFLAGS " -Wshadow-ivar"
+fi
+
+
+
+fi
+rm -f conftest.err conftest.i conftest.$ac_ext
     ## these two selector-related warnings can be overly noisy:
     if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
       test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
@@ -35857,7 +35839,8 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
       GNU_OBJC_CFLAGS="${GNU_OBJC_CFLAGS} ${GNU_OBJC_WARN_CFLAGS}"
 
-    CFLAGS="${CFLAGS} ${GNU_OBJC_CFLAGS}"
+    CPPFLAGS="${CPPFLAGS} ${GNU_OBJC_CFLAGS}"
+  CFLAGS="${CFLAGS} ${GNU_OBJC_CFLAGS}"
 
   unset ac_cv_header_appkit_appkit_h
   ac_fn_c_check_header_mongrel "$LINENO" "AppKit/AppKit.h" "ac_cv_header_AppKit_AppKit_h" "$ac_includes_default"
@@ -37493,12 +37476,13 @@ $as_echo "$gdb_cv_bigtoc" >&6; }  ##end AIX case
   ;;
 esac
 
-# Change CFLAGS, CPPFLAGS, and LIBS temporarily so that C_SWITCH_X_SITE is
-# used for the tests that follow.  We set them back to REAL_CFLAGS and
-# REAL_CPPFLAGS and REAL_LIBS later on.
+# Change CFLAGS, CPPFLAGS, LDFLAGS, and LIBS temporarily so that
+# C_SWITCH_X_SITE is used for the tests that follow.  We set them back to
+# REAL_CFLAGS, REAL_CPPFLAGS, REAL_LDFLAGS and REAL_LIBS later on.
 
 REAL_CFLAGS="${CFLAGS}"
 REAL_CPPFLAGS="${CPPFLAGS}"
+REAL_LDFLAGS="${LDFLAGS}"
 REAL_LIBS="${LIBS}"
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking X11 features" >&5
@@ -39782,6 +39766,7 @@ $as_echo "$emacs_cv_lesstif" >&6; }
       # directory ultimately in CPPFLAGS will be enough.
       REAL_CPPFLAGS="-I/usr/X11R6/LessTif/Motif1.2/include ${REAL_CPPFLAGS}"
       LDFLAGS="-L/usr/X11R6/LessTif/Motif1.2/lib ${LDFLAGS}"
+      REAL_LDFLAGS="-L/usr/X11R6/LessTif/Motif1.2/lib ${REAL_LDFLAGS}"
     else
       CFLAGS="${OLD_CFLAGS}"
       CPPFLAGS="${OLD_CPPFLAGS}"
@@ -40606,10 +40591,9 @@ fi
 
 fi
 
-
 fi
 
-
+    ## ...and also:
     if test "x${HAVE_XPM}" = "xyes"; then
       { $as_echo "$as_me:${as_lineno-$LINENO}: checking for XpmReturnAllocPixels preprocessor define" >&5
 $as_echo_n "checking for XpmReturnAllocPixels preprocessor define... " >&6; }
@@ -40631,6 +40615,7 @@ rm -f conftest*
 
       if test "x${HAVE_XPM}" = "xyes"; then
         REAL_CPPFLAGS="${REAL_CPPFLAGS} -I/usr/include/noX"
+        REAL_LDFLAGS="${REAL_LDFLAGS} -L/usr/lib/noX"
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
       else
@@ -40640,6 +40625,10 @@ $as_echo "no" >&6; }
         LDFLAGS="${SAVE_LDFLAGS}"
       fi
     fi
+    ## in case we missed the conditional where these previously got popped:
+    CPPFLAGS="${SAVE_CPPFLAGS}"
+    LDFLAGS="${SAVE_LDFLAGS}"
+            ## check their value where they get substed, just in case...
   fi
 
   if test "x${HAVE_XPM}" = "xyes"; then
@@ -41774,8 +41763,7 @@ ac_compiler_gnu=$ac_cv_objc_compiler_gnu
     ## unexmacosx.c uses this as a backup in case <malloc/malloc.h> is bad:
     if test "x${HAVE_NS}" = "xyes"; then
       if test "x${ac_cv_header_malloc_malloc_h}" != "xyes"; then
-
-for ac_header in objc/malloc.h
+        for ac_header in objc/malloc.h
 do :
   ac_fn_objc_check_header_mongrel "$LINENO" "objc/malloc.h" "ac_cv_header_objc_malloc_h" "$ac_includes_default"
 if test "x$ac_cv_header_objc_malloc_h" = xyes; then :
@@ -41849,11 +41837,17 @@ $as_echo "#define NS_IMPL_COCOA 1" >>confdefs.h
 
 $as_echo "#define NS_IMPL_GNUSTEP 1" >>confdefs.h
 
-    # See also .m.o rule in Makefile.in
-    # FIXME: are all these flags really needed?  Document here why.
-    GNUSTEP_CFLAGS="-D_REENTRANT -fPIC -fno-strict-aliasing -I${GNUSTEP_SYSTEM_HEADERS} ${GNUSTEP_LOCAL_HEADERS}"
-    ## Extra CFLAGS applied to src/*.m files.
-    GNU_OBJC_CFLAGS="${GNU_OBJC_CFLAGS} -fgnu-runtime -Wno-import -fconstant-string-class=NSConstantString -DGNUSTEP_BASE_LIBRARY=1 -DGNU_GUI_LIBRARY=1 -DGNU_RUNTIME=1 -DGSWARN -DGSDIAGNOSE"
+    if test "x${NS_GNUSTEP_CONFIG}" != "xyes"; then
+      # See also .m.o rule in Makefile.in
+      # FIXME: are all these flags really needed?  Document here why:
+      GNUSTEP_CFLAGS="-D_REENTRANT -fPIC -fno-strict-aliasing -I${GNUSTEP_SYSTEM_HEADERS} ${GNUSTEP_LOCAL_HEADERS}"
+      ## Extra CFLAGS applied to src/*.m files:
+      GNU_OBJC_CFLAGS="${GNU_OBJC_CFLAGS} -fgnu-runtime -Wno-import -fconstant-string-class=NSConstantString -DGNUSTEP_BASE_LIBRARY=1 -DGNU_GUI_LIBRARY=1 -DGNU_RUNTIME=1 -DGSWARN -DGSDIAGNOSE"
+    elif test "x${NS_GNUSTEP_CONFIG}" = "xyes"; then
+      test -n "${NS_GNUSTEP_CONFIG}"
+      { $as_echo "$as_me:${as_lineno-$LINENO}: using values from gnustep-config for flags" >&5
+$as_echo "$as_me: using values from gnustep-config for flags" >&6;}
+    fi
   fi
   OTHER_FILES=ns-app
 fi
@@ -44249,14 +44243,15 @@ if ${gl_cv_func_lstat_dereferences_slashed_symlink+:} false; then :
 else
   rm -f conftest.sym conftest.file
      echo >conftest.file
-     if test "$as_ln_s" = "ln -s" && ln -s conftest.file conftest.sym; then
-       if test "$cross_compiling" = yes; then :
+     if test "$cross_compiling" = yes; then :
   case "$host_os" in
-                    # Guess yes on glibc systems.
-            *-gnu*) gl_cv_func_lstat_dereferences_slashed_symlink="guessing yes" ;;
-                    # If we don't know, assume the worst.
-            *)      gl_cv_func_lstat_dereferences_slashed_symlink="guessing no" ;;
-          esac
+          *-gnu*)
+            # Guess yes on glibc systems.
+            gl_cv_func_lstat_dereferences_slashed_symlink="guessing yes" ;;
+          *)
+            # If we don't know, assume the worst.
+            gl_cv_func_lstat_dereferences_slashed_symlink="guessing no" ;;
+        esac
 
 else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
@@ -44266,10 +44261,12 @@ int
 main ()
 {
 struct stat sbuf;
-              /* Linux will dereference the symlink and fail, as required by
-                 POSIX.  That is better in the sense that it means we will not
-                 have to compile and use the lstat wrapper.  */
-              return lstat ("conftest.sym/", &sbuf) == 0;
+            if (symlink ("conftest.file", "conftest.sym") != 0)
+              return 1;
+            /* Linux will dereference the symlink and fail, as required by
+               POSIX.  That is better in the sense that it means we will not
+               have to compile and use the lstat wrapper.  */
+            return lstat ("conftest.sym/", &sbuf) == 0;
 
   ;
   return 0;
@@ -44284,11 +44281,6 @@ rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
   conftest.$ac_objext conftest.beam conftest.$ac_ext
 fi
 
-     else
-       # If the 'ln -s' command failed, then we probably don't even
-       # have an lstat function.
-       gl_cv_func_lstat_dereferences_slashed_symlink="guessing no"
-     fi
      rm -f conftest.sym conftest.file
 
 fi
@@ -48418,14 +48410,14 @@ done
 
 fi
 for ac_func in __fpending _stricmp acl atexit atof atoi btowc bzero \
-                cuserid doprnt errc fabs fabsf floor ftime ftruncate \
-                geteuid getpass getpwuid inet_ntoa isascii iswprint \
-                mbrlen  memmove memset mkdir munmap nl_langinfo \
-                posix_spawnp pow putenv re_comp regcomp rmdir \
-                setenv socket sqrt strcasecmp strcasestr strchr strcmp \
-                strcspn strdup strerror stricmp strncmp strnicmp strnstr \
-                strpbrk strrchr strtok strtol strtoul system xstricmp \
-                uname utime utmpname vfprintf
+                cuserid doprnt errc fabs fabsf floor ftime geteuid \
+                getpass getpwuid inet_ntoa isascii iswprint mbrlen \
+                memmove memset mkdir munmap nl_langinfo pathconf \
+                posix_spawnp pow putenv re_comp regcomp rmdir setenv \
+                socket sqrt strcasecmp strcasestr strchr strcmp strcspn \
+                strdup strerror stricmp strncasecmp strncmp strnicmp \
+                strnstr strpbrk strrchr strtok strtol strtoul system \
+                xstricmp uname utime utmpname vfprintf
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -48477,8 +48469,19 @@ esac
 fi
 
   fi
-  for ac_func in alarm dup2 fchdir getcwd gethostbyname getpagesize \
-                  gettimeofday localtime_r strtoumax tzset
+
+    for ac_func in getdelim
+do :
+  ac_fn_c_check_func "$LINENO" "getdelim" "ac_cv_func_getdelim"
+if test "x$ac_cv_func_getdelim" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_GETDELIM 1
+_ACEOF
+
+fi
+done
+    for ac_func in alarm dup2 fchdir ftruncate getcwd gethostbyname \
+                  getpagesize gettimeofday localtime_r strtoumax tzset
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -51217,18 +51220,23 @@ esac
 # First save the current values to some other, unused, variables though:
 if test "x${FAKE_CFLAGS}" = "x"; then
   test -z "${FAKE_CFLAGS}" && export FAKE_CFLAGS="${CFLAGS}"
-
+    ## ok
 fi
 if test "x${FAKE_CPPFLAGS}" = "x"; then
   test -z "${FAKE_CPPFLAGS}" && export FAKE_CPPFLAGS="${CPPFLAGS}"
-
+    ## ok
+fi
+if test "x${FAKE_LDFLAGS}" = "x"; then
+  test -z "${FAKE_LDFLAGS}" && export FAKE_LDFLAGS="${LDFLAGS}"
+    ## ok
 fi
 if test "x${FAKE_LIBS}" = "x"; then
   test -z "${FAKE_LIBS}" && export FAKE_LIBS="${LIBS}"
-
+    ## ok
 fi
 CFLAGS="${REAL_CFLAGS}"
 CPPFLAGS="${REAL_CPPFLAGS}"
+LDFLAGS="${REAL_LDFLAGS}"
 LIBS="${REAL_LIBS}"
 
 ## Hack to detect a buggy GCC version.
@@ -51566,7 +51574,7 @@ $as_echo "$USE_NLS" >&6; }
 
 
 
-      GETTEXT_MACRO_VERSION=0.18
+      GETTEXT_MACRO_VERSION=0.19
 
 
 
@@ -54083,6 +54091,315 @@ fi
 
 
 
+
+
+  POW_LIBM=
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether pow can be used without linking with libm" >&5
+$as_echo_n "checking whether pow can be used without linking with libm... " >&6; }
+if ${gl_cv_func_pow_no_libm+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#ifndef __NO_MATH_INLINES
+             # define __NO_MATH_INLINES 1 /* for glibc */
+             #endif
+             #include <math.h>
+
+             double (*funcptr) (double, double) = pow;
+             int i_ret;
+             float f_ret;
+             double d_ret;
+             long double l_ret;
+int
+main ()
+{
+double y = funcptr (1.6180339887, 1.6180339887) + pow (1.6180339887, 1.6180339887);
+
+             return y < 0.3 || y > 1.7;
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_func_pow_no_libm=yes
+else
+  gl_cv_func_pow_no_libm=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_func_pow_no_libm" >&5
+$as_echo "$gl_cv_func_pow_no_libm" >&6; }
+  if test $gl_cv_func_pow_no_libm = no; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether pow can be used with libm" >&5
+$as_echo_n "checking whether pow can be used with libm... " >&6; }
+if ${gl_cv_func_pow_in_libm+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+        save_LIBS="$LIBS"
+        LIBS="$LIBS -lm"
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#ifndef __NO_MATH_INLINES
+               # define __NO_MATH_INLINES 1 /* for glibc */
+               #endif
+               #include <math.h>
+
+               double (*funcptr) (double, double) = pow;
+               int i_ret;
+               float f_ret;
+               double d_ret;
+               long double l_ret;
+int
+main ()
+{
+double y = funcptr (1.6180339887, 1.6180339887) + pow (1.6180339887, 1.6180339887);
+
+               return y < 0.3 || y > 1.7;
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_func_pow_in_libm=yes
+else
+  gl_cv_func_pow_in_libm=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+        LIBS="$save_LIBS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_func_pow_in_libm" >&5
+$as_echo "$gl_cv_func_pow_in_libm" >&6; }
+    if test $gl_cv_func_pow_in_libm = yes; then
+      POW_LIBM=-lm
+    fi
+  fi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+     { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether realpath works" >&5
+$as_echo_n "checking whether realpath works... " >&6; }
+if ${gl_cv_func_realpath_works+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+    touch conftest.a
+    mkdir conftest.d
+    if test "$cross_compiling" = yes; then :
+  case "$host_os" in
+                       # Guess yes on glibc systems.
+        *-gnu* | gnu*) gl_cv_func_realpath_works="guessing yes" ;;
+                       # If we don't know, assume the worst.
+        *)             gl_cv_func_realpath_works="guessing no" ;;
+      esac
+
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+
+#include <stdlib.h>
+#if defined __MACH__ && defined __APPLE__
+/* Avoid a crash on Mac OS X.  */
+#include <mach/mach.h>
+#include <mach/mach_error.h>
+#include <mach/thread_status.h>
+#include <mach/exception.h>
+#include <mach/task.h>
+#include <pthread.h>
+/* The exception port on which our thread listens.  */
+static mach_port_t our_exception_port;
+/* The main function of the thread listening for exceptions of type
+   EXC_BAD_ACCESS.  */
+static void *
+mach_exception_thread (void *arg)
+{
+  /* Buffer for a message to be received.  */
+  struct {
+    mach_msg_header_t head;
+    mach_msg_body_t msgh_body;
+    char data[1024];
+  } msg;
+  mach_msg_return_t retval;
+  /* Wait for a message on the exception port.  */
+  retval = mach_msg (&msg.head, MACH_RCV_MSG | MACH_RCV_LARGE, 0, sizeof (msg),
+                     our_exception_port, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
+  if (retval != MACH_MSG_SUCCESS)
+    abort ();
+  exit (1);
+}
+static void
+nocrash_init (void)
+{
+  mach_port_t self = mach_task_self ();
+  /* Allocate a port on which the thread shall listen for exceptions.  */
+  if (mach_port_allocate (self, MACH_PORT_RIGHT_RECEIVE, &our_exception_port)
+      == KERN_SUCCESS) {
+    /* See http://web.mit.edu/darwin/src/modules/xnu/osfmk/man/mach_port_insert_right.html.  */
+    if (mach_port_insert_right (self, our_exception_port, our_exception_port,
+                                MACH_MSG_TYPE_MAKE_SEND)
+        == KERN_SUCCESS) {
+      /* The exceptions we want to catch.  Only EXC_BAD_ACCESS is interesting
+         for us.  */
+      exception_mask_t mask = EXC_MASK_BAD_ACCESS;
+      /* Create the thread listening on the exception port.  */
+      pthread_attr_t attr;
+      pthread_t thread;
+      if (pthread_attr_init (&attr) == 0
+          && pthread_attr_setdetachstate (&attr, PTHREAD_CREATE_DETACHED) == 0
+          && pthread_create (&thread, &attr, mach_exception_thread, NULL) == 0) {
+        pthread_attr_destroy (&attr);
+        /* Replace the exception port info for these exceptions with our own.
+           Note that we replace the exception port for the entire task, not only
+           for a particular thread.  This has the effect that when our exception
+           port gets the message, the thread specific exception port has already
+           been asked, and we don't need to bother about it.
+           See http://web.mit.edu/darwin/src/modules/xnu/osfmk/man/task_set_exception_ports.html.  */
+        task_set_exception_ports (self, mask, our_exception_port,
+                                  EXCEPTION_DEFAULT, MACHINE_THREAD_STATE);
+      }
+    }
+  }
+}
+#elif (defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__
+/* Avoid a crash on native Windows.  */
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <winerror.h>
+static LONG WINAPI
+exception_filter (EXCEPTION_POINTERS *ExceptionInfo)
+{
+  switch (ExceptionInfo->ExceptionRecord->ExceptionCode)
+    {
+    case EXCEPTION_ACCESS_VIOLATION:
+    case EXCEPTION_IN_PAGE_ERROR:
+    case EXCEPTION_STACK_OVERFLOW:
+    case EXCEPTION_GUARD_PAGE:
+    case EXCEPTION_PRIV_INSTRUCTION:
+    case EXCEPTION_ILLEGAL_INSTRUCTION:
+    case EXCEPTION_DATATYPE_MISALIGNMENT:
+    case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
+    case EXCEPTION_NONCONTINUABLE_EXCEPTION:
+      exit (1);
+    }
+  return EXCEPTION_CONTINUE_SEARCH;
+}
+static void
+nocrash_init (void)
+{
+  SetUnhandledExceptionFilter ((LPTOP_LEVEL_EXCEPTION_FILTER) exception_filter);
+}
+#else
+/* Avoid a crash on POSIX systems.  */
+#include <signal.h>
+/* A POSIX signal handler.  */
+static void
+exception_handler (int sig)
+{
+  exit (1);
+}
+static void
+nocrash_init (void)
+{
+#ifdef SIGSEGV
+  signal (SIGSEGV, exception_handler);
+#endif
+#ifdef SIGBUS
+  signal (SIGBUS, exception_handler);
+#endif
+}
+#endif
+
+        #include <stdlib.h>
+        #include <string.h>
+
+int
+main ()
+{
+
+        int result = 0;
+        {
+          char *name = realpath ("conftest.a", NULL);
+          if (!(name && *name == '/'))
+            result |= 1;
+        }
+        {
+          char *name = realpath ("conftest.b/../conftest.a", NULL);
+          if (name != NULL)
+            result |= 2;
+        }
+        {
+          char *name = realpath ("conftest.a/", NULL);
+          if (name != NULL)
+            result |= 4;
+        }
+        {
+          char *name1 = realpath (".", NULL);
+          char *name2 = realpath ("conftest.d//./..", NULL);
+          if (strcmp (name1, name2) != 0)
+            result |= 8;
+        }
+        return result;
+
+  ;
+  return 0;
+}
+
+_ACEOF
+if ac_fn_c_try_run "$LINENO"; then :
+  gl_cv_func_realpath_works=yes
+else
+  gl_cv_func_realpath_works=no
+fi
+rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
+  conftest.$ac_objext conftest.beam conftest.$ac_ext
+fi
+
+    rm -rf conftest.a conftest.d
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_func_realpath_works" >&5
+$as_echo "$gl_cv_func_realpath_works" >&6; }
+  case "$gl_cv_func_realpath_works" in
+    *yes)
+
+$as_echo "#define FUNC_REALPATH_WORKS 1" >>confdefs.h
+
+      ;;
+  esac
+
+
+
+
+
+
+
+
+
+
+
    { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether byte ordering is bigendian" >&5
 $as_echo_n "checking whether byte ordering is bigendian... " >&6; }
 if ${ac_cv_c_bigendian+:} false; then :
@@ -54363,8 +54680,6 @@ $as_echo "#define HAVE_C99_STRTOLD 1" >>confdefs.h
 
 
 
-
-
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking if environ is properly declared" >&5
 $as_echo_n "checking if environ is properly declared... " >&6; }
   if ${gt_cv_var_environ_declaration+:} false; then :
@@ -54439,6 +54754,16 @@ cat >>confdefs.h <<_ACEOF
 #define HAVE_DECL_FDATASYNC $ac_have_decl
 _ACEOF
 
+
+
+
+  gl_need_lib_has_acl=
+  # Check whether --enable-acl was given.
+if test "${enable_acl+set}" = set; then :
+  enableval=$enable_acl;
+else
+  enable_acl=auto
+fi
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for st_dm_mode in struct stat" >&5
@@ -54823,6 +55148,198 @@ fi
 
 
 
+
+ac_fn_c_check_decl "$LINENO" "ftello" "ac_cv_have_decl_ftello" "$ac_includes_default"
+if test "x$ac_cv_have_decl_ftello" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_FTELLO $ac_have_decl
+_ACEOF
+
+
+
+
+
+
+
+
+
+
+  if test $ac_cv_have_decl_ftello = no; then
+    HAVE_DECL_FTELLO=0
+  fi
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for ftello" >&5
+$as_echo_n "checking for ftello... " >&6; }
+if ${gl_cv_func_ftello+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <stdio.h>
+int
+main ()
+{
+ftello (stdin);
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_func_ftello=yes
+else
+  gl_cv_func_ftello=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_func_ftello" >&5
+$as_echo "$gl_cv_func_ftello" >&6; }
+  if test $gl_cv_func_ftello = no; then
+    HAVE_FTELLO=0
+  else
+    if test $WINDOWS_64_BIT_OFF_T = 1; then
+      REPLACE_FTELLO=1
+    fi
+    if test $gl_cv_var_stdin_large_offset = no; then
+      REPLACE_FTELLO=1
+    fi
+    if test $REPLACE_FTELLO = 0; then
+
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ftello works" >&5
+$as_echo_n "checking whether ftello works... " >&6; }
+if ${gl_cv_func_ftello_works+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+                              case "$host_os" in
+                      # Guess no on Solaris.
+            solaris*) gl_cv_func_ftello_works="guessing no" ;;
+                      # Guess yes otherwise.
+            *)        gl_cv_func_ftello_works="guessing yes" ;;
+          esac
+          if test "$cross_compiling" = yes; then :
+  :
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define TESTFILE "conftest.tmp"
+int
+main (void)
+{
+  FILE *fp;
+
+  /* Create a file with some contents.  */
+  fp = fopen (TESTFILE, "w");
+  if (fp == NULL)
+    return 70;
+  if (fwrite ("foogarsh", 1, 8, fp) < 8)
+    return 71;
+  if (fclose (fp))
+    return 72;
+
+  /* The file's contents is now "foogarsh".  */
+
+  /* Try writing after reading to EOF.  */
+  fp = fopen (TESTFILE, "r+");
+  if (fp == NULL)
+    return 73;
+  if (fseek (fp, -1, SEEK_END))
+    return 74;
+  if (!(getc (fp) == 'h'))
+    return 1;
+  if (!(getc (fp) == EOF))
+    return 2;
+  if (!(ftell (fp) == 8))
+    return 3;
+  if (!(ftell (fp) == 8))
+    return 4;
+  if (!(putc ('!', fp) == '!'))
+    return 5;
+  if (!(ftell (fp) == 9))
+    return 6;
+  if (!(fclose (fp) == 0))
+    return 7;
+  fp = fopen (TESTFILE, "r");
+  if (fp == NULL)
+    return 75;
+  {
+    char buf[10];
+    if (!(fread (buf, 1, 10, fp) == 9))
+      return 10;
+    if (!(memcmp (buf, "foogarsh!", 9) == 0))
+      return 11;
+  }
+  if (!(fclose (fp) == 0))
+    return 12;
+
+  /* The file's contents is now "foogarsh!".  */
+
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_run "$LINENO"; then :
+  gl_cv_func_ftello_works=yes
+else
+  gl_cv_func_ftello_works=no
+fi
+rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
+  conftest.$ac_objext conftest.beam conftest.$ac_ext
+fi
+
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_func_ftello_works" >&5
+$as_echo "$gl_cv_func_ftello_works" >&6; }
+      case "$gl_cv_func_ftello_works" in
+        *yes) ;;
+        *)
+          REPLACE_FTELLO=1
+
+$as_echo "#define FTELLO_BROKEN_AFTER_SWITCHING_FROM_READ_TO_WRITE 1" >>confdefs.h
+
+          ;;
+      esac
+    fi
+  fi
+
+
+
+
+
+ac_fn_c_check_decl "$LINENO" "getdelim" "ac_cv_have_decl_getdelim" "$ac_includes_default"
+if test "x$ac_cv_have_decl_getdelim" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_GETDELIM $ac_have_decl
+_ACEOF
+
+
+
+ac_fn_c_check_decl "$LINENO" "getdtablesize" "ac_cv_have_decl_getdtablesize" "$ac_includes_default"
+if test "x$ac_cv_have_decl_getdtablesize" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_GETDTABLESIZE $ac_have_decl
+_ACEOF
 
 ac_fn_c_check_decl "$LINENO" "getline" "ac_cv_have_decl_getline" "$ac_includes_default"
 if test "x$ac_cv_have_decl_getline" = xyes; then :
@@ -56417,8 +56934,6 @@ done
 
 
 
-
-
   ac_fn_c_check_type "$LINENO" "sigset_t" "ac_cv_type_sigset_t" "
       #include <signal.h>
       /* Mingw defines sigset_t not in <signal.h>, but in <sys/types.h>.  */
@@ -56710,6 +57225,104 @@ $as_echo "$gl_cv_next_string_h" >&6; }
 
 
 
+
+
+
+
+
+  GNULIB_FFS=0;
+    HAVE_FFS=1;
+  HAVE_STRCASECMP=1;
+  HAVE_DECL_STRNCASECMP=1;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+     if test $gl_cv_have_include_next = yes; then
+       gl_cv_next_strings_h='<'strings.h'>'
+     else
+       { $as_echo "$as_me:${as_lineno-$LINENO}: checking absolute name of <strings.h>" >&5
+$as_echo_n "checking absolute name of <strings.h>... " >&6; }
+if ${gl_cv_next_strings_h+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+             if test $ac_cv_header_strings_h = yes; then
+
+
+
+
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <strings.h>
+_ACEOF
+                case "$host_os" in
+    aix*) gl_absname_cpp="$ac_cpp -C" ;;
+    *)    gl_absname_cpp="$ac_cpp" ;;
+  esac
+
+  case "$host_os" in
+    mingw*)
+                                          gl_dirsep_regex='[/\\]'
+      ;;
+    *)
+      gl_dirsep_regex='\/'
+      ;;
+  esac
+      gl_make_literal_regex_sed='s,[]$^\\.*/[],\\&,g'
+  gl_header_literal_regex=`echo 'strings.h' \
+                           | sed -e "$gl_make_literal_regex_sed"`
+  gl_absolute_header_sed="/${gl_dirsep_regex}${gl_header_literal_regex}/"'{
+      s/.*"\(.*'"${gl_dirsep_regex}${gl_header_literal_regex}"'\)".*/\1/
+      s|^/[^/]|//&|
+      p
+      q
+    }'
+
+        gl_cv_absolute_strings_h=`(eval "$gl_absname_cpp conftest.$ac_ext") 2>&5 |
+  sed -n "$gl_absolute_header_sed"`
+
+           gl_header=$gl_cv_absolute_strings_h
+           gl_cv_next_strings_h='"'$gl_header'"'
+          else
+               gl_cv_next_strings_h='<'strings.h'>'
+             fi
+
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_next_strings_h" >&5
+$as_echo "$gl_cv_next_strings_h" >&6; }
+     fi
+     NEXT_STRINGS_H=$gl_cv_next_strings_h
+
+     if test $gl_cv_have_include_next = yes || test $gl_cv_have_include_next = buggy; then
+       # INCLUDE_NEXT_AS_FIRST_DIRECTIVE='include_next'
+       gl_next_as_first_directive='<'strings.h'>'
+     else
+       # INCLUDE_NEXT_AS_FIRST_DIRECTIVE='include'
+       gl_next_as_first_directive=$gl_cv_next_strings_h
+     fi
+     NEXT_AS_FIRST_DIRECTIVE_STRINGS_H=$gl_next_as_first_directive
+
+
+
+
+  if test $ac_cv_header_strings_h = yes; then
+    HAVE_STRINGS_H=1
+  else
+    HAVE_STRINGS_H=0
+  fi
 
 
 
@@ -57113,224 +57726,6 @@ $as_echo "$gl_cv_sys_tiocgwinsz_needs_termios_h" >&6; }
 
 
 
-
-
-
-
-
-
-     { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether realpath works" >&5
-$as_echo_n "checking whether realpath works... " >&6; }
-if ${gl_cv_func_realpath_works+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-
-    touch conftest.a
-    mkdir conftest.d
-    if test "$cross_compiling" = yes; then :
-  case "$host_os" in
-                       # Guess yes on glibc systems.
-        *-gnu* | gnu*) gl_cv_func_realpath_works="guessing yes" ;;
-                       # If we don't know, assume the worst.
-        *)             gl_cv_func_realpath_works="guessing no" ;;
-      esac
-
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-
-
-#include <stdlib.h>
-#if defined __MACH__ && defined __APPLE__
-/* Avoid a crash on Mac OS X.  */
-#include <mach/mach.h>
-#include <mach/mach_error.h>
-#include <mach/thread_status.h>
-#include <mach/exception.h>
-#include <mach/task.h>
-#include <pthread.h>
-/* The exception port on which our thread listens.  */
-static mach_port_t our_exception_port;
-/* The main function of the thread listening for exceptions of type
-   EXC_BAD_ACCESS.  */
-static void *
-mach_exception_thread (void *arg)
-{
-  /* Buffer for a message to be received.  */
-  struct {
-    mach_msg_header_t head;
-    mach_msg_body_t msgh_body;
-    char data[1024];
-  } msg;
-  mach_msg_return_t retval;
-  /* Wait for a message on the exception port.  */
-  retval = mach_msg (&msg.head, MACH_RCV_MSG | MACH_RCV_LARGE, 0, sizeof (msg),
-                     our_exception_port, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
-  if (retval != MACH_MSG_SUCCESS)
-    abort ();
-  exit (1);
-}
-static void
-nocrash_init (void)
-{
-  mach_port_t self = mach_task_self ();
-  /* Allocate a port on which the thread shall listen for exceptions.  */
-  if (mach_port_allocate (self, MACH_PORT_RIGHT_RECEIVE, &our_exception_port)
-      == KERN_SUCCESS) {
-    /* See http://web.mit.edu/darwin/src/modules/xnu/osfmk/man/mach_port_insert_right.html.  */
-    if (mach_port_insert_right (self, our_exception_port, our_exception_port,
-                                MACH_MSG_TYPE_MAKE_SEND)
-        == KERN_SUCCESS) {
-      /* The exceptions we want to catch.  Only EXC_BAD_ACCESS is interesting
-         for us.  */
-      exception_mask_t mask = EXC_MASK_BAD_ACCESS;
-      /* Create the thread listening on the exception port.  */
-      pthread_attr_t attr;
-      pthread_t thread;
-      if (pthread_attr_init (&attr) == 0
-          && pthread_attr_setdetachstate (&attr, PTHREAD_CREATE_DETACHED) == 0
-          && pthread_create (&thread, &attr, mach_exception_thread, NULL) == 0) {
-        pthread_attr_destroy (&attr);
-        /* Replace the exception port info for these exceptions with our own.
-           Note that we replace the exception port for the entire task, not only
-           for a particular thread.  This has the effect that when our exception
-           port gets the message, the thread specific exception port has already
-           been asked, and we don't need to bother about it.
-           See http://web.mit.edu/darwin/src/modules/xnu/osfmk/man/task_set_exception_ports.html.  */
-        task_set_exception_ports (self, mask, our_exception_port,
-                                  EXCEPTION_DEFAULT, MACHINE_THREAD_STATE);
-      }
-    }
-  }
-}
-#elif (defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__
-/* Avoid a crash on native Windows.  */
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <winerror.h>
-static LONG WINAPI
-exception_filter (EXCEPTION_POINTERS *ExceptionInfo)
-{
-  switch (ExceptionInfo->ExceptionRecord->ExceptionCode)
-    {
-    case EXCEPTION_ACCESS_VIOLATION:
-    case EXCEPTION_IN_PAGE_ERROR:
-    case EXCEPTION_STACK_OVERFLOW:
-    case EXCEPTION_GUARD_PAGE:
-    case EXCEPTION_PRIV_INSTRUCTION:
-    case EXCEPTION_ILLEGAL_INSTRUCTION:
-    case EXCEPTION_DATATYPE_MISALIGNMENT:
-    case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
-    case EXCEPTION_NONCONTINUABLE_EXCEPTION:
-      exit (1);
-    }
-  return EXCEPTION_CONTINUE_SEARCH;
-}
-static void
-nocrash_init (void)
-{
-  SetUnhandledExceptionFilter ((LPTOP_LEVEL_EXCEPTION_FILTER) exception_filter);
-}
-#else
-/* Avoid a crash on POSIX systems.  */
-#include <signal.h>
-/* A POSIX signal handler.  */
-static void
-exception_handler (int sig)
-{
-  exit (1);
-}
-static void
-nocrash_init (void)
-{
-#ifdef SIGSEGV
-  signal (SIGSEGV, exception_handler);
-#endif
-#ifdef SIGBUS
-  signal (SIGBUS, exception_handler);
-#endif
-}
-#endif
-
-        #include <stdlib.h>
-        #include <string.h>
-
-int
-main ()
-{
-
-        int result = 0;
-        {
-          char *name = realpath ("conftest.a", NULL);
-          if (!(name && *name == '/'))
-            result |= 1;
-        }
-        {
-          char *name = realpath ("conftest.b/../conftest.a", NULL);
-          if (name != NULL)
-            result |= 2;
-        }
-        {
-          char *name = realpath ("conftest.a/", NULL);
-          if (name != NULL)
-            result |= 4;
-        }
-        {
-          char *name1 = realpath (".", NULL);
-          char *name2 = realpath ("conftest.d//./..", NULL);
-          if (strcmp (name1, name2) != 0)
-            result |= 8;
-        }
-        return result;
-
-  ;
-  return 0;
-}
-
-_ACEOF
-if ac_fn_c_try_run "$LINENO"; then :
-  gl_cv_func_realpath_works=yes
-else
-  gl_cv_func_realpath_works=no
-fi
-rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
-  conftest.$ac_objext conftest.beam conftest.$ac_ext
-fi
-
-    rm -rf conftest.a conftest.d
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_func_realpath_works" >&5
-$as_echo "$gl_cv_func_realpath_works" >&6; }
-  case "$gl_cv_func_realpath_works" in
-    *yes)
-
-$as_echo "#define FUNC_REALPATH_WORKS 1" >>confdefs.h
-
-      ;;
-  esac
-
-
-
-
-
-
-
-
-ac_fn_c_check_decl "$LINENO" "getdelim" "ac_cv_have_decl_getdelim" "$ac_includes_default"
-if test "x$ac_cv_have_decl_getdelim" = xyes; then :
-  ac_have_decl=1
-else
-  ac_have_decl=0
-fi
-
-cat >>confdefs.h <<_ACEOF
-#define HAVE_DECL_GETDELIM $ac_have_decl
-_ACEOF
-
-
-
       for ac_header in stdlib.h
 do :
   ac_fn_c_check_header_mongrel "$LINENO" "stdlib.h" "ac_cv_header_stdlib_h" "$ac_includes_default"
@@ -57627,6 +58022,48 @@ fi
 
 
 
+
+
+
+  ATAN_LIBM="$POW_LIBM"
+
+
+
+
+
+
+
+
+  ATAN2_LIBM="$POW_LIBM"
+
+
+
+
+
+
+
+
+
+
+
+
+  for ac_func in bcopy
+do :
+  ac_fn_c_check_func "$LINENO" "bcopy" "ac_cv_func_bcopy"
+if test "x$ac_cv_func_bcopy" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_BCOPY 1
+_ACEOF
+
+else
+
+    gl_LIBOBJS="$gl_LIBOBJS $ac_func.$ac_objext"
+
+fi
+done
+
+
+
     for ac_header in byteswap.h
 do :
   ac_fn_c_check_header_mongrel "$LINENO" "byteswap.h" "ac_cv_header_byteswap_h" "$ac_includes_default"
@@ -57653,6 +58090,71 @@ else
   GL_GENERATE_BYTESWAP_H_TRUE='#'
   GL_GENERATE_BYTESWAP_H_FALSE=
 fi
+
+
+
+
+
+  if test $ac_cv_func_canonicalize_file_name = no; then
+    HAVE_CANONICALIZE_FILE_NAME=0
+    if test $ac_cv_func_realpath = no; then
+      HAVE_REALPATH=0
+    else
+      case "$gl_cv_func_realpath_works" in
+	*yes) ;;
+	*)    REPLACE_REALPATH=1 ;;
+      esac
+    fi
+  else
+    case "$gl_cv_func_realpath_works" in
+      *yes)
+        ;;
+      *)
+        REPLACE_CANONICALIZE_FILE_NAME=1
+        REPLACE_REALPATH=1
+        ;;
+    esac
+  fi
+
+  if test $HAVE_CANONICALIZE_FILE_NAME = 0 || test $REPLACE_CANONICALIZE_FILE_NAME = 1; then
+
+
+
+
+
+
+
+
+  gl_LIBOBJS="$gl_LIBOBJS canonicalize-lgpl.$ac_objext"
+
+  fi
+
+
+cat >>confdefs.h <<_ACEOF
+#define GNULIB_CANONICALIZE_LGPL 1
+_ACEOF
+
+
+
+
+
+
+
+          GNULIB_CANONICALIZE_FILE_NAME=1
+
+
+
+
+
+
+
+
+
+
+          GNULIB_REALPATH=1
+
+
+
 
 
 
@@ -57981,6 +58483,149 @@ $as_echo "$gl_cv_next_dirent_h" >&6; }
 
 
 
+
+
+
+  for ac_func in dirfd
+do :
+  ac_fn_c_check_func "$LINENO" "dirfd" "ac_cv_func_dirfd"
+if test "x$ac_cv_func_dirfd" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_DIRFD 1
+_ACEOF
+
+fi
+done
+
+  ac_fn_c_check_decl "$LINENO" "dirfd" "ac_cv_have_decl_dirfd" "#include <sys/types.h>
+      #include <dirent.h>
+"
+if test "x$ac_cv_have_decl_dirfd" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_DIRFD $ac_have_decl
+_ACEOF
+
+  if test $ac_cv_have_decl_dirfd = no; then
+    HAVE_DECL_DIRFD=0
+  fi
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether dirfd is a macro" >&5
+$as_echo_n "checking whether dirfd is a macro... " >&6; }
+if ${gl_cv_func_dirfd_macro+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <sys/types.h>
+#include <dirent.h>
+#ifdef dirfd
+ dirent_header_defines_dirfd
+#endif
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "dirent_header_defines_dirfd" >/dev/null 2>&1; then :
+  gl_cv_func_dirfd_macro=yes
+else
+  gl_cv_func_dirfd_macro=no
+fi
+rm -f conftest*
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_func_dirfd_macro" >&5
+$as_echo "$gl_cv_func_dirfd_macro" >&6; }
+
+  # Use the replacement only if we have no function or macro with that name.
+  if test $ac_cv_func_dirfd = no && test $gl_cv_func_dirfd_macro = no; then
+    if test $ac_cv_have_decl_dirfd = yes; then
+      # If the system declares dirfd already, let's declare rpl_dirfd instead.
+      REPLACE_DIRFD=1
+    fi
+  fi
+
+  if test $ac_cv_func_dirfd = no && test $gl_cv_func_dirfd_macro = no; then
+
+
+
+
+
+
+
+
+  gl_LIBOBJS="$gl_LIBOBJS dirfd.$ac_objext"
+
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking how to get the file descriptor associated with an open DIR*" >&5
+$as_echo_n "checking how to get the file descriptor associated with an open DIR*... " >&6; }
+if ${gl_cv_sys_dir_fd_member_name+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+      dirfd_save_CFLAGS=$CFLAGS
+      for ac_expr in d_fd dd_fd; do
+
+        CFLAGS="$CFLAGS -DDIR_FD_MEMBER_NAME=$ac_expr"
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+           #include <sys/types.h>
+           #include <dirent.h>
+int
+main ()
+{
+DIR *dir_p = opendir("."); (void) dir_p->DIR_FD_MEMBER_NAME;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  dir_fd_found=yes
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+        CFLAGS=$dirfd_save_CFLAGS
+        test "$dir_fd_found" = yes && break
+      done
+      test "$dir_fd_found" = yes || ac_expr=no_such_member
+
+      gl_cv_sys_dir_fd_member_name=$ac_expr
+
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_sys_dir_fd_member_name" >&5
+$as_echo "$gl_cv_sys_dir_fd_member_name" >&6; }
+  if test $gl_cv_sys_dir_fd_member_name != no_such_member; then
+
+cat >>confdefs.h <<_ACEOF
+#define DIR_FD_MEMBER_NAME $gl_cv_sys_dir_fd_member_name
+_ACEOF
+
+  fi
+
+
+  fi
+
+
+
+
+
+          GNULIB_DIRFD=1
+
+
+
+
+
+
+
+
+
+
+
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether // is distinct from /" >&5
 $as_echo_n "checking whether // is distinct from /... " >&6; }
 if ${gl_cv_double_slash_root+:} false; then :
@@ -58024,7 +58669,6 @@ $as_echo "#define DOUBLE_SLASH_IS_DISTINCT_ROOT 1" >>confdefs.h
 
 
 
-
     if test $ac_cv_func_dup2 = no; then
       HAVE_DUP2=0
     fi
@@ -58041,14 +58685,13 @@ else
              gl_cv_func_dup2_works="guessing no" ;;
            cygwin*) # on cygwin 1.5.x, dup2(1,1) returns 0
              gl_cv_func_dup2_works="guessing no" ;;
-           linux*) # On linux between 2008-07-27 and 2009-05-11, dup2 of a
-                   # closed fd may yield -EBADF instead of -1 / errno=EBADF.
-             gl_cv_func_dup2_works="guessing no" ;;
            aix* | freebsd*)
                    # on AIX 7.1 and FreeBSD 6.1, dup2 (1,toobig) gives EMFILE,
                    # not EBADF.
              gl_cv_func_dup2_works="guessing no" ;;
            haiku*) # on Haiku alpha 2, dup2(1, 1) resets FD_CLOEXEC.
+             gl_cv_func_dup2_works="guessing no" ;;
+           *-android*) # implemented using dup3(), which fails if oldfd == newfd
              gl_cv_func_dup2_works="guessing no" ;;
            *) gl_cv_func_dup2_works="guessing yes" ;;
          esac
@@ -58056,41 +58699,52 @@ else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-         #include <unistd.h>
-#include <fcntl.h>
-#include <errno.h>
+         #include <errno.h>
+             #include <fcntl.h>
+             #include <limits.h>
+             #include <sys/resource.h>
+             #include <unistd.h>
+             #ifndef RLIM_SAVED_CUR
+             # define RLIM_SAVED_CUR RLIM_INFINITY
+             #endif
+             #ifndef RLIM_SAVED_MAX
+             # define RLIM_SAVED_MAX RLIM_INFINITY
+             #endif
+
 int
 main ()
 {
 int result = 0;
-#ifdef HAVE_GETDTABLESIZE
-            int bad_fd = getdtablesize ();
-#else
-            int bad_fd = 1000000;
-#endif
-#ifdef FD_CLOEXEC
-            if (fcntl (1, F_SETFD, FD_CLOEXEC) == -1)
-              result |= 1;
-#endif
-            if (dup2 (1, 1) == 0)
-              result |= 2;
-#ifdef FD_CLOEXEC
-            if (fcntl (1, F_GETFD) != FD_CLOEXEC)
-              result |= 4;
-#endif
-            close (0);
-            if (dup2 (0, 0) != -1)
-              result |= 8;
-            /* Many gnulib modules require POSIX conformance of EBADF.  */
-            if (dup2 (2, bad_fd) == -1 && errno != EBADF)
-              result |= 16;
-            /* Flush out some cygwin core dumps.  */
-            if (dup2 (2, -1) != -1 || errno != EBADF)
-              result |= 32;
-            dup2 (2, 255);
-            dup2 (2, 256);
-            return result;
-
+             int bad_fd = INT_MAX;
+             struct rlimit rlim;
+             if (getrlimit (RLIMIT_NOFILE, &rlim) == 0
+                 && 0 <= rlim.rlim_cur && rlim.rlim_cur <= INT_MAX
+                 && rlim.rlim_cur != RLIM_INFINITY
+                 && rlim.rlim_cur != RLIM_SAVED_MAX
+                 && rlim.rlim_cur != RLIM_SAVED_CUR)
+               bad_fd = rlim.rlim_cur;
+             #ifdef FD_CLOEXEC
+               if (fcntl (1, F_SETFD, FD_CLOEXEC) == -1)
+                 result |= 1;
+             #endif
+             if (dup2 (1, 1) != 1)
+               result |= 2;
+             #ifdef FD_CLOEXEC
+               if (fcntl (1, F_GETFD) != FD_CLOEXEC)
+                 result |= 4;
+             #endif
+             close (0);
+             if (dup2 (0, 0) != -1)
+               result |= 8;
+             /* Many gnulib modules require POSIX conformance of EBADF.  */
+             if (dup2 (2, bad_fd) == -1 && errno != EBADF)
+               result |= 16;
+             /* Flush out some cygwin core dumps.  */
+             if (dup2 (2, -1) != -1 || errno != EBADF)
+               result |= 32;
+             dup2 (2, 255);
+             dup2 (2, 256);
+             return result;
   ;
   return 0;
 }
@@ -58645,36 +59299,43 @@ if ${gl_cv_func_fcntl_f_dupfd_works+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   if test "$cross_compiling" = yes; then :
-  # Guess that it works on glibc systems
-          case $host_os in #((
-            *-gnu*) gl_cv_func_fcntl_f_dupfd_works="guessing yes";;
-            *)      gl_cv_func_fcntl_f_dupfd_works="guessing no";;
+  case $host_os in
+            aix* | cygwin* | haiku*)
+               gl_cv_func_fcntl_f_dupfd_works="guessing no" ;;
+            *) gl_cv_func_fcntl_f_dupfd_works="guessing yes" ;;
           esac
 else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-
-#ifdef HAVE_GETDTABLESIZE
-# include <unistd.h>
-#endif
-#include <fcntl.h>
 #include <errno.h>
+              #include <fcntl.h>
+              #include <limits.h>
+              #include <sys/resource.h>
+              #include <unistd.h>
+              #ifndef RLIM_SAVED_CUR
+              # define RLIM_SAVED_CUR RLIM_INFINITY
+              #endif
+              #ifndef RLIM_SAVED_MAX
+              # define RLIM_SAVED_MAX RLIM_INFINITY
+              #endif
 
 int
 main ()
 {
 int result = 0;
-#ifdef HAVE_GETDTABLESIZE
-      int bad_fd = getdtablesize ();
-#else
-      int bad_fd = 1000000;
-#endif
-      if (fcntl (0, F_DUPFD, -1) != -1) result |= 1;
-      if (errno != EINVAL) result |= 2;
-      if (fcntl (0, F_DUPFD, bad_fd) != -1) result |= 4;
-      if (errno != EINVAL) result |= 8;
-      return result;
-
+              int bad_fd = INT_MAX;
+              struct rlimit rlim;
+              if (getrlimit (RLIMIT_NOFILE, &rlim) == 0
+                  && 0 <= rlim.rlim_cur && rlim.rlim_cur <= INT_MAX
+                  && rlim.rlim_cur != RLIM_INFINITY
+                  && rlim.rlim_cur != RLIM_SAVED_MAX
+                  && rlim.rlim_cur != RLIM_SAVED_CUR)
+                bad_fd = rlim.rlim_cur;
+              if (fcntl (0, F_DUPFD, -1) != -1) result |= 1;
+              if (errno != EINVAL) result |= 2;
+              if (fcntl (0, F_DUPFD, bad_fd) != -1) result |= 4;
+              if (errno != EINVAL) result |= 8;
+              return result;
   ;
   return 0;
 }
@@ -59120,6 +59781,52 @@ $as_echo "$gl_cv_func_fdopendir_works" >&6; }
 cat >>confdefs.h <<_ACEOF
 #define GNULIB_FDOPENDIR 1
 _ACEOF
+
+
+
+
+  if test "$enable_acl" != no; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for getxattr with XATTR_NAME_POSIX_ACL macros" >&5
+$as_echo_n "checking for getxattr with XATTR_NAME_POSIX_ACL macros... " >&6; }
+if ${gl_cv_getxattr_with_posix_acls+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  gl_cv_getxattr_with_posix_acls=no
+       cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <sys/types.h>
+              #include <sys/xattr.h>
+              #include <linux/xattr.h>
+
+int
+main ()
+{
+ssize_t a = getxattr (".", XATTR_NAME_POSIX_ACL_ACCESS, 0, 0);
+              ssize_t b = getxattr (".", XATTR_NAME_POSIX_ACL_DEFAULT, 0, 0);
+              return a < 0 || b < 0;
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_getxattr_with_posix_acls=yes
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_getxattr_with_posix_acls" >&5
+$as_echo "$gl_cv_getxattr_with_posix_acls" >&6; }
+  fi
+  if test "$gl_cv_getxattr_with_posix_acls" = yes; then
+    LIB_HAS_ACL=
+
+$as_echo "#define GETXATTR_WITH_POSIX_ACLS 1" >>confdefs.h
+
+  else
+            gl_need_lib_has_acl=1
+    LIB_HAS_ACL=$LIB_ACL
+  fi
 
 
 
@@ -59865,6 +60572,279 @@ $as_echo "#define HAVE_WORKING_FSTATAT_ZERO_FLAG 1" >>confdefs.h
 
 
 
+
+
+    if test $HAVE_FTELLO = 0 || test $REPLACE_FTELLO = 1; then
+    REPLACE_FTELL=1
+  fi
+
+  if test $REPLACE_FTELL = 1; then
+
+
+
+
+
+
+
+
+  gl_LIBOBJS="$gl_LIBOBJS ftell.$ac_objext"
+
+  fi
+
+
+
+
+
+          GNULIB_FTELL=1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  if test $ac_cv_have_decl_ftello = no; then
+    HAVE_DECL_FTELLO=0
+  fi
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for ftello" >&5
+$as_echo_n "checking for ftello... " >&6; }
+if ${gl_cv_func_ftello+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <stdio.h>
+int
+main ()
+{
+ftello (stdin);
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_func_ftello=yes
+else
+  gl_cv_func_ftello=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_func_ftello" >&5
+$as_echo "$gl_cv_func_ftello" >&6; }
+  if test $gl_cv_func_ftello = no; then
+    HAVE_FTELLO=0
+  else
+    if test $WINDOWS_64_BIT_OFF_T = 1; then
+      REPLACE_FTELLO=1
+    fi
+    if test $gl_cv_var_stdin_large_offset = no; then
+      REPLACE_FTELLO=1
+    fi
+    if test $REPLACE_FTELLO = 0; then
+
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ftello works" >&5
+$as_echo_n "checking whether ftello works... " >&6; }
+if ${gl_cv_func_ftello_works+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+                              case "$host_os" in
+                      # Guess no on Solaris.
+            solaris*) gl_cv_func_ftello_works="guessing no" ;;
+                      # Guess yes otherwise.
+            *)        gl_cv_func_ftello_works="guessing yes" ;;
+          esac
+          if test "$cross_compiling" = yes; then :
+  :
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define TESTFILE "conftest.tmp"
+int
+main (void)
+{
+  FILE *fp;
+
+  /* Create a file with some contents.  */
+  fp = fopen (TESTFILE, "w");
+  if (fp == NULL)
+    return 70;
+  if (fwrite ("foogarsh", 1, 8, fp) < 8)
+    return 71;
+  if (fclose (fp))
+    return 72;
+
+  /* The file's contents is now "foogarsh".  */
+
+  /* Try writing after reading to EOF.  */
+  fp = fopen (TESTFILE, "r+");
+  if (fp == NULL)
+    return 73;
+  if (fseek (fp, -1, SEEK_END))
+    return 74;
+  if (!(getc (fp) == 'h'))
+    return 1;
+  if (!(getc (fp) == EOF))
+    return 2;
+  if (!(ftell (fp) == 8))
+    return 3;
+  if (!(ftell (fp) == 8))
+    return 4;
+  if (!(putc ('!', fp) == '!'))
+    return 5;
+  if (!(ftell (fp) == 9))
+    return 6;
+  if (!(fclose (fp) == 0))
+    return 7;
+  fp = fopen (TESTFILE, "r");
+  if (fp == NULL)
+    return 75;
+  {
+    char buf[10];
+    if (!(fread (buf, 1, 10, fp) == 9))
+      return 10;
+    if (!(memcmp (buf, "foogarsh!", 9) == 0))
+      return 11;
+  }
+  if (!(fclose (fp) == 0))
+    return 12;
+
+  /* The file's contents is now "foogarsh!".  */
+
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_run "$LINENO"; then :
+  gl_cv_func_ftello_works=yes
+else
+  gl_cv_func_ftello_works=no
+fi
+rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
+  conftest.$ac_objext conftest.beam conftest.$ac_ext
+fi
+
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_func_ftello_works" >&5
+$as_echo "$gl_cv_func_ftello_works" >&6; }
+      case "$gl_cv_func_ftello_works" in
+        *yes) ;;
+        *)
+          REPLACE_FTELLO=1
+
+$as_echo "#define FTELLO_BROKEN_AFTER_SWITCHING_FROM_READ_TO_WRITE 1" >>confdefs.h
+
+          ;;
+      esac
+    fi
+  fi
+
+  if test $HAVE_FTELLO = 0 || test $REPLACE_FTELLO = 1; then
+
+
+
+
+
+
+
+
+  gl_LIBOBJS="$gl_LIBOBJS ftello.$ac_objext"
+
+
+      for ac_func in _ftelli64
+do :
+  ac_fn_c_check_func "$LINENO" "_ftelli64" "ac_cv_func__ftelli64"
+if test "x$ac_cv_func__ftelli64" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE__FTELLI64 1
+_ACEOF
+
+fi
+done
+
+
+  fi
+
+
+
+
+
+          GNULIB_FTELLO=1
+
+
+
+
+
+
+
+
+
+
+  if test $ac_cv_func_ftruncate = yes; then
+
+
+      case "$host_os" in
+        mingw*)
+                                                                      REPLACE_FTRUNCATE=1
+          ;;
+      esac
+
+  else
+    HAVE_FTRUNCATE=0
+  fi
+
+  if test $HAVE_FTRUNCATE = 0 || test $REPLACE_FTRUNCATE = 1; then
+
+
+
+
+
+
+
+
+  gl_LIBOBJS="$gl_LIBOBJS ftruncate.$ac_objext"
+
+
+  for ac_func in chsize
+do :
+  ac_fn_c_check_func "$LINENO" "chsize" "ac_cv_func_chsize"
+if test "x$ac_cv_func_chsize" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_CHSIZE 1
+_ACEOF
+
+fi
+done
+
+
+  fi
+
+
+
+
+
+          GNULIB_FTRUNCATE=1
+
+
+
+
+
+
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether __func__ is available" >&5
 $as_echo_n "checking whether __func__ is available... " >&6; }
 if ${gl_cv_var_func+:} false; then :
@@ -59900,7 +60880,152 @@ $as_echo "#define __func__ \"<unknown function>\"" >>confdefs.h
 
 
 
-  if test $ac_cv_func_getdtablesize = yes; then
+
+
+
+
+  if test $ac_cv_func_getdelim = yes; then
+    HAVE_GETDELIM=1
+        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for working getdelim function" >&5
+$as_echo_n "checking for working getdelim function... " >&6; }
+if ${gl_cv_func_working_getdelim+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  echo fooNbarN | tr -d '\012' | tr N '\012' > conftest.data
+    if test "$cross_compiling" = yes; then :
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <features.h>
+#ifdef __GNU_LIBRARY__
+ #if (__GLIBC__ >= 2) && !defined __UCLIBC__
+  Lucky GNU user
+ #endif
+#endif
+
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "Lucky GNU user" >/dev/null 2>&1; then :
+  gl_cv_func_working_getdelim="guessing yes"
+else
+  gl_cv_func_working_getdelim="guessing no"
+fi
+rm -f conftest*
+
+
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#    include <stdio.h>
+#    include <stdlib.h>
+#    include <string.h>
+    int main ()
+    {
+      FILE *in = fopen ("./conftest.data", "r");
+      if (!in)
+        return 1;
+      {
+        /* Test result for a NULL buffer and a zero size.
+           Based on a test program from Karl Heuer.  */
+        char *line = NULL;
+        size_t siz = 0;
+        int len = getdelim (&line, &siz, '\n', in);
+        if (!(len == 4 && line && strcmp (line, "foo\n") == 0))
+          return 2;
+      }
+      {
+        /* Test result for a NULL buffer and a non-zero size.
+           This crashes on FreeBSD 8.0.  */
+        char *line = NULL;
+        size_t siz = (size_t)(~0) / 4;
+        if (getdelim (&line, &siz, '\n', in) == -1)
+          return 3;
+      }
+      return 0;
+    }
+
+_ACEOF
+if ac_fn_c_try_run "$LINENO"; then :
+  gl_cv_func_working_getdelim=yes
+else
+  gl_cv_func_working_getdelim=no
+fi
+rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
+  conftest.$ac_objext conftest.beam conftest.$ac_ext
+fi
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_func_working_getdelim" >&5
+$as_echo "$gl_cv_func_working_getdelim" >&6; }
+    case "$gl_cv_func_working_getdelim" in
+      *no)
+        REPLACE_GETDELIM=1
+        ;;
+    esac
+  else
+    HAVE_GETDELIM=0
+  fi
+
+  if test $ac_cv_have_decl_getdelim = no; then
+    HAVE_DECL_GETDELIM=0
+  fi
+
+  if test $HAVE_GETDELIM = 0 || test $REPLACE_GETDELIM = 1; then
+
+
+
+
+
+
+
+
+  gl_LIBOBJS="$gl_LIBOBJS getdelim.$ac_objext"
+
+
+  for ac_func in flockfile funlockfile
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
+
+  ac_fn_c_check_decl "$LINENO" "getc_unlocked" "ac_cv_have_decl_getc_unlocked" "$ac_includes_default"
+if test "x$ac_cv_have_decl_getc_unlocked" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_GETC_UNLOCKED $ac_have_decl
+_ACEOF
+
+
+  fi
+
+
+
+
+
+          GNULIB_GETDELIM=1
+
+
+
+
+
+
+
+
+
+
+  if test $ac_cv_func_getdtablesize = yes &&
+     test $ac_cv_have_decl_getdtablesize = yes; then
     # Cygwin 1.7.25 automatically increases the RLIMIT_NOFILE soft limit
     # up to an unchangeable hard limit; all other platforms correctly
     # require setrlimit before getdtablesize() can report a larger value.
@@ -64380,18 +65505,11 @@ _ACEOF
 
 
 
-  # Check whether --enable-acl was given.
-if test "${enable_acl+set}" = set; then :
-  enableval=$enable_acl;
-else
-  enable_acl=auto
-fi
-
 
 
   LIB_ACL=
   use_acl=0
-  if test "x$enable_acl" != "xno"; then
+  if test "$enable_acl" != no; then
         for ac_header in sys/acl.h
 do :
   ac_fn_c_check_header_mongrel "$LINENO" "sys/acl.h" "ac_cv_header_sys_acl_h" "$ac_includes_default"
@@ -64801,15 +65919,17 @@ done
 
       LIBS=$ac_save_LIBS
     fi
-    if test "x$enable_acl$use_acl" = "xyes0"; then
+
+    if test "$enable_acl$use_acl" = yes0; then
       as_fn_error $? "ACLs enabled but support not detected" "$LINENO" 5
-    elif test "x$enable_acl$use_acl" = "xauto0"; then
+    elif test "$enable_acl$use_acl" = auto0; then
       { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: libacl development library was not found or not usable." >&5
 $as_echo "$as_me: WARNING: libacl development library was not found or not usable." >&2;}
       { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: emacs will be built without ACL support." >&5
 $as_echo "$as_me: WARNING: emacs will be built without ACL support." >&2;}
     fi
   fi
+  test $gl_need_lib_has_acl && LIB_HAS_ACL=$LIB_ACL
 
 
 cat >>confdefs.h <<_ACEOF
@@ -65341,6 +66461,94 @@ $as_echo "#define RENAME_DEST_EXISTS_BUG 1" >>confdefs.h
 
 
           GNULIB_RENAME=1
+
+
+
+
+
+
+
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether rmdir works" >&5
+$as_echo_n "checking whether rmdir works... " >&6; }
+if ${gl_cv_func_rmdir_works+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  mkdir conftest.dir
+     touch conftest.file
+     if test "$cross_compiling" = yes; then :
+  case "$host_os" in
+                  # Guess yes on glibc systems.
+          *-gnu*) gl_cv_func_rmdir_works="guessing yes" ;;
+                  # If we don't know, assume the worst.
+          *)      gl_cv_func_rmdir_works="guessing no" ;;
+        esac
+
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <stdio.h>
+           #include <errno.h>
+           #if HAVE_UNISTD_H
+           # include <unistd.h>
+           #else /* on Windows with MSVC */
+           # include <direct.h>
+           #endif
+
+int
+main ()
+{
+int result = 0;
+      if (!rmdir ("conftest.file/"))
+        result |= 1;
+      else if (errno != ENOTDIR)
+        result |= 2;
+      if (!rmdir ("conftest.dir/./"))
+        result |= 4;
+      return result;
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_run "$LINENO"; then :
+  gl_cv_func_rmdir_works=yes
+else
+  gl_cv_func_rmdir_works=no
+fi
+rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
+  conftest.$ac_objext conftest.beam conftest.$ac_ext
+fi
+
+     rm -rf conftest.dir conftest.file
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_func_rmdir_works" >&5
+$as_echo "$gl_cv_func_rmdir_works" >&6; }
+  case "$gl_cv_func_rmdir_works" in
+    *yes) ;;
+    *)
+      REPLACE_RMDIR=1
+      ;;
+  esac
+
+  if test $REPLACE_RMDIR = 1; then
+
+
+
+
+
+
+
+
+  gl_LIBOBJS="$gl_LIBOBJS rmdir.$ac_objext"
+
+  fi
+
+
+
+
+
+          GNULIB_RMDIR=1
 
 
 
@@ -66791,6 +67999,36 @@ $as_echo "$gl_cv_next_stdio_h" >&6; }
 
 
 
+        { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether inttypes macros match system or gnu printf" >&5
+$as_echo_n "checking whether inttypes macros match system or gnu printf... " >&6; }
+if ${gl_cv_func_printf_attribute_flavor+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#define __STDC_FORMAT_MACROS 1
+       #include <stdio.h>
+       #include <inttypes.h>
+       findme PRIdMAX findme
+
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "findme .(ll|j)d. findme" >/dev/null 2>&1; then :
+  gl_cv_func_printf_attribute_flavor=gnu
+else
+  gl_cv_func_printf_attribute_flavor=system
+fi
+rm -f conftest*
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_func_printf_attribute_flavor" >&5
+$as_echo "$gl_cv_func_printf_attribute_flavor" >&6; }
+  if test "$gl_cv_func_printf_attribute_flavor" = gnu; then
+
+$as_echo "#define GNULIB_PRINTF_ATTRIBUTE_FLAVOR_GNU 1" >>confdefs.h
+
+  fi
+
       GNULIB_FSCANF=1
 
 
@@ -67122,6 +68360,9 @@ _ACEOF
 
 
 $as_echo "#define my_strftime nstrftime" >>confdefs.h
+
+
+
 
 
 
@@ -69345,16 +70586,12 @@ $as_echo "#define WINSIZE_IN_PTEM 1" >>confdefs.h
    fi
   :
   gl_gnulib_enabled_260941c0e5dc67ec9e87d1fb321c300b=false
-  gl_gnulib_enabled_72dfd9a8bb8db9211d38af59105b03c0=false
-  gl_gnulib_enabled_a691da99c1d83b83238e45f41a696f5c=false
-  gl_gnulib_enabled_getdelim=false
   gl_gnulib_enabled_malloca=false
   gl_gnulib_enabled_memmove=false
   gl_gnulib_enabled_f691f076f650964c9f5598c3ee487616=false
   gl_gnulib_enabled_332607f759618fb73dfc3076748afea7=false
   gl_gnulib_enabled_rawmemchr=false
   gl_gnulib_enabled_61bcaca76b3e6f9ae55d57a1c3193bc4=false
-  gl_gnulib_enabled_rmdir=false
   gl_gnulib_enabled_9bc5f216d57e231e4834049d67d0db62=false
   gl_gnulib_enabled_strchrnul=false
   gl_gnulib_enabled_dbb57f49352be8fb86869629a254fb72=false
@@ -69374,245 +70611,6 @@ $as_echo "#define WINSIZE_IN_PTEM 1" >>confdefs.h
   gl_LIBOBJS="$gl_LIBOBJS openat-proc.$ac_objext"
 
       gl_gnulib_enabled_260941c0e5dc67ec9e87d1fb321c300b=true
-    fi
-  }
-  func_gl_gnulib_m4code_72dfd9a8bb8db9211d38af59105b03c0 ()
-  {
-    if ! $gl_gnulib_enabled_72dfd9a8bb8db9211d38af59105b03c0; then
-
-
-
-  if test $ac_cv_func_canonicalize_file_name = no; then
-    HAVE_CANONICALIZE_FILE_NAME=0
-    if test $ac_cv_func_realpath = no; then
-      HAVE_REALPATH=0
-    else
-      case "$gl_cv_func_realpath_works" in
-	*yes) ;;
-	*)    REPLACE_REALPATH=1 ;;
-      esac
-    fi
-  else
-    case "$gl_cv_func_realpath_works" in
-      *yes)
-        ;;
-      *)
-        REPLACE_CANONICALIZE_FILE_NAME=1
-        REPLACE_REALPATH=1
-        ;;
-    esac
-  fi
-
-      if test $HAVE_CANONICALIZE_FILE_NAME = 0 || test $REPLACE_CANONICALIZE_FILE_NAME = 1; then
-
-
-
-
-
-
-
-
-  gl_LIBOBJS="$gl_LIBOBJS canonicalize-lgpl.$ac_objext"
-
-      fi
-
-
-cat >>confdefs.h <<_ACEOF
-#define GNULIB_CANONICALIZE_LGPL 1
-_ACEOF
-
-
-
-
-
-
-
-          GNULIB_CANONICALIZE_FILE_NAME=1
-
-
-
-
-
-
-
-
-
-
-          GNULIB_REALPATH=1
-
-
-
-
-
-      gl_gnulib_enabled_72dfd9a8bb8db9211d38af59105b03c0=true
-      if test $HAVE_CANONICALIZE_FILE_NAME = 0 || test $REPLACE_CANONICALIZE_FILE_NAME = 1; then
-        func_gl_gnulib_m4code_malloca
-      fi
-      if test $HAVE_CANONICALIZE_FILE_NAME = 0 || test $REPLACE_CANONICALIZE_FILE_NAME = 1; then
-        func_gl_gnulib_m4code_memmove
-      fi
-    fi
-  }
-  func_gl_gnulib_m4code_a691da99c1d83b83238e45f41a696f5c ()
-  {
-    if ! $gl_gnulib_enabled_a691da99c1d83b83238e45f41a696f5c; then
-
-
-
-
-      gl_gnulib_enabled_a691da99c1d83b83238e45f41a696f5c=true
-    fi
-  }
-  func_gl_gnulib_m4code_getdelim ()
-  {
-    if ! $gl_gnulib_enabled_getdelim; then
-
-
-
-
-
-
-
-
-  if test $ac_cv_func_getdelim = yes; then
-    HAVE_GETDELIM=1
-        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for working getdelim function" >&5
-$as_echo_n "checking for working getdelim function... " >&6; }
-if ${gl_cv_func_working_getdelim+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  echo fooNbarN | tr -d '\012' | tr N '\012' > conftest.data
-    if test "$cross_compiling" = yes; then :
-        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-#include <features.h>
-#ifdef __GNU_LIBRARY__
- #if (__GLIBC__ >= 2) && !defined __UCLIBC__
-  Lucky GNU user
- #endif
-#endif
-
-_ACEOF
-if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
-  $EGREP "Lucky GNU user" >/dev/null 2>&1; then :
-  gl_cv_func_working_getdelim="guessing yes"
-else
-  gl_cv_func_working_getdelim="guessing no"
-fi
-rm -f conftest*
-
-
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-#    include <stdio.h>
-#    include <stdlib.h>
-#    include <string.h>
-    int main ()
-    {
-      FILE *in = fopen ("./conftest.data", "r");
-      if (!in)
-        return 1;
-      {
-        /* Test result for a NULL buffer and a zero size.
-           Based on a test program from Karl Heuer.  */
-        char *line = NULL;
-        size_t siz = 0;
-        int len = getdelim (&line, &siz, '\n', in);
-        if (!(len == 4 && line && strcmp (line, "foo\n") == 0))
-          return 2;
-      }
-      {
-        /* Test result for a NULL buffer and a non-zero size.
-           This crashes on FreeBSD 8.0.  */
-        char *line = NULL;
-        size_t siz = (size_t)(~0) / 4;
-        if (getdelim (&line, &siz, '\n', in) == -1)
-          return 3;
-      }
-      return 0;
-    }
-
-_ACEOF
-if ac_fn_c_try_run "$LINENO"; then :
-  gl_cv_func_working_getdelim=yes
-else
-  gl_cv_func_working_getdelim=no
-fi
-rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
-  conftest.$ac_objext conftest.beam conftest.$ac_ext
-fi
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_func_working_getdelim" >&5
-$as_echo "$gl_cv_func_working_getdelim" >&6; }
-    case "$gl_cv_func_working_getdelim" in
-      *no)
-        REPLACE_GETDELIM=1
-        ;;
-    esac
-  else
-    HAVE_GETDELIM=0
-  fi
-
-  if test $ac_cv_have_decl_getdelim = no; then
-    HAVE_DECL_GETDELIM=0
-  fi
-
-      if test $HAVE_GETDELIM = 0 || test $REPLACE_GETDELIM = 1; then
-
-
-
-
-
-
-
-
-  gl_LIBOBJS="$gl_LIBOBJS getdelim.$ac_objext"
-
-
-  for ac_func in flockfile funlockfile
-do :
-  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
-ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
-if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
-  cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
-_ACEOF
-
-fi
-done
-
-  ac_fn_c_check_decl "$LINENO" "getc_unlocked" "ac_cv_have_decl_getc_unlocked" "$ac_includes_default"
-if test "x$ac_cv_have_decl_getc_unlocked" = xyes; then :
-  ac_have_decl=1
-else
-  ac_have_decl=0
-fi
-
-cat >>confdefs.h <<_ACEOF
-#define HAVE_DECL_GETC_UNLOCKED $ac_have_decl
-_ACEOF
-
-
-      fi
-
-
-
-
-
-          GNULIB_GETDELIM=1
-
-
-
-
-
-      gl_gnulib_enabled_getdelim=true
-      if test $HAVE_GETDELIM = 0 || test $REPLACE_GETDELIM = 1; then
-        func_gl_gnulib_m4code_61bcaca76b3e6f9ae55d57a1c3193bc4
-      fi
     fi
   }
   func_gl_gnulib_m4code_malloca ()
@@ -69783,100 +70781,6 @@ $as_echo "#define HAVE_REALLOC_POSIX 1" >>confdefs.h
 
 
       gl_gnulib_enabled_61bcaca76b3e6f9ae55d57a1c3193bc4=true
-    fi
-  }
-  func_gl_gnulib_m4code_rmdir ()
-  {
-    if ! $gl_gnulib_enabled_rmdir; then
-
-
-
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether rmdir works" >&5
-$as_echo_n "checking whether rmdir works... " >&6; }
-if ${gl_cv_func_rmdir_works+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  mkdir conftest.dir
-     touch conftest.file
-     if test "$cross_compiling" = yes; then :
-  case "$host_os" in
-                  # Guess yes on glibc systems.
-          *-gnu*) gl_cv_func_rmdir_works="guessing yes" ;;
-                  # If we don't know, assume the worst.
-          *)      gl_cv_func_rmdir_works="guessing no" ;;
-        esac
-
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <stdio.h>
-           #include <errno.h>
-           #if HAVE_UNISTD_H
-           # include <unistd.h>
-           #else /* on Windows with MSVC */
-           # include <direct.h>
-           #endif
-
-int
-main ()
-{
-int result = 0;
-      if (!rmdir ("conftest.file/"))
-        result |= 1;
-      else if (errno != ENOTDIR)
-        result |= 2;
-      if (!rmdir ("conftest.dir/./"))
-        result |= 4;
-      return result;
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_run "$LINENO"; then :
-  gl_cv_func_rmdir_works=yes
-else
-  gl_cv_func_rmdir_works=no
-fi
-rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
-  conftest.$ac_objext conftest.beam conftest.$ac_ext
-fi
-
-     rm -rf conftest.dir conftest.file
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_func_rmdir_works" >&5
-$as_echo "$gl_cv_func_rmdir_works" >&6; }
-  case "$gl_cv_func_rmdir_works" in
-    *yes) ;;
-    *)
-      REPLACE_RMDIR=1
-      ;;
-  esac
-
-      if test $REPLACE_RMDIR = 1; then
-
-
-
-
-
-
-
-
-  gl_LIBOBJS="$gl_LIBOBJS rmdir.$ac_objext"
-
-      fi
-
-
-
-
-
-          GNULIB_RMDIR=1
-
-
-
-
-
-      gl_gnulib_enabled_rmdir=true
     fi
   }
   func_gl_gnulib_m4code_9bc5f216d57e231e4834049d67d0db62 ()
@@ -70150,6 +71054,12 @@ done
       gl_gnulib_enabled_strtoull=true
     fi
   }
+  if test $HAVE_CANONICALIZE_FILE_NAME = 0 || test $REPLACE_CANONICALIZE_FILE_NAME = 1; then
+    func_gl_gnulib_m4code_malloca
+  fi
+  if test $HAVE_CANONICALIZE_FILE_NAME = 0 || test $REPLACE_CANONICALIZE_FILE_NAME = 1; then
+    func_gl_gnulib_m4code_memmove
+  fi
   if test $HAVE_DUP2 = 0 || test $REPLACE_DUP2 = 1; then
     func_gl_gnulib_m4code_f691f076f650964c9f5598c3ee487616
   fi
@@ -70165,11 +71075,14 @@ done
   if test $HAVE_FSTATAT = 0 || test $REPLACE_FSTATAT = 1; then
     func_gl_gnulib_m4code_260941c0e5dc67ec9e87d1fb321c300b
   fi
-  if test $HAVE_GETDTABLESIZE = 0; then
+  if test $HAVE_FTRUNCATE = 0 || test $REPLACE_FTRUNCATE = 1; then
     func_gl_gnulib_m4code_f691f076f650964c9f5598c3ee487616
   fi
-  if test $REPLACE_GETLINE = 1; then
-    func_gl_gnulib_m4code_getdelim
+  if test $HAVE_GETDELIM = 0 || test $REPLACE_GETDELIM = 1; then
+    func_gl_gnulib_m4code_61bcaca76b3e6f9ae55d57a1c3193bc4
+  fi
+  if test $HAVE_GETDTABLESIZE = 0; then
+    func_gl_gnulib_m4code_f691f076f650964c9f5598c3ee487616
   fi
   if test $HAVE_OPENAT = 0; then
     func_gl_gnulib_m4code_260941c0e5dc67ec9e87d1fb321c300b
@@ -70179,15 +71092,6 @@ done
   fi
   if test $HAVE_READLINKAT = 0; then
     func_gl_gnulib_m4code_260941c0e5dc67ec9e87d1fb321c300b
-  fi
-  if test $REPLACE_RENAME = 1; then
-    func_gl_gnulib_m4code_72dfd9a8bb8db9211d38af59105b03c0
-  fi
-  if test $REPLACE_RENAME = 1; then
-    func_gl_gnulib_m4code_a691da99c1d83b83238e45f41a696f5c
-  fi
-  if test $REPLACE_RENAME = 1; then
-    func_gl_gnulib_m4code_rmdir
   fi
   if test $REPLACE_RENAME = 1; then
     func_gl_gnulib_m4code_9bc5f216d57e231e4834049d67d0db62
@@ -70208,30 +71112,6 @@ done
 else
   gl_GNULIB_ENABLED_260941c0e5dc67ec9e87d1fb321c300b_TRUE='#'
   gl_GNULIB_ENABLED_260941c0e5dc67ec9e87d1fb321c300b_FALSE=
-fi
-
-   if $gl_gnulib_enabled_72dfd9a8bb8db9211d38af59105b03c0; then
-  gl_GNULIB_ENABLED_72dfd9a8bb8db9211d38af59105b03c0_TRUE=
-  gl_GNULIB_ENABLED_72dfd9a8bb8db9211d38af59105b03c0_FALSE='#'
-else
-  gl_GNULIB_ENABLED_72dfd9a8bb8db9211d38af59105b03c0_TRUE='#'
-  gl_GNULIB_ENABLED_72dfd9a8bb8db9211d38af59105b03c0_FALSE=
-fi
-
-   if $gl_gnulib_enabled_a691da99c1d83b83238e45f41a696f5c; then
-  gl_GNULIB_ENABLED_a691da99c1d83b83238e45f41a696f5c_TRUE=
-  gl_GNULIB_ENABLED_a691da99c1d83b83238e45f41a696f5c_FALSE='#'
-else
-  gl_GNULIB_ENABLED_a691da99c1d83b83238e45f41a696f5c_TRUE='#'
-  gl_GNULIB_ENABLED_a691da99c1d83b83238e45f41a696f5c_FALSE=
-fi
-
-   if $gl_gnulib_enabled_getdelim; then
-  gl_GNULIB_ENABLED_getdelim_TRUE=
-  gl_GNULIB_ENABLED_getdelim_FALSE='#'
-else
-  gl_GNULIB_ENABLED_getdelim_TRUE='#'
-  gl_GNULIB_ENABLED_getdelim_FALSE=
 fi
 
    if $gl_gnulib_enabled_malloca; then
@@ -70280,14 +71160,6 @@ fi
 else
   gl_GNULIB_ENABLED_61bcaca76b3e6f9ae55d57a1c3193bc4_TRUE='#'
   gl_GNULIB_ENABLED_61bcaca76b3e6f9ae55d57a1c3193bc4_FALSE=
-fi
-
-   if $gl_gnulib_enabled_rmdir; then
-  gl_GNULIB_ENABLED_rmdir_TRUE=
-  gl_GNULIB_ENABLED_rmdir_FALSE='#'
-else
-  gl_GNULIB_ENABLED_rmdir_TRUE='#'
-  gl_GNULIB_ENABLED_rmdir_FALSE=
 fi
 
    if $gl_gnulib_enabled_9bc5f216d57e231e4834049d67d0db62; then
@@ -70616,8 +71488,18 @@ fi
 
 if test "x${LDFLAGS}" = "x"; then
   if test "x${prefix}" != "xNONE"; then
+    echo "Trying to make sure LDFLAGS are set..."
     test -z "${LDFLAGS}" && test -n "${prefix}" && test -d "${prefix}/lib" && export LDFLAGS="-L${prefix}/lib"
+    test -z "${LDFLAGS}" && test -n "${with_libintl_prefix}" && test -d "${with_libintl_prefix}/lib" && export LDFLAGS="-L${with_libintl_prefix}/lib"
+    test -z "${LDFLAGS}" && test -n "${with_libiconv_prefix}" && test -d "${with_libiconv_prefix}/lib" && export LDFLAGS="-L${with_libiconv_prefix}/lib"
+    test -z "${LDFLAGS}" && test -n "${x_libraries}" && test -d "${x_libraries}" && export LDFLAGS="-L${x_libraries}"
+  elif test "x${prefix}" = "xNONE" && test ! -d "NONE"; then
+    echo "Warning: invalid prefix"
+  else
+    echo "Well, this situation is improbable..."
   fi
+else
+  echo "LDFLAGS are already set."
 fi
 
 ## multi-line call to 'echo'; closing quote is farther down @ end of block:
@@ -71062,18 +71944,6 @@ if test -z "${gl_GNULIB_ENABLED_260941c0e5dc67ec9e87d1fb321c300b_TRUE}" && test 
   as_fn_error $? "conditional \"gl_GNULIB_ENABLED_260941c0e5dc67ec9e87d1fb321c300b\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
-if test -z "${gl_GNULIB_ENABLED_72dfd9a8bb8db9211d38af59105b03c0_TRUE}" && test -z "${gl_GNULIB_ENABLED_72dfd9a8bb8db9211d38af59105b03c0_FALSE}"; then
-  as_fn_error $? "conditional \"gl_GNULIB_ENABLED_72dfd9a8bb8db9211d38af59105b03c0\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${gl_GNULIB_ENABLED_a691da99c1d83b83238e45f41a696f5c_TRUE}" && test -z "${gl_GNULIB_ENABLED_a691da99c1d83b83238e45f41a696f5c_FALSE}"; then
-  as_fn_error $? "conditional \"gl_GNULIB_ENABLED_a691da99c1d83b83238e45f41a696f5c\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${gl_GNULIB_ENABLED_getdelim_TRUE}" && test -z "${gl_GNULIB_ENABLED_getdelim_FALSE}"; then
-  as_fn_error $? "conditional \"gl_GNULIB_ENABLED_getdelim\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
 if test -z "${gl_GNULIB_ENABLED_malloca_TRUE}" && test -z "${gl_GNULIB_ENABLED_malloca_FALSE}"; then
   as_fn_error $? "conditional \"gl_GNULIB_ENABLED_malloca\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
@@ -71096,10 +71966,6 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${gl_GNULIB_ENABLED_61bcaca76b3e6f9ae55d57a1c3193bc4_TRUE}" && test -z "${gl_GNULIB_ENABLED_61bcaca76b3e6f9ae55d57a1c3193bc4_FALSE}"; then
   as_fn_error $? "conditional \"gl_GNULIB_ENABLED_61bcaca76b3e6f9ae55d57a1c3193bc4\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${gl_GNULIB_ENABLED_rmdir_TRUE}" && test -z "${gl_GNULIB_ENABLED_rmdir_FALSE}"; then
-  as_fn_error $? "conditional \"gl_GNULIB_ENABLED_rmdir\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${gl_GNULIB_ENABLED_9bc5f216d57e231e4834049d67d0db62_TRUE}" && test -z "${gl_GNULIB_ENABLED_9bc5f216d57e231e4834049d67d0db62_FALSE}"; then
@@ -71873,7 +72739,8 @@ finish_cmds='`$ECHO "$finish_cmds" | $SED "$delay_single_quote_subst"`'
 finish_eval='`$ECHO "$finish_eval" | $SED "$delay_single_quote_subst"`'
 hardcode_into_libs='`$ECHO "$hardcode_into_libs" | $SED "$delay_single_quote_subst"`'
 sys_lib_search_path_spec='`$ECHO "$sys_lib_search_path_spec" | $SED "$delay_single_quote_subst"`'
-sys_lib_dlsearch_path_spec='`$ECHO "$sys_lib_dlsearch_path_spec" | $SED "$delay_single_quote_subst"`'
+configure_time_dlsearch_path='`$ECHO "$configure_time_dlsearch_path" | $SED "$delay_single_quote_subst"`'
+configure_time_lt_sys_library_path='`$ECHO "$configure_time_lt_sys_library_path" | $SED "$delay_single_quote_subst"`'
 hardcode_action='`$ECHO "$hardcode_action" | $SED "$delay_single_quote_subst"`'
 enable_dlopen='`$ECHO "$enable_dlopen" | $SED "$delay_single_quote_subst"`'
 enable_dlopen_self='`$ECHO "$enable_dlopen_self" | $SED "$delay_single_quote_subst"`'
@@ -72076,7 +72943,8 @@ postinstall_cmds \
 postuninstall_cmds \
 finish_cmds \
 sys_lib_search_path_spec \
-sys_lib_dlsearch_path_spec \
+configure_time_dlsearch_path \
+configure_time_lt_sys_library_path \
 reload_cmds_CXX \
 old_archive_cmds_CXX \
 old_archive_from_new_cmds_CXX \
@@ -72946,6 +73814,9 @@ $as_echo X"$file" |
 # The names of the tagged configurations supported by this script.
 available_tags='CXX '
 
+# Configured defaults for sys_lib_dlsearch_path munging.
+: \${LT_SYS_LIBRARY_PATH="$configure_time_lt_sys_library_path"}
+
 # ### BEGIN LIBTOOL CONFIG
 
 # Which release of libtool.m4 was used?
@@ -73195,8 +74066,11 @@ hardcode_into_libs=$hardcode_into_libs
 # Compile-time system search path for libraries.
 sys_lib_search_path_spec=$lt_sys_lib_search_path_spec
 
-# Run-time system search path for libraries.
-sys_lib_dlsearch_path_spec=$lt_sys_lib_dlsearch_path_spec
+# Detected run-time system search path for libraries.
+sys_lib_dlsearch_path_spec=$lt_configure_time_dlsearch_path
+
+# Explicit LT_SYS_LIBRARY_PATH set during ./configure time.
+configure_time_lt_sys_library_path=$lt_configure_time_lt_sys_library_path
 
 # Whether dlopen is supported.
 dlopen_support=$enable_dlopen
@@ -73358,6 +74232,65 @@ postdeps=$lt_postdeps
 compiler_lib_search_path=$lt_compiler_lib_search_path
 
 # ### END LIBTOOL CONFIG
+
+_LT_EOF
+
+    cat <<'_LT_EOF' >> "$cfgfile"
+
+# ### BEGIN FUNCTIONS SHARED WITH CONFIGURE
+
+# func_munge_path_list VARIABLE PATH
+# -----------------------------------
+# VARIABLE is name of variable containing _space_ separated list of
+# directories to be munged by the contents of PATH, which is string
+# having a format:
+# "DIR[:DIR]:"
+#       string "DIR[ DIR]" will be prepended to VARIABLE
+# ":DIR[:DIR]"
+#       string "DIR[ DIR]" will be appended to VARIABLE
+# "DIRP[:DIRP]::[DIRA:]DIRA"
+#       string "DIRP[ DIRP]" will be prepended to VARIABLE and string
+#       "DIRA[ DIRA]" will be appended to VARIABLE
+# "DIR[:DIR]"
+#       VARIABLE will be replaced by "DIR[ DIR]"
+func_munge_path_list ()
+{
+    case x$2 in
+    x)
+        ;;
+    *:)
+        eval $1=\"`$ECHO $2 | $SED 's/:/ /g'` \$$1\"
+        ;;
+    x:*)
+        eval $1=\"\$$1 `$ECHO $2 | $SED 's/:/ /g'`\"
+        ;;
+    *::*)
+        eval $1=\"\$$1\ `$ECHO $2 | $SED -e 's/.*:://' -e 's/:/ /g'`\"
+        eval $1=\"`$ECHO $2 | $SED -e 's/::.*//' -e 's/:/ /g'`\ \$$1\"
+        ;;
+    *)
+        eval $1=\"`$ECHO $2 | $SED 's/:/ /g'`\"
+        ;;
+    esac
+}
+
+
+# Calculate cc_basename.  Skip known compiler wrappers and cross-prefix.
+func_cc_basename ()
+{
+    for cc_temp in $*""; do
+      case $cc_temp in
+        compile | *[\\/]compile | ccache | *[\\/]ccache ) ;;
+        distcc | *[\\/]distcc | purify | *[\\/]purify ) ;;
+        \-*) ;;
+        *) break;;
+      esac
+    done
+    func_cc_basename_result=`$ECHO "$cc_temp" | $SED "s%.*/%%; s%^$host_alias-%%"`
+}
+
+
+# ### END FUNCTIONS SHARED WITH CONFIGURE
 
 _LT_EOF
 

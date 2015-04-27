@@ -1,6 +1,6 @@
 /* Internal implementation of access control lists.
 
-   Copyright (C) 2002-2003, 2005-2014 Free Software Foundation, Inc.
+   Copyright (C) 2002-2003, 2005-2015 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -220,7 +220,7 @@ extern int acl_ace_nontrivial (int count, ace_t *entries) _GL_ATTRIBUTE_PURE;
 
 /* Return 1 if the given ACL is non-trivial.
    Return 0 if it is trivial, i.e. equivalent to a simple stat() mode.  */
-extern int acl_nontrivial (int count, struct acl_entry *entries, struct stat *sb);
+extern int acl_nontrivial (int count, struct acl_entry *entries);
 
 #  if HAVE_ACLV_H /* HP-UX >= 11.11 */
 

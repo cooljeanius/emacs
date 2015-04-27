@@ -397,6 +397,11 @@ am__v_at_ = $(am__v_at_@AM_DEFAULT_V@)
 am__v_at_0 = @
 am__v_at_1 =
 
+AM_V_v = $(am__v_v_@AM_V@)
+am__v_v_ = $(am__v_v_@AM_DEFAULT_V@)
+am__v_v_0 =
+am__v_v_1 = -v
+
 DEPDIR=deps
 ## -MMD -MF $(DEPDIR)/$*.d if AUTO_DEPEND; else empty.
 DEPFLAGS=@DEPFLAGS@
@@ -541,7 +546,7 @@ emacs$(EXEEXT): temacs$(EXEEXT) $(ADDSECTION) \
 @GNU_MAKE_TRUE@#ifdef CANNOT_DUMP
 @GNU_MAKE_TRUE@	if test "x$(CANNOT_DUMP)" = "xyes"; then \
 @GNU_MAKE_TRUE@	  rm -f emacs${EXEEXT}; \
-@GNU_MAKE_TRUE@	  ln -v temacs${EXEEXT} emacs${EXEEXT}; \
+@GNU_MAKE_TRUE@	  ln $(AM_V_v) temacs${EXEEXT} emacs${EXEEXT}; \
 @GNU_MAKE_TRUE@	fi
 @GNU_MAKE_TRUE@#else
 @GNU_MAKE_TRUE@#undef i386
@@ -549,30 +554,30 @@ emacs$(EXEEXT): temacs$(EXEEXT) $(ADDSECTION) \
 @GNU_MAKE_TRUE@	   echo "Warning: trying to dump even though we cannot, due to ambiguity between various kinds of conditionals." >&2; \
 @GNU_MAKE_TRUE@	 fi
 @GNU_MAKE_TRUE@ifneq (1,$(words $(RC_ARCHS)))
-@GNU_MAKE_TRUE@	mv -v temacs emacs-undumped
+@GNU_MAKE_TRUE@	mv $(AM_V_v) temacs emacs-undumped
 @GNU_MAKE_TRUE@ifeq (i386,$(filter i386,$(RC_ARCHS)))
 @GNU_MAKE_TRUE@	$(LIPO) -thin i386 -output temacs emacs-undumped
 @GNU_MAKE_TRUE@	LC_ALL=C $(RUN_TEMACS) $(NL) -batch -l loadup dump || false
-@GNU_MAKE_TRUE@	mv -v emacs arch/emacs-i386
+@GNU_MAKE_TRUE@	mv $(AM_V_v) emacs arch/emacs-i386
 @GNU_MAKE_TRUE@	rm -f emacs-[0-9]* # avoid DOC-xx incrementing
 @GNU_MAKE_TRUE@endif
 @GNU_MAKE_TRUE@ifeq (x86_64,$(filter x86_64,$(RC_ARCHS)))
 @GNU_MAKE_TRUE@	$(LIPO) -thin x86_64 -output temacs emacs-undumped
 @GNU_MAKE_TRUE@	LC_ALL=C $(RUN_TEMACS) $(NL) -batch -l loadup dump || false
-@GNU_MAKE_TRUE@	mv -v emacs arch/emacs-x86_64
+@GNU_MAKE_TRUE@	mv $(AM_V_v) emacs arch/emacs-x86_64
 @GNU_MAKE_TRUE@	rm -f emacs-[0-9]* # avoid DOC-xx incrementing
 @GNU_MAKE_TRUE@endif
 @GNU_MAKE_TRUE@	$(LIPO) -create -output emacs "arch/"*
-@GNU_MAKE_TRUE@	cp -v emacs-undumped temacs
+@GNU_MAKE_TRUE@	cp $(AM_V_v) emacs-undumped temacs
 @GNU_MAKE_TRUE@else
-@GNU_MAKE_TRUE@	cp -v temacs emacs-undumped
+@GNU_MAKE_TRUE@	cp $(AM_V_v) temacs emacs-undumped
 @GNU_MAKE_TRUE@	LC_ALL=C $(RUN_TEMACS) $(NL) -batch -l loadup dump || false
 @GNU_MAKE_TRUE@endif
 @GNU_MAKE_TRUE@#endif /* ! defined (CANNOT_DUMP) */
 @GNU_MAKE_TRUE@	-./emacs -q -batch -f list-load-path-shadows
 @GNU_MAKE_FALSE@	if test "x$(CANNOT_DUMP)" = "xyes"; then \
 @GNU_MAKE_FALSE@	  rm -f emacs$(EXEEXT); \
-@GNU_MAKE_FALSE@	  ln -v temacs$(EXEEXT) emacs$(EXEEXT); \
+@GNU_MAKE_FALSE@	  ln $(AM_V_v) temacs$(EXEEXT) emacs$(EXEEXT); \
 @GNU_MAKE_FALSE@	else \
 @GNU_MAKE_FALSE@	  LC_ALL=C $(RUN_TEMACS) -batch -l loadup dump || exit 1; \
 @GNU_MAKE_FALSE@	  test "X$(PAXCTL)" = "X" || $(PAXCTL) -zex emacs$(EXEEXT); \
@@ -595,7 +600,7 @@ emacs$(EXEEXT): temacs$(EXEEXT) $(ADDSECTION) \
 ## in the contents of the DOC file.
 ##
 $(etc)/DOC: $(libsrc)/make-docfile$(EXEEXT) $(obj) $(lisp)
-	$(MKDIR_P) -v $(etc)
+	$(MKDIR_P) $(AM_V_v) $(etc)
 	-rm -f $(etc)/DOC
 	$(libsrc)/make-docfile -d $(srcdir) $(SOME_MACHINE_OBJECTS) $(obj) > $(etc)/DOC
 	$(libsrc)/make-docfile -a $(etc)/DOC -d $(lispsource) `$(SED) -n -e 's| \\\\||' -e 's|^[ 	]*$$(lispsource)/||p' $(srcdir)/lisp.mk`
@@ -608,7 +613,7 @@ buildobj.h: Makefile
 	  echo "$${i}" | $(SED) 's,.*/,,; s/\.obj$$/\.o/; s/^/"/; s/$$/",/' \
 	    || exit; \
 	done >$@.tmp
-	mv -v $@.tmp $@
+	mv $(AM_V_v) $@.tmp $@
 
 buildobj.lst:
 	echo "${obj} ${otherobj} " > buildobj.lst
@@ -644,7 +649,7 @@ temacs$(EXEEXT): $(LIBXMENU) $(ALLOBJS) \
 	         $(lib)/libgnu.a $(EMACSRES)
 	$(AM_V_CCLD)$(CC) $(ALL_CFLAGS) $(TEMACS_LDFLAGS) $(LDFLAGS) \
 	  -o temacs $(ALLOBJS) $(lib)/libgnu.a $(W32_RES_LINK) $(LIBES)
-	$(MKDIR_P) -v $(etc)
+	$(MKDIR_P) $(AM_V_v) $(etc)
 	@$(TEMACS_POST_LINK)
 	if test "x$(MACHOCHECK)" != "x"; then \
 	  $(MACHOCHECK) -progress temacs$(EXEEXT); \
@@ -705,18 +710,18 @@ emacs.res: $(ntsource)/emacs.rc \
 ## (dependencies should now go in deps.mk)
 
 ${emacsapp}Contents/Resources/English.lproj:
-	${MKDIR_P} -v $@
+	${MKDIR_P} $(AM_V_v) $@
 
 @ifGNUmake@ifneq (${emacsapp},${emacsappsrc})
 @ifGNUmake@${emacsapp}Contents/Info.plist: ${emacsappsrc}Contents/Info.plist
-@ifGNUmake@	cp -v $< $@
+@ifGNUmake@	cp $(AM_V_v) $< $@
 @ifGNUmake@${emacsapp}Contents/PkgInfo: ${emacsappsrc}Contents/PkgInfo
-@ifGNUmake@	cp -v $< $@
+@ifGNUmake@	cp $(AM_V_v) $< $@
 @ifGNUmake@${emacsapp}Contents/Resources/Emacs.icns: ${emacsappsrc}Contents/Resources/Emacs.icns
-@ifGNUmake@	${MKDIR_P} -v ${emacsapp}Contents/Resources
-@ifGNUmake@	cp -v $< $@
+@ifGNUmake@	${MKDIR_P} $(AM_V_v) ${emacsapp}Contents/Resources
+@ifGNUmake@	cp $(AM_V_v) $< $@
 @ifGNUmake@${emacsapp}Contents/Resources/English.lproj/InfoPlist.strings: ${emacsappsrc}Contents/Resources/English.lproj/InfoPlist.strings
-@ifGNUmake@	cp -v $< $@
+@ifGNUmake@	cp $(AM_V_v) $< $@
 @ifGNUmake@endif
 
 macosx-bundle: ${emacsapp}Contents/Resources/English.lproj \
@@ -725,8 +730,9 @@ macosx-bundle: ${emacsapp}Contents/Resources/English.lproj \
 	${emacsapp}Contents/Resources/English.lproj/InfoPlist.strings
 macosx-app: macosx-bundle ${emacsapp}Contents/MacOS/Emacs
 ${emacsapp}Contents/MacOS/Emacs: emacs${EXEEXT}
-	${MKDIR_P} -v ${emacsapp}Contents/MacOS/;
-	cd ${emacsapp}Contents/MacOS/; cp -v ../../../../src/emacs${EXEEXT} Emacs${EXEEXT}
+	${MKDIR_P} $(AM_V_v) ${emacsapp}Contents/MacOS/;
+	cd ${emacsapp}Contents/MacOS/; \
+	  cp $(AM_V_v) ../../../../src/emacs${EXEEXT} Emacs${EXEEXT}
 #endif /* HAVE_CARBON */
 ns-app: emacs$(EXEEXT)
 	cd ../nextstep && $(MAKE) $(MFLAGS) all
@@ -756,9 +762,9 @@ clean: mostlyclean
 bootstrap-clean: clean
 	rm -f epaths.h config.h config.stamp stamp-h1
 	if test -f ./.gdbinit; then \
-	  mv -v ./.gdbinit ./.gdbinit.save; \
+	  mv $(AM_V_v) ./.gdbinit ./.gdbinit.save; \
 	  if test -f "$(srcdir)/.gdbinit"; then rm -f ./.gdbinit.save; \
-	  else mv -v ./.gdbinit.save ./.gdbinit; fi; \
+	  else mv $(AM_V_v) ./.gdbinit.save ./.gdbinit; fi; \
 	fi
 
 distclean: bootstrap-clean
@@ -860,10 +866,10 @@ bootstrap-emacs$(EXEEXT): temacs$(EXEEXT)
 	if test "x$(CANNOT_DUMP)" = "xyes"; then \
 	  echo "Skipping dumping"; \
 	  rm -f bootstrap-emacs$(EXEEXT); \
-	  ln -v temacs$(EXEEXT) bootstrap-emacs$(EXEEXT); \
+	  ln $(AM_V_v) temacs$(EXEEXT) bootstrap-emacs$(EXEEXT); \
 	else \
 	  if test -n "`$(FILE_MAGIC_BIN) temacs | $(GREP) 'Mach-O universal binary'`"; then \
-	    mv -v temacs emacs-undumped; \
+	    mv $(AM_V_v) temacs emacs-undumped; \
 	    $(LIPO) -thin `$(SRCROOT)/filearch.rb emacs-undumped` -output temacs emacs-undumped; \
 	    rm emacs-undumped; \
 	  fi; \

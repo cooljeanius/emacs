@@ -88,14 +88,14 @@ int term_trace_num = 0;
                                    __FILE__, __LINE__, ++term_trace_num,\
                                    size.height,                       \
                                    size.width)
-#define NSTRACE_RECT(s,r) fprintf (stderr,                              \
-                                   "%s:%d: [%d]   " s                   \
-                                   " (LL:%.0f x %.0f -> S:%.0f x %.0f)\n", \
-                                   __FILE__, __LINE__, ++term_trace_num,\
-                                   r.origin.x,                          \
-                                   r.origin.y,                          \
-                                   r.size.height,                       \
-                                   r.size.width)
+#define NSTRACE_RECT(s,r) fprintf(stderr,                              \
+                                  "%s:%d: [%d]   " s                   \
+                                  " (LL:%.0f x %.0f -> S:%.0f x %.0f)\n", \
+                                  __FILE__, __LINE__, ++term_trace_num,\
+                                  r.origin.x,                          \
+                                  r.origin.y,                          \
+                                  r.size.height,                       \
+                                  r.size.width)
 #else
 # define NSTRACE_SIZE(str,size)
 # define NSTRACE_RECT(s,r)
@@ -140,11 +140,11 @@ extern NSString *NSMenuDidBeginTrackingNotification;
 
 @end
 
-/* ==========================================================================
+/* ========================================================================
 
     Local declarations
 
-   ========================================================================== */
+   ===================================================================== */
 
 /* Convert a symbol indexed with an NSxxx value to a value as defined
    in keyboard.c (lispy_function_key). I hope this is a correct way
@@ -2527,7 +2527,7 @@ ns_draw_window_cursor (struct window *w, struct glyph_row *glyph_row,
            One way would be to set a global variable DRAWING_CURSOR
   	   when making the call to draw_phys..(), do NOT focus in that
   	   case, then move the ns_unfocus() here after that call. */
-  NSDisableScreenUpdates ();
+  NSDisableScreenUpdates();
 #endif /* NS_IMPL_COCOA */
 
   switch (cursor_type)
@@ -2535,36 +2535,38 @@ ns_draw_window_cursor (struct window *w, struct glyph_row *glyph_row,
     case NO_CURSOR:
       break;
     case FILLED_BOX_CURSOR:
-      NSRectFill (r);
+      NSRectFill(r);
       break;
     case HOLLOW_BOX_CURSOR:
-      NSRectFill (r);
+      NSRectFill(r);
       [hollow_color set];
-      NSRectFill (NSInsetRect (r, 1, 1));
-      [FRAME_CURSOR_COLOR (f) set];
+      NSRectFill(NSInsetRect(r, 1, 1));
+      [FRAME_CURSOR_COLOR(f) set];
       break;
     case HBAR_CURSOR:
-      NSRectFill (r);
+      NSRectFill(r);
       break;
     case BAR_CURSOR:
       s = r;
       /* If the character under cursor is R2L, draw the bar cursor
          on the right of its glyph, rather than on the left.  */
-      cursor_glyph = get_phys_cursor_glyph (w);
+      cursor_glyph = get_phys_cursor_glyph(w);
       if ((cursor_glyph->resolved_level & 1) != 0)
-        s.origin.x += cursor_glyph->pixel_width - s.size.width;
+        s.origin.x += (cursor_glyph->pixel_width - s.size.width);
 
-      NSRectFill (s);
+      NSRectFill(s);
+      break;
+    default:
       break;
     }
-  ns_unfocus (f);
+  ns_unfocus(f);
 
   /* draw the character under the cursor */
   if (cursor_type != NO_CURSOR)
-    draw_phys_cursor_glyph (w, glyph_row, DRAW_CURSOR);
+    draw_phys_cursor_glyph(w, glyph_row, DRAW_CURSOR);
 
 #ifdef NS_IMPL_COCOA
-  NSEnableScreenUpdates ();
+  NSEnableScreenUpdates();
 #endif /* NS_IMPL_COCOA */
 
   return;
@@ -4578,20 +4580,22 @@ ns_term_shutdown (int sig)
         {
 #ifdef NS_IMPL_COCOA
         case NSAPP_DATA2_RUNASSCRIPT:
-          ns_run_ascript ();
+          ns_run_ascript();
           [self stop: self];
           return;
 #endif /* NS_IMPL_COCOA */
         case NSAPP_DATA2_RUNFILEDIALOG:
-          ns_run_file_dialog ();
+          ns_run_file_dialog();
           [self stop: self];
           return;
+        default:
+          break;
         }
     }
 
-  if (type == NSCursorUpdate && window == nil)
+  if ((type == NSCursorUpdate) && (window == nil))
     {
-      fprintf (stderr, "Dropping external cursor update event.\n");
+      fprintf(stderr, "Dropping external cursor update event.\n");
       return;
     }
 
@@ -6391,10 +6395,10 @@ typedef id NSNotification_or_id;
       if (val == 0)
         {
           NSApplicationPresentationOptions options
-            = NSApplicationPresentationAutoHideDock
-            | NSApplicationPresentationAutoHideMenuBar
-            | NSApplicationPresentationFullScreen
-            | NSApplicationPresentationAutoHideToolbar;
+            = (NSApplicationPresentationAutoHideDock
+               | NSApplicationPresentationAutoHideMenuBar
+               | NSApplicationPresentationFullScreen
+               | NSApplicationPresentationAutoHideToolbar);
 
           [NSApp setPresentationOptions: options];
         }
@@ -6622,6 +6626,8 @@ typedef id NSNotification_or_id;
               [[self window] performZoom:self];
             }
           break;
+        default:
+          break;
         }
 
       emacsframe->want_fullscreen = FULLSCREEN_NONE;
@@ -6646,8 +6652,10 @@ typedef id NSNotification_or_id;
     case FULLSCREEN_MAXIMIZED:
       lval = Qmaximized;
       break;
+    default:
+      break;
     }
-  store_frame_param (emacsframe, Qfullscreen, lval);
+  store_frame_param(emacsframe, Qfullscreen, lval);
   fs_state = value;
 }
 
@@ -7516,18 +7524,18 @@ typedef id NSNotification_or_id;
 
       sr = [self convertRect: [self rectForPart: NSScrollerKnobSlot]
                       toView: nil];
-      loc = NSHeight (sr) - ([e locationInWindow].y - NSMinY (sr));
+      loc = NSHeight(sr) - ([e locationInWindow].y - NSMinY(sr));
 
       if (loc <= 0.0)
         {
           loc = 0.0;
         }
-      else if (loc >= NSHeight (sr) + last_mouse_offset)
+      else if (loc >= NSHeight(sr) + last_mouse_offset)
         {
-          loc = NSHeight (sr) + last_mouse_offset;
+          loc = NSHeight(sr) + last_mouse_offset;
         }
 
-      pos = (loc - last_mouse_offset) / NSHeight (sr);
+      pos = (loc - last_mouse_offset) / NSHeight(sr);
       [self sendScrollEventAtLoc: pos fromEvent: e];
 }
 
@@ -7562,11 +7570,11 @@ typedef id NSNotification_or_id;
 #endif /* NS_IMPL_GNUSTEP */
 
 
-/* ==========================================================================
+/* ========================================================================
 
    Font-related functions; these used to be in nsfaces.m
 
-   ========================================================================== */
+   ===================================================================== */
 
 
 Lisp_Object
@@ -7619,49 +7627,49 @@ x_new_font (struct frame *f, Lisp_Object font_object, int fontset)
          in 1.43. */
 
 const char *
-ns_xlfd_to_fontname (const char *xlfd)
-/* --------------------------------------------------------------------------
+ns_xlfd_to_fontname(const char *xlfd)
+/* ------------------------------------------------------------------------
     Convert an X font name (XLFD) to an NS font name.
     Only family is used.
     The string returned is temporarily allocated.
-   -------------------------------------------------------------------------- */
+   --------------------------------------------------------------------- */
 {
-  char *name = xmalloc (180);
+  char *name = xmalloc(180);
   int i, len;
   const char *ret;
 
-  if (!strncmp (xlfd, "--", 2))
-    sscanf (xlfd, "--%*[^-]-%[^-]179-", name);
+  if (!strncmp(xlfd, "--", 2))
+    sscanf(xlfd, "--%*[^-]-%[^-]179-", name);
   else
-    sscanf (xlfd, "-%*[^-]-%[^-]179-", name);
+    sscanf(xlfd, "-%*[^-]-%[^-]179-", name);
 
   /* stopgap for malformed XLFD input */
-  if (strlen (name) == 0)
-    strcpy (name, "Monaco");
+  if (strlen(name) == 0)
+    strcpy(name, "Monaco");
 
   /* undo hack in ns_fontname_to_xlfd, converting '$' to '-', '_' to ' '
      also uppercase after '-' or ' ' */
-  name[0] = c_toupper (name[0]);
-  for (len =strlen (name), i =0; i<len; i++)
+  name[0] = c_toupper(name[0]);
+  for (len = strlen(name), i = 0; i < len; i++)
     {
       if (name[i] == '$')
         {
           name[i] = '-';
-          if (i+1<len)
-            name[i+1] = c_toupper (name[i+1]);
+          if ((i + 1) < len)
+            name[i + 1] = c_toupper(name[i + 1]);
         }
       else if (name[i] == '_')
         {
           name[i] = ' ';
-          if (i+1<len)
-            name[i+1] = c_toupper (name[i+1]);
+          if ((i + 1) < len)
+            name[i + 1] = c_toupper(name[i + 1]);
         }
     }
 #ifdef DEBUG
   fprintf(stderr, "converted '%s' to '%s'\n", xlfd, name);
 #endif /* DEBUG */
   ret = [[NSString stringWithUTF8String: name] UTF8String];
-  xfree (name);
+  xfree(name);
   return ret;
 }
 
@@ -7823,11 +7831,11 @@ variable `x-use-underline-position-properties', which is usually at the
 baseline level.  The default value is nil.  */);
   x_underline_at_descent_line = 0;
 
-  /* Tell Emacs about this window system.  */
-  Fprovide (Qns, Qnil);
+  /* Tell Emacs about this window system: */
+  Fprovide(Qns, Qnil);
 
-  DEFSYM (Qcocoa, "cocoa");
-  DEFSYM (Qgnustep, "gnustep");
+  DEFSYM(Qcocoa, "cocoa");
+  DEFSYM(Qgnustep, "gnustep");
 
   syms_of_nsfont();
 #ifdef NS_IMPL_COCOA

@@ -1121,16 +1121,18 @@ macfont_glyph_extents (struct font *font, CGGlyph glyph,
 	  switch (macfont_info->spacing)
 	    {
 	    case MACFONT_SPACING_PROPORTIONAL:
-	      bounds.origin.x += - (cache->width_frac
-				    / (CGFloat) (WIDTH_FRAC_SCALE * 2));
+	      bounds.origin.x += -(cache->width_frac
+				   / (CGFloat)(WIDTH_FRAC_SCALE * 2));
 	      break;
 	    case MACFONT_SPACING_MONO:
 	      break;
 	    case MACFONT_SPACING_SYNTHETIC_MONO:
 	      bounds.origin.x += (cache->width_int
 				  + (cache->width_frac
-				     / (CGFloat) WIDTH_FRAC_SCALE));
+				     / (CGFloat)WIDTH_FRAC_SCALE));
 	      break;
+            default:
+              break;
 	    }
 	  if (bounds.size.width > 0)
 	    {
@@ -1138,17 +1140,17 @@ macfont_glyph_extents (struct font *font, CGGlyph glyph,
 	      bounds.size.width += (CGFloat)(LCD_FONT_SMOOTHING_LEFT_MARGIN
                                              + LCD_FONT_SMOOTHING_RIGHT_MARGIN);
 	    }
-	  bounds = CGRectIntegral (bounds);
-	  METRICS_SET_VALUE (cache, lbearing, CGRectGetMinX (bounds));
-	  METRICS_SET_VALUE (cache, rbearing, CGRectGetMaxX (bounds));
-	  METRICS_SET_VALUE (cache, ascent, CGRectGetMaxY (bounds));
-	  METRICS_SET_VALUE (cache, descent, -CGRectGetMinY (bounds));
+	  bounds = CGRectIntegral(bounds);
+	  METRICS_SET_VALUE(cache, lbearing, CGRectGetMinX(bounds));
+	  METRICS_SET_VALUE(cache, rbearing, CGRectGetMaxX(bounds));
+	  METRICS_SET_VALUE(cache, ascent, CGRectGetMaxY(bounds));
+	  METRICS_SET_VALUE(cache, descent, -CGRectGetMinY(bounds));
 	}
-      metrics->lbearing = METRICS_VALUE (cache, lbearing);
-      metrics->rbearing = METRICS_VALUE (cache, rbearing);
+      metrics->lbearing = METRICS_VALUE(cache, lbearing);
+      metrics->rbearing = METRICS_VALUE(cache, rbearing);
       metrics->width = width;
-      metrics->ascent = METRICS_VALUE (cache, ascent);
-      metrics->descent = METRICS_VALUE (cache, descent);
+      metrics->ascent = METRICS_VALUE(cache, ascent);
+      metrics->descent = METRICS_VALUE(cache, descent);
     }
 
   if (advance_delta)
@@ -1157,8 +1159,8 @@ macfont_glyph_extents (struct font *font, CGGlyph glyph,
 	{
 	case MACFONT_SPACING_PROPORTIONAL:
 	  *advance_delta = (force_integral_p ? 0
-			    : - (cache->width_frac
-				 / (CGFloat) (WIDTH_FRAC_SCALE * 2)));
+			    : -(cache->width_frac
+                                / (CGFloat)(WIDTH_FRAC_SCALE * 2)));
 	  break;
 	case MACFONT_SPACING_MONO:
 	  *advance_delta = 0;
@@ -1167,8 +1169,10 @@ macfont_glyph_extents (struct font *font, CGGlyph glyph,
 	  *advance_delta = (force_integral_p ? cache->width_int
 			    : (cache->width_int
 			       + (cache->width_frac
-				  / (CGFloat) WIDTH_FRAC_SCALE)));
+				  / (CGFloat)WIDTH_FRAC_SCALE)));
 	  break;
+        default:
+          break;
 	}
     }
 

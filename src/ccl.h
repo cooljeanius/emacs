@@ -76,10 +76,13 @@ struct ccl_spec {
 
 /* Setup fields of the structure pointed by CCL appropriately for the
    execution of ccl program CCL_PROG (symbol or vector).  */
-extern bool setup_ccl_program (struct ccl_program *, Lisp_Object);
+extern bool setup_ccl_program(struct ccl_program *, Lisp_Object);
 
-extern void ccl_driver (struct ccl_program *, int *, int *, int, int,
-                        Lisp_Object);
+/* Check if CCL is updated or not.  If not, re-setup members of CCL: */
+extern int check_ccl_update(struct ccl_program *);
+
+extern void ccl_driver(struct ccl_program *, int *, int *, int, int,
+                       Lisp_Object);
 
 extern Lisp_Object Qccl, Qcclp;
 

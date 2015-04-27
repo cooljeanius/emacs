@@ -4401,6 +4401,9 @@ xm_scroll_callback (Widget widget, XtPointer client_data, XtPointer call_data)
 
     case XmCR_VALUE_CHANGED:
       break;
+
+    default:
+      break;
     };
 
   if (part >= 0)

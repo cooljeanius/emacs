@@ -1,10 +1,10 @@
-/* Get the system load averages.
+/* src/getloadavg.c: Get the system load averages.
    Copyright (C) 1985, 1986, 1987, 1988, 1989, 1991, 1992, 1993, 1994, 1995,
                  1997, 2001, 2002, 2003, 2004, 2005, 2006, 2007
                  Free Software Foundation, Inc.
 
    NOTE: The canonical source of this file is maintained with gnulib.
-   Bugs can be reported to bug-gnulib@gnu.org.
+   Bugs can be reported to <bug-gnulib@gnu.org>.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+   Foundation, Inc., 51 Franklin St., 5th Floor, Boston, MA 02110-1301,
    USA.  */
 
 /* Compile-time symbols that this file uses:
@@ -83,16 +83,16 @@
 /* This should always be first.  */
 #ifdef HAVE_CONFIG_H
 # include <config.h>
-#endif
+#endif /* HAVE_CONFIG_H */
 
 #include <sys/types.h>
 
 /* Both the Emacs and non-Emacs sections want this.  Some
    configuration files' definitions for the LOAD_AVE_CVT macro (like
    sparc.h's) use macros like FSCALE, defined here.  */
-#if defined (unix) || defined (__unix)
+#if defined(unix) || defined(__unix) || defined(HAVE_SYS_PARAM_H)
 # include <sys/param.h>
-#endif
+#endif /* unix || __unix || HAVE_SYS_PARAM_H */
 
 
 /* Exclude all the code except the test program at the end
@@ -105,14 +105,14 @@
 
 #ifndef errno
 extern int errno;
-#endif
+#endif /* !errno */
 
 #ifdef HAVE_LOCALE_H
 # include <locale.h>
-#endif
+#endif /* HAVE_LOCALE_H */
 #ifndef HAVE_SETLOCALE
 # define setlocale(Category, Locale) /* empty */
-#endif
+#endif /* !HAVE_SETLOCALE */
 
 #ifndef HAVE_GETLOADAVG
 
@@ -273,14 +273,14 @@ extern int errno;
 
 # ifdef OSF_ALPHA
 /* <sys/param.h> defines an incorrect value for FSCALE on Alpha OSF/1,
-   according to ghazi@noc.rutgers.edu.  */
+   according to <ghazi@noc.rutgers.edu>.  */
 #  undef FSCALE
 #  define FSCALE 1024.0
 # endif
 
 # if defined(alliant) && defined(i860) /* Alliant FX/2800 */
 /* <sys/param.h> defines an incorrect value for FSCALE on an
-   Alliant FX/2800 Concentrix 2.2, according to ghazi@noc.rutgers.edu.  */
+   Alliant FX/2800 Concentrix 2.2, according to <ghazi@noc.rutgers.edu>  */
 #  undef FSCALE
 #  define FSCALE 100.0
 # endif
@@ -771,7 +771,7 @@ getloadavg (loadavg, nelem)
 
 # if !defined (LDAV_DONE) && defined (apollo)
 #  define LDAV_DONE
-/* Apollo code from lisch@mentorg.com (Ray Lischner).
+/* Apollo code from <lisch@mentorg.com> (Ray Lischner).
 
    This system call is not documented.  The load average is obtained as
    three long integers, for the load average over the past minute,
@@ -1015,7 +1015,7 @@ main (argc, argv)
       double avg[3];
       int loads;
 
-      errno = 0;		/* Don't be misled if it doesn't set errno.  */
+      errno = 0;	/* Don't be misled if it doesn't set errno.  */
       loads = getloadavg (avg, 3);
       if (loads == -1)
 	{

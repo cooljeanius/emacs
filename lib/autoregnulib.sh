@@ -2,7 +2,7 @@
 
 # The gnulib commit ID to use for the update.
 # If you know your version is newer, feel free to replace:
-GNULIB_COMMIT_SHA1="16518d9ed8f25d3e53931dd1aa343072933e4604"
+GNULIB_COMMIT_SHA1="ff714c0a2094bdefd9ed41603493e66aaf285f12"
 
 if [ $# -ne 1 ]; then
    echo "Warning: Path to gnulib repository missing."
@@ -58,54 +58,60 @@ if test -z "${gnulib_tool}" || test ! -x "${gnulib_tool}"; then
 else
   # The list of gnulib modules we are importing for emacs:
   module_list="\
-      absolute-header alignof alloca alloca-opt allocator assert-h autobuild \
-      binary-io byteswap \
-      c-ctype c-strcase careadlinkat chdir clock-time close-stream closedir \
-      configmake count-one-bits count-trailing-zeros \
+      absolute-header alignof alloca alloca-opt allocator assert-h \
+      assure atan atan2 autobuild \
+      bcopy binary-io byteswap \
+      c-ctype c-strcase c-strcaseeq canonicalize-lgpl careadlinkat chdir \
+      clock-time close-stream closedir configmake count-one-bits \
+      count-trailing-zeros \
       crypto/md5 crypto/sha1 crypto/sha256 crypto/sha512 \
-      dirent dosname double-slash-root dtoastr dtotimespec dup2 \
+      dirent dirfd dirname-lgpl dosname double-slash-root \
+      dtoastr dtotimespec dup2 \
       environ errno error execinfo euidaccess extensions extern-inline \
-      faccessat fcntl fcntl-h fdatasync fdopendir filemode float fopen \
-      fpending fpieee fpucw fstat fstatat fsync func \
-      gendocs getdtablesize getgroups getloadavg getlogin getopt-gnu \
-      getpagesize getpass getpass-gnu gettext gettext-h gettime gettimeofday \
+      faccessat fcntl fcntl-h fdatasync fdopendir file-has-acl filemode \
+      float fopen fpending fpieee fpucw fseek fseeko fstat fstatat fsync \
+      ftell ftello ftoastr ftruncate func \
+      gendocs getdelim getdtablesize getgroups getline getloadavg \
+      getlogin getopt-gnu getopt-posix getpagesize getpass getpass-gnu \
+      gettext gettext-h gettime gettimeofday \
       git-version-gen gitlog-to-changelog gnu-make group-member \
       havelib host-cpu-c-abi host-os \
       include_next inline intprops inttypes-incomplete \
       largefile ldd longlong lseek lstat \
-      manywarnings math memchr memrchr mkostemp mktime multiarch \
+      manywarnings math mbsinit memchr memrchr mkostemp mktime multiarch \
       nextafter no-c++ nocrash \
       obstack openat openat-h openmp \
       pathmax pipe2 posix_spawnp printf-safe progname pselect \
       pthread_sigmask putenv \
-      qacl quote \
-      readdir readlink readlinkat rename root-uid \
-      sched sig2str signal-h sigpipe sleep snippet/_Noreturn \
-      snippet/link-warning snippet/unused-parameter snippet/warn-on-use \
-      socklen spawn ssize_t stat stat-time stdalign stdarg stdbool stddef \
-      stdint stdio stdlib stdnoreturn stpcpy streq strerror strftime string \
-      strstr strtoimax strtoumax symlink sys_ioctl sys_resource sys_select \
-      sys_stat sys_time sys_types \
+      qacl quote quotearg quotearg-simple \
+      readdir readlink readlinkat rename rmdir root-uid \
+      sched secure_getenv sig2str signal-h sigpipe sleep \
+      snippet/_Noreturn snippet/link-warning snippet/unused-parameter \
+      snippet/warn-on-use socklen spawn ssize_t stat stat-time stdalign \
+      stdarg stdbool stddef stdint stdio stdlib stdnoreturn stpcpy streq \
+      strerror strftime string strstr strtoimax strtoumax symlink \
+      sys_ioctl sys_resource sys_select sys_stat sys_time sys_types \
       tempname time time_r timer-time timespec timespec-add timespec-sub \
       u64 unistd unsetenv update-copyright utimens \
       vararrays va-args vc-list-files verify vla vma-iter \
       warnings wchar wctype-h winsz-ioctl winsz-termios \
       xalloc xalloc-die xalloc-oversized"
    # Ones I am tempted to add, but cannot:
-   # - getcwd, which depends on strdup-posix, which depends on malloc-posix,
-   #   which is avoided
+   # - atexit, which is obsolete
+   # - getcwd, which depends on strdup-posix, which depends on malloc-posix
+   #   (which is avoided)
    # - git-merge-changelog, which depends on... a lot of things
    # - memmove, which is obsolete
    # - obstack-printf, which drags in all the vasnprintf stuff
    # - fprintf-posix and vfprintf-posix also depend on vasnprintf, as does
    #   printf-posix, which gets it indirectly via vfprintf-posix
-   # (even though I cannot add them, there is no need to explicitly ignore them
-   # below, though)
+   # (even though I cannot add them, there is no need to explicitly ignore
+   # them below, though)
    # Other obsolete modules that I have stopped explicitly adding:
    # - dup2-obsolete
    # - memcmp
-   # (likewise, even though I no longer explicitly import them, there is no need
-   # to go to the other extreme and explicitly ignore them, either)
+   # (likewise, even though I no longer explicitly import them, there is no
+   # need to go to the other extreme and explicitly ignore them, either)
    echo "Actually beginning import now; this may take a while..."
   "${gnulib_tool}" --import --dir=. --lib=libgnu --source-base=lib \
     --m4-base=m4 --doc-base=doc --tests-base=tests --aux-dir=build-aux \
@@ -113,10 +119,11 @@ else
     --avoid=localcharset --avoid=lock --avoid=malloc --avoid=malloc-posix \
     --avoid=memchr-obsolete --avoid=msvc-nothrow --avoid=open \
     --avoid=openat-die --avoid=opendir --avoid=raise --avoid=save-cwd \
-    --avoid=select --avoid=sigprocmask --avoid=strdup --avoid=strdup-posix \
-    --avoid=threadlib --avoid=tls --avoid=vasnprintf --avoid=vasnprintf-posix \
-    --makefile-name=gnulib.mk --conditional-dependencies \
-    --no-libtool --macro-prefix=gl --no-vc-files --with-obsolete \
+    --avoid=select --avoid=sigprocmask --avoid=strdup \
+    --avoid=strdup-posix --avoid=threadlib --avoid=tls --avoid=vasnprintf \
+    --avoid=vasnprintf-posix --makefile-name=gnulib.mk \
+    --conditional-dependencies --no-libtool --macro-prefix=gl \
+    --no-vc-files --with-obsolete \
     "${module_list}"
   if [ $? -ne 0 ]; then
     echo "Error: gnulib import failed.  Aborting."

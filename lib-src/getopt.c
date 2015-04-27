@@ -1,4 +1,4 @@
-/* getopt.c: Getopt for GNU.
+/* lib-src/getopt.c: Getopt for GNU.
    NOTE: getopt is now part of the C library, so if you do NOT know what
    "Keep this file name-space clean" means, talk to drepper@gnu.org
    before changing it!

@@ -1,4 +1,4 @@
-/* macselect.c: Selection processing for Emacs on Mac OS.
+/* src/macselect.c: Selection processing for Emacs on Mac OS.
    Copyright (C) 2005, 2006, 2007 Free Software Foundation, Inc.
 
 This file is part of GNU Emacs.

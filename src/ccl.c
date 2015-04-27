@@ -871,7 +871,7 @@ struct ccl_prog_stack
 static struct ccl_prog_stack ccl_prog_stack_struct[256];
 
 void
-ccl_driver (struct ccl_program *ccl, int *source, int *destination, int src_size, int dst_size, Lisp_Object charset_list)
+ccl_driver(struct ccl_program *ccl, int *source, int *destination, int src_size, int dst_size, Lisp_Object charset_list)
 {
   register int *reg = ccl->reg;
   register int ic = ccl->ic;
@@ -1953,6 +1953,28 @@ setup_ccl_program (struct ccl_program *ccl, Lisp_Object ccl_prog)
   ccl->stack_idx = 0;
   ccl->quit_silently = false;
   return true;
+}
+
+/* Check if CCL is updated or not.  If not, re-setup members of CCL: */
+int
+check_ccl_update(struct ccl_program *ccl)
+{
+  Lisp_Object slot, ccl_prog;
+
+  if (ccl->idx < 0)
+    return 0;
+  slot = AREF(Vccl_program_table, ccl->idx);
+  if (NILP(AREF(slot, 3)))
+    return 0;
+  ccl_prog = ccl_get_compiled_code(AREF(slot, 0), &ccl->idx);
+  if (! VECTORP(ccl_prog))
+    return -1;
+  ccl->size = ASIZE(ccl_prog);
+  ccl->prog = XVECTOR(ccl_prog)->contents;
+  ccl->eof_ic = XINT(AREF(ccl_prog, CCL_HEADER_EOF));
+  ccl->buf_magnification = XINT(AREF(ccl_prog, CCL_HEADER_BUF_MAG));
+  ASET(slot, 3, Qnil);
+  return 0;
 }
 
 

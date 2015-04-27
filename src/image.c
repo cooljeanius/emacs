@@ -1418,12 +1418,12 @@ image_background(struct image *img, struct frame *f, XImagePtr_or_DC ximg)
 #endif /* HAVE_NTGUI */
 
       if (free_ximg)
-	ximg = image_get_x_image_or_dc (f, img, 0, &prev);
+	ximg = image_get_x_image_or_dc(f, img, 0, &prev);
 
-      img->background = four_corners_best (ximg, img->corners, img->width, img->height);
+      img->background = four_corners_best(ximg, img->corners, img->width, img->height);
 
       if (free_ximg)
-	image_unget_x_image_or_dc (img, 0, ximg, prev);
+	image_unget_x_image_or_dc(img, 0, ximg, prev);
 
       img->background_valid = 1;
     }
@@ -1435,7 +1435,7 @@ image_background(struct image *img, struct frame *f, XImagePtr_or_DC ximg)
    have one yet, it is guessed heuristically.  If non-zero, MASK is an
    existing XImage object to use for the heuristic.  */
 int
-image_background_transparent (struct image *img, struct frame *f, XImagePtr_or_DC mask)
+image_background_transparent(struct image *img, struct frame *f, XImagePtr_or_DC mask)
 {
   if (! img->background_transparent_valid)
     /* IMG does NOT have a background yet, so try to guess a reasonable
@@ -1449,13 +1449,13 @@ image_background_transparent (struct image *img, struct frame *f, XImagePtr_or_D
 #endif /* HAVE_NTGUI */
 
 	  if (free_mask)
-	    mask = image_get_x_image_or_dc (f, img, 1, &prev);
+	    mask = image_get_x_image_or_dc(f, img, 1, &prev);
 
 	  img->background_transparent
-	    = (four_corners_best (mask, img->corners, img->width, img->height) == PIX_MASK_RETAIN);
+	    = (four_corners_best(mask, img->corners, img->width, img->height) == PIX_MASK_RETAIN);
 
 	  if (free_mask)
-	    image_unget_x_image_or_dc (img, 1, mask, prev);
+	    image_unget_x_image_or_dc(img, 1, mask, prev);
 	}
       else
 	img->background_transparent = 0;

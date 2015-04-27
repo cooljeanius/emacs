@@ -880,7 +880,7 @@ set_named_security_info (LPCTSTR lpObjectName,
 	  g_b_init_set_named_security_info_a = 1;
 	  hm_advapi32 = LoadLibrary ("Advapi32.dll");
 	  s_pfn_Set_Named_Security_InfoA =
-	    (SetNamedSecurityInfoA_Proc) GetProcAddress (hm_advapi32, 
+	    (SetNamedSecurityInfoA_Proc) GetProcAddress (hm_advapi32,
 							 "SetNamedSecurityInfoA");
 	}
       if (s_pfn_Set_Named_Security_InfoA == NULL)
@@ -8881,8 +8881,10 @@ init_ntproc (int dumping)
     _fdopen (2, "w");
   }
 
-  /* unfortunately, atexit depends on implementation of malloc */
-  /* atexit (term_ntproc); */
+  /* unfortunately, atexit depends on implementation of malloc: */
+#if 0
+  atexit(term_ntproc);
+#endif /* 0 */
   if (!dumping)
     {
       /* Make sure we start with all signals unblocked.  */

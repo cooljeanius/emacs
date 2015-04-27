@@ -193,32 +193,31 @@ set_backtrace_nargs (union specbinding *pdl, ptrdiff_t n)
 }
 
 static void
-set_backtrace_debug_on_exit (union specbinding *pdl, bool doe)
+set_backtrace_debug_on_exit(union specbinding *pdl, bool doe)
 {
-  eassert (pdl->kind == SPECPDL_BACKTRACE);
+  eassert(pdl->kind == SPECPDL_BACKTRACE);
   pdl->bt.debug_on_exit = doe;
 }
 
-/* Helper functions to scan the backtrace.  */
-
+/* Helper functions to scan the backtrace: */
 bool
-backtrace_p (union specbinding *pdl)
+backtrace_p(union specbinding *pdl)
 { return pdl >= specpdl; }
 
 union specbinding *
-backtrace_top (void)
+backtrace_top(void)
 {
-  union specbinding *pdl = specpdl_ptr - 1;
-  while (backtrace_p (pdl) && pdl->kind != SPECPDL_BACKTRACE)
+  union specbinding *pdl = (specpdl_ptr - 1);
+  while (backtrace_p(pdl) && (pdl->kind != SPECPDL_BACKTRACE))
     pdl--;
   return pdl;
 }
 
 union specbinding *
-backtrace_next (union specbinding *pdl)
+backtrace_next(union specbinding *pdl)
 {
   pdl--;
-  while (backtrace_p (pdl) && pdl->kind != SPECPDL_BACKTRACE)
+  while (backtrace_p(pdl) && (pdl->kind != SPECPDL_BACKTRACE))
     pdl--;
   return pdl;
 }

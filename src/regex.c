@@ -1,4 +1,4 @@
-/* regex.c: Extended regular expression matching and search library,
+/* src/regex.c: Extended regular expression matching and search library,
  * version 0.12. (Implements POSIX draft P1003.2/D11.2, except for some
  * of the internationalization features.)
  *

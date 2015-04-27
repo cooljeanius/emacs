@@ -1,8 +1,8 @@
-/* alloca.c -- allocate automatically reclaimed memory
+/* lib-src/alloca.c -- allocate automatically reclaimed memory
    (Mostly) portable public-domain implementation -- D A Gwyn
 
    NOTE: The canonical source of this file is maintained with gnulib.
-   Bugs can be reported to bug-gnulib@gnu.org.
+   Bugs can be reported to <bug-gnulib@gnu.org>.
 
    This implementation of the PWB library alloca function,
    which is used to allocate space off the run-time stack so

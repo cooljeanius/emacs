@@ -785,6 +785,142 @@ fontset_font (Lisp_Object fontset, int c, struct face *face, int id)
   return Qnil;
 }
 
+#if defined(WINDOWSNT) && defined (_MSC_VER)
+#pragma optimize("", off)
+#endif /* WINDOWSNT && _MSC_VER */
+
+/* copied from "config.h": */
+#ifndef ATTRIBUTE_CONST
+/* The __const__ attribute was added in gcc 2.95: */
+# if (__GNUC__ > 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 95))
+#  define ATTRIBUTE_CONST __attribute__ ((__const__))
+# else
+#  define ATTRIBUTE_CONST /* empty */
+# endif /* gcc 2.95+ */
+#endif /* !ATTRIBUTE_CONST */
+
+/* Load a font named FONTNAME to display character C on frame F.
+ * Return a pointer to the struct font_info of the loaded font.  If
+ * loading fails, return NULL.  If FACE is non-zero and a fontset is
+ * assigned to it, record FACE->id in the fontset for C.  If FONTNAME
+ * is NULL, the name is taken from the fontset of FACE or what
+ * specified by ID.  */
+struct font_info * ATTRIBUTE_CONST
+fs_load_font(FRAME_PTR f, int c, char *fontname, int id, struct face *face)
+{
+  Lisp_Object fontset;
+  Lisp_Object list, elt, fullname;
+  int size = 0;
+  struct font_info *fontp;
+  int charset = 0;
+
+  if (face)
+    id = face->fontset;
+  if (id < 0)
+    fontset = Qnil;
+  else
+    fontset = FONTSET_FROM_ID(id);
+
+  if (!NILP(fontset)
+      && !BASE_FONTSET_P(fontset))
+  {
+    elt = LISP_INITIALLY_ZERO;
+    if (!NILP(elt))
+      {
+        /* A suitable face for C is already recorded, which means
+         * that a proper font is already loaded.  */
+        int face_id = XINT(elt);
+
+        xassert(face_id == face->id);
+        face = FACE_FROM_ID(f, face_id);
+        return (struct font_info *)NULL;
+      }
+
+    if (!fontname && (charset == CHARSET_ASCII))
+      {
+        elt = FONTSET_ASCII(fontset);
+        fontname = (char *)SDATA(XCDR(elt));
+      }
+  }
+
+  if (!fontname)
+    /* No way to get fontname: */
+    return (struct font_info *)NULL;
+
+#if 0
+  fontp = (*load_font_func)(f, fontname, size);
+#else
+  fontp = (struct font_info *)NULL;
+  IF_LINT((void)size);
+#endif /* 0 */
+  if (!fontp)
+    return (struct font_info *)NULL;
+
+  /* Fill in members (charset, vertical_centering, encoding, etc.) of
+   * font_info structure that are not set by (*load_font_func)(): */
+  fontp->charset = charset;
+
+  fullname = build_string(fontp->full_name);
+  fontp->vertical_centering
+    = (STRINGP(Vvertical_centering_font_regexp)
+       && (fast_string_match_ignore_case
+           (Vvertical_centering_font_regexp, fullname) >= 0));
+
+  if (fontp->encoding[1] != FONT_ENCODING_NOT_DECIDED)
+    {
+      /* The font itself tells which code points to be used.  Use this
+       * encoding for all other charsets.  */
+      int i;
+
+      fontp->encoding[0] = fontp->encoding[1];
+      for (i = MIN_CHARSET_OFFICIAL_DIMENSION1; i <= MAX_CHARSET; i++)
+        fontp->encoding[i] = fontp->encoding[1];
+    }
+  else
+    {
+      /* The font itself does NOT have information about encoding: */
+      int i;
+
+      /* By default, encoding of ASCII chars is 0 (i.e. 0x00..0x7F),
+       * others is 1 (i.e. 0x80..0xFF): */
+      fontp->encoding[0] = 0;
+      for (i = MIN_CHARSET_OFFICIAL_DIMENSION1; i <= MAX_CHARSET; i++)
+        fontp->encoding[i] = 1;
+      /* Then override them by a specification in Vfont_encoding_alist: */
+      for (list = Vfont_encoding_alist; CONSP(list); list = XCDR(list))
+        {
+          elt = XCAR(list);
+          if (CONSP(elt) && STRINGP(XCAR(elt)) && CONSP(XCDR(elt))
+              && (fast_string_match_ignore_case(XCAR(elt), fullname) >= 0))
+            {
+              Lisp_Object tmp;
+
+              for (tmp = XCDR(elt); CONSP(tmp); tmp = XCDR(tmp))
+                if (CONSP(XCAR(tmp)) && ((i = 0) >= 0)
+                    && INTEGERP(XCDR(XCAR(tmp)))
+                    && (XFASTINT(XCDR(XCAR(tmp))) < 4))
+                  fontp->encoding[i]
+                    = XFASTINT(XCDR(XCAR(tmp)));
+            }
+        }
+    }
+
+#if 0
+  if (! fontp->font_encoder && find_ccl_program_func)
+    (*find_ccl_program_func)(fontp);
+#endif /* 0 */
+
+  /* If we loaded a font for a face that has fontset, record the face
+   * ID in the fontset for C: */
+  if (face && !NILP(fontset) && !BASE_FONTSET_P(fontset))
+    FONTSET_SET(fontset, c, make_number(face->id));
+  return fontp;
+}
+
+#if defined(WINDOWSNT) && defined (_MSC_VER)
+#pragma optimize("", on)
+#endif /* WINDOWSNT && _MSC_VER */
+
 /* Return a newly created fontset with NAME.  If BASE is nil, make a
    base fontset.  Otherwise make a realized fontset whose base is
    BASE.  */

@@ -1147,19 +1147,19 @@ update_frame_tool_bar (struct frame *f)
       helpText = NILP (helpObj) ? "" : SSDATA (helpObj);
 
       /* Ignore invalid image specifications.  */
-      if (!valid_image_p (image))
+      if (!valid_image_p(image))
         {
-          /* Don't log anything, GNUS makes invalid images all the time.  */
+          /* Don't log anything, GNUS makes invalid images all the time: */
           continue;
         }
 
-      img_id = lookup_image (f, image);
-      img = IMAGE_FROM_ID (f, img_id);
-      prepare_image_for_display (f, img);
+      img_id = lookup_image(f, image);
+      img = IMAGE_FROM_ID(f, img_id);
+      prepare_image_for_display(f, img);
 
-      if (img->load_failed_p || img->pixmap == nil)
+      if (img->load_failed_p || (img->pixmap == nil))
         {
-          NSLog (@"Could not prepare toolbar image for display.");
+          NSLog(@"Could not prepare toolbar image for display.");
           continue;
         }
 

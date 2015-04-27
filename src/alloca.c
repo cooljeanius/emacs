@@ -1,8 +1,8 @@
-/* alloca.c -- allocate automatically reclaimed memory
+/* src/alloca.c -- allocate automatically reclaimed memory
    (Mostly) portable public-domain implementation -- D A Gwyn
 
    NOTE: The canonical source of this file is maintained with gnulib.
-   Bugs can be reported to bug-gnulib@gnu.org.
+   Bugs can be reported to <bug-gnulib@gnu.org>.
 
    This implementation of the PWB library alloca function,
    which is used to allocate space off the run-time stack so
@@ -26,20 +26,20 @@
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>
-#endif
+#endif /* HAVE_CONFIG_H */
 
 #ifdef HAVE_STRING_H
 # include <string.h>
-#endif
+#endif /* HAVE_STRING_H */
 #ifdef HAVE_STDLIB_H
 # include <stdlib.h>
-#endif
+#endif /* HAVE_STDLIB_H */
 
 #ifdef DO_BLOCK_INPUT
 # include "blockinput.h"
-#endif
+#endif /* DO_BLOCK_INPUT */
 
-/* If compiling with GCC 2, this file's not needed.  */
+/* If compiling with GCC 2, this file is not needed: */
 #if !defined (__GNUC__) || __GNUC__ < 2
 
 /* If someone has defined alloca as a macro,
@@ -57,7 +57,7 @@ you
 lose
 -- must know STACK_DIRECTION at compile-time
 /* Using #error here is not wise since this file should work for
-   old and obscure compilers.  
+   old and obscure compilers.
 
    As far as I know, using it is OK if it's indented -- at least for
    pcc-based processors.  -- fx */

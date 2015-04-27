@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2014 Free Software Foundation, Inc.
+# Copyright (C) 2002-2015 Free Software Foundation, Inc.
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 
 
 # Specification in the form of a command-line invocation:
-#   gnulib-tool --import --dir=. --lib=libgnu --source-base=lib --m4-base=m4 --doc-base=doc --tests-base=tests --aux-dir=build-aux --with-obsolete --avoid=close --avoid=dup --avoid=fchdir --avoid=fstrcmp --avoid=localcharset --avoid=lock --avoid=malloc --avoid=malloc-posix --avoid=memchr-obsolete --avoid=msvc-nothrow --avoid=open --avoid=openat-die --avoid=opendir --avoid=raise --avoid=save-cwd --avoid=select --avoid=sigprocmask --avoid=strdup --avoid=strdup-posix --avoid=threadlib --avoid=tls --avoid=vasnprintf --avoid=vasnprintf-posix --makefile-name=gnulib.mk --conditional-dependencies --no-libtool --macro-prefix=gl --no-vc-files absolute-header alignof alloca alloca-opt allocator assert-h autobuild binary-io byteswap c-ctype c-strcase careadlinkat chdir clock-time close-stream closedir configmake count-one-bits count-trailing-zeros crypto/md5 crypto/sha1 crypto/sha256 crypto/sha512 dirent dosname double-slash-root dtoastr dtotimespec dup2 environ errno error euidaccess execinfo extensions extern-inline faccessat fcntl fcntl-h fdatasync fdopendir filemode float fopen fpending fpieee fpucw fstat fstatat fsync func gendocs getdtablesize getgroups getloadavg getlogin getopt-gnu getpagesize getpass getpass-gnu gettext gettext-h gettime gettimeofday git-version-gen gitlog-to-changelog gnu-make group-member havelib host-cpu-c-abi host-os include_next inline intprops inttypes-incomplete largefile ldd longlong lseek lstat manywarnings math memchr memrchr mkostemp mktime multiarch nextafter no-c++ nocrash obstack openat openat-h openmp pathmax pipe2 posix_spawnp printf-safe progname pselect pthread_sigmask putenv qacl quote readdir readlink readlinkat rename root-uid sched sig2str signal-h sigpipe sleep snippet/_Noreturn snippet/link-warning snippet/unused-parameter snippet/warn-on-use socklen spawn ssize_t stat stat-time stdalign stdarg stdbool stddef stdint stdio stdlib stdnoreturn stpcpy streq strerror strftime string strstr strtoimax strtoumax symlink sys_ioctl sys_resource sys_select sys_stat sys_time sys_types tempname time time_r timer-time timespec timespec-add timespec-sub u64 unistd unsetenv update-copyright utimens va-args vararrays vc-list-files verify vla vma-iter warnings wchar wctype-h winsz-ioctl winsz-termios xalloc xalloc-die xalloc-oversized
+#   gnulib-tool --import --dir=. --lib=libgnu --source-base=lib --m4-base=m4 --doc-base=doc --tests-base=tests --aux-dir=build-aux --with-obsolete --avoid=close --avoid=dup --avoid=fchdir --avoid=fstrcmp --avoid=localcharset --avoid=lock --avoid=malloc --avoid=malloc-posix --avoid=memchr-obsolete --avoid=msvc-nothrow --avoid=open --avoid=openat-die --avoid=opendir --avoid=raise --avoid=save-cwd --avoid=select --avoid=sigprocmask --avoid=strdup --avoid=strdup-posix --avoid=threadlib --avoid=tls --avoid=vasnprintf --avoid=vasnprintf-posix --makefile-name=gnulib.mk --conditional-dependencies --no-libtool --macro-prefix=gl --no-vc-files absolute-header alignof alloca alloca-opt allocator assert-h assure atan atan2 autobuild bcopy binary-io byteswap c-ctype c-strcase c-strcaseeq canonicalize-lgpl careadlinkat chdir clock-time close-stream closedir configmake count-one-bits count-trailing-zeros crypto/md5 crypto/sha1 crypto/sha256 crypto/sha512 dirent dirfd dirname-lgpl dosname double-slash-root dtoastr dtotimespec dup2 environ errno error euidaccess execinfo extensions extern-inline faccessat fcntl fcntl-h fdatasync fdopendir file-has-acl filemode float fopen fpending fpieee fpucw fseek fseeko fstat fstatat fsync ftell ftello ftoastr ftruncate func gendocs getdelim getdtablesize getgroups getline getloadavg getlogin getopt-gnu getopt-posix getpagesize getpass getpass-gnu gettext gettext-h gettime gettimeofday git-version-gen gitlog-to-changelog gnu-make group-member havelib host-cpu-c-abi host-os include_next inline intprops inttypes-incomplete largefile ldd longlong lseek lstat manywarnings math mbsinit memchr memrchr mkostemp mktime multiarch nextafter no-c++ nocrash obstack openat openat-h openmp pathmax pipe2 posix_spawnp printf-safe progname pselect pthread_sigmask putenv qacl quote quotearg quotearg-simple readdir readlink readlinkat rename rmdir root-uid sched secure_getenv sig2str signal-h sigpipe sleep snippet/_Noreturn snippet/link-warning snippet/unused-parameter snippet/warn-on-use socklen spawn ssize_t stat stat-time stdalign stdarg stdbool stddef stdint stdio stdlib stdnoreturn stpcpy streq strerror strftime string strstr strtoimax strtoumax symlink sys_ioctl sys_resource sys_select sys_stat sys_time sys_types tempname time time_r timer-time timespec timespec-add timespec-sub u64 unistd unsetenv update-copyright utimens va-args vararrays vc-list-files verify vla vma-iter warnings wchar wctype-h winsz-ioctl winsz-termios xalloc xalloc-die xalloc-oversized
 
 # Specification in the form of a few gnulib-tool.m4 macro invocations:
 gl_LOCAL_DIR([])
@@ -38,11 +38,17 @@ gl_MODULES([
   alloca-opt
   allocator
   assert-h
+  assure
+  atan
+  atan2
   autobuild
+  bcopy
   binary-io
   byteswap
   c-ctype
   c-strcase
+  c-strcaseeq
+  canonicalize-lgpl
   careadlinkat
   chdir
   clock-time
@@ -56,6 +62,8 @@ gl_MODULES([
   crypto/sha256
   crypto/sha512
   dirent
+  dirfd
+  dirname-lgpl
   dosname
   double-slash-root
   dtoastr
@@ -73,22 +81,32 @@ gl_MODULES([
   fcntl-h
   fdatasync
   fdopendir
+  file-has-acl
   filemode
   float
   fopen
   fpending
   fpieee
   fpucw
+  fseek
+  fseeko
   fstat
   fstatat
   fsync
+  ftell
+  ftello
+  ftoastr
+  ftruncate
   func
   gendocs
+  getdelim
   getdtablesize
   getgroups
+  getline
   getloadavg
   getlogin
   getopt-gnu
+  getopt-posix
   getpagesize
   getpass
   getpass-gnu
@@ -114,6 +132,7 @@ gl_MODULES([
   lstat
   manywarnings
   math
+  mbsinit
   memchr
   memrchr
   mkostemp
@@ -136,12 +155,16 @@ gl_MODULES([
   putenv
   qacl
   quote
+  quotearg
+  quotearg-simple
   readdir
   readlink
   readlinkat
   rename
+  rmdir
   root-uid
   sched
+  secure_getenv
   sig2str
   signal-h
   sigpipe

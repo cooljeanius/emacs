@@ -74,7 +74,7 @@ extern void GetMouse(Point *mouseLoc); /* deprecated in 10.5 */
 #  endif /* !__EVENTS__ || __LP64__ */
 # endif /* HAVE_CARBON && HAVE_HITOOLBOX_EVENTS_H */
 # if defined(HAVE_CARBON) && defined(HAVE_HITOOLBOX_HIPROGRESSVIEWS_H)
-#  include <HIToolbox/Events.h>
+#  include <HIToolbox/HIProgressViews.h>
 # else
 #  if !defined(__HIPROGRESSVIEWS__) || defined(__LP64__)
 /* inline the prototype we need: */

@@ -1017,7 +1017,7 @@ extraclean: extraclean-local
 	for i in ${SUBDIR}; do (cd $$i; $(MAKE) $(MFLAGS) extraclean); done
 	${top_maintainer_clean}
 	-rm -f config-tmp-*
-	-rm -f *~ build-aux/*~ build-aux/snippet/*~ m4/*~ po/*~ \#*
+	-rm -f *~ build-aux/*~ build-aux/snippet/*~ doc/*~ m4/*~ po/*~ \#*
 
 # The src subdir knows how to do the right thing
 # even when the build directory and source dir are different.

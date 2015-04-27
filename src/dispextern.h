@@ -241,9 +241,9 @@ enum window_part
 
 /* Macros to include code only if GLYPH_DEBUG is defined: */
 #ifdef GLYPH_DEBUG
-# define IF_DEBUG(X)	((void) (X))
+# define IF_DEBUG(X)	((void)(X))
 #else
-# define IF_DEBUG(X)	((void) 0)
+# define IF_DEBUG(X)	((void)0)
 #endif /* GLYPH_DEBUG */
 
 #if defined(XASSERTS) && XASSERTS
@@ -1942,7 +1942,7 @@ struct face_cache
    with id ID but is suitable for displaying character CHAR.
    This macro is only meaningful for multibyte character CHAR.  */
 #define FACE_FOR_CHAR(F, FACE, CHAR, POS, OBJECT)	\
-  face_for_char ((F), (FACE), (CHAR), (POS), (OBJECT))
+  face_for_char((F), (FACE), (CHAR), (POS), (OBJECT))
 
 #else /* not HAVE_WINDOW_SYSTEM: */
 # define FACE_SUITABLE_FOR_ASCII_CHAR_P(FACE, CHAR) true

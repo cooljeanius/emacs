@@ -290,9 +290,101 @@ extern int emacs_mule_charset[256];
 #define CHARSET_ATTRIBUTES(charset)	\
   (HASH_VALUE (XHASH_TABLE (Vcharset_hash_table), (charset)->hash_index))
 
+/* Definition of special charsets: */
+#ifndef CHARSET_ASCII
+# define CHARSET_ASCII		0	/* 0x00..0x7F */
+#endif /* !CHARSET_ASCII */
+#ifndef CHARSET_8_BIT_CONTROL
+# define CHARSET_8_BIT_CONTROL	0x9E	/* 0x80..0x9F */
+#endif /* !CHARSET_8_BIT_CONTROL */
+#ifndef CHARSET_8_BIT_GRAPHIC
+# define CHARSET_8_BIT_GRAPHIC	0x80	/* 0xA0..0xFF */
+#endif /* !CHARSET_8_BIT_GRAPHIC */
+
+extern int charset_latin_iso8859_1; /* ISO8859-1 (Latin-1) */
+extern int charset_mule_unicode_0100_24ff;
+extern int charset_mule_unicode_2500_33ff;
+extern int charset_mule_unicode_e000_ffff;
+
+/* A char-table containing information on each character set.
+
+ Unlike ordinary char-tables, this doesn't contain any nested tables.
+ Only the top level elements are used.  Each element is a vector of
+ the following information:
+ CHARSET-ID, BYTES, DIMENSION, CHARS, WIDTH, DIRECTION,
+ LEADING-CODE-BASE, LEADING-CODE-EXT,
+ ISO-FINAL-CHAR, ISO-GRAPHIC-PLANE,
+ REVERSE-CHARSET, SHORT-NAME, LONG-NAME,	DESCRIPTION,
+ PLIST.
+
+ CHARSET-ID (integer) is the identification number of the charset.
+
+ BYTES (integer) is the length of the multi-byte form of a character
+ in the charset: one of 1, 2, 3, and 4.
+
+ DIMENSION (integer) is the number of bytes to represent a character: 1 or 2.
+
+ CHARS (integer) is the number of characters in a dimension: 94 or 96.
+
+ WIDTH (integer) is the number of columns a character in the charset
+ occupies on the screen: one of 0, 1, and 2..
+
+ DIRECTION (integer) is the rendering direction of characters in the
+ charset when rendering.  If 0, render from left to right, else
+ render from right to left.
+
+ LEADING-CODE-BASE (integer) is the base leading-code for the
+ charset.
+
+ LEADING-CODE-EXT (integer) is the extended leading-code for the
+ charset.  All charsets of less than 0xA0 have the value 0.
+
+ ISO-FINAL-CHAR (character) is the final character of the
+ corresponding ISO 2022 charset.  It is -1 for such a character
+ that is used only internally (e.g. `eight-bit-control').
+
+ ISO-GRAPHIC-PLANE (integer) is the graphic plane to be invoked
+ while encoding to variants of ISO 2022 coding system, one of the
+ following: 0/graphic-plane-left(GL), 1/graphic-plane-right(GR).  It
+ is -1 for such a character that is used only internally
+ (e.g. `eight-bit-control').
+
+ REVERSE-CHARSET (integer) is the charset which differs only in
+ LEFT-TO-RIGHT value from the charset.  If there's no such a
+ charset, the value is -1.
+
+ SHORT-NAME (string) is the short name to refer to the charset.
+
+ LONG-NAME (string) is the long name to refer to the charset.
+
+ DESCRIPTION (string) is the description string of the charset.
+
+ PLIST (property list) may contain any type of information a user
+ wants to put and get by functions `put-charset-property' and
+ `get-charset-property' respectively.  */
+extern Lisp_Object Vcharset_table;
+
+/* Macros to access various information of CHARSET in Vcharset_table.
+ * We provide these macros for efficiency.  No range check of CHARSET.  */
+
+/* Return entry of CHARSET (C integer) in Vcharset_table.  */
+#define CHARSET_TABLE_ENTRY(charset)					\
+  XCHAR_TABLE(Vcharset_table)->contents[(((charset) == CHARSET_ASCII)	\
+                                         ? 0 : ((charset) + 128))]
+
+/* Return information INFO-IDX of CHARSET: */
+#define CHARSET_TABLE_INFO(charset, info_idx) \
+  XVECTOR(CHARSET_TABLE_ENTRY(charset))->contents[info_idx]
+
+#ifndef CHARSET_DIMENSION_IDX
+# define CHARSET_DIMENSION_IDX (2)
+#endif /* !CHARSET_DIMENSION_IDX */
+
 #define CHARSET_ID(charset)		((charset)->id)
 #define CHARSET_HASH_INDEX(charset)	((charset)->hash_index)
 #define CHARSET_DIMENSION(charset)	((charset)->dimension)
+#define CHARSET_DIMENSION_OLD_WAY(charset) \
+  XFASTINT(CHARSET_TABLE_INFO(charset, CHARSET_DIMENSION_IDX))
 #define CHARSET_CODE_SPACE(charset)	((charset)->code_space)
 #define CHARSET_CODE_LINEAR_P(charset)	((charset)->code_linear_p)
 #define CHARSET_ISO_CHARS_96(charset)	((charset)->iso_chars_96)
@@ -380,8 +472,8 @@ set_charset_attr (struct charset *charset, enum charset_attr_index idx,
 /* Lookup Vcharset_ordered_list and return the first charset that
    contains the character C.  */
 #define CHAR_CHARSET(c)				\
-  ((c) < 0x80 ? CHARSET_FROM_ID (charset_ascii)	\
-   : char_charset ((c), Qnil, NULL))
+  (((c) < 0x80) ? CHARSET_FROM_ID(charset_ascii)	\
+   : char_charset((c), Qnil, NULL))
 
 #if false
 /* Char-table of charset-sets.  Each element is a bool vector indexed
@@ -518,6 +610,24 @@ extern int iso_charset_table[ISO_MAX_DIMENSION][ISO_MAX_CHARS][ISO_MAX_FINAL];
 #define EMACS_MULE_LEADING_CODE_PRIVATE_21	0x9C /* 2/2 */
 #define EMACS_MULE_LEADING_CODE_PRIVATE_22	0x9D /* 2/2 */
 
+/* Definition of minimum/maximum charset of each DIMENSION: */
+#ifndef MIN_CHARSET_OFFICIAL_DIMENSION1
+# define MIN_CHARSET_OFFICIAL_DIMENSION1 0x80
+#endif /* !MIN_CHARSET_OFFICIAL_DIMENSION1 */
+#ifndef MAX_CHARSET_OFFICIAL_DIMENSION1
+# define MAX_CHARSET_OFFICIAL_DIMENSION1 0x8F
+#endif /* !MAX_CHARSET_OFFICIAL_DIMENSION1 */
+#ifndef MIN_CHARSET_OFFICIAL_DIMENSION2
+# define MIN_CHARSET_OFFICIAL_DIMENSION2 0x90
+#endif /* !MIN_CHARSET_OFFICIAL_DIMENSION2 */
+#ifndef MAX_CHARSET_OFFICIAL_DIMENSION2
+# define MAX_CHARSET_OFFICIAL_DIMENSION2 0x99
+#endif /* !MAX_CHARSET_OFFICIAL_DIMENSION2 */
+
+#ifndef MAX_CHARSET
+/* Maximum value of overall charset identification number: */
+# define MAX_CHARSET 0xFE
+#endif /* !MAX_CHARSET */
 
 
 extern Lisp_Object Qcharsetp;

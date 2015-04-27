@@ -1,4 +1,4 @@
-/* ioctl.h: Emacs ioctl emulation for VMS */
+/* src/ioctl.h: Emacs ioctl emulation for VMS */
 
 #ifndef EMACS_IOCTL_H
 #define EMACS_IOCTL_H 1

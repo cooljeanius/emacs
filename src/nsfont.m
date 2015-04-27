@@ -781,7 +781,7 @@ nsfont_open (struct frame *f, Lisp_Object font_entity, int pixel_size)
   }
   /* Were the parentheses wrong here, or was fabs() really being misused?
    * I am going to assume the former for now: */
-  if (fabs(ns_attribute_fvalue(fontDesc, NSFontSlantTrait)) > 0.05F) {
+  if (fabsf(ns_attribute_fvalue(fontDesc, NSFontSlantTrait)) > 0.05F) {
       traits |= NSItalicFontMask;
   }
 

@@ -1,4 +1,4 @@
-/* getpagesize.h: Emulate getpagesize on systems that lack it.
+/* src/getpagesize.h: Emulate getpagesize on systems that lack it.
  * Copyright (C) 1986, 1992, 1995, 2001-2014 Free Software Foundation,
  * Inc.  */
 /*

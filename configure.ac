@@ -2928,6 +2928,7 @@ gl_GCC_VERSION_IFELSE([4],[5],[
         ])dnl# end compile cache check
         ## reset:
         LDFLAGS="${old_LDFLAGS}"
+        AC_SUBST([old_LDFLAGS])
      else
         AC_MSG_WARN([link-time optimization requested, but it currently requires a GCC-compatible compiler, which we do not have])
      fi  ##end gcc-specific checks
@@ -3050,6 +3051,7 @@ else
        AC_C_CONST
        if test "x${ac_cv_c_const}" = "xno" || test "x${ac_cv_c_const}" != "xyes"; then
          test -n "${ac_cv_c_const}"
+         nw="${nw} -Wsuggest-attribute=const"
          nw="${nw} -Wwrite-strings"
          ##FIXME: this used to be done unconditionally; adding the
          ## condition seems to have introduced new warnings...
@@ -3104,6 +3106,9 @@ else
   # Emacs's use of partly-pure functions such as CHECK_TYPE make this
   # option problematic.
   nw="${nw} -Wsuggest-attribute=pure"
+
+  # This one is handled manually later:
+  nw="${nw} -Wodr"
 
   # This part is merely for shortening the command line,
   # since -Wno-FOO needs to be added below regardless.
@@ -3416,14 +3421,11 @@ else
 
     dnl# to be added in a future version of gcc:
     gl_GCC_VERSION_IFELSE([5],[0],[
-      gl_WARN_ADD([-Wbool-compare])
+      dnl# most of the new warnings for gcc 5 are now handled by
+      dnl# manywarnings.m4, but handle a few here manually anywyas:
       gl_WARN_ADD([-Wc90-c99-compat])
       gl_WARN_ADD([-Wc99-c11-compat])
-      gl_WARN_ADD([-Wlogical-not-parentheses])
-      gl_WARN_ADD([-Wsizeof-array-argument])
-      gl_WARN_ADD([-Wswitch-bool])
-      gl_WARN_ADD([-Wshift-count-negative])
-      gl_WARN_ADD([-Wshift-count-overflow])
+      dnl# this one failed to make it in on time:
       if test "x${PRINT_CONVERSION_WARNINGS}" = "xyes"; then
         test -n "${PRINT_CONVERSION_WARNINGS}"
         gl_WARN_ADD([-Wbitfield-conversion])
@@ -3461,6 +3463,7 @@ else
   # We use a slightly smaller set of warning options for lib/.
   # Remove the following and save the result in GNULIB_WARN_CFLAGS.
   nw=""
+  nw="${nw} -Wdouble-promotion"                     # warnings in ftoastr.c
   nw="${nw} -Wfloat-equal"                    # borderline, and hard to fix
   nw="${nw} -Wredundant-decls"                            # prints too many
   nw="${nw} -Wunsuffixed-float-constants"                             # meh
@@ -3730,6 +3733,7 @@ if test "x${emacs_cv_ld_znocombreloc}" = "xno"; then
    LDFLAGS_NOCOMBRELOC=""
 fi
 LDFLAGS="${late_LDFLAGS}"
+AC_SUBST([late_LDFLAGS])dnl
 
 AC_CACHE_CHECK([whether addresses are sanitized],
   [emacs_cv_sanitize_address],
@@ -3945,7 +3949,13 @@ case "${opsys}" in
   unixware) LIBS_SYSTEM="-lsocket -lnsl -lelf -lgen" ;;
 
   darwin)
-    if test -e /usr/lib/libintl.dylib || test -e "${prefix}/lib/libintl.dylib"; then
+    if test "x${INTLLIBS}" != "x"; then
+      echo "Trying to add INTLLIBS to LIBS_SYSTEM here for darwin"
+      test -n "${INTLLIBS}" && LIBS_SYSTEM="${INTLLIBS}"
+    elif test "x${LIBINTL}" != "x"; then
+      echo "Trying to add LIBINTL to LIBS_SYSTEM here for darwin"
+      test -n "${LIBINTL}" && LIBS_SYSTEM="${LIBINTL}"
+    elif test -e /usr/lib/libintl.dylib || test -e "${prefix}/lib/libintl.dylib"; then
       echo "adding '-lintl' to LIBS_SYSTEM here for darwin"
       LIBS_SYSTEM="-lintl"
     elif test -e /usr/lib/libSystem.dylib; then
@@ -4576,6 +4586,7 @@ if test "x${with_ns}" != "xno"; then
 fi
 AC_CHECK_FUNCS([NSPerformService])dnl
 LDFLAGS="${ORIG_LDFLAGS}"
+AC_SUBST([ORIG_LDFLAGS])dnl
 AC_LANG_POP
 
 #### Choose a window system.
@@ -4661,10 +4672,11 @@ if test "x${with_carbon}" != "xno"; then
   AC_CHECK_HEADER([Carbon/Carbon.h],[HAVE_CARBON=yes])
   AC_CHECK_HEADERS([CarbonCore/Files.h CarbonCore/MacTypes.h \
                     CarbonCore/Script.h CarbonCore/TextUtils.h \
-                    HIToolbox/Controls.h HIToolbox/Drag.h \
-                    HIToolbox/Events.h HIToolbox/HIProgressViews.h \
-                    HIToolbox/MacWindows.h MacTypes.h \
-                    NavigationServices/Navigation.h QD/QuickdrawAPI.h])dnl
+                    HIToolbox/CarbonEvents.h HIToolbox/Controls.h \
+                    HIToolbox/Drag.h HIToolbox/Events.h \
+                    HIToolbox/HIProgressViews.h HIToolbox/MacWindows.h \
+                    MacTypes.h NavigationServices/Navigation.h \
+                    QD/QuickdrawAPI.h QD/QDOffscreen.h])dnl
   ## end Carbon headers check
 fi
 if test "x${window_system}" = "xx11" && test "x${HAVE_CARBON}" = "xyes"; then
@@ -4717,6 +4729,7 @@ printf("%s", out_string);
 [emacs_cv_carbon_sixtyfourbit=yes],[emacs_cv_carbon_sixtyfourbit=no])
       ])
       LDFLAGS="${NON_CARBON_LDFLAGS}"
+      AC_SUBST([NON_CARBON_LDFLAGS])dnl
       ##FIXME: see also if it is possible to force 32-bit compilation,
       ## if the above fails (which it should)...
     ;;
@@ -4726,6 +4739,7 @@ AC_SUBST([LIBS_CARBON])dnl
 AC_SUBST([MAC_OBJ])dnl
 
 HAVE_NS="no"
+NS_GNUSTEP_CONFIG="no"
 NS_IMPL=""
 NS_IMPL_COCOA="no"
 NS_IMPL_GNUSTEP="no"
@@ -4755,6 +4769,11 @@ if test "x${with_ns}" != "xno"; then
        AC_DEFINE([HAVE_CBLOCKS_LANGUAGE_FEATURE],[1],
                  [Define to 1 if we can use cblocks in our code])
      fi
+  elif flags=$( (gnustep-config --objc-flags) 2>/dev/null); then
+     NS_IMPL_GNUSTEP=yes
+     NS_GNUSTEP_CONFIG=yes
+     GNU_OBJC_CFLAGS="${flags}"
+     LIBS_GNUSTEP=$(gnustep-config --gui-libs) || exit
   elif test -f ${GNUSTEP_CONFIG_FILE}; then
      NS_IMPL=GNUstep
      NS_IMPL_GNUSTEP=yes
@@ -4798,6 +4817,13 @@ fail;
        GNU_OBJC_CFLAGS="-fobjc-exceptions"
      fi
   fi
+  if test "x${NS_IMPL_GNUSTEP}" = "xyes"; then
+     ns_appdir=`pwd`/nextstep/Emacs.app
+     ns_appbindir="${ns_appdir}"
+     ns_appresdir="${ns_appdir}/Resources"
+     ns_appsrc=GNUstep/Emacs.base
+     ns_fontfile=nsfont.o
+  fi
 
   if test "x${gl_gcc_warnings}" = "xyes" && test "x${WERROR_CFLAGS}" = "x"; then
     AC_LANG_PUSH([Objective C])dnl
@@ -4805,6 +4831,9 @@ fail;
     gl_WARN_ADD([-Wglobal-constructors],[GNU_OBJC_WARN_CFLAGS])
     gl_WARN_ADD([-Wproperty-assign-default],[GNU_OBJC_WARN_CFLAGS])
     gl_WARN_ADD([-Wprotocol],[GNU_OBJC_WARN_CFLAGS])
+    gl_GCC_VERSION_IFELSE([5],[0],[
+      gl_WARN_ADD([-Wshadow-ivar],[GNU_OBJC_WARN_CFLAGS])
+    ])
     ## these two selector-related warnings can be overly noisy:
     if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
       test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
@@ -4833,7 +4862,8 @@ fail;
   dnl# of the variable, which is substed in more places:
   GNU_OBJC_CFLAGS="${GNU_OBJC_CFLAGS} ${GNU_OBJC_WARN_CFLAGS}"
 
-  dnl# This is only used while we test the NS headers, it gets reset below.
+  dnl# This is only used while we test the NS headers, it gets reset below:
+  CPPFLAGS="${CPPFLAGS} ${GNU_OBJC_CFLAGS}"
   CFLAGS="${CFLAGS} ${GNU_OBJC_CFLAGS}"
 
   unset ac_cv_header_appkit_appkit_h
@@ -5431,15 +5461,17 @@ aix*)
   ;;
 esac
 
-# Change CFLAGS, CPPFLAGS, and LIBS temporarily so that C_SWITCH_X_SITE is
-# used for the tests that follow.  We set them back to REAL_CFLAGS and
-# REAL_CPPFLAGS and REAL_LIBS later on.
+# Change CFLAGS, CPPFLAGS, LDFLAGS, and LIBS temporarily so that
+# C_SWITCH_X_SITE is used for the tests that follow.  We set them back to
+# REAL_CFLAGS, REAL_CPPFLAGS, REAL_LDFLAGS and REAL_LIBS later on.
 
 REAL_CFLAGS="${CFLAGS}"
 REAL_CPPFLAGS="${CPPFLAGS}"
+REAL_LDFLAGS="${LDFLAGS}"
 REAL_LIBS="${LIBS}"
 AC_SUBST([REAL_CFLAGS])dnl
 AC_SUBST([REAL_CPPFLAGS])dnl
+AC_SUBST([REAL_LDFLAGS])dnl
 AC_SUBST([REAL_LIBS])dnl
 
 AC_MSG_CHECKING([X11 features])
@@ -6306,6 +6338,7 @@ Motif version prior to 2.1.
       # directory ultimately in CPPFLAGS will be enough.
       REAL_CPPFLAGS="-I/usr/X11R6/LessTif/Motif1.2/include ${REAL_CPPFLAGS}"
       LDFLAGS="-L/usr/X11R6/LessTif/Motif1.2/lib ${LDFLAGS}"
+      REAL_LDFLAGS="-L/usr/X11R6/LessTif/Motif1.2/lib ${REAL_LDFLAGS}"
     else
       CFLAGS="${OLD_CFLAGS}"
       CPPFLAGS="${OLD_CPPFLAGS}"
@@ -6581,8 +6614,9 @@ if test "x${HAVE_W32}" = "xyes" && test "x${opsys}" = "xcygwin"; then
          elif test "x${ac_cv_lib_Xpm_XpmReadFileToPixmap}" = "xyes"; then
            test -n "${ac_cv_lib_Xpm_XpmReadFileToPixmap}" && HAVE_XPM=yes
          fi
-      ])
-    ])
+      ])dnl
+    ])dnl
+    ## ...and also:
     if test "x${HAVE_XPM}" = "xyes"; then
       AC_MSG_CHECKING([for XpmReturnAllocPixels preprocessor define])
       AC_EGREP_CPP([no_return_alloc_pixels],
@@ -6594,6 +6628,7 @@ no_return_alloc_pixels
 
       if test "x${HAVE_XPM}" = "xyes"; then
         REAL_CPPFLAGS="${REAL_CPPFLAGS} -I/usr/include/noX"
+        REAL_LDFLAGS="${REAL_LDFLAGS} -L/usr/lib/noX"
 	AC_MSG_RESULT([yes])
       else
 	AC_MSG_RESULT([no])
@@ -6601,6 +6636,12 @@ no_return_alloc_pixels
         LDFLAGS="${SAVE_LDFLAGS}"
       fi
     fi
+    ## in case we missed the conditional where these previously got popped:
+    CPPFLAGS="${SAVE_CPPFLAGS}"
+    LDFLAGS="${SAVE_LDFLAGS}"
+    AC_SUBST([SAVE_CPPFLAGS])dnl
+    AC_SUBST([SAVE_LDFLAGS])dnl
+    ## check their value where they get substed, just in case...
   fi
 
   if test "x${HAVE_XPM}" = "xyes"; then
@@ -7050,11 +7091,16 @@ if test "x${HAVE_NS}" = "xyes"; then
   if test "x${NS_IMPL_GNUSTEP}" = "xyes"; then
     AC_DEFINE([NS_IMPL_GNUSTEP],[1],
               [Define to 1 if you are using NS windowing under GNUstep.])
-    # See also .m.o rule in Makefile.in
-    # FIXME: are all these flags really needed?  Document here why.
-    GNUSTEP_CFLAGS="-D_REENTRANT -fPIC -fno-strict-aliasing -I${GNUSTEP_SYSTEM_HEADERS} ${GNUSTEP_LOCAL_HEADERS}"
-    ## Extra CFLAGS applied to src/*.m files.
-    GNU_OBJC_CFLAGS="${GNU_OBJC_CFLAGS} -fgnu-runtime -Wno-import -fconstant-string-class=NSConstantString -DGNUSTEP_BASE_LIBRARY=1 -DGNU_GUI_LIBRARY=1 -DGNU_RUNTIME=1 -DGSWARN -DGSDIAGNOSE"
+    if test "x${NS_GNUSTEP_CONFIG}" != "xyes"; then
+      # See also .m.o rule in Makefile.in
+      # FIXME: are all these flags really needed?  Document here why:
+      GNUSTEP_CFLAGS="-D_REENTRANT -fPIC -fno-strict-aliasing -I${GNUSTEP_SYSTEM_HEADERS} ${GNUSTEP_LOCAL_HEADERS}"
+      ## Extra CFLAGS applied to src/*.m files:
+      GNU_OBJC_CFLAGS="${GNU_OBJC_CFLAGS} -fgnu-runtime -Wno-import -fconstant-string-class=NSConstantString -DGNUSTEP_BASE_LIBRARY=1 -DGNU_GUI_LIBRARY=1 -DGNU_RUNTIME=1 -DGSWARN -DGSDIAGNOSE"
+    elif test "x${NS_GNUSTEP_CONFIG}" = "xyes"; then
+      test -n "${NS_GNUSTEP_CONFIG}"
+      AC_MSG_NOTICE([using values from gnustep-config for flags])
+    fi
   fi
   OTHER_FILES=ns-app
 fi
@@ -7439,14 +7485,14 @@ if test "x${libm_has_fmod}" = "x" && test "x${ac_cv_func_fmod}" = "x"; then
 fi
 dnl# these ones should be in alphabetical order:
 AC_CHECK_FUNCS([__fpending _stricmp acl atexit atof atoi btowc bzero \
-                cuserid doprnt errc fabs fabsf floor ftime ftruncate \
-                geteuid getpass getpwuid inet_ntoa isascii iswprint \
-                mbrlen  memmove memset mkdir munmap nl_langinfo \
-                posix_spawnp pow putenv re_comp regcomp rmdir \
-                setenv socket sqrt strcasecmp strcasestr strchr strcmp \
-                strcspn strdup strerror stricmp strncmp strnicmp strnstr \
-                strpbrk strrchr strtok strtol strtoul system xstricmp \
-                uname utime utmpname vfprintf])
+                cuserid doprnt errc fabs fabsf floor ftime geteuid \
+                getpass getpwuid inet_ntoa isascii iswprint mbrlen \
+                memmove memset mkdir munmap nl_langinfo pathconf \
+                posix_spawnp pow putenv re_comp regcomp rmdir setenv \
+                socket sqrt strcasecmp strcasestr strchr strcmp strcspn \
+                strdup strerror stricmp strncasecmp strncmp strnicmp \
+                strnstr strpbrk strrchr strtok strtol strtoul system \
+                xstricmp uname utime utmpname vfprintf])
 dnl# Keep autoscan happy with a dummy condition:
 if test "x" = "Y0"; then
   test -x "`which autoscan`"
@@ -7454,8 +7500,11 @@ if test "x" = "Y0"; then
     test -z "${ac_cv_lib_error_at_line}"
     AC_FUNC_ERROR_AT_LINE
   fi
-  AC_CHECK_FUNCS([alarm dup2 fchdir getcwd gethostbyname getpagesize \
-                  gettimeofday localtime_r strtoumax tzset])
+  m4_ifdef([AC_CHECK_FUNCS_ONCE],[
+    AC_CHECK_FUNCS([getdelim])dnl
+  ])dnl
+  AC_CHECK_FUNCS([alarm dup2 fchdir ftruncate getcwd gethostbyname \
+                  getpagesize gettimeofday localtime_r strtoumax tzset])
 fi
 
 dnl# No need to check for aligned_alloc and posix_memalign if using
@@ -8782,18 +8831,27 @@ esac
 # First save the current values to some other, unused, variables though:
 if test "x${FAKE_CFLAGS}" = "x"; then
   test -z "${FAKE_CFLAGS}" && export FAKE_CFLAGS="${CFLAGS}"
-  AC_SUBST([FAKE_CFLAGS])
+  AC_SUBST([FAKE_CFLAGS])dnl
+  ## ok
 fi
 if test "x${FAKE_CPPFLAGS}" = "x"; then
   test -z "${FAKE_CPPFLAGS}" && export FAKE_CPPFLAGS="${CPPFLAGS}"
-  AC_SUBST([FAKE_CPPFLAGS])
+  AC_SUBST([FAKE_CPPFLAGS])dnl
+  ## ok
+fi
+if test "x${FAKE_LDFLAGS}" = "x"; then
+  test -z "${FAKE_LDFLAGS}" && export FAKE_LDFLAGS="${LDFLAGS}"
+  AC_SUBST([FAKE_LDFLAGS])dnl
+  ## ok
 fi
 if test "x${FAKE_LIBS}" = "x"; then
   test -z "${FAKE_LIBS}" && export FAKE_LIBS="${LIBS}"
-  AC_SUBST([FAKE_LIBS])
+  AC_SUBST([FAKE_LIBS])dnl
+  ## ok
 fi
 CFLAGS="${REAL_CFLAGS}"
 CPPFLAGS="${REAL_CPPFLAGS}"
+LDFLAGS="${REAL_LDFLAGS}"
 LIBS="${REAL_LIBS}"
 
 ## Hack to detect a buggy GCC version.
@@ -9103,7 +9161,7 @@ dnl# gettext:
 AC_MSG_CHECKING([gettext])
 AC_MSG_RESULT([ ])
 AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION([0.19.3])
+AM_GNU_GETTEXT_VERSION([0.19.4])
 # Solaris requires -lintl if you want strerror (which calls dgettext)
 # to return localized messages.
 if test "x${ac_cv_func_strerror}" = "xyes" || test "x${ac_cv_search_strerror}" != "x"; then
@@ -9436,8 +9494,18 @@ fi
 
 if test "x${LDFLAGS}" = "x"; then
   if test "x${prefix}" != "xNONE"; then
+    echo "Trying to make sure LDFLAGS are set..."
     test -z "${LDFLAGS}" && test -n "${prefix}" && test -d "${prefix}/lib" && export LDFLAGS="-L${prefix}/lib"
+    test -z "${LDFLAGS}" && test -n "${with_libintl_prefix}" && test -d "${with_libintl_prefix}/lib" && export LDFLAGS="-L${with_libintl_prefix}/lib"
+    test -z "${LDFLAGS}" && test -n "${with_libiconv_prefix}" && test -d "${with_libiconv_prefix}/lib" && export LDFLAGS="-L${with_libiconv_prefix}/lib"
+    test -z "${LDFLAGS}" && test -n "${x_libraries}" && test -d "${x_libraries}" && export LDFLAGS="-L${x_libraries}"
+  elif test "x${prefix}" = "xNONE" && test ! -d "NONE"; then
+    echo "Warning: invalid prefix"
+  else
+    echo "Well, this situation is improbable..."
   fi
+else
+  echo "LDFLAGS are already set."
 fi
 
 ## multi-line call to 'echo'; closing quote is farther down @ end of block:

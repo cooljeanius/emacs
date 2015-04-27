@@ -1,4 +1,4 @@
-/* Basic character set support.
+/* charset.c: Basic character set support.
 
 Copyright (C) 2001-2014 Free Software Foundation, Inc.
 
@@ -83,10 +83,17 @@ int charset_unicode;
 static int charset_emacs;
 
 /* The other special charsets.  */
+int charset_latin_iso8859_1;	/* ISO8859-1 (Latin-1) */
 int charset_jisx0201_roman;
 int charset_jisx0208_1978;
 int charset_jisx0208;
 int charset_ksc5601;
+int charset_mule_unicode_0100_24ff;
+int charset_mule_unicode_2500_33ff;
+int charset_mule_unicode_e000_ffff;
+
+/* A char-table containing information of each character set: */
+Lisp_Object Vcharset_table;
 
 /* Value of charset attribute `charset-iso-plane'.  */
 static Lisp_Object Qgl, Qgr;
@@ -2320,6 +2327,10 @@ init_charset_once (void)
 {
   int i, j, k;
 
+  staticpro(&Vcharset_table);
+
+  Vcharset_table = LISP_INITIALLY_ZERO;
+
   for (i = 0; i < ISO_MAX_DIMENSION; i++)
     for (j = 0; j < ISO_MAX_CHARS; j++)
       for (k = 0; k < ISO_MAX_FINAL; k++)
@@ -2332,6 +2343,10 @@ init_charset_once (void)
   charset_jisx0208_1978 = -1;
   charset_jisx0208 = -1;
   charset_ksc5601 = -1;
+  charset_latin_iso8859_1 = -1;
+  charset_mule_unicode_0100_24ff = -1;
+  charset_mule_unicode_2500_33ff = -1;
+  charset_mule_unicode_e000_ffff = -1;
 }
 
 #ifdef emacs

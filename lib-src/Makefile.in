@@ -192,6 +192,8 @@ KRB5LIB=@KRB5LIB@
 CRYPTOLIB=@CRYPTOLIB@
 ## -lcom_err if needed
 COM_ERRLIB=@COM_ERRLIB@
+## -lintl if needed
+INTLLIBS=@INTLLIBS@
 ## -lhesiod if needed
 LIBHESIOD=@LIBHESIOD@
 ## -lresolv if HAVE_LIBRESOLV
@@ -213,7 +215,7 @@ LIBS_MOVE = $(LIBS_MAIL) $(KRB4LIB) $(DESLIB) $(KRB5LIB) $(CRYPTOLIB) \
 
 ## Extra libraries when linking emacsclient
 ## (empty or -lcomctl32 for MinGW)
-LIBS_ECLIENT = @LIBS_ECLIENT@
+LIBS_ECLIENT = @LIBS_ECLIENT@ $(INTLLIBS)
 
 ## Extra object files for linking for MinGW:
 NTLIB = @NTLIB@
@@ -506,7 +508,7 @@ sorted-doc${EXEEXT}: ${srcdir}/sorted-doc.c
 b2m${EXEEXT}: ${srcdir}/b2m.c $(config_h) $(GETOPTDEPS)
 	$(AM_V_CCLD)$(CC) ${ALL_CFLAGS} ${srcdir}/b2m.c \
 	   -DVERSION="\"${version}\"" ${EMACS_DEFS} $(GETOPTOBJS) \
-	   $(LOADLIBES) -o b2m
+	   $(LOADLIBES) $(LIBINTL) -o b2m
 
 movemail${EXEEXT}: ${srcdir}/movemail.c pop.o $(stddep)
 	$(AM_V_CCLD)$(CC) ${ALL_CFLAGS} ${MOVE_FLAGS} \

@@ -30,6 +30,7 @@ stdio.h
 stdlib.h
 stdnoreturn.h
 string.h
+strings.h
 sys/ioctl.h
 sys/resource.h
 sys/select.h

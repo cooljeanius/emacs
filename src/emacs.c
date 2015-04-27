@@ -1,4 +1,4 @@
-/* Fully extensible Emacs, running on Unix, intended for GNU.
+/* emacs.c: Fully extensible Emacs, running on Unix, intended for GNU.
 
 Copyright (C) 1985-1987, 1993-1995, 1997-1999, 2001-2014 Free Software
 Foundation, Inc.
@@ -34,31 +34,31 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "lisp.h"
 
 #ifdef WINDOWSNT
-#include <fcntl.h>
-#include <sys/socket.h>
-#include <mbstring.h>
-#include "w32.h"
-#include "w32heap.h"
-#endif
+# include <fcntl.h>
+# include <sys/socket.h>
+# include <mbstring.h>
+# include "w32.h"
+# include "w32heap.h"
+#endif /* WINDOWSNT */
 
 #if defined WINDOWSNT || defined HAVE_NTGUI
-#include "w32select.h"
-#include "w32font.h"
-#include "w32common.h"
-#endif
+# include "w32select.h"
+# include "w32font.h"
+# include "w32common.h"
+#endif /* WINDOWSNT || HAVE_NTGUI */
 
 #if defined CYGWIN
-#include "cygw32.h"
-#endif
+# include "cygw32.h"
+#endif /* CYGWIN */
 
 #ifdef HAVE_WINDOW_SYSTEM
-#include TERM_HEADER
+# include TERM_HEADER
 #endif /* HAVE_WINDOW_SYSTEM */
 
 #ifdef NS_IMPL_GNUSTEP
 /* At least under Debian, GSConfig is in a subdirectory.  --Stef  */
-#include <GNUstepBase/GSConfig.h>
-#endif
+# include <GNUstepBase/GSConfig.h>
+#endif /* NS_IMPL_GNUSTEP */
 
 #include "commands.h"
 #include "intervals.h"
@@ -83,27 +83,27 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "systime.h"
 
 #ifdef HAVE_GNUTLS
-#include "gnutls.h"
-#endif
+# include "gnutls.h"
+#endif /* HAVE_GNUTLS */
 
 #if (defined PROFILING \
      && (defined __FreeBSD__ || defined GNU_LINUX || defined __MINGW32__))
 # include <sys/gmon.h>
-extern void moncontrol (int mode);
-#endif
+extern void moncontrol(int mode);
+#endif /* PROFILING && (__FreeBSD__ || GNU_LINUX || __MINGW32__) */
 
 #ifdef HAVE_SETLOCALE
-#include <locale.h>
-#endif
+# include <locale.h>
+#endif /* HAVE_SETLOCALE */
 
 #ifdef HAVE_SETRLIMIT
-#include <sys/time.h>
-#include <sys/resource.h>
-#endif
+# include <sys/time.h>
+# include <sys/resource.h>
+#endif /* HAVE_SETRLIMIT */
 
 #ifdef HAVE_PERSONALITY_LINUX32
-#include <sys/personality.h>
-#endif
+# include <sys/personality.h>
+#endif /* HAVE_PERSONALITY_LINUX32 */
 
 static const char emacs_version[] = VERSION;
 static const char emacs_copyright[] = COPYRIGHT;
@@ -114,7 +114,7 @@ Lisp_Object empty_unibyte_string, empty_multibyte_string;
 #ifdef WINDOWSNT
 /* Cache for externally loaded libraries.  */
 Lisp_Object Vlibrary_cache;
-#endif
+#endif /* WINDOWSNT */
 
 /* Set after Emacs has started up the first time.
    Prevents reinitialization of the Lisp world and keymaps
@@ -122,23 +122,23 @@ Lisp_Object Vlibrary_cache;
 bool initialized;
 
 #ifdef DARWIN_OS
-extern void unexec_init_emacs_zone (void);
-#endif
+extern void unexec_init_emacs_zone(void);
+#endif /* DARWIN_OS */
 
 #ifdef DOUG_LEA_MALLOC
 /* Preserves a pointer to the memory allocated that copies that
    static data inside glibc's malloc.  */
 static void *malloc_state_ptr;
 /* From glibc, a routine that returns a copy of the malloc internal state.  */
-extern void *malloc_get_state (void);
+extern void *malloc_get_state(void);
 /* From glibc, a routine that overwrites the malloc internal state.  */
-extern int malloc_set_state (void*);
+extern int malloc_set_state(void *);
 /* True if the MALLOC_CHECK_ environment variable was set while
    dumping.  Used to work around a bug in glibc's malloc.  */
 static bool malloc_using_checking;
 #elif defined HAVE_PTHREAD && !defined SYSTEM_MALLOC
-extern void malloc_enable_thread (void);
-#endif
+extern void malloc_enable_thread(void);
+#endif /* DOUG_LEA_MALLOC || (HAVE_PTHREAD && !SYSTEM_MALLOC) */
 
 Lisp_Object Qfile_name_handler_alist;
 
@@ -155,7 +155,7 @@ bool inhibit_window_system;
    data on the first attempt to change it inside asynchronous code.  */
 bool running_asynch_code;
 
-#if defined (HAVE_X_WINDOWS) || defined (HAVE_NS)
+#if defined(HAVE_X_WINDOWS) || defined(HAVE_NS)
 /* If true, -d was specified, meaning we are using some window system: */
 bool display_arg;
 #endif /* HAVE_X_WINDOWS || HAVE_NS */
@@ -164,22 +164,21 @@ bool display_arg;
    Tells GC how to save a copy of the stack.  */
 char *stack_bottom;
 
-#if defined (DOUG_LEA_MALLOC) || defined (GNU_LINUX)
+#if defined(DOUG_LEA_MALLOC) || defined(GNU_LINUX)
 /* The address where the heap starts (from the first sbrk (0) call).  */
 static void *my_heap_start;
-#endif
+#endif /* DOUG_LEA_MALLOC || GNU_LINUX */
 
 #ifdef GNU_LINUX
 /* The gap between BSS end and heap start as far as we can tell.  */
 static uprintmax_t heap_bss_diff;
-#endif
+#endif /* GNU_LINUX */
 
 /* To run as a daemon under Cocoa or Windows, we must do a fork+exec,
    not a simple fork.
 
    On Cocoa, CoreFoundation lib fails in forked process:
-   http://developer.apple.com/ReleaseNotes/
-   CoreFoundation/CoreFoundation.html)
+http://developer.apple.com/ReleaseNotes/CoreFoundation/CoreFoundation.html
 
    On Windows, a Cygwin fork child cannot access the USER subsystem.
 
@@ -188,7 +187,7 @@ static uprintmax_t heap_bss_diff;
    NAME is the original daemon name, if any. */
 #if defined NS_IMPL_COCOA || (defined HAVE_NTGUI && defined CYGWIN)
 # define DAEMON_MUST_EXEC
-#endif
+#endif /* NS_IMPL_COCOA || (HAVE_NTGUI && CYGWIN) */
 
 /* True means running Emacs without interactive terminal.  */
 bool noninteractive;
@@ -207,8 +206,8 @@ int daemon_pipe[2];
 char **initial_argv;
 int initial_argc;
 
-static void sort_args (int argc, char **argv);
-static void syms_of_emacs (void);
+static void sort_args(int argc, char **argv);
+static void syms_of_emacs(void);
 
 /* C89 needs each string be at most 509 characters, so the usage
    strings below are split to not overflow this limit.  */
@@ -330,37 +329,37 @@ section of the Emacs manual or the file BUGS.\n"
 bool fatal_error_in_progress;
 
 #ifdef HAVE_NS
-/* NS autrelease pool, for memory management.  */
+/* NS autrelease pool, for memory management: */
 static void *ns_pool;
-#endif
+#endif /* HAVE_NS */
 
 #if !HAVE_SETLOCALE
 static char *
-setlocale (int cat, char const *locale)
+setlocale(int cat, char const *locale)
 {
   return 0;
 }
-#endif
+#endif /* !HAVE_SETLOCALE */
 
 
 /* Report a fatal error due to signal SIG, output a backtrace of at
    most BACKTRACE_LIMIT lines, and exit.  */
 _Noreturn void
-terminate_due_to_signal (int sig, int backtrace_limit)
+terminate_due_to_signal(int sig, int backtrace_limit)
 {
-  signal (sig, SIG_DFL);
-  totally_unblock_input ();
+  signal(sig, SIG_DFL);
+  totally_unblock_input();
 
   /* If fatal error occurs in code below, avoid infinite recursion.  */
   if (! fatal_error_in_progress)
     {
       fatal_error_in_progress = 1;
 
-      if (sig == SIGTERM || sig == SIGHUP || sig == SIGINT)
-        Fkill_emacs (make_number (sig));
+      if ((sig == SIGTERM) || (sig == SIGHUP) || (sig == SIGINT))
+        Fkill_emacs(make_number(sig));
 
-      shut_down_emacs (sig, Qnil);
-      emacs_backtrace (backtrace_limit);
+      shut_down_emacs(sig, Qnil);
+      emacs_backtrace(backtrace_limit);
     }
 
   /* Signal the same code; this time it will really be fatal.
@@ -369,26 +368,25 @@ terminate_due_to_signal (int sig, int backtrace_limit)
 #ifndef MSDOS
   {
     sigset_t unblocked;
-    sigemptyset (&unblocked);
-    sigaddset (&unblocked, sig);
-    pthread_sigmask (SIG_UNBLOCK, &unblocked, 0);
+    sigemptyset(&unblocked);
+    sigaddset(&unblocked, sig);
+    pthread_sigmask(SIG_UNBLOCK, &unblocked, 0);
   }
-#endif
+#endif /* MSDOS */
 
-  emacs_raise (sig);
+  emacs_raise(sig);
 
-  /* This shouldn't be executed, but it prevents a warning.  */
-  exit (1);
+  /* This should NOT be executed, but it prevents a warning: */
+  exit(1);
 }
 
-/* Code for dealing with Lisp access to the Unix command line.  */
-
+/* Code for dealing with Lisp access to the Unix command line: */
 static void
-init_cmdargs (int argc, char **argv, int skip_args, char *original_pwd)
+init_cmdargs(int argc, char **argv, int skip_args, char *original_pwd)
 {
   register int i;
   Lisp_Object name, dir, handler;
-  ptrdiff_t count = SPECPDL_INDEX ();
+  ptrdiff_t count = SPECPDL_INDEX();
   Lisp_Object raw_name;
 
   initial_argv = argv;
@@ -400,14 +398,14 @@ init_cmdargs (int argc, char **argv, int skip_args, char *original_pwd)
   {
     char argv0[MAX_UTF8_PATH];
 
-    if (filename_from_ansi (argv[0], argv0) == 0)
-      raw_name = build_unibyte_string (argv0);
+    if (filename_from_ansi(argv[0], argv0) == 0)
+      raw_name = build_unibyte_string(argv0);
     else
-      raw_name = build_unibyte_string (argv[0]);
+      raw_name = build_unibyte_string(argv[0]);
   }
 #else
-  raw_name = build_unibyte_string (argv[0]);
-#endif
+  raw_name = build_unibyte_string(argv[0]);
+#endif /* WINDOWSNT */
 
   /* Add /: to the front of the name
      if it would otherwise be treated as magic.  */
@@ -456,13 +454,14 @@ init_cmdargs (int argc, char **argv, int skip_args, char *original_pwd)
       /* If we are running from the build directory, set DIR to the
 	 src subdirectory of the Emacs tree, like on Posix
 	 platforms.  */
-      if (SBYTES (dir) > sizeof ("/i386/") - 1
-	  && 0 == strcmp (SSDATA (dir) + SBYTES (dir) - sizeof ("/i386/") + 1,
-			  "/i386/"))
-	dir = Fexpand_file_name (build_string ("../.."), dir);
-#else  /* !WINDOWSNT */
-#endif
-      name = Fexpand_file_name (Vinvocation_name, dir);
+      if (SBYTES(dir) > (sizeof("/i386/") - 1)
+	  && 0 == strcmp(SSDATA(dir) + SBYTES(dir) - sizeof("/i386/") + 1,
+			 "/i386/"))
+	dir = Fexpand_file_name(build_string("../.."), dir);
+#else  /* !WINDOWSNT: */
+      ;
+#endif /* WINDOWSNT */
+      name = Fexpand_file_name(Vinvocation_name, dir);
       while (1)
 	{
 	  Lisp_Object tem, lib_src_exists;
@@ -571,7 +570,7 @@ DEFUN ("invocation-directory", Finvocation_directory, Sinvocation_directory,
 /* A valid but unlikely value for the TZ environment value.
    It is OK (though a bit slower) if the user actually chooses this value.  */
 static char const dump_tz[] = "UtC0";
-#endif
+#endif /* HAVE_TZSET */
 
 /* Test whether the next argument in ARGV matches SSTR or a prefix of
    LSTR (at least MINLEN characters).  If so, then if VALPTR is non-null
@@ -698,24 +697,24 @@ close_output_streams (void)
 
 /* ARGSUSED */
 int
-main (int argc, char **argv)
+main(int argc, char **argv)
 {
 #if GC_MARK_STACK
   Lisp_Object dummy;
-#endif
+#endif /* GC_MARK_STACK */
   char stack_bottom_variable;
   bool do_initial_setlocale;
   bool dumping;
   int skip_args = 0;
 #ifdef HAVE_SETRLIMIT
   struct rlimit rlim;
-#endif
+#endif /* HAVE_SETRLIMIT */
   bool no_loadup = 0;
   char *junk = 0;
   char *dname_arg = 0;
 #ifdef DAEMON_MUST_EXEC
   char dname_arg2[80];
-#endif
+#endif /* DAEMON_MUST_EXEC */
   char *ch_to_dir;
 
   /* If we use --chdir, this records the original directory.  */
@@ -723,13 +722,13 @@ main (int argc, char **argv)
 
 #if GC_MARK_STACK
   stack_base = &dummy;
-#endif
+#endif /* GC_MARK_STACK */
 
 #ifdef G_SLICE_ALWAYS_MALLOC
   /* This is used by the Cygwin build.  It's not needed starting with
      cygwin-1.7.24, but it doesn't do any harm.  */
-  xputenv ("G_SLICE=always-malloc");
-#endif
+  xputenv("G_SLICE=always-malloc");
+#endif /* G_SLICE_ALWAYS_MALLOC */
 
 #ifdef GNU_LINUX
   if (!initialized)
@@ -738,43 +737,50 @@ main (int argc, char **argv)
       extern char *my_endbss_static;
 
       if (my_heap_start == 0)
-        my_heap_start = sbrk (0);
+        my_heap_start = sbrk(0);
 
-      heap_bss_diff = (char *)my_heap_start - max (my_endbss, my_endbss_static);
+      heap_bss_diff = ((char *)my_heap_start - max(my_endbss,
+                                                   my_endbss_static));
     }
-#endif
+#endif /* GNU_LINUX */
 
 #if defined WINDOWSNT || defined HAVE_NTGUI
   /* Set global variables used to detect Windows version.  Do this as
      early as possible.  (unexw32.c calls this function as well, but
      the additional call here is harmless.) */
-  cache_system_info ();
-#ifdef WINDOWSNT
+  cache_system_info();
+# ifdef WINDOWSNT
   /* On Windows 9X, we have to load UNICOWS.DLL as early as possible,
      to have non-stub implementations of APIs we need to convert file
      names between UTF-8 and the system's ANSI codepage.  */
-  maybe_load_unicows_dll ();
-#endif
-#endif
+  maybe_load_unicows_dll();
+# endif /* WINDOWSNT */
+#endif /* WINDOWSNT || HAVE_NTGUI */
+
+  /* do this before anything else uses argc and/or argv: */
+#ifdef DEBUG
+  printf("Program is running from path '%s' with '%i' argument(s).\n",
+         argv[0], argc);
+#endif /* DEBUG */
 
 #ifdef RUN_TIME_REMAP
   if (initialized)
-    run_time_remap (argv[0]);
-#endif
+    run_time_remap(argv[0]);
+#endif /* RUN_TIME_REMAP */
 
-/* If using unexmacosx.c (set by s/darwin.h), we must do this. */
+/* If using unexmacosx.c (set by s/darwin.h), then we must do this: */
 #ifdef DARWIN_OS
   if (!initialized)
-    unexec_init_emacs_zone ();
-#endif
+    unexec_init_emacs_zone();
+#endif /* DARWIN_OS */
 
-  atexit (close_output_streams);
+  atexit(close_output_streams);
 
-  sort_args (argc, argv);
+  sort_args(argc, argv);
   argc = 0;
   while (argv[argc]) argc++;
 
-  if (argmatch (argv, argc, "-version", "--version", 3, NULL, &skip_args))
+  if (argmatch(argv, argc, "-version", "--version", 3, NULL, &skip_args))
     {
       const char *version, *copyright;
       if (initialized)
@@ -832,25 +838,25 @@ main (int argc, char **argv)
         }
     }
 
-  dumping = !initialized && (strcmp (argv[argc - 1], "dump") == 0
-			     || strcmp (argv[argc - 1], "bootstrap") == 0);
+  dumping = !initialized && (strcmp(argv[argc - 1], "dump") == 0
+			     || strcmp(argv[argc - 1], "bootstrap") == 0);
 
 #ifdef HAVE_PERSONALITY_LINUX32
-  if (dumping && ! getenv ("EMACS_HEAP_EXEC"))
+  if (dumping && ! getenv("EMACS_HEAP_EXEC"))
     {
-      /* Set this so we only do this once.  */
-      xputenv ("EMACS_HEAP_EXEC=true");
+      /* Set this so we only do this once: */
+      xputenv("EMACS_HEAP_EXEC=true");
 
       /* A flag to turn off address randomization which is introduced
          in linux kernel shipped with fedora core 4 */
 #define ADD_NO_RANDOMIZE 0x0040000
-      personality (PER_LINUX32 | ADD_NO_RANDOMIZE);
+      personality(PER_LINUX32 | ADD_NO_RANDOMIZE);
 #undef  ADD_NO_RANDOMIZE
 
-      execvp (argv[0], argv);
+      execvp(argv[0], argv);
 
-      /* If the exec fails, try to dump anyway.  */
-      emacs_perror (argv[0]);
+      /* If the exec fails, then try to dump anyway: */
+      emacs_perror(argv[0]);
     }
 #endif /* HAVE_PERSONALITY_LINUX32 */
 
@@ -1042,12 +1048,13 @@ main (int argc, char **argv)
 	}
 
 #ifndef DAEMON_MUST_EXEC
-#ifdef USE_GTK
-      fprintf (stderr, "\nWarning: due to a long standing Gtk+ bug\nhttp://bugzilla.gnome.org/show_bug.cgi?id=85715\n\
+# ifdef USE_GTK
+      fprintf(stderr, "\nWarning: due to a long standing Gtk+ bug\n\
+http://bugzilla.gnome.org/show_bug.cgi?id=85715\n\
 Emacs might crash when run in daemon mode and the X11 connection is unexpectedly lost.\n\
 Using an Emacs configured with --with-x-toolkit=lucid does not have this problem.\n");
-#endif /* USE_GTK */
-      f = fork ();
+# endif /* USE_GTK */
+      f = fork();
 #else /* DAEMON_MUST_EXEC */
       if (!dname_arg || !strchr (dname_arg, '\n'))
 	  f = fork ();  /* in orig */
@@ -1423,7 +1430,9 @@ Using an Emacs configured with --with-x-toolkit=lucid does not have this problem
       syms_of_filelock ();
       syms_of_indent ();
       syms_of_insdel ();
-      /* syms_of_keymap (); */
+#if 0
+      syms_of_keymap ();
+#endif /* 0 */
       syms_of_macros ();
       syms_of_marker ();
       syms_of_minibuf ();
@@ -1436,7 +1445,7 @@ Using an Emacs configured with --with-x-toolkit=lucid does not have this problem
       syms_of_undo ();
 #ifdef HAVE_SOUND
       syms_of_sound ();
-#endif
+#endif /* HAVE_SOUND */
       syms_of_textprop ();
       syms_of_composite ();
 #ifdef WINDOWSNT
@@ -1444,7 +1453,7 @@ Using an Emacs configured with --with-x-toolkit=lucid does not have this problem
 #endif /* WINDOWSNT */
 #if defined CYGWIN
       syms_of_cygw32 ();
-#endif
+#endif /* CYGWIN */
       syms_of_window ();
       syms_of_xdisp ();
       syms_of_font ();
@@ -2545,10 +2554,13 @@ because they do not depend on external libraries and are always available.
 Also note that this is not a generic facility for accessing external
 libraries; only those already known by Emacs will be loaded.  */);
   Vdynamic_library_alist = Qnil;
-  Fput (intern_c_string ("dynamic-library-alist"), Qrisky_local_variable, Qt);
+  Fput(intern_c_string("dynamic-library-alist"),
+       Qrisky_local_variable, Qt);
 
 #ifdef WINDOWSNT
   Vlibrary_cache = Qnil;
-  staticpro (&Vlibrary_cache);
-#endif
+  staticpro(&Vlibrary_cache);
+#endif /* WINDOWSNT */
 }
+
+/* EOF */
