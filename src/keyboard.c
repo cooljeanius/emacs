@@ -4181,13 +4181,13 @@ kbd_buffer_get_event (KBOARD **kbp,
 	}
     }
   /* Try generating a mouse motion event.  */
-  else if (!NILP (do_mouse_tracking) && some_mouse_moved ())
+  else if (!NILP(do_mouse_tracking) && some_mouse_moved())
     {
-      struct frame *f = some_mouse_moved ();
-      Lisp_Object bar_window;
-      enum scroll_bar_part part;
-      Lisp_Object x, y;
-      Time t;
+      struct frame *f = some_mouse_moved();
+      Lisp_Object bar_window = LISP_INITIALLY_ZERO;
+      enum scroll_bar_part part = scroll_bar_nowhere;
+      Lisp_Object x = LISP_INITIALLY_ZERO, y = LISP_INITIALLY_ZERO;
+      Time t = 0UL;
 
       *kbp = current_kboard;
       /* Note that this uses F to determine which terminal to look at.
@@ -4196,33 +4196,33 @@ kbd_buffer_get_event (KBOARD **kbp,
       x = Qnil;
 
       /* XXX Can f or mouse_position_hook be NULL here?  */
-      if (f && FRAME_TERMINAL (f)->mouse_position_hook)
-        (*FRAME_TERMINAL (f)->mouse_position_hook) (&f, 0, &bar_window,
-                                                    &part, &x, &y, &t);
+      if (f && FRAME_TERMINAL(f)->mouse_position_hook)
+        (*FRAME_TERMINAL(f)->mouse_position_hook)(&f, 0, &bar_window,
+                                                  &part, &x, &y, &t);
 
       obj = Qnil;
 
       /* Decide if we should generate a switch-frame event.  Don't
 	 generate switch-frame events for motion outside of all Emacs
 	 frames.  */
-      if (!NILP (x) && f)
+      if (!NILP(x) && f)
 	{
 	  Lisp_Object frame;
 
-	  frame = FRAME_FOCUS_FRAME (f);
-	  if (NILP (frame))
-	    XSETFRAME (frame, f);
+	  frame = FRAME_FOCUS_FRAME(f);
+	  if (NILP(frame))
+	    XSETFRAME(frame, f);
 
-	  if (! EQ (frame, internal_last_event_frame)
-	      && !EQ (frame, selected_frame))
-	    obj = make_lispy_switch_frame (frame);
+	  if (!EQ(frame, internal_last_event_frame)
+	      && !EQ(frame, selected_frame))
+	    obj = make_lispy_switch_frame(frame);
 	  internal_last_event_frame = frame;
 	}
 
       /* If we didn't decide to make a switch-frame event, go ahead and
 	 return a mouse-motion event.  */
       if (!NILP (x) && NILP (obj))
-	obj = make_lispy_movement (f, bar_window, part, x, y, t);
+	obj = make_lispy_movement(f, bar_window, part, x, y, t);
     }
   else
     /* We were promised by the above while loop that there was
@@ -4391,7 +4391,7 @@ decode_timer (Lisp_Object timer, struct timespec *result)
    should be done.  */
 
 static struct timespec
-timer_check_2 (Lisp_Object timers, Lisp_Object idle_timers)
+timer_check_2(Lisp_Object timers, Lisp_Object idle_timers)
 {
   struct timespec nexttime;
   struct timespec now;
@@ -4399,34 +4399,34 @@ timer_check_2 (Lisp_Object timers, Lisp_Object idle_timers)
   Lisp_Object chosen_timer;
   struct gcpro gcpro1;
 
-  nexttime = invalid_timespec ();
+  nexttime = invalid_timespec();
 
   chosen_timer = Qnil;
-  GCPRO1 (chosen_timer);
+  GCPRO1(chosen_timer);
 
-  /* First run the code that was delayed.  */
-  while (CONSP (pending_funcalls))
+  /* First run the code that was delayed: */
+  while (CONSP(pending_funcalls))
     {
-      Lisp_Object funcall = XCAR (pending_funcalls);
-      pending_funcalls = XCDR (pending_funcalls);
-      safe_call2 (Qapply, XCAR (funcall), XCDR (funcall));
+      Lisp_Object funcall = XCAR(pending_funcalls);
+      pending_funcalls = XCDR(pending_funcalls);
+      safe_call2(Qapply, XCAR(funcall), XCDR(funcall));
     }
 
-  if (CONSP (timers) || CONSP (idle_timers))
+  if (CONSP(timers) || CONSP(idle_timers))
     {
-      now = current_timespec ();
-      idleness_now = (timespec_valid_p (timer_idleness_start_time)
-		      ? timespec_sub (now, timer_idleness_start_time)
-		      : make_timespec (0, 0));
+      now = current_timespec();
+      idleness_now = (timespec_valid_p(timer_idleness_start_time)
+		      ? timespec_sub(now, timer_idleness_start_time)
+		      : make_timespec(0, 0));
     }
 
-  while (CONSP (timers) || CONSP (idle_timers))
+  while (CONSP(timers) || CONSP(idle_timers))
     {
       Lisp_Object timer = Qnil, idle_timer = Qnil;
       struct timespec timer_time, idle_timer_time;
       struct timespec difference;
-      struct timespec timer_difference = invalid_timespec ();
-      struct timespec idle_timer_difference = invalid_timespec ();
+      struct timespec timer_difference = invalid_timespec();
+      struct timespec idle_timer_difference = invalid_timespec();
       bool ripe, timer_ripe = 0, idle_timer_ripe = 0;
 
       /* Set TIMER and TIMER_DIFFERENCE
@@ -4434,63 +4434,63 @@ timer_check_2 (Lisp_Object timers, Lisp_Object idle_timers)
 	 TIMER_DIFFERENCE is the distance in time from NOW to when
 	 this timer becomes ripe (negative if it's already ripe).
          Skip past invalid timers and timers already handled.  */
-      if (CONSP (timers))
+      if (CONSP(timers))
 	{
-	  timer = XCAR (timers);
-	  if (! decode_timer (timer, &timer_time))
+	  timer = XCAR(timers);
+	  if (! decode_timer(timer, &timer_time))
 	    {
-	      timers = XCDR (timers);
+	      timers = XCDR(timers);
 	      continue;
 	    }
 
-	  timer_ripe = timespec_cmp (timer_time, now) <= 0;
+	  timer_ripe = (timespec_cmp(timer_time, now) <= 0);
 	  timer_difference = (timer_ripe
-			      ? timespec_sub (now, timer_time)
-			      : timespec_sub (timer_time, now));
+			      ? timespec_sub(now, timer_time)
+			      : timespec_sub(timer_time, now));
 	}
 
       /* Likewise for IDLE_TIMER and IDLE_TIMER_DIFFERENCE
 	 based on the next idle timer.  */
-      if (CONSP (idle_timers))
+      if (CONSP(idle_timers))
 	{
-	  idle_timer = XCAR (idle_timers);
-	  if (! decode_timer (idle_timer, &idle_timer_time))
+	  idle_timer = XCAR(idle_timers);
+	  if (! decode_timer(idle_timer, &idle_timer_time))
 	    {
-	      idle_timers = XCDR (idle_timers);
+	      idle_timers = XCDR(idle_timers);
 	      continue;
 	    }
 
-	  idle_timer_ripe = timespec_cmp (idle_timer_time, idleness_now) <= 0;
+	  idle_timer_ripe = (timespec_cmp(idle_timer_time, idleness_now) <= 0);
 	  idle_timer_difference
 	    = (idle_timer_ripe
-	       ? timespec_sub (idleness_now, idle_timer_time)
-	       : timespec_sub (idle_timer_time, idleness_now));
+	       ? timespec_sub(idleness_now, idle_timer_time)
+	       : timespec_sub(idle_timer_time, idleness_now));
 	}
 
       /* Decide which timer is the next timer,
 	 and set CHOSEN_TIMER, DIFFERENCE, and RIPE accordingly.
 	 Also step down the list where we found that timer.  */
 
-      if (timespec_valid_p (timer_difference)
-	  && (! timespec_valid_p (idle_timer_difference)
-	      || idle_timer_ripe < timer_ripe
-	      || (idle_timer_ripe == timer_ripe
+      if (timespec_valid_p(timer_difference)
+	  && (! timespec_valid_p(idle_timer_difference)
+	      || (idle_timer_ripe < timer_ripe)
+	      || ((idle_timer_ripe == timer_ripe)
 		  && ((timer_ripe
-		       ? timespec_cmp (idle_timer_difference,
-				       timer_difference)
-		       : timespec_cmp (timer_difference,
-				       idle_timer_difference))
+		       ? timespec_cmp(idle_timer_difference,
+				      timer_difference)
+		       : timespec_cmp(timer_difference,
+				      idle_timer_difference))
 		      < 0))))
 	{
 	  chosen_timer = timer;
-	  timers = XCDR (timers);
+	  timers = XCDR(timers);
 	  difference = timer_difference;
 	  ripe = timer_ripe;
 	}
       else
 	{
 	  chosen_timer = idle_timer;
-	  idle_timers = XCDR (idle_timers);
+	  idle_timers = XCDR(idle_timers);
 	  difference = idle_timer_difference;
 	  ripe = idle_timer_ripe;
 	}
@@ -5205,23 +5205,23 @@ static int double_click_count;
    Return a Lisp-style event list.  */
 
 static Lisp_Object
-make_lispy_position (struct frame *f, Lisp_Object x, Lisp_Object y,
-		     Time t)
+make_lispy_position(struct frame *f, Lisp_Object x, Lisp_Object y,
+		    Time t)
 {
-  enum window_part part;
+  enum window_part part = ON_NOTHING;
   Lisp_Object posn = Qnil;
   Lisp_Object extra_info = Qnil;
-  /* Coordinate pixel positions to return.  */
+  /* Coordinate pixel positions to return: */
   int xret = 0, yret = 0;
   /* The window under frame pixel coordinates (x,y)  */
   Lisp_Object window = f
-    ? window_from_coordinates (f, XINT (x), XINT (y), &part, 0)
+    ? window_from_coordinates(f, XINT(x), XINT(y), &part, 0)
     : Qnil;
 
-  if (WINDOWP (window))
+  if (WINDOWP(window))
     {
       /* It's a click in window WINDOW at frame coordinates (X,Y)  */
-      struct window *w = XWINDOW (window);
+      struct window *w = XWINDOW(window);
       Lisp_Object string_info = Qnil;
       ptrdiff_t textpos = -1;
       int col = -1, row = -1;
@@ -5229,17 +5229,17 @@ make_lispy_position (struct frame *f, Lisp_Object x, Lisp_Object y,
       int width = -1, height = -1;
       Lisp_Object object = Qnil;
 
-      /* Pixel coordinates relative to the window corner.  */
-      int wx = XINT (x) - WINDOW_LEFT_EDGE_X (w);
-      int wy = XINT (y) - WINDOW_TOP_EDGE_Y (w);
+      /* Pixel coordinates relative to the window corner: */
+      int wx = (XINT(x) - WINDOW_LEFT_EDGE_X(w));
+      int wy = (XINT(y) - WINDOW_TOP_EDGE_Y(w));
 
       /* For text area clicks, return X, Y relative to the corner of
 	 this text area.  Note that dX, dY etc are set below, by
 	 buffer_posn_from_coords.  */
       if (part == ON_TEXT)
 	{
-	  xret = XINT (x) - window_box_left (w, TEXT_AREA);
-	  yret = wy - WINDOW_HEADER_LINE_HEIGHT (w);
+	  xret = (XINT(x) - window_box_left(w, TEXT_AREA));
+	  yret = (wy - WINDOW_HEADER_LINE_HEIGHT(w));
 	}
       /* For mode line and header line clicks, return X, Y relative to
 	 the left window edge.  Use mode_line_string to look for a

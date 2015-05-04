@@ -3927,17 +3927,17 @@ x_get_monitor_attributes_xrandr (struct x_display_info *dpyinfo)
 
   for (i = 0; i < n_monitors; ++i)
     {
-      XRROutputInfo *info = XRRGetOutputInfo (dpy, resources,
-                                              resources->outputs[i]);
-      Connection conn = info ? info->connection : RR_Disconnected;
-      RRCrtc id = info ? info->crtc : None;
+      XRROutputInfo *info = XRRGetOutputInfo(dpy, resources,
+                                             resources->outputs[i]);
+      Connection conn = (info ? info->connection : RR_Disconnected);
+      RRCrtc id = (info ? info->crtc : None);
 
-      if (strcmp (info->name, "default") == 0)
+      if (strcmp(info->name, "default") == 0)
         {
-          /* Non XRandr 1.2 driver, does not give useful data.  */
-	  XRRFreeOutputInfo (info);
-	  XRRFreeScreenResources (resources);
-          free_monitors (monitors, n_monitors);
+          /* Non XRandr 1.2 driver, does not give useful data: */
+	  XRRFreeOutputInfo(info);
+	  XRRFreeScreenResources(resources);
+          free_monitors(monitors, n_monitors);
           return Qnil;
         }
 

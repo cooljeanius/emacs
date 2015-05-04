@@ -18,7 +18,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
-/* Contributed by Andrew Choi (akochoi@mac.com).  */
+/* Contributed by Andrew Choi <akochoi@mac.com>.  */
 
 /* Documentation note.
 
@@ -112,11 +112,26 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #  endif /* __GNUC__ && !__STRICT_ANSI__ && lint */
 # endif /* HAVE_STDIO_H || STDC_HEADERS || __STDC__ */
 #endif /* emacs || temacs */
+#ifdef HAVE_ERRNO_H
+# include <errno.h>
+#else
+# if !defined(errno) && defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#  warning "unexmacosx.c expects <errno.h> to be included for errno."
+# endif /* !errno && __GNUC__ && !__STRICT_ANSI__ */
+#endif /* HAVE_ERRNO_H */
 #include <fcntl.h>
 #include <stdarg.h>
 #include <sys/types.h>
 #include <unistd.h>
+#ifdef HAVE_LIMITS_H
+# include <limits.h>
+#else
+# if !defined(UINT_MAX) && defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#  warning "unexmacosx.c expects <limits.h> to be included for UINT_MAX."
+# endif /* !UINT_MAX && __GNUC__ && !__STRICT_ANSI__ */
+#endif /* HAVE_LIMITS_H */
 #include <mach/mach.h>
+#include <mach-o/arch.h>
 #include <mach-o/loader.h>
 #include <mach-o/reloc.h>
 #if defined(__ppc__)
@@ -130,11 +145,16 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #include <assert.h>
 
+#include <AvailabilityMacros.h>
+
 /* LC_DATA_IN_CODE is not defined in mach-o/loader.h on OS X 10.7.
    But it is used if we build with "Command Line Tools for Xcode 4.5
    (OS X Lion) - September 2012".  */
 #ifndef LC_DATA_IN_CODE
-# define LC_DATA_IN_CODE 0x29 /* table of non-instructions in __text */
+# if (MAC_OS_X_VERSION_MAX_ALLOWED > 1060) \
+     || (MAC_OS_X_VERSION_MIN_REQUIRED > 1060)
+#  define LC_DATA_IN_CODE 0x29 /* table of non-instructions in __text */
+# endif /* 10.7+ */
 #endif /* !LC_DATA_IN_CODE */
 
 #ifdef _LP64
@@ -174,20 +194,23 @@ struct region_t {
   struct region_t *next;
 };
 
-/* Head and tail of the list of regions to be dumped.  */
-static struct region_t *region_list_head = 0;
-static struct region_t *region_list_tail = 0;
+/* Head and tail of the list of regions to be dumped: */
+static struct region_t *region_list_head = (struct region_t *)0;
+static struct region_t *region_list_tail = (struct region_t *)0;
 
-/* Pointer to array of load commands.  */
+/* Pointer to array of load commands: */
 static struct load_command **lca;
 
-/* Number of load commands.  */
+/* Number of load commands: */
 static int nlc;
+
+/* Similarly: */
+static int nlc_written = 0;
 
 /* The highest VM address of segments loaded by the input file.
    Regions with addresses beyond this are assumed to be allocated
    dynamically and thus require dumping.  */
-static vm_address_t infile_lc_highest_addr = 0;
+static vm_address_t infile_lc_highest_addr = (vm_address_t)0U;
 
 /* The lowest file offset used by the all sections in the __TEXT
    segments.  This leaves room at the beginning of the file to store
@@ -196,14 +219,14 @@ static vm_address_t infile_lc_highest_addr = 0;
    overwrite any of the sections in the __TEXT segment.  */
 static unsigned long text_seg_lowest_offset = 0x10000000;
 
-/* Mach header.  */
+/* Mach header: */
 static struct mach_header mh;
 
-/* Offset at which the next load command should be written.  */
-static unsigned long curr_header_offset = sizeof (struct mach_header);
+/* Offset at which the next load command should be written: */
+static unsigned long curr_header_offset = sizeof(struct mach_header);
 
-/* Offset at which the next segment should be written.  */
-static unsigned long curr_file_offset = 0;
+/* Offset at which the next segment should be written: */
+static unsigned long curr_file_offset = 0UL;
 
 static unsigned long pagesize;
 #define ROUNDUP_TO_PAGE_BOUNDARY(x) (((x) + pagesize - 1) & ~(pagesize - 1))
@@ -214,8 +237,8 @@ static int in_dumped_exec = 0;
 
 static malloc_zone_t *emacs_zone;
 
-/* file offset of input file's data segment */
-static off_t data_segment_old_fileoff = 0;
+/* file offset of input file's data segment: */
+static off_t data_segment_old_fileoff = 0L;
 
 static struct segment_command *data_segment_scp;
 
@@ -233,7 +256,7 @@ void unexec_free(void *ptr);
    Return true if successful, false otherwise.  */
 static int unexec_read(void *dest, size_t n)
 {
-  return (n == read(infd, dest, n));
+  return (n == (size_t)read(infd, dest, n));
 }
 
 /* Write COUNT bytes from memory starting at address SRC to outfd
@@ -244,7 +267,7 @@ static int unexec_write(off_t dest, const void *src, size_t count)
   if (lseek(outfd, dest, SEEK_SET) != dest)
     return 0;
 
-  return (write(outfd, src, count) == count);
+  return (write(outfd, src, count) == (ssize_t)count);
 }
 
 /* Write COUNT bytes of zeros to outfd starting at offset DEST.
@@ -254,16 +277,17 @@ static int unexec_write_zero(off_t dest, size_t count)
   char buf[UNEXEC_COPY_BUFSZ];
   ssize_t bytes;
 
-  memset (buf, 0, UNEXEC_COPY_BUFSZ);
-  if (lseek (outfd, dest, SEEK_SET) != dest)
+  memset(buf, 0, UNEXEC_COPY_BUFSZ);
+  if (lseek(outfd, dest, SEEK_SET) != dest)
     return 0;
 
-  while (count > 0)
+  while (count > 0UL)
     {
-      bytes = count > UNEXEC_COPY_BUFSZ ? UNEXEC_COPY_BUFSZ : count;
-      if (write (outfd, buf, bytes) != bytes)
+      bytes = ((count > UNEXEC_COPY_BUFSZ)
+               ? UNEXEC_COPY_BUFSZ : (ssize_t)count);
+      if (write(outfd, buf, (size_t)bytes) != bytes)
 	return 0;
-      count -= bytes;
+      count -= (size_t)bytes;
     }
 
   return 1;
@@ -279,19 +303,20 @@ static int unexec_copy(off_t dest, off_t src, ssize_t count)
 
   char buf[UNEXEC_COPY_BUFSZ];
 
-  if (lseek (infd, src, SEEK_SET) != src)
+  if (lseek(infd, src, SEEK_SET) != src)
     return 0;
 
-  if (lseek (outfd, dest, SEEK_SET) != dest)
+  if (lseek(outfd, dest, SEEK_SET) != dest)
     return 0;
 
-  while (count > 0)
+  while (count > 0L)
     {
-      bytes_to_read = count > UNEXEC_COPY_BUFSZ ? UNEXEC_COPY_BUFSZ : count;
-      bytes_read = read (infd, buf, bytes_to_read);
+      bytes_to_read = ((count > UNEXEC_COPY_BUFSZ)
+                       ? UNEXEC_COPY_BUFSZ : count);
+      bytes_read = read(infd, buf, (size_t)bytes_to_read);
       if (bytes_read <= 0)
 	return 0;
-      if (write (outfd, buf, bytes_read) != bytes_read)
+      if (write(outfd, buf, (size_t)bytes_read) != bytes_read)
 	return 0;
       count -= bytes_read;
     }
@@ -360,20 +385,31 @@ int vfprintf(FILE *fp, const char *format, va_list args)
 #endif /* !_STDIO_H_ && !EMACS_SYSSTDIO_H && !_GL_STDIO_H && !_GL_ALREADY_INCLUDING_STDIO_H */
 
 static _Noreturn void
-unexec_error (const char *format, ...)
+unexec_error(const char *format, ...)
 {
   va_list ap;
   int success = 0;
 
-  va_start (ap, format);
-  fprintf (stderr, "%s, unexec line %d: ", __FILE__, __LINE__);
-  success = vfprintf (stderr, format, ap);
+  va_start(ap, format);
+  /* FIXME: the __FILE__ and __LINE__ should be of the place from where
+   * this gets called; not this location itself: */
+  fprintf(stderr, "%s, unexec line %d: ", __FILE__, __LINE__);
+  success = vfprintf(stderr, format, ap);
   if (success != 0) {
-    ; /* (do nothing?) */
+#if defined(VERBOSE) && VERBOSE
+    fprintf(stderr, " (vfprintf returned %d)", success);
+#else
+    fprintf(stderr, " ");
+#endif /* VERBOSE */
   }
-  fprintf (stderr, "\n");
-  va_end (ap);
-  exit (1);
+#if defined(VERBOSE) && VERBOSE
+  if (errno > 0) {
+    fprintf(stderr, " (errno is %d; i.e. \"%s\")", errno, strerror(errno));
+  }
+#endif /* VERBOSE */
+  fprintf(stderr, "\n");
+  va_end(ap);
+  exit(1);
 }
 #if defined(_STDIO_H_) || defined(EMACS_SYSSTDIO_H) || \
     defined(_GL_STDIO_H) || defined(_GL_ALREADY_INCLUDING_STDIO_H)
@@ -385,61 +421,61 @@ unexec_error (const char *format, ...)
 #endif /* _STDIO_H_ || EMACS_SYSSTDIO_H || _GL_STDIO_H || _GL_ALREADY_INCLUDING_STDIO_H */
 
 static void
-print_prot (vm_prot_t prot)
+print_prot(vm_prot_t prot)
 {
   if (prot == VM_PROT_NONE)
-    printf ("none");
+    printf("none");
   else
     {
-      putchar (prot & VM_PROT_READ ? 'r' : ' ');
-      putchar (prot & VM_PROT_WRITE ? 'w' : ' ');
-      putchar (prot & VM_PROT_EXECUTE ? 'x' : ' ');
-      putchar (' ');
+      putchar((prot & VM_PROT_READ) ? 'r' : ' ');
+      putchar((prot & VM_PROT_WRITE) ? 'w' : ' ');
+      putchar((prot & VM_PROT_EXECUTE) ? 'x' : ' ');
+      putchar(' ');
     }
 }
 
 static void
-print_region (vm_address_t address, vm_size_t size, vm_prot_t prot,
-	      vm_prot_t max_prot)
+print_region(vm_address_t address, vm_size_t size, vm_prot_t prot,
+	     vm_prot_t max_prot)
 {
-  printf ("%#10lx %#8lx ", (long) address, (long) size);
-  print_prot (prot);
-  putchar (' ');
-  print_prot (max_prot);
-  putchar ('\n');
+  printf("%#10lx %#8lx ", (long)address, (long)size);
+  print_prot(prot);
+  putchar(' ');
+  print_prot(max_prot);
+  putchar('\n');
 }
 
 static void
-print_region_list (void)
+print_region_list(void)
 {
   struct region_t *r;
 
-  printf ("   address     size prot maxp\n");
+  printf("   address     size prot maxp\n");
 
   for (r = region_list_head; r; r = r->next)
-    print_region (r->address, r->size, r->protection, r->max_protection);
+    print_region(r->address, r->size, r->protection, r->max_protection);
 }
 
 static void
-print_regions (void)
+print_regions(void)
 {
-  task_t target_task = mach_task_self ();
-  vm_address_t address = (vm_address_t) 0;
+  task_t target_task = mach_task_self();
+  vm_address_t address = (vm_address_t)0;
   vm_size_t size;
   struct vm_region_basic_info info;
   mach_msg_type_number_t info_count = VM_REGION_BASIC_INFO_COUNT;
   mach_port_t object_name;
 
-  printf ("   address     size prot maxp\n");
+  printf("   address     size prot maxp\n");
 
-  while (vm_region (target_task, &address, &size, VM_REGION_BASIC_INFO,
-		    (vm_region_info_t) &info, &info_count, &object_name)
+  while (vm_region(target_task, &address, &size, VM_REGION_BASIC_INFO,
+		   (vm_region_info_t)&info, &info_count, &object_name)
 	 == KERN_SUCCESS && (info_count == VM_REGION_BASIC_INFO_COUNT))
     {
-      print_region (address, size, info.protection, info.max_protection);
+      print_region(address, size, info.protection, info.max_protection);
 
       if (object_name != MACH_PORT_NULL)
-	mach_port_deallocate (target_task, object_name);
+	mach_port_deallocate(target_task, object_name);
 
       address += size;
     }
@@ -451,10 +487,10 @@ print_regions (void)
    cannot be omitted because they some regions created at run time are
    read-only.  */
 static void
-build_region_list (void)
+build_region_list(void)
 {
-  task_t target_task = mach_task_self ();
-  vm_address_t address = (vm_address_t) 0;
+  task_t target_task = mach_task_self();
+  vm_address_t address = (vm_address_t)0;
   vm_size_t size;
   struct vm_region_basic_info info;
   mach_msg_type_number_t info_count = VM_REGION_BASIC_INFO_COUNT;
@@ -462,13 +498,13 @@ build_region_list (void)
   struct region_t *r;
 
 #if defined(VERBOSE) && VERBOSE
-  printf ("--- List of All Regions ---\n");
-  printf ("   address     size prot maxp\n");
+  printf("--- List of All Regions ---\n");
+  printf("   address     size prot maxp\n");
 #endif /* VERBOSE */
 
-  while (vm_region (target_task, &address, &size, VM_REGION_BASIC_INFO,
-		    (vm_region_info_t) &info, &info_count, &object_name)
-	 == KERN_SUCCESS && info_count == VM_REGION_BASIC_INFO_COUNT)
+  while (vm_region(target_task, &address, &size, VM_REGION_BASIC_INFO,
+		   (vm_region_info_t)&info, &info_count, &object_name)
+	 == KERN_SUCCESS && (info_count == VM_REGION_BASIC_INFO_COUNT))
     {
       /* Done when we reach addresses of shared libraries, which are
 	 loaded in high memory.  */
@@ -476,7 +512,7 @@ build_region_list (void)
 	break;
 
 #if defined(VERBOSE) && VERBOSE
-      print_region (address, size, info.protection, info.max_protection);
+      print_region(address, size, info.protection, info.max_protection);
 #endif /* VERBOSE */
 
       /* If a region immediately follows the previous one (the one
@@ -484,8 +520,8 @@ build_region_list (void)
 	 protection, merge it with the latter.  Otherwise create a
 	 new list element for it.  */
       if (region_list_tail
-	  && info.protection == region_list_tail->protection
-	  && info.max_protection == region_list_tail->max_protection
+	  && (info.protection == region_list_tail->protection)
+	  && (info.max_protection == region_list_tail->max_protection)
 	  && region_list_tail->address + region_list_tail->size == address)
 	{
 	  region_list_tail->size += size;
@@ -499,7 +535,7 @@ build_region_list (void)
 #endif /* __cplusplus */
 
 	  if (!r)
-	    unexec_error ("cannot allocate region structure");
+	    unexec_error("cannot allocate region structure");
 
 	  r->address = address;
 	  r->size = size;
@@ -521,14 +557,14 @@ build_region_list (void)
 	  /* Deallocate (unused) object name returned by
 	     vm_region.  */
 	  if (object_name != MACH_PORT_NULL)
-	    mach_port_deallocate (target_task, object_name);
+	    mach_port_deallocate(target_task, object_name);
 	}
 
       address += size;
     }
 
-  printf ("--- List of Regions to be Dumped ---\n");
-  print_region_list ();
+  printf("--- List of Regions to be Dumped ---\n");
+  print_region_list();
 }
 
 
@@ -542,58 +578,66 @@ typedef struct {
 static unexec_region_info unexec_regions[MAX_UNEXEC_REGIONS];
 
 static void
-unexec_regions_recorder (task_t task, void *rr, unsigned type,
-			 vm_range_t *ranges, unsigned num)
+unexec_regions_recorder(task_t task, void *rr, unsigned int type,
+                        vm_range_t *ranges, unsigned int num)
 {
+#if (defined(__APPLE__) && defined(__APPLE_CC__) && (__APPLE_CC__ > 1)) \
+     && defined(lint)
+# pragma unused (task, rr, type)
+#endif /* (__APPLE__ && (__APPLE_CC__ > 1)) && lint */
   vm_address_t p;
   vm_size_t filesize;
 
-  while (num && num_unexec_regions < MAX_UNEXEC_REGIONS)
+  while (num && (num_unexec_regions < MAX_UNEXEC_REGIONS))
     {
       /* Subtract the size of trailing null bytes from filesize.  It
 	 can be smaller than vmsize in segment commands.  In such a
 	 case, trailing bytes are initialized with zeros.  */
-      for (p = ranges->address + ranges->size; p > ranges->address; p--)
-      	if (*(((char *) p)-1))
+      for (p = (ranges->address + ranges->size); p > ranges->address; p--)
+      	if (*(((char *)p)-1))
       	  break;
-      filesize = p - ranges->address;
+      filesize = (p - ranges->address);
 
       unexec_regions[num_unexec_regions].filesize = filesize;
       unexec_regions[num_unexec_regions++].range = *ranges;
-      printf ("%#10lx (sz: %#8lx/%#8lx)\n", (long) (ranges->address),
-	      (long) filesize, (long) (ranges->size));
+      printf("%#10lx (sz: %#8lx/%#8lx)\n", (long)(ranges->address),
+	     (long)filesize, (long)(ranges->size));
       ranges++; num--;
     }
 }
 
 static kern_return_t
-unexec_reader (task_t task, vm_address_t address, vm_size_t size, void **ptr)
+unexec_reader(task_t task, vm_address_t address, vm_size_t sz, void **ptr)
 {
-  *ptr = (void *) address;
+#if (defined(__APPLE__) && defined(__APPLE_CC__) && (__APPLE_CC__ > 1)) \
+    && defined(lint)
+# pragma unused (task, sz)
+#endif /* (__APPLE__ && (__APPLE_CC__ > 1)) && lint */
+  *ptr = (void *)address;
   return KERN_SUCCESS;
 }
 
 static void
-find_emacs_zone_regions (void)
+find_emacs_zone_regions(void)
 {
   num_unexec_regions = 0;
 
-  emacs_zone->introspect->enumerator (mach_task_self(), 0,
-				      MALLOC_PTR_REGION_RANGE_TYPE
-				      | MALLOC_ADMIN_REGION_RANGE_TYPE,
-				      (vm_address_t) emacs_zone,
-				      unexec_reader,
-				      unexec_regions_recorder);
+  emacs_zone->introspect->enumerator(mach_task_self(), 0,
+				     (MALLOC_PTR_REGION_RANGE_TYPE
+                                      | MALLOC_ADMIN_REGION_RANGE_TYPE),
+				     (vm_address_t)emacs_zone,
+				     unexec_reader,
+				     unexec_regions_recorder);
 
   if (num_unexec_regions == MAX_UNEXEC_REGIONS)
-    unexec_error ("find_emacs_zone_regions: too many regions");
+    unexec_error("find_emacs_zone_regions: too many regions");
 }
 
 static int
-unexec_regions_sort_compare (const void *a, const void *b)
+unexec_regions_sort_compare(const void *a, const void *b)
 {
-  vm_address_t aa = ((unexec_region_info *) a)->range.address;
-  vm_address_t bb = ((unexec_region_info *) b)->range.address;
+  vm_address_t aa = ((unexec_region_info *)a)->range.address;
+  vm_address_t bb = ((unexec_region_info *)b)->range.address;
 
   if (aa < bb)
     return -1;
@@ -606,7 +650,7 @@ unexec_regions_sort_compare (const void *a, const void *b)
 static void unexec_regions_merge(void)
 {
   int i, n;
-  vm_address_t begin, end;
+  vm_address_t begin = 0, end;
   unexec_region_info r;
 #ifdef ALLOW_UNUSED_VARIABLES
   long total = 0L;
@@ -614,8 +658,8 @@ static void unexec_regions_merge(void)
   void *zeropage = calloc(1, pagesize);
   vm_size_t padsize;
 
-  qsort(unexec_regions, num_unexec_regions, sizeof(unexec_regions[0]),
-        &unexec_regions_sort_compare);
+  qsort(unexec_regions, (size_t)num_unexec_regions,
+        sizeof(unexec_regions[0]), &unexec_regions_sort_compare);
   n = 0;
   r = unexec_regions[0];
   padsize = (r.range.address & (pagesize - 1L));
@@ -632,7 +676,7 @@ static void unexec_regions_merge(void)
       r.range.size += unexec_regions[i].range.size;
     } else { /* All segments must be a multiple of pagesize: */
       end = (r.range.address + r.range.size);
-      if (end & (pagesize-1L)) {
+      if (end & (pagesize - 1L)) {
         end = ROUNDUP_TO_PAGE_BOUNDARY(end);
         printf("Page (%#8lx) aligning region @%#8lx size from %#8lx to %#8lx\n",
                (long)pagesize, (long)r.range.address, (long)r.range.size,
@@ -713,208 +757,225 @@ static void unexec_regions_merge(void)
 /* More informational messages routines: */
 static void print_load_command_name(int lc)
 {
+  /* FIXME: have the number of trailing spaces vary based on the length of
+   * whatever the longest LC name is, instead of hard-coding them: */
   switch (lc)
     {
     case LC_SEGMENT:
 #ifndef _LP64
-      printf("LC_SEGMENT       ");
+      printf("LC_SEGMENT (0x%08x)       ", LC_SEGMENT);
 #else
-      printf("LC_SEGMENT_64    ");
+      printf("LC_SEGMENT_64 (0x%08x)    ", LC_SEGMENT_64);
 #endif /* !_LP64 */
       break;
     case LC_LOAD_DYLINKER:
-      printf("LC_LOAD_DYLINKER ");
+      printf("LC_LOAD_DYLINKER (0x%08x) ", LC_LOAD_DYLINKER);
       break;
     case LC_LOAD_DYLIB:
-      printf("LC_LOAD_DYLIB    ");
+      printf("LC_LOAD_DYLIB (0x%08x)    ", LC_LOAD_DYLIB);
       break;
     case LC_ID_DYLIB:
-      printf("LC_ID_DYLIB            ");
+      printf("LC_ID_DYLIB (0x%08x)            ", LC_ID_DYLIB);
       break;
     case LC_SYMTAB:
-      printf("LC_SYMTAB        ");
+      printf("LC_SYMTAB (0x%08x)        ", LC_SYMTAB);
       break;
     case LC_SYMSEG:
-      printf("LC_SYMSEG              ");
+      printf("LC_SYMSEG (0x%08x)              ", LC_SYMSEG);
       break;
     case LC_DYSYMTAB:
-      printf("LC_DYSYMTAB      ");
+      printf("LC_DYSYMTAB (0x%08x)      ", LC_DYSYMTAB);
       break;
     case LC_UNIXTHREAD:
-      printf("LC_UNIXTHREAD    ");
+      printf("LC_UNIXTHREAD (0x%08x)    ", LC_UNIXTHREAD);
       break;
     case LC_PREBOUND_DYLIB:
-      printf("LC_PREBOUND_DYLIB");
+      printf("LC_PREBOUND_DYLIB (0x%08x)", LC_PREBOUND_DYLIB);
       break;
     case LC_ROUTINES:
-      printf("LC_ROUTINES            ");
+      printf("LC_ROUTINES (0x%08x)            ", LC_ROUTINES);
       break;
     case LC_SUB_FRAMEWORK:
-      printf("LC_SUBFRAMEWORK        ");
+      printf("LC_SUBFRAMEWORK (0x%08x)        ", LC_SUB_FRAMEWORK);
       break;
     case LC_SUB_UMBRELLA:
-      printf("LC_SUB_UMBRELLA        ");
+      printf("LC_SUB_UMBRELLA (0x%08x)        ", LC_SUB_UMBRELLA);
       break;
     case LC_SUB_CLIENT:
-      printf("LC_SUB_CLIENT          ");
+      printf("LC_SUB_CLIENT (0x%08x)          ", LC_SUB_CLIENT);
       break;
     case LC_SUB_LIBRARY:
-      printf("LC_SUB_LIBRARY         ");
+      printf("LC_SUB_LIBRARY (0x%08x)         ", LC_SUB_LIBRARY);
       break;
     case LC_TWOLEVEL_HINTS:
-      printf("LC_TWOLEVEL_HINTS");
+      printf("LC_TWOLEVEL_HINTS (0x%08x)", LC_TWOLEVEL_HINTS);
       break;
     case LC_PREBIND_CKSUM:
-      printf("LC_PREBIND_CKSUM       ");
+      printf("LC_PREBIND_CKSUM (0x%08x)       ", LC_PREBIND_CKSUM);
       break;
     case LC_LOAD_WEAK_DYLIB:
-      printf("LC_LOAD_WEAK_DYLIB     ");
+      printf("LC_LOAD_WEAK_DYLIB (0x%08x)     ", LC_LOAD_WEAK_DYLIB);
       break;
 #if !defined(_LP64) && (LC_SEGMENT != LC_SEGMENT_64)
     case LC_SEGMENT_64:
-      printf("LC_SEGMENT_64          ");
+      printf("LC_SEGMENT_64 (0x%08x)          ", LC_SEGMENT_64);
       break;
 #endif /* !_LP64 && (LC_SEGMENT != LC_SEGMENT_64) */
     case LC_ROUTINES_64:
-      printf("LC_ROUTINES_64         ");
+      printf("LC_ROUTINES_64 (0x%08x)         ", LC_ROUTINES_64);
       break;
 #ifdef LC_UUID
     case LC_UUID:
-      printf("LC_UUID          ");
+      printf("LC_UUID (0x%08x)          ", LC_UUID);
       break;
 #endif /* LC_UUID */
     case LC_RPATH:
-      printf("LC_RPATH               ");
+      printf("LC_RPATH (0x%08x)               ", LC_RPATH);
       break;
     case LC_CODE_SIGNATURE:
-      printf("LC_CODE_SIGNATURE      ");
+      printf("LC_CODE_SIGNATURE (0x%08x)      ", LC_CODE_SIGNATURE);
       break;
     case LC_SEGMENT_SPLIT_INFO:
-      printf("LC_SEGMENT_SPLIT_INFO  ");
+      printf("LC_SEGMENT_SPLIT_INFO (0x%08x)  ", LC_SEGMENT_SPLIT_INFO);
       break;
     case LC_REEXPORT_DYLIB:
-      printf("LC_REEXPORT_DYLIB      ");
+      printf("LC_REEXPORT_DYLIB (0x%08x)      ", LC_REEXPORT_DYLIB);
       break;
     case LC_LAZY_LOAD_DYLIB:
-      printf("LC_LAZY_LOAD_DYLIB     ");
+      printf("LC_LAZY_LOAD_DYLIB (0x%08x)     ", LC_LAZY_LOAD_DYLIB);
       break;
     case LC_ENCRYPTION_INFO:
-      printf("LC_ENCRYPTION_INFO     ");
+      printf("LC_ENCRYPTION_INFO (0x%08x)     ", LC_ENCRYPTION_INFO);
       break;
 #ifdef LC_DYLD_INFO
     case LC_DYLD_INFO:
-      printf("LC_DYLD_INFO     ");
+      printf("LC_DYLD_INFO (0x%08x)     ", LC_DYLD_INFO);
       break;
     case LC_DYLD_INFO_ONLY:
-      printf("LC_DYLD_INFO_ONLY");
+      printf("LC_DYLD_INFO_ONLY (0x%08x)", LC_DYLD_INFO_ONLY);
       break;
 #endif /* LC_DYLD_INFO */
     case LC_LOAD_UPWARD_DYLIB:
-      printf("LC_LOAD_UPWARD_DYLIB   ");
+      printf("LC_LOAD_UPWARD_DYLIB (0x%08x)   ", LC_LOAD_UPWARD_DYLIB);
       break;
 #ifdef LC_VERSION_MIN_MACOSX
     case LC_VERSION_MIN_MACOSX:
-      printf("LC_VERSION_MIN_MACOSX");
+      printf("LC_VERSION_MIN_MACOSX (0x%08x)", LC_VERSION_MIN_MACOSX);
       break;
 #endif /* LC_VERSION_MIN_MACOSX */
     case LC_VERSION_MIN_IPHONEOS:
-      printf("LC_VERSION_MIN_IPHONEOS");
+      printf("LC_VERSION_MIN_IPHONEOS (0x%08x)", LC_VERSION_MIN_IPHONEOS);
       break;
 #ifdef LC_FUNCTION_STARTS
     case LC_FUNCTION_STARTS:
-      printf("LC_FUNCTION_STARTS");
+      printf("LC_FUNCTION_STARTS (0x%08x)", LC_FUNCTION_STARTS);
       break;
 #endif /* LC_FUNCTION_STARTS */
+#ifdef LC_DYLD_ENVIRONMENT
     case LC_DYLD_ENVIRONMENT:
-      printf("LC_DYLD_ENVIRONMENT    ");
+      printf("LC_DYLD_ENVIRONMENT (0x%08x)    ", LC_DYLD_ENVIRONMENT);
       break;
+#endif /* LC_DYLD_ENVIRONMENT */
 #ifdef LC_MAIN
     case LC_MAIN:
-      printf("LC_MAIN          ");
+      printf("LC_MAIN (0x%08x)          ", LC_MAIN);
       break;
 #endif /* LC_MAIN */
 #ifdef LC_DATA_IN_CODE
     case LC_DATA_IN_CODE:
-      printf("LC_DATA_IN_CODE  ");
+      printf("LC_DATA_IN_CODE (0x%08x)  ", LC_DATA_IN_CODE);
       break;
 #endif /* LC_DATA_IN_CODE */
 #ifdef LC_SOURCE_VERSION
     case LC_SOURCE_VERSION:
-      printf("LC_SOURCE_VERSION");
+      printf("LC_SOURCE_VERSION (0x%08x)", LC_SOURCE_VERSION);
       break;
 #endif /* LC_SOURCE_VERSION */
 #ifdef LC_DYLIB_CODE_SIGN_DRS
     case LC_DYLIB_CODE_SIGN_DRS:
-      printf("LC_DYLIB_CODE_SIGN_DRS");
+      printf("LC_DYLIB_CODE_SIGN_DRS (0x%08x)", LC_DYLIB_CODE_SIGN_DRS);
       break;
 #endif /* LC_DYLIB_CODE_SIGN_DRS */
     default:
-      printf("unknown(%08x)", lc);
+      printf("unknown(0x%08x)", lc);
       break;
     }
 }
 
 static void
-print_load_command (struct load_command *lc)
+print_load_command(struct load_command *lc)
 {
-  print_load_command_name (lc->cmd);
-  printf ("%8d", lc->cmdsize);
+  print_load_command_name((int)lc->cmd);
+  printf("%8d", lc->cmdsize);
 
-  if (lc->cmd == LC_SEGMENT || lc->cmd == LC_SEGMENT_64)
+  if ((lc->cmd == LC_SEGMENT) || (lc->cmd == LC_SEGMENT_64))
     {
       struct segment_command *scp;
       struct section *sectp;
-      int j;
+      uint32_t j;
 
-      scp = (struct segment_command *) lc;
-      printf (" %-16.16s %#10lx %#8lx\n",
-	      scp->segname, (long) (scp->vmaddr), (long) (scp->vmsize));
+      scp = (struct segment_command *)lc;
+      printf(" %-16.16s %#10lx %#8lx\n",
+	     scp->segname, (long)(scp->vmaddr), (long)(scp->vmsize));
 
-      sectp = (struct section *) (scp + 1);
-      for (j = 0; j < scp->nsects; j++)
+      sectp = (struct section *)(scp + 1);
+      for (j = 0U; (j < scp->nsects) && (j < UINT_MAX); j++)
 	{
-	  printf ("                           %-16.16s %#10lx %#8lx (flags: %#8lx)\n",
-		  sectp->sectname, (long) (sectp->addr), (long) (sectp->size), (long) (sectp->flags));
+	  printf("                           %-16.16s %#10lx %#8lx (flags: %#8lx)\n",
+		 sectp->sectname, (long)(sectp->addr), (long)(sectp->size),
+                 (long)(sectp->flags));
 	  sectp++;
 	}
     }
   else
-    printf ("\n");
+    printf("\n");
 }
 
 /* Read header and load commands from input file.  Store the latter in
    the global array lca.  Store the total number of load commands in
    global variable nlc.  */
 static void
-read_load_commands (void)
+read_load_commands(void)
 {
   int i;
+  const char *magic_typestring = "         ";
+  const NXArchInfo *mh_cpuarchinfo;
 
-  if (!unexec_read (&mh, sizeof (struct mach_header)))
-    unexec_error ("cannot read mach-o header");
+  if (!unexec_read(&mh, sizeof(struct mach_header))) {
+    unexec_error("cannot read mach-o header");
+  } else {
+    mh_cpuarchinfo = NXGetArchInfoFromCpuType(mh.cputype, mh.cpusubtype);
+  }
 
-  if (mh.magic != MH_MAGIC)
-    unexec_error ("input file not in correct Mach-O format");
+  if (mh.magic != MH_MAGIC) {
+    unexec_error("input file not in correct Mach-O format");
+  } else if (mh.magic == 0xfeedface) {
+    magic_typestring = " (32-bit)";
+  } else if (mh.magic == 0xfeedfacf) {
+    magic_typestring = " (64-bit)";
+  }
 
   if (mh.filetype != MH_EXECUTE)
-    unexec_error ("input Mach-O file is not an executable object file");
+    unexec_error("input Mach-O file is not an executable object file");
 
 #if VERBOSE
-  printf ("--- Header Information ---\n");
-  printf ("Magic = 0x%08x\n", mh.magic);
-  printf ("CPUType = %d\n", mh.cputype);
-  printf ("CPUSubType = %d\n", mh.cpusubtype);
-  printf ("FileType = 0x%x\n", mh.filetype);
-  printf ("NCmds = %d\n", mh.ncmds);
-  printf ("SizeOfCmds = %d\n", mh.sizeofcmds);
-  printf ("Flags = 0x%08x\n", mh.flags);
+  printf("--- Header Information ---\n");
+  printf("Magic = 0x%08x%s\n", mh.magic, magic_typestring);
+  printf("CPUType = %d (i.e. \"%s\")\n", mh.cputype,
+         mh_cpuarchinfo->name);
+  printf("CPUSubType = %d (more specifically, \"%s\")\n", mh.cpusubtype,
+         mh_cpuarchinfo->description);
+  printf("FileType = 0x%x\n", mh.filetype);
+  printf("NCmds = %d\n", mh.ncmds);
+  printf("SizeOfCmds = %d\n", mh.sizeofcmds);
+  printf("Flags = 0x%08x\n", mh.flags);
 #endif /* VERBOSE */
 
-  nlc = mh.ncmds;
+  nlc = (int)mh.ncmds;
 #ifdef __cplusplus
   lca = (struct load_command **)malloc(nlc * sizeof(*lca));
 #else
-  lca = malloc(nlc * sizeof(*lca));
+  lca = malloc((size_t)nlc * sizeof(*lca));
 #endif /* __cplusplus */
 
   for (i = 0; i < nlc; i++)
@@ -922,48 +983,49 @@ read_load_commands (void)
       struct load_command lc;
       /* Load commands are variable-size: so read the command type and
 	 size first and then read the rest.  */
-      if (!unexec_read (&lc, sizeof (struct load_command)))
-        unexec_error ("cannot read load command");
+      if (!unexec_read(&lc, sizeof(struct load_command)))
+        unexec_error("cannot read load command");
 #ifdef __cplusplus
       lca[i] = (struct load_command *)malloc(lc.cmdsize);
 #else
       lca[i] = malloc(lc.cmdsize);
 #endif /* __cplusplus */
-      memcpy (lca[i], &lc, sizeof (struct load_command));
-      if (!unexec_read (lca[i] + 1, lc.cmdsize - sizeof (struct load_command)))
-        unexec_error ("cannot read content of load command");
-      if (lc.cmd == LC_SEGMENT || lc.cmd == LC_SEGMENT_64)
+      memcpy(lca[i], &lc, sizeof(struct load_command));
+      if (!unexec_read((lca[i] + 1),
+                       (lc.cmdsize - sizeof(struct load_command))))
+        unexec_error("cannot read content of load command");
+      if ((lc.cmd == LC_SEGMENT) || (lc.cmd == LC_SEGMENT_64))
 	{
-	  struct segment_command *scp = (struct segment_command *) lca[i];
+	  struct segment_command *scp = (struct segment_command *)lca[i];
 
-	  if (scp->vmaddr + scp->vmsize > infile_lc_highest_addr)
-	    infile_lc_highest_addr = scp->vmaddr + scp->vmsize;
+	  if ((scp->vmaddr + scp->vmsize) > infile_lc_highest_addr)
+	    infile_lc_highest_addr = (scp->vmaddr + scp->vmsize);
 
 	  if (strncmp (scp->segname, SEG_TEXT, 16) == 0)
 	    {
-	      struct section *sectp = (struct section *) (scp + 1);
-	      int j;
+	      struct section *sectp = (struct section *)(scp + 1);
+	      uint32_t j;
 
-	      for (j = 0; j < scp->nsects; j++)
+	      for (j = 0U; (j < scp->nsects) && (j < UINT_MAX); j++)
 		if (sectp->offset < text_seg_lowest_offset)
 		  text_seg_lowest_offset = sectp->offset;
 	    }
 	}
     }
 
-  printf ("Highest address of load commands in input file: %#8lx\n",
-	  (unsigned long)infile_lc_highest_addr);
+  printf("Highest address of load commands in input file: %#8lx\n",
+	 (unsigned long)infile_lc_highest_addr);
 
-  printf ("Lowest offset of all sections in __TEXT segment: %#8lx\n",
-	  text_seg_lowest_offset);
+  printf("Lowest offset of all sections in __TEXT segment: %#8lx\n",
+	 text_seg_lowest_offset);
 
-  printf ("--- List of Load Commands in Input File ---\n");
-  printf ("# cmd              cmdsize name                address     size\n");
+  printf("--- List of Load Commands in Input File ---\n");
+  printf("#  cmd           cmdnum           cmdsize name                address     size\n");
 
   for (i = 0; i < nlc; i++)
     {
-      printf ("%1d ", i);
-      print_load_command (lca[i]);
+      printf("%2d ", i);
+      print_load_command(lca[i]);
     }
 }
 
@@ -971,32 +1033,33 @@ read_load_commands (void)
    the input file to the output file, adjusting the file offset of the
    segment and the file offsets of sections contained in it.  */
 static void
-copy_segment (struct load_command *lc)
+copy_segment(struct load_command *lc)
 {
-  struct segment_command *scp = (struct segment_command *) lc;
+  struct segment_command *scp = (struct segment_command *)lc;
   unsigned long old_fileoff = scp->fileoff;
   struct section *sectp;
-  int j;
+  uint32_t j;
 
   scp->fileoff = curr_file_offset;
 
-  sectp = (struct section *) (scp + 1);
-  for (j = 0; j < scp->nsects; j++)
+  sectp = (struct section *)(scp + 1);
+  for (j = 0U; (j < scp->nsects) && (j < UINT_MAX); j++)
     {
-      sectp->offset += curr_file_offset - old_fileoff;
+      sectp->offset += (curr_file_offset - old_fileoff);
       sectp++;
     }
 
-  printf ("Writing segment %-16.16s @ %#8lx (%#8lx/%#8lx @ %#10lx)\n",
-	  scp->segname, (long) (scp->fileoff), (long) (scp->filesize),
-	  (long) (scp->vmsize), (long) (scp->vmaddr));
+  printf("Writing segment %-16.16s @ %#8lx (%#8lx/%#8lx @ %#10lx)\n",
+	 scp->segname, (long)(scp->fileoff), (long)(scp->filesize),
+	 (long)(scp->vmsize), (long)(scp->vmaddr));
 
-  if (!unexec_copy (scp->fileoff, old_fileoff, scp->filesize))
-    unexec_error ("cannot copy segment from input to output file");
-  curr_file_offset += ROUNDUP_TO_PAGE_BOUNDARY (scp->filesize);
+  if (!unexec_copy((off_t)scp->fileoff, (off_t)old_fileoff,
+                   (ssize_t)scp->filesize))
+    unexec_error("cannot copy segment from input to output file");
+  curr_file_offset += ROUNDUP_TO_PAGE_BOUNDARY(scp->filesize);
 
-  if (!unexec_write (curr_header_offset, lc, lc->cmdsize))
-    unexec_error ("cannot write load command to header");
+  if (!unexec_write((off_t)curr_header_offset, lc, lc->cmdsize))
+    unexec_error("cannot write load command to header");
 
   curr_header_offset += lc->cmdsize;
 }
@@ -1014,11 +1077,11 @@ copy_segment (struct load_command *lc)
    load commands for regions on the region list other than the one
    corresponding to the __DATA segment in the input file.  */
 static void
-copy_data_segment (struct load_command *lc)
+copy_data_segment(struct load_command *lc)
 {
-  struct segment_command *scp = (struct segment_command *) lc;
+  struct segment_command *scp = (struct segment_command *)lc;
   struct section *sectp;
-  int j;
+  uint32_t j;
   unsigned long header_offset, old_file_offset;
   long total;
 
@@ -1029,20 +1092,21 @@ copy_data_segment (struct load_command *lc)
      segment is generally smaller than vmsize.  */
   scp->filesize = scp->vmsize;
 
-  printf ("Writing segment %-16.16s @ %#8lx (%#8lx/%#8lx @ %#10lx)\n",
-	  scp->segname, curr_file_offset, (long)(scp->filesize),
-	  (long)(scp->vmsize), (long) (scp->vmaddr));
+  printf("Writing segment %-16.16s @ %#8lx (%#8lx/%#8lx @ %#10lx)\n",
+	 scp->segname, curr_file_offset, (long)(scp->filesize),
+	 (long)(scp->vmsize), (long)(scp->vmaddr));
 
   /* Offsets in the output file for writing the next section structure
      and segment data block, respectively.  */
-  header_offset = curr_header_offset + sizeof (struct segment_command);
+  header_offset = curr_header_offset + sizeof(struct segment_command);
 
-  sectp = (struct section *) (scp + 1);
-  for (j = 0; j < scp->nsects; j++)
+  sectp = (struct section *)(scp + 1);
+  for (j = 0U; (j < scp->nsects) && (j < UINT_MAX); j++)
     {
       unsigned char sect_type;
       old_file_offset = sectp->offset;
-      sectp->offset = sectp->addr - scp->vmaddr + curr_file_offset;
+      sectp->offset = (uint32_t)((sectp->addr - scp->vmaddr)
+                                 + curr_file_offset);
       /* The __data section is dumped from memory.  The __bss and
 	 __common sections are also dumped from memory but their flag
 	 fields require changing (from S_ZEROFILL to S_REGULAR).  The
@@ -1055,26 +1119,36 @@ copy_data_segment (struct load_command *lc)
       case S_LAZY_SYMBOL_POINTERS:
       case S_NON_LAZY_SYMBOL_POINTERS:
       case S_CSTRING_LITERALS:
-	  if (!unexec_copy (sectp->offset, old_file_offset, sectp->size))
-	    unexec_error ("cannot copy section %s", sectp->sectname);
-	  if (!unexec_write (header_offset, sectp, sizeof (struct section)))
-	    unexec_error ("cannot write section %s's header", sectp->sectname);
+	  if (!unexec_copy(sectp->offset, (off_t)old_file_offset,
+                           (ssize_t)sectp->size))
+	    unexec_error("cannot copy section %s", sectp->sectname);
+	  if (!unexec_write((off_t)header_offset, sectp,
+                            sizeof(struct section)))
+	    unexec_error("cannot write section %s's header",
+                         sectp->sectname);
 	  break;
 
       case S_REGULAR:
-	if (strncmp (sectp->sectname, "__const", 16) == 0
-              || strncmp(sectp->sectname, "__program_vars", 16) == 0) {
-            if (!unexec_copy (sectp->offset, old_file_offset, sectp->size))
-              unexec_error ("cannot copy section %s", sectp->sectname);
+	if ((strncmp(sectp->sectname, "__const", 16) == 0)
+            || (strncmp(sectp->sectname, "__program_vars", 16) == 0)) {
+          if (!unexec_copy(sectp->offset, (off_t)old_file_offset,
+                           (ssize_t)sectp->size))
+            unexec_error("cannot copy section %s", sectp->sectname);
 	} else {
-            if (!unexec_write (sectp->offset, (void *)sectp->addr, sectp->size))
-              unexec_error ("cannot write section %s", sectp->sectname);
+          if (!unexec_write(sectp->offset, (void *)sectp->addr,
+                            sectp->size))
+            unexec_error("cannot write section %s", sectp->sectname);
 	}
-	if (!unexec_write (header_offset, sectp, sizeof (struct section)))
-            unexec_error ("cannot write section %s's header", sectp->sectname);
+	if (!unexec_write((off_t)header_offset, sectp,
+                          sizeof(struct section)))
+            unexec_error("cannot write section %s's header",
+                         sectp->sectname);
 	break;
 
       case S_ZEROFILL:
+#if defined(VERBOSE) && VERBOSE
+          printf("jumping to zerofilling part...\n");
+#endif /* VERBOSE */
           goto zerofill_entry_point;
       default:
           if ((strncmp(sectp->sectname, SECT_DATA, 16) == 0)
@@ -1102,7 +1176,7 @@ copy_data_segment (struct load_command *lc)
             }
       }
 
-      if (strncmp (sectp->sectname, SECT_DATA, 16) == 0)
+      if (strncmp(sectp->sectname, SECT_DATA, 16) == 0)
 	{
 	  extern char my_edata[];
 	  unsigned long my_size;
@@ -1113,27 +1187,32 @@ copy_data_segment (struct load_command *lc)
 	     add_image_hook.names and add_image_hook.pointers stored
 	     by libarclite_macosx.a, are restored so that they will be
 	     reinitialized when the dumped binary is executed.  */
-	  my_size = (unsigned long)my_edata - sectp->addr;
-	  if (!(sectp->addr <= (unsigned long)my_edata
-		&& my_size <= sectp->size))
-	    unexec_error ("my_edata is not in section %s", SECT_DATA);
-	  if (!unexec_write (sectp->offset, (void *) sectp->addr, my_size))
-	    unexec_error ("cannot write section %s", SECT_DATA);
-	  if (!unexec_copy (sectp->offset + my_size, old_file_offset + my_size,
-			    sectp->size - my_size))
-	    unexec_error ("cannot copy section %s", SECT_DATA);
-	  if (!unexec_write (header_offset, sectp, sizeof (struct section)))
-	    unexec_error ("cannot write section %s's header", SECT_DATA);
+	  my_size = ((unsigned long)my_edata - sectp->addr);
+	  if (!((sectp->addr <= (unsigned long)my_edata)
+		&& (my_size <= sectp->size)))
+	    unexec_error("my_edata is not in section %s", SECT_DATA);
+	  if (!unexec_write(sectp->offset, (void *)sectp->addr, my_size))
+	    unexec_error("cannot write section %s", SECT_DATA);
+	  if (!unexec_copy((off_t)(sectp->offset + my_size),
+                           (off_t)(old_file_offset + my_size),
+			   (ssize_t)(sectp->size - my_size)))
+	    unexec_error("cannot copy section %s", SECT_DATA);
+	  if (!unexec_write((off_t)header_offset, sectp,
+                            sizeof(struct section)))
+	    unexec_error("cannot write section %s's header", SECT_DATA);
 	}
-      else if (strncmp (sectp->sectname, SECT_COMMON, 16) == 0)
+      else if (strncmp(sectp->sectname, SECT_COMMON, 16) == 0)
 	{
 	  sectp->flags = S_REGULAR;
-	  if (!unexec_write (sectp->offset, (void *) sectp->addr, sectp->size))
-	    unexec_error ("cannot write section %.16s", sectp->sectname);
-	  if (!unexec_write (header_offset, sectp, sizeof (struct section)))
-	    unexec_error ("cannot write section %.16s's header", sectp->sectname);
+	  if (!unexec_write(sectp->offset, (void *)sectp->addr,
+                            sectp->size))
+	    unexec_error("cannot write section %.16s", sectp->sectname);
+	  if (!unexec_write((off_t)header_offset, sectp,
+                            sizeof(struct section)))
+	    unexec_error("cannot write section %.16s's header",
+                         sectp->sectname);
 	}
-      else if (strncmp (sectp->sectname, SECT_BSS, 16) == 0)
+      else if (strncmp(sectp->sectname, SECT_BSS, 16) == 0)
 	{
 	  extern char *my_endbss_static;
 	  unsigned long my_size = 0UL;
@@ -1147,8 +1226,10 @@ copy_data_segment (struct load_command *lc)
 zerofill_entry_point:
 	  sectp->flags = S_REGULAR;
 
-	  if (strncmp (sectp->sectname, SECT_BSS, 16) == 0) {
+	  if (strncmp(sectp->sectname, SECT_BSS, 16) == 0) {
 	    extern char *my_endbss_static;
+            /* ignore '-Wshadow' about this; we need it because the goto
+             * could jump here without this being declared: */
 	    unsigned long my_size;
 
 	    /* Clear uninitialized local variables in statically linked
@@ -1157,29 +1238,39 @@ zerofill_entry_point:
 	       binary compatibility with respect to long double, are
 	       cleared so that they will be reinitialized when the
 	       dumped binary is executed on other versions of OS.  */
-	    my_size = (unsigned long)my_endbss_static - sectp->addr;
-	    if (!(sectp->addr <= (unsigned long)my_endbss_static
-		  && my_size <= sectp->size))
-	      unexec_error ("my_endbss_static is not in section %.16s",
-			    sectp->sectname);
-	    if (!unexec_write (sectp->offset, (void *) sectp->addr, my_size))
-	      unexec_error ("cannot write section %.16s", sectp->sectname);
-	    if (!unexec_write_zero (sectp->offset + my_size,
-				    sectp->size - my_size))
-	      unexec_error ("cannot write section %.16s", sectp->sectname);
-	    if (!unexec_write (header_offset, sectp, sizeof (struct section)))
-	      unexec_error ("cannot write section %.16s's header", sectp->sectname);
-	    printf("copy SECT_BSS\n");
+	    my_size = ((unsigned long)my_endbss_static - sectp->addr);
+	    if (!((sectp->addr <= (unsigned long)my_endbss_static)
+		  && (my_size <= sectp->size)))
+              {
+#if defined(VERBOSE) && VERBOSE
+                fprintf(stderr, "my_size is %lu; ", my_size);
+#endif /* VERBOSE */
+                unexec_error("my_endbss_static is not in section %.16s",
+                             sectp->sectname); /* FIXME */
+              }
+	    if (!unexec_write(sectp->offset, (void *)sectp->addr, my_size))
+	      unexec_error("cannot write section %.16s", sectp->sectname);
+	    if (!unexec_write_zero((off_t)(sectp->offset + my_size),
+				   (sectp->size - my_size)))
+	      unexec_error("cannot write section %.16s", sectp->sectname);
+	    if (!unexec_write((off_t)header_offset, sectp,
+                              sizeof(struct section)))
+	      unexec_error("cannot write section %.16s's header",
+                           sectp->sectname);
+	    printf("copying SECT_BSS\n");
 	  } else {
-	    if (!unexec_write (sectp->offset, (void *) sectp->addr, sectp->size))
-	      unexec_error ("cannot write section %s", sectp->sectname);
-	    if (!unexec_write (header_offset, sectp, sizeof (struct section)))
-	      unexec_error ("cannot write section %s's header", sectp->sectname);
-	    printf("copy %s\n", sectp->sectname);
+	    if (!unexec_write(sectp->offset, (void *)sectp->addr,
+                              sectp->size))
+	      unexec_error("cannot write section %s", sectp->sectname);
+	    if (!unexec_write((off_t)header_offset, sectp,
+                              sizeof(struct section)))
+	      unexec_error("cannot write section %s's header",
+                           sectp->sectname);
+	    printf("copying %s\n", sectp->sectname);
 	  }
 	}
-      else if (strncmp (sectp->sectname, "__bss", 5) == 0
-               || strncmp (sectp->sectname, "__pu_bss", 8) == 0)
+      else if ((strncmp(sectp->sectname, "__bss", 5) == 0)
+               || (strncmp(sectp->sectname, "__pu_bss", 8) == 0))
         {
           sectp->flags = S_REGULAR;
 
@@ -1189,86 +1280,94 @@ zerofill_entry_point:
              variables in statically linked libraries like for
              SECT_BSS (__bss) above, but setting up the markers we
              need in lastfile.c would be rather messy. See
-             darwin_output_aligned_bss () in gcc/config/darwin.c for
+             darwin_output_aligned_bss() in gcc/config/darwin.c for
              the root of the problem, keeping in mind that the
              sections are numbered by their alignment in GCC 4.6, but
              by log2(alignment) in GCC 4.7. */
 
-          if (!unexec_write (sectp->offset, (void *) sectp->addr, sectp->size))
-            unexec_error ("cannot copy section %.16s", sectp->sectname);
-          if (!unexec_write (header_offset, sectp, sizeof (struct section)))
-            unexec_error ("cannot write section %.16s's header", sectp->sectname);
+          if (!unexec_write(sectp->offset, (void *)sectp->addr,
+                            sectp->size))
+            unexec_error("cannot copy section %.16s", sectp->sectname);
+          if (!unexec_write((off_t)header_offset, sectp,
+                            sizeof(struct section)))
+            unexec_error("cannot write section %.16s's header",
+                         sectp->sectname);
         }
-      else if (strncmp (sectp->sectname, "__la_symbol_ptr", 16) == 0
-	       || strncmp (sectp->sectname, "__nl_symbol_ptr", 16) == 0
-	       || strncmp (sectp->sectname, "__got", 16) == 0
-	       || strncmp (sectp->sectname, "__la_sym_ptr2", 16) == 0
-	       || strncmp (sectp->sectname, "__dyld", 16) == 0
-	       || strncmp (sectp->sectname, "__const", 16) == 0
-	       || strncmp (sectp->sectname, "__cfstring", 16) == 0
-	       || strncmp (sectp->sectname, "__gcc_except_tab", 16) == 0
-	       || strncmp (sectp->sectname, "__program_vars", 16) == 0
-	       || strncmp (sectp->sectname, "__mod_init_func", 16) == 0
-	       || strncmp (sectp->sectname, "__mod_term_func", 16) == 0
-               || strncmp (sectp->sectname, "__static_data", 16) == 0
-	       || strncmp (sectp->sectname, "__objc_", 7) == 0)
+      else if ((strncmp(sectp->sectname, "__la_symbol_ptr", 16) == 0)
+	       || (strncmp(sectp->sectname, "__nl_symbol_ptr", 16) == 0)
+	       || (strncmp(sectp->sectname, "__got", 16) == 0)
+	       || (strncmp(sectp->sectname, "__la_sym_ptr2", 16) == 0)
+	       || (strncmp(sectp->sectname, "__dyld", 16) == 0)
+	       || (strncmp(sectp->sectname, "__const", 16) == 0)
+	       || (strncmp(sectp->sectname, "__cfstring", 16) == 0)
+	       || (strncmp(sectp->sectname, "__gcc_except_tab", 16) == 0)
+	       || (strncmp(sectp->sectname, "__program_vars", 16) == 0)
+	       || (strncmp(sectp->sectname, "__mod_init_func", 16) == 0)
+	       || (strncmp(sectp->sectname, "__mod_term_func", 16) == 0)
+               || (strncmp(sectp->sectname, "__static_data", 16) == 0)
+	       || (strncmp(sectp->sectname, "__objc_", 7) == 0))
 	{
-	  if (!unexec_copy (sectp->offset, old_file_offset, sectp->size))
-	    unexec_error ("cannot copy section %.16s", sectp->sectname);
-	  if (!unexec_write (header_offset, sectp, sizeof (struct section)))
-	    unexec_error ("cannot write section %.16s's header", sectp->sectname);
+	  if (!unexec_copy(sectp->offset, (off_t)old_file_offset,
+                           (ssize_t)sectp->size))
+	    unexec_error("cannot copy section %.16s", sectp->sectname);
+	  if (!unexec_write((off_t)header_offset, sectp,
+                            sizeof(struct section)))
+	    unexec_error("cannot write section %.16s's header",
+                         sectp->sectname);
 	}
       else
         {
 failure_spot:
-          unexec_error("unrecognized section type '0x%x' '%s' in __DATA segment", sect_type, sectp->sectname);
+          unexec_error("unrecognized section type '0x%x' '%s' in __DATA segment",
+                       sect_type, sectp->sectname);
         }
 
-      printf ("        section %-16.16s at %#8lx - %#8lx (sz: %#8lx)\n",
-	      sectp->sectname, (long) (sectp->offset),
-	      (long) (sectp->offset + sectp->size), (long) (sectp->size));
+      printf("        section %-16.16s at %#8lx - %#8lx (sz: %#8lx)\n",
+	     sectp->sectname, (long)(sectp->offset),
+	     (long)(sectp->offset + sectp->size), (long)(sectp->size));
 
-      header_offset += sizeof (struct section);
+      header_offset += sizeof(struct section);
       sectp++;
     }
 
-  curr_file_offset += ROUNDUP_TO_PAGE_BOUNDARY (scp->filesize);
+  curr_file_offset += ROUNDUP_TO_PAGE_BOUNDARY(scp->filesize);
 
-  if (!unexec_write (curr_header_offset, scp, sizeof (struct segment_command)))
-    unexec_error ("cannot write header of __DATA segment");
+  if (!unexec_write((off_t)curr_header_offset, scp,
+                    sizeof(struct segment_command)))
+    unexec_error("cannot write header of __DATA segment");
   curr_header_offset += lc->cmdsize;
 
   /* Create new __DATA segment load commands for regions on the region
-     list that do not corresponding to any segment load commands in
-     the input file.
-  */
+   * list that do not corresponding to any segment load commands in
+   * the input file: */
   total = 0L;
-  for (j = 0; j < num_unexec_regions; j++)
+  for (j = 0U; (j < (uint32_t)num_unexec_regions) && (j < UINT_MAX); j++)
     {
       struct segment_command sc;
 
       sc.cmd = LC_SEGMENT;
-      sc.cmdsize = sizeof (struct segment_command);
-      strncpy (sc.segname, SEG_DATA, 16);
+      sc.cmdsize = sizeof(struct segment_command);
+      strncpy(sc.segname, SEG_DATA, 16);
       sc.vmaddr = unexec_regions[j].range.address;
       sc.vmsize = unexec_regions[j].range.size;
       sc.fileoff = curr_file_offset;
       sc.filesize = unexec_regions[j].filesize;
-      sc.maxprot = VM_PROT_READ | VM_PROT_WRITE;
-      sc.initprot = VM_PROT_READ | VM_PROT_WRITE;
+      sc.maxprot = (VM_PROT_READ | VM_PROT_WRITE);
+      sc.initprot = (VM_PROT_READ | VM_PROT_WRITE);
       sc.nsects = 0;
       sc.flags = 0;
       total += sc.filesize;
-      printf ("Writing segment %-16.16s @ %#8lx (%#8lx/%#8lx @ %#10lx)\n",
-	      sc.segname, (long) (sc.fileoff), (long) (sc.filesize),
-	      (long) (sc.vmsize), (long) (sc.vmaddr));
+      printf("Writing segment %-16.16s @ %#8lx (%#8lx/%#8lx @ %#10lx)\n",
+	     sc.segname, (long)(sc.fileoff), (long)(sc.filesize),
+	     (long)(sc.vmsize), (long)(sc.vmaddr));
 
-      if (!unexec_write (sc.fileoff, (void *) sc.vmaddr, sc.filesize))
-        unexec_error ("cannot write new __DATA segment %#8lx (sz: %#8lx)", sc.vmaddr, sc.filesize);
-      curr_file_offset += ROUNDUP_TO_PAGE_BOUNDARY (sc.filesize);
+      if (!unexec_write((off_t)sc.fileoff, (void *)sc.vmaddr, sc.filesize))
+        unexec_error("cannot write new __DATA segment %#8lx (sz: %#8lx)",
+                     sc.vmaddr, sc.filesize);
+      curr_file_offset += ROUNDUP_TO_PAGE_BOUNDARY(sc.filesize);
 
-      if (!unexec_write (curr_header_offset, &sc, sc.cmdsize))
-	unexec_error ("cannot write new __DATA segment's header");
+      if (!unexec_write((off_t)curr_header_offset, &sc, sc.cmdsize))
+	unexec_error("cannot write new __DATA segment's header");
       curr_header_offset += sc.cmdsize;
       mh.ncmds++;
     }
@@ -1278,17 +1377,18 @@ failure_spot:
 /* Copy a LC_SYMTAB load command from the input file to the output
    file, adjusting the file offset fields.  */
 static void
-copy_symtab (struct load_command *lc, long delta)
+copy_symtab(struct load_command *lc, long delta)
 {
-  struct symtab_command *stp = (struct symtab_command *) lc;
+  struct symtab_command *stp = (struct symtab_command *)lc;
 
   stp->symoff += delta;
   stp->stroff += delta;
 
-  printf ("Writing LC_SYMTAB command\n");
+  printf("Writing LC_SYMTAB                      command (%d)\n",
+         ++nlc_written);
 
-  if (!unexec_write (curr_header_offset, lc, lc->cmdsize))
-    unexec_error ("cannot write symtab command to header");
+  if (!unexec_write((off_t)curr_header_offset, lc, lc->cmdsize))
+    unexec_error("cannot write symtab command to header");
 
   curr_header_offset += lc->cmdsize;
 }
@@ -1296,9 +1396,9 @@ copy_symtab (struct load_command *lc, long delta)
 /* Copy a LC_DYLD_INFO_ONLY load command from the input file to the output
    file, adjusting the file offset fields.  */
 static void
-copy_dyld_info_only (struct load_command *lc, long delta)
+copy_dyld_info_only(struct load_command *lc, long delta)
 {
-  struct dyld_info_command *dyld = (struct dyld_info_command *) lc;
+  struct dyld_info_command *dyld = (struct dyld_info_command *)lc;
 
   if (dyld->rebase_size)
     dyld->rebase_off += delta;
@@ -1311,101 +1411,106 @@ copy_dyld_info_only (struct load_command *lc, long delta)
   if (dyld->export_size)
     dyld->export_off += delta;
 
-  printf ("Writing ");
-  print_load_command_name (lc->cmd);
-  printf (" command\n");
+  printf("Writing ");
+  print_load_command_name((int)lc->cmd);
+  printf(" command (%d)\n", ++nlc_written);
 
-  if (!unexec_write (curr_header_offset, lc, lc->cmdsize))
-    unexec_error ("cannot write LC_DYLD_INFO_ONLY command to header");
+  if (!unexec_write((off_t)curr_header_offset, lc, lc->cmdsize))
+    unexec_error("cannot write LC_DYLD_INFO_ONLY command to header");
 
   curr_header_offset += lc->cmdsize;
 }
 
-/* Fix up relocation entries. */
+/* Fix up relocation entries: */
 static void
-unrelocate (const char *name, off_t reloff, int nrel, vm_address_t base)
+unrelocate(const char *name, off_t reloff, int nrel, vm_address_t base)
 {
   int i, unreloc_count;
   struct relocation_info reloc_info;
   struct scattered_relocation_info *sc_reloc_info
-    = (struct scattered_relocation_info *) &reloc_info;
+    = (struct scattered_relocation_info *)&reloc_info;
   vm_address_t location;
 
   for (unreloc_count = 0, i = 0; i < nrel; i++)
     {
-      if (lseek (infd, reloff, L_SET) != reloff)
-	unexec_error ("unrelocate: %s:%d cannot seek to reloc_info", name, i);
-      if (!unexec_read (&reloc_info, sizeof (reloc_info)))
-	unexec_error ("unrelocate: %s:%d cannot read reloc_info", name, i);
-      reloff += sizeof (reloc_info);
+      if (lseek(infd, reloff, L_SET) != reloff)
+	unexec_error("unrelocate: %s:%d cannot seek to reloc_info",
+                     name, i);
+      if (!unexec_read(&reloc_info, sizeof(reloc_info)))
+	unexec_error("unrelocate: %s:%d cannot read reloc_info", name, i);
+      reloff += sizeof(reloc_info);
 
       if (sc_reloc_info->r_scattered == 0)
 	switch (reloc_info.r_type)
 	  {
 	  case GENERIC_RELOC_VANILLA:
-	    location = base + reloc_info.r_address;
-	    if (location >= data_segment_scp->vmaddr
-		&& location < (data_segment_scp->vmaddr
-			       + data_segment_scp->vmsize))
+	    location = (base + (vm_address_t)reloc_info.r_address);
+	    if ((location >= data_segment_scp->vmaddr)
+		&& (location < (data_segment_scp->vmaddr
+                                + data_segment_scp->vmsize)))
 	      {
-		off_t src_off = data_segment_old_fileoff
-		  + (location - data_segment_scp->vmaddr);
-		off_t dst_off = data_segment_scp->fileoff
-		  + (location - data_segment_scp->vmaddr);
+		off_t src_off = (data_segment_old_fileoff
+                                 + (off_t)(location
+                                           - data_segment_scp->vmaddr));
+		off_t dst_off =
+                  (off_t)(data_segment_scp->fileoff
+                          + (uint32_t)(location
+                                       - data_segment_scp->vmaddr));
 
-		if (!unexec_copy (dst_off, src_off, 1 << reloc_info.r_length))
-		  unexec_error ("unrelocate: %s:%d cannot copy original value",
-				name, i);
+		if (!unexec_copy(dst_off, src_off,
+                                 (1 << reloc_info.r_length)))
+		  unexec_error("unrelocate: %s:%d cannot copy original value",
+                               name, i);
 		unreloc_count++;
 	      }
 	    break;
 	  default:
-	    unexec_error ("unrelocate: %s:%d cannot handle type = %d",
-			  name, i, reloc_info.r_type);
+	    unexec_error("unrelocate: %s:%d cannot handle type = %d",
+			 name, i, reloc_info.r_type);
 	  }
       else
 	switch (sc_reloc_info->r_type)
 	  {
-#if defined (__ppc__)
+#if defined(__ppc__)
 	  case PPC_RELOC_PB_LA_PTR:
 	    /* (nothing to do for prebound lazy pointer) */
 	    break;
 #endif /* __ppc__ */
 	  default:
-	    unexec_error ("unrelocate: %s:%d cannot handle scattered type = %d",
-			  name, i, sc_reloc_info->r_type);
+	    unexec_error("unrelocate: %s:%d cannot handle scattered type = %d",
+			 name, i, sc_reloc_info->r_type);
 	  }
     }
 
   if (nrel > 0)
-    printf ("Fixed up %d/%d %s relocation entries in data segment.\n",
-	    unreloc_count, nrel, name);
+    printf("Fixed up %d/%d %s relocation entries in data segment.\n",
+	   unreloc_count, nrel, name);
 }
 
 #if defined(__ppc64__) && __ppc64__
 /* Rebase r_address in the relocation table.  */
 static void
-rebase_reloc_address (off_t reloff, int nrel, long linkedit_delta, long diff)
+rebase_reloc_address(off_t reloff, int nrel, long linkedit_delta, long diff)
 {
   int i;
   struct relocation_info reloc_info;
   struct scattered_relocation_info *sc_reloc_info
-    = (struct scattered_relocation_info *) &reloc_info;
+    = (struct scattered_relocation_info *)&reloc_info;
 
-  for (i = 0; i < nrel; i++, reloff += sizeof (reloc_info))
+  for (i = 0; i < nrel; i++, reloff += sizeof(reloc_info))
     {
-      if (lseek (infd, reloff - linkedit_delta, L_SET)
-	  != reloff - linkedit_delta)
-	unexec_error ("rebase_reloc_table: cannot seek to reloc_info");
-      if (!unexec_read (&reloc_info, sizeof (reloc_info)))
-	unexec_error ("rebase_reloc_table: cannot read reloc_info");
+      if (lseek(infd, (reloff - linkedit_delta), L_SET)
+	  != (reloff - linkedit_delta))
+	unexec_error("rebase_reloc_table: cannot seek to reloc_info");
+      if (!unexec_read(&reloc_info, sizeof(reloc_info)))
+	unexec_error("rebase_reloc_table: cannot read reloc_info");
 
-      if (sc_reloc_info->r_scattered == 0
-	  && reloc_info.r_type == GENERIC_RELOC_VANILLA)
+      if ((sc_reloc_info->r_scattered == 0)
+	  && (reloc_info.r_type == GENERIC_RELOC_VANILLA))
 	{
 	  reloc_info.r_address -= diff;
-	  if (!unexec_write (reloff, &reloc_info, sizeof (reloc_info)))
-	    unexec_error ("rebase_reloc_table: cannot write reloc_info");
+	  if (!unexec_write(reloff, &reloc_info, sizeof(reloc_info)))
+	    unexec_error("rebase_reloc_table: cannot write reloc_info");
 	}
     }
 }
@@ -1414,9 +1519,9 @@ rebase_reloc_address (off_t reloff, int nrel, long linkedit_delta, long diff)
 /* Copy a LC_DYSYMTAB load command from the input file to the output
    file, adjusting the file offset fields.  */
 static void
-copy_dysymtab (struct load_command *lc, long delta)
+copy_dysymtab(struct load_command *lc, long delta)
 {
-  struct dysymtab_command *dstp = (struct dysymtab_command *) lc;
+  struct dysymtab_command *dstp = (struct dysymtab_command *)lc;
   vm_address_t base;
 
 #ifdef _LP64
@@ -1428,10 +1533,10 @@ copy_dysymtab (struct load_command *lc, long delta)
     for (i = 0; i < nlc; i++)
       if (lca[i]->cmd == LC_SEGMENT)
 	{
-	  struct segment_command *scp = (struct segment_command *) lca[i];
+	  struct segment_command *scp = (struct segment_command *)lca[i];
 
-	  if (scp->vmaddr + scp->vmsize > 0x100000000
-	      && (scp->initprot & VM_PROT_WRITE) != 0)
+	  if (((scp->vmaddr + scp->vmsize) > 0x100000000)
+	      && ((scp->initprot & VM_PROT_WRITE) != 0))
 	    {
 	      base = data_segment_scp->vmaddr;
 	      break;
@@ -1447,8 +1552,8 @@ copy_dysymtab (struct load_command *lc, long delta)
   base = 0;
 #endif /* _LP64 */
 
-  unrelocate ("local", dstp->locreloff, dstp->nlocrel, base);
-  unrelocate ("external", dstp->extreloff, dstp->nextrel, base);
+  unrelocate("local", dstp->locreloff, (int)dstp->nlocrel, base);
+  unrelocate("external", dstp->extreloff, (int)dstp->nextrel, base);
 
   if (dstp->nextrel > 0) {
     dstp->extreloff += delta;
@@ -1461,10 +1566,11 @@ copy_dysymtab (struct load_command *lc, long delta)
   if (dstp->nindirectsyms > 0)
     dstp->indirectsymoff += delta;
 
-  printf ("Writing LC_DYSYMTAB command\n");
+  printf("Writing LC_DYSYMTAB                    command (%d)\n",
+         ++nlc_written);
 
-  if (!unexec_write (curr_header_offset, lc, lc->cmdsize))
-    unexec_error ("cannot write symtab command to header");
+  if (!unexec_write((off_t)curr_header_offset, lc, lc->cmdsize))
+    unexec_error("cannot write symtab command to header");
 
   curr_header_offset += lc->cmdsize;
 
@@ -1485,8 +1591,8 @@ copy_dysymtab (struct load_command *lc, long delta)
 
       if (newbase)
 	{
-	  rebase_reloc_address (dstp->locreloff, dstp->nlocrel, delta, newbase);
-	  rebase_reloc_address (dstp->extreloff, dstp->nextrel, delta, newbase);
+	  rebase_reloc_address(dstp->locreloff, dstp->nlocrel, delta, newbase);
+	  rebase_reloc_address(dstp->extreloff, dstp->nextrel, delta, newbase);
 	}
     }
 #endif /* __ppc64__ */
@@ -1495,18 +1601,18 @@ copy_dysymtab (struct load_command *lc, long delta)
 /* Copy a LC_TWOLEVEL_HINTS load command from the input file to the output
    file, adjusting the file offset fields.  */
 static void
-copy_twolevelhints (struct load_command *lc, long delta)
+copy_twolevelhints(struct load_command *lc, long delta)
 {
-  struct twolevel_hints_command *tlhp = (struct twolevel_hints_command *) lc;
+  struct twolevel_hints_command *tlhp = (struct twolevel_hints_command*)lc;
 
   if (tlhp->nhints > 0) {
     tlhp->offset += delta;
   }
 
-  printf ("Writing LC_TWOLEVEL_HINTS command\n");
+  printf("Writing LC_TWOLEVEL_HINTS command (%d)\n", ++nlc_written);
 
-  if (!unexec_write (curr_header_offset, lc, lc->cmdsize))
-    unexec_error ("cannot write two level hint command to header");
+  if (!unexec_write((off_t)curr_header_offset, lc, lc->cmdsize))
+    unexec_error("cannot write two level hint command to header");
 
   curr_header_offset += lc->cmdsize;
 }
@@ -1515,9 +1621,9 @@ copy_twolevelhints (struct load_command *lc, long delta)
 /* Copy a LC_DYLD_INFO(_ONLY) load command from the input file to the output
    file, adjusting the file offset fields.  */
 static void
-copy_dyld_info (struct load_command *lc, long delta)
+copy_dyld_info(struct load_command *lc, long delta)
 {
-  struct dyld_info_command *dip = (struct dyld_info_command *) lc;
+  struct dyld_info_command *dip = (struct dyld_info_command *)lc;
 
   if (dip->rebase_off > 0)
     dip->rebase_off += delta;
@@ -1530,12 +1636,12 @@ copy_dyld_info (struct load_command *lc, long delta)
   if (dip->export_off > 0)
     dip->export_off += delta;
 
-  printf ("Writing ");
-  print_load_command_name (lc->cmd);
-  printf (" command\n");
+  printf("Writing ");
+  print_load_command_name((int)lc->cmd);
+  printf(" command (%d)\n", ++nlc_written);
 
-  if (!unexec_write (curr_header_offset, lc, lc->cmdsize))
-    unexec_error ("cannot write dyld info command to header");
+  if (!unexec_write((off_t)curr_header_offset, lc, lc->cmdsize))
+    unexec_error("cannot write dyld info command to header");
 
   curr_header_offset += lc->cmdsize;
 }
@@ -1546,19 +1652,19 @@ copy_dyld_info (struct load_command *lc, long delta)
    load command from the input file to the output file, adjusting the
    data offset field.  */
 static void
-copy_linkedit_data (struct load_command *lc, long delta)
+copy_linkedit_data(struct load_command *lc, long delta)
 {
-  struct linkedit_data_command *ldp = (struct linkedit_data_command *) lc;
+  struct linkedit_data_command *ldp = (struct linkedit_data_command *)lc;
 
   if (ldp->dataoff > 0)
     ldp->dataoff += delta;
 
-  printf ("Writing ");
-  print_load_command_name (lc->cmd);
-  printf (" command\n");
+  printf("Writing ");
+  print_load_command_name((int)lc->cmd);
+  printf(" command (%d)\n", ++nlc_written);
 
-  if (!unexec_write (curr_header_offset, lc, lc->cmdsize))
-    unexec_error ("cannot write linkedit data command to header");
+  if (!unexec_write((off_t)curr_header_offset, lc, lc->cmdsize))
+    unexec_error("cannot write linkedit data command to header");
 
   curr_header_offset += lc->cmdsize;
 }
@@ -1567,16 +1673,16 @@ copy_linkedit_data (struct load_command *lc, long delta)
 /* Copy other kinds of load commands from the input file to the output
    file, ones that do not require adjustments of file offsets.  */
 static void
-copy_other (struct load_command *lc)
+copy_other(struct load_command *lc)
 {
-  printf ("Writing ");
-  print_load_command_name (lc->cmd);
-  printf (" command\n");
+  printf("Writing ");
+  print_load_command_name((int)lc->cmd);
+  printf(" command (%d)\n", ++nlc_written);
 
   if (lc->cmd == LC_CODE_SIGNATURE)
     lc->cmd = 0x0;		/* Do NOT propagate signature */
-  if (!unexec_write (curr_header_offset, lc, lc->cmdsize))
-    unexec_error ("cannot write symtab command to header");
+  if (!unexec_write((off_t)curr_header_offset, lc, lc->cmdsize))
+    unexec_error("cannot write symtab command to header");
 
   curr_header_offset += lc->cmdsize;
 }
@@ -1584,53 +1690,53 @@ copy_other (struct load_command *lc)
 /* Loop through all load commands and dump them.  Then write the Mach
    header.  */
 static void
-dump_it (void)
+dump_it(void)
 {
   int i;
-  long linkedit_delta = 0;
+  long linkedit_delta = 0L;
 
-  printf ("--- Load Commands written to Output File ---\n");
+  printf("--- Load Commands written to Output File ---\n");
 
   for (i = 0; i < nlc; i++)
     switch (lca[i]->cmd)
       {
       case LC_SEGMENT:
 	{
-	  struct segment_command *scp = (struct segment_command *) lca[i];
-	  if (strncmp (scp->segname, SEG_DATA, 16) == 0)
+	  struct segment_command *scp = (struct segment_command *)lca[i];
+	  if (strncmp(scp->segname, SEG_DATA, 16) == 0)
 	    {
 	      /* save data segment file offset and segment_command for
 		 unrelocate */
 	      if (data_segment_old_fileoff)
-		unexec_error ("cannot handle multiple DATA segments"
-			      " in input file");
-	      data_segment_old_fileoff = scp->fileoff;
+		unexec_error("cannot handle multiple DATA segments"
+			     " in input file");
+	      data_segment_old_fileoff = (off_t)scp->fileoff;
 	      data_segment_scp = scp;
 
-	      copy_data_segment (lca[i]);
+	      copy_data_segment(lca[i]);
 	    }
 	  else
 	    {
-	      if (strncmp (scp->segname, SEG_LINKEDIT, 16) == 0)
+	      if (strncmp(scp->segname, SEG_LINKEDIT, 16) == 0)
 		{
 		  if (linkedit_delta)
-		    unexec_error ("cannot handle multiple LINKEDIT segments"
-				  " in input file");
-		  linkedit_delta = curr_file_offset - scp->fileoff;
+		    unexec_error("cannot handle multiple LINKEDIT segments"
+				 " in input file");
+		  linkedit_delta = (long)(curr_file_offset - scp->fileoff);
 		}
 
-	      copy_segment (lca[i]);
+	      copy_segment(lca[i]);
 	    }
 	}
 	break;
       case LC_SYMTAB:
-	copy_symtab (lca[i], linkedit_delta);
+	copy_symtab(lca[i], linkedit_delta);
 	break;
       case LC_DYSYMTAB:
-	copy_dysymtab (lca[i], linkedit_delta);
+	copy_dysymtab(lca[i], linkedit_delta);
 	break;
       case LC_TWOLEVEL_HINTS:
-	copy_twolevelhints (lca[i], linkedit_delta);
+	copy_twolevelhints(lca[i], linkedit_delta);
 	break;
 #ifdef LC_DYLD_INFO
       case LC_DYLD_INFO:
@@ -1650,23 +1756,29 @@ dump_it (void)
 # ifdef LC_DYLIB_CODE_SIGN_DRS
       case LC_DYLIB_CODE_SIGN_DRS:
 # endif /* LC_DYLIB_CODE_SIGN_DRS */
-	copy_linkedit_data (lca[i], linkedit_delta);
+	copy_linkedit_data(lca[i], linkedit_delta);
 	break;
 #endif /* LC_FUNCTION_STARTS */
       default:
-	copy_other (lca[i]);
+	copy_other(lca[i]);
 	break;
       }
 
   if (curr_header_offset > text_seg_lowest_offset)
-    unexec_error ("not enough room for load commands for new __DATA segments");
+    unexec_error("not enough room for load commands for new __DATA segments");
 
-  printf ("%ld unused bytes follow Mach-O header\n",
-	  text_seg_lowest_offset - curr_header_offset);
+  printf("%ld unused bytes follow Mach-O header\n",
+	 (text_seg_lowest_offset - curr_header_offset));
 
-  mh.sizeofcmds = curr_header_offset - sizeof (struct mach_header);
-  if (!unexec_write (0, &mh, sizeof (struct mach_header)))
-    unexec_error ("cannot write final header contents");
+  mh.sizeofcmds = (uint32_t)(curr_header_offset
+                             - sizeof(struct mach_header));
+  if (!unexec_write(0, &mh, sizeof(struct mach_header)))
+    unexec_error("cannot write final header contents");
+
+  if (nlc != nlc_written) {
+    fprintf(stderr, "Warning: Mismatch between number of load commands written (%d) vs. expected (%d)\n",
+            nlc_written, nlc);
+  }
 }
 
 /* Take a snapshot of Emacs and make a Mach-O format executable file
@@ -1674,36 +1786,36 @@ dump_it (void)
    and infile, respectively.  The three other parameters are
    ignored.  */
 void
-unexec (const char *outfile, const char *infile)
+unexec(const char *outfile, const char *infile)
 {
   if (in_dumped_exec)
-    unexec_error ("Unexec from a dumped executable is not supported.");
+    unexec_error("Unexec from a dumped executable is not supported.");
 
-  pagesize = getpagesize ();
-  infd = emacs_open (infile, O_RDONLY, 0);
+  pagesize = (unsigned long)getpagesize();
+  infd = emacs_open(infile, O_RDONLY, 0);
   if (infd < 0)
     {
-      unexec_error ("cannot open input file `%s'", infile);
+      unexec_error("cannot open input file `%s'", infile);
     }
 
-  outfd = emacs_open (outfile, (O_WRONLY | O_TRUNC | O_CREAT), 0755);
+  outfd = emacs_open(outfile, (O_WRONLY | O_TRUNC | O_CREAT), 0755);
   if (outfd < 0)
     {
-      emacs_close (infd);
-      unexec_error ("cannot open output file `%s'", outfile);
+      emacs_close(infd);
+      unexec_error("cannot open output file `%s'", outfile);
     }
 
-  build_region_list ();
-  read_load_commands ();
+  build_region_list();
+  read_load_commands();
 
-  find_emacs_zone_regions ();
-  unexec_regions_merge ();
+  find_emacs_zone_regions();
+  unexec_regions_merge();
 
   in_dumped_exec = 1;
 
-  dump_it ();
+  dump_it();
 
-  emacs_close (outfd);
+  emacs_close(outfd);
 }
 
 
@@ -1725,14 +1837,14 @@ typedef struct unexec_malloc_header {
 } unexec_malloc_header_t;
 
 #if MACOSX_MALLOC_MULT16
-# define ptr_in_unexec_regions(p) ((((vm_address_t) (p)) & 8) != 0)
+# define ptr_in_unexec_regions(p) ((((vm_address_t)(p)) & 8) != 0)
 #else
 int ptr_in_unexec_regions(void *ptr)
 {
   int i;
 
   for (i = 0; i < num_unexec_regions; i++)
-    if ((vm_address_t) ptr - unexec_regions[i].range.address
+    if (((vm_address_t)ptr - unexec_regions[i].range.address)
 	< unexec_regions[i].range.size)
       return 1;
 
@@ -1748,7 +1860,7 @@ void *unexec_malloc(size_t size)
 
       p = malloc (size);
 #if MACOSX_MALLOC_MULT16
-      assert (((vm_address_t) p % 16) == 0);
+      assert (((vm_address_t)p % 16) == 0);
 #endif /* MACOSX_MALLOC_MULT16 */
       return p;
     }
@@ -1757,13 +1869,14 @@ void *unexec_malloc(size_t size)
       unexec_malloc_header_t *ptr;
 
       ptr = (unexec_malloc_header_t *)
-	malloc_zone_malloc (emacs_zone, (size + sizeof (unexec_malloc_header_t)));
+	malloc_zone_malloc(emacs_zone,
+                           (size + sizeof(unexec_malloc_header_t)));
       ptr->u.size = size;
       ptr++;
 #if MACOSX_MALLOC_MULT16
-      assert (((vm_address_t) ptr % 16) == 8);
+      assert(((vm_address_t)ptr % 16) == 8);
 #endif /* MACOSX_MALLOC_MULT16 */
-      return (void *) ptr;
+      return (void *)ptr;
     }
 }
 
@@ -1773,10 +1886,10 @@ void *unexec_realloc(void *old_ptr, size_t new_size)
     {
       void *p;
 
-      if (ptr_in_unexec_regions (old_ptr))
+      if (ptr_in_unexec_regions(old_ptr))
 	{
-	  size_t old_size = ((unexec_malloc_header_t *) old_ptr)[-1].u.size;
-	  size_t size = new_size > old_size ? old_size : new_size;
+	  size_t old_size = ((unexec_malloc_header_t *)old_ptr)[-1].u.size;
+	  size_t size = ((new_size > old_size) ? old_size : new_size);
 
 #ifdef __cplusplus
 	  p = (size_t *)malloc(new_size);
@@ -1784,14 +1897,14 @@ void *unexec_realloc(void *old_ptr, size_t new_size)
           p = malloc(new_size);
 #endif /* __cplusplus */
 	  if (size)
-	    memcpy (p, old_ptr, size);
+	    memcpy(p, old_ptr, size);
 	}
       else
 	{
-	  p = realloc (old_ptr, new_size);
+	  p = realloc(old_ptr, new_size);
 	}
 #if MACOSX_MALLOC_MULT16
-      assert (((vm_address_t) p % 16) == 0);
+      assert(((vm_address_t)p % 16) == 0);
 #endif /* MACOSX_MALLOC_MULT16 */
       return p;
     }
@@ -1800,14 +1913,15 @@ void *unexec_realloc(void *old_ptr, size_t new_size)
       unexec_malloc_header_t *ptr;
 
       ptr = (unexec_malloc_header_t *)
-	malloc_zone_realloc (emacs_zone, (unexec_malloc_header_t *) old_ptr - 1,
-			     new_size + sizeof (unexec_malloc_header_t));
+	malloc_zone_realloc(emacs_zone,
+                            ((unexec_malloc_header_t *)old_ptr - 1),
+			    (new_size + sizeof(unexec_malloc_header_t)));
       ptr->u.size = new_size;
       ptr++;
 #if MACOSX_MALLOC_MULT16
-      assert (((vm_address_t) ptr % 16) == 8);
+      assert(((vm_address_t)ptr % 16) == 8);
 #endif /* MACOSX_MALLOC_MULT16 */
-      return (void *) ptr;
+      return (void *)ptr;
     }
 }
 
@@ -1817,11 +1931,11 @@ void unexec_free(void *ptr)
     return;
   if (in_dumped_exec)
     {
-      if (!ptr_in_unexec_regions (ptr))
-	free (ptr);
+      if (!ptr_in_unexec_regions(ptr))
+	free(ptr);
     }
   else
-    malloc_zone_free (emacs_zone, (unexec_malloc_header_t *) ptr - 1);
+    malloc_zone_free(emacs_zone, ((unexec_malloc_header_t *)ptr - 1));
 }
 
 /* arch-tag: 1a784f7b-a184-4c4f-9544-da8619593d72

@@ -1,4 +1,4 @@
-# compiler_id.m4 serial 1 file starts here
+# compiler_id.m4 serial 2 file starts here
 dnl# This was originally in the emacs configure.ac file.   -*- Autoconf -*-
 
 dnl# these two are now defun-ed macros in preparation for moving to their
@@ -27,6 +27,28 @@ AC_CACHE_CHECK([if the compiler is an Apple compiler],[emacs_cv_apple],
      [emacs_cv_apple=yes],
      [emacs_cv_apple=no])])dnl
 ])dnl# end macro for Apple
+
+AC_DEFUN([EMACS_CLANG_STATIC_ANALYSIS],[
+AC_REQUIRE([EMACS_COMPILER_ID_CLANG])dnl
+AC_ARG_VAR([CLANG_ANALYZER],[Path to the clang static analyzer])dnl
+  ## change the message based on what we already know:
+if test "x${emacs_cv_clang}" = "xyes"; then
+  emacs_clang_check_message="if we can also use clang for static analysis"
+else
+  emacs_clang_check_message="for the clang static analyzer"
+fi
+AC_CACHE_CHECK([${emacs_clang_check_message}],[ac_cv_path_CLANG_ANALYZER],
+  [AC_PATH_PROGS_FEATURE_CHECK([CLANG_ANALYZER],
+    [clang clang++ clang-mp-3.5 clang-mp-3.4 clang-mp-3.3 clang-mp-3.2],
+    [[${ac_path_CLANG_ANALYZER} --analyze /dev/null > /dev/null 2>&1 && \
+      ac_cv_path_CLANG_ANALYZER=${ac_path_CLANG_ANALYZER}
+      ac_path_CLANG_ANALYZER_found=:]],
+    [AC_MSG_WARN([we will not be able to do static analysis with clang])],
+    [${PATH}])dnl# end program check
+  ])dnl# end cache check
+  ## (need this extra line here)
+AC_SUBST([CLANG_ANALYZER],[${ac_cv_path_CLANG_ANALYZER}])dnl
+])dnl
 
 dnl#TODO: see if there are any remaining checks that currently check the
 dnl# value of ${host_vendor} for apple that I can move to use the above

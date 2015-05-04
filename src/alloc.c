@@ -229,10 +229,10 @@ static ptrdiff_t stack_copy_size;
    avoiding any address sanitization.  */
 
 static void * ATTRIBUTE_NO_SANITIZE_ADDRESS
-no_sanitize_memcpy (void *dest, void const *src, size_t size)
+no_sanitize_memcpy(void *dest, void const *src, size_t size)
 {
   if (! ADDRESS_SANITIZER)
-    return memcpy (dest, src, size);
+    return memcpy(dest, src, size);
   else
     {
       size_t i;
@@ -243,7 +243,6 @@ no_sanitize_memcpy (void *dest, void const *src, size_t size)
       return dest;
     }
 }
-
 #endif /* MAX_SAVE_STACK > 0 */
 
 static Lisp_Object Qconses;
@@ -306,9 +305,7 @@ static Lisp_Object Vdead;
 #define DEADP(x) EQ (x, Vdead)
 
 #ifdef GC_MALLOC_CHECK
-
 enum mem_type allocated_mem_type;
-
 #endif /* GC_MALLOC_CHECK */
 
 /* A node in the red-black tree describing allocated memory containing
@@ -383,7 +380,7 @@ static struct mem_node *mem_find (void *);
 
 #ifndef DEADP
 # define DEADP(x) 0
-#endif
+#endif /* !DEADP */
 
 /* Recording what needs to be marked for gc.  */
 
@@ -2005,7 +2002,7 @@ compact_small_strings (void)
 		      (char *) from_end - GC_STRING_OVERRUN_COOKIE_SIZE,
 		      GC_STRING_OVERRUN_COOKIE_SIZE))
 	    emacs_abort ();
-#endif
+#endif /* GC_CHECK_STRING_OVERRUN */
 
 	  /* Non-NULL S means it's alive.  Copy its data.  */
 	  if (s)
@@ -2471,9 +2468,9 @@ free_cons (struct Lisp_Cons *ptr)
   ptr->u.chain = cons_free_list;
 #if GC_MARK_STACK
   ptr->car = Vdead;
-#endif
+#endif /* GC_MARK_STACK */
   cons_free_list = ptr;
-  consing_since_gc -= sizeof *ptr;
+  consing_since_gc -= sizeof(*ptr);
   total_free_conses++;
 }
 
@@ -2571,30 +2568,30 @@ list5 (Lisp_Object arg1, Lisp_Object arg2, Lisp_Object arg3, Lisp_Object arg4, L
    is CONSTYPE_PURE, or allocate as usual if type is CONSTYPE_HEAP.  */
 
 Lisp_Object
-listn (enum constype type, ptrdiff_t count, Lisp_Object arg, ...)
+listn(enum constype type, ptrdiff_t count, Lisp_Object arg, ...)
 {
   va_list ap;
   ptrdiff_t i;
   Lisp_Object val, *objp;
 
-  /* Change to SAFE_ALLOCA if you hit this eassert.  */
-  eassert (count <= MAX_ALLOCA / word_size);
+  /* Change to SAFE_ALLOCA if you hit this eassert: */
+  eassert(count <= (MAX_ALLOCA / word_size));
 
-  objp = alloca (count * word_size);
+  objp = alloca(count * word_size);
   objp[0] = arg;
-  va_start (ap, arg);
+  va_start(ap, arg);
   for (i = 1; i < count; i++)
-    objp[i] = va_arg (ap, Lisp_Object);
-  va_end (ap);
+    objp[i] = va_arg(ap, Lisp_Object);
+  va_end(ap);
 
   for (val = Qnil, i = count - 1; i >= 0; i--)
     {
       if (type == CONSTYPE_PURE)
-	val = pure_cons (objp[i], val);
+	val = pure_cons(objp[i], val);
       else if (type == CONSTYPE_HEAP)
-	val = Fcons (objp[i], val);
+	val = Fcons(objp[i], val);
       else
-	emacs_abort ();
+	emacs_abort();
     }
   return val;
 }
@@ -6797,29 +6794,28 @@ die (const char *msg, const char *file, int line)
 }
 #endif
 
-/* Initialization.  */
-
+/* Initialization: */
 void
-init_alloc_once (void)
+init_alloc_once(void)
 {
   /* Used to do Vpurify_flag = Qt here, but Qt isn't set up yet!  */
   purebeg = PUREBEG;
   pure_size = PURESIZE;
 
 #if GC_MARK_STACK || defined GC_MALLOC_CHECK
-  mem_init ();
-  Vdead = make_pure_string ("DEAD", 4, 4, 0);
-#endif
+  mem_init();
+  Vdead = make_pure_string("DEAD", 4, 4, 0);
+#endif /* GC_MARK_STACK || GC_MALLOC_CHECK */
 
 #ifdef DOUG_LEA_MALLOC
-  mallopt (M_TRIM_THRESHOLD, 128 * 1024); /* Trim threshold.  */
-  mallopt (M_MMAP_THRESHOLD, 64 * 1024);  /* Mmap threshold.  */
-  mallopt (M_MMAP_MAX, MMAP_MAX_AREAS);   /* Max. number of mmap'ed areas.  */
-#endif
-  init_strings ();
-  init_vectors ();
+  mallopt(M_TRIM_THRESHOLD, 128 * 1024); /* Trim threshold.  */
+  mallopt(M_MMAP_THRESHOLD, 64 * 1024);  /* Mmap threshold.  */
+  mallopt(M_MMAP_MAX, MMAP_MAX_AREAS);   /* Max. number of mmap'ed areas.  */
+#endif /* DOUG_LEA_MALLOC */
+  init_strings();
+  init_vectors();
 
-  refill_memory_reserve ();
+  refill_memory_reserve();
   gc_cons_threshold = GC_DEFAULT_THRESHOLD;
 }
 
@@ -6831,7 +6827,7 @@ init_alloc (void)
 #if GC_MARK_STACK
 # if !defined GC_SAVE_REGISTERS_ON_STACK && !defined GC_SETJMP_WORKS
   setjmp_tested_p = longjmps_done = 0;
-# endif
+# endif /* !GC_SAVE_REGISTERS_ON_STACK && !GC_SETJMP_WORKS */
 #endif /* GC_MARK_STACK */
   Vgc_elapsed = make_float (0.0);
   gcs_done = 0;
@@ -6940,24 +6936,24 @@ The time is in seconds as a floating point value.  */);
   DEFVAR_INT ("gcs-done", gcs_done,
 	      doc: /* Accumulated number of garbage collections done.  */);
 
-  defsubr (&Scons);
-  defsubr (&Slist);
-  defsubr (&Svector);
-  defsubr (&Smake_byte_code);
-  defsubr (&Smake_list);
-  defsubr (&Smake_vector);
-  defsubr (&Smake_string);
-  defsubr (&Smake_bool_vector);
-  defsubr (&Smake_symbol);
-  defsubr (&Smake_marker);
-  defsubr (&Spurecopy);
-  defsubr (&Sgarbage_collect);
-  defsubr (&Smemory_limit);
-  defsubr (&Smemory_use_counts);
+  defsubr(&Scons);
+  defsubr(&Slist);
+  defsubr(&Svector);
+  defsubr(&Smake_byte_code);
+  defsubr(&Smake_list);
+  defsubr(&Smake_vector);
+  defsubr(&Smake_string);
+  defsubr(&Smake_bool_vector);
+  defsubr(&Smake_symbol);
+  defsubr(&Smake_marker);
+  defsubr(&Spurecopy);
+  defsubr(&Sgarbage_collect);
+  defsubr(&Smemory_limit);
+  defsubr(&Smemory_use_counts);
 
 #if GC_MARK_STACK == GC_USE_GCPROS_CHECK_ZOMBIES
-  defsubr (&Sgc_status);
-#endif
+  defsubr(&Sgc_status);
+#endif /* GC_MARK_STACK == GC_USE_GCPROS_CHECK_ZOMBIES */
 }
 
 /* When compiled with GCC, GDB might say "No enum type named

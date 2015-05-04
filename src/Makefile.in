@@ -38,6 +38,7 @@ CC = @CC@
 WINDRES = @WINDRES@
 CFLAGS = @CFLAGS@
 CPPFLAGS = @CPPFLAGS@
+DEFS = @DEFS@
 LDFLAGS = @LDFLAGS@
 OBJC = @OBJC@
 OBJCFLAGS = @OBJCFLAGS@
@@ -63,6 +64,12 @@ LIBS = $(BAD_LIBS_THAT_SHOULD_BE_COMMENTED_OUT)
 LIBOBJDIR = @LIBOBJDIR@
 LIBOBJS = @LIBOBJS@
 
+CLANG_ANALYZER = @CLANG_ANALYZER@
+
+# Instead of setting CFLAGS in here, use the one for the correct language
+# farther below instead:
+RUN_CLANG_ANALYZER = $(CLANG_ANALYZER) $(DEFS) $(CPPFLAGS) --analyze
+
 lispsource = $(srcdir)/../lisp
 lib = ../lib
 libsrc = ../lib-src
@@ -70,6 +77,8 @@ etc = ../etc
 leimdir = ${lispsource}/leim
 oldXMenudir = ../oldXMenu
 lwlibdir = ../lwlib
+builddir = @builddir@
+analysisdir = $(builddir)/clang_static_analysis
 
 # Configuration files for .o files to depend on.
 config_h = config.h $(srcdir)/conf_post.h
@@ -82,10 +91,11 @@ OTHER_FILES = @OTHER_FILES@
 ## Flags to pass for profiling builds
 PROFILING_CFLAGS = @PROFILING_CFLAGS@
 
-## Flags to pass to the compiler to enable build warnings
+## Flags to pass to the compiler to enable build warnings, and stuff:
 WARN_CFLAGS = @WARN_CFLAGS@
 WERROR_CFLAGS = @WERROR_CFLAGS@
 WARN_LDFLAGS = @WARN_LDFLAGS@
+BETTER_DEBUG_CFLAGS = @BETTER_DEBUG_CFLAGS@
 
 ## Machine-specific CFLAGS.
 C_SWITCH_MACHINE=@C_SWITCH_MACHINE@
@@ -429,6 +439,8 @@ ALL_CFLAGS=-Demacs $(MYCPPFLAGS) -I. -I$(srcdir) \
   $(WARN_CFLAGS) $(CFLAGS) @MAINT@ $(WERROR_CFLAGS)
 ALL_OBJC_CFLAGS=$(ALL_CFLAGS) $(GNU_OBJC_CFLAGS)
 
+SUFFIXES = .c .o .m .plist
+
 .SUFFIXES: .m
 .c.o:
 	@$(MKDEPDIR)
@@ -437,6 +449,15 @@ ALL_OBJC_CFLAGS=$(ALL_CFLAGS) $(GNU_OBJC_CFLAGS)
 	@$(MKDEPDIR)
 	$(AM_V_OBJC)$(CC) -c $(CPPFLAGS) $(ALL_OBJC_CFLAGS) \
 	  $(PROFILING_CFLAGS) $<
+
+.SUFFIXES: .c .m .plist
+.c.plist:
+	@if test ! -d $(analysisdir); then $(MKDIR_P) $(analysisdir); fi
+	$(RUN_CLANG_ANALYZER) $(CFLAGS) -o $(analysisdir)/$@ $< 
+
+.m.plist:
+	@if test ! -d $(analysisdir); then $(MKDIR_P) $(analysisdir); fi
+	$(RUN_CLANG_ANALYZER) $(OBJCFLAGS) -o $(analysisdir)/$@ $< 
 
 ## lastfile must follow all files whose initialized data areas should
 ## be dumped as pure by dump-emacs.

@@ -4030,7 +4030,7 @@ buffer.  */)
       else if (o_end == n_end)
 	modify_overlay (b, o_beg, n_beg);
       else
-	modify_overlay (b, min (o_beg, n_beg), max (o_end, n_end));
+	modify_overlay (b, min (o_beg, n_beg), max(o_end, n_end));
     }
 
   /* Delete the overlay if it is empty after clipping and has the
@@ -4534,8 +4534,8 @@ report_overlay_modification (Lisp_Object start, Lisp_Object end, bool after,
     /* Call the functions recorded in last_overlay_modification_hooks.
        First copy the vector contents, in case some of these hooks
        do subsequent modification of the buffer.  */
-    ptrdiff_t size = last_overlay_modification_hooks_used;
-    Lisp_Object *copy = alloca (size * sizeof *copy);
+    ptrdiff_t size = max(last_overlay_modification_hooks_used, 1L);
+    Lisp_Object *copy = alloca(size * sizeof(*copy));
     ptrdiff_t i;
 
     memcpy (copy, XVECTOR (last_overlay_modification_hooks)->contents,

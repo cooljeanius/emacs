@@ -514,7 +514,7 @@ invoke it.  If KEYS is omitted or nil, the return value of
 	  args[i] = Fread_buffer (callint_message, args[i], Qt);
 	  break;
 
-	case 'B':		/* Name of buffer, possibly nonexistent.  */
+	case 'B':	/* Name of buffer, possibly nonexistent.  */
 	  args[i] = Fread_buffer (callint_message,
 				  Fother_buffer (Fcurrent_buffer (), Qnil, Qnil),
 				  Qnil);
@@ -534,7 +534,7 @@ invoke it.  If KEYS is omitted or nil, the return value of
 	  visargs[i] = Fchar_to_string (teml);
 	  break;
 
-	case 'C':	      /* Command: symbol with interactive function.  */
+	case 'C':	  /* Command: symbol with interactive function: */
 	  visargs[i] = Fcompleting_read (callint_message,
 					 Vobarray, Qcommandp,
 					 Qt, Qnil, Qnil, Qnil, Qnil);
@@ -546,7 +546,9 @@ invoke it.  If KEYS is omitted or nil, the return value of
 	case 'd':		/* Value of point.  Does not do I/O.  */
 	  set_marker_both (point_marker, Qnil, PT, PT_BYTE);
 	  args[i] = point_marker;
-	  /* visargs[i] = Qnil; */
+#ifdef __clang_analyzer__
+	  visargs[i] = Qnil;
+#endif /* __clang_analyzer__ */
 	  varies[i] = 1;
 	  break;
 
@@ -572,7 +574,7 @@ invoke it.  If KEYS is omitted or nil, the return value of
 				     Qnil, Qnil, Qnil, empty_unibyte_string, Qnil);
 	  break;
 
-	case 'i':		/* Ignore an argument -- Does not do I/O.  */
+	case 'i':	    /* Ignore an argument -- Does not do I/O: */
 	  varies[i] = -1;
 	  break;
 
@@ -669,7 +671,9 @@ invoke it.  If KEYS is omitted or nil, the return value of
 
 	case 'm':		/* Value of mark.  Does not do I/O.  */
 	  check_mark (0);
-	  /* visargs[i] = Qnil; */
+#ifdef __clang_analyzer__
+	  visargs[i] = Qnil;
+#endif /* __clang_analyzer__ */
 	  args[i] = BVAR (current_buffer, mark);
 	  varies[i] = 2;
 	  break;
@@ -680,7 +684,7 @@ invoke it.  If KEYS is omitted or nil, the return value of
 				  Qnil, Qnil, Qnil, Qt);
 	  break;
 
-	case 'N':     /* Prefix arg as number, else number from minibuffer.  */
+	case 'N': /* Prefix arg as number, else number from minibuffer: */
 	  if (!NILP (prefix_arg))
 	    goto have_prefix_arg;
 	case 'n':		/* Read number from minibuffer.  */
@@ -690,25 +694,33 @@ invoke it.  If KEYS is omitted or nil, the return value of
 	  visargs[i] = Fnumber_to_string (teml);
 	  break;
 
-	case 'P':		/* Prefix arg in raw form.  Does no I/O.  */
+	case 'P':	    /* Prefix arg in raw form.  Does no I/O.  */
 	  args[i] = prefix_arg;
-	  /* visargs[i] = Qnil; */
+#ifdef __clang_analyzer__
+	  visargs[i] = Qnil;
+#endif /* __clang_analyzer__ */
 	  varies[i] = -1;
 	  break;
 
-	case 'p':		/* Prefix arg converted to number.  No I/O.  */
+	case 'p':	   /* Prefix arg converted to number.  No I/O.  */
 	have_prefix_arg:
 	  args[i] = Fprefix_numeric_value (prefix_arg);
-	  /* visargs[i] = Qnil; */
+#ifdef __clang_analyzer__
+	  visargs[i] = Qnil;
+#endif /* __clang_analyzer__ */
 	  varies[i] = -1;
 	  break;
 
 	case 'r':		/* Region, point and mark as 2 args.  */
 	  check_mark (1);
 	  set_marker_both (point_marker, Qnil, PT, PT_BYTE);
-	  /* visargs[i+1] = Qnil; */
+#ifdef __clang_analyzer__
+	  visargs[i + 1] = Qnil;
+#endif /* __clang_analyzer__ */
 	  mark = marker_position (BVAR (current_buffer, mark));
-	  /* visargs[i] = Qnil; */
+#ifdef __clang_analyzer__
+	  visargs[i] = Qnil;
+#endif /* __clang_analyzer__ */
 	  args[i] = PT < mark ? point_marker : BVAR (current_buffer, mark);
 	  varies[i] = 3;
 	  args[++i] = PT > mark ? point_marker : BVAR (current_buffer, mark);
@@ -735,7 +747,7 @@ invoke it.  If KEYS is omitted or nil, the return value of
 	  visargs[i] = last_minibuf_string;
 	  break;
 
-	case 'x':		/* Lisp expression read but not evaluated.  */
+	case 'x':	   /* Lisp expression read but not evaluated: */
 	  args[i] = call1 (intern ("read-minibuffer"), callint_message);
 	  visargs[i] = last_minibuf_string;
 	  break;
@@ -778,14 +790,14 @@ invoke it.  If KEYS is omitted or nil, the return value of
       if (varies[i] == 0)
 	arg_from_tty = 1;
 
-      if (NILP (visargs[i]) && STRINGP (args[i]))
+      if (NILP(visargs[i]) && STRINGP(args[i]))
 	visargs[i] = args[i];
 
-      tem = strchr (tem, '\n');
+      tem = strchr(tem, '\n');
       if (tem) tem++;
       else tem = "";
     }
-  unbind_to (speccount, Qnil);
+  unbind_to(speccount, Qnil);
 
   QUIT;
 

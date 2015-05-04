@@ -585,7 +585,7 @@ read_emacs_mule_char (int c, int (*readbyte) (int, Lisp_Object), Lisp_Object rea
     }
   else
     {
-      charset = CHARSET_FROM_ID (emacs_mule_charset[buf[1]]);
+      charset = CHARSET_FROM_ID(emacs_mule_charset[buf[1]]);
       code = ((buf[2] << 8) | buf[3]) & 0x7F7F;
     }
   c = DECODE_CHAR (charset, code);
@@ -3216,8 +3216,8 @@ read1 (Lisp_Object readcharfun, int *pch, bool first_in_list)
 		memory_full (SIZE_MAX);
 	      read_buffer = xrealloc (read_buffer, read_buffer_size * 2);
 	      read_buffer_size *= 2;
-	      p = read_buffer + offset;
-	      end = read_buffer + read_buffer_size;
+	      p = (read_buffer + offset);
+	      end = (read_buffer + read_buffer_size);
 	    }
 	  *p = 0;
 	  UNREAD (c);
@@ -4440,7 +4440,7 @@ typedef	int _Bool;
 void init_lread(void)
 {
   bool use_loadpath;
-  
+
   turn_off_warning = 0;
   /* First, set Vload_path.  */
 

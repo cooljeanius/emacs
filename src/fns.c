@@ -594,8 +594,8 @@ concat (ptrdiff_t nargs, Lisp_Object *args,
     toindex = 0, toindex_byte = 0;
 
   prev = Qnil;
-  if (STRINGP (val))
-    SAFE_NALLOCA (textprops, 1, nargs);
+  if (STRINGP(val))
+    SAFE_NALLOCA(textprops, 1, ((nargs == 0) ? 1 : nargs));
 
   for (argnum = 0; argnum < nargs; argnum++)
     {
@@ -2164,23 +2164,23 @@ ARRAY is a vector, string, char-table, or bool-vector.  */)
       if (STRING_MULTIBYTE (array))
 	{
 	  unsigned char str[MAX_MULTIBYTE_LENGTH];
-	  int len = CHAR_STRING (charval, str);
-	  ptrdiff_t size_byte = SBYTES (array);
+	  int len = CHAR_STRING(charval, str);
+	  ptrdiff_t size_byte = SBYTES(array);
 
-	  if (INT_MULTIPLY_OVERFLOW (SCHARS (array), len)
-	      || SCHARS (array) * len != size_byte)
-	    error ("Attempt to change byte length of a string");
+	  if (INT_MULTIPLY_OVERFLOW(SCHARS(array), len)
+	      || ((SCHARS(array) * len) != size_byte))
+	    error("Attempt to change byte length of a string");
 	  for (idx = 0; idx < size_byte; idx++)
-	    *p++ = str[idx % len];
+	    *p++ = str[idx % ((len == 0) ? 1 : len)];
 	}
       else
 	for (idx = 0; idx < size; idx++)
 	  p[idx] = charval;
     }
-  else if (BOOL_VECTOR_P (array))
-    return bool_vector_fill (array, item);
+  else if (BOOL_VECTOR_P(array))
+    return bool_vector_fill(array, item);
   else
-    wrong_type_argument (Qarrayp, array);
+    wrong_type_argument(Qarrayp, array);
   return array;
 }
 

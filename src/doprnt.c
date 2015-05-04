@@ -145,7 +145,7 @@ doprnt (char *buffer, ptrdiff_t bufsize, const char *format,
   char *big_buffer = NULL;
 
   ptrdiff_t tem = -1;
-  char *string;
+  char *string = (char *)NULL;
   char fixed_buffer[20];	/* Default buffer for small formatting. */
   char *fmtcpy;
   int minlen;
@@ -394,7 +394,7 @@ doprnt (char *buffer, ptrdiff_t bufsize, const char *format,
 		  do
 		    {
 		      tem--;
-		      if (CHAR_HEAD_P (string[tem]))
+		      if (CHAR_HEAD_P(string[tem]))
 			{
 			  if (BYTES_BY_CHAR_HEAD (string[tem]) <= bufsize - tem)
 			    tem = bufsize;

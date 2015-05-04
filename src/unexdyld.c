@@ -1,6 +1,6 @@
-/* Dump Emacs in macho format.
+/* unexdyld.c: Dump Emacs in macho format.
    Copyright (C) 1990, 1993 Free Software Foundation, Inc.
-   Derived from unexnext.c by Bradley Taylor (btaylor@next.com).
+   Derived from unexnext.c by Bradley Taylor <btaylor@next.com>.
 
 This file is part of GNU Emacs.
 
@@ -22,28 +22,30 @@ Boston, MA 02111-1307, USA.  */
 #include "config.h"
 #include <stdio.h>
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
+# include <unistd.h>
+#endif /* HAVE_UNISTD_H */
 #include <libc.h>
 #include <mach-o/nlist.h>
 #include <mach/mach.h>
 #ifndef NeXT
-#include <mach/machine/vm_param.h>
-#endif
+# include <mach/machine/vm_param.h>
+#endif /* !NeXT */
 #include <mach-o/ldsyms.h>
 #include <mach-o/loader.h>
 #include <mach-o/reloc.h>
 
-extern int malloc_freezedry (void);
+#include "unexec.h"
+
+extern int malloc_freezedry(void);
 
 int malloc_cookie;
 
 #define VERBOSE
 
 #ifdef VERBOSE
-#define SHOW_MCOPY_WRITES
-#define SHOW_MCOPY_READS
-#endif
+# define SHOW_MCOPY_WRITES
+# define SHOW_MCOPY_READS
+#endif /* VERBOSE */
 
 typedef struct region_t
 {
@@ -64,28 +66,28 @@ typedef struct section_list_t
   struct section section;
 } section_list_t;
 
-static void fatal_unexec (char *format, ...)
+static void fatal_unexec(const char *format, ...)
 {
   va_list ap;
-   
-  va_start (ap, format);
-  fprintf (stderr, "unexec: ");
-  vfprintf (stderr, format, ap);
-  fprintf (stderr, "\n");
-  va_end (ap);
-  exit (1);
+
+  va_start(ap, format);
+  fprintf(stderr, "unexec: ");
+  vfprintf(stderr, format, ap);
+  fprintf(stderr, "\n");
+  va_end(ap);
+  exit(1);
 }
 
-static void print_region (struct region_t *region)
+static void print_region(struct region_t *region)
 {
-  printf ("0x%8lx - 0x%8lx, length: 0x%8lx, protection: %c%c%c, max_protection: %c%c%c\n",
-	  region->address, region->address + region->size, region->size,
-	  (region->protection & VM_PROT_READ) ? 'r' : '-',
-	  (region->protection & VM_PROT_WRITE) ? 'w' : '-',
-	  (region->protection & VM_PROT_EXECUTE) ? 'x' : '-',
-	  (region->max_protection & VM_PROT_READ) ? 'r' : '-',
-	  (region->max_protection & VM_PROT_WRITE) ? 'w' : '-',
-	  (region->max_protection & VM_PROT_EXECUTE) ? 'x' : '-');
+  printf("0x%8lx - 0x%8lx, length: 0x%8lx, protection: %c%c%c, max_protection: %c%c%c\n",
+	 region->address, region->address + region->size, region->size,
+	 (region->protection & VM_PROT_READ) ? 'r' : '-',
+	 (region->protection & VM_PROT_WRITE) ? 'w' : '-',
+	 (region->protection & VM_PROT_EXECUTE) ? 'x' : '-',
+	 (region->max_protection & VM_PROT_READ) ? 'r' : '-',
+	 (region->max_protection & VM_PROT_WRITE) ? 'w' : '-',
+	 (region->max_protection & VM_PROT_EXECUTE) ? 'x' : '-');
 }
 
 static void print_regions (struct region_t *regions)
@@ -97,17 +99,18 @@ static void print_regions (struct region_t *regions)
     }
 }
 
-static void print_section (struct section *section)
+static void print_section(struct section *section)
 {
-  printf ("0x%8lx - 0x%8lx, length: 0x%8lx, offset: 0x%8lx\n",
-	  section->addr, section->addr + section->size, section->size, section->offset);
+  printf("0x%8lx - 0x%8lx, length: 0x%8lx, offset: 0x%8lx\n",
+	 section->addr, (section->addr + section->size), section->size,
+         section->offset);
 }
 
-static void print_sections (section_list_t *sections)
+static void print_sections(section_list_t *sections)
 {
   while (sections != NULL)
     {
-      print_section (&(sections->section));
+      print_section(&(sections->section));
       sections = sections->next;
     }
 }
@@ -116,7 +119,7 @@ static section_list_t *create_new_section_list(struct section *section_pointer)
 {
     section_list_t *section_list;
 
-    section_list = malloc (sizeof (section_list_t));
+    section_list = malloc(sizeof(section_list_t));
     section_list->next = NULL;
     section_list->section = *section_pointer;
 
@@ -144,40 +147,44 @@ static void free_section_list(section_list_t *section_list)
     section_list_t *next;
 
     while (section_list != NULL)
-    {
+      {
         next = section_list->next;
         free(section_list);
         section_list = next;
-    }
+      }
 }
 
-static void add_sections_from_segment(section_list_t **all_sections, struct segment_command *segment)
+static void add_sections_from_segment(section_list_t **all_sections,
+                                      struct segment_command *segment)
 {
     struct section *section_pointer;
     int index;
 
     section_pointer = (struct section *)(segment + 1);
     for (index = 0; index < segment->nsects; index++) {
-        append_section_list (all_sections, create_new_section_list (section_pointer));
+        append_section_list(all_sections,
+                            create_new_section_list(section_pointer));
         section_pointer++;
     }
 }
 
-static int section_with_address (section_list_t *sections, unsigned long address)
+static int section_with_address(section_list_t *sections, unsigned long address)
 {
     int current_section, found_section;
 
     found_section = 0;
     current_section = 1;
     while (sections != NULL)
-    {
-        if (address >= sections->section.addr && address < sections->section.addr + sections->section.size) {
+      {
+        if ((address >= sections->section.addr)
+            && (address < (sections->section.addr + sections->section.size)))
+          {
             found_section = current_section;
             break;
-        }
+          }
         sections = sections->next;
         current_section++;
-    }
+      }
 
     return found_section;
 }
@@ -188,8 +195,8 @@ static int section_with_address (section_list_t *sections, unsigned long address
  * If either ffd or tfd are -1, either read or write len bytes.
  */
 
-static void mcopy (int ffd, int tfd,
-                   unsigned long fpos, unsigned long tpos, unsigned long len, char *reason)
+static void mcopy(int ffd, int tfd, unsigned long fpos, unsigned long tpos,
+                  unsigned long len, const char *reason)
 {
   if ((ffd == -1) && (tfd == -1))
     {
@@ -206,57 +213,65 @@ static void mcopy (int ffd, int tfd,
 	  f = (char *)(fpos + len);
 	  t = (char *)(tpos + len);
 	  e = (char *)fpos;
-	  while (f > e) *--t = *--f;         
-        }   
+	  while (f > e) *--t = *--f;
+        }
 #ifdef SHOW_MCOPY_READS
-      printf ("read: %10lu - %10lu, length: %10lu [from MEM]  (%s)\n", tpos, tpos+len, len, reason);
-#endif
+      printf("read: %10lu - %10lu, length: %10lu [from MEM]  (%s)\n",
+             tpos, (tpos + len), len, reason);
+#endif /* SHOW_MCOPY_READS */
     }
   else if (ffd == -1)
     {
-      if (lseek (tfd, tpos, L_SET) < 0)
-	fatal_unexec ("cannot seek target");
-      if (write (tfd, (void *)fpos, len) != len)
-	fatal_unexec ("cannot write target");
+      if (lseek(tfd, tpos, L_SET) < 0)
+	fatal_unexec("cannot seek target");
+      if (write(tfd, (void *)fpos, len) != len)
+	fatal_unexec("cannot write target");
 #ifdef SHOW_MCOPY_WRITES
-      printf ("write: %10lu - %10lu, length: %10lu [from MEM]  (%s)\n", tpos, tpos+len, len, reason);
-#endif
+      printf("write: %10lu - %10lu, length: %10lu [from MEM]  (%s)\n",
+             tpos, (tpos + len), len, reason);
+#endif /* SHOW_MCOPY_WRITES */
     }
   else if (tfd == -1)
     {
-      if (lseek (ffd, fpos, L_SET) < 0)
-	fatal_unexec ("cannot seek source");
-      if (read (ffd, (void *)tpos, len) != len)
-	fatal_unexec ("cannot read source");
+      if (lseek(ffd, fpos, L_SET) < 0)
+	fatal_unexec("cannot seek source");
+      if (read(ffd, (void *)tpos, len) != len)
+	fatal_unexec("cannot read source");
 #ifdef SHOW_MCOPY_READS
-      printf ("read: %10lu - %10lu, length: %10lu [from DISK] (%s)\n", tpos, tpos+len, len, reason);
-#endif
+      printf("read: %10lu - %10lu, length: %10lu [from DISK] (%s)\n",
+             tpos, (tpos + len), len, reason);
+#endif /* SHOW_MCOPY_READS */
     }
   else
     {
       int bread;
-      char *buf = alloca (1 << 16);
+      char *buf = alloca(1 << 16);
 
 #ifdef SHOW_MCOPY_WRITES
-      printf ("write: %10lu - %10lu, length: %10lu [from DISK] (%s)\n", tpos, tpos+len, len, reason);
-#endif
+      printf("write: %10lu - %10lu, length: %10lu [from DISK] (%s)\n",
+             tpos, (tpos + len), len, reason);
+#endif /* SHOW_MCOPY_WRITES */
 
-      if (lseek (ffd, fpos, L_SET) < 0)
-	fatal_unexec ("cannot seek source");
-      
-      if (lseek (tfd, tpos, L_SET) < 0)
-	fatal_unexec ("cannot seek target");
-      
-      while((len > 0) && (bread = read (ffd, buf, MIN(1 << 16, len))) > 0)
+      if (lseek(ffd, fpos, L_SET) < 0)
+	fatal_unexec("cannot seek source");
+
+      if (lseek(tfd, tpos, L_SET) < 0)
+	fatal_unexec("cannot seek target");
+
+      while ((len > 0) && (bread = read(ffd, buf, MIN(1 << 16, len))) > 0)
         {
 	  if (bread < 0)
-	    fatal_unexec ("cannot read source");
-	  if (write (tfd, buf, bread) != bread)
-	    fatal_unexec ("cannot write target");
+	    fatal_unexec("cannot read source");
+	  if (write(tfd, buf, bread) != bread)
+	    fatal_unexec("cannot write target");
 	  len -= bread;
         }
     }
 }
+
+#if !defined(DARWIN) && defined(DARWIN_OS)
+# define DARWIN DARWIN_OS
+#endif /* !DARWIN && DARWIN_OS */
 
 /*
  * The process of dumping (or unexecing) is the opposite of exec().
@@ -323,15 +338,15 @@ static void unexec_doit(int infd,int outfd)
   unsigned long nlocrel = 0;
   struct relocation_info reloc_info;
   unsigned long fixed_reloc_count = 0;
-#endif
+#endif /* NS_TARGET || !NeXT */
 
   struct segment_command new_data_segment;
   section_list_t *original_sections, *new_sections, **sect_ptr, *section_item;
 
   malloc_cookie = malloc_freezedry();
 #ifdef VERBOSE
-  printf ("malloc_cookie: %lx\n", malloc_cookie);
-#endif
+  printf("malloc_cookie: %lx\n", malloc_cookie);
+#endif /* VERBOSE */
   if (malloc_cookie == 0)
     {
       fprintf(stderr, "Error in malloc_freezedry()\n");
@@ -352,19 +367,19 @@ static void unexec_doit(int infd,int outfd)
     vm_inherit_t inheritance;
     boolean_t shared;
     vm_offset_t offset;
-#endif
+#endif /* DARWIN */
 
     for (address = VM_MIN_ADDRESS, pregions = &regions;
 #ifdef DARWIN
-	 vm_region(task, &address, &size, VM_REGION_BASIC_INFO, 
+	 vm_region(task, &address, &size, VM_REGION_BASIC_INFO,
 		   (vm_region_info_t)&info, &info_count, &object_name) == KERN_SUCCESS;
 #else
 	 vm_region(task, &address, &size, &protection, &max_protection,
 		   &inheritance, &shared, &object_name, &offset) == KERN_SUCCESS;
-#endif
+#endif /* DARWIN */
 	 address += size)
       {
-	(*pregions) = alloca (sizeof(region_t));
+	(*pregions) = alloca(sizeof(region_t));
 	(*pregions)->address = address;
 	(*pregions)->size = size;
 #ifdef DARWIN
@@ -373,7 +388,7 @@ static void unexec_doit(int infd,int outfd)
 #else
 	(*pregions)->protection = protection;
 	(*pregions)->max_protection = max_protection;
-#endif
+#endif /* DARWIN */
 	(*pregions)->file_offset = 0;
 	(*pregions)->file_size = 0;
 	(*pregions)->next = 0;
@@ -382,15 +397,15 @@ static void unexec_doit(int infd,int outfd)
 	if (object_name != MACH_PORT_NULL)
 	  mach_port_deallocate(mach_task_self(), object_name);
 	info_count = VM_REGION_BASIC_INFO_COUNT;
-#endif
+#endif /* DARWIN */
       }
   }
-#ifdef VERBOSE   
-  printf ("Regions.\n");
-  print_regions (regions);
-  printf ("----------------------------------------------------------------------\n");
-#endif
-   
+#ifdef VERBOSE
+  printf("Regions.\n");
+  print_regions(regions);
+  printf("----------------------------------------------------------------------\n");
+#endif /* VERBOSE */
+
   /*
    * Concatenate regions that are adjacent in memory and share the same
    * protection attributes.
@@ -407,11 +422,11 @@ static void unexec_doit(int infd,int outfd)
 	  cregion->next = cregion->next->next;
         }
     }
-#ifdef VERBOSE   
-  printf ("Concatenated regions.\n");
-  print_regions (regions);
-  printf ("----------------------------------------------------------------------\n");
-#endif
+#ifdef VERBOSE
+  printf("Concatenated regions.\n");
+  print_regions(regions);
+  printf("----------------------------------------------------------------------\n");
+#endif /* VERBOSE */
 
   /*
    * Remove read-only regions, and regions above a fixed limit.
@@ -432,23 +447,25 @@ static void unexec_doit(int infd,int outfd)
         }
     }
 #ifdef VERBOSE
-  printf ("Skipped regions.\n");
-  print_regions (regions);
-  printf ("----------------------------------------------------------------------\n");
-#endif
+  printf("Skipped regions.\n");
+  print_regions(regions);
+  printf("----------------------------------------------------------------------\n");
+#endif /* VERBOSE */
   /*
-     * Read original mach header and load commands.
-     */
+   * Read original mach header and load commands.
+   */
 
-  mcopy (infd, -1, 0, (unsigned long) &mach_header, sizeof(mach_header), "read original mach header");
+  mcopy(infd, -1, 0, (unsigned long)&mach_header, sizeof(mach_header),
+        "read original mach header");
   original_load_commands = alloca (mach_header.sizeofcmds);
-  mcopy (infd, -1, sizeof(mach_header), (unsigned long) original_load_commands, mach_header.sizeofcmds,
-         "read original load comands");
+  mcopy(infd, -1, sizeof(mach_header),
+        (unsigned long)original_load_commands, mach_header.sizeofcmds,
+        "read original load comands");
 
   /*
-     * Skip (or adjust) regions that intersect memory represented by non-data
-     * segments from the original load commands.
-     */
+   * Skip (or adjust) regions that intersect memory represented by non-data
+   * segments from the original load commands.
+   */
 
   for (pregions = &regions; *pregions;)
     {
@@ -503,10 +520,10 @@ static void unexec_doit(int infd,int outfd)
       *pregions = (*pregions)->next;
     }
 #ifdef VERBOSE
-  printf ("Munged regions (1).\n");
-  print_regions (regions);
-  printf ("----------------------------------------------------------------------\n");
-#endif
+  printf("Munged regions (1).\n");
+  print_regions(regions);
+  printf("----------------------------------------------------------------------\n");
+#endif /* VERBOSE */
 
   for (load_command = original_load_commands, i = mach_header.ncmds, header_position = sizeof(mach_header), output_position = 0;
        i > 0;
@@ -556,26 +573,26 @@ static void unexec_doit(int infd,int outfd)
 	      new_data_segment.initprot = cregion->protection;
 	      new_data_segment.flags = segment_pointer->flags;
 	      new_data_segment.nsects = 0;
-	      new_data_segment.cmdsize = sizeof (struct segment_command);
+	      new_data_segment.cmdsize = sizeof(struct segment_command);
 #ifdef VERBOSE
-	      printf ("Original sections:\n");
-	      print_sections (original_sections);
-	      printf ("----------------------------------------------------------------------\n");
-#endif
-	      /* Create list of new segments */
+	      printf("Original sections:\n");
+	      print_sections(original_sections);
+	      printf("----------------------------------------------------------------------\n");
+#endif /* VERBOSE */
+	      /* Create list of new segments: */
 	      sect_ptr = &new_sections;
 	      current_address = new_data_segment.vmaddr;
 	      while (original_sections != NULL)
 		{
 		  if (current_address < original_sections->section.addr)
 		    {
-		      /* Create new section for this. */
-		      section_item = alloca (sizeof (section_list_t));
+		      /* Create new section for this: */
+		      section_item = alloca(sizeof(section_list_t));
 		      section_item->next = *sect_ptr;
 
 		      section_pointer = &(section_item->section);
-		      strncpy (section_pointer->sectname, "__data", 16);
-		      strncpy (section_pointer->segname, SEG_DATA, 16);
+		      strncpy(section_pointer->sectname, "__data", 16);
+		      strncpy(section_pointer->segname, SEG_DATA, 16);
 		      section_pointer->addr = current_address;
 		      section_pointer->size = original_sections->section.addr - current_address;
 		      section_pointer->offset = 0;
@@ -626,10 +643,10 @@ static void unexec_doit(int infd,int outfd)
 
 		}
 #ifdef VERBOSE
-	      printf ("New sections:\n");
-	      print_sections (new_sections);
-	      printf ("----------------------------------------------------------------------\n");
-#endif
+	      printf("New sections:\n");
+	      print_sections(new_sections);
+	      printf("----------------------------------------------------------------------\n");
+#endif /* VERBOSE */
 	      /**
 	       * Go through new list of sections
 	       *  - write section to disk, either from memory or original file
@@ -674,7 +691,7 @@ static void unexec_doit(int infd,int outfd)
 		{
 		  mcopy (-1, outfd, (unsigned long) &(new_sections->section), header_position, sizeof (struct section),
                          "SEG_DATA: write section command");
-                  // Need to add this section to a list of all the sections
+                  /* Need to add this section to a list of all sections: */
 		  header_position += sizeof (struct section);
                   append_section_list (&all_sections, create_new_section_list (&(new_sections->section)));
 		  new_sections = new_sections->next;
@@ -714,17 +731,16 @@ static void unexec_doit(int infd,int outfd)
 		  cregion->file_size = segment_pointer->filesize;
 		}
 	      segment_pointer->cmdsize = j;
-
-#endif
+#endif /* 1 */
 	    }
 	  else
 	    {
 #ifdef VERBOSE
-              printf ("segment is '%s':\n", segment_pointer->segname);
-#endif
-	      mcopy (infd, outfd, segment_pointer->fileoff, output_position, segment_pointer->filesize,
-                     "SEG_OTHER: write segment data");
-	      section_pointer = (struct section *) (((void *)segment_pointer)+sizeof(*segment_pointer));
+              printf("segment is '%s':\n", segment_pointer->segname);
+#endif /* VERBOSE */
+	      mcopy(infd, outfd, segment_pointer->fileoff, output_position, segment_pointer->filesize,
+                    "SEG_OTHER: write segment data");
+	      section_pointer = (struct section *)(((void *)segment_pointer)+sizeof(*segment_pointer));
 	      for(j = 0; j < segment_pointer->nsects; j++)
 		{
 		  if (section_pointer[j].offset != 0)
@@ -745,8 +761,9 @@ static void unexec_doit(int infd,int outfd)
                      "SEG_OTHER: write segment command and its sections");
 	      header_position += load_command->cmdsize;
 
-              // Now, scan the segments for sections, so we have a list of all the sections to use to fix up
-              // the symbol table entries.
+              /* Now, scan the segments for sections, so we have a list
+               * of all the sections to use to fix up the symbol table
+               * entries: */
               add_sections_from_segment(&all_sections, segment_pointer);
 	    }
 	  break;
@@ -769,32 +786,39 @@ static void unexec_doit(int infd,int outfd)
             printf ("LC_SYMTAB: symoff = %ld, nsyms = %ld, stroff = %ld, strsize = %ld\n",
                     symtab_pointer->symoff, symtab_pointer->nsyms, symtab_pointer->stroff, symtab_pointer->strsize);
 
-            // We've already written out the symbol table, but we're going to read it back in, adjust the
-            // symbol table entries, and write out the result again.
+            /* We have already written out the symbol table, but we are
+             * going to read it back in, adjust the symbol table entries,
+             * and write out the result again.  */
 
             if (all_sections != NULL)
-            {
+              {
                 int index;
                 struct nlist *nlist_pointer;
                 section_list_t *section;
                 int section_index;
                 int changed_symtabs;
 
-                printf ("All sections:\n");
-                print_sections (all_sections);
+                section = (section_list_t *)NULL;
+
+                printf("All sections:\n");
+                print_sections(all_sections);
 
                 changed_symtabs = 0;
                 nlist_pointer = symtab;
 
                 for (index = 0; index < symtab_pointer->nsyms; index++) {
                     if ((nlist_pointer->n_type & N_TYPE) == N_SECT) {
-                        section_index = section_with_address(all_sections, nlist_pointer->n_value);
+                        section_index = section_with_address(all_sections,
+                                                             nlist_pointer->n_value);
 #if 0
-                        printf ("%5d: 0x%08lx 0x%02x 0x%02x (0x%02x) 0x%04x 0x%08lx\n",
-                                index, nlist_pointer->n_un.n_strx, nlist_pointer->n_type & 0xff, nlist_pointer->n_sect & 0xff,
-                                section_index,
-                                nlist_pointer->n_desc & 0xffff, nlist_pointer->n_value);
-#endif
+                        printf("%5d: 0x%08lx 0x%02x 0x%02x (0x%02x) 0x%04x 0x%08lx\n",
+                               index, nlist_pointer->n_un.n_strx,
+                               (nlist_pointer->n_type & 0xff),
+                               (nlist_pointer->n_sect & 0xff),
+                               section_index,
+                               (nlist_pointer->n_desc & 0xffff),
+                               nlist_pointer->n_value);
+#endif /* 0 */
                         if (nlist_pointer->n_sect != section_index) {
                             nlist_pointer->n_sect = section_index;
                             changed_symtabs++;
@@ -803,12 +827,15 @@ static void unexec_doit(int infd,int outfd)
                     nlist_pointer++;
                 }
 
-                printf ("Adjusted n_sect for %d symbol table entries.\n", changed_symtabs);
-                mcopy(-1, outfd, (unsigned long)symtab, symtab_pointer->symoff, symtab_pointer->nsyms * sizeof(struct nlist),
+                printf ("Adjusted n_sect for %d symbol table entries.\n",
+                        changed_symtabs);
+                mcopy(-1, outfd, (unsigned long)symtab,
+                      symtab_pointer->symoff,
+                      (symtab_pointer->nsyms * sizeof(struct nlist)),
                       "write updated symbol table");
 
                 free_section_list(all_sections);
-            }
+              }
 
             free(symtab);
         }
@@ -832,25 +859,26 @@ static void unexec_doit(int infd,int outfd)
 	  if (nlocrel > 0) {
 	    dysymtab->locreloff += delta;
 	  }
-	  mcopy (-1, outfd, (unsigned long)load_command, header_position, load_command->cmdsize,
-                 "write dysymtab command");
+	  mcopy(-1, outfd, (unsigned long)load_command, header_position,
+                load_command->cmdsize, "write dysymtab command");
 	  header_position += load_command->cmdsize;
 
 	  break;
 
-       case LC_TWOLEVEL_HINTS: 
+       case LC_TWOLEVEL_HINTS:
           hinttab = (struct twolevel_hints_command *)load_command;
           hinttab->offset += delta;
-          
-          mcopy (-1, outfd, (unsigned long)load_command, header_position, load_command->cmdsize,
-                 "write two-level hint command");
+
+          mcopy(-1, outfd, (unsigned long)load_command, header_position,
+                load_command->cmdsize, "write two-level hint command");
           header_position += load_command->cmdsize;
 
           break;
-#endif
+#endif /* NS_TARGET || !NeXT */
 	default:
 	  {
-	    char *reason, *cmdstr;
+	    char *reason;
+            const char *cmdstr;
 
 	    /* Create a string that tells what load command is being left
 	     * alone. */
@@ -877,8 +905,8 @@ static void unexec_doit(int infd,int outfd)
 		asprintf(&reason, "write other load command (0x%x)", load_command->cmd);
 	      }
 
-	    mcopy (-1, outfd, (unsigned long)load_command, header_position, load_command->cmdsize,
-		   reason);
+	    mcopy(-1, outfd, (unsigned long)load_command, header_position,
+                  load_command->cmdsize, reason);
 	    free(reason);
 	    header_position += load_command->cmdsize;
 	  }
@@ -890,94 +918,99 @@ static void unexec_doit(int infd,int outfd)
 
 #if defined(NS_TARGET) || !defined(NeXT)
   if (mach_header.flags & MH_PREBOUND) {
-    /* Don't mess with prebound executables */
+    /* Do NOT mess with prebound executables */
     return;
   }
 
   /*
-     * Fix up relocation entries in the data segment(s).
-     */
-  if (lseek (infd, locreloff, L_SET) < 0)
-    fatal_unexec ("cannot seek input file");
+   * Fix up relocation entries in the data segment(s).
+   */
+  if (lseek(infd, locreloff, L_SET) < 0)
+    fatal_unexec("cannot seek input file");
 
   fixed_reloc_count = 0;
   for (i = 0; i < nlocrel; i++)
     {
-      long zeroval = 0;
+      long zeroval = 0L;
       struct scattered_relocation_info *si;
 
-      if (read (infd, &reloc_info, sizeof(reloc_info)) != sizeof(reloc_info))
-	fatal_unexec ("cannot read input file");
+      si = (struct scattered_relocation_info *)NULL;
 
-#if 1
-#ifdef VERBOSE
-      printf ("%2d: reloc: %lx, start: %lx, end: %lx\n", i, reloc_info.r_address,
-	      new_data_segment.vmaddr, new_data_segment.vmaddr + new_data_segment.filesize);
-#endif
-      if (reloc_info.r_address >= new_data_segment.vmaddr
-	  && reloc_info.r_address < new_data_segment.vmaddr + new_data_segment.filesize)
+      if (read(infd, &reloc_info, sizeof(reloc_info)) != sizeof(reloc_info))
+	fatal_unexec("cannot read input file");
+
+# if 1
+#  ifdef VERBOSE
+      printf("%2d: reloc: %lx, start: %lx, end: %lx\n", i, reloc_info.r_address,
+	     new_data_segment.vmaddr, (new_data_segment.vmaddr + new_data_segment.filesize));
+#  endif /* VERBOSE */
+      if ((reloc_info.r_address >= new_data_segment.vmaddr)
+	  && (reloc_info.r_address < (new_data_segment.vmaddr + new_data_segment.filesize)))
         {
 	  fixed_reloc_count++;
-	  mcopy (-1, outfd, (unsigned long) &zeroval,
-		 new_data_segment.fileoff + reloc_info.r_address - new_data_segment.vmaddr,
-		 1 << reloc_info.r_length, "fix local relocation entry");
+	  mcopy(-1, outfd, (unsigned long)&zeroval,
+                (new_data_segment.fileoff + reloc_info.r_address - new_data_segment.vmaddr),
+                (1 << reloc_info.r_length), "fix local relocation entry");
         }
-#endif
+# endif /* 1 */
     }
-  printf ("Fixed %lu/%lu local relocation entries in data segment(s).\n", fixed_reloc_count, nlocrel);
+  printf("Fixed %lu/%lu local relocation entries in data segment(s).\n", fixed_reloc_count, nlocrel);
 
-  if (lseek (infd, extreloff, L_SET) < 0)
-    fatal_unexec ("cannot seek input file");
+  if (lseek(infd, extreloff, L_SET) < 0)
+    fatal_unexec("cannot seek input file");
 
   for (i = 0; i < nextrel; i++)
     {
-      long zeroval = 0;
+      long zeroval = 0L;
 
-      if (read (infd, &reloc_info, sizeof(reloc_info)) != sizeof(reloc_info))
-	fatal_unexec ("cannot read input file");
+      if (read(infd, &reloc_info, sizeof(reloc_info)) != sizeof(reloc_info))
+	fatal_unexec("cannot read input file");
 
-#if 1
-#ifdef VERBOSE
-      printf ("%2d: reloc: %lx, start: %lx, end: %lx\n", i, reloc_info.r_address,
-	      new_data_segment.vmaddr, new_data_segment.vmaddr + new_data_segment.filesize);
-#endif
-      if (reloc_info.r_address >= new_data_segment.vmaddr
-	  && reloc_info.r_address < new_data_segment.vmaddr + new_data_segment.filesize)
+# if 1
+#  ifdef VERBOSE
+      printf("%2d: reloc: %lx, start: %lx, end: %lx\n", i, reloc_info.r_address,
+	     new_data_segment.vmaddr, (new_data_segment.vmaddr + new_data_segment.filesize));
+#  endif /* VERBOSE */
+      if ((reloc_info.r_address >= new_data_segment.vmaddr)
+	  && (reloc_info.r_address < (new_data_segment.vmaddr + new_data_segment.filesize)))
         {
 	  fixed_reloc_count++;
-	  mcopy (-1, outfd, (unsigned long) &zeroval,
-		 new_data_segment.fileoff + reloc_info.r_address - new_data_segment.vmaddr,
-		 1 << reloc_info.r_length, "fix external relocation entry");
+	  mcopy(-1, outfd, (unsigned long) &zeroval,
+                (new_data_segment.fileoff + reloc_info.r_address - new_data_segment.vmaddr),
+                (1 << reloc_info.r_length), "fix external relocation entry");
         }
-#endif
+# endif /* 1 */
     }
 
-  printf ("Fixed %lu/%lu external relocation entries in data segment(s).\n", fixed_reloc_count, nextrel);
+  printf("Fixed %lu/%lu external relocation entries in data segment(s).\n",
+         fixed_reloc_count, nextrel);
 
-#endif
+#endif /* NS_TARGET || !NeXT */
 }
 
-void unexec (char *outfile, char *infile)
+void unexec(const char *outfile, const char *infile)
 {
   char tmpfile[MAXPATHLEN + 1];
   int infd, outfd;
-   
-  if ((infd = open (infile, O_RDONLY, 0)) < 0)
-    fatal_unexec ("cannot open input file `%s'", infile);
 
-  strcpy (tmpfile, outfile);
-  strcat (tmpfile, "-temp");
-   
-  if ((outfd = open (tmpfile, O_RDWR|O_TRUNC|O_CREAT, 0755)) < 0)
-    fatal_unexec ("cannot open temporary output file `%s'", tmpfile);
+  if ((infd = open(infile, O_RDONLY, 0)) < 0)
+    fatal_unexec("cannot open input file `%s'", infile);
 
-  unexec_doit (infd, outfd);
+  strcpy(tmpfile, outfile);
+  strcat(tmpfile, "-temp");
 
-  close (infd);
-  close (outfd);
-  if (rename (tmpfile, outfile) < 0)
+  if ((outfd = open(tmpfile, O_RDWR|O_TRUNC|O_CREAT, 0755)) < 0)
+    fatal_unexec("cannot open temporary output file `%s'", tmpfile);
+
+  unexec_doit(infd, outfd);
+
+  close(infd);
+  close(outfd);
+  if (rename(tmpfile, outfile) < 0)
     {
-      unlink (tmpfile);
-      fatal_unexec ("cannot rename `%s' to `%s'", tmpfile, outfile);
-    }  
+      unlink(tmpfile);
+      fatal_unexec("cannot rename `%s' to `%s'", tmpfile, outfile);
+    }
 }
+
+/* EOF */

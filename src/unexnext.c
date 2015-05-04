@@ -1,7 +1,7 @@
-/* Dump Emacs in macho format.
+/* unexnext.c: Dump Emacs in macho format.
    Copyright (C) 1990, 1993, 2001, 2002, 2003, 2004,
                  2005, 2006, 2007  Free Software Foundation, Inc.
-   Written by Bradley Taylor (btaylor@next.com).
+   Written by Bradley Taylor <btaylor@next.com>.
 
 This file is part of GNU Emacs.
 
@@ -20,6 +20,9 @@ along with GNU Emacs; see the file COPYING.  If not, write to
 the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 Boston, MA 02110-1301, USA.  */
 
+#if defined(HAVE_CONFIG_H) || defined(emacs)
+# include "config.h"
+#endif /* HAVE_CONFIG_H || emacs */
 
 #undef __STRICT_BSD__
 
@@ -33,14 +36,19 @@ Boston, MA 02110-1301, USA.  */
 #include <sys/stat.h>
 #include <unistd.h>
 /* Instead of unistd.h, this used to include libc.h.
-   "Nelson H. F. Beebe" <beebe@math.utah.edu> says that doesn't work
-   in system version 3.3.  */
+ * "Nelson H. F. Beebe" <beebe@math.utah.edu> says that does NOT work
+ * in system version 3.3.  */
 
+#include "unexec.h"
+
+#if 1
+extern int malloc_freezedry(void);
+#endif /* 1 */
 
 int malloc_cookie;
 
 /*
- * Kludge: we don't expect any program data beyond VM_HIGHDATA
+ * Kludge: we do NOT expect any program data beyond VM_HIGHDATA
  * What is really needed is a way to find out from malloc() which
  * pages it vm_allocated and write only those out into the data segment.
  *
@@ -64,10 +72,8 @@ typedef struct region_t {
 
 
 static void
-grow(
-     struct load_command ***the_commands,
-     unsigned *the_commands_len
-     )
+grow(struct load_command ***the_commands,
+     unsigned *the_commands_len)
 {
 	if (*the_commands == NULL) {
 		*the_commands_len = 1;
@@ -82,11 +88,9 @@ grow(
 
 
 static void
-save_command(
-	     struct load_command *command,
-	     struct load_command ***the_commands,
-	     unsigned *the_commands_len
-	     )
+save_command(struct load_command *command,
+             struct load_command ***the_commands,
+             unsigned *the_commands_len)
 {
 	struct load_command **tmp;
 
@@ -97,7 +101,7 @@ save_command(
 }
 
 static void
-fatal_unexec(char *format, ...)
+fatal_unexec(const char *format, ...)
 {
 	va_list ap;
 
@@ -109,12 +113,9 @@ fatal_unexec(char *format, ...)
 }
 
 static int
-read_macho(
-	   int fd,
-	   struct mach_header *the_header,
-	   struct load_command ***the_commands,
-	   unsigned *the_commands_len
-	   )
+read_macho(int fd, struct mach_header *the_header,
+           struct load_command ***the_commands,
+           unsigned *the_commands_len)
 {
 	struct load_command command;
 	struct load_command *buf;
@@ -151,11 +152,8 @@ read_macho(
 }
 
 static int
-filldatagap(
-	    vm_address_t start_address,
-	    vm_size_t *size,
-	    vm_address_t end_address
-	    )
+filldatagap(vm_address_t start_address, vm_size_t *size,
+            vm_address_t end_address)
 {
 	vm_address_t address;
 	vm_size_t gapsize;
@@ -164,24 +162,21 @@ filldatagap(
 	gapsize = end_address - address;
 	*size += gapsize;
 	if (vm_allocate(task_self(), &address, gapsize,
-			FALSE) != KERN_SUCCESS) {
+                    FALSE) != KERN_SUCCESS) {
 		fatal_unexec("cannot vm_allocate");
-	        return (0);
+        return (0);
 	}
 	return (1);
 }
 
 static int
-get_data_region(
-		vm_address_t *address,
-		vm_size_t *size
-		)
+get_data_region(vm_address_t *address, vm_size_t *size)
 {
 	region_t region;
 	kern_return_t ret;
 	struct section *sect;
 
-	sect = (struct section *) getsectbyname(SEG_DATA, SECT_DATA);
+	sect = (struct section *)getsectbyname(SEG_DATA, SECT_DATA);
 	region.address = 0;
 	*address = 0;
 	for (;;) {
@@ -217,9 +212,7 @@ get_data_region(
 }
 
 static char *
-my_malloc(
-	  vm_size_t size
-	  )
+my_malloc(vm_size_t size)
 {
 	vm_address_t address;
 
@@ -230,19 +223,13 @@ my_malloc(
 }
 
 static void
-my_free(
-	char *buf,
-	vm_size_t size
-	)
+my_free(char *buf, vm_size_t size)
 {
 	vm_deallocate(task_self(), (vm_address_t)buf, size);
 }
 
 static int
-unexec_doit(
-	    int infd,
-	    int outfd
-	    )
+unexec_doit(int infd, int outfd)
 {
 	int i;
 	struct load_command **the_commands = NULL;
@@ -266,14 +253,14 @@ unexec_doit(
 	unsigned long nextrel = 0;
 	struct dysymtab_command *dysymtab;
 	struct relocation_info reloc_info;
-#endif
+#endif /* NS_TARGET */
 
 	if (!read_macho(infd, &the_header, &the_commands, &the_commands_len)) {
 		return (0);
 	}
 
 
-	malloc_cookie = malloc_freezedry ();
+	malloc_cookie = malloc_freezedry();
 	if (!get_data_region(&data_address, &data_size)) {
 		return (0);
 	}
@@ -305,7 +292,7 @@ unexec_doit(
 					((struct segment_command *)the_commands[i])->fileoff += fgrowth;
 				}
 
-				if( strcmp( segment->segname, SEG_LINKEDIT ) == 0 ) {
+				if (strcmp(segment->segname, SEG_LINKEDIT) == 0) {
 					segment->vmaddr = vmaddr_growth;
 				}
 
@@ -328,7 +315,7 @@ unexec_doit(
 				dysymtab->indirectsymoff += fgrowth;
 				dysymtab->extreloff += fgrowth;
 				break;
-#endif
+#endif /* NS_TARGET */
 			default:
 				break;
 			}
@@ -462,16 +449,13 @@ unexec_doit(
             }
           }
         }
-#endif
+#endif /* NS_TARGET */
 
 	return (1);
 }
 
 void
-unexec(
-       char *outfile,
-       char *infile
-       )
+unexec(const char *outfile, const char *infile)
 {
 	int infd;
 	int outfd;

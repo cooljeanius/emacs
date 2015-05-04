@@ -1813,41 +1813,41 @@ POS, ROWH is the visible height of that row, and VPOS is the row number
   struct text_pos top;
   Lisp_Object in_window = Qnil;
   int rtop, rbot, rowh, vpos, fully_p = 1;
-  int x, y;
+  int x = 0, y = 0;
 
-  w = decode_live_window (window);
-  buf = XBUFFER (w->contents);
-  SET_TEXT_POS_FROM_MARKER (top, w->start);
+  w = decode_live_window(window);
+  buf = XBUFFER(w->contents);
+  SET_TEXT_POS_FROM_MARKER(top, w->start);
 
-  if (EQ (pos, Qt))
+  if (EQ(pos, Qt))
     posint = -1;
-  else if (!NILP (pos))
+  else if (!NILP(pos))
     {
-      CHECK_NUMBER_COERCE_MARKER (pos);
-      posint = XINT (pos);
+      CHECK_NUMBER_COERCE_MARKER(pos);
+      posint = XINT(pos);
     }
-  else if (w == XWINDOW (selected_window))
+  else if (w == XWINDOW(selected_window))
     posint = PT;
   else
-    posint = marker_position (w->pointm);
+    posint = marker_position(w->pointm);
 
   /* If position is above window start or outside buffer boundaries,
      or if window start is out of range, position is not visible.  */
-  if ((EQ (pos, Qt)
-       || (posint >= CHARPOS (top) && posint <= BUF_ZV (buf)))
-      && CHARPOS (top) >= BUF_BEGV (buf)
-      && CHARPOS (top) <= BUF_ZV (buf)
-      && pos_visible_p (w, posint, &x, &y, &rtop, &rbot, &rowh, &vpos)
-      && (fully_p = !rtop && !rbot, (!NILP (partially) || fully_p)))
+  if ((EQ(pos, Qt)
+       || ((posint >= CHARPOS(top)) && (posint <= BUF_ZV(buf))))
+      && (CHARPOS(top) >= BUF_BEGV(buf))
+      && (CHARPOS(top) <= BUF_ZV(buf))
+      && pos_visible_p(w, posint, &x, &y, &rtop, &rbot, &rowh, &vpos)
+      && ((fully_p = !rtop) && !rbot, (!NILP(partially) || fully_p)))
     in_window = Qt;
 
-  if (!NILP (in_window) && !NILP (partially))
+  if (!NILP(in_window) && !NILP(partially))
     {
       Lisp_Object part = Qnil;
       if (!fully_p)
-	part = list4i (rtop, rbot, rowh, vpos);
-      in_window = Fcons (make_number (x),
-			 Fcons (make_number (y), part));
+	part = list4i(rtop, rbot, rowh, vpos);
+      in_window = Fcons(make_number(x),
+                        Fcons(make_number(y), part));
     }
 
   return in_window;
@@ -5157,8 +5157,8 @@ window_scroll_pixel_based (Lisp_Object window, int n, bool whole, int noerror)
 
       /* Save our position, for the
 	 window_scroll_pixel_based_preserve_y case.  */
-      charpos = IT_CHARPOS (it);
-      bytepos = IT_BYTEPOS (it);
+      charpos = IT_CHARPOS(it);
+      bytepos = IT_BYTEPOS(it);
 
       /* We moved the window start towards BEGV, so PT may be now
 	 in the scroll margin at the bottom.  */
@@ -5658,17 +5658,17 @@ and redisplay normally--don't erase and redraw the frame.  */)
   struct buffer *obuf = current_buffer;
   bool center_p = 0;
   ptrdiff_t charpos, bytepos;
-  EMACS_INT iarg IF_LINT (= 0);
+  EMACS_INT iarg IF_LINT(= 0);
   int this_scroll_margin;
 
   /* If redisplay is suppressed due to an error, try again: */
   obuf->display_error_modiff = 0;
 
-  if (NILP (arg))
+  if (NILP(arg))
     {
-      if (!NILP (Vrecenter_redisplay)
-	  && (!EQ (Vrecenter_redisplay, Qtty)
-	      || !NILP (Ftty_type (selected_frame))))
+      if (!NILP(Vrecenter_redisplay)
+	  && (!EQ(Vrecenter_redisplay, Qtty)
+	      || !NILP(Ftty_type(selected_frame))))
 	{
 	  ptrdiff_t i;
 
@@ -5678,62 +5678,62 @@ and redisplay normally--don't erase and redraw the frame.  */)
 #if defined(HAVE_WINDOW_SYSTEM) && !defined(USE_GTK) && !defined(HAVE_NS)
 	  WINDOW_XFRAME(w)->minimize_tool_bar_window_p = 1;
 #endif /* HAVE_WINDOW_SYSTEM && !USE_GTK && !HAVE_NS */
- 	  Fredraw_frame (WINDOW_FRAME (w));
-	  SET_FRAME_GARBAGED (WINDOW_XFRAME (w));
+ 	  Fredraw_frame(WINDOW_FRAME(w));
+	  SET_FRAME_GARBAGED(WINDOW_XFRAME(w));
 	}
 
       center_p = 1;
     }
-  else if (CONSP (arg)) /* Just C-u. */
+  else if (CONSP(arg)) /* Just C-u. */
     center_p = 1;
   else
     {
-      arg = Fprefix_numeric_value (arg);
-      CHECK_NUMBER (arg);
-      iarg = XINT (arg);
+      arg = Fprefix_numeric_value(arg);
+      CHECK_NUMBER(arg);
+      iarg = XINT(arg);
     }
 
-  set_buffer_internal (buf);
+  set_buffer_internal(buf);
 
   /* Do this after making BUF current
      in case scroll_margin is buffer-local.  */
   this_scroll_margin =
-    max (0, min (scroll_margin, w->total_lines / 4));
+    max(0, min(scroll_margin, (w->total_lines / 4)));
 
   /* Handle centering on a graphical frame specially.  Such frames can
      have variable-height lines and centering point on the basis of
      line counts would lead to strange effects.  */
-  if (FRAME_WINDOW_P (XFRAME (w->frame)))
+  if (FRAME_WINDOW_P(XFRAME(w->frame)))
     {
       if (center_p)
 	{
 	  struct it it;
 	  struct text_pos pt;
-	  void *itdata = bidi_shelve_cache ();
+	  void *itdata = bidi_shelve_cache();
 
-	  SET_TEXT_POS (pt, PT, PT_BYTE);
-	  start_display (&it, w, pt);
-	  move_it_vertically_backward (&it, window_box_height (w) / 2);
-	  charpos = IT_CHARPOS (it);
-	  bytepos = IT_BYTEPOS (it);
-	  bidi_unshelve_cache (itdata, 0);
+	  SET_TEXT_POS(pt, PT, PT_BYTE);
+	  start_display(&it, w, pt);
+	  move_it_vertically_backward(&it, (window_box_height(w) / 2));
+	  charpos = IT_CHARPOS(it);
+	  bytepos = IT_BYTEPOS(it);
+	  bidi_unshelve_cache(itdata, 0);
 	}
       else if (iarg < 0)
 	{
 	  struct it it;
 	  struct text_pos pt;
-	  ptrdiff_t nlines = min (PTRDIFF_MAX, -iarg);
+	  ptrdiff_t nlines = min(PTRDIFF_MAX, -iarg);
 	  int extra_line_spacing;
-	  int h = window_box_height (w);
-	  void *itdata = bidi_shelve_cache ();
+	  int h = window_box_height(w);
+	  void *itdata = bidi_shelve_cache();
 
-	  iarg = - max (-iarg, this_scroll_margin);
+	  iarg = (0 - max(-iarg, this_scroll_margin));
 
-	  SET_TEXT_POS (pt, PT, PT_BYTE);
-	  start_display (&it, w, pt);
+	  SET_TEXT_POS(pt, PT, PT_BYTE);
+	  start_display(&it, w, pt);
 
 	  /* Be sure we have the exact height of the full line containing PT.  */
-	  move_it_by_lines (&it, 0);
+	  move_it_by_lines(&it, 0);
 
 	  /* The amount of pixels we have to move back is the window
 	     height minus what's displayed in the line containing PT,

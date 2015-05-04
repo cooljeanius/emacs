@@ -1264,74 +1264,78 @@ usage: (condition-case VAR BODYFORM &rest HANDLERS)  */)
 /* Like Fcondition_case, but the args are separate
    rather than passed in a list.  Used by Fbyte_code.  */
 Lisp_Object
-internal_lisp_condition_case (volatile Lisp_Object var, Lisp_Object bodyform,
-			      Lisp_Object handlers)
+internal_lisp_condition_case(volatile Lisp_Object var,
+                             Lisp_Object bodyform, Lisp_Object handlers)
 {
   Lisp_Object val;
   struct handler *c;
   struct handler *oldhandlerlist = handlerlist;
   volatile int clausenb = 0;
 
-  CHECK_SYMBOL (var);
+  CHECK_SYMBOL(var);
 
-  for (val = handlers; CONSP (val); val = XCDR (val))
+  for (val = handlers; CONSP(val); val = XCDR(val))
     {
-      Lisp_Object tem = XCAR (val);
+      Lisp_Object tem = XCAR(val);
       clausenb++;
-      if (! (NILP (tem)
-	     || (CONSP (tem)
-		 && (SYMBOLP (XCAR (tem))
-		     || CONSP (XCAR (tem))))))
-	error ("Invalid condition handler: %s",
-	       SDATA (Fprin1_to_string (tem, Qt)));
+      if (! (NILP(tem)
+	     || (CONSP(tem)
+		 && (SYMBOLP(XCAR(tem))
+		     || CONSP(XCAR(tem))))))
+	error("Invalid condition handler: %s",
+	      SDATA(Fprin1_to_string(tem, Qt)));
     }
+
+  if (clausenb == 0) {
+    clausenb++;
+  }
 
   { /* The first clause is the one that should be checked first, so it should
        be added to handlerlist last.  So we build in `clauses' a table that
        contains `handlers' but in reverse order.  */
-    Lisp_Object *clauses = alloca (clausenb * sizeof (Lisp_Object *));
+    Lisp_Object *clauses = alloca(clausenb * sizeof(Lisp_Object *));
     /* ok to ignore '-Wclobbered' warning about the previous one,
      * because we also have a separate volatile version of it: */
     Lisp_Object *volatile clauses_volatile = clauses;
     int i = clausenb;
-    for (val = handlers; CONSP (val); val = XCDR (val))
-      clauses[--i] = XCAR (val);
+    for (val = handlers; CONSP(val); val = XCDR(val))
+      clauses[--i] = XCAR(val);
     for (i = 0; i < clausenb; i++)
       {
 	Lisp_Object clause = clauses[i];
-	Lisp_Object condition = XCAR (clause);
-	if (!CONSP (condition))
-	  condition = Fcons (condition, Qnil);
-	PUSH_HANDLER (c, condition, CONDITION_CASE);
-	if (sys_setjmp (c->jmp))
+	Lisp_Object condition = XCAR(clause);
+	if (!CONSP(condition))
+	  condition = Fcons(condition, Qnil);
+	PUSH_HANDLER(c, condition, CONDITION_CASE);
+	if (sys_setjmp(c->jmp))
 	  {
-	    ptrdiff_t count = SPECPDL_INDEX ();
+	    ptrdiff_t count = SPECPDL_INDEX();
 	    Lisp_Object val = handlerlist->val;
 	    Lisp_Object *chosen_clause = clauses_volatile;
 	    for (c = handlerlist->next; c != oldhandlerlist; c = c->next)
 	      chosen_clause++;
 	    handlerlist = oldhandlerlist;
-	    if (!NILP (var))
+	    if (!NILP(var))
 	      {
-		if (!NILP (Vinternal_interpreter_environment))
-		  specbind (Qinternal_interpreter_environment,
-			    Fcons (Fcons (var, val),
-				   Vinternal_interpreter_environment));
+		if (!NILP(Vinternal_interpreter_environment))
+		  specbind(Qinternal_interpreter_environment,
+			   Fcons(Fcons(var, val),
+                                 Vinternal_interpreter_environment));
 		else
-		  specbind (var, val);
+		  specbind(var, val);
 	      }
-	    val = Fprogn (XCDR (*chosen_clause));
+	    val = Fprogn(XCDR(*chosen_clause));
 	    /* Note that this just undoes the binding of var; whoever
 	       longjumped to us unwound the stack to c.pdlcount before
 	       throwing.  */
-	    if (!NILP (var))
-	      unbind_to (count, Qnil);
+	    if (!NILP(var))
+	      unbind_to(count, Qnil);
 	    return val;
 	  }
       }
     }
 
-  val = eval_sub (bodyform);
+  val = eval_sub(bodyform);
   handlerlist = oldhandlerlist;
   return val;
 }
@@ -1493,76 +1497,76 @@ See also the function `condition-case'.  */)
   Lisp_Object conditions;
   Lisp_Object string;
   Lisp_Object real_error_symbol
-    = (NILP (error_symbol) ? Fcar (data) : error_symbol);
+    = (NILP(error_symbol) ? Fcar(data) : error_symbol);
   register Lisp_Object clause = Qnil;
-  struct handler *h;
+  struct handler *h = (struct handler *)NULL;
 
   immediate_quit = 0;
   abort_on_gc = 0;
   if (gc_in_progress || waiting_for_input)
-    emacs_abort ();
+    emacs_abort();
 
   /* rms: I do NOT know why this was here,
    * but it is surely wrong for an error that is handled: */
 #if defined(I_AM_NOT_RMS)
 # ifdef HAVE_WINDOW_SYSTEM
   if (display_hourglass_p)
-    cancel_hourglass ();
+    cancel_hourglass();
 # endif /* HAVE_WINDOW_SYSTEM */
 #endif /* I_AM_NOT_RMS */
 
-  /* This hook is used by edebug.  */
-  if (! NILP (Vsignal_hook_function)
-      && ! NILP (error_symbol))
+  /* This hook is used by edebug: */
+  if (! NILP(Vsignal_hook_function)
+      && ! NILP(error_symbol))
     {
-      /* Edebug takes care of restoring these variables when it exits.  */
-      if (lisp_eval_depth + 20 > max_lisp_eval_depth)
-	max_lisp_eval_depth = lisp_eval_depth + 20;
+      /* Edebug takes care of restoring these variables when it exits: */
+      if ((lisp_eval_depth + 20) > max_lisp_eval_depth)
+	max_lisp_eval_depth = (lisp_eval_depth + 20);
 
-      if (SPECPDL_INDEX () + 40 > max_specpdl_size)
-	max_specpdl_size = SPECPDL_INDEX () + 40;
+      if ((SPECPDL_INDEX() + 40) > max_specpdl_size)
+	max_specpdl_size = (SPECPDL_INDEX() + 40);
 
-      call2 (Vsignal_hook_function, error_symbol, data);
+      call2(Vsignal_hook_function, error_symbol, data);
     }
 
-  conditions = Fget (real_error_symbol, Qerror_conditions);
+  conditions = Fget(real_error_symbol, Qerror_conditions);
 
   /* Remember from where signal was called.  Skip over the frame for
      `signal' itself.  If a frame for `error' follows, skip that,
      too.  Don't do this when ERROR_SYMBOL is nil, because that
      is a memory-full error.  */
   Vsignaling_function = Qnil;
-  if (!NILP (error_symbol))
+  if (!NILP(error_symbol))
     {
-      union specbinding *pdl = backtrace_next (backtrace_top ());
-      if (backtrace_p (pdl) && EQ (backtrace_function (pdl), Qerror))
-	pdl = backtrace_next (pdl);
-      if (backtrace_p (pdl))
-	Vsignaling_function = backtrace_function (pdl);
+      union specbinding *pdl = backtrace_next(backtrace_top());
+      if (backtrace_p(pdl) && EQ(backtrace_function(pdl), Qerror))
+	pdl = backtrace_next(pdl);
+      if (backtrace_p(pdl))
+	Vsignaling_function = backtrace_function(pdl);
     }
 
   for (h = handlerlist; h; h = h->next)
     {
       if (h->type != CONDITION_CASE)
 	continue;
-      clause = find_handler_clause (h->tag_or_ch, conditions);
-      if (!NILP (clause))
+      clause = find_handler_clause(h->tag_or_ch, conditions);
+      if (!NILP(clause))
 	break;
     }
 
-  if (/* Don't run the debugger for a memory-full error.
+  if (/* Do NOT run the debugger for a memory-full error.
 	 (There is no room in memory to do that!)  */
-      !NILP (error_symbol)
-      && (!NILP (Vdebug_on_signal)
+      !NILP(error_symbol)
+      && (!NILP(Vdebug_on_signal)
 	  /* If no handler is present now, try to run the debugger.  */
-	  || NILP (clause)
+	  || NILP(clause)
 	  /* A `debug' symbol in the handler list disables the normal
 	     suppression of the debugger.  */
-	  || (CONSP (clause) && CONSP (clause)
-	      && !NILP (Fmemq (Qdebug, clause)))
+	  || (CONSP(clause) && CONSP(clause)
+	      && !NILP(Fmemq(Qdebug, clause)))
 	  /* Special handler that means "print a message and run debugger
 	     if requested".  */
-	  || EQ (h->tag_or_ch, Qerror)))
+	  || EQ(h->tag_or_ch, Qerror)))
     {
       bool debugger_called
 	= maybe_call_debugger (conditions, error_symbol, data);
@@ -1599,36 +1603,35 @@ See also the function `condition-case'.  */)
    Used for anything but Qquit (which can return from Fsignal).  */
 
 void
-xsignal (Lisp_Object error_symbol, Lisp_Object data)
+xsignal(Lisp_Object error_symbol, Lisp_Object data)
 {
-  Fsignal (error_symbol, data);
-  emacs_abort ();
+  Fsignal(error_symbol, data);
+  emacs_abort();
 }
 
-/* Like xsignal, but takes 0, 1, 2, or 3 args instead of a list.  */
-
+/* Like xsignal, but takes 0, 1, 2, or 3 args instead of a list: */
 void
-xsignal0 (Lisp_Object error_symbol)
+xsignal0(Lisp_Object error_symbol)
 {
-  xsignal (error_symbol, Qnil);
-}
-
-void
-xsignal1 (Lisp_Object error_symbol, Lisp_Object arg)
-{
-  xsignal (error_symbol, list1 (arg));
+  xsignal(error_symbol, Qnil);
 }
 
 void
-xsignal2 (Lisp_Object error_symbol, Lisp_Object arg1, Lisp_Object arg2)
+xsignal1(Lisp_Object error_symbol, Lisp_Object arg)
 {
-  xsignal (error_symbol, list2 (arg1, arg2));
+  xsignal(error_symbol, list1(arg));
 }
 
 void
-xsignal3 (Lisp_Object error_symbol, Lisp_Object arg1, Lisp_Object arg2, Lisp_Object arg3)
+xsignal2(Lisp_Object error_symbol, Lisp_Object arg1, Lisp_Object arg2)
 {
-  xsignal (error_symbol, list3 (arg1, arg2, arg3));
+  xsignal(error_symbol, list2(arg1, arg2));
+}
+
+void
+xsignal3(Lisp_Object error_symbol, Lisp_Object arg1, Lisp_Object arg2, Lisp_Object arg3)
+{
+  xsignal(error_symbol, list3(arg1, arg2, arg3));
 }
 
 /* Signal `error' with message S, and additional arg ARG.

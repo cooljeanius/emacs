@@ -3472,6 +3472,8 @@ be copied into other buffers."
 
 (defun buffer-substring--filter (beg end &optional delete)
   (with-wrapper-hook filter-buffer-substring-functions (beg end delete)
+    ;; FIXME: `with-wrapper-hook' is an obsolete macro (as of 24.4);
+    ;; use a <foo>-function variable modified by `add-function'.
     (cond
      ((or delete buffer-substring-filters)
       (save-excursion

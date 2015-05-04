@@ -110,6 +110,10 @@ int decreasepriv(int debugflag)
   }
 #endif /* HAVE_SYSTEM && HAVE_ID_BIN */
 
+  if (debugflag > 0) {
+    ; /* FIXME: do something with it... */
+  }
+
   return 0;
 }
 

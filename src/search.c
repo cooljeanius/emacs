@@ -888,22 +888,22 @@ find_newline (ptrdiff_t start, ptrdiff_t start_byte, ptrdiff_t end,
 
             /* Start should never be at or before end.  */
             if (start_byte <= ceiling_byte)
-              start_byte = ceiling_byte + 1;
+              start_byte = (ceiling_byte + 1);
 
             /* Now the text before start is an unknown region, and
                next_change is the position of the next known region. */
-            ceiling_byte = max (CHAR_TO_BYTE (next_change), ceiling_byte);
+            ceiling_byte = max(CHAR_TO_BYTE(next_change), ceiling_byte);
           }
 	else if (start_byte == -1)
-	  start_byte = CHAR_TO_BYTE (start);
+	  start_byte = CHAR_TO_BYTE(start);
 
         /* Stop scanning before the gap.  */
-	tem = BUFFER_FLOOR_OF (start_byte - 1);
-	ceiling_byte = max (tem, ceiling_byte);
+	tem = BUFFER_FLOOR_OF(start_byte - 1);
+	ceiling_byte = max(tem, ceiling_byte);
 
         {
-          /* The termination address of the dumb loop.  */
-	  unsigned char *ceiling_addr = BYTE_POS_ADDR (ceiling_byte);
+          /* The termination address of the dumb loop: */
+	  unsigned char *ceiling_addr = BYTE_POS_ADDR(ceiling_byte);
 
 	  /* Offsets (relative to CEILING_ADDR and CEILING_BYTE) of
 	     the base, the cursor, and the previous line.  These
@@ -1169,26 +1169,26 @@ while (0)
 static struct re_registers search_regs_1;
 
 static EMACS_INT
-search_buffer (Lisp_Object string, ptrdiff_t pos, ptrdiff_t pos_byte,
-	       ptrdiff_t lim, ptrdiff_t lim_byte, EMACS_INT n,
-	       int RE, Lisp_Object trt, Lisp_Object inverse_trt, bool posix)
+search_buffer(Lisp_Object string, ptrdiff_t pos, ptrdiff_t pos_byte,
+	      ptrdiff_t lim, ptrdiff_t lim_byte, EMACS_INT n,
+	      int RE, Lisp_Object trt, Lisp_Object inverse_trt, bool posix)
 {
-  ptrdiff_t len = SCHARS (string);
-  ptrdiff_t len_byte = SBYTES (string);
+  ptrdiff_t len = SCHARS(string);
+  ptrdiff_t len_byte = SBYTES(string);
   register ptrdiff_t i;
 
   if (running_asynch_code)
-    save_search_regs ();
+    save_search_regs();
 
   /* Searching 0 times means don't move.  */
   /* Null string is found at starting position.  */
-  if (len == 0 || n == 0)
+  if ((len == 0) || (n == 0))
     {
-      set_search_regs (pos_byte, 0);
+      set_search_regs(pos_byte, 0);
       return pos;
     }
 
-  if (RE && !(trivial_regexp_p (string) && NILP (Vsearch_spaces_regexp)))
+  if (RE && !(trivial_regexp_p(string) && NILP(Vsearch_spaces_regexp)))
     {
       unsigned char *p1, *p2;
       ptrdiff_t s1, s2;

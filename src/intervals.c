@@ -1,4 +1,4 @@
-/* Code for doing intervals.
+/* intervals.c: Code for doing intervals.
    Copyright (C) 1993-1995, 1997-1998, 2001-2014 Free Software
    Foundation, Inc.
 
@@ -34,7 +34,6 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
    There are comments around about freeing intervals.  It might be
    faster to explicitly free them (put them on the free list) than
    to GC them.
-
 */
 
 
@@ -52,7 +51,7 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 /* Test for membership, allowing for t (actually any non-cons) to mean the
    universal set.  */
 
-#define TMEM(sym, set) (CONSP (set) ? ! NILP (Fmemq (sym, set)) : ! NILP (set))
+#define TMEM(sym, set) (CONSP(set) ? ! NILP(Fmemq(sym, set)) : ! NILP(set))
 
 static Lisp_Object merge_properties_sticky (Lisp_Object, Lisp_Object);
 static INTERVAL merge_interval_right (INTERVAL);
@@ -84,48 +83,46 @@ copy_interval_parent (INTERVAL d, INTERVAL s)
   d->up_obj = s->up_obj;
 }
 
-/* Create the root interval of some object, a buffer or string.  */
-
+/* Create the root interval of some object, a buffer or string: */
 INTERVAL
-create_root_interval (Lisp_Object parent)
+create_root_interval(Lisp_Object parent)
 {
   INTERVAL new;
 
-  CHECK_IMPURE (parent);
+  CHECK_IMPURE(parent);
 
-  new = make_interval ();
+  new = make_interval();
 
-  if (BUFFERP (parent))
+  if (BUFFERP(parent))
     {
-      new->total_length = (BUF_Z (XBUFFER (parent))
-			   - BUF_BEG (XBUFFER (parent)));
-      eassert (TOTAL_LENGTH (new) >= 0);
-      set_buffer_intervals (XBUFFER (parent), new);
+      new->total_length = (BUF_Z(XBUFFER(parent))
+			   - BUF_BEG(XBUFFER(parent)));
+      eassert(TOTAL_LENGTH(new) >= 0);
+      set_buffer_intervals(XBUFFER(parent), new);
       new->position = BEG;
     }
-  else if (STRINGP (parent))
+  else if (STRINGP(parent))
     {
-      new->total_length = SCHARS (parent);
-      eassert (TOTAL_LENGTH (new) >= 0);
-      set_string_intervals (parent, new);
+      new->total_length = SCHARS(parent);
+      eassert(TOTAL_LENGTH(new) >= 0);
+      set_string_intervals(parent, new);
       new->position = 0;
     }
 
-  set_interval_object (new, parent);
+  set_interval_object(new, parent);
 
   return new;
 }
 
-/* Make the interval TARGET have exactly the properties of SOURCE */
-
+/* Make the interval TARGET have exactly the properties of SOURCE: */
 void
-copy_properties (register INTERVAL source, register INTERVAL target)
+copy_properties(register INTERVAL source, register INTERVAL target)
 {
-  if (DEFAULT_INTERVAL_P (source) && DEFAULT_INTERVAL_P (target))
+  if (DEFAULT_INTERVAL_P(source) && DEFAULT_INTERVAL_P(target))
     return;
 
-  COPY_INTERVAL_CACHE (source, target);
-  set_interval_plist (target, Fcopy_sequence (source->plist));
+  COPY_INTERVAL_CACHE(source, target);
+  set_interval_plist(target, Fcopy_sequence(source->plist));
 }
 
 /* Merge the properties of interval SOURCE into the properties
@@ -133,7 +130,7 @@ copy_properties (register INTERVAL source, register INTERVAL target)
    is added to TARGET if TARGET has no such property as yet.  */
 
 static void
-merge_properties (register INTERVAL source, register INTERVAL target)
+merge_properties(register INTERVAL source, register INTERVAL target)
 {
   register Lisp_Object o, sym, val;
 
@@ -429,23 +426,25 @@ balance_an_interval (INTERVAL i)
       old_diff = LEFT_TOTAL_LENGTH (i) - RIGHT_TOTAL_LENGTH (i);
       if (old_diff > 0)
 	{
-	  /* Since the left child is longer, there must be one.  */
-	  new_diff = i->total_length - i->left->total_length
-	    + RIGHT_TOTAL_LENGTH (i->left) - LEFT_TOTAL_LENGTH (i->left);
-	  if (eabs (new_diff) >= old_diff)
+	  /* Since the left child is longer, there must be one: */
+	  new_diff = (i->total_length - i->left->total_length
+                      + RIGHT_TOTAL_LENGTH(i->left)
+                      - LEFT_TOTAL_LENGTH(i->left));
+	  if (eabs(new_diff) >= old_diff)
 	    break;
-	  i = rotate_right (i);
-	  balance_an_interval (i->right);
+	  i = rotate_right(i);
+	  balance_an_interval(i->right);
 	}
       else if (old_diff < 0)
 	{
-	  /* Since the right child is longer, there must be one.  */
-	  new_diff = i->total_length - i->right->total_length
-	    + LEFT_TOTAL_LENGTH (i->right) - RIGHT_TOTAL_LENGTH (i->right);
-	  if (eabs (new_diff) >= -old_diff)
+	  /* Since the right child is longer, there must be one: */
+	  new_diff = (i->total_length - i->right->total_length
+                      + LEFT_TOTAL_LENGTH(i->right)
+                      - RIGHT_TOTAL_LENGTH(i->right));
+	  if (eabs(new_diff) >= -old_diff)
 	    break;
-	  i = rotate_left (i);
-	  balance_an_interval (i->left);
+	  i = rotate_left(i);
+	  balance_an_interval(i->left);
 	}
       else
 	break;
@@ -577,20 +576,20 @@ split_interval_right (INTERVAL interval, ptrdiff_t offset)
    it is still a root after this operation.  */
 
 INTERVAL
-split_interval_left (INTERVAL interval, ptrdiff_t offset)
+split_interval_left(INTERVAL interval, ptrdiff_t offset)
 {
-  INTERVAL new = make_interval ();
+  INTERVAL new = make_interval();
   ptrdiff_t new_length = offset;
 
   new->position = interval->position;
-  interval->position = interval->position + offset;
-  set_interval_parent (new, interval);
+  interval->position = (interval->position + offset);
+  set_interval_parent(new, interval);
 
-  if (NULL_LEFT_CHILD (interval))
+  if (NULL_LEFT_CHILD(interval))
     {
-      set_interval_left (interval, new);
+      set_interval_left(interval, new);
       new->total_length = new_length;
-      eassert (TOTAL_LENGTH (new) >= 0);
+      eassert(TOTAL_LENGTH(new) >= 0);
     }
   else
     {
@@ -643,7 +642,7 @@ interval_start_pos (INTERVAL source)
    will update this cache based on the result of find_interval.  */
 
 INTERVAL
-find_interval (register INTERVAL tree, register ptrdiff_t position)
+find_interval(register INTERVAL tree, register ptrdiff_t position)
 {
   /* The distance from the left edge of the subtree at TREE
                     to POSITION.  */
@@ -653,22 +652,22 @@ find_interval (register INTERVAL tree, register ptrdiff_t position)
     return NULL;
 
   relative_position = position;
-  if (INTERVAL_HAS_OBJECT (tree))
+  if (INTERVAL_HAS_OBJECT(tree))
     {
       Lisp_Object parent;
-      GET_INTERVAL_OBJECT (parent, tree);
-      if (BUFFERP (parent))
-	relative_position -= BUF_BEG (XBUFFER (parent));
+      GET_INTERVAL_OBJECT(parent, tree);
+      if (BUFFERP(parent))
+	relative_position -= BUF_BEG(XBUFFER(parent));
     }
 
-  eassert (relative_position <= TOTAL_LENGTH (tree));
+  eassert(relative_position <= TOTAL_LENGTH(tree));
 
-  tree = balance_possible_root_interval (tree);
+  tree = balance_possible_root_interval(tree);
 
   while (1)
     {
-      eassert (tree);
-      if (relative_position < LEFT_TOTAL_LENGTH (tree))
+      eassert(tree);
+      if (relative_position < LEFT_TOTAL_LENGTH(tree))
 	{
 	  tree = tree->left;
 	}
@@ -742,27 +741,27 @@ previous_interval (register INTERVAL interval)
   if (!interval)
     return NULL;
 
-  if (! NULL_LEFT_CHILD (interval))
+  if (! NULL_LEFT_CHILD(interval))
     {
       i = interval->left;
-      while (! NULL_RIGHT_CHILD (i))
+      while (! NULL_RIGHT_CHILD(i))
 	i = i->right;
 
-      i->position = interval->position - LENGTH (i);
+      i->position = (interval->position - LENGTH(i));
       return i;
     }
 
   i = interval;
-  while (! NULL_PARENT (i))
+  while (! NULL_PARENT(i))
     {
-      if (AM_RIGHT_CHILD (i))
+      if (AM_RIGHT_CHILD(i))
 	{
-	  i = INTERVAL_PARENT (i);
+	  i = INTERVAL_PARENT(i);
 
-	  i->position = interval->position - LENGTH (i);
+	  i->position = (interval->position - LENGTH(i));
 	  return i;
 	}
-      i = INTERVAL_PARENT (i);
+      i = INTERVAL_PARENT(i);
     }
 
   return NULL;
@@ -790,25 +789,25 @@ update_interval (register INTERVAL i, ptrdiff_t pos)
 		+ LEFT_TOTAL_LENGTH (i->left);
 	      i = i->left;		/* Move to the left child */
 	    }
-	  else if (NULL_PARENT (i))
-	    error ("Point before start of properties");
+	  else if (NULL_PARENT(i))
+	    error("Point before start of properties");
 	  else
-	      i = INTERVAL_PARENT (i);
+	      i = INTERVAL_PARENT(i);
 	  continue;
 	}
-      else if (pos >= INTERVAL_LAST_POS (i))
+      else if (pos >= INTERVAL_LAST_POS(i))
 	{
-	  /* Move right. */
-	  if (pos < INTERVAL_LAST_POS (i) + TOTAL_LENGTH (i->right))
+	  /* Move right: */
+	  if (pos < (INTERVAL_LAST_POS(i) + TOTAL_LENGTH(i->right)))
 	    {
-	      i->right->position = INTERVAL_LAST_POS (i)
-	        + LEFT_TOTAL_LENGTH (i->right);
+	      i->right->position = (INTERVAL_LAST_POS(i)
+                                    + LEFT_TOTAL_LENGTH(i->right));
 	      i = i->right;		/* Move to the right child */
 	    }
-	  else if (NULL_PARENT (i))
-	    error ("Point %"pD"d after end of properties", pos);
+	  else if (NULL_PARENT(i))
+	    error("Point %"pD"d after end of properties", pos);
 	  else
-            i = INTERVAL_PARENT (i);
+            i = INTERVAL_PARENT(i);
 	  continue;
 	}
       else
@@ -1222,18 +1221,18 @@ delete_node (register INTERVAL i)
    for the length of I.  */
 
 static void
-delete_interval (register INTERVAL i)
+delete_interval(register INTERVAL i)
 {
   register INTERVAL parent;
-  ptrdiff_t amt = LENGTH (i);
+  ptrdiff_t amt = LENGTH(i);
 
-  eassert (amt == 0);		/* Only used on zero-length intervals now.  */
+  eassert(amt == 0);	/* Only used on zero-length intervals now.  */
 
-  if (ROOT_INTERVAL_P (i))
+  if (ROOT_INTERVAL_P(i))
     {
       Lisp_Object owner;
-      GET_INTERVAL_OBJECT (owner, i);
-      parent = delete_node (i);
+      GET_INTERVAL_OBJECT(owner, i);
+      parent = delete_node(i);
       if (parent)
 	set_interval_object (parent, owner);
 
@@ -1409,20 +1408,20 @@ offset_intervals (struct buffer *buffer, ptrdiff_t start, ptrdiff_t length)
    interval.  */
 
 static INTERVAL
-merge_interval_right (register INTERVAL i)
+merge_interval_right(register INTERVAL i)
 {
-  register ptrdiff_t absorb = LENGTH (i);
+  register ptrdiff_t absorb = LENGTH(i);
   register INTERVAL successor;
 
-  /* Find the succeeding interval.  */
-  if (! NULL_RIGHT_CHILD (i))      /* It's below us.  Add absorb
-				      as we descend.  */
+  /* Find the succeeding interval: */
+  if (! NULL_RIGHT_CHILD(i))      /* It is below us.  Add absorb
+                                     as we descend.  */
     {
       successor = i->right;
-      while (! NULL_LEFT_CHILD (successor))
+      while (! NULL_LEFT_CHILD(successor))
 	{
 	  successor->total_length += absorb;
-	  eassert (TOTAL_LENGTH (successor) >= 0);
+	  eassert(TOTAL_LENGTH(successor) >= 0);
 	  successor = successor->left;
 	}
 
@@ -1465,20 +1464,20 @@ merge_interval_right (register INTERVAL i)
    The caller must verify that this is not the first (leftmost) interval.  */
 
 INTERVAL
-merge_interval_left (register INTERVAL i)
+merge_interval_left(register INTERVAL i)
 {
-  register ptrdiff_t absorb = LENGTH (i);
+  register ptrdiff_t absorb = LENGTH(i);
   register INTERVAL predecessor;
 
-  /* Find the preceding interval.  */
-  if (! NULL_LEFT_CHILD (i))	/* It's below us. Go down,
+  /* Find the preceding interval: */
+  if (! NULL_LEFT_CHILD(i))	/* It's below us. Go down,
 				   adding ABSORB as we go.  */
     {
       predecessor = i->left;
-      while (! NULL_RIGHT_CHILD (predecessor))
+      while (! NULL_RIGHT_CHILD(predecessor))
 	{
 	  predecessor->total_length += absorb;
-	  eassert (TOTAL_LENGTH (predecessor) >= 0);
+	  eassert(TOTAL_LENGTH(predecessor) >= 0);
 	  predecessor = predecessor->right;
 	}
 
@@ -2429,19 +2428,19 @@ set_intervals_multibyte_1 (INTERVAL i, bool multi_flag,
   /* Rounding to char boundaries can theoretically ake this interval
      spurious.  If so, delete one child, and copy its property list
      to this interval.  */
-  if (LEFT_TOTAL_LENGTH (i) + RIGHT_TOTAL_LENGTH (i) >= TOTAL_LENGTH (i))
+  if ((LEFT_TOTAL_LENGTH(i) + RIGHT_TOTAL_LENGTH(i)) >= TOTAL_LENGTH(i))
     {
       if ((i)->left)
 	{
-	  set_interval_plist (i, i->left->plist);
+	  set_interval_plist(i, i->left->plist);
 	  (i)->left->total_length = 0;
-	  delete_interval ((i)->left);
+	  delete_interval((i)->left);
 	}
       else
 	{
-	  set_interval_plist (i, i->right->plist);
+	  set_interval_plist(i, i->right->plist);
 	  (i)->right->total_length = 0;
-	  delete_interval ((i)->right);
+	  delete_interval((i)->right);
 	}
     }
 }
@@ -2451,10 +2450,12 @@ set_intervals_multibyte_1 (INTERVAL i, bool multi_flag,
    or to fit them as non-multibyte (if not MULTI_FLAG).  */
 
 void
-set_intervals_multibyte (bool multi_flag)
+set_intervals_multibyte(bool multi_flag)
 {
-  INTERVAL i = buffer_intervals (current_buffer);
+  INTERVAL i = buffer_intervals(current_buffer);
 
   if (i)
-    set_intervals_multibyte_1 (i, multi_flag, BEG, BEG_BYTE, Z, Z_BYTE);
+    set_intervals_multibyte_1(i, multi_flag, BEG, BEG_BYTE, Z, Z_BYTE);
 }
+
+/* EOF */

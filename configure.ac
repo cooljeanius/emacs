@@ -2686,6 +2686,18 @@ dnl# Amongst other things, this sets AR and ARFLAGS.
 gl_EARLY
 AC_MSG_NOTICE([done initializing gnulib, back to more compiler checks])dnl
 
+dnl# section for debugging flags begins here
+AC_ARG_ENABLE([better-debugging],
+  [AS_HELP_STRING([--enable-better-debugging],
+                  [turn on compiler flags to improve the debugging
+                   experience.])],
+  [case ${enableval} in
+     yes|no) ;;
+     *) AC_MSG_ERROR([bad val ${enableval} for better-debugging option]) ;;
+   esac
+   gl_better_debugging="${enableval}"],
+  [gl_better_debugging=no])dnl
+
 AC_PATH_PROGS([GDB_BIN],[gdb ggdb gdb-apple])dnl
 
 ## if gdb is present, use gdb-specific debugging options; otherwise proceed
@@ -2700,7 +2712,7 @@ fi
 
 dnl# we do this hunk of code 3 times; see the FIXME between this one and
 dnl# the next one for more info:
-if test "x${ac_test_CFLAGS}" != "xset"; then
+if test "x${ac_test_CFLAGS}" != "xset"; then  
   # It is helpful to have C macros available to GDB, so prefer -g3 to -g
   # if -g3 works and the user does not specify CFLAGS.
   # This test must follow gl_EARLY; otherwise AC_LINK_IFELSE complains.
@@ -2708,7 +2720,12 @@ if test "x${ac_test_CFLAGS}" != "xset"; then
     '-g')
       emacs_g3_CFLAGS="${gthree}";;
     '-g -O2')
-      emacs_g3_CFLAGS="${gthree} -O2";;
+      if test "x${GCC}" = "xyes" && test "x${CLANG_ANALYZER}" = "xfalse"; then
+        extra_debug_opt_CFLAGS="-fno-omit-frame-pointer -fno-crossjumping"
+      else
+        extra_debug_opt_CFLAGS="-fno-omit-frame-pointer"
+      fi
+      emacs_g3_CFLAGS="${gthree} -O2 ${extra_debug_opt_CFLAGS}";;
     '-g -Og')
       emacs_g3_CFLAGS="${gthree} -Og";;
     *)
@@ -2730,13 +2747,14 @@ if test "x${ac_test_CFLAGS}" != "xset"; then
     elif test "x${opsys}" = "xdarwin" && test "x${GCC}" = "xyes" && test "x${host_vendor}" = "xapple" && test "x${GDB_BIN}" != "x"; then
       ## (I would prefer to check '${emacs_cv_apple}' instead of
       ## '${host_vendor}', but that has not been set yet by this point...)
-      CFLAGS="${CFLAGS} -gfull -mfix-and-continue"
-      ## (maybe also add '-gdwarf-2' like above for mingw32?)
+      CFLAGS="${CFLAGS} -gdwarf-2 -gfull -mfix-and-continue"
     fi
   fi
 
   case ${CFLAGS} in
-    *-O*) ;;
+    *-O*)
+      AC_MSG_NOTICE([CFLAGS already contain an optimization option])
+      ;;
     *)
       if test "x${GCC}" = "xyes"; then
         # gcc as of 4.8 supports the '-Og' optimization level for improved
@@ -2797,7 +2815,9 @@ if test "x${ac_test_OBJCFLAGS}" != "xset"; then
   fi
 
   case ${OBJCFLAGS} in
-    *-O*) ;;
+    *-O*)
+      AC_MSG_NOTICE([OBJCFLAGS already contain an optimization option])
+      ;;
     *)
       # No optimization flag was inferred for this compiler, so try -O.
       emacs_save_OBJCFLAGS="${OBJCFLAGS}"
@@ -2848,7 +2868,9 @@ if test "x${ac_test_CXXFLAGS}" != "xset"; then
   fi
 
   case ${CXXFLAGS} in
-    *-O*) ;;
+    *-O*)
+      AC_MSG_NOTICE([CXXFLAGS already contain an optimization option])
+      ;;
     *)
       # No optimization flag was inferred for this compiler, so try -O.
       emacs_save_CXXFLAGS="${CXXFLAGS}"
@@ -2890,7 +2912,10 @@ m4_include([m4/compiler_id.m4])dnl
 dnl# Now actually call them:
 EMACS_COMPILER_ID_CLANG
 EMACS_COMPILER_ID_APPLE
+dnl# speaking of clang:
+EMACS_CLANG_STATIC_ANALYSIS
 
+dnl# lto is compiler-version dependent:
 gl_GCC_VERSION_IFELSE([4],[5],[
   AC_ARG_ENABLE([gcc-link-time-optimization],
   [AS_HELP_STRING([--enable-gcc-link-time-optimization],
@@ -3197,6 +3222,14 @@ else
       gl_WARN_ADD([-Wextra-tokens])
       gl_WARN_ADD([-Wfour-char-constants])
       gl_WARN_ADD([-Wnewline-eof])
+      dnl# too much noise for now, so guard it with an undocument envvar:
+      if test "x${PRINT_CONVERSION_WARNINGS}" = "xyes"; then
+        test -n "${PRINT_CONVERSION_WARNINGS}"
+        gl_WARN_ADD([-Wshorten-64-to-32])
+      else
+        test -z "${PRINT_CONVERSION_WARNINGS}"
+        nw="${nw} -Wshorten-64-to-32"
+      fi  ##end check for other undocumented environment variable
     fi  ##end check for Apple compiler
 
     dnl# speaking of m4/manywarnings.m4, running the command in one of the
@@ -3378,6 +3411,16 @@ else
       AC_MSG_NOTICE([skipping checks for warnings for gcc 4.2 or newer])
     ])dnl# end block of code for gcc4.2+
 
+    dnl# introduced in 4.7, apparently:
+    gl_GCC_VERSION_IFELSE([4],[7],[
+      dnl# gcc-warning.spec says to add a sane default for this, so I went
+      dnl# by my current stack limit:
+      gl_WARN_ADD([-Wstack-usage=8192000])
+      dnl# (8192 kbytes = 8192000 bytes)
+    ],[
+      AC_MSG_NOTICE([skipping checks for warnings for gcc 4.7 or newer])
+    ])dnl# end block of code for gcc4.7+
+
     dnl# some other ones from the gcc4.9 manual that m4/manywarnings.m4
     dnl# leaves out:
     gl_GCC_VERSION_IFELSE([4],[9],[
@@ -3469,6 +3512,10 @@ else
   nw="${nw} -Wunsuffixed-float-constants"                             # meh
   nw="${nw} -Wunused-macros"                                     # annoying
   nw="${nw} -Wswitch-default"                # Too many warnings for now(?)
+  # Same condition as where it was initially added:
+  if test "x${emacs_cv_apple}" = "xyes"; then
+    nw="${nw} -Wshorten-64-to-32"
+  fi
 
   dnl# m4/manywarnings.m4 skips this one, because, apparently:
   dnl# "FIXME maybe? too many false positives"
@@ -3482,6 +3529,18 @@ else
   # end warning checks
 fi  ##end conditional on gl_gcc_warnings
 
+if test "x${gl_better_debugging}" = "xyes"; then
+  ## Not exactly warning flags, but adding them this way is easier:
+  gl_WARN_ADD([-fno-eliminate-unused-debug-symbols],[BETTER_DEBUG_CFLAGS])
+  gl_WARN_ADD([-fbounds-check],[BETTER_DEBUG_CFLAGS])
+  gl_WARN_ADD([-fstack-check],[BETTER_DEBUG_CFLAGS])
+  gl_WARN_ADD([-gstrict-dwarf],[BETTER_DEBUG_CFLAGS])
+  AC_SUBST([BETTER_DEBUG_CFLAGS])dnl
+  ## Is that enough?
+fi
+
+##FIXME: also change "-O2/-O3" to "-Og" if "gl_better_debugging" is yes,
+## and the compiler supports it:
 edit_cflags="
   s,///*,/,g
   s/^/ /
@@ -3539,7 +3598,10 @@ AC_MSG_RESULT([ ])
 dnl# only need the libtool macro for some of the tools that it checks:
 m4_ifdef([LT_INIT],[
   unset ac_cv_prog_ac_ct_RANLIB
-  LT_INIT([no-pic])dnl
+  LT_INIT([disable-fast-install disable-shared static no-pic])dnl
+  m4_ifdef([LT_LANG],[
+    LT_LANG([C])dnl
+  ])dnl
 ],[
   EMACS_REQUIRED_DARWIN_CHECKS
 ])dnl
@@ -3994,7 +4056,7 @@ dnl# Suppression of obsolescent Autoconf test for size_t, uid_t, and gid_t
 dnl# has been moved to m4/override.m4, which is already included.
 test -e m4/override.m4
 
-dnl# other type tests that autoscan wants:
+dnl# other type tests that autoscan wants, among other things:
 AC_MSG_CHECKING([types])
 AC_MSG_RESULT([ ])
 AC_TYPE_INT32_T
@@ -4005,7 +4067,20 @@ AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
 AC_TYPE_UINT64_T
 AC_CHECK_TYPES([ptrdiff_t])dnl
+AC_CHECK_TYPES([rlim_t])dnl
 AC_CHECK_TYPES([time_t])dnl
+
+dnl# sizes/alignments:
+AC_CHECK_SIZEOF([char])dnl
+AC_CHECK_ALIGNOF([char])dnl
+AC_CHECK_SIZEOF([char *])dnl
+AC_CHECK_ALIGNOF([char *])dnl
+AC_CHECK_SIZEOF([short])dnl
+AC_CHECK_ALIGNOF([short])dnl
+AC_CHECK_SIZEOF([int])dnl
+AC_CHECK_ALIGNOF([int])dnl
+AC_CHECK_SIZEOF([long])dnl
+AC_CHECK_ALIGNOF([long])dnl
 
 dnl# Check for speed_t typedef.
 if test "x${ac_cv_header_termios_h}" = "x"; then
@@ -4492,7 +4567,10 @@ if test "x${ac_cv_prog_make_make_set}" = "x" && eval test "x\${ac_cv_prog_make_$
 fi
 
 DEPFLAGS=""
-MKDEPDIR="echo 'skipping making depdir for \$@.'"
+MKDEPDIR=":"
+if test "x${AM_V}" = "x1" || test "x${V}" = "x1"; then
+  MKDEPDIR="echo 'skipping making depdir for \$@.'"
+fi
 deps_frag=deps.mk
 dnl# check for GNU Make if we have GCC and autodepend is on.
 if test "x${GCC}" = "xyes" && test "x${ac_enable_autodepend}" = "xyes"; then
@@ -7050,6 +7128,8 @@ case "${opsys}" in
     ;;
 esac
 
+AC_CHECK_HEADERS([Availability.h AvailabilityMacros.h])dnl
+
 ### The Mac OS X Carbon API is one way to implement the GUI.
 if test "x${HAVE_CARBON}" = "xyes"; then
   AC_DEFINE([HAVE_CARBON],[1],
@@ -7490,9 +7570,9 @@ AC_CHECK_FUNCS([__fpending _stricmp acl atexit atof atoi btowc bzero \
                 memmove memset mkdir munmap nl_langinfo pathconf \
                 posix_spawnp pow putenv re_comp regcomp rmdir setenv \
                 socket sqrt strcasecmp strcasestr strchr strcmp strcspn \
-                strdup strerror stricmp strncasecmp strncmp strnicmp \
-                strnstr strpbrk strrchr strtok strtol strtoul system \
-                xstricmp uname utime utmpname vfprintf])
+                strdup strerror stricmp strlcat strlcpy strncasecmp \
+                strncmp strnicmp strnstr strpbrk strrchr strtok strtol \
+                strtoul system xstricmp uname utime utmpname vfprintf])
 dnl# Keep autoscan happy with a dummy condition:
 if test "x" = "Y0"; then
   test -x "`which autoscan`"

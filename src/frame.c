@@ -358,25 +358,26 @@ make_frame (bool mini_p)
   f->want_fullscreen = FULLSCREEN_NONE;
 #endif /* HAVE_WINDOW_SYSTEM */
 
-  root_window = make_window ();
-  rw = XWINDOW (root_window);
+  root_window = make_window();
+  rw = XWINDOW(root_window);
   if (mini_p)
     {
-      mini_window = make_window ();
-      mw = XWINDOW (mini_window);
-      wset_next (rw, mini_window);
-      wset_prev (mw, root_window);
+      mini_window = make_window();
+      mw = XWINDOW(mini_window);
+      wset_next(rw, mini_window);
+      wset_prev(mw, root_window);
       mw->mini = 1;
-      wset_frame (mw, frame);
-      fset_minibuffer_window (f, mini_window);
+      wset_frame(mw, frame);
+      fset_minibuffer_window(f, mini_window);
     }
   else
     {
       mini_window = Qnil;
+      /* FIXME: do better at this; NULL is just as bad as uninitialized: */
       mw = (struct window *)NULL; /* still have to initialize */
-      wset_next (rw, Qnil);
+      wset_next(rw, Qnil);
       mw->mini = 0;
-      fset_minibuffer_window (f, Qnil);
+      fset_minibuffer_window(f, Qnil);
     }
 
   wset_frame (rw, frame);
@@ -2794,13 +2795,13 @@ void x_set_frame_parameters(struct frame *f, Lisp_Object alist)
      entire list before we set them.  */
   int width, height;
 
-  /* Same here.  */
+  /* Same here: */
   Lisp_Object left, top;
 
-  /* Same with these.  */
+  /* Same with these: */
   Lisp_Object icon_left, icon_top;
 
-  /* Record in these vectors all the parms specified.  */
+  /* Record in these vectors all the parms specified: */
   Lisp_Object *parms;
   Lisp_Object *values;
   ptrdiff_t i, p;
@@ -2812,15 +2813,19 @@ void x_set_frame_parameters(struct frame *f, Lisp_Object alist)
   struct gcpro gcpro1, gcpro2;
 
   i = 0;
-  for (tail = alist; CONSP (tail); tail = XCDR (tail))
+  for (tail = alist; CONSP(tail); tail = XCDR(tail))
     i++;
 
-  parms = alloca (i * sizeof *parms);
-  values = alloca (i * sizeof *values);
+  if (i == 0) {
+    i++;
+  }
+
+  parms = alloca(i * sizeof(*parms));
+  values = alloca(i * sizeof(*values));
 
   /* Extract parm names and values into those vectors: */
   i = 0;
-  for (tail = alist; CONSP (tail); tail = XCDR (tail))
+  for (tail = alist; CONSP(tail); tail = XCDR(tail))
     {
       Lisp_Object elt;
 
@@ -4021,9 +4026,8 @@ x_default_parameter (struct frame *f, Lisp_Object alist, Lisp_Object prop,
 static
 #  endif /* !_EMACS_MACTERM_H */
 int
-XParseGeometry (char *string,
-		int *x, int *y,
-		unsigned int *width, unsigned int *height)
+XParseGeometry(char *string, int *x, int *y,
+               unsigned int *width, unsigned int *height)
 {
   int mask = NoValue;
   char *strind;

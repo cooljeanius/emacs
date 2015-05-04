@@ -2279,23 +2279,23 @@ verify_interval_modification (struct buffer *buf,
       /* Loop over intervals on or next to START...END,
 	 collecting their hooks.  */
 
-      i = find_interval (intervals, start);
+      i = find_interval(intervals, start);
       do
 	{
-	  if (! INTERVAL_WRITABLE_P (i))
-	    text_read_only (textget (i->plist, Qread_only));
+	  if (! INTERVAL_WRITABLE_P(i))
+	    text_read_only(textget(i->plist, Qread_only));
 
 	  if (!inhibit_modification_hooks)
 	    {
-	      mod_hooks = textget (i->plist, Qmodification_hooks);
-	      if (! NILP (mod_hooks) && ! EQ (mod_hooks, prev_mod_hooks))
+	      mod_hooks = textget(i->plist, Qmodification_hooks);
+	      if (! NILP(mod_hooks) && ! EQ(mod_hooks, prev_mod_hooks))
 		{
-		  hooks = Fcons (mod_hooks, hooks);
+		  hooks = Fcons(mod_hooks, hooks);
 		  prev_mod_hooks = mod_hooks;
 		}
 	    }
 
-	  i = next_interval (i);
+	  i = next_interval(i);
 	}
       /* Keep going thru the interval containing the char before END.  */
       while (i && i->position < end);

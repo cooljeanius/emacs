@@ -1,0 +1,786 @@
+bootstrap-emacs:
+Load command 0
+      cmd LC_SEGMENT_64
+  cmdsize 72
+  segname __PAGEZERO
+   vmaddr 0x0000000000000000
+   vmsize 0x0000000100000000
+  fileoff 0
+ filesize 0
+  maxprot ---
+ initprot ---
+   nsects 0
+    flags (none)
+Load command 1
+      cmd LC_SEGMENT_64
+  cmdsize 712
+  segname __TEXT
+   vmaddr 0x0000000100000000
+   vmsize 0x0000000000253000
+  fileoff 0
+ filesize 2437120
+  maxprot rwx
+ initprot r-x
+   nsects 8
+    flags (none)
+Section
+  sectname __text
+   segname __TEXT
+      addr 0x00000001000023a0
+      size 0x00000000001e7db9
+    offset 9120
+     align 2^4 (16)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes PURE_INSTRUCTIONS SOME_INSTRUCTIONS
+ reserved1 0
+ reserved2 0
+Section
+  sectname __text_startup
+   segname __TEXT
+      addr 0x00000001001ea160
+      size 0x00000000000016b8
+    offset 2007392
+     align 2^4 (16)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes PURE_INSTRUCTIONS SOME_INSTRUCTIONS
+ reserved1 0
+ reserved2 0
+Section
+  sectname __text_cold
+   segname __TEXT
+      addr 0x00000001001eb818
+      size 0x0000000000000728
+    offset 2013208
+     align 2^0 (1)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes PURE_INSTRUCTIONS SOME_INSTRUCTIONS
+ reserved1 0
+ reserved2 0
+Section
+  sectname __stubs
+   segname __TEXT
+      addr 0x00000001001ebf40
+      size 0x0000000000001128
+    offset 2015040
+     align 2^1 (2)
+    reloff 0
+    nreloc 0
+      type S_SYMBOL_STUBS
+attributes PURE_INSTRUCTIONS SOME_INSTRUCTIONS
+ reserved1 0 (index into indirect symbol table)
+ reserved2 6 (size of stubs)
+Section
+  sectname __stub_helper
+   segname __TEXT
+      addr 0x00000001001ed068
+      size 0x0000000000001ca8
+    offset 2019432
+     align 2^2 (4)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes PURE_INSTRUCTIONS SOME_INSTRUCTIONS
+ reserved1 0
+ reserved2 0
+Section
+  sectname __cstring
+   segname __TEXT
+      addr 0x00000001001eed10
+      size 0x000000000001b0f0
+    offset 2026768
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_CSTRING_LITERALS
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __const
+   segname __TEXT
+      addr 0x0000000100209e00
+      size 0x0000000000000b11
+    offset 2137600
+     align 2^6 (64)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __eh_frame
+   segname __TEXT
+      addr 0x000000010020a918
+      size 0x00000000000486c8
+    offset 2140440
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Load command 2
+      cmd LC_SEGMENT_64
+  cmdsize 1352
+  segname __DATA
+   vmaddr 0x0000000100253000
+   vmsize 0x000000000034b000
+  fileoff 2437120
+ filesize 3452928
+  maxprot rwx
+ initprot rw-
+   nsects 16
+    flags (none)
+Section
+  sectname __program_vars
+   segname __DATA
+      addr 0x0000000100253000
+      size 0x0000000000000028
+    offset 2437120
+     align 2^5 (32)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __got
+   segname __DATA
+      addr 0x0000000100253028
+      size 0x0000000000000088
+    offset 2437160
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_NON_LAZY_SYMBOL_POINTERS
+attributes (none)
+ reserved1 732 (index into indirect symbol table)
+ reserved2 0
+Section
+  sectname __nl_symbol_ptr
+   segname __DATA
+      addr 0x00000001002530b0
+      size 0x0000000000000010
+    offset 2437296
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_NON_LAZY_SYMBOL_POINTERS
+attributes (none)
+ reserved1 749 (index into indirect symbol table)
+ reserved2 0
+Section
+  sectname __la_symbol_ptr
+   segname __DATA
+      addr 0x00000001002530c0
+      size 0x00000000000016e0
+    offset 2437312
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_LAZY_SYMBOL_POINTERS
+attributes (none)
+ reserved1 751 (index into indirect symbol table)
+ reserved2 0
+Section
+  sectname __data
+   segname __DATA
+      addr 0x00000001002547c0
+      size 0x00000000002c7e40
+    offset 2443200
+     align 2^6 (64)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __static_data
+   segname __DATA
+      addr 0x000000010051c600
+      size 0x0000000000000023
+    offset 5359104
+     align 2^1 (2)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __const
+   segname __DATA
+      addr 0x000000010051c640
+      size 0x0000000000004448
+    offset 5359168
+     align 2^6 (64)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __common
+   segname __DATA
+      addr 0x0000000100520ac0
+      size 0x00000000000043f1
+    offset 5376704
+     align 2^6 (64)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __bss1
+   segname __DATA
+      addr 0x0000000100524eb2
+      size 0x000000000000000a
+    offset 5394098
+     align 2^1 (2)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __bss5
+   segname __DATA
+      addr 0x0000000100524ec0
+      size 0x00000000000002a8
+    offset 5394112
+     align 2^5 (32)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __pu_bss3
+   segname __DATA
+      addr 0x0000000100525168
+      size 0x0000000000000008
+    offset 5394792
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __bss4
+   segname __DATA
+      addr 0x0000000100525170
+      size 0x00000000000025e0
+    offset 5394800
+     align 2^4 (16)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __pu_bss2
+   segname __DATA
+      addr 0x0000000100527750
+      size 0x0000000000000004
+    offset 5404496
+     align 2^2 (4)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __bss2
+   segname __DATA
+      addr 0x0000000100527754
+      size 0x00000000000001d4
+    offset 5404500
+     align 2^2 (4)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __bss3
+   segname __DATA
+      addr 0x0000000100527928
+      size 0x0000000000001f38
+    offset 5404968
+     align 2^3 (8)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Section
+  sectname __bss6
+   segname __DATA
+      addr 0x0000000100529880
+      size 0x00000000000737e0
+    offset 5412992
+     align 2^6 (64)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes (none)
+ reserved1 0
+ reserved2 0
+Load command 3
+      cmd LC_SEGMENT_64
+  cmdsize 72
+  segname __DATA
+   vmaddr 0x0000000102c5a000
+   vmsize 0x0000000000001000
+  fileoff 5890048
+ filesize 0
+  maxprot rw-
+ initprot rw-
+   nsects 0
+    flags (none)
+Load command 4
+      cmd LC_SEGMENT_64
+  cmdsize 72
+  segname __DATA
+   vmaddr 0x0000000102e00000
+   vmsize 0x0000000000100000
+  fileoff 5890048
+ filesize 1048576
+  maxprot rw-
+ initprot rw-
+   nsects 0
+    flags (none)
+Load command 5
+      cmd LC_SEGMENT_64
+  cmdsize 72
+  segname __DATA
+   vmaddr 0x0000000103800000
+   vmsize 0x0000000000800000
+  fileoff 6938624
+ filesize 8388608
+  maxprot rw-
+ initprot rw-
+   nsects 0
+    flags (none)
+Load command 6
+      cmd LC_SEGMENT_64
+  cmdsize 72
+  segname __DATA
+   vmaddr 0x0000000104200000
+   vmsize 0x00000000000fd000
+  fileoff 15327232
+ filesize 1036288
+  maxprot rw-
+ initprot rw-
+   nsects 0
+    flags (none)
+Load command 7
+      cmd LC_SEGMENT_64
+  cmdsize 72
+  segname __DATA
+   vmaddr 0x00000001042fc000
+   vmsize 0x0000000000004000
+  fileoff 16363520
+ filesize 16384
+  maxprot rw-
+ initprot rw-
+   nsects 0
+    flags (none)
+Load command 8
+      cmd LC_SEGMENT_64
+  cmdsize 72
+  segname __DATA
+   vmaddr 0x0000000104800000
+   vmsize 0x0000000000800000
+  fileoff 16379904
+ filesize 8388608
+  maxprot rw-
+ initprot rw-
+   nsects 0
+    flags (none)
+Load command 9
+      cmd LC_SEGMENT_64
+  cmdsize 72
+  segname __DATA
+   vmaddr 0x0000000106000000
+   vmsize 0x00000000007f8000
+  fileoff 24768512
+ filesize 947199
+  maxprot rw-
+ initprot rw-
+   nsects 0
+    flags (none)
+Load command 10
+      cmd LC_SEGMENT_64
+  cmdsize 72
+  segname __DATA
+   vmaddr 0x00000001067f8000
+   vmsize 0x0000000000008000
+  fileoff 25718784
+ filesize 4096
+  maxprot rw-
+ initprot rw-
+   nsects 0
+    flags (none)
+Load command 11
+      cmd LC_SEGMENT_64
+  cmdsize 72
+  segname __LINKEDIT
+   vmaddr 0x000000010059e000
+   vmsize 0x00000000000d4000
+  fileoff 25722880
+ filesize 866348
+  maxprot rwx
+ initprot r--
+   nsects 0
+    flags (none)
+Load command 12
+            cmd LC_DYLD_INFO_ONLY
+        cmdsize 48
+     rebase_off 0
+    rebase_size 0
+       bind_off 25722880
+      bind_size 272
+  weak_bind_off 0
+ weak_bind_size 0
+  lazy_bind_off 25723152
+ lazy_bind_size 17408
+     export_off 25740560
+    export_size 75136
+Load command 13
+     cmd LC_SYMTAB
+ cmdsize 24
+  symoff 25822024
+   nsyms 28873
+  stroff 26289924
+ strsize 299304
+Load command 14
+            cmd LC_DYSYMTAB
+        cmdsize 80
+      ilocalsym 0
+      nlocalsym 24777
+     iextdefsym 24777
+     nextdefsym 3353
+      iundefsym 28130
+      nundefsym 743
+         tocoff 0
+           ntoc 0
+      modtaboff 0
+        nmodtab 0
+   extrefsymoff 0
+    nextrefsyms 0
+ indirectsymoff 26283992
+  nindirectsyms 1483
+      extreloff 0
+        nextrel 0
+      locreloff 0
+        nlocrel 0
+Load command 15
+          cmd LC_LOAD_DYLINKER
+      cmdsize 32
+         name /usr/lib/dyld (offset 12)
+Load command 16
+     cmd LC_UUID
+ cmdsize 24
+    uuid 222DD64C-E9A1-3571-9D38-E2DDF3FBAFAD
+Load command 17
+      cmd LC_VERSION_MIN_MACOSX
+  cmdsize 16
+  version 10.6
+      sdk 10.6
+Load command 18
+        cmd LC_UNIXTHREAD
+    cmdsize 184
+     flavor x86_THREAD_STATE64
+      count x86_THREAD_STATE64_COUNT
+   rax  0x0000000000000000 rbx 0x0000000000000000 rcx  0x0000000000000000
+   rdx  0x0000000000000000 rdi 0x0000000000000000 rsi  0x0000000000000000
+   rbp  0x0000000000000000 rsp 0x0000000000000000 r8   0x0000000000000000
+    r9  0x0000000000000000 r10 0x0000000000000000 r11  0x0000000000000000
+   r12  0x0000000000000000 r13 0x0000000000000000 r14  0x0000000000000000
+   r15  0x0000000000000000 rip 0x00000001000023a0
+rflags  0x0000000000000000 cs  0x0000000000000000 fs   0x0000000000000000
+    gs  0x0000000000000000
+Load command 19
+          cmd LC_LOAD_DYLIB
+      cmdsize 56
+         name /opt/local/lib/libintl.8.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 10.3.0
+compatibility version 10.0.0
+Load command 20
+          cmd LC_LOAD_DYLIB
+      cmdsize 56
+         name /opt/local/lib/libtiff.5.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 8.0.0
+compatibility version 8.0.0
+Load command 21
+          cmd LC_LOAD_DYLIB
+      cmdsize 56
+         name /opt/local/lib/libjpeg.9.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 11.0.0
+compatibility version 11.0.0
+Load command 22
+          cmd LC_LOAD_DYLIB
+      cmdsize 64
+         name /opt/local/lib/libpng16.16.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 34.0.0
+compatibility version 34.0.0
+Load command 23
+          cmd LC_LOAD_DYLIB
+      cmdsize 56
+         name /opt/local/lib/libgif.4.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 6.7.0
+compatibility version 6.0.0
+Load command 24
+          cmd LC_LOAD_DYLIB
+      cmdsize 56
+         name /opt/local/lib/libXpm.4.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 16.0.0
+compatibility version 16.0.0
+Load command 25
+          cmd LC_LOAD_DYLIB
+      cmdsize 56
+         name /opt/local/lib/libSM.6.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 7.1.0
+compatibility version 7.0.0
+Load command 26
+          cmd LC_LOAD_DYLIB
+      cmdsize 56
+         name /opt/local/lib/libICE.6.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 10.0.0
+compatibility version 10.0.0
+Load command 27
+          cmd LC_LOAD_DYLIB
+      cmdsize 56
+         name /opt/local/lib/libXmu.6.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 9.0.0
+compatibility version 9.0.0
+Load command 28
+          cmd LC_LOAD_DYLIB
+      cmdsize 56
+         name /opt/local/lib/libX11.6.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 10.0.0
+compatibility version 10.0.0
+Load command 29
+          cmd LC_LOAD_DYLIB
+      cmdsize 64
+         name /opt/local/lib/libXrender.1.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 5.0.0
+compatibility version 5.0.0
+Load command 30
+          cmd LC_LOAD_DYLIB
+      cmdsize 56
+         name /opt/local/lib/libXft.2.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 6.2.0
+compatibility version 6.0.0
+Load command 31
+          cmd LC_LOAD_DYLIB
+      cmdsize 64
+         name /opt/local/lib/libfontconfig.1.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 10.0.0
+compatibility version 10.0.0
+Load command 32
+          cmd LC_LOAD_DYLIB
+      cmdsize 64
+         name /opt/local/lib/libfreetype.6.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 18.4.0
+compatibility version 18.0.0
+Load command 33
+          cmd LC_LOAD_DYLIB
+      cmdsize 64
+         name /opt/local/lib/librsvg-2.2.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 43.8.0
+compatibility version 43.0.0
+Load command 34
+          cmd LC_LOAD_DYLIB
+      cmdsize 64
+         name /opt/local/lib/libgio-2.0.0.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 4401.0.0
+compatibility version 4401.0.0
+Load command 35
+          cmd LC_LOAD_DYLIB
+      cmdsize 72
+         name /opt/local/lib/libgdk_pixbuf-2.0.0.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 3101.3.0
+compatibility version 3101.0.0
+Load command 36
+          cmd LC_LOAD_DYLIB
+      cmdsize 64
+         name /opt/local/lib/libgobject-2.0.0.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 4401.0.0
+compatibility version 4401.0.0
+Load command 37
+          cmd LC_LOAD_DYLIB
+      cmdsize 64
+         name /opt/local/lib/libglib-2.0.0.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 4401.0.0
+compatibility version 4401.0.0
+Load command 38
+          cmd LC_LOAD_DYLIB
+      cmdsize 56
+         name /opt/local/lib/libcairo.2.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 11403.0.0
+compatibility version 11403.0.0
+Load command 39
+          cmd LC_LOAD_DYLIB
+      cmdsize 72
+         name /opt/local/lib/libMagickWand-6.Q16.2.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 3.0.0
+compatibility version 3.0.0
+Load command 40
+          cmd LC_LOAD_DYLIB
+      cmdsize 72
+         name /opt/local/lib/libMagickCore-6.Q16.2.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 3.0.0
+compatibility version 3.0.0
+Load command 41
+          cmd LC_LOAD_DYLIB
+      cmdsize 64
+         name /opt/local/lib/libdbus-1.3.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 12.11.0
+compatibility version 12.0.0
+Load command 42
+          cmd LC_LOAD_DYLIB
+      cmdsize 64
+         name /opt/local/lib/libXrandr.2.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 5.0.0
+compatibility version 5.0.0
+Load command 43
+          cmd LC_LOAD_DYLIB
+      cmdsize 64
+         name /opt/local/lib/libXinerama.1.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 2.0.0
+compatibility version 2.0.0
+Load command 44
+          cmd LC_LOAD_DYLIB
+      cmdsize 64
+         name /opt/local/lib/libXfixes.3.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 5.0.0
+compatibility version 5.0.0
+Load command 45
+          cmd LC_LOAD_DYLIB
+      cmdsize 56
+         name /opt/local/lib/libxml2.2.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 12.2.0
+compatibility version 12.0.0
+Load command 46
+          cmd LC_LOAD_DYLIB
+      cmdsize 64
+         name /opt/local/lib/libncurses.5.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 5.0.0
+compatibility version 5.0.0
+Load command 47
+          cmd LC_LOAD_DYLIB
+      cmdsize 64
+         name /opt/local/lib/libgconf-2.4.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 6.5.0
+compatibility version 6.0.0
+Load command 48
+          cmd LC_LOAD_DYLIB
+      cmdsize 56
+         name /opt/local/lib/libz.1.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 1.2.8
+compatibility version 1.0.0
+Load command 49
+          cmd LC_LOAD_DYLIB
+      cmdsize 56
+         name /opt/local/lib/libbz2.1.0.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 1.0.6
+compatibility version 1.0.0
+Load command 50
+          cmd LC_LOAD_DYLIB
+      cmdsize 56
+         name /opt/local/lib/libotf.0.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 1.0.0
+compatibility version 1.0.0
+Load command 51
+          cmd LC_LOAD_DYLIB
+      cmdsize 64
+         name /opt/local/lib/libgnutls.28.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 70.6.0
+compatibility version 70.0.0
+Load command 52
+          cmd LC_LOAD_DYLIB
+      cmdsize 64
+         name /opt/local/lib/libgcc/libgomp.1.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 2.0.0
+compatibility version 2.0.0
+Load command 53
+          cmd LC_LOAD_DYLIB
+      cmdsize 56
+         name /usr/lib/libSystem.B.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 125.2.11
+compatibility version 1.0.0
+Load command 54
+          cmd LC_LOAD_DYLIB
+      cmdsize 64
+         name /opt/local/lib/libgcc/libgcc_s.1.dylib (offset 24)
+   time stamp 2 Wed Dec 31 19:00:02 1969
+      current version 1.0.0
+compatibility version 1.0.0
+Load command 55
+      cmd LC_FUNCTION_STARTS
+  cmdsize 16
+  dataoff 25815696
+ datasize 6328
+Load command 56
+      cmd LC_DATA_IN_CODE
+  cmdsize 16
+  dataoff 25822024
+ datasize 0

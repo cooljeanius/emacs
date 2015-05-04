@@ -1,4 +1,4 @@
-/* Buffer insertion/deletion and gap motion for GNU Emacs.
+/* insdel.c: Buffer insertion/deletion and gap motion for GNU Emacs.
    Copyright (C) 1985-1986, 1993-1995, 1997-2014 Free Software
    Foundation, Inc.
 
@@ -1904,10 +1904,10 @@ invalidate_buffer_caches (struct buffer *buf, ptrdiff_t start, ptrdiff_t end)
     preserve_marker = Fcopy_marker (make_number (*preserve_ptr), Qnil)
 
 #define RESTORE_VALUE						\
-  if (! NILP (preserve_marker))					\
+  if (! NILP(preserve_marker))					\
     {								\
-      *preserve_ptr = marker_position (preserve_marker);	\
-      unchain_marker (XMARKER (preserve_marker));		\
+      *preserve_ptr = marker_position(preserve_marker); 	\
+      unchain_marker(XMARKER(preserve_marker)); 		\
     }
 
 #define PRESERVE_START_END			\
@@ -1949,40 +1949,40 @@ reset_var_on_error (void *ptr)
    by holding its value temporarily in a marker.  */
 
 static void
-signal_before_change (ptrdiff_t start_int, ptrdiff_t end_int,
-		      ptrdiff_t *preserve_ptr)
+signal_before_change(ptrdiff_t start_int, ptrdiff_t end_int,
+		     ptrdiff_t *preserve_ptr)
 {
   Lisp_Object start, end;
   Lisp_Object start_marker, end_marker;
   Lisp_Object preserve_marker;
   struct gcpro gcpro1, gcpro2, gcpro3;
-  ptrdiff_t count = SPECPDL_INDEX ();
+  ptrdiff_t count = SPECPDL_INDEX();
   struct rvoe_arg rvoe_arg;
 
   if (inhibit_modification_hooks)
     return;
 
-  start = make_number (start_int);
-  end = make_number (end_int);
+  start = make_number(start_int);
+  end = make_number(end_int);
   preserve_marker = Qnil;
   start_marker = Qnil;
   end_marker = Qnil;
-  GCPRO3 (preserve_marker, start_marker, end_marker);
+  GCPRO3(preserve_marker, start_marker, end_marker);
 
-  specbind (Qinhibit_modification_hooks, Qt);
+  specbind(Qinhibit_modification_hooks, Qt);
 
   /* If buffer is unmodified, run a special hook for that case.  The
    check for Vfirst_change_hook is just a minor optimization. */
-  if (SAVE_MODIFF >= MODIFF
-      && !NILP (Vfirst_change_hook))
+  if ((SAVE_MODIFF >= MODIFF)
+      && !NILP(Vfirst_change_hook))
     {
       PRESERVE_VALUE;
       PRESERVE_START_END;
-      Frun_hooks (1, &Qfirst_change_hook);
+      Frun_hooks(1, &Qfirst_change_hook);
     }
 
-  /* Now run the before-change-functions if any.  */
-  if (!NILP (Vbefore_change_functions))
+  /* Now run the before-change-functions if any: */
+  if (!NILP(Vbefore_change_functions))
     {
       Lisp_Object args[3];
       rvoe_arg.location = &Vbefore_change_functions;
@@ -1991,34 +1991,34 @@ signal_before_change (ptrdiff_t start_int, ptrdiff_t end_int,
       PRESERVE_VALUE;
       PRESERVE_START_END;
 
-      /* Mark before-change-functions to be reset to nil in case of error.  */
-      record_unwind_protect_ptr (reset_var_on_error, &rvoe_arg);
+      /* Mark before-change-functions to be reset to nil in case of error: */
+      record_unwind_protect_ptr(reset_var_on_error, &rvoe_arg);
 
-      /* Actually run the hook functions.  */
+      /* Actually run the hook functions: */
       args[0] = Qbefore_change_functions;
       args[1] = FETCH_START;
       args[2] = FETCH_END;
-      Frun_hook_with_args (3, args);
+      Frun_hook_with_args(3, args);
 
-      /* There was no error: unarm the reset_on_error.  */
+      /* There was no error: unarm the reset_on_error: */
       rvoe_arg.errorp = 0;
     }
 
-  if (buffer_has_overlays ())
+  if (buffer_has_overlays())
     {
       PRESERVE_VALUE;
-      report_overlay_modification (FETCH_START, FETCH_END, 0,
-				   FETCH_START, FETCH_END, Qnil);
+      report_overlay_modification(FETCH_START, FETCH_END, 0,
+				  FETCH_START, FETCH_END, Qnil);
     }
 
-  if (! NILP (start_marker))
-    free_marker (start_marker);
-  if (! NILP (end_marker))
-    free_marker (end_marker);
+  if (! NILP(start_marker))
+    free_marker(start_marker);
+  if (! NILP(end_marker))
+    free_marker(end_marker);
   RESTORE_VALUE;
   UNGCPRO;
 
-  unbind_to (count, Qnil);
+  unbind_to(count, Qnil);
 }
 
 /* Signal a change immediately after it happens.
@@ -2193,25 +2193,27 @@ DEFUN ("combine-after-change-execute", Fcombine_after_change_execute,
 }
 
 void
-syms_of_insdel (void)
+syms_of_insdel(void)
 {
-  staticpro (&combine_after_change_list);
-  staticpro (&combine_after_change_buffer);
+  staticpro(&combine_after_change_list);
+  staticpro(&combine_after_change_buffer);
   combine_after_change_list = Qnil;
   combine_after_change_buffer = Qnil;
 
-  DEFVAR_LISP ("combine-after-change-calls", Vcombine_after_change_calls,
-	       doc: /* Used internally by the function `combine-after-change-calls' macro.  */);
+  DEFVAR_LISP("combine-after-change-calls", Vcombine_after_change_calls,
+	      doc: /* Used internally by the function `combine-after-change-calls' macro.  */);
   Vcombine_after_change_calls = Qnil;
 
-  DEFVAR_BOOL ("inhibit-modification-hooks", inhibit_modification_hooks,
-	       doc: /* Non-nil means don't run any of the hooks that respond to buffer changes.
+  DEFVAR_BOOL("inhibit-modification-hooks", inhibit_modification_hooks,
+	      doc: /* Non-nil means don't run any of the hooks that respond to buffer changes.
 This affects `before-change-functions' and `after-change-functions',
 as well as hooks attached to text properties and overlays.  */);
   inhibit_modification_hooks = 0;
-  DEFSYM (Qinhibit_modification_hooks, "inhibit-modification-hooks");
+  DEFSYM(Qinhibit_modification_hooks, "inhibit-modification-hooks");
 
-  DEFSYM (Qregion_extract_function, "region-extract-function");
+  DEFSYM(Qregion_extract_function, "region-extract-function");
 
-  defsubr (&Scombine_after_change_execute);
+  defsubr(&Scombine_after_change_execute);
 }
+
+/* EOF */

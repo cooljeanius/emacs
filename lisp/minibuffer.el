@@ -1884,6 +1884,8 @@ exit."
   (cl-assert (<= start (point)) (<= (point) end))
   (funcall completion-in-region-function start end collection predicate))
 
+;; FIXME: something in abbrev.el needs this, but we need to load abbrev.el
+;; before this file:
 (defcustom read-file-name-completion-ignore-case
   (if (memq system-type '(ms-dos windows-nt darwin cygwin))
       t nil)
@@ -1898,6 +1900,8 @@ This respects the wrapper hook `completion-in-region-functions'."
   (with-wrapper-hook
       ;; FIXME: Maybe we should use this hook to provide a "display
       ;; completions" operation as well.
+      ;; FIXME: `with-wrapper-hook' is an obsolete macro (as of 24.4);
+      ;; use a <foo>-function variable modified by `add-function'.
       completion-in-region-functions (start end collection predicate)
     (let ((minibuffer-completion-table collection)
           (minibuffer-completion-predicate predicate))

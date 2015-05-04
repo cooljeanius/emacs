@@ -1040,16 +1040,16 @@ free_face_fontset (struct frame *f, struct face *face)
    Called from the macro FACE_FOR_CHAR.  */
 
 int
-face_for_char (struct frame *f, struct face *face, int c,
-	       ptrdiff_t pos, Lisp_Object object)
+face_for_char(struct frame *f, struct face *face, int c,
+	      ptrdiff_t pos, Lisp_Object object)
 {
   Lisp_Object fontset, rfont_def, charset;
   int face_id;
   int id;
 
-  eassert (fontset_id_valid_p (face->fontset));
+  eassert(fontset_id_valid_p(face->fontset));
 
-  if (ASCII_CHAR_P (c) || CHAR_BYTE8_P (c))
+  if (ASCII_CHAR_P(c) || CHAR_BYTE8_P(c))
     return face->ascii_face->id;
 
 #ifdef HAVE_NS
@@ -1060,13 +1060,13 @@ face_for_char (struct frame *f, struct face *face, int c,
          in the current face first.  Only enable for NS for now, but should
          perhaps be general?  */
       Lisp_Object font_object;
-      XSETFONT (font_object, face->font);
-      if (font_has_char (f, font_object, c)) return face->id;
+      XSETFONT(font_object, face->font);
+      if (font_has_char(f, font_object, c)) return face->id;
     }
-#endif
+#endif /* HAVE_NS */
 
-  fontset = FONTSET_FROM_ID (face->fontset);
-  eassert (!BASE_FONTSET_P (fontset));
+  fontset = FONTSET_FROM_ID(face->fontset);
+  eassert(!BASE_FONTSET_P(fontset));
 
   if (pos < 0)
     {
@@ -2036,37 +2036,37 @@ format is the same as above.  */)
   Lisp_Object val, elt;
   int c, i, j, k;
 
-  check_window_system (NULL);
-  fontset = check_fontset_name (fontset, &frame);
+  check_window_system(NULL);
+  fontset = check_fontset_name(fontset, &frame);
 
   /* Recode fontsets realized on FRAME from the base fontset FONTSET
      in the table `realized'.  */
-  realized[0] = alloca (word_size * ASIZE (Vfontset_table));
-  for (i = j = 0; i < ASIZE (Vfontset_table); i++)
+  realized[0] = alloca(word_size * ASIZE(Vfontset_table));
+  for (i = j = 0; i < ASIZE(Vfontset_table); i++)
     {
-      elt = FONTSET_FROM_ID (i);
-      if (!NILP (elt)
-	  && EQ (FONTSET_BASE (elt), fontset)
-	  && EQ (FONTSET_FRAME (elt), frame))
+      elt = FONTSET_FROM_ID(i);
+      if (!NILP(elt)
+	  && EQ(FONTSET_BASE(elt), fontset)
+	  && EQ(FONTSET_FRAME(elt), frame))
 	realized[0][j++] = elt;
     }
   realized[0][j] = Qnil;
 
-  realized[1] = alloca (word_size * ASIZE (Vfontset_table));
-  for (i = j = 0; ! NILP (realized[0][i]); i++)
+  realized[1] = alloca(word_size * ASIZE(Vfontset_table));
+  for (i = j = 0; ! NILP(realized[0][i]); i++)
     {
-      elt = FONTSET_DEFAULT (realized[0][i]);
-      if (! NILP (elt))
+      elt = FONTSET_DEFAULT(realized[0][i]);
+      if (! NILP(elt))
 	realized[1][j++] = elt;
     }
   realized[1][j] = Qnil;
 
-  tables[0] = Fmake_char_table (Qfontset_info, Qnil);
+  tables[0] = Fmake_char_table(Qfontset_info, Qnil);
   fontsets[0] = fontset;
-  if (!EQ (fontset, Vdefault_fontset))
+  if (!EQ(fontset, Vdefault_fontset))
     {
-      tables[1] = Fmake_char_table (Qnil, Qnil);
-      set_char_table_extras (tables[0], 0, tables[1]);
+      tables[1] = Fmake_char_table(Qnil, Qnil);
+      set_char_table_extras(tables[0], 0, tables[1]);
       fontsets[1] = Vdefault_fontset;
     }
 
@@ -2080,32 +2080,32 @@ format is the same as above.  */)
 
 	  if (c <= MAX_5_BYTE_CHAR)
 	    {
-	      val = char_table_ref_and_range (fontsets[k], c, &from, &to);
+	      val = char_table_ref_and_range(fontsets[k], c, &from, &to);
 	    }
 	  else
 	    {
-	      val = FONTSET_FALLBACK (fontsets[k]);
+	      val = FONTSET_FALLBACK(fontsets[k]);
 	      to = MAX_CHAR;
 	    }
-	  if (VECTORP (val))
+	  if (VECTORP(val))
 	    {
 	      Lisp_Object alist;
 
 	      /* At first, set ALIST to ((FONT-SPEC) ...).  */
-	      for (alist = Qnil, i = 0; i < ASIZE (val); i++)
-		if (! NILP (AREF (val, i)))
-		  alist = Fcons (Fcons (FONT_DEF_SPEC (AREF (val, i)), Qnil),
-				 alist);
-	      alist = Fnreverse (alist);
+	      for (alist = Qnil, i = 0; i < ASIZE(val); i++)
+		if (! NILP(AREF(val, i)))
+		  alist = Fcons(Fcons(FONT_DEF_SPEC(AREF(val, i)), Qnil),
+                                alist);
+	      alist = Fnreverse(alist);
 
-	      /* Then store opened font names to cdr of each elements.  */
-	      for (i = 0; ! NILP (realized[k][i]); i++)
+	      /* Then store opened font names to cdr of each elements: */
+	      for (i = 0; ! NILP(realized[k][i]); i++)
 		{
 		  if (c <= MAX_5_BYTE_CHAR)
-		    val = FONTSET_REF (realized[k][i], c);
+		    val = FONTSET_REF(realized[k][i], c);
 		  else
-		    val = FONTSET_FALLBACK (realized[k][i]);
-		  if (! CONSP (val) || ! VECTORP (XCDR (val)))
+		    val = FONTSET_FALLBACK(realized[k][i]);
+		  if (! CONSP(val) || ! VECTORP(XCDR(val)))
 		    continue;
 		  /* VAL: (int . [[FACE-ID FONT-DEF FONT-OBJECT int] ... ])  */
 		  val = XCDR (val);

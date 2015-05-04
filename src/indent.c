@@ -1,4 +1,4 @@
-/* Indentation functions.
+/* indent.c: Indentation functions.
    Copyright (C) 1985-1988, 1993-1995, 1998, 2000-2014 Free Software
    Foundation, Inc.
 
@@ -1513,8 +1513,8 @@ compute_motion (ptrdiff_t from, ptrdiff_t frombyte, EMACS_INT fromvpos,
 	    {
 	      /* Is this character part of the current run?  If so, extend
 		 the run.  */
-	      if (pos - 1 == width_run_end
-		  && XFASTINT (width_table[c]) == width_run_width)
+	      if (((pos - 1) == width_run_end)
+		  && (XFASTINT(width_table[c]) == width_run_width))
 		width_run_end = pos;
 
 	      /* The previous run is over, since this is a character at a
@@ -1523,24 +1523,24 @@ compute_motion (ptrdiff_t from, ptrdiff_t frombyte, EMACS_INT fromvpos,
 		{
 		  /* Have we accumulated a run to put in the cache?
 		     (Currently, we only cache runs of width == 1).  */
-		  if (width_run_start < width_run_end
-		      && width_run_width == 1)
-		    know_region_cache (cache_buffer, width_cache,
-				       width_run_start, width_run_end);
+		  if ((width_run_start < width_run_end)
+		      && (width_run_width == 1))
+		    know_region_cache(cache_buffer, width_cache,
+				      width_run_start, width_run_end);
 
-		  /* Start recording a new width run.  */
-		  width_run_width = XFASTINT (width_table[c]);
-		  width_run_start = pos - 1;
+		  /* Start recording a new width run: */
+		  width_run_width = XFASTINT(width_table[c]);
+		  width_run_start = (pos - 1);
 		  width_run_end = pos;
 		}
 	    }
 
-	  if (dp != 0
-	      && ! (multibyte && LEADING_CODE_P (c))
-	      && VECTORP (DISP_CHAR_VECTOR (dp, c)))
+	  if ((dp != 0)
+	      && !(multibyte && LEADING_CODE_P(c))
+	      && VECTORP(DISP_CHAR_VECTOR(dp, c)))
 	    {
-	      charvec = DISP_CHAR_VECTOR (dp, c);
-	      n = ASIZE (charvec);
+	      charvec = DISP_CHAR_VECTOR(dp, c);
+	      n = ASIZE(charvec);
 	    }
 	  else
 	    {
@@ -1959,22 +1959,24 @@ whether or not it is currently displayed in some window.  */)
   struct text_pos pt;
   struct window *w;
   Lisp_Object old_buffer;
-  EMACS_INT old_charpos IF_LINT (= 0), old_bytepos IF_LINT (= 0);
+  EMACS_INT old_charpos IF_LINT(= 0), old_bytepos IF_LINT(= 0);
   struct gcpro gcpro1;
   Lisp_Object lcols = Qnil;
-  double cols IF_LINT (= 0);
+  double cols IF_LINT(= 0);
   void *itdata = NULL;
 
+  it.vpos = 0;
+
   /* Allow LINES to be of the form (HPOS . VPOS) aka (COLUMNS . LINES).  */
-  if (CONSP (lines) && (NUMBERP (XCAR (lines))))
+  if (CONSP(lines) && (NUMBERP(XCAR(lines))))
     {
-      lcols = XCAR (lines);
-      cols = INTEGERP (lcols) ? (double) XINT (lcols) : XFLOAT_DATA (lcols);
-      lines = XCDR (lines);
+      lcols = XCAR(lines);
+      cols = (INTEGERP(lcols) ? (double)XINT(lcols) : XFLOAT_DATA(lcols));
+      lines = XCDR(lines);
     }
 
-  CHECK_NUMBER (lines);
-  w = decode_live_window (window);
+  CHECK_NUMBER(lines);
+  w = decode_live_window(window);
 
   old_buffer = Qnil;
   GCPRO1 (old_buffer);
@@ -2139,31 +2141,30 @@ whether or not it is currently displayed in some window.  */)
       bidi_unshelve_cache (itdata, 0);
     }
 
-  if (BUFFERP (old_buffer))
+  if (BUFFERP(old_buffer))
     {
-      wset_buffer (w, old_buffer);
-      set_marker_both (w->pointm, w->contents,
-		       old_charpos, old_bytepos);
+      wset_buffer(w, old_buffer);
+      set_marker_both(w->pointm, w->contents,
+		      old_charpos, old_bytepos);
     }
 
-  RETURN_UNGCPRO (make_number (it.vpos));
+  RETURN_UNGCPRO(make_number(it.vpos));
 }
-
-
 
-/* File's initialization.  */
-
+/* File's initialization: */
 void
-syms_of_indent (void)
+syms_of_indent(void)
 {
-  DEFVAR_BOOL ("indent-tabs-mode", indent_tabs_mode,
-	       doc: /* Indentation can insert tabs if this is non-nil.  */);
+  DEFVAR_BOOL("indent-tabs-mode", indent_tabs_mode,
+	      doc: /* Indentation can insert tabs if this is non-nil.  */);
   indent_tabs_mode = 1;
 
-  defsubr (&Scurrent_indentation);
-  defsubr (&Sindent_to);
-  defsubr (&Scurrent_column);
-  defsubr (&Smove_to_column);
-  defsubr (&Svertical_motion);
-  defsubr (&Scompute_motion);
+  defsubr(&Scurrent_indentation);
+  defsubr(&Sindent_to);
+  defsubr(&Scurrent_column);
+  defsubr(&Smove_to_column);
+  defsubr(&Svertical_motion);
+  defsubr(&Scompute_motion);
 }
+
+/* EOF */

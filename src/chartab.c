@@ -892,8 +892,8 @@ map_char_table (void (*c_function) (Lisp_Object, Lisp_Object, Lisp_Object),
   struct gcpro gcpro1, gcpro2, gcpro3, gcpro4;
   uniprop_decoder_t decoder = UNIPROP_GET_DECODER (table);
 
-  range = Fcons (make_number (0), make_number (MAX_CHAR));
-  parent = XCHAR_TABLE (table)->parent;
+  range = Fcons(make_number(0), make_number(MAX_CHAR));
+  parent = XCHAR_TABLE(table)->parent;
 
   GCPRO4 (table, arg, range, parent);
   val = XCHAR_TABLE (table)->ascii;

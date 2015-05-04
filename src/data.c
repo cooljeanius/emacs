@@ -3525,8 +3525,8 @@ syms_of_data (void)
 
   error_tail = pure_cons (Qerror, Qnil);
 
-  /* ERROR is used as a signaler for random errors for which nothing else is
-     right.  */
+  /* ERROR is used as a signaler for random errors for which nothing else
+   * is right.  */
 
   Fput (Qerror, Qerror_conditions,
 	error_tail);

@@ -1877,9 +1877,9 @@ produce_glyphless_glyph (struct it *it, Lisp_Object acronym)
    FACE_ID is a realized face ID number, in the face cache.  */
 
 static void
-turn_on_face (struct frame *f, int face_id)
+turn_on_face(struct frame *f, int face_id)
 {
-  struct face *face = FACE_FROM_ID (f, face_id);
+  struct face *face = FACE_FROM_ID(f, face_id);
   unsigned long fg = face->foreground;
   unsigned long bg = face->background;
   struct tty_display_info *tty = FRAME_TTY (f);
@@ -3673,15 +3673,15 @@ tty_menu_show (struct frame *f, int x, int y, bool for_click, bool keymaps,
 	}
     }
 
-  maxlines = max (maxlines, lines);
+  maxlines = max(maxlines, lines);
 
   /* All set and ready to fly.  */
   dispwidth = f->text_cols;
   dispheight = f->text_lines;
-  x = min (x, dispwidth);
-  y = min (y, dispheight);
-  x = max (x, 1);
-  y = max (y, 1);
+  x = min(x, dispwidth);
+  y = min(y, dispheight);
+  x = max(x, 1);
+  y = max(y, 1);
   tty_menu_locate (menu, x, y, &ulx, &uly, &width, &height);
   if (ulx + width > dispwidth)
     {

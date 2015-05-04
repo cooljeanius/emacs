@@ -700,47 +700,39 @@ while (0)
 
 /* Terminate CCL program successfully.  */
 #define CCL_SUCCESS			\
-do					\
-  {					\
+  do {					\
     ccl->status = CCL_STAT_SUCCESS;	\
     goto ccl_finish;			\
-  }					\
-while (0)
+  } while (0)
 
 /* Suspend CCL program because of reading from empty input buffer or
    writing to full output buffer.  When this program is resumed, the
    same I/O command is executed.  */
 #define CCL_SUSPEND(stat)	\
-do				\
-  {				\
+  do {				\
     ic--;			\
     ccl->status = stat;		\
     goto ccl_finish;		\
-  }				\
-while (0)
+  } while (0)
 
 /* Terminate CCL program because of invalid command.  Should not occur
    in the normal case.  */
 #ifndef CCL_DEBUG
 
 #define CCL_INVALID_CMD		     	\
-do					\
-  {				     	\
+  do {				     	\
     ccl->status = CCL_STAT_INVALID_CMD;	\
     goto ccl_error_handler;	     	\
-  }					\
-while (0)
+  } while (0)
 
 #else
 
 #define CCL_INVALID_CMD		     	\
-do					\
-  {				     	\
+  do {				     	\
     ccl_debug_hook (this_ic);		\
     ccl->status = CCL_STAT_INVALID_CMD;	\
     goto ccl_error_handler;	     	\
-  }					\
-while (0)
+  } while (0)
 
 #endif
 
@@ -749,14 +741,12 @@ while (0)
 #define ASCENDING_ORDER(lo, med, hi) (((lo) <= (med)) & ((med) <= (hi)))
 
 #define GET_CCL_RANGE(var, ccl_prog, ic, lo, hi)		\
-  do								\
-    {								\
+  do {								\
       EMACS_INT prog_word = XINT ((ccl_prog)[ic]);		\
       if (! ASCENDING_ORDER (lo, prog_word, hi))		\
 	CCL_INVALID_CMD;					\
       (var) = prog_word;					\
-    }								\
-  while (0)
+  } while (0)
 
 #define GET_CCL_CODE(code, ccl_prog, ic)			\
   GET_CCL_RANGE (code, ccl_prog, ic, CCL_CODE_MIN, CCL_CODE_MAX)
@@ -811,7 +801,7 @@ while (0)
       }						\
     else					\
       CCL_SUSPEND (CCL_STAT_SUSPEND_BY_SRC);	\
-    } while (0)
+  } while (0)
 
 /* Decode CODE by a charset whose id is ID.  If ID is 0, return CODE
    as is for backward compatibility.  Assume that we can use the
@@ -1937,12 +1927,12 @@ setup_ccl_program (struct ccl_program *ccl, Lisp_Object ccl_prog)
       ccl->prog = vp->contents;
       ccl->eof_ic = XINT (vp->contents[CCL_HEADER_EOF]);
       ccl->buf_magnification = XINT (vp->contents[CCL_HEADER_BUF_MAG]);
-      if (ccl->idx >= 0)
+      if ((ccl != NULL) && (ccl->idx >= 0))
 	{
 	  Lisp_Object slot;
 
-	  slot = AREF (Vccl_program_table, ccl->idx);
-	  ASET (slot, 3, Qnil);
+	  slot = AREF(Vccl_program_table, ccl->idx);
+	  ASET(slot, 3, Qnil);
 	}
     }
   ccl->ic = CCL_HEADER_MAIN;

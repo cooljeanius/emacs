@@ -1,4 +1,4 @@
-/* Manipulation of keymaps
+/* keymap.c: Manipulation of keymaps
    Copyright (C) 1985-1988, 1993-1995, 1998-2014 Free Software
    Foundation, Inc.
 
@@ -3246,10 +3246,14 @@ describe_map (Lisp_Object map, Lisp_Object prefix,
 
   map = call1 (Qkeymap_canonicalize, map);
 
-  for (tail = map; CONSP (tail); tail = XCDR (tail))
+  for (tail = map; CONSP(tail); tail = XCDR(tail))
     length_needed++;
 
-  vect = alloca (length_needed * sizeof *vect);
+  if (length_needed == 0) {
+    length_needed++;
+  }
+
+  vect = alloca(length_needed * sizeof(*vect));
 
   for (tail = map; CONSP (tail); tail = XCDR (tail))
     {
@@ -3837,3 +3841,5 @@ keys_of_keymap (void)
   initial_define_key (global_map, 033, "ESC-prefix");
   initial_define_key (global_map, Ctl ('X'), "Control-X-prefix");
 }
+
+/* EOF */

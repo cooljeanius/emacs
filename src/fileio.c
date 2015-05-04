@@ -3441,6 +3441,8 @@ by calling `format-decode', which see.  */)
   bool we_locked_file = 0;
   ptrdiff_t fd_index;
 
+  coding.common_flags = 0;
+
   if (current_buffer->base_buffer && ! NILP (visit))
     error ("Cannot do file visiting in an indirect buffer");
 

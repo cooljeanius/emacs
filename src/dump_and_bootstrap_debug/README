@@ -1,0 +1,10 @@
+The output of various commands listed in unexdyld.c and unexmacosx.c get
+put in this directory. Ones with no difference between them get deleted. 
+Otherwise their diff gets saved here as well. So far:
+
+ * `nm -m`: no difference
+ * `nm -map`: likewise (same)
+ * `nm -maxp`: likewise (same)
+ * `otool -l`: Yup, they were different...
+ * `otool -lv`: likewise (different)
+ * `size -m -x -l`: likewise (different)

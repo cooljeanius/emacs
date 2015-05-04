@@ -558,16 +558,16 @@ x_get_resource (XrmDatabase rdb, const char *name, const char *class,
   XrmClass classlist[100];
   XrmRepresentation type;
 
-  XrmStringToNameList (name, namelist);
-  XrmStringToClassList (class, classlist);
+  XrmStringToNameList(name, namelist);
+  XrmStringToClassList(class, classlist);
 
-  if (XrmQGetResource (rdb, namelist, classlist, &type, &value) == True
+  if ((XrmQGetResource(rdb, namelist, classlist, &type, &value) == True)
       && (type == expected_type))
     {
       if (type == x_rm_string)
-	ret_value->addr = (char *) value.addr;
+	ret_value->addr = (char *)value.addr;
       else
-	memcpy (ret_value->addr, value.addr, ret_value->size);
+	memcpy(ret_value->addr, value.addr, ret_value->size);
 
       return value.size;
     }

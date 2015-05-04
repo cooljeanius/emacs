@@ -371,7 +371,8 @@ verify_row_hash (struct glyph_row *row)
    leads to screen flickering.  */
 
 static void
-adjust_glyph_matrix (struct window *w, struct glyph_matrix *matrix, int x, int y, struct dim dim)
+adjust_glyph_matrix(struct window *w, struct glyph_matrix *matrix,
+                    int x, int y, struct dim dim)
 {
   int i;
   int new_rows;
@@ -385,9 +386,9 @@ adjust_glyph_matrix (struct window *w, struct glyph_matrix *matrix, int x, int y
      Get W's size.  */
   if (w)
     {
-      window_box (w, ANY_AREA, 0, 0, &window_width, &window_height);
+      window_box(w, ANY_AREA, 0, 0, &window_width, &window_height);
 
-      header_line_p = WINDOW_WANTS_HEADER_LINE_P (w);
+      header_line_p = WINDOW_WANTS_HEADER_LINE_P(w);
       header_line_changed_p = header_line_p != matrix->header_line_p;
     }
   matrix->header_line_p = header_line_p;
@@ -398,9 +399,9 @@ adjust_glyph_matrix (struct window *w, struct glyph_matrix *matrix, int x, int y
      the matrix means preventing redisplay.  */
   if (matrix->pool == NULL)
     {
-      left = margin_glyphs_to_reserve (w, dim.width, w->left_margin_cols);
-      right = margin_glyphs_to_reserve (w, dim.width, w->right_margin_cols);
-      eassert (left >= 0 && right >= 0);
+      left = margin_glyphs_to_reserve(w, dim.width, w->left_margin_cols);
+      right = margin_glyphs_to_reserve(w, dim.width, w->right_margin_cols);
+      eassert(left >= 0 && right >= 0);
       marginal_areas_changed_p = (left != matrix->left_margin_glyphs
 				  || right != matrix->right_margin_glyphs);
 
@@ -4744,21 +4745,20 @@ count_match (struct glyph *str1, struct glyph *end1, struct glyph *str2, struct 
 #define char_ins_del_cost(f) (&char_ins_del_vector[FRAME_TOTAL_COLS ((f))])
 
 
-/* Perform a frame-based update on line VPOS in frame FRAME.  */
-
+/* Perform a frame-based update on line VPOS in frame FRAME: */
 static void
-update_frame_line (struct frame *f, int vpos)
+update_frame_line(struct frame *f, int vpos)
 {
   struct glyph *obody, *nbody, *op1, *op2, *np1, *nend;
   int tem;
   int osp, nsp, begmatch, endmatch, olen, nlen;
   struct glyph_matrix *current_matrix = f->current_matrix;
   struct glyph_matrix *desired_matrix = f->desired_matrix;
-  struct glyph_row *current_row = MATRIX_ROW (current_matrix, vpos);
-  struct glyph_row *desired_row = MATRIX_ROW (desired_matrix, vpos);
+  struct glyph_row *current_row = MATRIX_ROW(current_matrix, vpos);
+  struct glyph_row *desired_row = MATRIX_ROW(desired_matrix, vpos);
   bool must_write_whole_line_p;
-  bool write_spaces_p = FRAME_MUST_WRITE_SPACES (f);
-  bool colored_spaces_p = (FACE_FROM_ID (f, DEFAULT_FACE_ID)->background
+  bool write_spaces_p = FRAME_MUST_WRITE_SPACES(f);
+  bool colored_spaces_p = (FACE_FROM_ID(f, DEFAULT_FACE_ID)->background
 			   != FACE_TTY_DEFAULT_BG_COLOR);
 
   if (colored_spaces_p)
@@ -4774,12 +4774,12 @@ update_frame_line (struct frame *f, int vpos)
     }
   else
     {
-      obody = MATRIX_ROW_GLYPH_START (current_matrix, vpos);
+      obody = MATRIX_ROW_GLYPH_START(current_matrix, vpos);
       olen = current_row->used[TEXT_AREA];
 
       /* Ignore trailing spaces, if we can.  */
       if (!write_spaces_p)
-	while (olen > 0 && CHAR_GLYPH_SPACE_P (obody[olen-1]))
+	while ((olen > 0) && CHAR_GLYPH_SPACE_P(obody[olen - 1]))
 	  olen--;
     }
 

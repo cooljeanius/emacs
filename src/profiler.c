@@ -132,42 +132,42 @@ static void evict_lower_half (log_t *log)
    current backtrace: interrupt counts for CPU, and the allocation
    size for memory.  */
 static void
-record_backtrace (log_t *log, EMACS_INT count)
+record_backtrace(log_t *log, EMACS_INT count)
 {
   Lisp_Object backtrace;
   ptrdiff_t index;
 
-  if (!INTEGERP (log->next_free))
+  if (!INTEGERP(log->next_free))
     /* FIXME: transfer the evicted counts to a special entry rather
        than dropping them on the floor.  */
-    evict_lower_half (log);
-  index = XINT (log->next_free);
+    evict_lower_half(log);
+  index = XINT(log->next_free);
 
   /* Get a "working memory" vector.  */
-  backtrace = HASH_KEY (log, index);
-  get_backtrace (backtrace);
+  backtrace = HASH_KEY(log, index);
+  get_backtrace(backtrace);
 
   { /* We basically do a `gethash+puthash' here, except that we have to be
        careful to avoid memory allocation since we're in a signal
        handler, and we optimize the code to try and avoid computing the
        hash+lookup twice.  See fns.c:Fputhash for reference.  */
     EMACS_UINT hash;
-    ptrdiff_t j = hash_lookup (log, backtrace, &hash);
+    ptrdiff_t j = hash_lookup(log, backtrace, &hash);
     if (j >= 0)
       {
-	EMACS_INT old_val = XINT (HASH_VALUE (log, j));
-	EMACS_INT new_val = saturated_add (old_val, count);
-	set_hash_value_slot (log, j, make_number (new_val));
+	EMACS_INT old_val = XINT(HASH_VALUE(log, j));
+	EMACS_INT new_val = saturated_add(old_val, count);
+	set_hash_value_slot(log, j, make_number(new_val));
       }
     else
       { /* BEWARE!  hash_put in general can allocate memory.
 	   But currently it only does that if log->next_free is nil.  */
 	int j;
-	eassert (!NILP (log->next_free));
-	j = hash_put (log, backtrace, make_number (count), hash);
+	eassert(!NILP(log->next_free));
+	j = hash_put(log, backtrace, make_number(count), hash);
 	/* Let's make sure we've put `backtrace' right where it
 	   already was to start with.  */
-	eassert (index == j);
+	eassert(index == j);
 
 	/* FIXME: If the hash-table is almost full, we should set
 	   some global flag so that some Elisp code can offload its
@@ -274,7 +274,7 @@ setup_cpu_timer (Lisp_Object sampling_interval)
 # ifdef CLOCK_THREAD_CPUTIME_ID
 	CLOCK_THREAD_CPUTIME_ID,
 # endif /* CLOCK_THREAD_CPUTIME_ID */
-# ifdef CLOCK_PROCESS_CPUTIME_ID 
+# ifdef CLOCK_PROCESS_CPUTIME_ID
 	CLOCK_PROCESS_CPUTIME_ID,
 # endif /* CLOCK_PROCESS_CPUTIME_ID */
 # ifdef CLOCK_MONOTONIC

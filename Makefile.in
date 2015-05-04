@@ -1220,10 +1220,14 @@ src/version.h: version.rb
 	ruby version.rb emacs > src/version.h
 
 isemacsvalid.o: isemacsvalid.c dumpemacs.h
-	$(CC) -c $(CFLAGS) $(CPPFLAGS) -o $@ isemacsvalid.c
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) -Wall -Wextra -o $@ isemacsvalid.c
+
+isemacsvalid: isemacsvalid.c dumpemacs.h
+	$(CC) $(CFLAGS) $(CPPFLAGS) -DSTANDALONE_ISEMACSVALID $(LDFLAGS) \
+	  -Wall -Wextra -g -o $@ isemacsvalid.c
 
 runit.o: runit.c dumpemacs.h
-	$(CC) -c $(CFLAGS) $(CPPFLAGS) -o $@ runit.c
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) -Wall -Wextra -o $@ runit.c
 
 GNUVersion = 22.1
 @ifGNUmake@VERSIONDEFFLAG = -DkEmacsVersion=$(patsubst %,'"%"', $(GNUVersion))
@@ -1232,21 +1236,22 @@ VERSIONDEFFLAG = -DkEmacsVersion=\"$(version)\"
 @ifGNUmake@endif
 
 dumpemacs.o: bo.h dumpemacs.c dumpemacs.h src/version.h
-	$(CC) -I. $(VERSIONDEFFLAG) $(CFLAGS) -o $@ -g -c dumpemacs.c
+	$(CC) -I. $(VERSIONDEFFLAG) $(CFLAGS) -Wall -o $@ -g -c dumpemacs.c
 
 dumpemacs: dumpemacs.o runit.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ -g $^
 
 emacswrapper.o: emacswrapper.c dumpemacs.h
-	$(CC) -c $(CFLAGS) $(CPPFLAGS) -o $@ emacswrapper.c
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) -Wall -Wextra -o $@ emacswrapper.c
 
 emacswrapper: emacswrapper.o isemacsvalid.o runit.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ -g $^
 
 # umbrella target for the above:
-apple_helper_executables: dumpemacs emacswrapper
+apple_helper_executables: dumpemacs emacswrapper isemacsvalid
 	stat dumpemacs
 	stat emacswrapper
+	stat isemacsvalid
 .PHONY: apple_helper_executables
 
 ### To avoid lisp byte-compilation errors, try this:
@@ -1263,7 +1268,7 @@ gnulib_headers: lib/Makefile
 
 ### Targets for in case we convert to automake:
 clean-local:
-	rm -f bo.h dumpemacs emacswrapper *.o
+	rm -f bo.h dumpemacs emacswrapper isemacsvalid *.o
 .PHONY: clean-local
 
 distclean-local: clean-local

@@ -1381,7 +1381,7 @@ Optional third argument DEUNIFY, if non-nil, means to de-unify CHARSET.  */)
 	  || CHARSET_CODE_OFFSET (cs) < 0x110000)
 	error ("Can't unify charset: %s", SDATA (SYMBOL_NAME (charset)));
       if (NILP (unify_map))
-	unify_map = CHARSET_UNIFY_MAP (cs);
+	unify_map = CHARSET_UNIFY_MAP(cs);
       else
 	{
 	  if (! STRINGP (unify_map) && ! VECTORP (unify_map))
@@ -2261,7 +2261,7 @@ See also `charset-priority-list' and `set-charset-priority'.  */)
   ptrdiff_t n = XFASTINT (len), i, j;
   int done;
   Lisp_Object tail, elt, attrs;
-  struct charset_sort_data *sort_data;
+  struct charset_sort_data *sort_data = (struct charset_sort_data *)NULL;
   int id, min_id = INT_MAX, max_id = INT_MIN;
   USE_SAFE_ALLOCA;
 

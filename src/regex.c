@@ -5200,10 +5200,10 @@ re_match_2_internal (struct re_pattern_buffer *bufp, const_re_char *string1,
 		     For example, the pattern `x.*y.*z' against the
 		     strings `x-' and `y-z-', if the two strings are
 		     not consecutive in memory.  */
-		  DEBUG_PRINT ("Restoring best registers.\n");
+		  DEBUG_PRINT("Restoring best registers.\n");
 
 		  d = match_end;
-		  dend = ((d >= string1 && d <= end1)
+		  dend = (((d >= string1) && (d <= end1))
 			   ? end_match_1 : end_match_2);
 
 		  for (reg = 1; reg < num_regs; reg++)
@@ -5215,7 +5215,7 @@ re_match_2_internal (struct re_pattern_buffer *bufp, const_re_char *string1,
 	    } /* d != end_match_2 */
 
 	succeed_label:
-	  DEBUG_PRINT ("Accepting match.\n");
+	  DEBUG_PRINT("Accepting match.\n");
 
 	  /* If caller wants register contents data back, do it.  */
 	  if (regs && !bufp->no_sub)

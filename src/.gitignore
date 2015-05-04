@@ -27,3 +27,6 @@ emacs
 emacs-[0-9]*
 bootstrap-emacs
 prefix-args
+
+# static analysis output:
+clang_static_analysis/*

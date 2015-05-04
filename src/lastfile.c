@@ -1,6 +1,6 @@
-/* Mark end of data space to dump as pure, for GNU Emacs.
-   Copyright (C) 1985, 2001-2014 Free Software Foundation, Inc.
-
+/* lastfile.c: Mark end of data space to dump as pure, for GNU Emacs.
+ * Copyright (C) 1985, 2001-2014 Free Software Foundation, Inc.  */
+/*
 This file is part of GNU Emacs.
 
 GNU Emacs is free software: you can redistribute it and/or modify
@@ -47,3 +47,5 @@ char my_endbss[1];
    of the bss area used by Emacs.  */
 static char _my_endbss[1];
 char * my_endbss_static = _my_endbss;
+
+/* EOF */

@@ -1584,20 +1584,20 @@ for instance using the window manager, then this produces a quit and
     Lisp_Object x, y, frame, newpos, prompt;
     int x_coord, y_coord;
 
-    prompt = Fcar (contents);
-    if (FRAME_WINDOW_P (f))
+    prompt = Fcar(contents);
+    if (FRAME_WINDOW_P(f))
       {
-	x_coord = FRAME_PIXEL_WIDTH (f);
-	y_coord = FRAME_PIXEL_HEIGHT (f);
+	x_coord = FRAME_PIXEL_WIDTH(f);
+	y_coord = FRAME_PIXEL_HEIGHT(f);
       }
     else
       {
-	x_coord = FRAME_COLS (f);
+	x_coord = FRAME_COLS(f);
 	/* Center the title at frame middle.  (TTY menus have their
 	   upper-left corner at the given position.)  */
-	if (STRINGP (prompt))
-	  x_coord -= SCHARS (prompt);
-	y_coord = FRAME_LINES (f);
+	if (STRINGP(prompt))
+	  x_coord -= SCHARS(prompt);
+	y_coord = FRAME_LINES(f);
       }
     XSETFRAME (frame, f);
     XSETINT (x, x_coord / 2);

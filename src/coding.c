@@ -7590,32 +7590,32 @@ handle_charset_annotation (ptrdiff_t pos, ptrdiff_t limit,
 
 
 static void
-consume_chars (struct coding_system *coding, Lisp_Object translation_table,
-	       int max_lookup)
+consume_chars(struct coding_system *coding, Lisp_Object translation_table,
+	      int max_lookup)
 {
   int *buf = coding->charbuf;
-  int *buf_end = coding->charbuf + coding->charbuf_size;
-  const unsigned char *src = coding->source + coding->consumed;
-  const unsigned char *src_end = coding->source + coding->src_bytes;
-  ptrdiff_t pos = coding->src_pos + coding->consumed_char;
-  ptrdiff_t end_pos = coding->src_pos + coding->src_chars;
+  int *buf_end = (coding->charbuf + coding->charbuf_size);
+  const unsigned char *src = (coding->source + coding->consumed);
+  const unsigned char *src_end = (coding->source + coding->src_bytes);
+  ptrdiff_t pos = (coding->src_pos + coding->consumed_char);
+  ptrdiff_t end_pos = (coding->src_pos + coding->src_chars);
   bool multibytep = coding->src_multibyte;
   Lisp_Object eol_type;
   int c;
   ptrdiff_t stop, stop_composition, stop_charset;
   int *lookup_buf = NULL;
 
-  if (! NILP (translation_table))
-    lookup_buf = alloca (sizeof (int) * max_lookup);
+  if (! NILP(translation_table))
+    lookup_buf = alloca(sizeof(int) * max_lookup);
 
-  eol_type = inhibit_eol_conversion ? Qunix : CODING_ID_EOL_TYPE (coding->id);
-  if (VECTORP (eol_type))
+  eol_type = (inhibit_eol_conversion ? Qunix : CODING_ID_EOL_TYPE(coding->id));
+  if (VECTORP(eol_type))
     eol_type = Qunix;
 
-  /* Note: composition handling is not yet implemented.  */
+  /* Note: composition handling is not yet implemented: */
   coding->common_flags &= ~CODING_ANNOTATE_COMPOSITION_MASK;
 
-  if (NILP (coding->src_object))
+  if (NILP(coding->src_object))
     stop = stop_composition = stop_charset = end_pos;
   else
     {
@@ -7629,8 +7629,8 @@ consume_chars (struct coding_system *coding, Lisp_Object translation_table,
 	stop_charset = end_pos;
     }
 
-  /* Compensate for CRLF and conversion.  */
-  buf_end -= 1 + MAX_ANNOTATION_LENGTH;
+  /* Compensate for CRLF and conversion: */
+  buf_end -= (1 + MAX_ANNOTATION_LENGTH);
   while (buf < buf_end)
     {
       Lisp_Object trans;
@@ -7640,12 +7640,12 @@ consume_chars (struct coding_system *coding, Lisp_Object translation_table,
 	  if (pos == end_pos)
 	    break;
 	  if (pos == stop_composition)
-	    buf = handle_composition_annotation (pos, end_pos, coding,
-						 buf, &stop_composition);
+	    buf = handle_composition_annotation(pos, end_pos, coding,
+                                                buf, &stop_composition);
 	  if (pos == stop_charset)
-	    buf = handle_charset_annotation (pos, end_pos, coding,
-					     buf, &stop_charset);
-	  stop = (stop_composition < stop_charset
+	    buf = handle_charset_annotation(pos, end_pos, coding,
+					    buf, &stop_charset);
+	  stop = ((stop_composition < stop_charset)
 		  ? stop_composition : stop_charset);
 	}
 
@@ -7653,23 +7653,23 @@ consume_chars (struct coding_system *coding, Lisp_Object translation_table,
 	{
 	  int bytes;
 
-	  if (coding->encoder == encode_coding_raw_text
-	      || coding->encoder == encode_coding_ccl)
+	  if ((coding->encoder == encode_coding_raw_text)
+	      || (coding->encoder == encode_coding_ccl))
 	    c = *src++, pos++;
-	  else if ((bytes = MULTIBYTE_LENGTH (src, src_end)) > 0)
-	    c = STRING_CHAR_ADVANCE_NO_UNIFY (src), pos += bytes;
+	  else if ((bytes = MULTIBYTE_LENGTH(src, src_end)) > 0)
+	    c = STRING_CHAR_ADVANCE_NO_UNIFY(src), pos += bytes;
 	  else
-	    c = BYTE8_TO_CHAR (*src), src++, pos++;
+	    c = BYTE8_TO_CHAR(*src), src++, pos++;
 	}
       else
-	c = STRING_CHAR_ADVANCE_NO_UNIFY (src), pos++;
+	c = STRING_CHAR_ADVANCE_NO_UNIFY(src), pos++;
       if ((c == '\r') && (coding->mode & CODING_MODE_SELECTIVE_DISPLAY))
 	c = '\n';
-      if (! EQ (eol_type, Qunix))
+      if (! EQ(eol_type, Qunix))
 	{
 	  if (c == '\n')
 	    {
-	      if (EQ (eol_type, Qdos))
+	      if (EQ(eol_type, Qdos))
 		*buf++ = '\r';
 	      else
 		c = '\r';
@@ -7677,8 +7677,8 @@ consume_chars (struct coding_system *coding, Lisp_Object translation_table,
 	}
 
       trans = Qnil;
-      LOOKUP_TRANSLATION_TABLE (translation_table, c, trans);
-      if (NILP (trans))
+      LOOKUP_TRANSLATION_TABLE(translation_table, c, trans);
+      if (NILP(trans))
 	*buf++ = c;
       else
 	{
@@ -7688,39 +7688,39 @@ consume_chars (struct coding_system *coding, Lisp_Object translation_table,
 	  int i;
 
 	  lookup_buf[0] = c;
-	  for (i = 1; i < max_lookup && p < src_end; i++)
-	    lookup_buf[i] = STRING_CHAR_ADVANCE (p);
-	  lookup_buf_end = lookup_buf + i;
-	  trans = get_translation (trans, lookup_buf, lookup_buf_end);
-	  if (INTEGERP (trans))
-	    c = XINT (trans);
-	  else if (CONSP (trans))
+	  for (i = 1; (i < max_lookup) && (p < src_end); i++)
+	    lookup_buf[i] = STRING_CHAR_ADVANCE(p);
+	  lookup_buf_end = (lookup_buf + i);
+	  trans = get_translation(trans, lookup_buf, lookup_buf_end);
+	  if (INTEGERP(trans))
+	    c = XINT(trans);
+	  else if (CONSP(trans))
 	    {
-	      from_nchars = ASIZE (XCAR (trans));
-	      trans = XCDR (trans);
-	      if (INTEGERP (trans))
-		c = XINT (trans);
+	      from_nchars = ASIZE(XCAR(trans));
+	      trans = XCDR(trans);
+	      if (INTEGERP(trans))
+		c = XINT(trans);
 	      else
 		{
-		  to_nchars = ASIZE (trans);
-		  if (buf_end - buf < to_nchars)
+		  to_nchars = ASIZE(trans);
+		  if ((buf_end - buf) < to_nchars)
 		    break;
-		  c = XINT (AREF (trans, 0));
+		  c = XINT(AREF(trans, 0));
 		}
 	    }
 	  else
 	    break;
 	  *buf++ = c;
 	  for (i = 1; i < to_nchars; i++)
-	    *buf++ = XINT (AREF (trans, i));
+	    *buf++ = XINT(AREF(trans, i));
 	  for (i = 1; i < from_nchars; i++, pos++)
-	    src += MULTIBYTE_LENGTH_NO_CHECK (src);
+	    src += MULTIBYTE_LENGTH_NO_CHECK(src);
 	}
     }
 
-  coding->consumed = src - coding->source;
-  coding->consumed_char = pos - coding->src_pos;
-  coding->charbuf_used = buf - coding->charbuf;
+  coding->consumed = (src - coding->source);
+  coding->consumed_char = (pos - coding->src_pos);
+  coding->charbuf_used = (buf - coding->charbuf);
   coding->chars_at_source = 0;
 }
 
@@ -8583,12 +8583,12 @@ detect_coding_system (const unsigned char *src,
   enum coding_category base_category;
   bool null_byte_found = 0, eight_bit_found = 0;
 
-  if (NILP (coding_system))
+  if (NILP(coding_system))
     coding_system = Qundecided;
   setup_coding_system (coding_system, &coding);
-  attrs = CODING_ID_ATTRS (coding.id);
-  eol_type = CODING_ID_EOL_TYPE (coding.id);
-  coding_system = CODING_ATTR_BASE_NAME (attrs);
+  attrs = CODING_ID_ATTRS(coding.id);
+  eol_type = CODING_ID_EOL_TYPE(coding.id);
+  coding_system = CODING_ATTR_BASE_NAME(attrs);
 
   coding.source = src;
   coding.src_chars = src_chars;
