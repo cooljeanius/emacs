@@ -61,12 +61,19 @@ typedef bool bool_bf;
 # define __has_feature(a) false
 #endif /* !__has_feature */
 
-/* True if addresses are being sanitized.  */
-#if defined __SANITIZE_ADDRESS__ || __has_feature (address_sanitizer)
-# define ADDRESS_SANITIZER true
-#else
-# define ADDRESS_SANITIZER false
-#endif /* ASAN */
+/* True if addresses are being sanitized: */
+#ifndef ADDRESS_SANITIZER
+# if defined __SANITIZE_ADDRESS__ || __has_feature (address_sanitizer)
+#  define ADDRESS_SANITIZER true
+# else
+#  if defined(_STDBOOL_H_) && defined(__clang__)
+/* "false" does not work as a valid preprocessor expression for clang: */
+#   define ADDRESS_SANITIZER 0
+#  else
+#   define ADDRESS_SANITIZER false
+#  endif /* _STDBOOL_H_ && __clang__ */
+# endif /* ASAN */
+#endif /* !ADDRESS_SANITIZER */
 
 #ifdef DARWIN_OS
 /* in case "config.h" failed to define this: */
@@ -241,7 +248,7 @@ extern void _DebPrint (const char *fmt, ...);
    and clang 3.3, the latest releases as of December 2013, and the
    only platforms known to support address sanitization.  When the bug
    is fixed the #if can be updated accordingly.  */
-#if ADDRESS_SANITIZER
+#if defined(ADDRESS_SANITIZER) && ADDRESS_SANITIZER
 # define ADDRESS_SANITIZER_WORKAROUND NO_INLINE
 #else
 # define ADDRESS_SANITIZER_WORKAROUND

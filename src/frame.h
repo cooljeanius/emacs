@@ -77,6 +77,9 @@ enum fullscreen_type
   FULLSCREEN_HEIGHT    = 0x002,
   FULLSCREEN_BOTH      = 0x003,
   FULLSCREEN_MAXIMIZED = 0x013,
+#if defined(HAVE_CARBON)
+  FULLSCREEN_DEDICATED_DESKTOP = 0x023,
+#endif /* HAVE_CARBON */
   FULLSCREEN_WAIT      = 0x100
 };
 
@@ -286,10 +289,10 @@ struct frame
   /* (used to be 'unsigned minimize_tool_bar_window_p : 1;' below) */
 #endif /* HAVE_WINDOW_SYSTEM && !USE_GTK && !HAVE_NS */
 
-#if defined (USE_GTK) || defined (HAVE_NS)
+#if defined(USE_GTK) || defined(HAVE_CARBON) || defined(HAVE_NS)
   /* True means using a tool bar that comes from the toolkit.  */
   bool_bf external_tool_bar : 1;
-#endif /* USE_GTK || HAVE_NS */
+#endif /* USE_GTK || HAVE_CARBON || HAVE_NS */
 
   /* True means that fonts have been loaded since the last glyph
      matrix adjustments.  */
@@ -459,7 +462,7 @@ struct frame
   int wait_event_type;
 #endif /* HAVE_X_WINDOWS */
 
-#if defined(USE_X_TOOLKIT) || defined(HAVE_NTGUI) \
+#if defined(USE_X_TOOLKIT) || defined(HAVE_NTGUI) || defined(HAVE_CARBON) \
     || defined(HAVE_NS) || defined(USE_GTK)
   /* True means using a menu bar that comes from the X toolkit: */
   bool_bf external_menu_bar : 1;
@@ -890,11 +893,11 @@ default_pixels_per_inch_y (void)
 
 /* True if this frame should display a tool bar
    in a way that does not use any text lines.  */
-#if defined (USE_GTK) || defined (HAVE_NS)
-#define FRAME_EXTERNAL_TOOL_BAR(f) (f)->external_tool_bar
+#if defined(USE_GTK) || defined(HAVE_CARBON) || defined(HAVE_NS)
+# define FRAME_EXTERNAL_TOOL_BAR(f) (f)->external_tool_bar
 #else
-#define FRAME_EXTERNAL_TOOL_BAR(f) false
-#endif
+# define FRAME_EXTERNAL_TOOL_BAR(f) false
+#endif /* USE_GTK || HAVE_CARBON || HAVE_NS */
 
 /* Number of lines of frame F used for the tool-bar.  */
 #define FRAME_TOOL_BAR_LINES(f) (f)->tool_bar_lines
@@ -1544,7 +1547,7 @@ extern void x_query_colors (struct frame *f, XColor *, int);
 extern void x_query_color (struct frame *f, XColor *);
 extern void x_focus_frame (struct frame *);
 
-#ifndef HAVE_NS
+#if !defined(HAVE_CARBON) && !defined(HAVE_NS)
 
 extern int x_bitmap_icon (struct frame *, Lisp_Object);
 
@@ -1559,7 +1562,7 @@ x_set_bitmap_icon (struct frame *f)
     x_bitmap_icon (f, XCDR (obj));
 }
 
-#endif /* !HAVE_NS */
+#endif /* !HAVE_CARBON && !HAVE_NS */
 
 #endif /* HAVE_WINDOW_SYSTEM */
 

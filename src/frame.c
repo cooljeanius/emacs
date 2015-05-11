@@ -180,21 +180,21 @@ window_system_available (struct frame *f)
 }
 
 struct frame *
-decode_window_system_frame (Lisp_Object frame)
+decode_window_system_frame(Lisp_Object frame)
 {
-  struct frame *f = decode_live_frame (frame);
+  struct frame *f = decode_live_frame(frame);
 
-  if (!window_system_available (f))
-    error ("Window system frame should be used");
+  if (!window_system_available(f))
+    error("Window system frame should be used");
   return f;
 }
 
 void
-check_window_system (struct frame *f)
+check_window_system(struct frame *f)
 {
-  if (!window_system_available (f))
-    error (f ? "Window system frame should be used"
-	   : "Window system is not in use or not initialized");
+  if (!window_system_available(f))
+    error(f ? "Window system frame should be used"
+	  : "Window system is not in use or not initialized");
 }
 
 static void
@@ -1933,9 +1933,9 @@ If there is no window system support, this function does nothing.  */)
 
 /* Return the value of frame parameter PROP in frame FRAME: */
 #ifdef HAVE_WINDOW_SYSTEM
-# if (!defined(HAVE_NS) || !HAVE_NS) && (!defined(HAVE_NTGUI) || !HAVE_NTGUI)
+# if !defined(HAVE_CARBON) && (!defined(HAVE_NS) || !HAVE_NS) && (!defined(HAVE_NTGUI) || !HAVE_NTGUI)
 static
-# endif /* !HAVE_NS && !HAVE_NTGUI */
+# endif /* !HAVE_CARBON && !HAVE_NS && !HAVE_NTGUI */
 Lisp_Object
 get_frame_param (register struct frame *frame, Lisp_Object prop)
 {

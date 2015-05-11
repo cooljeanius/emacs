@@ -647,6 +647,7 @@ am__EXEEXT_TRUE
 LTLIBOBJS
 SUBDIR_MAKEFILES_IN
 ns_check_file
+MAC_TEMPLATE_FILES
 WINDOW_SYSTEM_OBJ
 EMACS_HEAPSIZE
 TEMACS_POST_LINK
@@ -1259,6 +1260,7 @@ carbon_appdir
 opsysfile
 machfile
 GNUSTEP_CFLAGS
+MAC_CFLAGS
 C_SWITCH_X_SITE
 LD_SWITCH_X_SITE
 gameuser
@@ -1849,6 +1851,7 @@ HAVE_CXXBLOCKS_TRUE
 CBLOCKS_FLAGS
 HAVE_CBLOCKS_FALSE
 HAVE_CBLOCKS_TRUE
+MAC_OBJC_OBJ
 MAC_OBJ
 LIBS_CARBON
 NON_CARBON_LDFLAGS
@@ -16698,6 +16701,8 @@ $as_echo "$as_me: skipping checks for warnings for gcc 4.2 or newer" >&6;}
 
 fi
 rm -f conftest.err conftest.i conftest.$ac_ext
+        if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
+      test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
 
       cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -16759,11 +16764,14 @@ fi
 
 else
 
-      { $as_echo "$as_me:${as_lineno-$LINENO}: skipping checks for warnings for gcc 4.7 or newer" >&5
+        { $as_echo "$as_me:${as_lineno-$LINENO}: skipping checks for warnings for gcc 4.7 or newer" >&5
 $as_echo "$as_me: skipping checks for warnings for gcc 4.7 or newer" >&6;}
 
 fi
-rm -f conftest.err conftest.i conftest.$ac_ext
+rm -f conftest.err conftest.i conftest.$ac_ext    else
+      test -z "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
+    fi  ##end check for undocumented environment variable.
+
 
       cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -35614,7 +35622,9 @@ else
 fi
 
 
+## same as "HAVE_MACGUI" in Yamamoto Mitsuharu's Mac port:
 HAVE_CARBON=no
+## "${with_carbon}" is "${with_mac}" in Yamamoto Mitsuharu's Mac port:
 if test "x${with_carbon}" != "xno"; then
   ac_fn_c_check_header_mongrel "$LINENO" "Carbon/Carbon.h" "ac_cv_header_Carbon_Carbon_h" "$ac_includes_default"
 if test "x$ac_cv_header_Carbon_Carbon_h" = xyes; then :
@@ -35623,11 +35633,13 @@ fi
 
 
   for ac_header in CarbonCore/Files.h CarbonCore/MacTypes.h \
-                    CarbonCore/Script.h CarbonCore/TextUtils.h \
+                    CarbonCore/Script.h CarbonCore/StringCompare.h \
+                    CarbonCore/TextUtils.h \
                     HIToolbox/CarbonEvents.h HIToolbox/Controls.h \
                     HIToolbox/Drag.h HIToolbox/Events.h \
                     HIToolbox/HIProgressViews.h HIToolbox/MacWindows.h \
-                    MacTypes.h NavigationServices/Navigation.h \
+                    HIToolbox/Menus.h MacTypes.h \
+                    NavigationServices/Navigation.h \
                     QD/QuickdrawAPI.h QD/QDOffscreen.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
@@ -35656,10 +35668,74 @@ if test "x${window_system}" = "xx11" && test "x${HAVE_CARBON}" = "xyes"; then
 fi
 LIBS_CARBON=""
 MAC_OBJ=""
+MAC_OBJC_OBJ=""
 if test "x${HAVE_CARBON}" = "xyes"; then
   window_system=mac
-  export LIBS_CARBON="-framework Carbon -framework QuickTime -framework CoreFoundation"
+  ## this header is needed for the conftest that follows after it:
+  for ac_header in AvailabilityMacros.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "AvailabilityMacros.h" "ac_cv_header_AvailabilityMacros_h" "$ac_includes_default"
+if test "x$ac_cv_header_AvailabilityMacros_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_AVAILABILITYMACROS_H 1
+_ACEOF
+
+fi
+
+done
+  # Check if the Quartz Core framework is necessary and always
+  # available at runtime:
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking Mac OS X version max allowed >= 10.5" >&5
+$as_echo_n "checking Mac OS X version max allowed >= 10.5... " >&6; }
+  if ${emacs_cv_mac_os_x_max_allowed_10_5+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#ifdef HAVE_AVAILABILITYMACROS_H
+# include <AvailabilityMacros.h>
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(__APPLE__)
+#  warning "This conftest expects <AvailabilityMacros.h> to be included."
+# endif /* __GNUC__ && !__STRICT_ANSI__ && __APPLE__ */
+#endif /* HAVE_AVAILABILITY_MACROS_H */
+
+int
+main ()
+{
+
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1050 && MAC_OS_X_VERSION_MIN_REQUIRED > 1020
+# error "OSX 10.5 not allowed"
+fail;
+#endif
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  emacs_cv_mac_os_x_max_allowed_10_5=no
+else
+  emacs_cv_mac_os_x_max_allowed_10_5=yes
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+fi
+  ## FIXME: is this redundant with the similar test in the NS case below?
+  if test "x${emacs_cv_mac_os_x_max_allowed_10_5}" = "xyes"; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: 10.5 or later" >&5
+$as_echo "10.5 or later" >&6; }
+    libs_quartz_core="-framework QuartzCore"
+  else
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: before 10.5" >&5
+$as_echo "before 10.5" >&6; }
+    libs_quartz_core=""
+  fi
+  ## used in libs_nsgui (i.e. libs_macgui) farther below:
+  export LIBS_CARBON="-framework Carbon -framework WebKit -framework Quartz ${libs_quartz_core} -framework IOKit -framework OSAKit -framework Cocoa -framework QuickTime -framework CoreFoundation"
   export MAC_OBJ="mac.o macterm.o macfns.o macmenu.o macselect.o fontset.o fringe.o image.o"
+  export MAC_OBJC_OBJ="macappkit.o macfont.o"
   { $as_echo "$as_me:${as_lineno-$LINENO}: it looks like we are using Carbon for the window system at this point" >&5
 $as_echo "$as_me: it looks like we are using Carbon for the window system at this point" >&6;}
   case "${canonical}" in
@@ -36751,6 +36827,7 @@ ns_self_contained=no
 NS_OBJ=""
 NS_OBJC_OBJ=""
 if test "x${HAVE_NS}" = "xyes"; then
+  test "x${window_system}" = "xmac" ## disable Carbon/MACGUI based on this?
   if test "x${with_toolkit_scroll_bars}" = "xno"; then
     as_fn_error $? "Non-toolkit scroll bars are not implemented for Nextstep." "$LINENO" 5
   fi
@@ -42465,6 +42542,18 @@ done
 
       fi
     fi
+    for ac_header in objc/runtime.h
+do :
+  ac_fn_objc_check_header_mongrel "$LINENO" "objc/runtime.h" "ac_cv_header_objc_runtime_h" "$ac_includes_default"
+if test "x$ac_cv_header_objc_runtime_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_OBJC_RUNTIME_H 1
+_ACEOF
+
+fi
+
+done
+
     ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -42474,24 +42563,45 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
     ;;
 esac
 
-for ac_header in Availability.h AvailabilityMacros.h
+for ac_header in Availability.h
 do :
-  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
-ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
-if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
+  ac_fn_c_check_header_mongrel "$LINENO" "Availability.h" "ac_cv_header_Availability_h" "$ac_includes_default"
+if test "x$ac_cv_header_Availability_h" = xyes; then :
   cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
+#define HAVE_AVAILABILITY_H 1
 _ACEOF
 
 fi
 
 done
+  ## in case we skipped it, due to no Carbon or something:
+if test "x${ac_cv_header_AvailabilityMacros_h}" = "x"; then
+  test -z "${ac_cv_header_AvailabilityMacros_h}"
+  for ac_header in AvailabilityMacros.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "AvailabilityMacros.h" "ac_cv_header_AvailabilityMacros_h" "$ac_includes_default"
+if test "x$ac_cv_header_AvailabilityMacros_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_AVAILABILITYMACROS_H 1
+_ACEOF
 
+fi
+
+done
+  ## (just in case)
+fi
+
+MAC_CFLAGS=""
 ### The Mac OS X Carbon API is one way to implement the GUI.
+### ("${HAVE_CARBON}" is the same as "${HAVE_MACGUI}" from Y.M.'s Mac port)
 if test "x${HAVE_CARBON}" = "xyes"; then
 
 $as_echo "#define HAVE_CARBON 1" >>confdefs.h
 
+  ## (maybe also define HAVE_SOUND here?)
+  if test "x${emacs_cv_apple}" = "xyes"; then
+    MAC_CFLAGS="-fconstant-cfstrings"
+  fi
   ## Specify the install directory:
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking directory for the Carbon app" >&5
 $as_echo_n "checking directory for the Carbon app... " >&6; }
@@ -42513,6 +42623,9 @@ $as_echo "none" >&6; }
   fi
   # We also have mouse menus.
   HAVE_MENUS=yes
+  # Tell src/Makefile.in to create files in the Mac OS X application
+  # bundle mac/Emacs.app.
+  OTHER_FILES=macosx-app
 fi
 
 GNUSTEP_CFLAGS=""
@@ -72049,6 +72162,7 @@ case "${opsys}" in
    ## about 14 to about 34. Setting it high gets us plenty of slop and
    ## only costs about 1.5K of wasted binary space.
    headerpad_extra=1000
+   # libs_nsgui is equivalent to libs_macgui from Y.M.'s Mac port:
    if test "x${HAVE_NS}" = "xyes"; then
      libs_nsgui="-framework AppKit"
      if test "x${NS_IMPL_COCOA}" = "xyes"; then
@@ -72059,9 +72173,10 @@ case "${opsys}" in
      fi
    elif test "x${HAVE_CARBON}" = "xyes" && test "x${LIBS_CARBON}" != "x"; then
      test -n "${LIBS_CARBON}" && libs_nsgui="${LIBS_CARBON}"
-     ## 0x690 is the total size of 30 segment load commands (at 56
-     ## each):
-     headerpad_extra=690
+     ## This used to be 0x690, which was the total size of 30 segment load
+     ## commands (at 56 each), but we bumped it to 0xBD0 because of all the
+     ## additional frameworks added to LIBS_CARBON above:
+     headerpad_extra=BD0
    else
      libs_nsgui=""
      headerpad_extra=1000
@@ -72319,6 +72434,10 @@ run or moved from there."
 You may need to run \"${MAKE-make} install\" with sudo. The application will fail
 to run if these resources are not installed."
    fi
+   if test "x${with_wide_int}" = "xyes"; then
+      echo "Warning: \`--with-wide-int' is untested on the Mac port."
+      echo "Use it at your own risk."
+   fi
    echo ""
 fi
 
@@ -72353,6 +72472,13 @@ test "x${prefix}" != "xNONE" &&
 test "x${exec_prefix}" != "xNONE" &&
   exec_prefix=`echo "${exec_prefix}" | sed 's,\([^/]\)/*$,\1,'`
 
+MAC_TEMPLATE_FILES=""
+if test "x${HAVE_CARBON}" = "xyes"; then
+    ac_config_files="$ac_config_files mac/Emacs.app/Contents/Info.plist:mac/templates/Info.plist.in mac/Emacs.app/Contents/Resources/English.lproj/InfoPlist.strings:mac/templates/InfoPlist.strings.in"
+
+    MAC_TEMPLATE_FILES="mac/templates/Info.plist.in mac/templates/InfoPlist.strings.in"
+fi
+
 if test "x${HAVE_NS}" = "xyes"; then
   if test "x${NS_IMPL_GNUSTEP}" = "xyes"; then
     ac_config_files="$ac_config_files nextstep/GNUstep/Emacs.base/Resources/Info-gnustep.plist:nextstep/templates/Info-gnustep.plist.in nextstep/GNUstep/Emacs.base/Resources/Emacs.desktop:nextstep/templates/Emacs.desktop.in"
@@ -72372,9 +72498,9 @@ if test -f doc/man/emacs.1.in && test ! -e doc/man/emacs.1; then
 
 fi
 
-SUBDIR_MAKEFILES="lib/Makefile lib-src/Makefile oldXMenu/Makefile doc/emacs/Makefile doc/Makefile doc/lispintro/Makefile doc/lispref/Makefile doc/man/Makefile doc/misc/Makefile src/Makefile lisp/Makefile lispintro/Makefile lispref/Makefile leim/Makefile lwlib/Makefile man/Makefile nextstep/Makefile nt/Makefile"
+SUBDIR_MAKEFILES="lib/Makefile lib-src/Makefile oldXMenu/Makefile doc/emacs/Makefile doc/Makefile doc/lispintro/Makefile doc/lispref/Makefile doc/man/Makefile doc/misc/Makefile src/Makefile lisp/Makefile lispintro/Makefile lispref/Makefile leim/Makefile lwlib/Makefile man/Makefile mac/Makefile nextstep/Makefile nt/Makefile"
 
-ac_config_files="$ac_config_files Makefile lib/Makefile lib-src/Makefile oldXMenu/Makefile doc/Makefile doc/emacs/Makefile doc/lispintro/Makefile doc/lispref/Makefile doc/man/Makefile doc/misc/Makefile src/Makefile lisp/Makefile lispintro/Makefile lispref/Makefile leim/Makefile lwlib/Makefile man/Makefile nextstep/Makefile nt/Makefile po/Makevars"
+ac_config_files="$ac_config_files Makefile lib/Makefile lib-src/Makefile oldXMenu/Makefile doc/Makefile doc/emacs/Makefile doc/lispintro/Makefile doc/lispref/Makefile doc/man/Makefile doc/misc/Makefile src/Makefile lisp/Makefile lispintro/Makefile lispref/Makefile leim/Makefile lwlib/Makefile man/Makefile mac/Makefile nextstep/Makefile nt/Makefile po/Makevars"
 
 ### Make the necessary directories, if they do NOT exist.
 for dir in etc lisp; do
@@ -73709,6 +73835,8 @@ do
     "libtool") CONFIG_COMMANDS="$CONFIG_COMMANDS libtool" ;;
     "po-directories") CONFIG_COMMANDS="$CONFIG_COMMANDS po-directories" ;;
     "ldd.sh") CONFIG_FILES="$CONFIG_FILES ldd.sh:build-aux/ldd.sh.in" ;;
+    "mac/Emacs.app/Contents/Info.plist") CONFIG_FILES="$CONFIG_FILES mac/Emacs.app/Contents/Info.plist:mac/templates/Info.plist.in" ;;
+    "mac/Emacs.app/Contents/Resources/English.lproj/InfoPlist.strings") CONFIG_FILES="$CONFIG_FILES mac/Emacs.app/Contents/Resources/English.lproj/InfoPlist.strings:mac/templates/InfoPlist.strings.in" ;;
     "nextstep/GNUstep/Emacs.base/Resources/Info-gnustep.plist") CONFIG_FILES="$CONFIG_FILES nextstep/GNUstep/Emacs.base/Resources/Info-gnustep.plist:nextstep/templates/Info-gnustep.plist.in" ;;
     "nextstep/GNUstep/Emacs.base/Resources/Emacs.desktop") CONFIG_FILES="$CONFIG_FILES nextstep/GNUstep/Emacs.base/Resources/Emacs.desktop:nextstep/templates/Emacs.desktop.in" ;;
     "nextstep/Cocoa/Emacs.base/Contents/Info.plist") CONFIG_FILES="$CONFIG_FILES nextstep/Cocoa/Emacs.base/Contents/Info.plist:nextstep/templates/Info.plist.in" ;;
@@ -73731,6 +73859,7 @@ do
     "leim/Makefile") CONFIG_FILES="$CONFIG_FILES leim/Makefile" ;;
     "lwlib/Makefile") CONFIG_FILES="$CONFIG_FILES lwlib/Makefile" ;;
     "man/Makefile") CONFIG_FILES="$CONFIG_FILES man/Makefile" ;;
+    "mac/Makefile") CONFIG_FILES="$CONFIG_FILES mac/Makefile" ;;
     "nextstep/Makefile") CONFIG_FILES="$CONFIG_FILES nextstep/Makefile" ;;
     "nt/Makefile") CONFIG_FILES="$CONFIG_FILES nt/Makefile" ;;
     "po/Makevars") CONFIG_FILES="$CONFIG_FILES po/Makevars" ;;

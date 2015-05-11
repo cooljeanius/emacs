@@ -19,10 +19,10 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 /*
 Originally by Carl Edman
-Updated by Christian Limpach (chris@nice.ch)
-OpenStep/Rhapsody port by Scott Bender (sbender@harmony-ds.com)
-MacOSX/Aqua port by Christophe de Dinechin (descubes@earthlink.net)
-GNUstep port and post-20 update by Adrian Robert (arobert@cogsci.ucsd.edu)
+Updated by Christian Limpach <chris@nice.ch>
+OpenStep/Rhapsody port by Scott Bender <sbender@harmony-ds.com>
+MacOSX/Aqua port by Christophe de Dinechin <descubes@earthlink.net>
+GNUstep port and post-20 update by Adrian Robert <arobert@cogsci.ucsd.edu>
 */
 
 /* This should be the first include, as it may set up #defines affecting
@@ -50,12 +50,12 @@ int image_trace_num = 0;
 
    C interface.  This allows easy calling from C files.  We could just
    compile everything as Objective-C, but that might mean slower
-   compilation and possible difficulties on some platforms..
+   compilation and possible difficulties on some platforms...
 
    ===================================================================== */
 
 void *
-ns_image_from_XBM (unsigned char *bits, int width, int height)
+ns_image_from_XBM(unsigned char *bits, int width, int height)
 {
   NSTRACE(ns_image_from_XBM);
   return [[EmacsImage alloc] initFromXBM: bits
@@ -64,7 +64,7 @@ ns_image_from_XBM (unsigned char *bits, int width, int height)
 }
 
 void *
-ns_image_for_XPM (int width, int height, int depth)
+ns_image_for_XPM(int width, int height, int depth)
 {
   NSTRACE(ns_image_for_XPM);
   return [[EmacsImage alloc] initForXPMWithDepth: depth
@@ -72,38 +72,38 @@ ns_image_for_XPM (int width, int height, int depth)
 }
 
 void *
-ns_image_from_file (Lisp_Object file)
+ns_image_from_file(Lisp_Object file)
 {
   NSTRACE(ns_image_from_bitmap_file);
   return [EmacsImage allocInitFromFile: file];
 }
 
 bool
-ns_load_image (struct frame *f, struct image *img,
-               Lisp_Object spec_file, Lisp_Object spec_data)
+ns_load_image(struct frame *f, struct image *img,
+              Lisp_Object spec_file, Lisp_Object spec_data)
 {
   EmacsImage *eImg = nil;
   NSSize size;
 
   NSTRACE(ns_load_image);
 
-  if (STRINGP (spec_file))
+  if (STRINGP(spec_file))
     {
       eImg = [EmacsImage allocInitFromFile: spec_file];
     }
-  else if (STRINGP (spec_data))
+  else if (STRINGP(spec_data))
     {
       NSData *data;
 
-      data = [NSData dataWithBytes: SSDATA (spec_data)
-			    length: SBYTES (spec_data)];
+      data = [NSData dataWithBytes: SSDATA(spec_data)
+			    length: SBYTES(spec_data)];
       eImg = [[EmacsImage alloc] initWithData: data];
       [eImg setPixmapData];
     }
 
   if (eImg == nil)
     {
-      add_to_log ("Unable to load image %s", img->spec, Qnil);
+      add_to_log("Unable to load image %s", img->spec, Qnil);
       return 0;
     }
 
@@ -118,25 +118,25 @@ ns_load_image (struct frame *f, struct image *img,
 
 
 int
-ns_image_width (void *img)
+ns_image_width(void *img)
 {
   return [(id)img size].width;
 }
 
 int
-ns_image_height (void *img)
+ns_image_height(void *img)
 {
   return [(id)img size].height;
 }
 
 unsigned long
-ns_get_pixel (void *img, int x, int y)
+ns_get_pixel(void *img, int x, int y)
 {
   return [(EmacsImage *)img getPixelAtX: x Y: y];
 }
 
 void
-ns_put_pixel (void *img, int x, int y, unsigned long argb)
+ns_put_pixel(void *img, int x, int y, unsigned long argb)
 {
   unsigned char alpha = (argb >> 24) & 0xFF;
   if (alpha == 0)
@@ -146,7 +146,7 @@ ns_put_pixel (void *img, int x, int y, unsigned long argb)
 }
 
 void
-ns_set_alpha (void *img, int x, int y, unsigned char a)
+ns_set_alpha(void *img, int x, int y, unsigned char a)
 {
   [(EmacsImage *)img setAlphaAtX: x Y: y to: a];
 }
@@ -170,19 +170,20 @@ static EmacsImage *ImageList = nil;
 
   /* look for an existing image of the same name: */
   while (image != nil &&
-         [[image name] compare: [NSString stringWithUTF8String: SSDATA (file)]]
+         [[image name] compare: [NSString stringWithUTF8String: SSDATA(file)]]
              != NSOrderedSame)
     image = [image imageListNext];
 
   if (image != nil)
     {
       [image reference];
+      [image retain];
       return image;
     }
 
   /* Search bitmap-file-path for the file, if appropriate.  */
-  found = x_find_image_file (file);
-  if (!STRINGP (found))
+  found = x_find_image_file(file);
+  if (!STRINGP(found))
     return nil;
 
   image = [[EmacsImage alloc] initByReferencingFile:
@@ -270,7 +271,7 @@ static EmacsImage *ImageList = nil;
   int bpr = (w + 7) / 8;
   unsigned char *planes[5];
 
-  [self initWithSize: NSMakeSize (w, h)];
+  self = [self initWithSize: NSMakeSize(w, h)];
 
   bmRep = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes: NULL
                                     pixelsWide: w pixelsHigh: h
@@ -373,7 +374,7 @@ static EmacsImage *ImageList = nil;
   NSSize s = {width, height};
   int i;
 
-  [self initWithSize: s];
+  self = [self initWithSize: s];
 
   bmRep = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes: NULL
                                   pixelsWide: width pixelsHigh: height

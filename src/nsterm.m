@@ -997,20 +997,20 @@ ns_ring_bell (struct frame *f)
           r.origin.y += (r.size.height - dim.y) / 2;
           r.size.width = dim.x;
           r.size.height = dim.y;
-          surr = NSInsetRect (r, -2, -2);
-          ns_focus (frame, &surr, 1);
+          surr = NSInsetRect(r, -2, -2);
+          ns_focus(frame, &surr, 1);
           [[view window] cacheImageInRect: [view convertRect: surr toView:nil]];
-          [ns_lookup_indexed_color (NS_FACE_FOREGROUND
-                                      (FRAME_DEFAULT_FACE (frame)), frame) set];
-          NSRectFill (r);
+          [ns_lookup_indexed_color(NS_FACE_FOREGROUND(FRAME_DEFAULT_FACE(frame)),
+                                   frame) set];
+          NSRectFill(r);
           [[view window] flushWindow];
-          ns_timeout (150000);
+          ns_timeout(150000);
           [[view window] restoreCachedImage];
           [[view window] flushWindow];
-          ns_unfocus (frame);
+          ns_unfocus(frame);
         }
       [pool release];
-      unblock_input ();
+      unblock_input();
     }
   else
     {
@@ -1534,12 +1534,12 @@ ns_get_color (const char *name, NSColor **col)
    --------------------------------------------------------------------- */
 /* On *Step, we attempt to mimic the X11 platform here, down to installing an
    X11 rgb.txt-compatible color list in Emacs.clr (see ns_term_init()).
-   See: http://thread.gmane.org/gmane.emacs.devel/113050/focus=113272). */
+   See: <http://thread.gmane.org/gmane.emacs.devel/113050/focus=113272>. */
 {
   NSColor *new = nil;
   static char hex[20];
   int scaling = 0;
-  float r = -1.0f, g, b;
+  float r = -1.0f, g = 0.0f, b = 0.0f;
   NSString *nsname = [NSString stringWithUTF8String: name];
 
 #ifdef DEBUG
@@ -2077,34 +2077,34 @@ ns_redraw_scroll_bars (struct frame *f)
 
 
 void
-ns_clear_frame (struct frame *f)
-/* --------------------------------------------------------------------------
+ns_clear_frame(struct frame *f)
+/* ------------------------------------------------------------------------
       External (hook): Erase the entire frame
-   -------------------------------------------------------------------------- */
+   --------------------------------------------------------------------- */
 {
-  NSView *view = FRAME_NS_VIEW (f);
+  NSView *view = FRAME_NS_VIEW(f);
   NSRect r;
 
-  NSTRACE (ns_clear_frame);
+  NSTRACE(ns_clear_frame);
 
  /* comes on initial frame because we have
     after-make-frame-functions = select-frame */
- if (!FRAME_DEFAULT_FACE (f))
+ if (!FRAME_DEFAULT_FACE(f))
    return;
 
-  mark_window_cursors_off (XWINDOW (FRAME_ROOT_WINDOW (f)));
+  mark_window_cursors_off(XWINDOW(FRAME_ROOT_WINDOW(f)));
 
   r = [view bounds];
 
-  block_input ();
-  ns_focus (f, &r, 1);
-  [ns_lookup_indexed_color (NS_FACE_BACKGROUND (FRAME_DEFAULT_FACE (f)), f) set];
-  NSRectFill (r);
-  ns_unfocus (f);
+  block_input();
+  ns_focus(f, &r, 1);
+  [ns_lookup_indexed_color(NS_FACE_BACKGROUND(FRAME_DEFAULT_FACE(f)), f) set];
+  NSRectFill(r);
+  ns_unfocus(f);
 
-  /* as of 2006/11 or so this is now needed */
-  ns_redraw_scroll_bars (f);
-  unblock_input ();
+  /* as of 2006/11 or so this is now needed: */
+  ns_redraw_scroll_bars(f);
+  unblock_input();
 }
 
 
@@ -2297,24 +2297,24 @@ ns_compute_glyph_string_overhangs (struct glyph_string *s)
 
 
 
-/* ==========================================================================
+/* ========================================================================
 
     Fringe and cursor drawing
 
-   ========================================================================== */
+   ===================================================================== */
 
 
 extern int max_used_fringe_bitmap;
 static void
-ns_draw_fringe_bitmap (struct window *w, struct glyph_row *row,
+ns_draw_fringe_bitmap(struct window *w, struct glyph_row *row,
                       struct draw_fringe_bitmap_params *p)
-/* --------------------------------------------------------------------------
+/* ------------------------------------------------------------------------
     External (RIF); fringe-related
-   -------------------------------------------------------------------------- */
+   --------------------------------------------------------------------- */
 {
-  struct frame *f = XFRAME (WINDOW_FRAME (w));
+  struct frame *f = XFRAME(WINDOW_FRAME(w));
   struct face *face = p->face;
-  static EmacsImage **bimgs = NULL;
+  static EmacsImage **bimgs = (EmacsImage **)NULL;
   static int nBimgs = 0;
 
   /* grow bimgs if needed */
@@ -2379,26 +2379,26 @@ ns_draw_fringe_bitmap (struct window *w, struct glyph_row *row,
 	    }
 	}
 
-      if (bx >= 0 && nx > 0)
+      if ((bx >= 0) && (nx > 0))
         {
-          NSRect r = NSMakeRect (bx, by, nx, ny);
-          NSRectClip (r);
-          [ns_lookup_indexed_color (face->background, f) set];
-          NSRectFill (r);
+          NSRect r = NSMakeRect(bx, by, nx, ny);
+          NSRectClip(r);
+          [ns_lookup_indexed_color(face->background, f) set];
+          NSRectFill(r);
         }
     }
 
   if (p->which)
     {
-      NSRect r = NSMakeRect (p->x, p->y, p->wd, p->h);
+      NSRect r = NSMakeRect(p->x, p->y, p->wd, p->h);
       EmacsImage *img = bimgs[p->which - 1];
 
       if (!img)
         {
-          unsigned short *bits = p->bits + p->dh;
+          unsigned short *bits = (p->bits + p->dh);
           int len = p->h;
           int i;
-          unsigned char *cbits = xmalloc (len);
+          unsigned char *cbits = xmalloc(len);
 
           for (i = 0; i < len; i++)
             cbits[i] = ~(bits[i] & 0xff);
@@ -2945,11 +2945,11 @@ ns_draw_relief (NSRect r, int thickness, char raised_p,
 
 
 static void
-ns_dumpglyphs_box_or_relief (struct glyph_string *s)
-/* --------------------------------------------------------------------------
+ns_dumpglyphs_box_or_relief(struct glyph_string *s)
+/* ------------------------------------------------------------------------
       Function modeled after x_draw_glyph_string_box ().
       Sets up parameters for drawing.
-   -------------------------------------------------------------------------- */
+   --------------------------------------------------------------------- */
 {
   int right_x, last_x;
   char left_p, right_p;
@@ -2960,16 +2960,16 @@ ns_dumpglyphs_box_or_relief (struct glyph_string *s)
 
   if (s->hl == DRAW_MOUSE_FACE)
     {
-      face = FACE_FROM_ID (s->f, MOUSE_HL_INFO (s->f)->mouse_face_face_id);
+      face = FACE_FROM_ID(s->f, MOUSE_HL_INFO(s->f)->mouse_face_face_id);
       if (!face)
-        face = FACE_FROM_ID (s->f, MOUSE_FACE_ID);
+        face = FACE_FROM_ID(s->f, MOUSE_FACE_ID);
     }
   else
     face = s->face;
 
   thickness = face->box_line_width;
 
-  NSTRACE (ns_dumpglyphs_box_or_relief);
+  NSTRACE(ns_dumpglyphs_box_or_relief);
 
   last_x = ((s->row->full_width_p && !s->w->pseudo_window_p)
 	    ? WINDOW_RIGHT_EDGE_X (s->w)
@@ -3022,20 +3022,20 @@ ns_maybe_dumpglyphs_background (struct glyph_string *s, char force_p)
           struct face *face;
           if (s->hl == DRAW_MOUSE_FACE)
             {
-              face = FACE_FROM_ID (s->f,
-				   MOUSE_HL_INFO (s->f)->mouse_face_face_id);
+              face = FACE_FROM_ID(s->f,
+				  MOUSE_HL_INFO(s->f)->mouse_face_face_id);
               if (!face)
-                face = FACE_FROM_ID (s->f, MOUSE_FACE_ID);
+                face = FACE_FROM_ID(s->f, MOUSE_FACE_ID);
             }
           else
-            face = FACE_FROM_ID (s->f, s->first_glyph->face_id);
+            face = FACE_FROM_ID(s->f, s->first_glyph->face_id);
           if (!face->stipple)
-            [(NS_FACE_BACKGROUND (face) != 0
-              ? ns_lookup_indexed_color (NS_FACE_BACKGROUND (face), s->f)
-              : FRAME_BACKGROUND_COLOR (s->f)) set];
+            [((NS_FACE_BACKGROUND(face) != 0)
+              ? ns_lookup_indexed_color(NS_FACE_BACKGROUND(face), s->f)
+              : FRAME_BACKGROUND_COLOR(s->f)) set];
           else
             {
-              struct ns_display_info *dpyinfo = FRAME_DISPLAY_INFO (s->f);
+              struct ns_display_info *dpyinfo = FRAME_DISPLAY_INFO(s->f);
               [[dpyinfo->bitmaps[face->stipple-1].img stippleMask] set];
             }
 
@@ -3089,19 +3089,20 @@ ns_dumpglyphs_image (struct glyph_string *s, NSRect r)
      with its background color), we must clear just the image area. */
   if (s->hl == DRAW_MOUSE_FACE)
     {
-      face = FACE_FROM_ID (s->f, MOUSE_HL_INFO (s->f)->mouse_face_face_id);
+      face = FACE_FROM_ID(s->f, MOUSE_HL_INFO(s->f)->mouse_face_face_id);
       if (!face)
-       face = FACE_FROM_ID (s->f, MOUSE_FACE_ID);
+       face = FACE_FROM_ID(s->f, MOUSE_FACE_ID);
     }
   else
-    face = FACE_FROM_ID (s->f, s->first_glyph->face_id);
+    face = FACE_FROM_ID(s->f, s->first_glyph->face_id);
 
-  [ns_lookup_indexed_color (NS_FACE_BACKGROUND (face), s->f) set];
+  [ns_lookup_indexed_color(NS_FACE_BACKGROUND(face), s->f) set];
 
-  if (bg_height > s->slice.height || s->img->hmargin || s->img->vmargin
-      || s->img->mask || s->img->pixmap == 0 || s->width != s->background_width)
+  if ((bg_height > s->slice.height) || s->img->hmargin || s->img->vmargin
+      || s->img->mask || (s->img->pixmap == 0)
+      || (s->width != s->background_width))
     {
-      br = NSMakeRect (bg_x, bg_y, s->background_width, bg_height);
+      br = NSMakeRect(bg_x, bg_y, s->background_width, bg_height);
       s->background_filled_p = 1;
     }
   else
@@ -3191,7 +3192,7 @@ ns_dumpglyphs_image (struct glyph_string *s, NSRect r)
 
 
 static void
-ns_dumpglyphs_stretch (struct glyph_string *s)
+ns_dumpglyphs_stretch(struct glyph_string *s)
 {
   NSRect r[2];
   int n, i;
@@ -3200,22 +3201,23 @@ ns_dumpglyphs_stretch (struct glyph_string *s)
 
   if (!s->background_filled_p)
     {
-      n = ns_get_glyph_string_clip_rect (s, r);
-      *r = NSMakeRect (s->x, s->y, s->background_width, s->height);
+      n = ns_get_glyph_string_clip_rect(s, r);
+      *r = NSMakeRect(s->x, s->y, s->background_width, s->height);
 
-      ns_focus (s->f, r, n);
+      ns_focus(s->f, r, n);
 
       if (s->hl == DRAW_MOUSE_FACE)
        {
-         face = FACE_FROM_ID (s->f, MOUSE_HL_INFO (s->f)->mouse_face_face_id);
+         face = FACE_FROM_ID(s->f,
+                             MOUSE_HL_INFO(s->f)->mouse_face_face_id);
          if (!face)
-           face = FACE_FROM_ID (s->f, MOUSE_FACE_ID);
+           face = FACE_FROM_ID(s->f, MOUSE_FACE_ID);
        }
       else
-       face = FACE_FROM_ID (s->f, s->first_glyph->face_id);
+       face = FACE_FROM_ID(s->f, s->first_glyph->face_id);
 
-      bgCol = ns_lookup_indexed_color (NS_FACE_BACKGROUND (face), s->f);
-      fgCol = ns_lookup_indexed_color (NS_FACE_FOREGROUND (face), s->f);
+      bgCol = ns_lookup_indexed_color(NS_FACE_BACKGROUND(face), s->f);
+      fgCol = ns_lookup_indexed_color(NS_FACE_FOREGROUND(face), s->f);
 
       for (i = 0; i < n; ++i)
         {
@@ -3224,14 +3226,14 @@ ns_dumpglyphs_stretch (struct glyph_string *s)
 	      int overrun, leftoverrun;
 
               /* truncate to avoid overwriting fringe and/or scrollbar */
-	      overrun = max (0, (s->x + s->background_width)
-			     - (WINDOW_BOX_RIGHT_EDGE_X (s->w)
-				- WINDOW_RIGHT_FRINGE_WIDTH (s->w)));
+	      overrun = max(0, ((s->x + s->background_width)
+                                - (WINDOW_BOX_RIGHT_EDGE_X(s->w)
+                                   - WINDOW_RIGHT_FRINGE_WIDTH(s->w))));
               r[i].size.width -= overrun;
 
 	      /* truncate to avoid overwriting to left of the window box */
-	      leftoverrun = (WINDOW_BOX_LEFT_EDGE_X (s->w)
-			     + WINDOW_LEFT_FRINGE_WIDTH (s->w)) - s->x;
+	      leftoverrun = (WINDOW_BOX_LEFT_EDGE_X(s->w)
+			     + WINDOW_LEFT_FRINGE_WIDTH(s->w)) - s->x;
 
 	      if (leftoverrun > 0)
 		{
@@ -4954,9 +4956,9 @@ not_in_argv (NSString *arg)
             ns_send_appdefined (-2);
           else if (result > 0)
             {
-              if (FD_ISSET (selfds[0], &readfds))
+              if (FD_ISSET(selfds[0], &readfds))
                 {
-                  if (read (selfds[0], &c, 1) == 1 && c == 's')
+                  if ((read(selfds[0], &c, 1) == 1) && (c == 's'))
 		    waiting = 1;
                 }
               else
@@ -6097,7 +6099,7 @@ typedef id NSNotification_or_id;
   NSColor *col;
   NSString *name;
 
-  NSTRACE (initFrameFromEmacs);
+  NSTRACE(initFrameFromEmacs);
 
   windowClosing = NO;
   processingCompose = NO;
@@ -6116,13 +6118,13 @@ typedef id NSNotification_or_id;
   fprintf(stderr, "init with %d, %d\n", f->text_cols, f->text_lines);
 #endif /* DEBUG */
 
-  ns_userRect = NSMakeRect (0, 0, 0, 0);
-  r = NSMakeRect (0, 0, FRAME_TEXT_COLS_TO_PIXEL_WIDTH (f, f->text_cols),
-                 FRAME_TEXT_LINES_TO_PIXEL_HEIGHT (f, f->text_lines));
-  [self initWithFrame: r];
+  ns_userRect = NSMakeRect(0, 0, 0, 0);
+  r = NSMakeRect(0, 0, FRAME_TEXT_COLS_TO_PIXEL_WIDTH(f, f->text_cols),
+                 FRAME_TEXT_LINES_TO_PIXEL_HEIGHT(f, f->text_lines));
+  self = [self initWithFrame: r];
   [self setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
 
-  FRAME_NS_VIEW (f) = self;
+  FRAME_NS_VIEW(f) = self;
   emacsframe = f;
 #ifdef NS_IMPL_COCOA
   old_title = 0;
@@ -6180,21 +6182,21 @@ typedef id NSNotification_or_id;
     [toggleButton setAction: @selector (toggleToolbar: )];
   }
 #endif /* NS_IMPL_COCOA */
-  FRAME_TOOLBAR_HEIGHT (f) = 0;
+  FRAME_TOOLBAR_HEIGHT(f) = 0;
 
   tem = f->icon_name;
-  if (!NILP (tem))
+  if (!NILP(tem))
     [win setMiniwindowTitle:
-           [NSString stringWithUTF8String: SSDATA (tem)]];
+           [NSString stringWithUTF8String: SSDATA(tem)]];
 
   {
     NSScreen *screen = [win screen];
 
     if (screen != 0)
       [win setFrameTopLeftPoint: NSMakePoint
-           (IN_BOUND (-SCREENMAX, f->left_pos, SCREENMAX),
-            IN_BOUND (-SCREENMAX,
-                     [screen frame].size.height - NS_TOP_POS (f), SCREENMAX))];
+           (IN_BOUND(-SCREENMAX, f->left_pos, SCREENMAX),
+            IN_BOUND(-SCREENMAX,
+                     [screen frame].size.height - NS_TOP_POS(f), SCREENMAX))];
   }
 
   [win makeFirstResponder: self];
@@ -6489,12 +6491,11 @@ typedef id NSNotification_or_id;
   onFirstScreen = [[w screen] isEqual:[[NSScreen screens] objectAtIndex:0]];
   f = emacsframe;
   wr = [w frame];
-  col = ns_lookup_indexed_color (NS_FACE_BACKGROUND
-                                 (FRAME_DEFAULT_FACE (f)),
-                                 f);
+  col = ns_lookup_indexed_color(NS_FACE_BACKGROUND(FRAME_DEFAULT_FACE(f)),
+                                f);
 
-  sz.width = FRAME_COLUMN_WIDTH (f);
-  sz.height = FRAME_LINE_HEIGHT (f);
+  sz.width = FRAME_COLUMN_WIDTH(f);
+  sz.height = FRAME_LINE_HEIGHT(f);
 
   if (fs_state != FULLSCREEN_BOTH)
     {
@@ -6963,15 +6964,17 @@ typedef id NSNotification_or_id;
 - (id)setMiniwindowImage: (BOOL) setMini
 {
   id image = [[self window] miniwindowImage];
-  NSTRACE (setMiniwindowImage);
+  NSTRACE(setMiniwindowImage);
 
   /* NOTE: under Cocoa miniwindowImage always returns nil, documentation
      about "AppleDockIconEnabled" notwithstanding, however the set message
      below has its effect nonetheless. */
   if (image != emacsframe->output_data.ns->miniimage)
     {
-      if (image && [image isKindOfClass: [EmacsImage class]])
+      if (image && [image isKindOfClass: [EmacsImage class]]) {
+        [image retain];
         [image release];
+      }
       [[self window] setMiniwindowImage:
                        setMini ? emacsframe->output_data.ns->miniimage : nil];
     }
@@ -6990,11 +6993,11 @@ typedef id NSNotification_or_id;
 
 
 
-/* ==========================================================================
+/* ========================================================================
 
     EmacsWindow implementation
 
-   ========================================================================== */
+   ===================================================================== */
 
 @implementation EmacsWindow
 
@@ -7147,11 +7150,11 @@ typedef id NSNotification_or_id;
 
 @end
 
-/* ==========================================================================
+/* ========================================================================
 
     EmacsScroller implementation
 
-   ========================================================================== */
+   ===================================================================== */
 
 
 @implementation EmacsScroller
@@ -7168,12 +7171,12 @@ typedef id NSNotification_or_id;
 }
 
 
-- (id)initFrame: (NSRect )r window: (Lisp_Object)nwin
+- (id)initFrame: (NSRect)r window: (Lisp_Object)nwin
 {
-  NSTRACE (EmacsScroller_initFrame);
+  NSTRACE(EmacsScroller_initFrame);
 
   r.size.width = [EmacsScroller scrollerWidth];
-  [super initWithFrame: r/*NSMakeRect (0, 0, 0, 0)*/];
+  self = [super initWithFrame: r/*NSMakeRect (0, 0, 0, 0)*/];
   [self setContinuous: YES];
   [self setEnabled: YES];
 

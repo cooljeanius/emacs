@@ -555,7 +555,7 @@ x_activate_menubar (struct frame *f)
 /* used for top-level: */
 - (id)initWithTitle: (NSString *)title frame: (struct frame *)f
 {
-  [self initWithTitle: title];
+  self = [self initWithTitle: title];
   frame = f;
 #ifdef NS_IMPL_COCOA
   [self setDelegate: self];
@@ -840,28 +840,28 @@ extern NSString *NSMenuDidBeginTrackingNotification;
 
 
 
-/* ==========================================================================
+/* ========================================================================
 
     Context Menu: implementing functions
 
-   ========================================================================== */
+   ===================================================================== */
 
 Lisp_Object
-ns_menu_show (struct frame *f, int x, int y, bool for_click, bool keymaps,
-	      Lisp_Object title, const char **error)
+ns_menu_show(struct frame *f, int x, int y, bool for_click, bool keymaps,
+	     Lisp_Object title, const char **error)
 {
   EmacsMenu *pmenu;
   NSPoint p;
   Lisp_Object tem;
-  ptrdiff_t specpdl_count = SPECPDL_INDEX ();
+  ptrdiff_t specpdl_count = SPECPDL_INDEX();
   widget_value *wv, *first_wv = 0;
 
-  block_input ();
+  block_input();
 
   p.x = x; p.y = y;
 
   /* now parse stage 2 as in ns_update_menubar */
-  wv = xmalloc_widget_value ();
+  wv = xmalloc_widget_value();
   wv->name = "contextmenu";
   wv->value = 0;
   wv->enabled = 1;
@@ -871,25 +871,25 @@ ns_menu_show (struct frame *f, int x, int y, bool for_click, bool keymaps,
 
 #if 0
   /* FIXME: a couple of one-line differences prevent reuse: */
-  wv = digest_single_submenu (0, menu_items_used, 0);
+  wv = digest_single_submenu(0, menu_items_used, 0);
 #else
   {
   widget_value *save_wv = 0, *prev_wv = 0;
   widget_value **submenu_stack
-    = alloca (menu_items_used * sizeof *submenu_stack);
+    = (widget_value **)alloca(menu_items_used * sizeof(*submenu_stack));
 # if 0
   Lisp_Object *subprefix_stack
-    = alloca (menu_items_used * sizeof *subprefix_stack);
+    = (Lisp_Object *)alloca(menu_items_used * sizeof(*subprefix_stack));
 # endif /* 0 */
   int submenu_depth = 0;
   int first_pane = 1;
   int i;
 
-  /* Loop over all panes and items, filling in the tree.  */
+  /* Loop over all panes and items, filling in the tree: */
   i = 0;
   while (i < menu_items_used)
     {
-      if (EQ (AREF (menu_items, i), Qnil))
+      if (EQ(AREF(menu_items, i), Qnil))
 	{
 	  submenu_stack[submenu_depth++] = save_wv;
 	  save_wv = prev_wv;
@@ -897,38 +897,38 @@ ns_menu_show (struct frame *f, int x, int y, bool for_click, bool keymaps,
 	  first_pane = 1;
 	  i++;
 	}
-      else if (EQ (AREF (menu_items, i), Qlambda))
+      else if (EQ(AREF(menu_items, i), Qlambda))
 	{
 	  prev_wv = save_wv;
 	  save_wv = submenu_stack[--submenu_depth];
 	  first_pane = 0;
 	  i++;
 	}
-      else if (EQ (AREF (menu_items, i), Qt)
-	       && submenu_depth != 0)
+      else if (EQ(AREF(menu_items, i), Qt)
+	       && (submenu_depth != 0))
 	i += MENU_ITEMS_PANE_LENGTH;
       /* Ignore a nil in the item list.
 	 It is meaningful only for dialog boxes.  */
-      else if (EQ (AREF (menu_items, i), Qquote))
+      else if (EQ(AREF(menu_items, i), Qquote))
 	i += 1;
-      else if (EQ (AREF (menu_items, i), Qt))
+      else if (EQ(AREF(menu_items, i), Qt))
 	{
-	  /* Create a new pane.  */
+	  /* Create a new pane: */
 	  Lisp_Object pane_name, prefix;
 	  const char *pane_string;
 
-	  pane_name = AREF (menu_items, i + MENU_ITEMS_PANE_NAME);
-	  prefix = AREF (menu_items, i + MENU_ITEMS_PANE_PREFIX);
+	  pane_name = AREF(menu_items, i + MENU_ITEMS_PANE_NAME);
+	  prefix = AREF(menu_items, i + MENU_ITEMS_PANE_PREFIX);
 
 # ifndef HAVE_MULTILINGUAL_MENU
-	  if (STRINGP (pane_name) && STRING_MULTIBYTE (pane_name))
+	  if (STRINGP(pane_name) && STRING_MULTIBYTE(pane_name))
 	    {
-	      pane_name = ENCODE_MENU_STRING (pane_name);
-	      ASET (menu_items, i + MENU_ITEMS_PANE_NAME, pane_name);
+	      pane_name = ENCODE_MENU_STRING(pane_name);
+	      ASET(menu_items, i + MENU_ITEMS_PANE_NAME, pane_name);
 	    }
 # endif /* !HAVE_MULTILINGUAL_MENU */
-	  pane_string = (NILP (pane_name)
-			 ? "" : SSDATA (pane_name));
+	  pane_string = (NILP(pane_name)
+			 ? "" : SSDATA(pane_name));
 	  /* If there is just one top-level pane, put all its items directly
 	     under the top-level menu.  */
 	  if (menu_items_n_panes == 1)
@@ -937,15 +937,15 @@ ns_menu_show (struct frame *f, int x, int y, bool for_click, bool keymaps,
 	  /* If the pane has a meaningful name,
 	     make the pane a top-level menu item
 	     with its items as a submenu beneath it.  */
-	  if (!keymaps && strcmp (pane_string, ""))
+	  if (!keymaps && strcmp(pane_string, ""))
 	    {
-	      wv = xmalloc_widget_value ();
+	      wv = xmalloc_widget_value();
 	      if (save_wv)
 		save_wv->next = wv;
 	      else
 		first_wv->contents = wv;
 	      wv->name = pane_string;
-	      if (keymaps && !NILP (prefix))
+	      if (keymaps && !NILP(prefix))
 		wv->name++;
 	      wv->value = 0;
 	      wv->enabled = 1;
@@ -966,29 +966,29 @@ ns_menu_show (struct frame *f, int x, int y, bool for_click, bool keymaps,
 	{
 	  /* Create a new item within current pane.  */
 	  Lisp_Object item_name, enable, descrip, def, type, selected, help;
-	  item_name = AREF (menu_items, i + MENU_ITEMS_ITEM_NAME);
-	  enable = AREF (menu_items, i + MENU_ITEMS_ITEM_ENABLE);
-	  descrip = AREF (menu_items, i + MENU_ITEMS_ITEM_EQUIV_KEY);
-	  def = AREF (menu_items, i + MENU_ITEMS_ITEM_DEFINITION);
-	  type = AREF (menu_items, i + MENU_ITEMS_ITEM_TYPE);
-	  selected = AREF (menu_items, i + MENU_ITEMS_ITEM_SELECTED);
-	  help = AREF (menu_items, i + MENU_ITEMS_ITEM_HELP);
+	  item_name = AREF(menu_items, i + MENU_ITEMS_ITEM_NAME);
+	  enable = AREF(menu_items, i + MENU_ITEMS_ITEM_ENABLE);
+	  descrip = AREF(menu_items, i + MENU_ITEMS_ITEM_EQUIV_KEY);
+	  def = AREF(menu_items, i + MENU_ITEMS_ITEM_DEFINITION);
+	  type = AREF(menu_items, i + MENU_ITEMS_ITEM_TYPE);
+	  selected = AREF(menu_items, i + MENU_ITEMS_ITEM_SELECTED);
+	  help = AREF(menu_items, i + MENU_ITEMS_ITEM_HELP);
 
 # ifndef HAVE_MULTILINGUAL_MENU
-          if (STRINGP (item_name) && STRING_MULTIBYTE (item_name))
+          if (STRINGP(item_name) && STRING_MULTIBYTE(item_name))
 	    {
-	      item_name = ENCODE_MENU_STRING (item_name);
-	      ASET (menu_items, i + MENU_ITEMS_ITEM_NAME, item_name);
+	      item_name = ENCODE_MENU_STRING(item_name);
+	      ASET(menu_items, i + MENU_ITEMS_ITEM_NAME, item_name);
 	    }
 
-          if (STRINGP (descrip) && STRING_MULTIBYTE (descrip))
+          if (STRINGP(descrip) && STRING_MULTIBYTE(descrip))
 	    {
-	      descrip = ENCODE_MENU_STRING (descrip);
-	      ASET (menu_items, i + MENU_ITEMS_ITEM_EQUIV_KEY, descrip);
+	      descrip = ENCODE_MENU_STRING(descrip);
+	      ASET(menu_items, i + MENU_ITEMS_ITEM_EQUIV_KEY, descrip);
 	    }
 # endif /* not HAVE_MULTILINGUAL_MENU */
 
-	  wv = xmalloc_widget_value ();
+	  wv = xmalloc_widget_value();
 	  if (prev_wv)
 	    prev_wv->next = wv;
 	  else
@@ -1107,10 +1107,10 @@ update_frame_tool_bar (struct frame *f)
   /* update EmacsToolbar as in GtkUtils, build items list */
   for (i = 0; i < f->n_tool_bar_items; ++i)
     {
-#define TOOLPROP(IDX) AREF (f->tool_bar_items, \
-                            i * TOOL_BAR_ITEM_NSLOTS + (IDX))
+#define TOOLPROP(IDX) AREF(f->tool_bar_items, \
+                           (i * TOOL_BAR_ITEM_NSLOTS + (IDX)))
 
-      BOOL enabled_p = !NILP (TOOLPROP (TOOL_BAR_ITEM_ENABLED_P));
+      BOOL enabled_p = !NILP(TOOLPROP(TOOL_BAR_ITEM_ENABLED_P));
       int idx;
       ptrdiff_t img_id;
       struct image *img;
@@ -1118,8 +1118,8 @@ update_frame_tool_bar (struct frame *f)
       Lisp_Object helpObj;
       const char *helpText;
 
-      /* Check if this is a separator.  */
-      if (EQ (TOOLPROP (TOOL_BAR_ITEM_TYPE), Qt))
+      /* Check if this is a separator: */
+      if (EQ(TOOLPROP(TOOL_BAR_ITEM_TYPE), Qt))
         {
           /* Skip separators.  Newer OSX don't show them, and on GNUstep they
              are wide as a button, thus overflowing the toolbar most of
@@ -1129,24 +1129,24 @@ update_frame_tool_bar (struct frame *f)
 
       /* If image is a vector, choose the image according to the
 	 button state.  */
-      image = TOOLPROP (TOOL_BAR_ITEM_IMAGES);
-      if (VECTORP (image))
+      image = TOOLPROP(TOOL_BAR_ITEM_IMAGES);
+      if (VECTORP(image))
 	{
           /* NS toolbar auto-computes disabled and selected images */
           idx = TOOL_BAR_IMAGE_ENABLED_SELECTED;
-	  eassert (ASIZE (image) >= idx);
-	  image = AREF (image, idx);
+	  eassert(ASIZE(image) >= idx);
+	  image = AREF(image, idx);
 	}
       else
         {
           idx = -1;
         }
-      helpObj = TOOLPROP (TOOL_BAR_ITEM_HELP);
-      if (NILP (helpObj))
-        helpObj = TOOLPROP (TOOL_BAR_ITEM_CAPTION);
-      helpText = NILP (helpObj) ? "" : SSDATA (helpObj);
+      helpObj = TOOLPROP(TOOL_BAR_ITEM_HELP);
+      if (NILP(helpObj))
+        helpObj = TOOLPROP(TOOL_BAR_ITEM_CAPTION);
+      helpText = (NILP(helpObj) ? "" : SSDATA(helpObj));
 
-      /* Ignore invalid image specifications.  */
+      /* Ignore invalid image specifications: */
       if (!valid_image_p(image))
         {
           /* Don't log anything, GNUS makes invalid images all the time: */
@@ -1157,7 +1157,7 @@ update_frame_tool_bar (struct frame *f)
       img = IMAGE_FROM_ID(f, img_id);
       prepare_image_for_display(f, img);
 
-      if (img->load_failed_p || (img->pixmap == nil))
+      if ((img == NULL) || img->load_failed_p || (img->pixmap == nil))
         {
           NSLog(@"Could not prepare toolbar image for display.");
           continue;
@@ -1379,7 +1379,7 @@ update_frame_tool_bar (struct frame *f)
 #if 0
   [font boundingRectForFont].size.height;
 #endif /* 0 */
-  NSRect r = NSMakeRect (0, 0, 100, height+6);
+  NSRect r = NSMakeRect(0, 0, 100, (height + 6));
 
   textField = [[NSTextField alloc] initWithFrame: r];
   [textField setFont: font];
@@ -1548,16 +1548,17 @@ ns_popup_dialog (Lisp_Object position, Lisp_Object header, Lisp_Object contents)
     f = XFRAME (window);
   else if (WINDOWP (window))
     {
-      CHECK_LIVE_WINDOW (window);
-      f = XFRAME (WINDOW_FRAME (XWINDOW (window)));
+      CHECK_LIVE_WINDOW(window);
+      f = XFRAME(WINDOW_FRAME(XWINDOW(window)));
     }
   else
-    CHECK_WINDOW (window);
+    CHECK_WINDOW(window);
 
-  check_window_system (f);
+  check_window_system(f);
 
-  p.x = (int)f->left_pos + ((int)FRAME_COLUMN_WIDTH (f) * f->text_cols)/2;
-  p.y = (int)f->top_pos + (FRAME_LINE_HEIGHT (f) * f->text_lines)/2;
+  p.x = ((int)f->left_pos
+         + (((int)FRAME_COLUMN_WIDTH(f) * f->text_cols) / 2));
+  p.y = ((int)f->top_pos + ((FRAME_LINE_HEIGHT(f) * f->text_lines) / 2));
 
   title = Fcar (contents);
   CHECK_STRING (title);
@@ -1619,17 +1620,17 @@ ns_popup_dialog (Lisp_Object position, Lisp_Object header, Lisp_Object contents)
 - (id)initWithContentRect:(NSRect)contentRect styleMask:(NSUInteger)aStyle
                   backing:(NSBackingStoreType)backingType defer:(BOOL)flag
 {
-  NSSize spacing = {SPACER, SPACER};
+  NSSize spacing = { SPACER, SPACER };
   NSRect area;
   id cell;
   NSImageView *imgView;
   FlippedView *contentView;
   NSImage *img;
 
-  dialog_return   = Qundefined;
-  button_values   = NULL;
-  area.origin.x   = (3 * SPACER);
-  area.origin.y   = (2 * SPACER);
+  dialog_return = Qundefined;
+  button_values = NULL;
+  area.origin.x = (3 * SPACER);
+  area.origin.y = (2 * SPACER);
   area.size.width = ICONSIZE;
   area.size.height= ICONSIZE;
   img = [[NSImage imageNamed: @"NSApplicationIcon"] copy];
@@ -1641,7 +1642,8 @@ ns_popup_dialog (Lisp_Object position, Lisp_Object header, Lisp_Object contents)
   [img autorelease];
   [imgView autorelease];
 
-  aStyle = NSTitledWindowMask|NSClosableWindowMask|NSUtilityWindowMask;
+  aStyle = (NSTitledWindowMask | NSClosableWindowMask
+            | NSUtilityWindowMask);
   flag = YES;
   rows = 0;
   cols = 1;
@@ -1657,18 +1659,18 @@ ns_popup_dialog (Lisp_Object position, Lisp_Object header, Lisp_Object contents)
   [[self contentView] addSubview: imgView];
   [self setTitle: @""];
 
-  area.origin.x   += (ICONSIZE + 2 * SPACER);
+  area.origin.x += (ICONSIZE + 2 * SPACER);
 #if 0
 # ifdef TEXTHEIGHT
-  area.origin.y   = TEXTHEIGHT;
+  area.origin.y = TEXTHEIGHT;
 # else
 #  if defined(ICONSIZE) && defined(SPACER)
-  area.origin.y   = (ICONSIZE / 2 - 10 + SPACER);
+  area.origin.y = (ICONSIZE / 2 - 10 + SPACER);
 #  endif /* ICONSIZE && SPACER */
 # endif /* TEXTHEIGHT */
 #endif /* 0 */
   area.size.width = 400;
-  area.size.height= TEXTHEIGHT;
+  area.size.height = TEXTHEIGHT;
   command = [[[NSTextField alloc] initWithFrame: area] autorelease];
   [[self contentView] addSubview: command];
   [command setStringValue: ns_app_name];
@@ -1678,10 +1680,10 @@ ns_popup_dialog (Lisp_Object position, Lisp_Object header, Lisp_Object contents)
   [command setFont: [NSFont boldSystemFontOfSize: 13.0]];
 
 #if 0
-  area.origin.x   = (ICONSIZE + 2 * SPACER);
-  area.origin.y   = (TEXTHEIGHT + (2 * SPACER));
+  area.origin.x = (ICONSIZE + (2 * SPACER));
+  area.origin.y = (TEXTHEIGHT + (2 * SPACER));
   area.size.width = 400;
-  area.size.height= 2;
+  area.size.height = 2;
   tem = [[[NSBox alloc] initWithFrame: area] autorelease];
   [[self contentView] addSubview: tem];
   [tem setTitlePosition: NSNoTitle];
@@ -1689,9 +1691,9 @@ ns_popup_dialog (Lisp_Object position, Lisp_Object header, Lisp_Object contents)
 #endif /* 0 */
 
 #if 0
-  area.origin.x = (ICONSIZE + 2 * SPACER);
+  area.origin.x = (ICONSIZE + (2 * SPACER));
 #endif /* 0 */
-  area.origin.y += TEXTHEIGHT+SPACER;
+  area.origin.y += (TEXTHEIGHT + SPACER);
   area.size.width = 400;
   area.size.height= TEXTHEIGHT;
   title = [[[NSTextField alloc] initWithFrame: area] autorelease];
@@ -1712,8 +1714,9 @@ ns_popup_dialog (Lisp_Object position, Lisp_Object header, Lisp_Object contents)
                                  prototype: cell
                               numberOfRows: 0
                            numberOfColumns: 1];
-  [matrix setFrameOrigin: NSMakePoint (area.origin.x,
-                                      area.origin.y + (TEXTHEIGHT+3*SPACER))];
+  [matrix setFrameOrigin: NSMakePoint(area.origin.x,
+                                      (area.origin.y
+                                       + (TEXTHEIGHT + (3 * SPACER))))];
   [matrix setIntercellSpacing: spacing];
   [matrix autorelease];
 
@@ -1734,7 +1737,7 @@ ns_popup_dialog (Lisp_Object position, Lisp_Object header, Lisp_Object contents)
 
 - (void)dealloc
 {
-  xfree (button_values);
+  xfree(button_values);
   [super dealloc];
 }
 
@@ -1744,10 +1747,10 @@ ns_popup_dialog (Lisp_Object position, Lisp_Object header, Lisp_Object contents)
   int row = 0;
   int buttons = 0, btnnr = 0;
 
-  for (; XTYPE (lst) == Lisp_Cons; lst = XCDR (lst))
+  for (; XTYPE(lst) == Lisp_Cons; lst = XCDR(lst))
     {
-      item = XCAR (list);
-      if (XTYPE (item) == Lisp_Cons)
+      item = XCAR(list);
+      if (XTYPE(item) == Lisp_Cons)
         ++buttons;
     }
 
@@ -1836,7 +1839,7 @@ ns_popup_dialog (Lisp_Object position, Lisp_Object header, Lisp_Object contents)
 - (id)initFromContents: (Lisp_Object)contents isQuestion: (BOOL)isQ
 {
   Lisp_Object head;
-  [super init];
+  self = [super init];
 
   if (XTYPE (contents) == Lisp_Cons)
     {
@@ -1846,9 +1849,9 @@ ns_popup_dialog (Lisp_Object position, Lisp_Object header, Lisp_Object contents)
   else
     head = contents;
 
-  if (XTYPE (head) == Lisp_String)
+  if (XTYPE(head) == Lisp_String)
       [title setStringValue:
-                 [NSString stringWithUTF8String: SSDATA (head)]];
+                 [NSString stringWithUTF8String: SSDATA(head)]];
   else if (isQ == YES)
       [title setStringValue: @"Question"];
   else

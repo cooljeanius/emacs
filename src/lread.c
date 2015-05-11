@@ -95,8 +95,11 @@ extern int errno;
 #endif /* !USE_CRT_DLL && !errno && !_SYS_ERRNO_H_ */
 
 /* Hash table read constants: */
-static Lisp_Object Qhash_table, Qdata;
-static Lisp_Object Qtest, Qsize;
+static Lisp_Object Qhash_table;
+static Lisp_Object Qtest;
+#if !(defined(EMACS_LISP_H) && defined(HAVE_CARBON))
+static Lisp_Object Qdata, Qsize;
+#endif /* !(EMACS_LISP_H && HAVE_CARBON) */
 static Lisp_Object Qweakness;
 static Lisp_Object Qrehash_size;
 static Lisp_Object Qrehash_threshold;

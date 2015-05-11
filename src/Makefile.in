@@ -68,7 +68,8 @@ CLANG_ANALYZER = @CLANG_ANALYZER@
 
 # Instead of setting CFLAGS in here, use the one for the correct language
 # farther below instead:
-RUN_CLANG_ANALYZER = $(CLANG_ANALYZER) $(DEFS) $(CPPFLAGS) --analyze
+RUN_CLANG_ANALYZER = $(CLANG_ANALYZER) $(DEFS) $(CPPFLAGS) \
+  -Demacs $(MYCPPFLAGS) -I. -I../lib --analyze
 
 lispsource = $(srcdir)/../lisp
 lib = ../lib
@@ -85,7 +86,7 @@ config_h = config.h $(srcdir)/conf_post.h
 
 bootstrap_exe = ../src/bootstrap-emacs$(EXEEXT)
 
-## ns-app if HAVE_NS, else empty.
+## macosx-app if HAVE_CARBON, ns-app if HAVE_NS, else empty.
 OTHER_FILES = @OTHER_FILES@
 
 ## Flags to pass for profiling builds
@@ -102,6 +103,7 @@ C_SWITCH_MACHINE=@C_SWITCH_MACHINE@
 ## System-specific CFLAGS.
 C_SWITCH_SYSTEM=@C_SWITCH_SYSTEM@
 
+MAC_CFLAGS=@MAC_CFLAGS@
 GNUSTEP_CFLAGS=@GNUSTEP_CFLAGS@
 PNG_CFLAGS=@PNG_CFLAGS@
 
@@ -276,6 +278,8 @@ MAC_OBJ = mac.o macterm.o macfns.o macmenu.o macselect.o fontset.o fringe.o imag
 ## as a start towards the above, compare this with the previous,
 ## and make sure they come out the same:
 MAC_OBJ_SUBSTED = @MAC_OBJ@
+## macappkit.o if HAVE_CARBON, otherwise empty.
+MAC_OBJC_OBJ=@MAC_OBJC_OBJ@
 emacsapp = $(PWD)/$(mac)Emacs.app/
 emacsappsrc = ${srcdir}/../mac/Emacs.app/
 #endif /* HAVE_CARBON */
@@ -430,8 +434,8 @@ MKDEPDIR=@MKDEPDIR@
 ALL_CFLAGS=-Demacs $(MYCPPFLAGS) -I. -I$(srcdir) \
   -I$(lib) -I$(srcdir)/../lib \
   $(C_SWITCH_MACHINE) $(C_SWITCH_SYSTEM) $(C_SWITCH_X_SITE) \
-  $(GNUSTEP_CFLAGS) $(CFLAGS_SOUND) $(RSVG_CFLAGS) $(IMAGEMAGICK_CFLAGS) \
-  $(PNG_CFLAGS) $(LIBXML2_CFLAGS) $(DBUS_CFLAGS) \
+  $(MAC_CFLAGS) $(GNUSTEP_CFLAGS) $(CFLAGS_SOUND) $(RSVG_CFLAGS) \
+  $(IMAGEMAGICK_CFLAGS) $(PNG_CFLAGS) $(LIBXML2_CFLAGS) $(DBUS_CFLAGS) \
   $(XRANDR_CFLAGS) $(XINERAMA_CFLAGS) $(XFIXES_CFLAGS) \
   $(SETTINGS_CFLAGS) $(FREETYPE_CFLAGS) $(FONTCONFIG_CFLAGS) \
   $(LIBOTF_CFLAGS) $(M17N_FLT_CFLAGS) $(DEPFLAGS) \
@@ -479,7 +483,8 @@ base_obj = dispnew.o frame.o scroll.o xdisp.o menu.o $(XMENU_OBJ) \
 	$(MSDOS_OBJ) $(MSDOS_X_OBJ) $(NS_OBJ) $(CYGWIN_OBJ) $(FONT_OBJ) \
 	$(W32_OBJ) $(WINDOW_SYSTEM_OBJ) $(XGSELOBJ)
 old_obj = abbrev.o @MAINT@ strftime.o md5.o # $(MAC_OBJ)
-obj = $(base_obj) $(NS_OBJC_OBJ) $(MAC_OBJ_SUBSTED) $(old_obj)
+obj = $(base_obj) $(MAC_OBJC_OBJ) $(NS_OBJC_OBJ) $(MAC_OBJ_SUBSTED) \
+	$(old_obj)
 
 ## Object files used on some machine or other.
 ## These go in the DOC file on all machines in case they are needed.
@@ -645,7 +650,7 @@ version.h: ../Makefile
 globals.h: gl-stamp
 	@echo "this target, '$@', just makes its dep, '$<'"
 
-GLOBAL_SOURCES = $(base_obj:.o=.c) $(NS_OBJC_OBJ:.o=.m)
+GLOBAL_SOURCES = $(base_obj:.o=.c) $(MAC_OBJC_OBJ:.o=.m) $(NS_OBJC_OBJ:.o=.m)
 
 ##the value of GLOBAL_SOURCES may change with the Makefile:
 gl-stamp: $(libsrc)/make-docfile$(EXEEXT) $(GLOBAL_SOURCES) Makefile
@@ -749,7 +754,8 @@ macosx-bundle: ${emacsapp}Contents/Resources/English.lproj \
 	${emacsapp}Contents/Info.plist ${emacsapp}Contents/PkgInfo \
 	${emacsapp}Contents/Resources/Emacs.icns \
 	${emacsapp}Contents/Resources/English.lproj/InfoPlist.strings
-macosx-app: macosx-bundle ${emacsapp}Contents/MacOS/Emacs
+macosx-app: macosx-bundle ${emacsapp}Contents/MacOS/Emacs emacs$(EXEEXT)
+	cd ../mac && $(MAKE) $(MFLAGS) all
 ${emacsapp}Contents/MacOS/Emacs: emacs${EXEEXT}
 	${MKDIR_P} $(AM_V_v) ${emacsapp}Contents/MacOS/;
 	cd ${emacsapp}Contents/MacOS/; \

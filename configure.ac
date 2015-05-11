@@ -3411,15 +3411,21 @@ else
       AC_MSG_NOTICE([skipping checks for warnings for gcc 4.2 or newer])
     ])dnl# end block of code for gcc4.2+
 
-    dnl# introduced in 4.7, apparently:
-    gl_GCC_VERSION_IFELSE([4],[7],[
-      dnl# gcc-warning.spec says to add a sane default for this, so I went
-      dnl# by my current stack limit:
-      gl_WARN_ADD([-Wstack-usage=8192000])
-      dnl# (8192 kbytes = 8192000 bytes)
-    ],[
-      AC_MSG_NOTICE([skipping checks for warnings for gcc 4.7 or newer])
-    ])dnl# end block of code for gcc4.7+
+    dnl# fails for same reason as why "-Wstack-protector" is in "${nw}":
+    if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
+      test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
+      dnl# introduced in 4.7, apparently:
+      gl_GCC_VERSION_IFELSE([4],[7],[
+        dnl# gcc-warning.spec says to add a sane default for this, so I
+        dnl# went by my current stack limit:
+        gl_WARN_ADD([-Wstack-usage=8192000])
+        dnl# (8192 kbytes = 8192000 bytes... right?)
+      ],[
+        AC_MSG_NOTICE([skipping checks for warnings for gcc 4.7 or newer])
+      ])dnl# end block of code for gcc4.7+
+    else
+      test -z "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
+    fi  ##end check for undocumented environment variable.
 
     dnl# some other ones from the gcc4.9 manual that m4/manywarnings.m4
     dnl# leaves out:
@@ -4745,15 +4751,19 @@ fi
 ]
 dnl# m4-quotation block 11 ends
 
+## same as "HAVE_MACGUI" in Yamamoto Mitsuharu's Mac port:
 HAVE_CARBON=no
+## "${with_carbon}" is "${with_mac}" in Yamamoto Mitsuharu's Mac port:
 if test "x${with_carbon}" != "xno"; then
   AC_CHECK_HEADER([Carbon/Carbon.h],[HAVE_CARBON=yes])
   AC_CHECK_HEADERS([CarbonCore/Files.h CarbonCore/MacTypes.h \
-                    CarbonCore/Script.h CarbonCore/TextUtils.h \
+                    CarbonCore/Script.h CarbonCore/StringCompare.h \
+                    CarbonCore/TextUtils.h \
                     HIToolbox/CarbonEvents.h HIToolbox/Controls.h \
                     HIToolbox/Drag.h HIToolbox/Events.h \
                     HIToolbox/HIProgressViews.h HIToolbox/MacWindows.h \
-                    MacTypes.h NavigationServices/Navigation.h \
+                    HIToolbox/Menus.h MacTypes.h \
+                    NavigationServices/Navigation.h \
                     QD/QuickdrawAPI.h QD/QDOffscreen.h])dnl
   ## end Carbon headers check
 fi
@@ -4771,10 +4781,41 @@ if test "x${window_system}" = "xx11" && test "x${HAVE_CARBON}" = "xyes"; then
 fi
 LIBS_CARBON=""
 MAC_OBJ=""
+MAC_OBJC_OBJ=""
 if test "x${HAVE_CARBON}" = "xyes"; then
   window_system=mac
-  export LIBS_CARBON="-framework Carbon -framework QuickTime -framework CoreFoundation"
+  ## this header is needed for the conftest that follows after it:
+  AC_CHECK_HEADERS([AvailabilityMacros.h])dnl
+  # Check if the Quartz Core framework is necessary and always
+  # available at runtime:
+  AC_MSG_CHECKING([Mac OS X version max allowed >= 10.5])
+  AC_CACHE_VAL([emacs_cv_mac_os_x_max_allowed_10_5],
+     [AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+#ifdef HAVE_AVAILABILITYMACROS_H
+# include <AvailabilityMacros.h>
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(__APPLE__)
+#  warning "This conftest expects <AvailabilityMacros.h> to be included."
+# endif /* __GNUC__ && !__STRICT_ANSI__ && __APPLE__ */
+#endif /* HAVE_AVAILABILITY_MACROS_H */
+]],[[
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1050 && MAC_OS_X_VERSION_MIN_REQUIRED > 1020
+# error "OSX 10.5 not allowed"
+fail;
+#endif
+]])],[emacs_cv_mac_os_x_max_allowed_10_5=no], [emacs_cv_mac_os_x_max_allowed_10_5=yes])])dnl
+  ## FIXME: is this redundant with the similar test in the NS case below?
+  if test "x${emacs_cv_mac_os_x_max_allowed_10_5}" = "xyes"; then
+    AC_MSG_RESULT([10.5 or later])
+    libs_quartz_core="-framework QuartzCore"
+  else
+    AC_MSG_RESULT([before 10.5])
+    libs_quartz_core=""
+  fi
+  ## used in libs_nsgui (i.e. libs_macgui) farther below:
+  export LIBS_CARBON="-framework Carbon -framework WebKit -framework Quartz ${libs_quartz_core} -framework IOKit -framework OSAKit -framework Cocoa -framework QuickTime -framework CoreFoundation"
   export MAC_OBJ="mac.o macterm.o macfns.o macmenu.o macselect.o fontset.o fringe.o image.o"
+  export MAC_OBJC_OBJ="macappkit.o macfont.o"
   AC_MSG_NOTICE([it looks like we are using Carbon for the window system at this point])
   case "${canonical}" in
     *64-*-darwin9.* | *64-*-darwin1[[012345]].*)
@@ -4815,6 +4856,7 @@ printf("%s", out_string);
 fi
 AC_SUBST([LIBS_CARBON])dnl
 AC_SUBST([MAC_OBJ])dnl
+AC_SUBST([MAC_OBJC_OBJ])dnl
 
 HAVE_NS="no"
 NS_GNUSTEP_CONFIG="no"
@@ -5063,6 +5105,7 @@ ns_self_contained=no
 NS_OBJ=""
 NS_OBJC_OBJ=""
 if test "x${HAVE_NS}" = "xyes"; then
+  test "x${window_system}" = "xmac" ## disable Carbon/MACGUI based on this?
   if test "x${with_toolkit_scroll_bars}" = "xno"; then
     AC_MSG_ERROR([Non-toolkit scroll bars are not implemented for Nextstep.])
   fi
@@ -7124,16 +7167,29 @@ case "${opsys}" in
         AC_CHECK_HEADERS([objc/malloc.h])
       fi
     fi
+    AC_CHECK_HEADERS([objc/runtime.h])
     AC_LANG_POP
     ;;
 esac
 
-AC_CHECK_HEADERS([Availability.h AvailabilityMacros.h])dnl
+AC_CHECK_HEADERS([Availability.h])dnl
+  ## in case we skipped it, due to no Carbon or something:
+if test "x${ac_cv_header_AvailabilityMacros_h}" = "x"; then
+  test -z "${ac_cv_header_AvailabilityMacros_h}"
+  AC_CHECK_HEADERS([AvailabilityMacros.h])dnl
+  ## (just in case)
+fi
 
+MAC_CFLAGS=""
 ### The Mac OS X Carbon API is one way to implement the GUI.
+### ("${HAVE_CARBON}" is the same as "${HAVE_MACGUI}" from Y.M.'s Mac port)
 if test "x${HAVE_CARBON}" = "xyes"; then
   AC_DEFINE([HAVE_CARBON],[1],
             [Define to 1 if you are using the Carbon API on Mac OS X.])
+  ## (maybe also define HAVE_SOUND here?)
+  if test "x${emacs_cv_apple}" = "xyes"; then
+    MAC_CFLAGS="-fconstant-cfstrings"
+  fi
   ## Specify the install directory:
   AC_MSG_CHECKING([directory for the Carbon app])
   carbon_appdir=""
@@ -7152,6 +7208,9 @@ if test "x${HAVE_CARBON}" = "xyes"; then
   fi
   # We also have mouse menus.
   HAVE_MENUS=yes
+  # Tell src/Makefile.in to create files in the Mac OS X application
+  # bundle mac/Emacs.app.
+  OTHER_FILES=macosx-app
 fi
 
 GNUSTEP_CFLAGS=""
@@ -9004,6 +9063,7 @@ dnl## src/Makefile.in did add LD_SWITCH_X_SITE (as a cpp define) to the
 dnl## end of LIBX_BASE, but nothing ever set it.
 AC_SUBST([LD_SWITCH_X_SITE])dnl
 AC_SUBST([C_SWITCH_X_SITE])dnl
+AC_SUBST([MAC_CFLAGS])dnl
 AC_SUBST([GNUSTEP_CFLAGS])dnl
 AC_SUBST([CFLAGS])dnl
 dnl## Used in lwlib/Makefile.in:
@@ -9345,6 +9405,7 @@ case "${opsys}" in
    ## about 14 to about 34. Setting it high gets us plenty of slop and
    ## only costs about 1.5K of wasted binary space.
    headerpad_extra=1000
+   # libs_nsgui is equivalent to libs_macgui from Y.M.'s Mac port:
    if test "x${HAVE_NS}" = "xyes"; then
      libs_nsgui="-framework AppKit"
      if test "x${NS_IMPL_COCOA}" = "xyes"; then
@@ -9355,9 +9416,10 @@ case "${opsys}" in
      fi
    elif test "x${HAVE_CARBON}" = "xyes" && test "x${LIBS_CARBON}" != "x"; then
      test -n "${LIBS_CARBON}" && libs_nsgui="${LIBS_CARBON}"
-     ## 0x690 is the total size of 30 segment load commands (at 56
-     ## each):
-     headerpad_extra=690
+     ## This used to be 0x690, which was the total size of 30 segment load
+     ## commands (at 56 each), but we bumped it to 0xBD0 because of all the
+     ## additional frameworks added to LIBS_CARBON above:
+     headerpad_extra=BD0
    else
      libs_nsgui=""
      headerpad_extra=1000
@@ -9704,6 +9766,10 @@ run or moved from there."
 You may need to run \"${MAKE-make} install\" with sudo. The application will fail
 to run if these resources are not installed."
    fi
+   if test "x${with_wide_int}" = "xyes"; then
+      echo "Warning: \`--with-wide-int' is untested on the Mac port."
+      echo "Use it at your own risk."
+   fi
    echo ""
 fi
 
@@ -9738,6 +9804,14 @@ fi
 test "x${exec_prefix}" != "xNONE" &&
   exec_prefix=`echo "${exec_prefix}" | sed 's,\([^/]\)/*$,\1,'`]
 
+MAC_TEMPLATE_FILES=""
+if test "x${HAVE_CARBON}" = "xyes"; then
+    AC_CONFIG_FILES([mac/Emacs.app/Contents/Info.plist:mac/templates/Info.plist.in \
+    mac/Emacs.app/Contents/Resources/English.lproj/InfoPlist.strings:mac/templates/InfoPlist.strings.in])
+    MAC_TEMPLATE_FILES="mac/templates/Info.plist.in mac/templates/InfoPlist.strings.in"
+fi
+AC_SUBST([MAC_TEMPLATE_FILES])dnl
+
 if test "x${HAVE_NS}" = "xyes"; then
   if test "x${NS_IMPL_GNUSTEP}" = "xyes"; then
     AC_CONFIG_FILES([nextstep/GNUstep/Emacs.base/Resources/Info-gnustep.plist:nextstep/templates/Info-gnustep.plist.in \
@@ -9767,14 +9841,14 @@ dnl# is not quite right (see:
 dnl# http://lists.gnu.org/archive/html/bug-autoconf/2008-08/msg00028.html).
 dnl# That does NOT have any obvious consequences for Emacs, but on the
 dnl# whole it seems better to just live with the duplication.
-SUBDIR_MAKEFILES="lib/Makefile lib-src/Makefile oldXMenu/Makefile doc/emacs/Makefile doc/Makefile doc/lispintro/Makefile doc/lispref/Makefile doc/man/Makefile doc/misc/Makefile src/Makefile lisp/Makefile lispintro/Makefile lispref/Makefile leim/Makefile lwlib/Makefile man/Makefile nextstep/Makefile nt/Makefile"
+SUBDIR_MAKEFILES="lib/Makefile lib-src/Makefile oldXMenu/Makefile doc/emacs/Makefile doc/Makefile doc/lispintro/Makefile doc/lispref/Makefile doc/man/Makefile doc/misc/Makefile src/Makefile lisp/Makefile lispintro/Makefile lispref/Makefile leim/Makefile lwlib/Makefile man/Makefile mac/Makefile nextstep/Makefile nt/Makefile"
 
 AC_CONFIG_FILES([Makefile lib/Makefile lib-src/Makefile oldXMenu/Makefile \
        doc/Makefile doc/emacs/Makefile doc/lispintro/Makefile \
        doc/lispref/Makefile doc/man/Makefile doc/misc/Makefile \
        src/Makefile lisp/Makefile lispintro/Makefile lispref/Makefile \
-       leim/Makefile lwlib/Makefile man/Makefile nextstep/Makefile \
-       nt/Makefile po/Makevars])dnl
+       leim/Makefile lwlib/Makefile man/Makefile mac/Makefile \
+       nextstep/Makefile nt/Makefile po/Makevars])dnl
 
 ### Make the necessary directories, if they do NOT exist.
 for dir in etc lisp; do

@@ -366,18 +366,18 @@ extern void unuse_menu_items (void);
    confined to an extended version of this with sections of code below
    using it unconditionally.  */
 #ifndef HAVE_NTGUI
-#if defined (USE_GTK) || defined (HAVE_NS)
-# define ENCODE_MENU_STRING(str) ENCODE_UTF_8 (str)
-#elif defined HAVE_X_I18N
-#define ENCODE_MENU_STRING(str) ENCODE_SYSTEM (str)
-#else
-#define ENCODE_MENU_STRING(str) string_make_unibyte (str)
-#endif /* USE_GTK  */
+# if defined(USE_GTK) || defined(HAVE_CARBON) || defined(HAVE_NS)
+#  define ENCODE_MENU_STRING(str) ENCODE_UTF_8(str)
+# elif defined HAVE_X_I18N
+#  define ENCODE_MENU_STRING(str) ENCODE_SYSTEM(str)
+# else
+#  define ENCODE_MENU_STRING(str) string_make_unibyte (str)
+# endif /* (USE_GTK || HAVE_CARBON || HAVE_NS) || HAVE_X_I18N */
 #else /* HAVE_NTGUI */
-#define ENCODE_MENU_STRING(str) (str)
+# define ENCODE_MENU_STRING(str) (str)
 #endif
 
-#if defined (HAVE_NS) || defined (HAVE_NTGUI) || defined (USE_GTK)
+#if defined(HAVE_CARBON) || defined(HAVE_NS) || defined(HAVE_NTGUI) || defined(USE_GTK)
 
 /* Definitions copied from lwlib.h */
 
@@ -425,7 +425,7 @@ typedef struct _widget_value
 # endif /* USE_GTK */
 } widget_value;
 
-#endif /* HAVE_NS || HAVE_NTGUI */
+#endif /* HAVE_CARBON || HAVE_NS || HAVE_NTGUI || USE_GTK */
 
 
 /* Macros for dealing with lispy events.  */

@@ -457,7 +457,7 @@ static Lisp_Object mac_aelist_to_lisp(const AEDescList *desc_list)
   Lisp_Object result, elem;
   DescType desc_type;
   Size size;
-  AEKeyword keyword;
+  AEKeyword keyword = 0;
   AEDesc desc;
   int attribute_p = 0;
 
@@ -516,23 +516,23 @@ static Lisp_Object mac_aelist_to_lisp(const AEDescList *desc_list)
 	    break;
 	}
 
-      if (err == noErr || desc_list->descriptorType == typeAEList)
+      if ((err == noErr) || (desc_list->descriptorType == typeAEList))
 	{
 	  if (err != noErr)
-	    elem = Qnil;	/* Don't skip elements in AEList.  */
+	    elem = Qnil;	/* Do NOT skip elements in AEList.  */
 	  else if (desc_list->descriptorType != typeAEList)
 	    {
 	      if (attribute_p)
-		elem = Fcons (ae_attr_table[count-1].symbol, elem);
+		elem = Fcons(ae_attr_table[count - 1].symbol, elem);
 	      else
 		{
-		  keyword = EndianU32_NtoB (keyword);
-		  elem = Fcons (make_unibyte_string ((char *) &keyword, 4),
-				elem);
+		  keyword = EndianU32_NtoB(keyword);
+		  elem = Fcons(make_unibyte_string((char *)&keyword, 4),
+                               elem);
 		}
 	    }
 
-	  result = Fcons (elem, result);
+	  result = Fcons(elem, result);
 	}
 
       count--;
@@ -956,7 +956,10 @@ init_coercion_handler(void)
 }
 
 #if TARGET_API_MAC_CARBON
-static OSErr
+# ifndef _EMACS_MACTERM_H
+static
+# endif /* !_EMACS_MACTERM_H */
+OSErr
 create_apple_event(AEEventClass class, AEEventID id, AppleEvent *result)
 {
   OSErr err;
@@ -1105,8 +1108,16 @@ create_apple_event_from_drag_ref(DragRef drag, UInt32 num_types,
  ***********************************************************************/
 
 #if TARGET_API_MAC_CARBON
-static Lisp_Object Qstring, Qnumber, Qboolean, Qdate, Qdata;
+# ifndef _EMACS_MACTERM_H
+static Lisp_Object Qstring, Qnumber;
+# endif /* !_EMACS_MACTERM_H */
+static Lisp_Object Qboolean, Qdate;
+# if !(defined(EMACS_LISP_H) && defined(HAVE_CARBON))
+static Lisp_Object Qdata;
+# endif /* !(EMACS_LISP_H && HAVE_CARBON) */
+# ifndef _EMACS_MACTERM_H
 static Lisp_Object Qarray, Qdictionary;
+# endif /* !_EMACS_MACTERM_H */
 
 struct cfdict_context
 {
@@ -1944,8 +1955,9 @@ XrmDatabase xrm_get_preference_database(const char *application)
   xfree (keys);
  out:
   if (key_set)
-    CFRelease (key_set);
-  CFRelease (app_id);
+    CFRelease(key_set);
+  if (app_id)
+    CFRelease(app_id);
 
   UNBLOCK_INPUT;
 
@@ -4670,7 +4682,9 @@ otherwise.  */)
   if (app_plist) {
     CFRelease(app_plist);
   }
-  CFRelease(app_id);
+  if (app_id) {
+    CFRelease(app_id);
+  }
 
   UNBLOCK_INPUT;
 
@@ -4729,7 +4743,7 @@ static CFStringRef
 cfstring_create_normalized(CFStringRef str, Lisp_Object symbol)
 {
   int form = -1;
-  TextEncodingVariant variant;
+  TextEncodingVariant variant = kTextEncodingDefaultVariant;
   float initial_mag = 0.0f;
   CFStringRef result = NULL;
 
@@ -4956,7 +4970,12 @@ static Lisp_Object mac_get_system_locale(void)
   if (locale) {
     CFStringRef string = CFLocaleGetValue(locale, kCFLocaleIdentifier);
     if (string) {
-      CFDataRef data = CFStringCreateExternalRepresentation(kCFAllocatorDefault, string, kCFStringEncodingUTF8, 0);
+      CFDataRef data;
+      CFRetain(string);
+      data = CFStringCreateExternalRepresentation(kCFAllocatorDefault,
+                                                  string,
+                                                  kCFStringEncodingUTF8,
+                                                  0U);
       if (data) {
 	const UInt8 *sdata = CFDataGetBytePtr(data);
 	if (sdata)
@@ -5232,28 +5251,28 @@ int sys_select(int nfds, SELECT_TYPE *rfds, SELECT_TYPE *wfds,
       }
 
     do {
-	EMACS_SET_SECS_USECS (select_timeout, 0, SELECT_POLLING_PERIOD_USEC);
-	if (timeout && EMACS_TIME_LT (remaining_time, select_timeout))
-	  select_timeout = remaining_time;
-	r = select_and_poll_event (nfds, rfds, wfds, efds, &select_timeout);
-	if (r != 0)
-	  return r;
+      EMACS_SET_SECS_USECS(select_timeout, 0, SELECT_POLLING_PERIOD_USEC);
+      if (timeout && EMACS_TIME_LT(remaining_time, select_timeout))
+        select_timeout = remaining_time;
+      r = select_and_poll_event(nfds, rfds, wfds, efds, &select_timeout);
+      if (r != 0)
+        return r;
 
-	*rfds = ofds[0];
-	if (wfds)
-	  *wfds = ofds[1];
-	if (efds)
-	  *efds = ofds[2];
+      *rfds = ofds[0];
+      if (wfds)
+        *wfds = ofds[1];
+      if (efds)
+        *efds = ofds[2];
 
-	if (timeout)
-	  {
-	    EMACS_GET_TIME (now);
-	    EMACS_SUB_TIME (remaining_time, end_time, now);
-	  }
-    } while (!timeout || EMACS_TIME_LT (now, end_time));
+      if (timeout)
+        {
+          EMACS_GET_TIME(now);
+          EMACS_SUB_TIME(remaining_time, end_time, now);
+        }
+    } while (!timeout || EMACS_TIME_LT(now, end_time));
 
-    EMACS_SET_SECS_USECS (select_timeout, 0, 0);
-    return select_and_poll_event (nfds, rfds, wfds, efds, &select_timeout);
+    EMACS_SET_SECS_USECS(select_timeout, 0, 0);
+    return select_and_poll_event(nfds, rfds, wfds, efds, &select_timeout);
   }
 }
 
@@ -5288,8 +5307,8 @@ void init_mac_osx_environment(void)
 
   /* Fetch the pathname of the application bundle as a C string into
      app_bundle_pathname.  */
-  bundle = CFBundleGetMainBundle ();
-  if (!bundle || CFBundleGetIdentifier (bundle) == NULL)
+  bundle = CFBundleGetMainBundle();
+  if (!bundle || (CFBundleGetIdentifier(bundle) == NULL))
     {
       /* We could not find the bundle identifier.  For now, prevent
 	 the fatal error by bringing it up in the terminal. */
@@ -5297,25 +5316,24 @@ void init_mac_osx_environment(void)
       return;
     }
 
-  bundleURL = CFBundleCopyBundleURL (bundle);
+  bundleURL = CFBundleCopyBundleURL(bundle);
   if (!bundleURL)
     return;
 
-  cf_app_bundle_pathname = CFURLCopyFileSystemPath (bundleURL,
-						    kCFURLPOSIXPathStyle);
-  app_bundle_pathname_len = CFStringGetLength (cf_app_bundle_pathname);
-  app_bundle_pathname = (char *) alloca (app_bundle_pathname_len + 1);
+  cf_app_bundle_pathname = CFURLCopyFileSystemPath(bundleURL,
+						   kCFURLPOSIXPathStyle);
+  app_bundle_pathname_len = CFStringGetLength(cf_app_bundle_pathname);
+  app_bundle_pathname = (char *)alloca(app_bundle_pathname_len + 1);
 
-  if (!CFStringGetCString (cf_app_bundle_pathname,
-			   app_bundle_pathname,
-			   app_bundle_pathname_len + 1,
-			   kCFStringEncodingISOLatin1))
+  if (!CFStringGetCString(cf_app_bundle_pathname, app_bundle_pathname,
+			  (app_bundle_pathname_len + 1),
+			  kCFStringEncodingISOLatin1))
     {
-      CFRelease (cf_app_bundle_pathname);
-      return;
+      CFRelease(cf_app_bundle_pathname);
+      goto out;
     }
 
-  CFRelease (cf_app_bundle_pathname);
+  CFRelease(cf_app_bundle_pathname);
 
   /* P should have sufficient room for the pathname of the bundle plus
      the subpath in it leading to the respective directories.  Q
@@ -5324,82 +5342,88 @@ void init_mac_osx_environment(void)
      site-lisp dir>".  */
   p = (char *)alloca(app_bundle_pathname_len + 50);
   q = (char *)alloca(3 * app_bundle_pathname_len + 150);
-  if (!getenv ("EMACSLOADPATH"))
+  if (!getenv("EMACSLOADPATH"))
     {
       q[0] = '\0';
 
-      strcpy (p, app_bundle_pathname);
-      strcat (p, "/Contents/Resources/lisp");
-      if (stat (p, &st) == 0 && (st.st_mode & S_IFMT) == S_IFDIR)
-	strcat (q, p);
+      strcpy(p, app_bundle_pathname);
+      strcat(p, "/Contents/Resources/lisp");
+      if ((stat(p, &st) == 0) && ((st.st_mode & S_IFMT) == S_IFDIR))
+	strcat(q, p);
 
-      strcpy (p, app_bundle_pathname);
-      strcat (p, "/Contents/Resources/leim");
-      if (stat (p, &st) == 0 && (st.st_mode & S_IFMT) == S_IFDIR)
+      strcpy(p, app_bundle_pathname);
+      strcat(p, "/Contents/Resources/leim");
+      if ((stat(p, &st) == 0) && ((st.st_mode & S_IFMT) == S_IFDIR))
 	{
 	  if (q[0] != '\0')
-	    strcat (q, ":");
-	  strcat (q, p);
+	    strcat(q, ":");
+	  strcat(q, p);
 	}
 
-      strcpy (p, app_bundle_pathname);
-      strcat (p, "/Contents/Resources/site-lisp");
-      if (stat (p, &st) == 0 && (st.st_mode & S_IFMT) == S_IFDIR)
+      strcpy(p, app_bundle_pathname);
+      strcat(p, "/Contents/Resources/site-lisp");
+      if ((stat(p, &st) == 0) && ((st.st_mode & S_IFMT) == S_IFDIR))
 	{
 	  if (q[0] != '\0')
-	    strcat (q, ":");
-	  strcat (q, p);
+	    strcat(q, ":");
+	  strcat(q, p);
 	}
 
       if (q[0] != '\0')
-	setenv ("EMACSLOADPATH", q, 1);
+	setenv("EMACSLOADPATH", q, 1);
     }
 
-  if (!getenv ("EMACSPATH"))
+  if (!getenv("EMACSPATH"))
     {
       q[0] = '\0';
 
-      strcpy (p, app_bundle_pathname);
-      strcat (p, "/Contents/MacOS/libexec");
-      if (stat (p, &st) == 0 && (st.st_mode & S_IFMT) == S_IFDIR)
-	strcat (q, p);
+      strcpy(p, app_bundle_pathname);
+      strcat(p, "/Contents/MacOS/libexec");
+      if ((stat(p, &st) == 0) && ((st.st_mode & S_IFMT) == S_IFDIR))
+	strcat(q, p);
 
-      strcpy (p, app_bundle_pathname);
-      strcat (p, "/Contents/MacOS/bin");
-      if (stat (p, &st) == 0 && (st.st_mode & S_IFMT) == S_IFDIR)
+      strcpy(p, app_bundle_pathname);
+      strcat(p, "/Contents/MacOS/bin");
+      if ((stat(p, &st) == 0) && ((st.st_mode & S_IFMT) == S_IFDIR))
 	{
 	  if (q[0] != '\0')
-	    strcat (q, ":");
-	  strcat (q, p);
+	    strcat(q, ":");
+	  strcat(q, p);
 	}
 
       if (q[0] != '\0')
-	setenv ("EMACSPATH", q, 1);
+	setenv("EMACSPATH", q, 1);
     }
 
-  if (!getenv ("EMACSDATA"))
+  if (!getenv("EMACSDATA"))
     {
-      strcpy (p, app_bundle_pathname);
-      strcat (p, "/Contents/Resources/etc");
-      if (stat (p, &st) == 0 && (st.st_mode & S_IFMT) == S_IFDIR)
-	setenv ("EMACSDATA", p, 1);
+      strcpy(p, app_bundle_pathname);
+      strcat(p, "/Contents/Resources/etc");
+      if ((stat(p, &st) == 0) && ((st.st_mode & S_IFMT) == S_IFDIR))
+	setenv("EMACSDATA", p, 1);
     }
 
-  if (!getenv ("EMACSDOC"))
+  if (!getenv("EMACSDOC"))
     {
-      strcpy (p, app_bundle_pathname);
-      strcat (p, "/Contents/Resources/etc");
-      if (stat (p, &st) == 0 && (st.st_mode & S_IFMT) == S_IFDIR)
-	setenv ("EMACSDOC", p, 1);
+      strcpy(p, app_bundle_pathname);
+      strcat(p, "/Contents/Resources/etc");
+      if ((stat(p, &st) == 0) && ((st.st_mode & S_IFMT) == S_IFDIR))
+	setenv("EMACSDOC", p, 1);
     }
 
   if (!getenv ("INFOPATH"))
     {
-      strcpy (p, app_bundle_pathname);
-      strcat (p, "/Contents/Resources/info");
-      if (stat (p, &st) == 0 && (st.st_mode & S_IFMT) == S_IFDIR)
-	setenv ("INFOPATH", p, 1);
+      strcpy(p, app_bundle_pathname);
+      strcat(p, "/Contents/Resources/info");
+      if ((stat(p, &st) == 0) && ((st.st_mode & S_IFMT) == S_IFDIR))
+	setenv("INFOPATH", p, 1);
     }
+
+ out:
+  if (bundleURL) {
+    CFRelease(bundleURL);
+  }
+  return;
 }
 #endif /* MAC_OSX */
 

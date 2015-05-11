@@ -3798,6 +3798,9 @@ extern Lisp_Object Qbar, Qhbar, Qbox, Qhollow;
 extern Lisp_Object Qleft_margin, Qright_margin;
 extern Lisp_Object QCdata, QCfile;
 extern Lisp_Object QCmap;
+#ifdef HAVE_CARBON
+extern Lisp_Object Qrect;
+#endif /* HAVE_CARBON */
 extern Lisp_Object Qrisky_local_variable;
 extern bool noninteractive_need_newline;
 extern Lisp_Object echo_area_buffer[2];
@@ -4045,6 +4048,9 @@ extern ptrdiff_t evxprintf (char **, ptrdiff_t *, char const *, ptrdiff_t,
   ATTRIBUTE_FORMAT_PRINTF (5, 0);
 
 /* Defined in lread.c.  */
+#ifdef HAVE_CARBON
+extern Lisp_Object Qdata, Qsize;
+#endif /* HAVE_CARBON */
 extern Lisp_Object Qvariable_documentation, Qstandard_input;
 extern Lisp_Object Qbackquote, Qcomma, Qcomma_at, Qcomma_dot, Qfunction;
 extern Lisp_Object Qlexical_binding;
@@ -4330,9 +4336,9 @@ extern void set_frame_param (struct frame *, Lisp_Object, Lisp_Object);
 extern void store_frame_param (struct frame *, Lisp_Object, Lisp_Object);
 extern void store_in_alist (Lisp_Object *, Lisp_Object, Lisp_Object);
 extern Lisp_Object do_switch_frame (Lisp_Object, int, int, Lisp_Object);
-#if (defined(HAVE_NS) && HAVE_NS) || (defined(HAVE_NTGUI) && HAVE_NTGUI)
+#if defined(HAVE_CARBON) || (defined(HAVE_NS) && HAVE_NS) || (defined(HAVE_NTGUI) && HAVE_NTGUI)
 extern Lisp_Object get_frame_param (struct frame *, Lisp_Object);
-#endif /* HAVE_NS || HAVE_NTGUI */
+#endif /* HAVE_CARBON || HAVE_NS || HAVE_NTGUI */
 extern void frames_discard_buffer (Lisp_Object);
 extern void syms_of_frame (void);
 
@@ -4595,6 +4601,27 @@ extern void syms_of_xterm (void);
 /* Defined in xterm.c, nsterm.m, w32term.c.  */
 extern char *x_get_keysym_name (int);
 #endif /* HAVE_WINDOW_SYSTEM */
+
+#ifdef HAVE_CARBON
+/* Defined in macfns.c */
+extern void syms_of_macfns (void);
+
+/* Defined in macselect.c */
+extern void syms_of_macselect (void);
+
+/* Defined in macterm.c */
+extern void syms_of_macterm (void);
+
+/* Defined in macmenu.c */
+extern void syms_of_macmenu (void);
+
+/* Defined in mac.c */
+extern const char *mac_etc_directory;
+extern const char *mac_exec_path;
+extern const char *mac_load_path;
+extern void syms_of_mac (void);
+extern void init_mac_osx_environment (void);
+#endif /* HAVE_CARBON */
 
 #ifdef HAVE_LIBXML2
 /* Defined in xml.c.  */

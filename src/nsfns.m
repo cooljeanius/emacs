@@ -20,10 +20,10 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 /*
 Originally by Carl Edman
-Updated by Christian Limpach (chris@nice.ch)
-OpenStep/Rhapsody port by Scott Bender (sbender@harmony-ds.com)
-MacOSX/Aqua port by Christophe de Dinechin (descubes@earthlink.net)
-GNUstep port and post-20 update by Adrian Robert (arobert@cogsci.ucsd.edu)
+Updated by Christian Limpach <chris@nice.ch>
+OpenStep/Rhapsody port by Scott Bender <sbender@harmony-ds.com>
+MacOSX/Aqua port by Christophe de Dinechin <descubes@earthlink.net>
+GNUstep port and post-20 update by Adrian Robert <arobert@cogsci.ucsd.edu>
 */
 
 /* This should be the first include, as it may set up #defines affecting
@@ -35,6 +35,7 @@ GNUstep port and post-20 update by Adrian Robert (arobert@cogsci.ucsd.edu)
 
 #include "lisp.h"
 #include "blockinput.h"
+#include "systime.h"
 #include "nsterm.h"
 #include "window.h"
 #include "character.h"
@@ -1612,28 +1613,28 @@ If OWNER is nil, Emacs is assumed.  */)
 }
 
 
-DEFUN ("ns-set-resource", Fns_set_resource, Sns_set_resource, 3, 3, 0,
-       doc: /* Set property NAME of OWNER to VALUE, from the defaults database.
+DEFUN("ns-set-resource", Fns_set_resource, Sns_set_resource, 3, 3, 0,
+      doc: /* Set property NAME of OWNER to VALUE, from the defaults database.
 If OWNER is nil, Emacs is assumed.
 If VALUE is nil, the default is removed.  */)
      (Lisp_Object owner, Lisp_Object name, Lisp_Object value)
 {
-  check_window_system (NULL);
-  if (NILP (owner))
-    owner = build_string ([ns_app_name UTF8String]);
-  CHECK_STRING (name);
-  if (NILP (value))
+  check_window_system(NULL);
+  if (NILP(owner))
+    owner = build_string([ns_app_name UTF8String]);
+  CHECK_STRING(name);
+  if (NILP(value))
     {
       [[NSUserDefaults standardUserDefaults] removeObjectForKey:
-                         [NSString stringWithUTF8String: SSDATA (name)]];
+                         [NSString stringWithUTF8String: SSDATA(name)]];
     }
   else
     {
-      CHECK_STRING (value);
+      CHECK_STRING(value);
       [[NSUserDefaults standardUserDefaults] setObject:
-                [NSString stringWithUTF8String: SSDATA (value)]
+                [NSString stringWithUTF8String: SSDATA(value)]
                                         forKey: [NSString stringWithUTF8String:
-                                                         SSDATA (name)]];
+                                                         SSDATA(name)]];
     }
 
   return Qnil;
@@ -2186,14 +2187,14 @@ is returned as a string, a number or, in the case of other constructs, t.
 In case the execution fails, an error is signaled. */)
      (Lisp_Object script)
 {
-  Lisp_Object result;
+  Lisp_Object result = LISP_INITIALLY_ZERO;
   int status;
   NSEvent *nxev;
 
-  CHECK_STRING (script);
-  check_window_system (NULL);
+  CHECK_STRING(script);
+  check_window_system(NULL);
 
-  block_input ();
+  block_input();
 
   as_script = script;
   as_result = &result;
@@ -2216,29 +2217,29 @@ In case the execution fails, an error is signaled. */)
 
   // If there are other events, the event loop may exit.  Keep running
   // until the script has been handled.  */
-  while (! NILP (as_script))
+  while (! NILP(as_script))
     [NSApp run];
 
   status = as_status;
   as_status = 0;
   as_result = 0;
-  unblock_input ();
+  unblock_input();
   if (status == 0)
     return result;
-  else if (!STRINGP (result))
-    error ("AppleScript error %d", status);
+  else if (!STRINGP(result))
+    error("AppleScript error %d", status);
   else
-    error ("%s", SSDATA (result));
+    error("%s", SSDATA(result));
 }
-#endif
+#endif /* NS_IMPL_COCOA */
 
 
 
-/* ==========================================================================
+/* ========================================================================
 
     Miscellaneous functions not called through hooks
 
-   ========================================================================== */
+   ===================================================================== */
 
 /* called from frame.c */
 struct ns_display_info *

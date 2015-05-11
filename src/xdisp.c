@@ -402,7 +402,10 @@ Lisp_Object Qimage;
 /* The image map types: */
 Lisp_Object QCmap;
 static Lisp_Object QCpointer;
-static Lisp_Object Qrect, Qcircle, Qpoly;
+#if !(defined(EMACS_LISP_H) && defined(HAVE_CARBON))
+static Lisp_Object Qrect;
+#endif /* !(EMACS_LISP_H && HAVE_CARBON) */
+static Lisp_Object Qcircle, Qpoly;
 
 /* Tool bar styles: */
 Lisp_Object Qboth, Qboth_horiz, Qtext_image_horiz;
@@ -1884,8 +1887,10 @@ pixel_to_glyph_coords (struct frame *f, register int pix_x, register int pix_y,
    Value is a pointer to the glyph found or null if X/Y is not on
    text, or we can't tell because W's current matrix is not up to
    date.  */
-
-static struct glyph *
+#if !defined(_EMACS_MACTERM_H)
+static
+#endif /* !_EMACS_MACTERM_H */
+struct glyph *
 x_y_to_hpos_vpos (struct window *w, int x, int y, int *hpos, int *vpos,
 		  int *dx, int *dy, int *area)
 {
@@ -1960,8 +1965,10 @@ x_y_to_hpos_vpos (struct window *w, int x, int y, int *hpos, int *vpos,
 
 /* Convert frame-relative x/y to coordinates relative to window W.
    Takes pseudo-windows into account.  */
-
-static void
+#if !defined(_EMACS_MACTERM_H)
+static
+#endif /* !_EMACS_MACTERM_H */
+void
 frame_to_window_pixel_xy (struct window *w, int *x, int *y)
 {
   if (w->pseudo_window_p)
@@ -27425,7 +27432,10 @@ cursor_in_mouse_face_p (struct window *w)
    covers these buffer positions.  This is similar to
    row_containing_pos, but is more accurate when bidi reordering makes
    buffer positions change non-linearly with glyph rows.  */
-static void
+#if !defined(_EMACS_MACTERM_H)
+static
+#endif /* !_EMACS_MACTERM_H */
+void
 rows_from_pos_range (struct window *w,
 		     ptrdiff_t start_charpos, ptrdiff_t end_charpos,
 		     Lisp_Object disp_string,

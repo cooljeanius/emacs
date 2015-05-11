@@ -25,6 +25,10 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #  ifdef Z
 #   warning "Z is defined.  If you get a later parse error in a header, check that buffer.h or other files #define-ing Z are not included."
 #  endif  /* Z */
+#  ifdef Cursor
+#   undef Cursor
+#  endif /* Cursor */
+/* just pushing this temporarily; we undef it later: */
 #  define Cursor FooFoo
 # endif  /* NS_IMPL_COCOA */
 
@@ -47,9 +51,9 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <verify.h>
 
 /* menu-related: */
-#define free_widget_value(wv) xfree (wv)
-#define malloc_widget_value() ((widget_value *) memset (xmalloc \
-    (sizeof (widget_value)), 0, sizeof (widget_value)))
+#define free_widget_value(wv) xfree(wv)
+#define malloc_widget_value() ((widget_value *)memset(xmalloc \
+    (sizeof(widget_value)), 0, sizeof(widget_value)))
 
 /* Emulate XCharStruct: */
 typedef struct _XCharStruct
@@ -64,7 +68,7 @@ typedef struct _XCharStruct
 /* Fake structure from Xlib.h to represent two-byte characters: */
 #ifndef __OBJC__
 typedef unsigned short unichar;
-#endif /* __OBJC__ */
+#endif /* !__OBJC__ */
 typedef unichar XChar2b;
 
 #define STORE_XCHAR2B(chp, b1, b2) \
@@ -90,7 +94,7 @@ typedef struct _XGCValues
 #endif /* __OBJC__ */
 } XGCValues;
 
-typedef XGCValues * GC;
+typedef XGCValues *GC;
 
 #define GCForeground 0x01
 #define GCBackground 0x02
@@ -103,7 +107,7 @@ typedef void *Pixmap;
 #endif /* __OBJC__ */
 
 #ifdef __OBJC__
-typedef NSCursor * Cursor;
+typedef NSCursor *Cursor;
 #else
 typedef void *Cursor;
 #endif /* __OBJC__ */
@@ -111,9 +115,9 @@ typedef void *Cursor;
 #define No_Cursor (0)
 
 #ifdef __OBJC__
-typedef NSColor * Color;
+typedef NSColor *Color;
 #else
-typedef void * Color;
+typedef void *Color;
 #endif /* __OBJC__ */
 typedef int Window;
 typedef int Display;
@@ -194,7 +198,7 @@ typedef struct _NSRect  { NSPoint origin; NSSize size; } NSRect;
 #define PMinSize	(1L << 4) /* program specified minimum size */
 #define PMaxSize	(1L << 5) /* program specified maximum size */
 #define PResizeInc	(1L << 6) /* program specified resize increments */
-#define PAspect		(1L << 7) /* program specified min, max aspect ratios */
+#define PAspect		(1L << 7) /* program specified min/max aspect ratios */
 #define PBaseSize	(1L << 8) /* program specified base for incrementing */
 #define PWinGravity	(1L << 9) /* program specified window gravity */
 

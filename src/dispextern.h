@@ -3068,6 +3068,12 @@ struct image
      valid, respectively. */
   bool_bf background_valid : 1, background_transparent_valid : 1;
 
+#if defined(HAVE_CARBON) && defined(MAC_APPKIT_M)
+  /* Target backing scale factor (<= 2) to which this image is dedicated.
+   * 0 means it is not dedicated to any particular one.  */
+  unsigned target_backing_scale : 2;
+#endif /* HAVE_CARBON && MAC_APPKIT_M */
+
   /* Width and height of the image.  */
   int width, height;
 
@@ -3115,6 +3121,11 @@ struct image
   /* A place for image types to store additional data.  It is marked
      during GC.  */
   Lisp_Object lisp_data;
+
+#if defined(HAVE_CARBON) && defined(MAC_APPKIT_M)
+  /* A place for image types to store Core Graphics image data: */
+  CGImageRef cg_image;
+#endif /* HAVE_CARBON && MAC_APPKIT_M */
 
   /* Hash value of image specification to speed up comparisons.  */
   EMACS_UINT hash;
@@ -3447,9 +3458,9 @@ bool valid_image_p (Lisp_Object);
 void prepare_image_for_display (struct frame *, struct image *);
 ptrdiff_t lookup_image (struct frame *, Lisp_Object);
 
-# if defined(HAVE_X_WINDOWS) || defined(HAVE_NS)
+# if defined(HAVE_X_WINDOWS) || defined(HAVE_CARBON) || defined(HAVE_NS)
 #  define RGB_PIXEL_COLOR unsigned long
-# endif /* HAVE_X_WINDOWS || HAVE_NS */
+# endif /* HAVE_X_WINDOWS || HAVE_CARBON || HAVE_NS */
 
 # ifdef HAVE_NTGUI
 #  define RGB_PIXEL_COLOR COLORREF

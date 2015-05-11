@@ -170,9 +170,11 @@ valid_font_driver (struct font_driver *drv)
 
 #endif /* ENABLE_CHECKING */
 
-/* Creators of font-related Lisp object.  */
-
-static Lisp_Object
+/* Creators of font-related Lisp object: */
+#if !(defined(EMACS_FONT_H) && defined(HAVE_CARBON))
+static
+#endif /* !(EMACS_FONT_H && HAVE_CARBON) */
+Lisp_Object
 font_make_spec (void)
 {
   Lisp_Object font_spec;

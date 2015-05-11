@@ -27,9 +27,9 @@ INLINE_HEADER_BEGIN
 # if defined(HAVE_X_WINDOWS) || defined(HAVE_X11_X_H)
 #  include <X11/X.h>
 # else
-#  ifndef EMACS_MACGUI_H
+#  if !defined(EMACS_MACGUI_H) || (defined(__clang_analyzer__) && !defined(emacs))
 typedef unsigned long Time;
-#  endif /* !EMACS_MACGUI_H */
+#  endif /* !EMACS_MACGUI_H || (__clang_analyzer__ && !emacs) */
 # endif /* HAVE_X_WINDOWS || HAVE_X11_X_H */
 #endif /* emacs */
 

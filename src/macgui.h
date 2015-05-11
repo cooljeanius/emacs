@@ -1,4 +1,4 @@
-/* macgui.h: Definitions and headers for communication on the Mac OS.
+/* src/macgui.h: Definitions and headers for communication on the Mac OS.
    Copyright (C) 2000, 2001, 2002, 2003, 2004,
                  2005, 2006, 2007 Free Software Foundation, Inc.
 
@@ -19,7 +19,7 @@ along with GNU Emacs; see the file COPYING.  If not, write to
 the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 Boston, MA 02110-1301, USA.  */
 
-/* Contributed by Andrew Choi (akochoi@mac.com).  */
+/* Contributed by Andrew Choi <akochoi@mac.com>.  */
 
 #ifndef EMACS_MACGUI_H
 #define EMACS_MACGUI_H
@@ -31,9 +31,10 @@ typedef struct _XDisplay Display; /* opaque */
 typedef Lisp_Object XrmDatabase;
 #endif /* !_XRM_DATABASE_DECLARED */
 
-#ifndef EMACS_SYSTIME_H
+#if !(defined(EMACS_SYSTIME_H) && defined(emacs) && \
+      !(defined(HAVE_X_WINDOWS) || defined(HAVE_X11_X_H)))
 typedef unsigned long Time;
-#endif /* !EMACS_SYSTIME_H */
+#endif /* !(EMACS_SYSTIME_H && emacs && !(HAVE_X_WINDOWS || HAVE_X11_X_H)) */
 
 #ifdef HAVE_CARBON
 # undef Z
@@ -51,7 +52,17 @@ typedef unsigned long Time;
 #  undef max
 #  undef min
 #  undef init_process
+#  ifndef __ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES
+#   define __ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES 0
+#  endif /* !__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES */
 #  include <Carbon/Carbon.h>
+#  ifdef check /* __ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES is
+                * not in effect.  */
+#   undef check
+#   undef verify
+#   undef _GL_VERIFY_H
+#   include <verify.h>
+#  endif /* check */
 #  if (!defined(HAVE_MKTIME) || !HAVE_MKTIME) || (defined(BROKEN_MKTIME) && (BROKEN_MKTIME))
 #   if defined(mktime)
 #    undef mktime
@@ -78,6 +89,9 @@ typedef unsigned long Time;
 # endif  /* not MAC_OSX */
 # undef Z
 # define Z (current_buffer->text->z)
+# ifdef ALIGN
+#  undef ALIGN
+# endif /* ALIGN */
 #else /* not HAVE_CARBON */
 # include <QuickDraw.h>		/* for WindowPtr */
 # include <QDOffscreen.h>	/* for GWorldPtr */
@@ -86,6 +100,22 @@ typedef unsigned long Time;
 # include <Controls.h>
 # include <Gestalt.h>
 #endif /* not HAVE_CARBON */
+
+#if !defined(__QDOFFSCREEN__)
+# if defined(HAVE_QD_QDOFFSCREEN_H)
+#  include <QD/QDOffscreen.h>
+# else
+#  if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#   warning "macgui.h expects <QD/QDOffscreen.h> to be included."
+#  endif /* __GNUC__ && !__STRICT_ANSI__ */
+# endif /* HAVE_QD_QDOFFSCREEN_H */
+#endif /* !__QDOFFSCREEN__ */
+
+#ifndef CGFLOAT_DEFINED
+typedef float CGFloat;
+# define CGFLOAT_MIN FLT_MIN
+# define CGFLOAT_MAX FLT_MAX
+#endif /* !CGFLOAT_DEFINED */
 
 /* Whether to use ATSUI (Apple Type Services for Unicode Imaging) for
    text drawing.  */
@@ -125,11 +155,29 @@ typedef unsigned long Time;
 # endif /* TARGET_API_MAC_CARBON */
 #endif /* !USE_MAC_TSM */
 
-typedef WindowPtr Window;
+typedef WindowPtr Window; /* void pointer in Y.M.'s Mac port */
+typedef void *VoidWindow;
+typedef void *Selection;
 typedef GWorldPtr Pixmap;
 
-#define Cursor ThemeCursor
-#define No_Cursor (-1)
+typedef struct _XImage
+{
+  int width, height;		/* size of image */
+  char *data;			/* pointer to image data */
+  int bytes_per_line;		/* accelarator to next line */
+  int bits_per_pixel;		/* bits per pixel (ZPixmap) */
+} *MacPixmap;
+
+typedef const struct _EmacsDocument *EmacsDocumentRef; /* opaque */
+
+#define Cursor ThemeCursor /* CFTypeRef in Y.M.'s Mac port */
+#ifndef CFCursorRef
+# define CFCursorRef CFTypeRef
+#endif /* !CFCursorRef */
+#define No_Cursor (-1) /* NULL in Y.M.'s Mac port */
+#ifndef No_Cursor_Ref
+# define No_Cursor_Ref NULL
+#endif /* !No_Cursor_Ref */
 
 #define FACE_DEFAULT (~0)
 
@@ -217,12 +265,13 @@ typedef struct MacFontStruct MacFontStruct;
 typedef struct MacFontStruct XFontStruct;
 #endif /* !_XFONTSTRUCT_DEFINED */
 
-/* Structure borrowed from Xlib.h to represent two-byte characters.  */
-
+/* Structure borrowed from Xlib.h to represent two-byte characters: */
 typedef struct {
   unsigned char byte1;
   unsigned char byte2;
-} XChar2b;
+} XChar2b; /* CGGlyph in Y.M.'s Mac port */
+
+typedef CGGlyph CGXChar2b;
 
 #define STORE_XCHAR2B(chp, b1, b2) \
   ((chp)->byte1 = (b1), (chp)->byte2 = (b2))
@@ -234,12 +283,23 @@ typedef struct {
   ((chp)->byte2)
 
 
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1060
+# ifndef DRAWING_USE_GCD
+#  define DRAWING_USE_GCD 1
+# endif /* !DRAWING_USE_GCD */
+#endif /* 10.6+ */
+
 /* Emulate X GC's by keeping color and font info in a structure.  */
 typedef struct _XGCValues
 {
-  unsigned long foreground;
-  unsigned long background;
+  unsigned long foreground; /* 32-bit bitfield in Y.M.'s Mac port */
+  unsigned long background; /* 24-bit bitfield in Y.M.'s Mac port */
+#ifdef MAC_APPKIT_M
+  /* Background transparency: 0 = opaque, 255 = transparent.  */
+  unsigned background_transparency : 8;
+#else
   XFontStruct *font;
+#endif /* MAC_APPKIT_M */
 } XGCValues;
 
 typedef struct _XGC
@@ -275,12 +335,21 @@ typedef struct _XGC
      is in QuickDraw's.  */
   CGRect clip_rects[MAX_CLIP_RECTS];
 #endif /* MAC_OSX && (USE_ATSUI || USE_CG_DRAWING) */
+
+#ifdef MAC_APPKIT_M
+  /* Data consisting of clipping rectangles used in Quartz 2D drawing.
+   * The y-coordinate is in the flipped coordinates.  */
+  CFDataRef clip_rects_data;
+#endif /* MAC_APPKIT_M */
 } *GC;
 
 #define GCForeground            (1L<<2)
 #define GCBackground            (1L<<3)
 #define GCFont 			(1L<<14)
 #define GCGraphicsExposures	0
+#ifndef GCBackgroundTransparency
+# define GCBackgroundTransparency (1L<<16)
+#endif /* !GCBackgroundTransparency */
 
 /* Bit Gravity */
 
@@ -306,10 +375,10 @@ typedef struct _XGC
 #define YNegative 	0x0020
 
 typedef struct {
-    	long flags;	/* marks which fields in this structure are defined */
+    	long flags;  /* marks which fields in this structure are defined */
 #if 0
-	int x, y;		/* obsolete for new window mgrs, but clients */
-	int width, height;	/* should set so old wm's don't mess up */
+	int x, y;	    /* obsolete for new window mgrs, but clients */
+	int width, height;  /* should set so old wm's do NOT mess up */
 #endif /* 0 */
 	int min_width, min_height;
 #if 0
@@ -340,13 +409,41 @@ typedef struct {
 #define PBaseSize	(1L << 8) /* program specified base for incrementing */
 #define PWinGravity	(1L << 9) /* program specified window gravity */
 
+/* Constants corresponding to window state hint atoms in X11 Extended
+ * Window Manager Hints (without "_NET_" prefix).  Mostly unimplemented: */
+enum
+{
+  WM_STATE_MODAL		= 1 << 0,
+  WM_STATE_STICKY		= 1 << 1,
+  WM_STATE_MAXIMIZED_VERT	= 1 << 2,
+  WM_STATE_MAXIMIZED_HORZ	= 1 << 3,
+  WM_STATE_SHADED		= 1 << 4,
+  WM_STATE_SKIP_TASKBAR		= 1 << 5,
+  WM_STATE_SKIP_PAGER		= 1 << 6,
+  WM_STATE_HIDDEN		= 1 << 7,
+  WM_STATE_FULLSCREEN		= 1 << 8,
+  WM_STATE_ABOVE		= 1 << 9,
+  WM_STATE_BELOW		= 1 << 10,
+  WM_STATE_DEMANDS_ATTENTION	= 1 << 11
+};
+
+/* These are not derived from X11 EWMH window state hints, but used
+ * like them: */
+enum
+{
+  WM_STATE_NO_MENUBAR		= 1 << 12,
+  WM_STATE_DEDICATED_DESKTOP	= 1 << 13
+};
+
+typedef uint32_t WMState;
+
 typedef struct {
     int x, y;
     unsigned width, height;
 } XRectangle;
 
 #ifndef NativeRectangle
-# define NativeRectangle Rect
+# define NativeRectangle Rect /* XRectangle in Y.M.'s Mac port */
 #endif /* !NativeRectangle */
 
 #define CONVERT_TO_XRECT(xr,nr)			\
@@ -355,17 +452,52 @@ typedef struct {
    (xr).width = ((nr).right - (nr).left),	\
    (xr).height = ((nr).bottom - (nr).top))
 
+#define CONVERT_TO_XRECT_PTR(xrp,nrp)		\
+  ((xrp)->x = (nrp)->left,			\
+   (xrp)->y = (nrp)->top,			\
+   (xrp)->width = ((nrp)->right - (nrp)->left),	\
+   (xrp)->height = ((nrp)->bottom - (nrp)->top))
+
 #define CONVERT_FROM_XRECT(xr,nr)		\
   ((nr).left = (xr).x,				\
    (nr).top = (xr).y,				\
    (nr).right = ((xr).x + (xr).width),		\
    (nr).bottom = ((xr).y + (xr).height))
 
+/* FIXME: change depending on whether NativeRectangle is an XRectangle or
+ * a Rect: */
 #define STORE_NATIVE_RECT(nr,x,y,width,height)	\
   ((nr).left = (x),				\
    (nr).top = (y),				\
    (nr).right = ((nr).left + (width)),		\
    (nr).bottom = ((nr).top + (height)))
+
+enum {
+  CFOBJECT_TO_LISP_WITH_TAG			= 1 << 0,
+  CFOBJECT_TO_LISP_DONT_DECODE_STRING		= 1 << 1,
+  CFOBJECT_TO_LISP_DONT_DECODE_DICTIONARY_KEY	= 1 << 2
+};
+
+/* Assumed by other routines to zero area returned: */
+#define malloc_widget_value() (void*)memset(xmalloc(sizeof(widget_value)),\
+                                            0, (sizeof(widget_value)))
+#define free_widget_value(wv) xfree(wv)
+
+#define DIALOG_LEFT_MARGIN (112)
+#define DIALOG_TOP_MARGIN (24)
+#define DIALOG_RIGHT_MARGIN (24)
+#define DIALOG_BOTTOM_MARGIN (20)
+#define DIALOG_MIN_INNER_WIDTH (338)
+#define DIALOG_MAX_INNER_WIDTH (564)
+#define DIALOG_BUTTON_BUTTON_HORIZONTAL_SPACE (12)
+#define DIALOG_BUTTON_BUTTON_VERTICAL_SPACE (12)
+#define DIALOG_BUTTON_MIN_WIDTH (68)
+#define DIALOG_TEXT_MIN_HEIGHT (50)
+#define DIALOG_TEXT_BUTTONS_VERTICAL_SPACE (10)
+#define DIALOG_ICON_WIDTH (64)
+#define DIALOG_ICON_HEIGHT (64)
+#define DIALOG_ICON_LEFT_MARGIN (24)
+#define DIALOG_ICON_TOP_MARGIN (15)
 
 #endif /* EMACS_MACGUI_H */
 

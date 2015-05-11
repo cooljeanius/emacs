@@ -6687,8 +6687,8 @@ gc_sweep (void)
 
 /* Debugging aids.  */
 
-DEFUN ("memory-limit", Fmemory_limit, Smemory_limit, 0, 0, 0,
-       doc: /* Return the address of the last byte Emacs has allocated, divided by 1024.
+DEFUN("memory-limit", Fmemory_limit, Smemory_limit, 0, 0, 0,
+      doc: /* Return the address of the last byte Emacs has allocated, divided by 1024.
 This may be helpful in debugging Emacs's memory usage.
 We divide the value by 1024 to make sure it fits in a Lisp integer.  */)
   (void)
@@ -6700,7 +6700,7 @@ We divide the value by 1024 to make sure it fits in a Lisp integer.  */)
   XSETINT(end, 0);
 #else
   XSETINT(end, ((intptr_t)(char *)sbrk(0) / 1024));
-#endif
+#endif /* HAVE_NS */
 
   return end;
 }
@@ -6720,15 +6720,15 @@ Frames, windows, buffers, and subprocesses count as vectors
   (but the contents of a buffer's text do not count here).  */)
   (void)
 {
-  return listn (CONSTYPE_HEAP, 8,
-		bounded_number (cons_cells_consed),
-		bounded_number (floats_consed),
-		bounded_number (vector_cells_consed),
-		bounded_number (symbols_consed),
-		bounded_number (string_chars_consed),
-		bounded_number (misc_objects_consed),
-		bounded_number (intervals_consed),
-		bounded_number (strings_consed));
+  return listn(CONSTYPE_HEAP, 8,
+               bounded_number(cons_cells_consed),
+               bounded_number(floats_consed),
+               bounded_number(vector_cells_consed),
+               bounded_number(symbols_consed),
+               bounded_number(string_chars_consed),
+               bounded_number(misc_objects_consed),
+               bounded_number(intervals_consed),
+               bounded_number(strings_consed));
 }
 
 /* Find at most FIND_MAX symbols which have OBJ as their value or

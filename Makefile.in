@@ -114,6 +114,7 @@ NTDIR=@NTDIR@
 
 # Location to install the Carbon Emacs.app on Mac OS X
 carbon_appdir=@carbon_appdir@
+## (same thing as mac_appdir in Yamamoto Mitsuharu's Mac port.)
 
 # Location to install the Cocoa Emacs.app under GNUstep / Mac OS X.
 # Later values may use these.
@@ -307,6 +308,9 @@ SUBDIR_REALLY_ONLY_C = lib lib-src
 SUBDIR_MAKEFILES_IN = @SUBDIR_MAKEFILES_IN@
 SUBDIR_MAKEFILES = `echo $(SUBDIR_MAKEFILES_IN:.in=) | $(SED) 's|$(srcdir)/||g'`
 
+# Mac template files from which config.status generates config files.
+MAC_TEMPLATE_FILES = @MAC_TEMPLATE_FILES@
+
 # Subdirectories to install, and where they will go.  lib-src's and nt's
 # makefiles know how to install them, so we do NOT do that here.
 # Directories that cannot simply be copied, e.g. info, are treated
@@ -470,7 +474,9 @@ blessmail: Makefile src FRC
 # problems.
 MAKEFILE_NAME = Makefile
 $(MAKEFILE_NAME): config.status $(srcdir)/src/config.in \
-          $(srcdir)/Makefile.in $(SUBDIR_MAKEFILES_IN) $(srcdir)/src/lisp.mk
+          $(srcdir)/Makefile.in $(SUBDIR_MAKEFILES_IN) \
+          $(srcdir)/src/lisp.mk \
+          $(MAC_TEMPLATE_FILES)
 	MAKE='$(MAKE)' ./config.status
 
 # Do NOT erase these files if make is interrupted while refreshing them.
@@ -553,6 +559,12 @@ install-arch-dep: src install-arch-indep install-etcdoc install-$(NTDIR)
 	    exec_prefix="${exec_prefix}" bindir="${bindir}" \
 	    libexecdir="${libexecdir}" archlibdir="${archlibdir}" \
 	    INSTALL_STRIP=${INSTALL_STRIP}
+	if test "${carbon_appdir}" != ""; then \
+	  umask 022; ${MKDIR_P} $(DESTDIR)${carbon_appdir}/Emacs.app; \
+	  (cd mac/Emacs.app; (tar -chf - . | \
+		(cd $(DESTDIR)${carbon_appdir}/Emacs.app; umask 022; tar -xvf - \
+			&& cat > /dev/null))) || exit 1; \
+	fi
 	if test "x${ns_self_contained}" = "xno"; then \
 	  if [ -f src/emacs-undumped ]; then \
 	    ${INSTALL_PROGRAM} $(INSTALL_STRIP) src/emacs-undumped $(DESTDIR)${bindir}/; \
@@ -922,6 +934,7 @@ clean: FRC clean-local
 	-cd doc/misc      && $(MAKE) $(MFLAGS) clean
 	-cd doc/lispref   && $(MAKE) $(MFLAGS) clean
 	-cd doc/lispintro && $(MAKE) $(MFLAGS) clean
+	cd mac      && $(MAKE) $(MFLAGS) clean
 	cd nextstep && $(MAKE) $(MFLAGS) clean
 
 ### `bootclean'
@@ -952,6 +965,7 @@ distclean: FRC distclean-local
 	cd doc/lispintro && $(MAKE) $(MFLAGS) distclean
 	cd leim     && $(MAKE) $(MFLAGS) distclean
 	cd lisp     && $(MAKE) $(MFLAGS) distclean
+	cd mac      && $(MAKE) $(MFLAGS) distclean
 	cd nextstep && $(MAKE) $(MFLAGS) distclean
 	for dir in test/automated admin/grammars admin/unidata; do \
 	  [ ! -d $$dir ] || (cd $$dir && $(MAKE) $(MFLAGS) distclean); \
@@ -976,6 +990,7 @@ bootstrap-clean: FRC
 	-cd doc/lispintro && $(MAKE) $(MFLAGS) maintainer-clean
 	cd leim     && $(MAKE) $(MFLAGS) bootstrap-clean
 	cd lisp     && $(MAKE) $(MFLAGS) bootstrap-clean
+	cd mac      && $(MAKE) $(MFLAGS) maintainer-clean
 	cd nextstep && $(MAKE) $(MFLAGS) maintainer-clean
 	for dir in test/automated admin/grammars admin/unidata; do \
 	  [ ! -d $${dir} ] || (cd $${dir} && $(MAKE) $(MFLAGS) bootstrap-clean); \

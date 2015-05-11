@@ -42,15 +42,15 @@ extern void discard_menu_items (void);
 extern void save_menu_items (void);
 extern bool parse_single_submenu (Lisp_Object, Lisp_Object, Lisp_Object);
 extern void list_of_panes (Lisp_Object);
-#if defined (USE_X_TOOLKIT) || defined (USE_GTK) || defined (HAVE_NTGUI) \
-  || defined (HAVE_NS)
+#if defined(USE_X_TOOLKIT) || defined(USE_GTK) || defined(HAVE_NTGUI) \
+  || defined(HAVE_CARBON) || defined(HAVE_NS)
 extern void free_menubar_widget_value_tree (widget_value *);
 extern void update_submenu_strings (widget_value *);
 extern void find_and_call_menu_selection (struct frame *, int,
                                           Lisp_Object, void *);
 extern widget_value *xmalloc_widget_value (void);
 extern widget_value *digest_single_submenu (int, int, bool);
-#endif
+#endif /*USE_X_TOOLKIT || USE_GTK || HAVE_NTGUI || HAVE_CARBON || HAVE_NS*/
 
 #ifdef HAVE_X_WINDOWS
 extern void mouse_position_for_popup (struct frame *f, int *x, int *y);

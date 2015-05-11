@@ -18,7 +18,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
 
-Author: Adrian Robert (arobert@cogsci.ucsd.edu)
+Author: Adrian Robert <arobert@cogsci.ucsd.edu>
 */
 
 /* This should be the first include, as it may set up #defines affecting

@@ -11751,6 +11751,10 @@ void syms_of_macterm(void)
   Qmodifier_value = intern("modifier-value");
   staticpro(&Qmodifier_value);
 
+  DEFSYM(QCordinary, ":ordinary");
+  DEFSYM(QCfunction, ":function");
+  DEFSYM(QCmouse, ":mouse");
+
   Fput(Qcontrol, Qmodifier_value, make_number(ctrl_modifier));
   Fput(Qmeta, Qmodifier_value, make_number(meta_modifier));
   Fput(Qalt, Qmodifier_value, make_number(alt_modifier));
@@ -11780,6 +11784,8 @@ void syms_of_macterm(void)
 # if USE_MAC_TSM
   Qtext_input = intern("text-input");
   staticpro(&Qtext_input);
+  DEFSYM(Qinsert_text, "insert-text");
+  DEFSYM(Qset_marked_text, "set-marked-text");
   Qupdate_active_input_area = intern("update-active-input-area");
   staticpro(&Qupdate_active_input_area);
   Qunicode_for_key_event = intern("unicode-for-key-event");
@@ -11787,12 +11793,21 @@ void syms_of_macterm(void)
 # endif /* USE_MAC_TSM */
 #endif /* USE_CARBON_EVENTS */
 
+  DEFSYM(Qnotification, "notification");
+
+  DEFSYM(Qaction, "action");
+
 #ifdef MAC_OSX
-  Fprovide(intern ("mac-carbon"), Qnil);
+  Fprovide(intern("mac-carbon"), Qnil);
+  DEFSYM(Qmac_action_key_paths, "mac-action-key-paths");
 #endif /* MAC_OSX */
+
+  DEFSYM(Qaccessibility, "accessibility");
 
   staticpro(&Qreverse);
   Qreverse = intern("reverse");
+
+  DEFSYM(Qkeyboard_modifiers, "keyboard-modifiers");
 
   staticpro(&x_display_name_list);
   x_display_name_list = Qnil;
@@ -11946,6 +11961,13 @@ Manager, are set to its car and cdr parts, respectively.  Otherwise,
 Emacs does NOT set them and thus follows the system default behavior.  */);
   Vmac_ts_script_language_on_focus = Qnil;
 #endif /* USE_MAC_TSM */
+
+  DEFVAR_BOOL ("mac-drawing-use-gcd", mac_drawing_use_gcd,
+    doc: /* Non-nil means graphical drawing uses GCD (Grand Central Dispatch).
+It allows us to perform graphical drawing operations in a non-main
+thread in some situations.  This variable has no effect on Mac OS X
+10.5 and earlier.  */);
+  mac_drawing_use_gcd = 1;
 
   return;
 }

@@ -18,6 +18,10 @@
 		A5361DF31A212CDA0058110B /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = A5361DEB1A212CDA0058110B /* Credits.rtf */; };
 		A5361DF51A212CDA0058110B /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = A5361DEF1A212CDA0058110B /* MainMenu.xib */; };
 		A53DA6FC1AF274DA00C02B65 /* isemacsvalid.c in Sources */ = {isa = PBXBuildFile; fileRef = A540EEB41A0C33390008DA29 /* isemacsvalid.c */; };
+		A53DA77A1AF7E2BF00C02B65 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A53DA7791AF7E2BF00C02B65 /* WebKit.framework */; };
+		A53DAE3A1AF7E2DC00C02B65 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A53DAE381AF7E2DC00C02B65 /* Quartz.framework */; };
+		A53DAE3B1AF7E2DC00C02B65 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A53DAE391AF7E2DC00C02B65 /* QuartzCore.framework */; };
+		A53DAECC1AF7E37C00C02B65 /* OSAKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A53DAECB1AF7E37C00C02B65 /* OSAKit.framework */; };
 		A540E9ED1A0C263D0008DA29 /* dumpemacs.c in Sources */ = {isa = PBXBuildFile; fileRef = A540E9B91A0C1F270008DA29 /* dumpemacs.c */; settings = {COMPILER_FLAGS = "-DkEmacsVersion=\\\"$(CURRENT_PROJECT_VERSION)\\\""; }; };
 		A540E9EE1A0C26410008DA29 /* runit.c in Sources */ = {isa = PBXBuildFile; fileRef = A540E9D31A0C1FF60008DA29 /* runit.c */; };
 		A540EEB01A0C331B0008DA29 /* emacswrapper.c in Sources */ = {isa = PBXBuildFile; fileRef = A540E9BF1A0C1F270008DA29 /* emacswrapper.c */; };
@@ -54,6 +58,12 @@
 		A53B88841AED73240067328B /* ftruncate.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ftruncate.c; sourceTree = "<group>"; };
 		A53B88851AED73390067328B /* strings.in.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = strings.in.h; sourceTree = "<group>"; };
 		A53DA6F81AF274C600C02B65 /* isemacsvalid */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = isemacsvalid; sourceTree = BUILT_PRODUCTS_DIR; };
+		A53DA7671AF7E20E00C02B65 /* macappkit.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = macappkit.h; sourceTree = "<group>"; tabWidth = 8; };
+		A53DA7681AF7E20E00C02B65 /* macappkit.m */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.objc; path = macappkit.m; sourceTree = "<group>"; tabWidth = 8; };
+		A53DA7791AF7E2BF00C02B65 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = /System/Library/Frameworks/WebKit.framework; sourceTree = "<absolute>"; };
+		A53DAE381AF7E2DC00C02B65 /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = /System/Library/Frameworks/Quartz.framework; sourceTree = "<absolute>"; };
+		A53DAE391AF7E2DC00C02B65 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = /System/Library/Frameworks/QuartzCore.framework; sourceTree = "<absolute>"; };
+		A53DAECB1AF7E37C00C02B65 /* OSAKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OSAKit.framework; path = /System/Library/Frameworks/OSAKit.framework; sourceTree = "<absolute>"; };
 		A540E9B81A0C1F270008DA29 /* dumpemacs.8 */ = {isa = PBXFileReference; explicitFileType = text.man; fileEncoding = 4; name = dumpemacs.8; path = ../../../dumpemacs.8; sourceTree = SOURCE_ROOT; };
 		A540E9B91A0C1F270008DA29 /* dumpemacs.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; name = dumpemacs.c; path = ../../../dumpemacs.c; sourceTree = SOURCE_ROOT; tabWidth = 8; usesTabs = 0; };
 		A540E9BA1A0C1F270008DA29 /* dumpemacs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = dumpemacs.h; path = ../../../dumpemacs.h; sourceTree = SOURCE_ROOT; };
@@ -451,7 +461,7 @@
 		A540EC4C1A0C29D50008DA29 /* floatfns.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = floatfns.c; sourceTree = "<group>"; };
 		A540EC4D1A0C29D50008DA29 /* fns.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = fns.c; sourceTree = "<group>"; tabWidth = 8; };
 		A540EC4E1A0C29D50008DA29 /* font.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = font.c; sourceTree = "<group>"; tabWidth = 8; };
-		A540EC4F1A0C29D50008DA29 /* font.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = font.h; sourceTree = "<group>"; };
+		A540EC4F1A0C29D50008DA29 /* font.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = font.h; sourceTree = "<group>"; tabWidth = 8; };
 		A540EC501A0C29D50008DA29 /* fontset.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = fontset.c; sourceTree = "<group>"; tabWidth = 8; };
 		A540EC511A0C29D50008DA29 /* fontset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fontset.h; sourceTree = "<group>"; };
 		A540EC521A0C29D50008DA29 /* frame.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = frame.c; sourceTree = "<group>"; tabWidth = 8; };
@@ -623,7 +633,7 @@
 		A540ECFE1A0C29D50008DA29 /* nsfns.m */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.objc; path = nsfns.m; sourceTree = "<group>"; tabWidth = 8; };
 		A540ECFF1A0C29D50008DA29 /* nsfont.m */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.objc; path = nsfont.m; sourceTree = "<group>"; tabWidth = 8; };
 		A540ED001A0C29D50008DA29 /* nsgui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nsgui.h; sourceTree = "<group>"; };
-		A540ED011A0C29D50008DA29 /* nsimage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = nsimage.m; sourceTree = "<group>"; };
+		A540ED011A0C29D50008DA29 /* nsimage.m */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.objc; path = nsimage.m; sourceTree = "<group>"; tabWidth = 8; usesTabs = 0; };
 		A540ED021A0C29D50008DA29 /* nsmenu.m */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.objc; path = nsmenu.m; sourceTree = "<group>"; tabWidth = 8; };
 		A540ED031A0C29D50008DA29 /* nsselect.m */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.objc; path = nsselect.m; sourceTree = "<group>"; tabWidth = 8; };
 		A540ED041A0C29D50008DA29 /* nsterm.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = nsterm.h; sourceTree = "<group>"; tabWidth = 8; };
@@ -902,6 +912,10 @@
 				A5B3C7EA1A2C32D900D553ED /* Cocoa.framework in Frameworks */,
 				A5B3C8A81A2C333700D553ED /* CoreData.framework in Frameworks */,
 				A5B3C8C51A2C335D00D553ED /* Foundation.framework in Frameworks */,
+				A53DA77A1AF7E2BF00C02B65 /* WebKit.framework in Frameworks */,
+				A53DAE3A1AF7E2DC00C02B65 /* Quartz.framework in Frameworks */,
+				A53DAE3B1AF7E2DC00C02B65 /* QuartzCore.framework in Frameworks */,
+				A53DAECC1AF7E37C00C02B65 /* OSAKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1512,6 +1526,8 @@
 				A540EC721A0C29D50008DA29 /* lread.c */,
 				A540EC731A0C29D50008DA29 /* m */,
 				A540ECE21A0C29D50008DA29 /* mac.c */,
+				A53DA7671AF7E20E00C02B65 /* macappkit.h */,
+				A53DA7681AF7E20E00C02B65 /* macappkit.m */,
 				A540ECE31A0C29D50008DA29 /* macfns.c */,
 				A540ECE41A0C29D50008DA29 /* macfont.h */,
 				A540ECE51A0C29D50008DA29 /* macfont.m */,
@@ -1944,8 +1960,12 @@
 				A5513BCC1A0FEB2700E9E9C5 /* CoreServices.framework */,
 				A5B3C8C41A2C335D00D553ED /* Foundation.framework */,
 				A5513EFC1A0FEB5300E9E9C5 /* IOKit.framework */,
+				A53DAECB1AF7E37C00C02B65 /* OSAKit.framework */,
+				A53DAE381AF7E2DC00C02B65 /* Quartz.framework */,
+				A53DAE391AF7E2DC00C02B65 /* QuartzCore.framework */,
 				A5513C841A0FEB3300E9E9C5 /* QuickTime.framework */,
 				A5513CA91A0FEB4200E9E9C5 /* System.framework */,
+				A53DA7791AF7E2BF00C02B65 /* WebKit.framework */,
 			);
 			name = "Linked Frameworks";
 			sourceTree = "<group>";

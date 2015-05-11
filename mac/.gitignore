@@ -1,3 +1,6 @@
 # gitignore file for emacs/mac
 *.app/Contents/MacOS/*
 !Emacs.app/Contents/MacOS/.gitignore
+Emacs.app/Contents/MacOS/Info.plist
+Emacs.app/Contents/Resources/English.lproj/InfoPlist.strings
+Makefile
