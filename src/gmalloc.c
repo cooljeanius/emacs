@@ -1,4 +1,4 @@
-/* Declarations for `malloc' and friends.
+/* gmalloc.c: Declarations for `malloc' and friends.
    Copyright (C) 1990-1993, 1995-1996, 1999, 2002-2007, 2013-2014 Free
    Software Foundation, Inc.
 		  Written May 1989 by Mike Haertel.
@@ -16,7 +16,7 @@ General Public License for more details.
 You should have received a copy of the GNU General Public
 License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 
-   The author may be reached (Email) at the address mike@ai.mit.edu,
+   The author may be reached (Email) at the address <mike@ai.mit.edu>,
    or (US mail) as Mike Haertel c/o Free Software Foundation.  */
 
 #include <config.h>

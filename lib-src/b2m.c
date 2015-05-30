@@ -337,7 +337,7 @@ xrealloc(char *ptr, unsigned int size)
 
 /* "../src/config.h" should define '_Noreturn' for us, if we do not
  * already have the C11 one: */
-void _Noreturn
+_Noreturn void
 fatal(const char *message)
 {
   fprintf(stderr, "%s: %s\n", progname, message);

@@ -192,26 +192,22 @@ extern char *tzname[];
    Similarly for localtime_r.  */
 
 # if ! HAVE_TM_GMTOFF
-static struct tm *my_strftime_gmtime_r __P ((const time_t *, struct tm *));
+static struct tm *my_strftime_gmtime_r __P((const time_t *, struct tm *));
 static struct tm *
-my_strftime_gmtime_r (t, tp)
-     const time_t *t;
-     struct tm *tp;
+my_strftime_gmtime_r(const time_t *t, struct tm *tp)
 {
-  struct tm *l = gmtime (t);
+  struct tm *l = gmtime(t);
   if (! l)
     return 0;
   *tp = *l;
   return tp;
 }
 
-static struct tm *my_strftime_localtime_r __P ((const time_t *, struct tm *));
+static struct tm *my_strftime_localtime_r __P((const time_t *, struct tm *));
 static struct tm *
-my_strftime_localtime_r (t, tp)
-     const time_t *t;
-     struct tm *tp;
+my_strftime_localtime_r(const time *t, struct tm *tp)
 {
-  struct tm *l = localtime (t);
+  struct tm *l = localtime(t);
   if (! l)
     return 0;
   *tp = *l;
@@ -376,26 +372,26 @@ static const CHAR_T zeroes[16] = /* "0000000000000000" */
    more reliable way to accept other sets of digits.  */
 #define ISDIGIT(Ch) ((unsigned int) (Ch) - L_('0') <= 9)
 
-static CHAR_T *memcpy_lowcase __P ((CHAR_T *dest, const CHAR_T *src,
-				    size_t len LOCALE_PARAM_PROTO));
+static CHAR_T *memcpy_lowcase __P((CHAR_T *dest, const CHAR_T *src,
+				   size_t len LOCALE_PARAM_PROTO));
 
 static CHAR_T *
-memcpy_lowcase (dest, src, len LOCALE_PARAM)
+memcpy_lowcase(dest, src, len LOCALE_PARAM)
      CHAR_T *dest;
      const CHAR_T *src;
      size_t len;
      LOCALE_PARAM_DECL
 {
   while (len-- > 0)
-    dest[len] = TOLOWER ((UCHAR_T) src[len], loc);
+    dest[len] = TOLOWER((UCHAR_T)src[len], loc);
   return dest;
 }
 
-static CHAR_T *memcpy_uppcase __P ((CHAR_T *dest, const CHAR_T *src,
-				    size_t len LOCALE_PARAM_PROTO));
+static CHAR_T *memcpy_uppcase __P((CHAR_T *dest, const CHAR_T *src,
+				   size_t len LOCALE_PARAM_PROTO));
 
 static CHAR_T *
-memcpy_uppcase (dest, src, len LOCALE_PARAM)
+memcpy_uppcase(dest, src, len LOCALE_PARAM)
      CHAR_T *dest;
      const CHAR_T *src;
      size_t len;
@@ -411,11 +407,9 @@ memcpy_uppcase (dest, src, len LOCALE_PARAM)
 /* Yield the difference between *A and *B,
    measured in seconds, ignoring leap seconds.  */
 # define tm_diff ftime_tm_diff
-static int tm_diff __P ((const struct tm *, const struct tm *));
+static int tm_diff __P((const struct tm *, const struct tm *));
 static int
-tm_diff (a, b)
-     const struct tm *a;
-     const struct tm *b;
+tm_diff(const struct tm *a, const struct tm *b)
 {
   /* Compute intervening leap days correctly even if year is negative.
      Take care to avoid int overflow in leap day calculations,
@@ -445,14 +439,12 @@ tm_diff (a, b)
 #define ISO_WEEK_START_WDAY 1 /* Monday */
 #define ISO_WEEK1_WDAY 4 /* Thursday */
 #define YDAY_MINIMUM (-366)
-static int iso_week_days __P ((int, int));
+static int iso_week_days __P((int, int));
 #ifdef __GNUC__
 __inline__
 #endif /* __GNUC__ */
 static int
-iso_week_days (yday, wday)
-     int yday;
-     int wday;
+iso_week_days(int yday, int wday)
 {
   /* Add enough to the first operand of % to make it nonnegative.  */
   int big_enough_multiple_of_7 = (-YDAY_MINIMUM / 7 + 2) * 7;
@@ -529,7 +521,7 @@ static CHAR_T const month_name[][10] =
    anywhere, so to determine how many characters would be
    written, use NULL for S and (size_t) UINT_MAX for MAXSIZE.  */
 size_t
-my_strftime (s, maxsize, format, tp extra_args LOCALE_PARAM)
+my_strftime(s, maxsize, format, tp extra_args LOCALE_PARAM)
       CHAR_T *s;
       size_t maxsize;
       const CHAR_T *format;
@@ -1483,19 +1475,35 @@ libc_hidden_def (my_strftime)
 
 #ifdef emacs
 # undef ut
+/* prototype: */
+extern size_t emacs_strftimeu __P((char *, size_t, const char *,
+                                   const struct tm *, int));
+
 /* For Emacs we have a separate interface which corresponds to the normal
    strftime function plus the ut argument, but without the ns argument.  */
 size_t
-emacs_strftimeu (s, maxsize, format, tp, ut)
-      char *s;
-      size_t maxsize;
-      const char *format;
-      const struct tm *tp;
-      int ut;
+emacs_strftimeu(char *s, size_t maxsize, const char *format,
+                const struct tm *tp, int ut)
 {
-  return my_strftime (s, maxsize, format, tp, ut, 0);
+  return my_strftime(s, maxsize, format, tp, ut, 0);
 }
 #endif /* emacs */
+
+#ifdef HELPER_LOCALE_ARG
+# undef HELPER_LOCALE_ARG
+#endif /* HELPER_LOCALE_ARG */
+#ifdef MEMPCPY
+# undef MEMPCPY
+#endif /* MEMPCPY */
+#ifdef NLW
+# undef NLW
+#endif /* NLW */
+#ifdef STRLEN
+# undef STRLEN
+#endif /* STRLEN */
+#ifdef extra_args_spec_iso
+# undef extra_args_spec_iso
+#endif /* extra_args_spec_iso */
 
 /* arch-tag: 662bc9c4-f8e2-41b6-bf96-b8346d0ce0d8
    (do not change this comment) */

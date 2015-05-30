@@ -1611,7 +1611,8 @@ ns_get_color (const char *name, NSColor **col)
       int rr, gg, bb;
       float fscale;
       fscale = ((scaling == 4) ? 65535.0f : ((scaling == 2) ? 255.0f : 15.0f));
-      if (sscanf (hex, "%x/%x/%x", &rr, &gg, &bb))
+      if (sscanf(hex, "%x/%x/%x", (unsigned int *)&rr, (unsigned int *)&gg,
+                 (unsigned int *)&bb))
         {
           r = rr / fscale;
           g = gg / fscale;
@@ -1675,23 +1676,22 @@ ns_lisp_to_color (Lisp_Object color, NSColor **col)
 
 
 Lisp_Object
-ns_color_to_lisp (NSColor *col)
-/* --------------------------------------------------------------------------
+ns_color_to_lisp(NSColor *col)
+/* ------------------------------------------------------------------------
      Convert a color to a lisp string with the RGB equivalent
-   -------------------------------------------------------------------------- */
+   --------------------------------------------------------------------- */
 {
   EmacsCGFloat red, green, blue, alpha, gray;
   char buf[1024];
   const char *str;
-  NSTRACE (ns_color_to_lisp);
+  NSTRACE(ns_color_to_lisp);
 
-  block_input ();
+  block_input();
   if ([[col colorSpaceName] isEqualToString: NSNamedColorSpace])
-
-      if ((str =[[col colorNameComponent] UTF8String]))
+      if ((str = [[col colorNameComponent] UTF8String]))
         {
-          unblock_input ();
-          return build_string ((char *)str);
+          unblock_input();
+          return build_string((char *)str);
         }
 
     [[col colorUsingDefaultColorSpace]
@@ -1700,17 +1700,21 @@ ns_color_to_lisp (NSColor *col)
     {
       [[col colorUsingColorSpaceName: NSCalibratedWhiteColorSpace]
             getWhite: &gray alpha: &alpha];
-      snprintf (buf, sizeof (buf), "#%2.2lx%2.2lx%2.2lx",
-		lrint (gray * 0xff), lrint (gray * 0xff), lrint (gray * 0xff));
-      unblock_input ();
-      return build_string (buf);
+      snprintf(buf, sizeof(buf), "#%2.2lx%2.2lx%2.2lx",
+               (unsigned long)lrint(gray * 0xff),
+               (unsigned long)lrint(gray * 0xff),
+               (unsigned long)lrint(gray * 0xff));
+      unblock_input();
+      return build_string(buf);
     }
 
-  snprintf (buf, sizeof (buf), "#%2.2lx%2.2lx%2.2lx",
-            lrint (red*0xff), lrint (green*0xff), lrint (blue*0xff));
+  snprintf(buf, sizeof(buf), "#%2.2lx%2.2lx%2.2lx",
+           (unsigned long)lrint(red * 0xff),
+           (unsigned long)lrint(green * 0xff),
+           (unsigned long)lrint(blue * 0xff));
 
-  unblock_input ();
-  return build_string (buf);
+  unblock_input();
+  return build_string(buf);
 }
 
 
@@ -5329,8 +5333,9 @@ not_in_argv (NSString *arg)
         }
 
   if (NS_KEYLOG)
-    fprintf (stderr, "keyDown: code =%x\tfnKey =%x\tflags = %x\tmods = %x\n",
-             code, fnKeysym, flags, emacs_event->modifiers);
+    fprintf(stderr, "keyDown: code =%x\tfnKey =%x\tflags = %x\tmods = %x\n",
+            (unsigned int)code, fnKeysym, flags,
+            (unsigned int)emacs_event->modifiers);
 
       /* if it was a function key or had modifiers, pass it directly to emacs */
       if (fnKeysym || (emacs_event->modifiers

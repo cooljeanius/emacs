@@ -3,6 +3,9 @@ dnl# This was originally in the emacs configure.ac file.   -*- Autoconf -*-
 
 dnl# checks for functions that might be called elsewhere:
 AC_DEFUN([AC_REQUIRE_VARIOUS_FUNC_CHECKS],[
+  m4_ifdef([gl_FILE_HAS_XATTR_FOR_ACL],[
+    AC_REQUIRE([gl_FILE_HAS_XATTR_FOR_ACL])dnl
+  ])dnl
   m4_ifdef([gl_FUNC_CLOSEDIR],[
     AC_REQUIRE([gl_FUNC_CLOSEDIR])dnl
   ],[

@@ -787,33 +787,33 @@ static const struct
 
 static CGFloat macfont_antialias_threshold;
 
-#ifndef _EMACS_MACTERM_H
+#if !defined(_EMACS_MACTERM_H) && !(defined(EMACS_MACFONT_H) && defined(HAVE_NS))
 static
-#endif /* !_EMACS_MACTERM_H */
+#endif /* !_EMACS_MACTERM_H && !(EMACS_MACFONT_H && HAVE_NS) */
 void
-macfont_update_antialias_threshold (void)
+macfont_update_antialias_threshold(void)
 {
   int threshold;
   Boolean valid_p;
 
   threshold =
-    CFPreferencesGetAppIntegerValue (CFSTR ("AppleAntiAliasingThreshold"),
-				     kCFPreferencesCurrentApplication,
-				     &valid_p);
+    CFPreferencesGetAppIntegerValue(CFSTR("AppleAntiAliasingThreshold"),
+				    kCFPreferencesCurrentApplication,
+				    &valid_p);
   if (valid_p)
     macfont_antialias_threshold = threshold;
 }
 
 static inline Lisp_Object
-macfont_intern_prop_cfstring (CFStringRef cfstring)
+macfont_intern_prop_cfstring(CFStringRef cfstring)
 {
-  Lisp_Object string = cfstring_to_lisp_nodecode (cfstring);
+  Lisp_Object string = cfstring_to_lisp_nodecode(cfstring);
 
-  return font_intern_prop (SSDATA (string), SBYTES (string), 1);
+  return font_intern_prop(SSDATA(string), SBYTES(string), 1);
 }
 
 static inline CFIndex
-macfont_store_utf32char_to_unichars (UTF32Char c, UniChar *unichars)
+macfont_store_utf32char_to_unichars(UTF32Char c, UniChar *unichars)
 {
   if (c < 0x10000)
     {

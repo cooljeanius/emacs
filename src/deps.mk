@@ -322,11 +322,18 @@ textprop.o: textprop.c buffer.h window.h $(INTERVALS_H) \
 sunfns.o: sunfns.c buffer.h window.h dispextern.h $(config_h)
 
 #ifdef HAVE_CARBON
-mac.o: mac.c process.h sysselect.h blockinput.h atimer.h systime.h charset.h \
-  coding.h ccl.h $(config_h)
+mac.o: mac.c process.h sysselect.h blockinput.h atimer.h systime.h \
+  charset.h coding.h ccl.h $(config_h)
+macappkit.o: macappkit.m lisp.h blockinput.h macterm.h charset.h \
+  character.h frame.h dispextern.h fontset.h termhooks.h buffer.h \
+  window.h keyboard.h $(INTERVAL_SRC) keymap.h macfont.h macappkit.h \
+  $(config_h)
 macfns.o: macfns.c charset.h macterm.h macgui.h frame.h window.h buffer.h \
   dispextern.h macgui.h fontset.h $(INTERVAL_SRC) keyboard.h blockinput.h \
   atimer.h systime.h epaths.h termhooks.h coding.h $(config_h)
+macfont.o: macfont.m lisp.h dispextern.h macterm.h frame.h blockinput.h \
+  character.h charset.h composite.h fontset.h font.h termchar.h nsgui.h \
+  nsterm.h macfont.h macuvs.h $(config_h)
 macmenu.o: macmenu.c termhooks.h frame.h window.h dispextern.h macgui.h \
   keyboard.h blockinput.h atimer.h systime.h buffer.h macterm.h $(config_h)
 macterm.o: blockinput.h atimer.h systime.h syssignal.h macterm.h macgui.h \

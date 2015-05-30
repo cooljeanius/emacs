@@ -1,4 +1,4 @@
-/* Functions for memory limit warnings.
+/* vm-limit.c: Functions for memory limit warnings.
    Copyright (C) 1990, 1992, 2001-2014 Free Software Foundation, Inc.
 
 This file is part of GNU Emacs.
@@ -195,15 +195,14 @@ check_memory_limits (void)
       switch (warnlevel)
 	{
 	case warned_75:
-	  (*warn_function) ("Warning: past 75% of memory limit");
+	  (*warn_function)("Warning: past 75% of memory limit");
 	  break;
-
 	case warned_85:
-	  (*warn_function) ("Warning: past 85% of memory limit");
+	  (*warn_function)("Warning: past 85% of memory limit");
 	  break;
-
 	case warned_95:
-	  (*warn_function) ("Warning: past 95% of memory limit");
+	  (*warn_function)("Warning: past 95% of memory limit");
+        default:;
 	}
     }
   /* Handle going down in usage levels, with some hysteresis.  */
@@ -223,8 +222,8 @@ check_memory_limits (void)
 	warnlevel = warned_85;
     }
 
-  if (exceeds_lisp_ptr (cp))
-    (*warn_function) ("Warning: memory in use exceeds lisp pointer size");
+  if (exceeds_lisp_ptr(cp))
+    (*warn_function)("Warning: memory in use exceeds lisp pointer size");
 }
 
 /* Enable memory usage warnings.
@@ -244,3 +243,5 @@ memory_warnings (void *start, void (*warnfun) (const char *))
   /* Force data limit to be recalculated on each run.  */
   lim_data = 0;
 }
+
+/* EOF */

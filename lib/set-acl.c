@@ -1,4 +1,4 @@
-/* qset-acl.c - set access control list equivalent to a mode
+/* set-acl.c - set access control list equivalent to a mode
 
    Copyright (C) 2002-2003, 2005-2015 Free Software Foundation, Inc.
 
@@ -19,12 +19,14 @@
 
 #include <config.h>
 
-#define ACL_INTERNAL_INLINE _GL_EXTERN_INLINE
-
-#include <string.h>
 #include "acl.h"
 
-#include "acl-internal.h"
+#include <errno.h>
+
+#include "quote.h"
+#include "error.h"
+#include "gettext.h"
+#define _(msgid) gettext (msgid)
 
 
 /* Set the access control lists of a file. If DESC is a valid file
@@ -33,17 +35,14 @@
    available, fchmod the target file to MODE.  Also sets the
    non-permission bits of the destination file (S_ISUID, S_ISGID, S_ISVTX)
    to those from MODE if any are set.
-   Return 0 if successful.  Return -1 and set errno upon failure.  */
+   Return 0 if successful.  On failure, output a diagnostic, set errno and
+   return -1.  */
 
 int
-qset_acl (char const *name, int desc, mode_t mode)
+set_acl (char const *name, int desc, mode_t mode)
 {
-  struct permission_context ctx;
-  int ret;
-
-  memset (&ctx, 0, sizeof ctx);
-  ctx.mode = mode;
-  ret = set_permissions (&ctx, name, desc);
-  free_permission_context (&ctx);
+  int ret = qset_acl (name, desc, mode);
+  if (ret != 0)
+    error (0, errno, _("setting permissions for %s"), quote (name));
   return ret;
 }

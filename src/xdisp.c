@@ -6931,11 +6931,10 @@ get_next_display_element (struct it *it)
 		}
 
 	      /* Draw non-ASCII space/hyphen with escape glyph: */
-
 	      if (nonascii_space_p || nonascii_hyphen_p)
 		{
-		  XSETINT (it->ctl_chars[0], escape_glyph);
-		  XSETINT (it->ctl_chars[1], nonascii_space_p ? ' ' : '-');
+		  XSETINT(it->ctl_chars[0], escape_glyph);
+		  XSETINT(it->ctl_chars[1], nonascii_space_p ? ' ' : '-');
 		  ctl_len = 2;
 		  goto display_control;
 		}
@@ -6944,15 +6943,15 @@ get_next_display_element (struct it *it)
 		char str[10];
 		int len, i;
 
-		if (CHAR_BYTE8_P (c))
+		if (CHAR_BYTE8_P(c))
 		  /* Display \200 instead of \17777600.  */
-		  c = CHAR_TO_BYTE8 (c);
-		len = sprintf (str, "%03o", c);
+		  c = CHAR_TO_BYTE8(c);
+		len = sprintf(str, "%03o", (unsigned int)c);
 
-		XSETINT (it->ctl_chars[0], escape_glyph);
+		XSETINT(it->ctl_chars[0], escape_glyph);
 		for (i = 0; i < len; i++)
-		  XSETINT (it->ctl_chars[i + 1], str[i]);
-		ctl_len = len + 1;
+		  XSETINT(it->ctl_chars[i + 1], str[i]);
+		ctl_len = (len + 1);
 	      }
 
 	    display_control:
@@ -18176,100 +18175,76 @@ dump_glyph_matrix (struct glyph_matrix *matrix, int glyphs)
    the glyph row and area where the glyph comes from.  */
 
 void
-dump_glyph (struct glyph_row *row, struct glyph *glyph, int area)
+dump_glyph(struct glyph_row *row, struct glyph *glyph, int area)
 {
-  if (glyph->type == CHAR_GLYPH
-      || glyph->type == GLYPHLESS_GLYPH)
+  if ((glyph->type == CHAR_GLYPH) || (glyph->type == GLYPHLESS_GLYPH))
     {
-      fprintf (stderr,
-	       "  %5"pD"d     %c %9"pI"d   %c %3d 0x%06x      %c %4d %1.1d%1.1d\n",
-	       glyph - row->glyphs[TEXT_AREA],
-	       (glyph->type == CHAR_GLYPH
-		? 'C'
-		: 'G'),
-	       glyph->charpos,
-	       (BUFFERP (glyph->object)
-		? 'B'
-		: (STRINGP (glyph->object)
-		   ? 'S'
-		   : (INTEGERP (glyph->object)
-		      ? '0'
-		      : '-'))),
-	       glyph->pixel_width,
-	       glyph->u.ch,
-	       (glyph->u.ch < 0x80 && glyph->u.ch >= ' '
-		? glyph->u.ch
-		: '.'),
-	       glyph->face_id,
-	       glyph->left_box_line_p,
-	       glyph->right_box_line_p);
+      fprintf(stderr,
+	      "  %5"pD"d     %c %9"pI"d   %c %3d 0x%06x      %c %4d %1.1d%1.1d\n",
+	      (glyph - row->glyphs[TEXT_AREA]),
+	      ((glyph->type == CHAR_GLYPH) ? 'C' : 'G'), glyph->charpos,
+	      (BUFFERP(glyph->object)
+               ? 'B'
+               : (STRINGP(glyph->object)
+                  ? 'S'
+                  : (INTEGERP(glyph->object)
+                     ? '0'
+                     : '-'))),
+	      glyph->pixel_width, glyph->u.ch,
+	      (((glyph->u.ch < 0x80) && (glyph->u.ch >= ' '))
+               ? (char)glyph->u.ch : '.'),
+	      glyph->face_id, glyph->left_box_line_p,
+	      glyph->right_box_line_p);
     }
   else if (glyph->type == STRETCH_GLYPH)
     {
-      fprintf (stderr,
-	       "  %5"pD"d     %c %9"pI"d   %c %3d 0x%06x      %c %4d %1.1d%1.1d\n",
-	       glyph - row->glyphs[TEXT_AREA],
-	       'S',
-	       glyph->charpos,
-	       (BUFFERP (glyph->object)
-		? 'B'
-		: (STRINGP (glyph->object)
-		   ? 'S'
-		   : (INTEGERP (glyph->object)
-		      ? '0'
-		      : '-'))),
-	       glyph->pixel_width,
-	       0,
-	       ' ',
-	       glyph->face_id,
-	       glyph->left_box_line_p,
-	       glyph->right_box_line_p);
+      fprintf(stderr,
+	      "  %5"pD"d     %c %9"pI"d   %c %3d 0x%06x      %c %4d %1.1d%1.1d\n",
+	      (glyph - row->glyphs[TEXT_AREA]), 'S', glyph->charpos,
+	      (BUFFERP(glyph->object)
+               ? 'B'
+               : (STRINGP(glyph->object)
+                  ? 'S'
+                  : (INTEGERP(glyph->object)
+                     ? '0'
+                     : '-'))),
+	      glyph->pixel_width, 0U, ' ', glyph->face_id,
+	      glyph->left_box_line_p, glyph->right_box_line_p);
     }
   else if (glyph->type == IMAGE_GLYPH)
     {
-      fprintf (stderr,
-	       "  %5"pD"d     %c %9"pI"d   %c %3d 0x%06x      %c %4d %1.1d%1.1d\n",
-	       glyph - row->glyphs[TEXT_AREA],
-	       'I',
-	       glyph->charpos,
-	       (BUFFERP (glyph->object)
-		? 'B'
-		: (STRINGP (glyph->object)
-		   ? 'S'
-		   : (INTEGERP (glyph->object)
-		      ? '0'
-		      : '-'))),
-	       glyph->pixel_width,
-	       glyph->u.img_id,
-	       '.',
-	       glyph->face_id,
-	       glyph->left_box_line_p,
-	       glyph->right_box_line_p);
+      fprintf(stderr,
+	      "  %5"pD"d     %c %9"pI"d   %c %3d 0x%06x      %c %4d %1.1d%1.1d\n",
+	      (glyph - row->glyphs[TEXT_AREA]), 'I', glyph->charpos,
+	      (BUFFERP(glyph->object)
+               ? 'B'
+               : (STRINGP(glyph->object)
+                  ? 'S'
+                  : (INTEGERP(glyph->object)
+                     ? '0'
+                     : '-'))),
+	      glyph->pixel_width, (unsigned int)glyph->u.img_id, '.',
+	      glyph->face_id, glyph->left_box_line_p,
+	      glyph->right_box_line_p);
     }
   else if (glyph->type == COMPOSITE_GLYPH)
     {
-      fprintf (stderr,
-	       "  %5"pD"d     %c %9"pI"d   %c %3d 0x%06x",
-	       glyph - row->glyphs[TEXT_AREA],
-	       '+',
-	       glyph->charpos,
-	       (BUFFERP (glyph->object)
-		? 'B'
-		: (STRINGP (glyph->object)
-		   ? 'S'
-		   : (INTEGERP (glyph->object)
-		      ? '0'
-		      : '-'))),
-	       glyph->pixel_width,
-	       glyph->u.cmp.id);
+      fprintf(stderr, "  %5"pD"d     %c %9"pI"d   %c %3d 0x%06x",
+	      (glyph - row->glyphs[TEXT_AREA]), '+', glyph->charpos,
+	      (BUFFERP(glyph->object)
+               ? 'B'
+               : (STRINGP(glyph->object)
+                  ? 'S'
+                  : (INTEGERP(glyph->object)
+                     ? '0'
+                     : '-'))),
+	      glyph->pixel_width, (unsigned int)glyph->u.cmp.id);
       if (glyph->u.cmp.automatic)
-	fprintf (stderr,
-		 "[%d-%d]",
-		 glyph->slice.cmp.from, glyph->slice.cmp.to);
-      fprintf (stderr, " . %4d %1.1d%1.1d\n",
-	       glyph->face_id,
-	       glyph->left_box_line_p,
-	       glyph->right_box_line_p);
+	fprintf(stderr, "[%d-%d]",
+                glyph->slice.cmp.from, glyph->slice.cmp.to);
+      fprintf(stderr, " . %4d %1.1d%1.1d\n",
+	      glyph->face_id, glyph->left_box_line_p,
+	      glyph->right_box_line_p);
     }
 }
 
@@ -23405,26 +23380,24 @@ calc_pixel_width_or_height (double *res, struct it *it, Lisp_Object prop,
 
 #ifdef HAVE_WINDOW_SYSTEM
 
-#ifdef GLYPH_DEBUG
-
+# ifdef GLYPH_DEBUG
 void
-dump_glyph_string (struct glyph_string *s)
+dump_glyph_string(struct glyph_string *s)
 {
-  fprintf (stderr, "glyph string\n");
-  fprintf (stderr, "  x, y, w, h = %d, %d, %d, %d\n",
-	   s->x, s->y, s->width, s->height);
-  fprintf (stderr, "  ybase = %d\n", s->ybase);
-  fprintf (stderr, "  hl = %d\n", s->hl);
-  fprintf (stderr, "  left overhang = %d, right = %d\n",
-	   s->left_overhang, s->right_overhang);
-  fprintf (stderr, "  nchars = %d\n", s->nchars);
-  fprintf (stderr, "  extends to end of line = %d\n",
-	   s->extends_to_end_of_line_p);
-  fprintf (stderr, "  font height = %d\n", FONT_HEIGHT (s->font));
-  fprintf (stderr, "  bg width = %d\n", s->background_width);
+  fprintf(stderr, "glyph string\n");
+  fprintf(stderr, "  x, y, w, h = %d, %d, %d, %d\n",
+	  s->x, s->y, s->width, s->height);
+  fprintf(stderr, "  ybase = %d\n", s->ybase);
+  fprintf(stderr, "  hl = %u\n", s->hl);
+  fprintf(stderr, "  left overhang = %d, right = %d\n",
+	  s->left_overhang, s->right_overhang);
+  fprintf(stderr, "  nchars = %d\n", s->nchars);
+  fprintf(stderr, "  extends to end of line = %d\n",
+	  s->extends_to_end_of_line_p);
+  fprintf(stderr, "  font height = %d\n", FONT_HEIGHT(s->font));
+  fprintf(stderr, "  bg width = %d\n", s->background_width);
 }
-
-#endif /* GLYPH_DEBUG */
+# endif /* GLYPH_DEBUG */
 
 /* Initialize glyph string S.  CHAR2B is a suitably allocated vector
    of XChar2b structures for S; it can't be allocated in
@@ -23434,19 +23407,19 @@ dump_glyph_string (struct glyph_string *s)
    index of the first glyph structure covered by S.  HL is a
    face-override for drawing S.  */
 
-#ifdef HAVE_NTGUI
-#define OPTIONAL_HDC(hdc)  HDC hdc,
-#define DECLARE_HDC(hdc)   HDC hdc;
-#define ALLOCATE_HDC(hdc, f) hdc = get_frame_dc ((f))
-#define RELEASE_HDC(hdc, f)  release_frame_dc ((f), (hdc))
-#endif
+# ifdef HAVE_NTGUI
+#  define OPTIONAL_HDC(hdc)  HDC hdc,
+#  define DECLARE_HDC(hdc)   HDC hdc;
+#  define ALLOCATE_HDC(hdc, f) hdc = get_frame_dc ((f))
+#  define RELEASE_HDC(hdc, f)  release_frame_dc ((f), (hdc))
+# endif /* HAVE_NTGUI */
 
-#ifndef OPTIONAL_HDC
-#define OPTIONAL_HDC(hdc)
-#define DECLARE_HDC(hdc)
-#define ALLOCATE_HDC(hdc, f)
-#define RELEASE_HDC(hdc, f)
-#endif
+# ifndef OPTIONAL_HDC
+#  define OPTIONAL_HDC(hdc)
+#  define DECLARE_HDC(hdc)
+#  define ALLOCATE_HDC(hdc, f)
+#  define RELEASE_HDC(hdc, f)
+# endif /* !OPTIONAL_HDC */
 
 static void
 init_glyph_string (struct glyph_string *s,
@@ -25576,8 +25549,9 @@ produce_glyphless_glyph (struct it *it, int for_no_font, Lisp_Object acronym)
 	}
       else
 	{
-	  eassert (it->glyphless_method == GLYPHLESS_DISPLAY_HEX_CODE);
-	  sprintf (buf, "%0*X", it->c < 0x10000 ? 4 : 6, it->c);
+	  eassert(it->glyphless_method == GLYPHLESS_DISPLAY_HEX_CODE);
+	  sprintf(buf, "%0*X", ((it->c < 0x10000) ? 4 : 6),
+                  (unsigned int)it->c);
 	  str = buf;
 	}
       for (len = 0; str[len] && ASCII_BYTE_P (str[len]) && len < 6; len++)
@@ -26897,16 +26871,15 @@ draw_phys_cursor_glyph (struct window *w, struct glyph_row *row,
 }
 
 
-/* Erase the image of a cursor of window W from the screen.  */
-
+/* Erase the image of a cursor of window W from the screen: */
 #ifndef HAVE_NTGUI
 static
-#endif
+#endif /* !HAVE_NTGUI */
 void
-erase_phys_cursor (struct window *w)
+erase_phys_cursor(struct window *w)
 {
-  struct frame *f = XFRAME (w->frame);
-  Mouse_HLInfo *hlinfo = MOUSE_HL_INFO (f);
+  struct frame *f = XFRAME(w->frame);
+  Mouse_HLInfo *hlinfo = MOUSE_HL_INFO(f);
   int hpos = w->phys_cursor.hpos;
   int vpos = w->phys_cursor.vpos;
   int mouse_face_here_p = 0;

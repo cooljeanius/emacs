@@ -1105,6 +1105,11 @@ dnl# see the `changequote' comment above.
     unofficial_port_warning_reason="${opsys} on ${machine} is old and deprecated."
   ;;
 
+  ## Chromium Native Client:
+  *-nacl )
+    opsys=nacl
+  ;;
+
   ## Cygwin ports:
   *-*-cygwin )
     opsys=cygwin
@@ -2362,6 +2367,11 @@ dnl# see the `changequote' comment above.
 		opsys=unixware
 		## (still official)
                 ;;
+      *-nextstep* )
+		opsys=nextstep
+		unofficially_ported=yes
+		unofficial_port_warning_reason="darwin has by-and-large replaced nextstep."
+		;;
       ## Otherwise, we will fall through to the generic opsys code at the
       ## bottom.
     esac
@@ -3058,6 +3068,7 @@ if test "x${gl_gcc_warnings}" != "xyes"; then
      gl_WARN_ADD([-Wno-tautological-constant-out-of-range-compare])
      gl_WARN_ADD([-Wno-pointer-sign])
      gl_WARN_ADD([-Wno-string-plus-int])
+     gl_WARN_ADD([-Wno-unknown-attributes])
   elif test "x${emacs_cv_apple}" = "xyes"; then
      gl_WARN_ADD([-Wno-pointer-sign])
   fi  ##end check for clang or apple compiler
@@ -3083,6 +3094,10 @@ else
        else
          AC_MSG_WARN([did not expect 'const' to work with the ${with_x_toolkit} toolkit; this may result in some extra warnings...])
        fi
+       gl_GCC_VERSION_IFELSE([5],[0],[
+         nw="${nw} -Wdiscarded-qualifiers"
+         gl_WARN_ADD([-Wno-discarded-qualifiers])
+       ])
        ;;
     gtk*)
        AC_MSG_NOTICE([no special warning flags for using gtk as a toolkit])
@@ -3468,12 +3483,19 @@ else
       AC_MSG_NOTICE([skipping checks for warnings for gcc 4.9 or newer])
     ])dnl# end block of code for gcc4.9+
 
-    dnl# to be added in a future version of gcc:
+    dnl# gcc 5 has been released:
     gl_GCC_VERSION_IFELSE([5],[0],[
       dnl# most of the new warnings for gcc 5 are now handled by
-      dnl# manywarnings.m4, but handle a few here manually anywyas:
-      gl_WARN_ADD([-Wc90-c99-compat])
-      gl_WARN_ADD([-Wc99-c11-compat])
+      dnl# manywarnings.m4, but handle a few here manually anyways:
+      if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
+        test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
+        gl_WARN_ADD([-Wc90-c99-compat])
+        gl_WARN_ADD([-Wc99-c11-compat])
+      else
+        test -z "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
+        nw="${nw} -Wc90-c99-compat"
+        nw="${nw} -Wc99-c11-compat"
+      fi  ##end dummy variable check
       dnl# this one failed to make it in on time:
       if test "x${PRINT_CONVERSION_WARNINGS}" = "xyes"; then
         test -n "${PRINT_CONVERSION_WARNINGS}"
@@ -3492,6 +3514,23 @@ else
       fi  ##end check for LTO
     ],[
       AC_MSG_NOTICE([skipping checks for warnings for gcc 5.0 or newer])
+    ])dnl# end block of code for gcc 5
+
+    dnl# to be added in a future version of gcc:
+    gl_GCC_VERSION_IFELSE([6],[0],[
+      gl_WARN_ADD([-Wmisleading-indentation])
+      gl_WARN_ADD([-Woverride-init-side-effects])
+      gl_WARN_ADD([-Wshift-negative-value])
+      gl_WARN_ADD([-Wshift-overflow])
+      if test "x${CXX}" != "x" && test "x${CC}" = "x${CXX}"; then
+        AC_LANG_PUSH([C++])dnl
+        gl_WARN_ADD([-Wterminate],[WARN_CXXFLAGS])
+        AC_LANG_POP
+      else
+        AC_MSG_NOTICE([-Wterminate is only relevant for C++, skipping it])
+      fi  ##end check for C++ compiler
+    ],[
+      AC_MSG_NOTICE([skipping checks for warnings for gcc 6.0 or newer])
     ])dnl# end block of code for gcc trunk
     ##...okay, that should be it.
   else
@@ -3522,6 +3561,9 @@ else
   if test "x${emacs_cv_apple}" = "xyes"; then
     nw="${nw} -Wshorten-64-to-32"
   fi
+  nw="${nw} -Wc90-c99-compat"   # Emacs/gnulib both use boolean types a lot
+  nw="${nw} -Wc99-c11-compat"       # Emacs/gnulib both use _Noreturn a lot
+  nw="${nw} -Wsuggest-attribute=const"                                # meh
 
   dnl# m4/manywarnings.m4 skips this one, because, apparently:
   dnl# "FIXME maybe? too many false positives"
@@ -3825,6 +3867,7 @@ dnl# The function dump-emacs will not be defined and temacs will do
 dnl# (load "loadup") automatically unless told otherwise:
 test "x${CANNOT_DUMP}" = "x" && export CANNOT_DUMP="no"
 case "${opsys}" in
+  nacl) CANNOT_DUMP=yes ;;
   your-opsys-here) CANNOT_DUMP=yes ;;
 esac
 
@@ -3856,6 +3899,9 @@ case "${opsys}" in
    ;;
   mingw32)
    UNEXEC_OBJ=unexw32.o
+   ;;
+  nextstep)
+   UNEXEC_OBJ=unexnext.o
    ;;
   sol2-10)
    # Use the Solaris dldump() function, called from unexsol.c, to dump
@@ -4072,6 +4118,10 @@ AC_TYPE_SSIZE_T
 AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
 AC_TYPE_UINT64_T
+if test "x${enable_acl}" != "xno"; then
+  AC_CHECK_TYPES([acl_t])dnl
+  ## disable if not present?
+fi
 AC_CHECK_TYPES([ptrdiff_t])dnl
 AC_CHECK_TYPES([rlim_t])dnl
 AC_CHECK_TYPES([time_t])dnl
@@ -4294,7 +4344,7 @@ dnl# checks for which it is okay if they jump out of order:
 AC_CHECK_HEADERS_ONCE([sys/sysinfo.h])dnl
 dnl# Try to keep this second batch in alphabetical order:
 AC_CHECK_HEADERS([OS.h arpa/inet.h dpmi.h err.h errno.h fcntl.h float.h \
-                  io.h langinfo.h libintl.h limits.h locale.h \
+                  io.h langinfo.h libc.h libintl.h limits.h locale.h \
                   malloc.h mbstring.h msvcrt/string.h paths.h nl_types.h \
                   sgtty.h stddef.h sys/_mbstate_t.h sys/bsdtty.h \
                   sys/file.h sys/ptyio.h sys/timeb.h sys/vfs.h \
@@ -4355,7 +4405,7 @@ fi
 dnl# On Solaris 8 there is a compilation warning for term.h because
 dnl# it does NOT define `bool'.
 AC_CHECK_HEADERS([term.h],[],[],[-])
-dnl# ones with specific macros for them:
+dnl# header checks with specific macros for them:
 AC_HEADER_ASSERT
 AC_HEADER_DIRENT
 AC_HEADER_MAJOR
@@ -4385,9 +4435,16 @@ AC_CHECK_DECLS([MD5_DIGEST_SIZE])dnl
 dnl# well this one at least is here so we can know if we need to check
 dnl# for mach headers:
 AC_CHECK_DECLS([__MACH__])
+if test "x${ac_cv_have_decl___MACH__}" = "xyes" || test -d /usr/include/mach; then
+  AC_CHECK_HEADERS([mach/mach.h mach/machine/vm_param.h mach/vm_region.h])
+fi
 if test "x${ac_cv_have_decl___MACH__}" = "xyes" || test -d /usr/include/mach-o; then
   ## this is referred to as "documentation" by unexmacosx.c:
   AC_CHECK_HEADERS([mach-o/loader.h])
+fi
+if test "x${enable_acl}" != "xno"; then
+  AC_CHECK_DECLS([acl])dnl
+  ## disable if not present?
 fi
 
 dnl# ...anyways:
@@ -4944,7 +5001,15 @@ fail;
      ns_appsrc=GNUstep/Emacs.base
      ns_fontfile=nsfont.o
   fi
+elif test "x${MAC_OBJC_OBJ}" != "x"; then
+  test -n "${MAC_OBJC_OBJ}"
+  if test "x${opsys}" = "xdarwin"; then
+     test -z "${GNU_OBJC_CFLAGS}" && GNU_OBJC_CFLAGS="-fobjc-exceptions"
+  fi
+fi  ##end ns conditional
 
+if test "x${with_ns}" != "xno" || test "x${MAC_OBJC_OBJ}" != "x"; then
+  test -n "${NS_IMPL}" || test -n "${MAC_OBJC_OBJ}"
   if test "x${gl_gcc_warnings}" = "xyes" && test "x${WERROR_CFLAGS}" = "x"; then
     AC_LANG_PUSH([Objective C])dnl
     gl_WARN_ADD([-Wassign-intercept],[GNU_OBJC_WARN_CFLAGS])
@@ -4981,7 +5046,9 @@ fail;
   dnl# make sure the warning flags get included in the more-general version
   dnl# of the variable, which is substed in more places:
   GNU_OBJC_CFLAGS="${GNU_OBJC_CFLAGS} ${GNU_OBJC_WARN_CFLAGS}"
+fi  ##end stuff for objc sources, whether ns or mac
 
+if test "x${with_ns}" != "xno"; then
   dnl# This is only used while we test the NS headers, it gets reset below:
   CPPFLAGS="${CPPFLAGS} ${GNU_OBJC_CFLAGS}"
   CFLAGS="${CFLAGS} ${GNU_OBJC_CFLAGS}"
@@ -5071,7 +5138,7 @@ else
     test -n "${OBJC}"
     AC_MSG_WARN(['--with-ns' is recommended for darwin, but it was not specified.])
   fi
-fi
+fi  ##end ns-only checks
 
 # if we never tested these, then assume the worst:
 if test -z "${HAVE_CBLOCKS_TRUE}" && test -z "${HAVE_CBLOCKS_FALSE}"; then
@@ -5405,8 +5472,8 @@ hybrid_malloc=""
 
 case "${opsys}" in
   ## darwin ld insists on the use of malloc routines in the System
-  ## framework.
-  darwin|mingw32|sol2-10) system_malloc=yes ;;
+  ## framework, and other systems do similar things:
+  darwin | mingw32 | nacl | sol2-10) system_malloc=yes ;;
   cygwin) hybrid_malloc=yes;;
 esac
 
@@ -6850,7 +6917,8 @@ if test "x${opsys}" = "xmingw32"; then
   AH_TEMPLATE([HAVE_JPEG],
               [Define to 1 if you have the jpeg library (-ljpeg).])dnl
   if test "x${HAVE_JPEG}" = "xyes"; then
-    AC_DEFINE([HAVE_JPEG])
+    AC_DEFINE([HAVE_JPEG])dnl
+    ##FIXME: this conftest seems to have broken:
     AC_EGREP_CPP([version= *(6[2-9]|[7-9][0-9])],
         [#include <jpeglib.h>
 	 version=JPEG_LIB_VERSION
@@ -6881,7 +6949,8 @@ elif test "x${HAVE_X11}" = "xyes" || test "x${HAVE_W32}" = "xyes"; then
   AH_TEMPLATE([HAVE_JPEG],
               [Define to 1 if you have the jpeg library (-ljpeg).])dnl
   if test "x${HAVE_JPEG}" = "xyes"; then
-    AC_DEFINE([HAVE_JPEG],[1])
+    AC_DEFINE([HAVE_JPEG],[1])dnl
+    ##FIXME: this conftest seems to have broken:
     AC_EGREP_CPP([version= *(6[2-9]|[7-9][0-9])],
 	[#include <jpeglib.h>
 	 version=JPEG_LIB_VERSION
@@ -8394,7 +8463,7 @@ emacs_broken_SIGIO=no
 case ${opsys} in
   dnl# SIGIO exists, but the feature does NOT work in the way Emacs needs.
   dnl# See e.g. <http://article.gmane.org/gmane.os.openbsd.ports/46831>.
-  hpux* | irix6-5 | openbsd | sol2* | unixware )
+  hpux* | irix6-5 | nacl | openbsd | sol2* | unixware )
     emacs_broken_SIGIO=yes
     ;;
   aix4-2)
@@ -8560,7 +8629,7 @@ case ${opsys} in
   gnu | openbsd )
     AC_DEFINE([FIRST_PTY_LETTER],['p'])
     ;;
-  gnu-linux | gnu-kfreebsd | dragonfly | freebsd | netbsd )
+  gnu-linux | gnu-kfreebsd | dragonfly | freebsd | netbsd | nacl )
     dnl# if HAVE_GRANTPT
     if test "x${ac_cv_func_grantpt}" = "xyes"; then
       AC_DEFINE([UNIX98_PTYS],[1],[Define if the system has Unix98 PTYs.])
@@ -8896,7 +8965,7 @@ dnl# adding "_ONCE" to macro causes test to be done at wrong location:
 AC_CHECK_HEADERS([sys/filio.h])
 AC_CACHE_CHECK([for usable FIONREAD],[emacs_cv_usable_FIONREAD],
   [case ${opsys} in
-     aix4-2)
+     aix4-2 | nacl)
        dnl# BUILD 9008 - FIONREAD problem still exists in X-Windows.
        emacs_cv_usable_FIONREAD=no
        ;;
@@ -9324,6 +9393,10 @@ AC_SEARCH_LIBS([libintl_gettext],[intl asprintf gettextlib gettextpo \
 # might otherwise enable.
 if test "x${with_features}" = "xno" && test "x${enable_acl}" != "xyes"; then
   enable_acl=no
+elif test "x${enable_acl}" != "xno" && test "x${ac_cv_func_acl_delete_def_file}" = "x"; then
+  test -z "${ac_cv_func_acl_delete_def_file}"
+  AC_CHECK_FUNCS([acl_delete_def_file])dnl
+  ## might want to do this somewhere else...
 fi
 
 # Configure gnulib. Although this does not affect CFLAGS or LIBS
@@ -9909,7 +9982,7 @@ dnl# Perhaps this would be better named doc-emacs-emacsver.texi?
 dnl# See comments for etc-refcards-emacsver.tex.
 dnl# Since we get a doc/emacs directory generated anyway, for the Makefile,
 dnl# it is not quite the same.  But we are generating in ${srcdir}.
-AC_CONFIG_COMMANDS([doc/emacs/emacsver.texi], [
+AC_CONFIG_COMMANDS([doc/emacs/emacsver.texi],[
 ${MAKE-make} -s --no-print-directory -C doc/emacs doc-emacsver || \
 AC_MSG_WARN(['doc/emacs/emacsver.texi' could not be made.])
 ])dnl
@@ -9919,7 +9992,7 @@ dnl# then a directory etc/refcards is created in the build directory,
 dnl# which is probably harmless, but confusing (in out-of-tree builds).
 dnl# (If we were to generate etc/refcards/Makefile, this might change.)
 dnl# It is really ${srcdir}/etc/refcards/emacsver.tex that we generate.
-AC_CONFIG_COMMANDS([etc-refcards-emacsver.tex], [
+AC_CONFIG_COMMANDS([etc-refcards-emacsver.tex],[
 ${MAKE-make} -s MAKEFILE_NAME=do-not-make-Makefile etc-emacsver || \
 AC_MSG_WARN(['etc/refcards/emacsver.tex' could not be made.])
 ])dnl

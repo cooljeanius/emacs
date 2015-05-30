@@ -1285,9 +1285,9 @@ x_draw_glyphless_glyph_string_foreground (struct glyph_string *s)
 	}
       else if (glyph->u.glyphless.method == GLYPHLESS_DISPLAY_HEX_CODE)
 	{
-	  sprintf (buf, "%0*X",
-		   glyph->u.glyphless.ch < 0x10000 ? 4 : 6,
-		   glyph->u.glyphless.ch);
+	  sprintf(buf, "%0*X",
+		  ((glyph->u.glyphless.ch < 0x10000) ? 4 : 6),
+		  (unsigned int)glyph->u.glyphless.ch);
 	  str = buf;
 	}
 

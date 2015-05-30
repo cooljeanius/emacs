@@ -529,7 +529,7 @@ emacs_gnutls_handle_error (gnutls_session_t session, int err)
    simply the integer value of the error.  GNUTLS_E_SUCCESS is mapped
    to Qt.  */
 static Lisp_Object
-gnutls_make_error (int err)
+gnutls_make_error(int err)
 {
   switch (err)
     {
@@ -545,7 +545,7 @@ gnutls_make_error (int err)
       break;
     }
 
-  return make_number (err);
+  return make_number(err);
 }
 
 Lisp_Object
@@ -1069,21 +1069,21 @@ one trustfile (usually a CA bundle).  */)
 		 c_hostname);
 
   if (peer_verification & GNUTLS_CERT_EXPIRED)
-    GNUTLS_LOG2 (1, max_log_level, "certificate has expired:",
-		 c_hostname);
+    GNUTLS_LOG2(1, max_log_level, "certificate has expired:",
+                c_hostname);
 
   if (peer_verification != 0)
     {
-      if (!NILP (Fmember (QCgnutls_bootprop_trustfiles, verify_error)))
+      if (!NILP(Fmember(QCgnutls_bootprop_trustfiles, verify_error)))
         {
-	  emacs_gnutls_deinit (proc);
-	  error ("Certificate validation failed %s, verification code %d",
-		 c_hostname, peer_verification);
+	  emacs_gnutls_deinit(proc);
+	  error("Certificate validation failed %s, verification code %u",
+                c_hostname, peer_verification);
         }
       else
 	{
-          GNUTLS_LOG2 (1, max_log_level, "certificate validation failed:",
-                       c_hostname);
+          GNUTLS_LOG2(1, max_log_level, "certificate validation failed:",
+                      c_hostname);
 	}
     }
 

@@ -1541,17 +1541,17 @@ ns_glyph_metrics (struct nsfont_info *font_info, unsigned char block)
 
 /* Debugging: */
 void
-ns_dump_glyphstring (struct glyph_string *s)
+ns_dump_glyphstring(struct glyph_string *s)
 {
   int i;
 
-  fprintf (stderr, "Glyph string len = %d at (%d, %d) overhang (%d, %d),"
+  fprintf(stderr, "Glyph string len = %d at (%d, %d) overhang (%d, %d),"
 "overlap = %d, bg_filled = %d:",
-           s->nchars, s->x, s->y, s->left_overhang, s->right_overhang,
-           s->row->overlapping_p, s->background_filled_p);
+          s->nchars, s->x, s->y, s->left_overhang, s->right_overhang,
+          s->row->overlapping_p, s->background_filled_p);
   for (i = 0; i < s->nchars; i++)
-    fprintf (stderr, "%c", s->first_glyph[i].u.ch);
-  fprintf (stderr, "\n");
+    fprintf(stderr, "%c", (int)s->first_glyph[i].u.ch);
+  fprintf(stderr, "\n");
 }
 
 

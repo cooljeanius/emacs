@@ -2,7 +2,7 @@
 
 Copyright (C) 1994, 2001-2014 Free Software Foundation, Inc.
 
-Author: Geoff Voelker (voelker@cs.washington.edu)
+Author: Geoff Voelker <voelker@cs.washington.edu>
 Created: 10-8-94
 
 This file is part of GNU Emacs.
@@ -102,6 +102,13 @@ struct timezone
 #  endif /* PATH_MAX */
 # endif /* _MAX_PATH */
 #endif /* !MAXPATHLEN */
+
+#if defined(__GNUC__) && defined(__STDC_VERSION__)
+# if (__GNUC__ >= 5) || (__STDC_VERSION__ >= 201112L)
+#  pragma GCC diagnostic ignored "-Wimplicit-function-declaration"
+#  pragma GCC diagnostic ignored "-Wmissing-prototypes"
+# endif /* gcc 5, or C11 */
+#endif /* __GNUC__ && __STDC_VERSION__ */
 
 /* Emulate sleep... we could have done this with a define, but that
  * would necessitate including windows.h in the files that used it.

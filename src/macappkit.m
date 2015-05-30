@@ -195,15 +195,13 @@ NSSizeToCGSize(NSSize nssize)
 
 @implementation NSString (Emacs)
 
-/* Return a string created from the Lisp string.  May cause GC.  */
-
+/* Return a string created from the Lisp string.  May cause GC: */
 + (instancetype)stringWithLispString:(Lisp_Object)lispString
 {
   return CF_BRIDGING_RELEASE (cfstring_create_with_string (lispString));
 }
 
-/* Return a string created from the unibyte Lisp string in UTF 8.  */
-
+/* Return a string created from the unibyte Lisp string in UTF 8: */
 + (instancetype)stringWithUTF8LispString:(Lisp_Object)lispString
 {
   return CF_BRIDGING_RELEASE (cfstring_create_with_string_noencode
@@ -217,29 +215,26 @@ NSSizeToCGSize(NSSize nssize)
 {
   id string = [self stringWithUTF8String:bytes];
 
-  if (string == nil && flag)
-    string = CF_BRIDGING_RELEASE (CFStringCreateWithCString
-				  (NULL, bytes, kCFStringEncodingMacRoman));
+  if ((string == nil) && flag)
+    string = CF_BRIDGING_RELEASE(CFStringCreateWithCString
+				 (NULL, bytes, kCFStringEncodingMacRoman));
 
   return string;
 }
 
-/* Return a multibyte Lisp string.  May cause GC.  */
-
+/* Return a multibyte Lisp string.  May cause GC: */
 - (Lisp_Object)lispString
 {
   return cfstring_to_lisp ((__bridge CFStringRef) self);
 }
 
-/* Return a unibyte Lisp string in UTF 8.  */
-
+/* Return a unibyte Lisp string in UTF 8: */
 - (Lisp_Object)UTF8LispString
 {
   return cfstring_to_lisp_nodecode ((__bridge CFStringRef) self);
 }
 
-/* Return a unibyte Lisp string in UTF 16 (native byte order, no BOM).  */
-
+/* Return a unibyte Lisp string in UTF 16 (native byte order, no BOM): */
 - (Lisp_Object)UTF16LispString
 {
   return cfstring_to_lisp_utf_16 ((__bridge CFStringRef) self);
@@ -298,8 +293,7 @@ NSSizeToCGSize(NSSize nssize)
 
 @implementation NSFont (Emacs)
 
-/* Return an NSFont object for the specified FACE.  */
-
+/* Return an NSFont object for the specified FACE: */
 + (NSFont *)fontWithFace:(struct face *)face
 {
   if (face == NULL || face->font == NULL)
@@ -362,8 +356,8 @@ mac_cgevent_set_unicode_string_from_event_ref (CGEventRef cgevent,
 		{
 		  EventRef eventRef = (EventRef) [self eventRef];
 
-		  mac_cgevent_set_unicode_string_from_event_ref (event,
-								 eventRef);
+		  mac_cgevent_set_unicode_string_from_event_ref(event,
+                                                                eventRef);
 		}
 	    }
 	  return event;
@@ -417,7 +411,7 @@ mac_cgevent_set_unicode_string_from_event_ref (CGEventRef cgevent,
 	  CGEventSetIntegerValueField (event, kCGKeyboardEventKeyboardType,
 				       keyboard_type);
       }
-#endif
+#endif /* __LP64__ */
     }
   if (event == NULL)
     {
@@ -569,8 +563,7 @@ get_srgb_color_space (void)
 
 @implementation NSImage (Emacs)
 
-/* Create an image object from a Quartz 2D image.  */
-
+/* Create an image object from a Quartz 2D image: */
 + (NSImage *)imageWithCGImage:(CGImageRef)cgImage exclusive:(BOOL)flag
 {
   NSImage *image;
@@ -1586,10 +1579,10 @@ static void mac_update_accessibility_display_options (void);
   [flushTimer release];
   [deferredFlushWindows release];
   [super dealloc];
-#endif
+#endif /* !USE_ARC */
 }
 
-/* Delegate Methods  */
+/* Delegate Methods section. */
 
 - (void)applicationWillFinishLaunching:(NSNotification *)notification
 {
@@ -1640,7 +1633,7 @@ static void mac_update_accessibility_display_options (void);
       Vmac_help_topics = Qnil;
     }
 
-  /* Exit from the main event loop.  */
+  /* Exit from the main event loop: */
   [NSApp stop:nil];
   [NSApp postDummyEvent];
 }
@@ -1668,10 +1661,9 @@ static void mac_update_accessibility_display_options (void);
   return selection;
 }
 
-/* Action methods  */
+/* Action methods section. */
 
-/* Store SENDER's inputEvent to kbd_buffer.  */
-
+/* Store SENDER's inputEvent to kbd_buffer: */
 - (void)storeInputEvent:(id)sender
 {
   [self storeEvent:[sender inputEvent]];
@@ -1685,12 +1677,11 @@ static void mac_update_accessibility_display_options (void);
   menuItemSelection = [sender tag];
 }
 
-/* Event handling  */
+/* Event handling section. */
 
-static EventRef peek_if_next_event_activates_menu_bar (void);
+static EventRef peek_if_next_event_activates_menu_bar(void);
 
-/* Store BUFP to kbd_buffer.  */
-
+/* Store BUFP to kbd_buffer: */
 - (void)storeEvent:(struct input_event *)bufp
 {
   if (bufp->kind == HELP_EVENT)
@@ -1742,8 +1733,7 @@ static EventRef peek_if_next_event_activates_menu_bar (void);
   [self setTrackingObject:nil andResumeSelector:@selector(dummy)]
 #endif  /* (MAC_OS_X_VERSION_MIN_REQUIRED < 1060) && HAVE_CBLOCKS_LANGUAGE_FEATURE */
 
-/* Minimum time interval between successive mac_read_socket calls.  */
-
+/* Minimum time interval between successive mac_read_socket calls: */
 #define READ_SOCKET_MIN_INTERVAL (1/60.0)
 
 - (NSTimeInterval)minimumIntervalForReadSocket
@@ -1754,8 +1744,7 @@ static EventRef peek_if_next_event_activates_menu_bar (void);
     return READ_SOCKET_MIN_INTERVAL;
 }
 
-/* Handle the NSEvent EVENT.  */
-
+/* Handle the NSEvent EVENT: */
 - (void)handleOneNSEvent:(NSEvent *)event
 {
   struct mac_display_info *dpyinfo = &one_mac_display_info;
@@ -1873,8 +1862,8 @@ static EventRef peek_if_next_event_activates_menu_bar (void);
 	  if (leftMouseEvent)
 	    {
 	      if ([leftMouseEvent type] == NSLeftMouseDragged)
-		MOUSE_TRACKING_RESUME ();
-	      MOUSE_TRACKING_RESET ();
+		MOUSE_TRACKING_RESUME();
+	      MOUSE_TRACKING_RESET();
 	    }
 	}
 
@@ -2001,8 +1990,7 @@ emacs_windows_need_display_p (void)
     }
 }
 
-/* Work around conflicting Cocoa's text system key bindings.  */
-
+/* Work around conflicting Cocoa's text system key bindings: */
 - (BOOL)conflictingKeyBindingsDisabled
 {
   return conflictingKeyBindingsDisabled;
@@ -2094,14 +2082,14 @@ emacs_windows_need_display_p (void)
     {
       if (![flushTimer isValid])
 	{
-	  MRC_RELEASE (flushTimer);
+	  MRC_RELEASE(flushTimer);
 	  timeInterval = FLUSH_WINDOW_MIN_INTERVAL - timeInterval;
 	  flushTimer =
-	    MRC_RETAIN ([NSTimer scheduledTimerWithTimeInterval:timeInterval
-							 target:self
-						       selector:@selector(processDeferredFlushWindow:)
-						       userInfo:nil
-							repeats:NO]);
+	    MRC_RETAIN([NSTimer scheduledTimerWithTimeInterval:timeInterval
+                                                        target:self
+                                                      selector:@selector(processDeferredFlushWindow:)
+                                                      userInfo:nil
+                                                       repeats:NO]);
 	}
     }
   else
@@ -6416,7 +6404,7 @@ static BOOL NonmodalScrollerPagingBehavior;
     [userDefaults floatForKey:@"NSScrollerButtonDelay"];
   NonmodalScrollerButtonPeriod =
     [userDefaults floatForKey:@"NSScrollerButtonPeriod"];
-#endif
+#endif /* 10.5+ */
   NonmodalScrollerPagingBehavior =
     [userDefaults boolForKey:@"AppleScrollerPagingBehavior"];
 }
@@ -6432,7 +6420,7 @@ static BOOL NonmodalScrollerPagingBehavior;
   [timer release];
   [super dealloc];
 }
-#endif
+#endif /* !USE_ARC */
 
 /* Whether mouse drag on knob updates the float value.  Subclass may
    override the definition.  */
@@ -10654,38 +10642,37 @@ is_action_selector (SEL selector)
   return NO;
 }
 
-/* Return the method signature of actions.  */
-
+/* Return the method signature of actions: */
 static NSMethodSignature *
-action_signature (void)
+action_signature(void)
 {
   static NSMethodSignature *signature;
 
   if (signature == nil)
     signature =
-      MRC_RETAIN ([NSApplication
-		    instanceMethodSignatureForSelector:@selector(terminate:)]);
+      MRC_RETAIN([NSApplication
+		   instanceMethodSignatureForSelector:@selector(terminate:)]);
 
   return signature;
 }
 
 static void
-handle_action_invocation (NSInvocation *invocation)
+handle_action_invocation(NSInvocation *invocation)
 {
   id __unsafe_unretained sender;
   Lisp_Object arg = Qnil;
   struct input_event inev;
-  NSString *name = NSStringFromSelector ([invocation selector]);
+  NSString *name = NSStringFromSelector([invocation selector]);
   Lisp_Object name_symbol =
-    intern (SSDATA ([[name substringToIndex:([name length] - 1)]
-		      UTF8LispString]));
+    intern(SSDATA([[name substringToIndex:([name length] - 1)]
+                    UTF8LispString]));
   NSUInteger flags = [[NSApp currentEvent] modifierFlags];
-  UInt32 modifiers = mac_cgevent_flags_to_modifiers (flags);
+  UInt32 modifiers = mac_cgevent_flags_to_modifiers(flags);
 
-  arg = Fcons (Fcons (build_string ("kmod"), /* kEventParamKeyModifiers */
-		      Fcons (build_string ("magn"), /* typeUInt32 */
-			     mac_four_char_code_to_string (modifiers))),
-	       arg);
+  arg = Fcons(Fcons(build_string("kmod"), /* kEventParamKeyModifiers */
+                    Fcons(build_string("magn"), /* typeUInt32 */
+                          mac_four_char_code_to_string(modifiers))),
+              arg);
 
   [invocation getArgument:&sender atIndex:2];
 
@@ -10693,9 +10680,9 @@ handle_action_invocation (NSInvocation *invocation)
     {
       Lisp_Object rest;
 
-      for (rest = Fget (name_symbol, Qmac_action_key_paths);
-	   CONSP (rest); rest = XCDR (rest))
-	if (STRINGP (XCAR (rest)))
+      for (rest = Fget(name_symbol, Qmac_action_key_paths);
+	   CONSP(rest); rest = XCDR(rest))
+	if (STRINGP(XCAR(rest)))
 	  {
 	    NSString *keyPath;
 	    id value;
@@ -13311,7 +13298,7 @@ get_symbol_from_filter_input_key (NSString *key)
 #endif
     scaleFactor = 1.0;
 
-  if ([[[attributes objectForKey:kCIInputCenterKey]
+  if ([[(NSDictionary *)[attributes objectForKey:kCIInputCenterKey]
 	 objectForKey:kCIAttributeType]
 	isEqualToString:kCIAttributeTypePosition])
     {
@@ -13323,7 +13310,7 @@ get_symbol_from_filter_input_key (NSString *key)
     }
 
   if (floor (NSAppKitVersionNumber) <= NSAppKitVersionNumber10_5
-      && [[[attributes objectForKey:kCIInputExtentKey]
+      && [[(NSDictionary *)[attributes objectForKey:kCIInputExtentKey]
 	    objectForKey:kCIAttributeType]
 	   isEqualToString:kCIAttributeTypeRectangle])
     {
@@ -14939,6 +14926,12 @@ mac_sound_play(CFTypeRef mac_sound, Lisp_Object volume, Lisp_Object device)
   while ([sound isPlaying])
     mac_run_loop_run_once(kEventDurationForever);
 }
+
+#if defined(__GNUC__) && defined(__STDC_VERSION__)
+# if (__GNUC__ >= 5) || (__STDC_VERSION__ >= 201112L)
+#  pragma GCC diagnostic ignored "-Woverlength-strings"
+# endif /* gcc 5, or C11 */
+#endif /* __GNUC__ && __STDC_VERSION__ */
 
 #ifdef CA_BASIC_ANIMATION
 # undef CA_BASIC_ANIMATION

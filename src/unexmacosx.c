@@ -108,7 +108,7 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #  include <stdio.h>
 # else
 #  if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(lint)
-#   warning "unexmacosx.c expects <stdio.h> to be included."
+#   warning "src/unexmacosx.c expects <stdio.h> to be included."
 #  endif /* __GNUC__ && !__STRICT_ANSI__ && lint */
 # endif /* HAVE_STDIO_H || STDC_HEADERS || __STDC__ */
 #endif /* emacs || temacs */
@@ -116,21 +116,30 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 # include <errno.h>
 #else
 # if !defined(errno) && defined(__GNUC__) && !defined(__STRICT_ANSI__)
-#  warning "unexmacosx.c expects <errno.h> to be included for errno."
+#  warning "src/unexmacosx.c expects <errno.h> to be included for errno."
 # endif /* !errno && __GNUC__ && !__STRICT_ANSI__ */
 #endif /* HAVE_ERRNO_H */
 #include <fcntl.h>
 #include <stdarg.h>
 #include <sys/types.h>
 #include <unistd.h>
+#ifdef HAVE_LIBC_H
+# include <libc.h>
+#endif /* HAVE_LIBC_H */
 #ifdef HAVE_LIMITS_H
 # include <limits.h>
 #else
 # if !defined(UINT_MAX) && defined(__GNUC__) && !defined(__STRICT_ANSI__)
-#  warning "unexmacosx.c expects <limits.h> to be included for UINT_MAX."
+#  warning "src/unexmacosx.c wants to include <limits.h> for UINT_MAX."
 # endif /* !UINT_MAX && __GNUC__ && !__STRICT_ANSI__ */
 #endif /* HAVE_LIMITS_H */
 #include <mach/mach.h>
+#if !defined(NeXT) && defined(HAVE_MACH_MACHINE_VM_PARAM_H)
+# include <mach/machine/vm_param.h>
+#endif /* !NeXT && HAVE_MACH_MACHINE_VM_PARAM_H */
+#ifdef HAVE_MACH_VM_REGION_H
+# include <mach/vm_region.h>
+#endif /* HAVE_MACH_VM_REGION_H */
 #include <mach-o/arch.h>
 #include <mach-o/loader.h>
 #include <mach-o/reloc.h>
@@ -182,7 +191,17 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 /* Regions with memory addresses above this value are assumed to be
    mapped to dynamically loaded libraries and will not be dumped.  */
-#define VM_DATA_TOP (20 * 1024 * 1024)
+#if 0
+# define VM_DATA_TOP (20 * 1024 * 1024) /* i.e. 20971520 */
+#else
+/* `size -m -x -l` can be used to find the proper value for this. */
+/* should actually be: 0x10059e000, i.e. 4300857344 in decimal */
+# define VM_DATA_TOP (8192UL * 7UL * 179UL * 419UL)
+/* thanks, WolframAlpha, for the help with the factorization! */
+#endif /* 0 */
+/* (we should really calculate this value dynamically; it keeps twitching
+ *  around with the slightest of changes...) */
+
 
 /* Type of an element on the list of regions to be dumped.  */
 struct region_t {
@@ -438,7 +457,7 @@ static void
 print_region(vm_address_t address, vm_size_t size, vm_prot_t prot,
 	     vm_prot_t max_prot)
 {
-  printf("%#10lx %#8lx ", (long)address, (long)size);
+  printf("%#10lx %#8lx ", (unsigned long)address, (unsigned long)size);
   print_prot(prot);
   putchar(' ');
   print_prot(max_prot);
@@ -449,11 +468,22 @@ static void
 print_region_list(void)
 {
   struct region_t *r;
+  int regions_printed = 0;
 
   printf("   address     size prot maxp\n");
 
-  for (r = region_list_head; r; r = r->next)
+  assert(region_list_head != NULL);
+
+  for (r = region_list_head; r; r = r->next) {
     print_region(r->address, r->size, r->protection, r->max_protection);
+    regions_printed++;
+  }
+
+#if (defined(VERBOSE) && VERBOSE) || defined(lint)
+  if (regions_printed == 0) {
+    fprintf(stderr, "Warning: failed to print any regions!\n");
+  }
+#endif /* VERBOSE || lint */
 }
 
 static void
@@ -465,12 +495,13 @@ print_regions(void)
   struct vm_region_basic_info info;
   mach_msg_type_number_t info_count = VM_REGION_BASIC_INFO_COUNT;
   mach_port_t object_name;
+  int regions_printed = 0;
 
   printf("   address     size prot maxp\n");
 
-  while (vm_region(target_task, &address, &size, VM_REGION_BASIC_INFO,
-		   (vm_region_info_t)&info, &info_count, &object_name)
-	 == KERN_SUCCESS && (info_count == VM_REGION_BASIC_INFO_COUNT))
+  while ((vm_region(target_task, &address, &size, VM_REGION_BASIC_INFO,
+                    (vm_region_info_t)&info, &info_count, &object_name)
+          == KERN_SUCCESS) && (info_count == VM_REGION_BASIC_INFO_COUNT))
     {
       print_region(address, size, info.protection, info.max_protection);
 
@@ -478,7 +509,14 @@ print_regions(void)
 	mach_port_deallocate(target_task, object_name);
 
       address += size;
+      regions_printed++;
     }
+
+#if (defined(VERBOSE) && VERBOSE) || defined(lint)
+  if (regions_printed == 0) {
+    fprintf(stderr, "Warning: failed to print any regions!\n");
+  }
+#endif /* VERBOSE || lint */
 }
 
 /* Build the list of regions that need to be dumped.  Regions with
@@ -496,20 +534,27 @@ build_region_list(void)
   mach_msg_type_number_t info_count = VM_REGION_BASIC_INFO_COUNT;
   mach_port_t object_name;
   struct region_t *r;
+  int regions_printed = 0;
 
 #if defined(VERBOSE) && VERBOSE
   printf("--- List of All Regions ---\n");
   printf("   address     size prot maxp\n");
 #endif /* VERBOSE */
 
-  while (vm_region(target_task, &address, &size, VM_REGION_BASIC_INFO,
-		   (vm_region_info_t)&info, &info_count, &object_name)
-	 == KERN_SUCCESS && (info_count == VM_REGION_BASIC_INFO_COUNT))
+  while ((vm_region(target_task, &address, &size, VM_REGION_BASIC_INFO,
+                    (vm_region_info_t)&info, &info_count, &object_name)
+          == KERN_SUCCESS) && (info_count == VM_REGION_BASIC_INFO_COUNT))
     {
       /* Done when we reach addresses of shared libraries, which are
-	 loaded in high memory.  */
-      if (address >= VM_DATA_TOP)
+       * loaded in high memory: */
+      if (address >= VM_DATA_TOP) {
+#if defined(VERBOSE) && VERBOSE
+        printf("0x%lx is above 0x%lx; we must %s be into the shared libraries.\n",
+               address, VM_DATA_TOP, ((regions_printed <= 1)
+                                      ? "already" : "now"));
+#endif /* VERBOSE */
 	break;
+      }
 
 #if defined(VERBOSE) && VERBOSE
       print_region(address, size, info.protection, info.max_protection);
@@ -561,7 +606,14 @@ build_region_list(void)
 	}
 
       address += size;
+      regions_printed++;
     }
+
+#if (defined(VERBOSE) && VERBOSE) || defined(lint)
+  if (regions_printed == 0) {
+    fprintf(stderr, "Warning: failed to print any regions!\n");
+  }
+#endif /* VERBOSE || lint */
 
   printf("--- List of Regions to be Dumped ---\n");
   print_region_list();
@@ -600,8 +652,9 @@ unexec_regions_recorder(task_t task, void *rr, unsigned int type,
 
       unexec_regions[num_unexec_regions].filesize = filesize;
       unexec_regions[num_unexec_regions++].range = *ranges;
-      printf("%#10lx (sz: %#8lx/%#8lx)\n", (long)(ranges->address),
-	     (long)filesize, (long)(ranges->size));
+      printf("%#10lx (sz: %#8lx/%#8lx)\n",
+             (unsigned long)(ranges->address), (unsigned long)filesize,
+             (unsigned long)(ranges->size));
       ranges++; num--;
     }
 }
@@ -679,8 +732,9 @@ static void unexec_regions_merge(void)
       if (end & (pagesize - 1L)) {
         end = ROUNDUP_TO_PAGE_BOUNDARY(end);
         printf("Page (%#8lx) aligning region @%#8lx size from %#8lx to %#8lx\n",
-               (long)pagesize, (long)r.range.address, (long)r.range.size,
-               (long)(end - r.range.address));
+               (unsigned long)pagesize, (unsigned long)r.range.address,
+               (unsigned long)r.range.size,
+               (unsigned long)(end - r.range.address));
         r.range.size = (end - r.range.address);
         r.filesize = r.range.size;
         if (end == unexec_regions[i].range.address) {
@@ -721,8 +775,9 @@ static void unexec_regions_merge(void)
   if (end & (pagesize - 1L)) {
     end = ROUNDUP_TO_PAGE_BOUNDARY(end);
     printf("Page (%#8lx) aligning region @%#8lx size from %#8lx to %#8lx\n",
-           pagesize, (long)r.range.address, (long)r.range.size,
-           (long)(end - r.range.address));
+           pagesize, (unsigned long)r.range.address,
+           (unsigned long)r.range.size,
+           (unsigned long)(end - r.range.address));
     r.range.size = end - r.range.address;
     r.filesize = r.range.size;
   }
@@ -763,141 +818,179 @@ static void print_load_command_name(int lc)
     {
     case LC_SEGMENT:
 #ifndef _LP64
-      printf("LC_SEGMENT (0x%08x)       ", LC_SEGMENT);
+      printf("LC_SEGMENT (0x%08x)       ",
+             (unsigned int)LC_SEGMENT);
 #else
-      printf("LC_SEGMENT_64 (0x%08x)    ", LC_SEGMENT_64);
+      printf("LC_SEGMENT_64 (0x%08x)    ",
+             (unsigned int)LC_SEGMENT_64);
 #endif /* !_LP64 */
       break;
     case LC_LOAD_DYLINKER:
-      printf("LC_LOAD_DYLINKER (0x%08x) ", LC_LOAD_DYLINKER);
+      printf("LC_LOAD_DYLINKER (0x%08x) ",
+             (unsigned int)LC_LOAD_DYLINKER);
       break;
     case LC_LOAD_DYLIB:
-      printf("LC_LOAD_DYLIB (0x%08x)    ", LC_LOAD_DYLIB);
+      printf("LC_LOAD_DYLIB (0x%08x)    ",
+             (unsigned int)LC_LOAD_DYLIB);
       break;
     case LC_ID_DYLIB:
-      printf("LC_ID_DYLIB (0x%08x)            ", LC_ID_DYLIB);
+      printf("LC_ID_DYLIB (0x%08x)            ",
+             (unsigned int)LC_ID_DYLIB);
       break;
     case LC_SYMTAB:
-      printf("LC_SYMTAB (0x%08x)        ", LC_SYMTAB);
+      printf("LC_SYMTAB (0x%08x)        ",
+             (unsigned int)LC_SYMTAB);
       break;
     case LC_SYMSEG:
-      printf("LC_SYMSEG (0x%08x)              ", LC_SYMSEG);
+      printf("LC_SYMSEG (0x%08x)              ",
+             (unsigned int)LC_SYMSEG);
       break;
     case LC_DYSYMTAB:
-      printf("LC_DYSYMTAB (0x%08x)      ", LC_DYSYMTAB);
+      printf("LC_DYSYMTAB (0x%08x)      ",
+             (unsigned int)LC_DYSYMTAB);
       break;
     case LC_UNIXTHREAD:
-      printf("LC_UNIXTHREAD (0x%08x)    ", LC_UNIXTHREAD);
+      printf("LC_UNIXTHREAD (0x%08x)    ",
+             (unsigned int)LC_UNIXTHREAD);
       break;
     case LC_PREBOUND_DYLIB:
-      printf("LC_PREBOUND_DYLIB (0x%08x)", LC_PREBOUND_DYLIB);
+      printf("LC_PREBOUND_DYLIB (0x%08x)",
+             (unsigned int)LC_PREBOUND_DYLIB);
       break;
     case LC_ROUTINES:
-      printf("LC_ROUTINES (0x%08x)            ", LC_ROUTINES);
+      printf("LC_ROUTINES (0x%08x)            ",
+             (unsigned int)LC_ROUTINES);
       break;
     case LC_SUB_FRAMEWORK:
-      printf("LC_SUBFRAMEWORK (0x%08x)        ", LC_SUB_FRAMEWORK);
+      printf("LC_SUBFRAMEWORK (0x%08x)        ",
+             (unsigned int)LC_SUB_FRAMEWORK);
       break;
     case LC_SUB_UMBRELLA:
-      printf("LC_SUB_UMBRELLA (0x%08x)        ", LC_SUB_UMBRELLA);
+      printf("LC_SUB_UMBRELLA (0x%08x)        ",
+             (unsigned int)LC_SUB_UMBRELLA);
       break;
     case LC_SUB_CLIENT:
-      printf("LC_SUB_CLIENT (0x%08x)          ", LC_SUB_CLIENT);
+      printf("LC_SUB_CLIENT (0x%08x)          ",
+             (unsigned int)LC_SUB_CLIENT);
       break;
     case LC_SUB_LIBRARY:
-      printf("LC_SUB_LIBRARY (0x%08x)         ", LC_SUB_LIBRARY);
+      printf("LC_SUB_LIBRARY (0x%08x)         ",
+             (unsigned int)LC_SUB_LIBRARY);
       break;
     case LC_TWOLEVEL_HINTS:
-      printf("LC_TWOLEVEL_HINTS (0x%08x)", LC_TWOLEVEL_HINTS);
+      printf("LC_TWOLEVEL_HINTS (0x%08x)",
+             (unsigned int)LC_TWOLEVEL_HINTS);
       break;
     case LC_PREBIND_CKSUM:
-      printf("LC_PREBIND_CKSUM (0x%08x)       ", LC_PREBIND_CKSUM);
+      printf("LC_PREBIND_CKSUM (0x%08x)       ",
+             (unsigned int)LC_PREBIND_CKSUM);
       break;
     case LC_LOAD_WEAK_DYLIB:
-      printf("LC_LOAD_WEAK_DYLIB (0x%08x)     ", LC_LOAD_WEAK_DYLIB);
+      printf("LC_LOAD_WEAK_DYLIB (0x%08x)     ",
+             (unsigned int)LC_LOAD_WEAK_DYLIB);
       break;
 #if !defined(_LP64) && (LC_SEGMENT != LC_SEGMENT_64)
     case LC_SEGMENT_64:
-      printf("LC_SEGMENT_64 (0x%08x)          ", LC_SEGMENT_64);
+      printf("LC_SEGMENT_64 (0x%08x)          ",
+             (unsigned int)LC_SEGMENT_64);
       break;
 #endif /* !_LP64 && (LC_SEGMENT != LC_SEGMENT_64) */
     case LC_ROUTINES_64:
-      printf("LC_ROUTINES_64 (0x%08x)         ", LC_ROUTINES_64);
+      printf("LC_ROUTINES_64 (0x%08x)         ",
+             (unsigned int)LC_ROUTINES_64);
       break;
 #ifdef LC_UUID
     case LC_UUID:
-      printf("LC_UUID (0x%08x)          ", LC_UUID);
+      printf("LC_UUID (0x%08x)          ",
+             (unsigned int)LC_UUID);
       break;
 #endif /* LC_UUID */
     case LC_RPATH:
-      printf("LC_RPATH (0x%08x)               ", LC_RPATH);
+      printf("LC_RPATH (0x%08x)               ",
+             (unsigned int)LC_RPATH);
       break;
     case LC_CODE_SIGNATURE:
-      printf("LC_CODE_SIGNATURE (0x%08x)      ", LC_CODE_SIGNATURE);
+      printf("LC_CODE_SIGNATURE (0x%08x)      ",
+             (unsigned int)LC_CODE_SIGNATURE);
       break;
     case LC_SEGMENT_SPLIT_INFO:
-      printf("LC_SEGMENT_SPLIT_INFO (0x%08x)  ", LC_SEGMENT_SPLIT_INFO);
+      printf("LC_SEGMENT_SPLIT_INFO (0x%08x)  ",
+             (unsigned int)LC_SEGMENT_SPLIT_INFO);
       break;
     case LC_REEXPORT_DYLIB:
-      printf("LC_REEXPORT_DYLIB (0x%08x)      ", LC_REEXPORT_DYLIB);
+      printf("LC_REEXPORT_DYLIB (0x%08x)      ",
+             (unsigned int)LC_REEXPORT_DYLIB);
       break;
     case LC_LAZY_LOAD_DYLIB:
-      printf("LC_LAZY_LOAD_DYLIB (0x%08x)     ", LC_LAZY_LOAD_DYLIB);
+      printf("LC_LAZY_LOAD_DYLIB (0x%08x)     ",
+             (unsigned int)LC_LAZY_LOAD_DYLIB);
       break;
     case LC_ENCRYPTION_INFO:
-      printf("LC_ENCRYPTION_INFO (0x%08x)     ", LC_ENCRYPTION_INFO);
+      printf("LC_ENCRYPTION_INFO (0x%08x)     ",
+             (unsigned int)LC_ENCRYPTION_INFO);
       break;
 #ifdef LC_DYLD_INFO
     case LC_DYLD_INFO:
-      printf("LC_DYLD_INFO (0x%08x)     ", LC_DYLD_INFO);
+      printf("LC_DYLD_INFO (0x%08x)     ",
+             (unsigned int)LC_DYLD_INFO);
       break;
     case LC_DYLD_INFO_ONLY:
-      printf("LC_DYLD_INFO_ONLY (0x%08x)", LC_DYLD_INFO_ONLY);
+      printf("LC_DYLD_INFO_ONLY (0x%08x)",
+             (unsigned int)LC_DYLD_INFO_ONLY);
       break;
 #endif /* LC_DYLD_INFO */
     case LC_LOAD_UPWARD_DYLIB:
-      printf("LC_LOAD_UPWARD_DYLIB (0x%08x)   ", LC_LOAD_UPWARD_DYLIB);
+      printf("LC_LOAD_UPWARD_DYLIB (0x%08x)   ",
+             (unsigned int)LC_LOAD_UPWARD_DYLIB);
       break;
 #ifdef LC_VERSION_MIN_MACOSX
     case LC_VERSION_MIN_MACOSX:
-      printf("LC_VERSION_MIN_MACOSX (0x%08x)", LC_VERSION_MIN_MACOSX);
+      printf("LC_VERSION_MIN_MACOSX (0x%08x)",
+             (unsigned int)LC_VERSION_MIN_MACOSX);
       break;
 #endif /* LC_VERSION_MIN_MACOSX */
     case LC_VERSION_MIN_IPHONEOS:
-      printf("LC_VERSION_MIN_IPHONEOS (0x%08x)", LC_VERSION_MIN_IPHONEOS);
+      printf("LC_VERSION_MIN_IPHONEOS (0x%08x)",
+             (unsigned int)LC_VERSION_MIN_IPHONEOS);
       break;
 #ifdef LC_FUNCTION_STARTS
     case LC_FUNCTION_STARTS:
-      printf("LC_FUNCTION_STARTS (0x%08x)", LC_FUNCTION_STARTS);
+      printf("LC_FUNCTION_STARTS (0x%08x)",
+             (unsigned int)LC_FUNCTION_STARTS);
       break;
 #endif /* LC_FUNCTION_STARTS */
 #ifdef LC_DYLD_ENVIRONMENT
     case LC_DYLD_ENVIRONMENT:
-      printf("LC_DYLD_ENVIRONMENT (0x%08x)    ", LC_DYLD_ENVIRONMENT);
+      printf("LC_DYLD_ENVIRONMENT (0x%08x)    ",
+             (unsigned int)LC_DYLD_ENVIRONMENT);
       break;
 #endif /* LC_DYLD_ENVIRONMENT */
 #ifdef LC_MAIN
     case LC_MAIN:
-      printf("LC_MAIN (0x%08x)          ", LC_MAIN);
+      printf("LC_MAIN (0x%08x)          ",
+             (unsigned int)LC_MAIN);
       break;
 #endif /* LC_MAIN */
 #ifdef LC_DATA_IN_CODE
     case LC_DATA_IN_CODE:
-      printf("LC_DATA_IN_CODE (0x%08x)  ", LC_DATA_IN_CODE);
+      printf("LC_DATA_IN_CODE (0x%08x)  ",
+             (unsigned int)LC_DATA_IN_CODE);
       break;
 #endif /* LC_DATA_IN_CODE */
 #ifdef LC_SOURCE_VERSION
     case LC_SOURCE_VERSION:
-      printf("LC_SOURCE_VERSION (0x%08x)", LC_SOURCE_VERSION);
+      printf("LC_SOURCE_VERSION (0x%08x)",
+             (unsigned int)LC_SOURCE_VERSION);
       break;
 #endif /* LC_SOURCE_VERSION */
 #ifdef LC_DYLIB_CODE_SIGN_DRS
     case LC_DYLIB_CODE_SIGN_DRS:
-      printf("LC_DYLIB_CODE_SIGN_DRS (0x%08x)", LC_DYLIB_CODE_SIGN_DRS);
+      printf("LC_DYLIB_CODE_SIGN_DRS (0x%08x)",
+             (unsigned int)LC_DYLIB_CODE_SIGN_DRS);
       break;
 #endif /* LC_DYLIB_CODE_SIGN_DRS */
     default:
-      printf("unknown(0x%08x)", lc);
+      printf("unknown(0x%08x)", (unsigned int)lc);
       break;
     }
 }
@@ -906,7 +999,7 @@ static void
 print_load_command(struct load_command *lc)
 {
   print_load_command_name((int)lc->cmd);
-  printf("%8d", lc->cmdsize);
+  printf("%8u", lc->cmdsize);
 
   if ((lc->cmd == LC_SEGMENT) || (lc->cmd == LC_SEGMENT_64))
     {
@@ -916,14 +1009,16 @@ print_load_command(struct load_command *lc)
 
       scp = (struct segment_command *)lc;
       printf(" %-16.16s %#10lx %#8lx\n",
-	     scp->segname, (long)(scp->vmaddr), (long)(scp->vmsize));
+	     scp->segname, (unsigned long)(scp->vmaddr),
+             (unsigned long)(scp->vmsize));
 
       sectp = (struct section *)(scp + 1);
       for (j = 0U; (j < scp->nsects) && (j < UINT_MAX); j++)
 	{
 	  printf("                           %-16.16s %#10lx %#8lx (flags: %#8lx)\n",
-		 sectp->sectname, (long)(sectp->addr), (long)(sectp->size),
-                 (long)(sectp->flags));
+		 sectp->sectname, (unsigned long)(sectp->addr),
+                 (unsigned long)(sectp->size),
+                 (unsigned long)(sectp->flags));
 	  sectp++;
 	}
     }
@@ -958,7 +1053,7 @@ read_load_commands(void)
   if (mh.filetype != MH_EXECUTE)
     unexec_error("input Mach-O file is not an executable object file");
 
-#if VERBOSE
+#if defined(VERBOSE) && VERBOSE
   printf("--- Header Information ---\n");
   printf("Magic = 0x%08x%s\n", mh.magic, magic_typestring);
   printf("CPUType = %d (i.e. \"%s\")\n", mh.cputype,
@@ -966,8 +1061,8 @@ read_load_commands(void)
   printf("CPUSubType = %d (more specifically, \"%s\")\n", mh.cpusubtype,
          mh_cpuarchinfo->description);
   printf("FileType = 0x%x\n", mh.filetype);
-  printf("NCmds = %d\n", mh.ncmds);
-  printf("SizeOfCmds = %d\n", mh.sizeofcmds);
+  printf("NCmds = %u\n", mh.ncmds);
+  printf("SizeOfCmds = %u\n", mh.sizeofcmds);
   printf("Flags = 0x%08x\n", mh.flags);
 #endif /* VERBOSE */
 
@@ -1050,8 +1145,9 @@ copy_segment(struct load_command *lc)
     }
 
   printf("Writing segment %-16.16s @ %#8lx (%#8lx/%#8lx @ %#10lx)\n",
-	 scp->segname, (long)(scp->fileoff), (long)(scp->filesize),
-	 (long)(scp->vmsize), (long)(scp->vmaddr));
+	 scp->segname, (unsigned long)(scp->fileoff),
+         (unsigned long)(scp->filesize), (unsigned long)(scp->vmsize),
+         (unsigned long)(scp->vmaddr));
 
   if (!unexec_copy((off_t)scp->fileoff, (off_t)old_fileoff,
                    (ssize_t)scp->filesize))
@@ -1093,8 +1189,8 @@ copy_data_segment(struct load_command *lc)
   scp->filesize = scp->vmsize;
 
   printf("Writing segment %-16.16s @ %#8lx (%#8lx/%#8lx @ %#10lx)\n",
-	 scp->segname, curr_file_offset, (long)(scp->filesize),
-	 (long)(scp->vmsize), (long)(scp->vmaddr));
+	 scp->segname, curr_file_offset, (unsigned long)(scp->filesize),
+	 (unsigned long)(scp->vmsize), (unsigned long)(scp->vmaddr));
 
   /* Offsets in the output file for writing the next section structure
      and segment data block, respectively.  */
@@ -1323,8 +1419,9 @@ failure_spot:
         }
 
       printf("        section %-16.16s at %#8lx - %#8lx (sz: %#8lx)\n",
-	     sectp->sectname, (long)(sectp->offset),
-	     (long)(sectp->offset + sectp->size), (long)(sectp->size));
+	     sectp->sectname, (unsigned long)(sectp->offset),
+	     (unsigned long)(sectp->offset + sectp->size),
+             (unsigned long)(sectp->size));
 
       header_offset += sizeof(struct section);
       sectp++;
@@ -1358,8 +1455,9 @@ failure_spot:
       sc.flags = 0;
       total += sc.filesize;
       printf("Writing segment %-16.16s @ %#8lx (%#8lx/%#8lx @ %#10lx)\n",
-	     sc.segname, (long)(sc.fileoff), (long)(sc.filesize),
-	     (long)(sc.vmsize), (long)(sc.vmaddr));
+	     sc.segname, (unsigned long)(sc.fileoff),
+             (unsigned long)(sc.filesize), (unsigned long)(sc.vmsize),
+             (unsigned long)(sc.vmaddr));
 
       if (!unexec_write((off_t)sc.fileoff, (void *)sc.vmaddr, sc.filesize))
         unexec_error("cannot write new __DATA segment %#8lx (sz: %#8lx)",
@@ -1764,10 +1862,13 @@ dump_it(void)
 	break;
       }
 
-  if (curr_header_offset > text_seg_lowest_offset)
-    unexec_error("not enough room for load commands for new __DATA segments");
+  if (curr_header_offset > text_seg_lowest_offset) {
+    unexec_error("not enough room for load commands for new __DATA segments"
+                 " (increase headerpad_extra in configure.ac to at least %lX)",
+                 (num_unexec_regions * sizeof(struct segment_command)));
+  }
 
-  printf("%ld unused bytes follow Mach-O header\n",
+  printf("%lu unused bytes follow Mach-O header\n",
 	 (text_seg_lowest_offset - curr_header_offset));
 
   mh.sizeofcmds = (uint32_t)(curr_header_offset
@@ -1798,7 +1899,7 @@ unexec(const char *outfile, const char *infile)
       unexec_error("cannot open input file `%s'", infile);
     }
 
-  outfd = emacs_open(outfile, (O_WRONLY | O_TRUNC | O_CREAT), 0755);
+  outfd = emacs_open(outfile, (O_WRONLY | O_TRUNC | O_CREAT), 0777);
   if (outfd < 0)
     {
       emacs_close(infd);
@@ -1858,9 +1959,9 @@ void *unexec_malloc(size_t size)
     {
       void *p;
 
-      p = malloc (size);
+      p = malloc(size);
 #if MACOSX_MALLOC_MULT16
-      assert (((vm_address_t)p % 16) == 0);
+      assert(((vm_address_t)p % 16) == 0);
 #endif /* MACOSX_MALLOC_MULT16 */
       return p;
     }
@@ -1868,9 +1969,10 @@ void *unexec_malloc(size_t size)
     {
       unexec_malloc_header_t *ptr;
 
-      ptr = (unexec_malloc_header_t *)
-	malloc_zone_malloc(emacs_zone,
-                           (size + sizeof(unexec_malloc_header_t)));
+      ptr =
+        ((unexec_malloc_header_t *)
+         malloc_zone_malloc(emacs_zone,
+                            (size + sizeof(unexec_malloc_header_t))));
       ptr->u.size = size;
       ptr++;
 #if MACOSX_MALLOC_MULT16
@@ -1912,10 +2014,11 @@ void *unexec_realloc(void *old_ptr, size_t new_size)
     {
       unexec_malloc_header_t *ptr;
 
-      ptr = (unexec_malloc_header_t *)
-	malloc_zone_realloc(emacs_zone,
-                            ((unexec_malloc_header_t *)old_ptr - 1),
-			    (new_size + sizeof(unexec_malloc_header_t)));
+      ptr =
+        ((unexec_malloc_header_t *)
+         malloc_zone_realloc(emacs_zone,
+                             ((unexec_malloc_header_t *)old_ptr - 1),
+                             (new_size + sizeof(unexec_malloc_header_t))));
       ptr->u.size = new_size;
       ptr++;
 #if MACOSX_MALLOC_MULT16

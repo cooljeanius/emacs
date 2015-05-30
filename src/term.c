@@ -1844,10 +1844,12 @@ produce_glyphless_glyph (struct it *it, Lisp_Object acronym)
 	}
       else
 	{
-	  eassert (it->glyphless_method == GLYPHLESS_DISPLAY_HEX_CODE);
-	  len = (it->c < 0x10000 ? sprintf (buf, "\\u%04X", it->c)
-		 : it->c <= MAX_UNICODE_CHAR ? sprintf (buf, "\\U%06X", it->c)
-		 : sprintf (buf, "\\x%06X", it->c));
+	  eassert(it->glyphless_method == GLYPHLESS_DISPLAY_HEX_CODE);
+	  len = ((it->c < 0x10000)
+                 ? sprintf(buf, "\\u%04X", (unsigned int)it->c)
+		 : ((it->c <= MAX_UNICODE_CHAR)
+                    ? sprintf(buf, "\\U%06X", (unsigned int)it->c)
+                    : sprintf(buf, "\\x%06X", (unsigned int)it->c)));
 	}
       str = buf;
     }

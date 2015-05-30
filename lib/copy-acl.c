@@ -21,7 +21,12 @@
 
 #include "acl.h"
 
-#include "acl-internal.h"
+#include <errno.h>
+
+#include "quote.h"
+#include "error.h"
+#include "gettext.h"
+#define _(msgid) gettext (msgid)
 
 
 /* Copy access control lists from one file to another. If SOURCE_DESC is
@@ -31,21 +36,26 @@
    If access control lists are not available, fchmod the target file to
    MODE.  Also sets the non-permission bits of the destination file
    (S_ISUID, S_ISGID, S_ISVTX) to those from MODE if any are set.
-   Return 0 if successful.
-   Return -2 and set errno for an error relating to the source file.
-   Return -1 and set errno for an error relating to the destination file.  */
+   Return 0 if successful, otherwise output a diagnostic and return a
+   negative error code.  */
 
 int
-qcopy_acl (const char *src_name, int source_desc, const char *dst_name,
-           int dest_desc, mode_t mode)
+copy_acl (const char *src_name, int source_desc, const char *dst_name,
+          int dest_desc, mode_t mode)
 {
-  struct permission_context ctx;
-  int ret;
+  int ret = qcopy_acl (src_name, source_desc, dst_name, dest_desc, mode);
+  switch (ret)
+    {
+    case -2:
+      error (0, errno, "%s", quote (src_name));
+      break;
 
-  ret = get_permissions (src_name, source_desc, mode, &ctx);
-  if (ret != 0)
-    return -2;
-  ret = set_permissions (&ctx, dst_name, dest_desc);
-  free_permission_context (&ctx);
+    case -1:
+      error (0, errno, _("preserving permissions for %s"), quote (dst_name));
+      break;
+
+    default:
+      break;
+    }
   return ret;
 }

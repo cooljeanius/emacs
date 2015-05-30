@@ -1,4 +1,4 @@
-/* Merge parameters into a termcap entry string.
+/* tparam.c: Merge parameters into a termcap entry string.
    Copyright (C) 1985, 1987, 1993, 1995, 2000-2008, 2013-2014 Free
    Software Foundation, Inc.
 
@@ -33,12 +33,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
    The fourth and following args to tparam serve as the parameter values.  */
 
-static char *tparam1 (char const *string, char *outstring, int len,
-		      char *up, char *left, int *argp);
+static char *tparam1(char const *string, char *outstring, int len,
+		     const char *up, const char *left, int *argp);
 
 char *
-tparam (const char *string, char *outstring, int len,
-	int arg0, int arg1, int arg2, int arg3)
+tparam(const char *string, char *outstring, int len,
+       int arg0, int arg1, int arg2, int arg3)
 {
   int arg[4];
 
@@ -46,7 +46,7 @@ tparam (const char *string, char *outstring, int len,
   arg[1] = arg1;
   arg[2] = arg2;
   arg[3] = arg3;
-  return tparam1 (string, outstring, len, NULL, NULL, arg);
+  return tparam1(string, outstring, len, NULL, NULL, arg);
 }
 
 char *BC;
@@ -55,7 +55,7 @@ char *UP;
 static char tgoto_buf[50];
 
 char *
-tgoto (const char *cm, int hpos, int vpos)
+tgoto(const char *cm, int hpos, int vpos)
 {
   int args[2];
   if (!cm)
@@ -66,8 +66,8 @@ tgoto (const char *cm, int hpos, int vpos)
 }
 
 static char *
-tparam1 (const char *string, char *outstring, int len,
-	 char *up, char *left, register int *argp)
+tparam1(const char *string, char *outstring, int len,
+        const char *up, const char *left, register int *argp)
 {
   register int c;
   register const char *p = string;
@@ -262,18 +262,19 @@ tparam1 (const char *string, char *outstring, int len,
 }
 
 #ifdef DEBUG
-
+# include <stdio.h>
 int
-main (int argc, char **argv)
+main(int argc, char **argv)
 {
   char buf[50];
   int args[3];
-  args[0] = atoi (argv[2]);
-  args[1] = atoi (argv[3]);
-  args[2] = atoi (argv[4]);
-  tparam1 (argv[1], buf, 50, "LEFT", "UP", args);
-  printf ("%s\n", buf);
+  args[0] = atoi(argv[2]);
+  args[1] = atoi(argv[3]);
+  args[2] = atoi(argv[4]);
+  tparam1(argv[1], buf, 50, "LEFT", "UP", args);
+  printf("%s\n", buf);
   return 0;
 }
-
 #endif /* DEBUG */
+
+/* EOF */

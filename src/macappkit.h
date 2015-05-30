@@ -238,6 +238,7 @@ typedef id instancetype;
   /* Set of windows whose flush is deferred.  */
   NSMutableSet *deferredFlushWindows;
 }
+- (void)antialiasThresholdDidChange:(NSNotification *)notification;
 - (int)getAndClearMenuItemSelection;
 - (void)storeInputEvent:(id)sender;
 - (void)setMenuItemSelectionToTag:(id)sender;
@@ -253,6 +254,7 @@ typedef id instancetype;
 - (BOOL)conflictingKeyBindingsDisabled;
 - (void)setConflictingKeyBindingsDisabled:(BOOL)flag;
 - (void)flushWindow:(NSWindow *)window force:(BOOL)flag;
+- (void)processDeferredFlushWindow:(NSTimer *)theTimer;
 - (void)updatePresentationOptions;
 - (void)showMenuBar;
 @end
@@ -494,6 +496,7 @@ typedef id instancetype;
   CGFloat knobMinEdgeInSlot;
 }
 + (void)updateBehavioralParameters;
++ (void)pagingBehaviorDidChange:(NSNotification *)notification;
 - (BOOL)dragUpdatesFloatValue;
 - (NSTimeInterval)buttonDelay;
 - (NSTimeInterval)buttonPeriod;
@@ -636,6 +639,7 @@ typedef id instancetype;
 
 @interface EmacsDialogView : NSView
 - (instancetype)initWithWidgetValue:(widget_value *)wv;
+- (void)stopModalWithTagAsCode:(id)sender;
 @end
 
 @interface NSPasteboard (Emacs)
@@ -720,6 +724,10 @@ typedef id instancetype;
 }
 - (instancetype)initWithAttributedString:(NSAttributedString *)anAttributedString
 		      documentAttributes:(NSDictionary *)docAttributes;
+@end
+
+@interface EmacsController (Accessibility)
+-(void)accessibilityDisplayOptionsDidChange:(NSNotification *)notification;
 @end
 
 @interface EmacsFrameController (Accessibility)

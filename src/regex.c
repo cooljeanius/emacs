@@ -1146,13 +1146,13 @@ print_partial_compiled_pattern (re_char *start, re_char *end)
 
 
 static void
-print_compiled_pattern (struct re_pattern_buffer *bufp)
+print_compiled_pattern(struct re_pattern_buffer *bufp)
 {
   re_char *buffer = bufp->buffer;
 
-  print_partial_compiled_pattern (buffer, buffer + bufp->used);
-  printf ("%ld bytes used/%ld bytes allocated.\n",
-	  bufp->used, bufp->allocated);
+  print_partial_compiled_pattern(buffer, buffer + bufp->used);
+  printf("%ld bytes used/%ld bytes allocated.\n",
+	 (long int)bufp->used, (long int)bufp->allocated);
 
   if (bufp->fastmap_accurate && bufp->fastmap)
     {
@@ -1453,8 +1453,8 @@ typedef struct
 while (REMAINING_AVAIL_SLOTS <= space) {				\
   if (!GROW_FAIL_STACK (fail_stack))					\
     return -2;								\
-  DEBUG_PRINT ("\n  Doubled stack; size now: %zd\n", (fail_stack).size);\
-  DEBUG_PRINT ("	 slots available: %zd\n", REMAINING_AVAIL_SLOTS);\
+  DEBUG_PRINT("\n  Doubled stack; size now: %zd\n", (ssize_t)(fail_stack).size); \
+  DEBUG_PRINT("	 slots available: %zd\n", (ssize_t)REMAINING_AVAIL_SLOTS);\
 }
 
 /* Push register NUM onto the stack.  */
@@ -1544,16 +1544,16 @@ do {									\
   /* Must be int, so when we don't save any registers, the arithmetic	\
      of 0 + -1 isn't done as unsigned.  */				\
   									\
-  DEBUG_STATEMENT (nfailure_points_pushed++);				\
-  DEBUG_PRINT ("\nPUSH_FAILURE_POINT:\n");				\
-  DEBUG_PRINT ("  Before push, next avail: %zd\n", (fail_stack).avail);	\
-  DEBUG_PRINT ("			size: %zd\n", (fail_stack).size);\
+  DEBUG_STATEMENT(nfailure_points_pushed++);				\
+  DEBUG_PRINT("\nPUSH_FAILURE_POINT:\n");				\
+  DEBUG_PRINT("  Before push, next avail: %zd\n", (ssize_t)(fail_stack).avail);\
+  DEBUG_PRINT("			size: %zd\n", (ssize_t)(fail_stack).size);\
   									\
-  ENSURE_FAIL_STACK (NUM_NONREG_ITEMS);					\
+  ENSURE_FAIL_STACK(NUM_NONREG_ITEMS);					\
   									\
-  DEBUG_PRINT ("\n");							\
+  DEBUG_PRINT("\n");							\
   									\
-  DEBUG_PRINT ("  Push frame index: %zd\n", fail_stack.frame);		\
+  DEBUG_PRINT("  Push frame index: %zd\n", (ssize_t)fail_stack.frame);	\
   PUSH_FAILURE_INT (fail_stack.frame);					\
   									\
   DEBUG_PRINT ("  Push string %p: `", string_place);			\
@@ -1594,9 +1594,9 @@ do {									\
   assert (!FAIL_STACK_EMPTY ());					\
 									\
   /* Remove failure points and point to how many regs pushed.  */	\
-  DEBUG_PRINT ("POP_FAILURE_POINT:\n");					\
-  DEBUG_PRINT ("  Before pop, next avail: %zd\n", fail_stack.avail);	\
-  DEBUG_PRINT ("		     size: %zd\n", fail_stack.size);	\
+  DEBUG_PRINT("POP_FAILURE_POINT:\n");					\
+  DEBUG_PRINT("  Before pop, next avail: %zd\n", (ssize_t)fail_stack.avail);\
+  DEBUG_PRINT("		     size: %zd\n", (ssize_t)fail_stack.size);	\
 									\
   /* Pop the saved registers.  */					\
   while (fail_stack.frame < fail_stack.avail)				\
@@ -1614,8 +1614,8 @@ do {									\
   DEBUG_PRINT_DOUBLE_STRING (str, string1, size1, string2, size2);	\
   DEBUG_PRINT ("'\n");							\
 									\
-  fail_stack.frame = POP_FAILURE_INT ();				\
-  DEBUG_PRINT ("  Popping  frame index: %zd\n", fail_stack.frame);	\
+  fail_stack.frame = POP_FAILURE_INT(); 				\
+  DEBUG_PRINT("  Popping  frame index: %zd\n", (ssize_t)fail_stack.frame);\
 									\
   assert (fail_stack.avail >= 0);					\
   assert (fail_stack.frame <= fail_stack.avail);			\

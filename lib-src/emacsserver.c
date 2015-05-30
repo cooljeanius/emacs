@@ -108,7 +108,7 @@ char *progname;
 extern SIGTYPE delete_socket(int sig);
 extern void handle_signals(void);
 extern void error(const char *s1, char *s2);
-extern void _Noreturn fatal(const char *s1, char *s2);
+extern _Noreturn void fatal(const char *s1, char *s2);
 extern long *xmalloc(unsigned int size);
 
 /* Handle fatal signals: */
@@ -199,7 +199,7 @@ error(const char *s1, char *s2)
 }
 
 /* Print error message and exit: */
-void _Noreturn
+_Noreturn void
 fatal(const char *s1, char *s2)
 {
   error(s1, s2);
@@ -606,7 +606,7 @@ perror_1(const char *string)
 
 /* as with where this is used above, "../src/config.h" should define
  * '_Noreturn' for us, if we do not already have the C11 one: */
-void _Noreturn
+_Noreturn void
 fatal_error(const char *string)
 {
   fprintf(stderr, "%s", "Error: ");

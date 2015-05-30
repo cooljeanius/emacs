@@ -1484,7 +1484,7 @@ Optional arg DIR_ONLY_P, if non-nil, means choose only directories.  */)
   BOOL ret;
   BOOL isSave = NILP (mustmatch) && NILP (dir_only_p);
   id panel;
-  Lisp_Object fname;
+  Lisp_Object fname = LISP_INITIALLY_ZERO;
 
   NSString *promptS = NILP (prompt) || !STRINGP (prompt) ? nil :
     [NSString stringWithUTF8String: SSDATA (prompt)];
@@ -1541,7 +1541,7 @@ Optional arg DIR_ONLY_P, if non-nil, means choose only directories.  */)
     [panel setNameFieldStringValue: @""];
 
 #else
-  ns_fd_data.no_types = NILP (mustmatch) && NILP (dir_only_p);
+  ns_fd_data.no_types = NILP(mustmatch) && NILP(dir_only_p);
   ns_fd_data.dirS = dirS;
   ns_fd_data.initS = initS;
 #endif
@@ -1569,16 +1569,16 @@ Optional arg DIR_ONLY_P, if non-nil, means choose only directories.  */)
 
   if (ret)
     {
-      NSString *str = ns_filename_from_panel (panel);
-      if (! str) str = ns_directory_from_panel (panel);
+      NSString *str = ns_filename_from_panel(panel);
+      if (! str) str = ns_directory_from_panel(panel);
       if (! str) ret = NO;
-      else fname = build_string ([str UTF8String]);
+      else fname = build_string([str UTF8String]);
     }
 
-  [[FRAME_NS_VIEW (SELECTED_FRAME ()) window] makeKeyWindow];
-  unblock_input ();
+  [[FRAME_NS_VIEW(SELECTED_FRAME()) window] makeKeyWindow];
+  unblock_input();
 
-  return ret ? fname : Qnil;
+  return (ret ? fname : Qnil);
 }
 
 const char *

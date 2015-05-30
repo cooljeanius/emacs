@@ -40,7 +40,7 @@ extern int malloc_freezedry(void);
 
 int malloc_cookie;
 
-#define VERBOSE
+#define VERBOSE 1
 
 #ifdef VERBOSE
 # define SHOW_MCOPY_WRITES
@@ -81,20 +81,20 @@ static void fatal_unexec(const char *format, ...)
 static void print_region(struct region_t *region)
 {
   printf("0x%8lx - 0x%8lx, length: 0x%8lx, protection: %c%c%c, max_protection: %c%c%c\n",
-	 region->address, region->address + region->size, region->size,
-	 (region->protection & VM_PROT_READ) ? 'r' : '-',
-	 (region->protection & VM_PROT_WRITE) ? 'w' : '-',
-	 (region->protection & VM_PROT_EXECUTE) ? 'x' : '-',
-	 (region->max_protection & VM_PROT_READ) ? 'r' : '-',
-	 (region->max_protection & VM_PROT_WRITE) ? 'w' : '-',
-	 (region->max_protection & VM_PROT_EXECUTE) ? 'x' : '-');
+	 region->address, (region->address + region->size), region->size,
+	 ((region->protection & VM_PROT_READ) ? 'r' : '-'),
+	 ((region->protection & VM_PROT_WRITE) ? 'w' : '-'),
+	 ((region->protection & VM_PROT_EXECUTE) ? 'x' : '-'),
+	 ((region->max_protection & VM_PROT_READ) ? 'r' : '-'),
+	 ((region->max_protection & VM_PROT_WRITE) ? 'w' : '-'),
+	 ((region->max_protection & VM_PROT_EXECUTE) ? 'x' : '-'));
 }
 
-static void print_regions (struct region_t *regions)
+static void print_regions(struct region_t *regions)
 {
   while (regions != NULL)
     {
-      print_region (regions);
+      print_region(regions);
       regions = regions->next;
     }
 }
@@ -102,8 +102,9 @@ static void print_regions (struct region_t *regions)
 static void print_section(struct section *section)
 {
   printf("0x%8lx - 0x%8lx, length: 0x%8lx, offset: 0x%8lx\n",
-	 section->addr, (section->addr + section->size), section->size,
-         section->offset);
+	 (unsigned long)section->addr,
+         (unsigned long)(section->addr + section->size),
+         (unsigned long)section->size, (unsigned long)section->offset);
 }
 
 static void print_sections(section_list_t *sections)
@@ -328,16 +329,16 @@ static void unexec_doit(int infd,int outfd)
   struct section *section_pointer;
   section_list_t *all_sections = NULL;
 
-  unsigned long delta = 0;
+  unsigned long delta = 0UL;
 #if defined(NS_TARGET) || !defined(NeXT)
   struct dysymtab_command *dysymtab;
   struct twolevel_hints_command *hinttab;
-  unsigned long extreloff = 0;
-  unsigned long nextrel = 0;
-  unsigned long locreloff = 0;
-  unsigned long nlocrel = 0;
+  unsigned long extreloff = 0UL;
+  unsigned long nextrel = 0UL;
+  unsigned long locreloff = 0UL;
+  unsigned long nlocrel = 0UL;
   struct relocation_info reloc_info;
-  unsigned long fixed_reloc_count = 0;
+  unsigned long fixed_reloc_count = 0UL;
 #endif /* NS_TARGET || !NeXT */
 
   struct segment_command new_data_segment;
@@ -345,7 +346,7 @@ static void unexec_doit(int infd,int outfd)
 
   malloc_cookie = malloc_freezedry();
 #ifdef VERBOSE
-  printf("malloc_cookie: %lx\n", malloc_cookie);
+  printf("malloc_cookie: %lx\n", (unsigned long)malloc_cookie);
 #endif /* VERBOSE */
   if (malloc_cookie == 0)
     {
@@ -436,8 +437,8 @@ static void unexec_doit(int infd,int outfd)
 
   for (pregions = &regions; *pregions != NULL;)
     {
-      if ( !((*pregions)->protection & VM_PROT_WRITE)
-	   || ((*pregions)->address >= 0x8fe00000))
+      if (!((*pregions)->protection & VM_PROT_WRITE)
+          || ((*pregions)->address >= 0x8fe00000))
         {
 	  *pregions = (*pregions)->next;
         }
@@ -574,11 +575,11 @@ static void unexec_doit(int infd,int outfd)
 	      new_data_segment.flags = segment_pointer->flags;
 	      new_data_segment.nsects = 0;
 	      new_data_segment.cmdsize = sizeof(struct segment_command);
-#ifdef VERBOSE
+# ifdef VERBOSE
 	      printf("Original sections:\n");
 	      print_sections(original_sections);
 	      printf("----------------------------------------------------------------------\n");
-#endif /* VERBOSE */
+# endif /* VERBOSE */
 	      /* Create list of new segments: */
 	      sect_ptr = &new_sections;
 	      current_address = new_data_segment.vmaddr;
@@ -642,11 +643,11 @@ static void unexec_doit(int infd,int outfd)
 		  sect_ptr = &(section_item->next);
 
 		}
-#ifdef VERBOSE
+# ifdef VERBOSE
 	      printf("New sections:\n");
 	      print_sections(new_sections);
 	      printf("----------------------------------------------------------------------\n");
-#endif /* VERBOSE */
+# endif /* VERBOSE */
 	      /**
 	       * Go through new list of sections
 	       *  - write section to disk, either from memory or original file
@@ -700,7 +701,7 @@ static void unexec_doit(int infd,int outfd)
 
 	      /* Finally, skip first data segment. */
 	      regions = regions->next;
-#endif
+#endif /* 1 */
 
 #if 1
 	      /* Write remainder of regions as data segments */
@@ -708,8 +709,8 @@ static void unexec_doit(int infd,int outfd)
 	      j = segment_pointer->cmdsize; /* Save original command size for loop. */
 	      for (cregion = regions; cregion != NULL; cregion = cregion->next)
 		{
-		  mcopy (-1, outfd, cregion->address, output_position, cregion->size,
-                         "SEG_DATA: write remainder data");
+		  mcopy(-1, outfd, cregion->address, output_position, cregion->size,
+                        "SEG_DATA: write remainder data");
 		  segment_pointer->cmd = LC_SEGMENT;
 		  segment_pointer->cmdsize = sizeof(*segment_pointer);
 		  strncpy (segment_pointer->segname, SEG_DATA, sizeof(segment_pointer->segname));
@@ -722,8 +723,8 @@ static void unexec_doit(int infd,int outfd)
 		  segment_pointer->flags = 0;
 		  segment_pointer->fileoff = output_position;
 		  output_position += segment_pointer->filesize;
-		  mcopy (-1, outfd, (unsigned long)segment_pointer, header_position, segment_pointer->cmdsize,
-                         "SEG_DATA: write segment command for remainder data");
+		  mcopy(-1, outfd, (unsigned long)segment_pointer, header_position, segment_pointer->cmdsize,
+                        "SEG_DATA: write segment command for remainder data");
 		  header_position += segment_pointer->cmdsize;
 		  mach_header.ncmds++;
 
@@ -738,27 +739,35 @@ static void unexec_doit(int infd,int outfd)
 #ifdef VERBOSE
               printf("segment is '%s':\n", segment_pointer->segname);
 #endif /* VERBOSE */
-	      mcopy(infd, outfd, segment_pointer->fileoff, output_position, segment_pointer->filesize,
+	      mcopy(infd, outfd, segment_pointer->fileoff, output_position,
+                    segment_pointer->filesize,
                     "SEG_OTHER: write segment data");
-	      section_pointer = (struct section *)(((void *)segment_pointer)+sizeof(*segment_pointer));
+	      section_pointer = ((struct section *)
+                                 (((void *)segment_pointer)
+                                  + sizeof(*segment_pointer)));
 	      for(j = 0; j < segment_pointer->nsects; j++)
 		{
 		  if (section_pointer[j].offset != 0)
-		    section_pointer[j].offset = (section_pointer[j].offset - segment_pointer->fileoff) + output_position;
+		    section_pointer[j].offset = ((section_pointer[j].offset
+                                                  - segment_pointer->fileoff)
+                                                 + output_position);
 		  if (section_pointer[j].reloff != 0)
-		    section_pointer[j].reloff = (section_pointer[j].reloff - segment_pointer->fileoff) + output_position;
+		    section_pointer[j].reloff = ((section_pointer[j].reloff
+                                                  - segment_pointer->fileoff)
+                                                 + output_position);
 		}
 
 	      if (strcmp (segment_pointer->segname, SEG_LINKEDIT) == 0)
 		{
-		  delta = output_position - segment_pointer->fileoff;
+		  delta = (output_position - segment_pointer->fileoff);
 		}
 
 	      segment_pointer->fileoff = output_position;
 	      output_position += segment_pointer->filesize;
 
-	      mcopy (-1, outfd, (unsigned long)load_command, header_position, load_command->cmdsize,
-                     "SEG_OTHER: write segment command and its sections");
+	      mcopy(-1, outfd, (unsigned long)load_command,
+                    header_position, load_command->cmdsize,
+                    "SEG_OTHER: write segment command and its sections");
 	      header_position += load_command->cmdsize;
 
               /* Now, scan the segments for sections, so we have a list
@@ -775,16 +784,19 @@ static void unexec_doit(int infd,int outfd)
             symtab_pointer = (struct symtab_command *)load_command;
 
             symtab = malloc(symtab_pointer->nsyms * sizeof(struct nlist));
-            mcopy(infd, -1, symtab_pointer->symoff, (unsigned long)symtab, symtab_pointer->nsyms * sizeof(struct nlist),
+            mcopy(infd, -1, symtab_pointer->symoff, (unsigned long)symtab,
+                  (symtab_pointer->nsyms * sizeof(struct nlist)),
                   "Read old symbol table into memory");
 
             symtab_pointer->symoff += delta;
             symtab_pointer->stroff += delta;
-            mcopy (-1, outfd, (unsigned long)load_command, header_position, load_command->cmdsize,
-                   "write symtab command");
+            mcopy(-1, outfd, (unsigned long)load_command, header_position,
+                  load_command->cmdsize,
+                  "write symtab command");
             header_position += load_command->cmdsize;
-            printf ("LC_SYMTAB: symoff = %ld, nsyms = %ld, stroff = %ld, strsize = %ld\n",
-                    symtab_pointer->symoff, symtab_pointer->nsyms, symtab_pointer->stroff, symtab_pointer->strsize);
+            printf("LC_SYMTAB: symoff = %ld, nsyms = %ld, stroff = %ld, strsize = %ld\n",
+                   (long)symtab_pointer->symoff, (long)symtab_pointer->nsyms,
+                   (long)symtab_pointer->stroff, (long)symtab_pointer->strsize);
 
             /* We have already written out the symbol table, but we are
              * going to read it back in, adjust the symbol table entries,
@@ -810,15 +822,15 @@ static void unexec_doit(int infd,int outfd)
                     if ((nlist_pointer->n_type & N_TYPE) == N_SECT) {
                         section_index = section_with_address(all_sections,
                                                              nlist_pointer->n_value);
-#if 0
+#if defined(VERBOSE) && VERBOSE
                         printf("%5d: 0x%08lx 0x%02x 0x%02x (0x%02x) 0x%04x 0x%08lx\n",
-                               index, nlist_pointer->n_un.n_strx,
+                               index, (unsigned long)nlist_pointer->n_un.n_strx,
                                (nlist_pointer->n_type & 0xff),
                                (nlist_pointer->n_sect & 0xff),
-                               section_index,
-                               (nlist_pointer->n_desc & 0xffff),
-                               nlist_pointer->n_value);
-#endif /* 0 */
+                               (unsigned int)section_index,
+                               (unsigned int)(nlist_pointer->n_desc & 0xffff),
+                               (unsigned long)nlist_pointer->n_value);
+#endif /* VERBOSE */
                         if (nlist_pointer->n_sect != section_index) {
                             nlist_pointer->n_sect = section_index;
                             changed_symtabs++;
@@ -827,8 +839,8 @@ static void unexec_doit(int infd,int outfd)
                     nlist_pointer++;
                 }
 
-                printf ("Adjusted n_sect for %d symbol table entries.\n",
-                        changed_symtabs);
+                printf("Adjusted n_sect for %d symbol table entries.\n",
+                       changed_symtabs);
                 mcopy(-1, outfd, (unsigned long)symtab,
                       symtab_pointer->symoff,
                       (symtab_pointer->nsyms * sizeof(struct nlist)),
@@ -941,8 +953,10 @@ static void unexec_doit(int infd,int outfd)
 
 # if 1
 #  ifdef VERBOSE
-      printf("%2d: reloc: %lx, start: %lx, end: %lx\n", i, reloc_info.r_address,
-	     new_data_segment.vmaddr, (new_data_segment.vmaddr + new_data_segment.filesize));
+      printf("%2d: reloc: %lx, start: %lx, end: %lx\n", i,
+             (unsigned long)reloc_info.r_address,
+	     (unsigned long)new_data_segment.vmaddr,
+             (unsigned long)(new_data_segment.vmaddr + new_data_segment.filesize));
 #  endif /* VERBOSE */
       if ((reloc_info.r_address >= new_data_segment.vmaddr)
 	  && (reloc_info.r_address < (new_data_segment.vmaddr + new_data_segment.filesize)))
@@ -968,8 +982,10 @@ static void unexec_doit(int infd,int outfd)
 
 # if 1
 #  ifdef VERBOSE
-      printf("%2d: reloc: %lx, start: %lx, end: %lx\n", i, reloc_info.r_address,
-	     new_data_segment.vmaddr, (new_data_segment.vmaddr + new_data_segment.filesize));
+      printf("%2d: reloc: %lx, start: %lx, end: %lx\n", i,
+             (unsigned long)reloc_info.r_address,
+	     (unsigned long)new_data_segment.vmaddr,
+             (unsigned long)(new_data_segment.vmaddr + new_data_segment.filesize));
 #  endif /* VERBOSE */
       if ((reloc_info.r_address >= new_data_segment.vmaddr)
 	  && (reloc_info.r_address < (new_data_segment.vmaddr + new_data_segment.filesize)))

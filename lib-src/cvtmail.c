@@ -57,12 +57,12 @@ Boston, MA 02110-1301, USA.  */
 extern char *getenv(const char *);
 #endif /* !HAVE_STDLIB_H && !_STDLIB_H_ && !getenv */
 
-extern char *xmalloc __P ((unsigned));
-extern char *xrealloc __P ((char *, unsigned));
-extern void skip_to_lf __P ((FILE *));
-extern void _Noreturn sysfail __P ((char *));
-extern void error __P ((const char *, char *));
-extern void _Noreturn fatal __P ((const char *, char *));
+extern char *xmalloc __P((unsigned));
+extern char *xrealloc __P((char *, unsigned));
+extern void skip_to_lf __P((FILE *));
+extern _Noreturn void sysfail __P((char *));
+extern void error __P((const char *, char *));
+extern _Noreturn void fatal __P((const char *, char *));
 
 int
 main(int argc, char *argv[])
@@ -157,7 +157,7 @@ error(const char *s1, char *s2)
 }
 
 /* Print error message and exit: */
-void _Noreturn
+_Noreturn void
 fatal(const char *s1, char *s2)
 {
   error(s1, s2);
@@ -166,7 +166,7 @@ fatal(const char *s1, char *s2)
 
 /* as with above, "../src/config.h" should define '_Noreturn' for us,
  * if we do not already have the C11 one: */
-void _Noreturn
+_Noreturn void
 sysfail(char *s)
 {
   fprintf(stderr, "cvtmail: ");

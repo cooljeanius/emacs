@@ -80,10 +80,10 @@
    We also #define LDAV_PRIVILEGED if a program will require
    special installation to be able to call getloadavg.  */
 
-/* This should always be first.  */
-#ifdef HAVE_CONFIG_H
+/* This should always be first: */
+#if defined(HAVE_CONFIG_H) || defined(emacs)
 # include <config.h>
-#endif /* HAVE_CONFIG_H */
+#endif /* HAVE_CONFIG_H || emacs */
 
 #include <sys/types.h>
 
@@ -107,12 +107,16 @@
 extern int errno;
 #endif /* !errno */
 
+#ifdef HAVE_STDBOOL_H
+# include <stdbool.h>
+#endif /* HAVE_STDBOOL_H */
+
 #ifdef HAVE_LOCALE_H
 # include <locale.h>
 #endif /* HAVE_LOCALE_H */
-#ifndef HAVE_SETLOCALE
+#if !defined(HAVE_SETLOCALE) && !defined(setlocale)
 # define setlocale(Category, Locale) /* empty */
-#endif /* !HAVE_SETLOCALE */
+#endif /* !HAVE_SETLOCALE && !setlocale */
 
 #ifndef HAVE_GETLOADAVG
 
@@ -127,13 +131,17 @@ extern int errno;
    LDAV_CVT directly.  */
 
 # if !defined(LDAV_CVT) && defined(LOAD_AVE_CVT)
-#  define LDAV_CVT(n) (LOAD_AVE_CVT (n) / 100.0)
-# endif
+#  define LDAV_CVT(n) (LOAD_AVE_CVT(n) / 100.0)
+# endif /* !LDAV_CVT && LOAD_AVE_CVT */
 
-# if !defined (BSD) && defined (ultrix)
+# if !defined(BSD) && defined(ultrix)
 /* Ultrix behaves like BSD on Vaxen.  */
 #  define BSD
-# endif
+# endif /* !BSD && ultrix */
+
+# if defined(DARWIN_OS) && !defined(NeXT)
+#  define NeXT
+# endif /* DARWIN_OS && !NeXT */
 
 # ifdef NeXT
 /* NeXT in the 2.{0,1,2} releases defines BSD in <sys/param.h>, which
@@ -144,7 +152,7 @@ extern int errno;
 /* NeXT defines FSCALE in <sys/param.h>.  However, we take FSCALE being
    defined to mean that the nlist method should be used, which is not true.  */
 #  undef FSCALE
-# endif
+# endif /* NeXT */
 
 /* Same issues as for NeXT apply to the HURD-based GNU system.  */
 # ifdef __GNU__
@@ -158,116 +166,131 @@ extern int errno;
 
 /* Some shorthands.  */
 
-# if defined (HPUX) && !defined (hpux)
+# if defined(HPUX) && !defined(hpux)
 #  define hpux
-# endif
+# endif /* HPUX && !hpux */
 
-# if defined (__hpux) && !defined (hpux)
+# if defined(__hpux) && !defined(hpux)
 #  define hpux
-# endif
+# endif /* __hpux && !hpux */
 
-# if defined (__sun) && !defined (sun)
+# if defined(__sun) && !defined(sun)
 #  define sun
-# endif
+# endif /* __sun && !sun */
 
 # if defined(hp300) && !defined(hpux)
 #  define MORE_BSD
-# endif
+# endif /* hp300 && !hpux */
 
 # if defined(ultrix) && defined(mips)
 #  define decstation
-# endif
+# endif /* ultrix && mips */
 
-# if defined (__SVR4) && !defined (SVR4)
+# if defined(__SVR4) && !defined(SVR4)
 #  define SVR4
-# endif
+# endif /* __SVR4 && !SVR4 */
 
-# if (defined(sun) && defined(SVR4)) || defined (SOLARIS2)
+# if (defined(sun) && defined(SVR4)) || defined(SOLARIS2)
 #  define SUNOS_5
-# endif
+# endif /* (sun && SVR4) || SOLARIS2 */
 
-# if defined (__osf__) && (defined (__alpha) || defined (__alpha__))
+# if defined(__osf__) && (defined(__alpha) || defined(__alpha__))
 #  define OSF_ALPHA
 #  include <sys/mbuf.h>
 #  include <sys/socket.h>
 #  include <net/route.h>
 #  include <sys/table.h>
-# endif
+# endif /* __osf__ && (__alpha || __alpha__) */
 
-# if defined (__osf__) && (defined (mips) || defined (__mips__))
+# if defined(__osf__) && (defined(mips) || defined(__mips__))
 #  define OSF_MIPS
 #  include <sys/table.h>
-# endif
+# endif /* __osf__ && (mips || __mips__) */
+
+# ifdef HAVE_AVAILABILITYMACROS_H
+#  include <AvailabilityMacros.h>
+#  define MACH64 (MAC_OS_X_VERSION_MAX_ALLOWED >= 1040)
+# else
+#  if defined(__MACH__) && __MACH__ && defined(__LP64__) && __LP64__
+#   define MACH64 (__MACH__ + __LP64__)
+#  endif /* __MACH__ && __LP64__ */
+# endif /* HAVE_AVAILABILITYMACROS_H */
+
+# if defined(MACH64) && MACH64
+#  ifndef host_self
+#   define host_self() mach_host_self()
+#  endif /* !host_self */
+# endif /* MACH64 */
 
 /* UTek's /bin/cc on the 4300 has no architecture specific cpp define by
    default, but _MACH_IND_SYS_TYPES is defined in <sys/types.h>.  Combine
    that with a couple of other things and we'll have a unique match.  */
-# if !defined (tek4300) && defined (unix) && defined (m68k) && defined (mc68000) && defined (mc68020) && defined (_MACH_IND_SYS_TYPES)
-#  define tek4300			/* Define by emacs, but not by other users.  */
-# endif
+# if !defined(tek4300) && defined(unix) && defined(m68k) && defined(mc68000) && defined(mc68020) && defined(_MACH_IND_SYS_TYPES)
+#  define tek4300	/* Define by emacs, but not by other users.  */
+# endif /* !tek4300 && unix && m68k && mc68000 && mc68020 && _MACH_IND_SYS_TYPES */
 
 
-/* VAX C can't handle multi-line #ifs, or lines longer than 256 chars.  */
+/* VAX C cannot handle multi-line #ifs, or lines longer than 256 chars.  */
 # ifndef LOAD_AVE_TYPE
 
 #  ifdef MORE_BSD
 #   define LOAD_AVE_TYPE long
-#  endif
+#  endif /* MORE_BSD */
 
 #  ifdef sun
 #   define LOAD_AVE_TYPE long
-#  endif
+#  endif /* sun */
 
 #  ifdef decstation
 #   define LOAD_AVE_TYPE long
-#  endif
+#  endif /* decstation */
 
 #  ifdef _SEQUENT_
 #   define LOAD_AVE_TYPE long
-#  endif
+#  endif /* _SEQUENT_ */
 
 #  ifdef sgi
 #   define LOAD_AVE_TYPE long
-#  endif
+#  endif /* sgi */
 
 #  ifdef SVR4
 #   define LOAD_AVE_TYPE long
-#  endif
+#  endif /* SVR4 */
 
 #  ifdef sony_news
 #   define LOAD_AVE_TYPE long
-#  endif
+#  endif /* sony_news */
 
 #  ifdef sequent
 #   define LOAD_AVE_TYPE long
-#  endif
+#  endif /* sequent */
 
 #  ifdef OSF_ALPHA
 #   define LOAD_AVE_TYPE long
-#  endif
+#  endif /* OSF_ALPHA */
 
-#  if defined (ardent) && defined (titan)
+#  if defined(ardent) && defined(titan)
 #   define LOAD_AVE_TYPE long
-#  endif
+#  endif /* ardent && titan */
 
 #  ifdef tek4300
 #   define LOAD_AVE_TYPE long
-#  endif
+#  endif /* tek4300 */
 
 #  if defined(alliant) && defined(i860) /* Alliant FX/2800 */
 #   define LOAD_AVE_TYPE long
-#  endif
+#  endif /* alliant && i860 */
 
 #  ifdef _AIX
 #   define LOAD_AVE_TYPE long
-#  endif
+#  endif /* _AIX */
 
 #  ifdef convex
 #   define LOAD_AVE_TYPE double
 #   ifndef LDAV_CVT
 #    define LDAV_CVT(n) (n)
-#   endif
-#  endif
+#   endif /* !LDAV_CVT */
+#  endif /* convex */
 
 # endif /* No LOAD_AVE_TYPE.  */
 
@@ -276,94 +299,100 @@ extern int errno;
    according to <ghazi@noc.rutgers.edu>.  */
 #  undef FSCALE
 #  define FSCALE 1024.0
-# endif
+# endif /* OSF_ALPHA */
 
 # if defined(alliant) && defined(i860) /* Alliant FX/2800 */
 /* <sys/param.h> defines an incorrect value for FSCALE on an
    Alliant FX/2800 Concentrix 2.2, according to <ghazi@noc.rutgers.edu>  */
 #  undef FSCALE
 #  define FSCALE 100.0
-# endif
+# endif /* alliant && i860 */
 
 
 # ifndef	FSCALE
 
-/* SunOS and some others define FSCALE in sys/param.h.  */
+/* SunOS and some others define FSCALE in <sys/param.h>.  */
 
 #  ifdef MORE_BSD
 #   define FSCALE 2048.0
-#  endif
+#  endif /* MORE_BSD */
 
 #  if defined(MIPS) || defined(SVR4) || defined(decstation)
 #   define FSCALE 256
-#  endif
+#  endif /* MIPS || SVR4 || decstation */
 
-#  if defined (sgi) || defined (sequent)
+#  if defined(sgi) || defined(sequent)
 /* Sometimes both MIPS and sgi are defined, so FSCALE was just defined
    above under #ifdef MIPS.  But we want the sgi value.  */
 #   undef FSCALE
 #   define FSCALE 1000.0
-#  endif
+#  endif /* sgi || sequent */
 
-#  if defined (ardent) && defined (titan)
+#  if defined(ardent) && defined(titan)
 #   define FSCALE 65536.0
-#  endif
+#  endif /* ardent && titan */
 
 #  ifdef tek4300
 #   define FSCALE 100.0
-#  endif
+#  endif /* tek4300 */
 
 #  ifdef _AIX
 #   define FSCALE 65536.0
-#  endif
+#  endif /* _AIX */
 
 # endif	/* Not FSCALE.  */
 
-# if !defined (LDAV_CVT) && defined (FSCALE)
-#  define LDAV_CVT(n) (((double) (n)) / FSCALE)
-# endif
+# if !defined(LDAV_CVT) && defined(FSCALE)
+#  define LDAV_CVT(n) (((double)(n)) / FSCALE)
+# endif /* !LDAV_CVT && FSCALE */
 
 # ifndef NLIST_STRUCT
-#  if HAVE_NLIST_H
+#  if defined(HAVE_NLIST_H) && HAVE_NLIST_H
 #   define NLIST_STRUCT
-#  endif
-# endif
+#  endif /* HAVE_NLIST_H */
+# endif /* !NLIST_STRUCT */
 
 # if defined(sgi) || (defined(mips) && !defined(BSD))
 #  define FIXUP_KERNEL_SYMBOL_ADDR(nl) ((nl)[0].n_value &= ~(1 << 31))
-# endif
+# endif /* sgi || (mips && !BSD) */
 
 
-# if !defined (KERNEL_FILE) && defined (sequent)
+# if !defined(KERNEL_FILE) && defined(sequent)
 #  define KERNEL_FILE "/dynix"
-# endif
+# endif /* !KERNEL_FILE && sequent */
 
-# if !defined (KERNEL_FILE) && defined (hpux)
+# if !defined(KERNEL_FILE) && defined(hpux)
 #  define KERNEL_FILE "/hp-ux"
-# endif
+# endif /* KERNEL_FILE */
 
-# if !defined(KERNEL_FILE) && (defined(_SEQUENT_) || defined(MIPS) || defined(SVR4) || defined(ISC) || defined (sgi) || (defined (ardent) && defined (titan)))
+# if !defined(KERNEL_FILE) && (defined(_SEQUENT_) || defined(MIPS) || defined(SVR4) || defined(ISC) || defined(sgi) || (defined(ardent) && defined(titan)))
 #  define KERNEL_FILE "/unix"
 # endif
 
 
-# if !defined (LDAV_SYMBOL) && defined (alliant)
+# if !defined(LDAV_SYMBOL) && defined(alliant)
 #  define LDAV_SYMBOL "_Loadavg"
-# endif
+# endif /* !LDAV_SYMBOL && alliant */
 
-# if !defined(LDAV_SYMBOL) && ((defined(hpux) && !defined(hp9000s300)) || defined(_SEQUENT_) || defined(SVR4) || defined(ISC) || defined(sgi) || (defined (ardent) && defined (titan)) || defined (_AIX))
+# if !defined(LDAV_SYMBOL) && ((defined(hpux) && !defined(hp9000s300)) || defined(_SEQUENT_) || defined(SVR4) || defined(ISC) || defined(sgi) || (defined(ardent) && defined(titan)) || defined(_AIX))
 #  define LDAV_SYMBOL "avenrun"
 # endif
 
-# ifdef HAVE_UNISTD_H
+# if defined(HAVE_UNISTD_H) || (defined(TEST) && defined(lint))
 #  include <unistd.h>
-# endif
+# endif /* HAVE_UNISTD_H || (TEST && lint) */
 
 # include <stdio.h>
 
-/* LOAD_AVE_TYPE should only get defined if we're going to use the
+/* Specification. */
+# if (defined(HAVE_STDLIB_H) && defined(__STDC__) && defined(lint)) || defined(TEST)
+#  include <stdlib.h>
+# endif /* (HAVE_STDLIB_H && __STDC__ && lint) || TEST */
+
+/* LOAD_AVE_TYPE should only get defined if we are going to use the
    nlist method.  */
-# if !defined(LOAD_AVE_TYPE) && (defined(BSD) || defined(LDAV_CVT) || defined(KERNEL_FILE) || defined(LDAV_SYMBOL))
+# if !defined(LOAD_AVE_TYPE) && \
+     (defined(BSD) || defined(LDAV_CVT) || defined(KERNEL_FILE) || defined(LDAV_SYMBOL))
 #  define LOAD_AVE_TYPE double
 # endif
 
@@ -373,7 +402,7 @@ extern int errno;
 #   ifndef __linux__
 #    ifndef NLIST_STRUCT
 #     include <a.out.h>
-#    else /* NLIST_STRUCT */
+#    else /* NLIST_STRUCT: */
 #     include <nlist.h>
 #    endif /* NLIST_STRUCT */
 
@@ -381,11 +410,11 @@ extern int errno;
 #     include <fcntl.h>
 #     include <kvm.h>
 #     include <kstat.h>
-#    endif
+#    endif /* SUNOS_5 */
 
-#    if defined (hpux) && defined (HAVE_PSTAT_GETDYNAMIC)
+#    if defined(hpux) && defined(HAVE_PSTAT_GETDYNAMIC)
 #     include <sys/pstat.h>
-#    endif
+#    endif /* hpux && HAVE_PSTAT_GETDYNAMIC */
 
 #    ifndef KERNEL_FILE
 #     define KERNEL_FILE "/vmunix"
@@ -407,25 +436,28 @@ extern int errno;
 #  endif /* VMS */
 
 #  ifndef LDAV_CVT
-#   define LDAV_CVT(n) ((double) (n))
+#   define LDAV_CVT(n) ((double)(n))
 #  endif /* !LDAV_CVT */
 
 # endif /* LOAD_AVE_TYPE */
 
-# if defined(__GNU__) && !defined (NeXT)
+# if defined(__GNU__) && !defined(NeXT)
 /* Note that NeXT Openstep defines __GNU__ even though it should not.  */
 /* GNU system acts much like NeXT, for load average purposes,
    but not exactly.  */
 #  define NeXT
 #  define host_self mach_host_self
-# endif
+# endif /* __GNU__ && !NeXT */
 
 # ifdef NeXT
 #  ifdef HAVE_MACH_MACH_H
 #   include <mach/mach.h>
 #  else
 #   include <mach.h>
-#  endif
+#  endif /* HAVE_MACH_MACH_H */
+#  ifdef HAVE_MACH_VM_PARAM_H
+#   include <mach/vm_param.h>
+#  endif /* HAVE_MACH_VM_PARAM_H */
 # endif /* NeXT */
 
 # ifdef sgi
@@ -457,16 +489,32 @@ extern int errno;
 
 # ifdef DGUX
 #  include <sys/dg_sys_info.h>
-# endif
+# endif /* DGUX */
 
 # if defined(HAVE_FCNTL_H) || defined(_POSIX_VERSION)
 #  include <fcntl.h>
 # else
 #  include <sys/file.h>
-# endif
-
-/* Avoid static vars inside a function since in HPUX they dump as pure.  */
+# endif /* HAVE_FCNTL_H || _POSIX_VERSION */
 
+# if defined(HAVE_SYS_RESOURCE_H)
+#  include <sys/resource.h>
+# endif /* HAVE_SYS_RESOURCE_H */
+
+/* FIXME: add a proper conftest for this header: */
+# if defined(HAVE_SYS_SYSCTL_H) || defined(NeXT)
+#  include <sys/sysctl.h>
+# else
+#  if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(NeXT)
+#   warning "<sys/sysctl.h> needed for struct loadavg declaration on NeXT."
+#  endif /* __GNUC__ && !__STRICT_ANSI__ && NeXT */
+# endif /* HAVE_SYS_SYSCTL_H */
+
+# if defined(HAVE_SYS_TIME_H) && !defined(_SYS_TIME_H_)
+#  include <sys/time.h>
+# endif /* HAVE_SYS_TIME_H && !_SYS_TIME_H_ */
+
+/* Avoid static vars inside a function since in HPUX they dump as pure: */
 # ifdef NeXT
 static processor_set_t default_set;
 static int getloadavg_initialized;
@@ -481,7 +529,7 @@ static unsigned int samples;
 static struct dg_sys_info_load_info load_info;	/* what-a-mouthful! */
 # endif /* DGUX */
 
-#if !defined(HAVE_LIBKSTAT) && defined(LOAD_AVE_TYPE)
+# if !defined(HAVE_LIBKSTAT) && defined(LOAD_AVE_TYPE)
 /* File descriptor open to /dev/kmem or VMS load ave driver.  */
 static int channel;
 /* Nonzero iff channel is valid.  */
@@ -497,7 +545,7 @@ static struct nlist nl[2];
 static kvm_t *kd;
 #  endif /* SUNOS_5 */
 
-#endif /* LOAD_AVE_TYPE && !HAVE_LIBKSTAT */
+# endif /* LOAD_AVE_TYPE && !HAVE_LIBKSTAT */
 
 /* Put the 1 minute, 5 minute and 15 minute load averages
    into the first NELEM elements of LOADAVG.
@@ -505,9 +553,7 @@ static kvm_t *kd;
    or -1 if an error occurred.  */
 
 int
-getloadavg (loadavg, nelem)
-     double loadavg[];
-     int nelem;
+getloadavg(double loadavg[], int nelem)
 {
   int elem = 0;			/* Return value.  */
 
@@ -595,19 +641,19 @@ getloadavg (loadavg, nelem)
   double load_ave[3];
   int fd, count;
 
-  fd = open (LINUX_LDAV_FILE, O_RDONLY);
+  fd = open(LINUX_LDAV_FILE, O_RDONLY);
   if (fd == -1)
     return -1;
-  count = read (fd, ldavgbuf, 40);
-  (void) close (fd);
+  count = read(fd, ldavgbuf, 40);
+  (void)close(fd);
   if (count <= 0)
     return -1;
 
-  /* The following sscanf must use the C locale.  */
-  setlocale (LC_NUMERIC, "C");
-  count = sscanf (ldavgbuf, "%lf %lf %lf",
-		  &load_ave[0], &load_ave[1], &load_ave[2]);
-  setlocale (LC_NUMERIC, "");
+  /* The following sscanf must use the C locale: */
+  setlocale(LC_NUMERIC, "C");
+  count = sscanf(ldavgbuf, "%lf %lf %lf",
+		 &load_ave[0], &load_ave[1], &load_ave[2]);
+  setlocale(LC_NUMERIC, "");
   if (count < 1)
     return -1;
 
@@ -647,13 +693,37 @@ getloadavg (loadavg, nelem)
 
 # endif /* __NetBSD__ */
 
-# if !defined (LDAV_DONE) && (defined(NeXT) || defined(HAVE_NS))
+# if !defined(LDAV_DONE) && (defined(NeXT) || defined(HAVE_NS))
 #  define LDAV_DONE
-  /* The NeXT code was adapted from iscreen 3.2.  */
+  /* The NeXT code was adapted from iscreen 3.2, and from the Darwin
+   * getloadavg() function in its Libc. */
 
   host_t host;
   struct processor_set_basic_info info;
-  unsigned info_count;
+  unsigned int info_count;
+  struct loadavg loadinfo;
+  int i;
+
+  /* FIXME: add a proper conftest for this function: */
+#  if defined(HAVE_SYSCTL) || (defined(CTL_VM) && defined(VM_LOADAVG))
+  int mib[2];
+  size_t the_size;
+
+  mib[0] = CTL_VM;
+  mib[1] = VM_LOADAVG;
+  the_size = sizeof(loadinfo);
+  if (sysctl(mib, 2, &loadinfo, &the_size, NULL, 0) < 0)
+    return (-1);
+#  else
+#   if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(NeXT)
+#    warning "skipping sysctl check about loadinfo."
+#   endif /* __GNUC__ && !__STRICT_ANSI__ && NeXT */
+#  endif /* HAVE_SYSCTL || (CTL_VM && VM_LOADAVG) */
+
+#  ifdef MIN
+  nelem = (int)MIN((unsigned long)nelem,
+                   (sizeof(loadinfo.ldavg) / sizeof(fixpt_t)));
+#  endif /* MIN */
 
   /* We only know how to get the 1-minute average for this system,
      so even if the caller asks for more than 1, we only return 1.  */
@@ -667,14 +737,23 @@ getloadavg (loadavg, nelem)
   if (getloadavg_initialized)
     {
       info_count = PROCESSOR_SET_BASIC_INFO_COUNT;
-      if (processor_set_info (default_set, PROCESSOR_SET_BASIC_INFO, &host,
-			      (processor_set_info_t) &info, &info_count)
+      if (processor_set_info(default_set, PROCESSOR_SET_BASIC_INFO, &host,
+			     (processor_set_info_t)&info, &info_count)
 	  != KERN_SUCCESS)
 	getloadavg_initialized = 0;
       else
 	{
-	  if (nelem > 0)
-	    loadavg[elem++] = (double)info.load_average / LOAD_SCALE;
+	  if (nelem > 0) {
+            /* FIXME: add a proper conftest for this structure member: */
+#  ifdef HAVE_PROCESSOR_SET_BASIC_INFO_LOAD_AVERAGE
+	    loadavg[elem++] = ((double)info.load_average / LOAD_SCALE);
+#  else
+            for (i = 0; i < nelem; i++) {
+              loadavg[i] = ((double)loadinfo.ldavg[i] / loadinfo.fscale);
+              elem++;
+            }
+#  endif /* HAVE_PROCESSOR_SET_BASIC_INFO_LOAD_AVERAGE */
+          }
 	}
     }
 
@@ -682,7 +761,7 @@ getloadavg (loadavg, nelem)
     return -1;
 # endif /* NeXT || HAVE_NS */
 
-# if !defined (LDAV_DONE) && defined (UMAX)
+# if !defined(LDAV_DONE) && defined(UMAX)
 #  define LDAV_DONE
 /* UMAX 4.2, which runs on the Encore Multimax multiprocessor, does not
    have a /dev/kmem.  Information about the workings of the running kernel
@@ -1000,45 +1079,61 @@ getloadavg (loadavg, nelem)
 #endif /* ! HAVE_GETLOADAVG */
 
 #ifdef TEST
-void
-main (argc, argv)
-     int argc;
-     char **argv;
+int
+main(int argc, char **argv)
 {
   int naptime = 0;
 
-  if (argc > 1)
-    naptime = atoi (argv[1]);
+  if (argc > 1) {
+    naptime = atoi(argv[1]);
+  } else {
+    ; /* TODO: print a warning about how nothing will happen... */
+  }
 
   while (1)
     {
       double avg[3];
       int loads;
 
-      errno = 0;	/* Don't be misled if it doesn't set errno.  */
-      loads = getloadavg (avg, 3);
+      errno = 0;  /* Do NOT be misled if it does NOT set errno: */
+      loads = getloadavg(avg, 3);
       if (loads == -1)
 	{
-	  perror ("Error getting load average");
-	  exit (1);
+	  perror("Error getting load average");
+	  exit(1);
 	}
+      if (loads == 0)
+        printf("No load samples retrieved.\n");
       if (loads > 0)
-	printf ("1-minute: %f  ", avg[0]);
+	printf("1-minute: %f  ", avg[0]);
       if (loads > 1)
-	printf ("5-minute: %f  ", avg[1]);
+	printf("5-minute: %f  ", avg[1]);
       if (loads > 2)
-	printf ("15-minute: %f  ", avg[2]);
+	printf("15-minute: %f  ", avg[2]);
       if (loads > 0)
-	putchar ('\n');
+	putchar('\n');
 
-      if (naptime == 0)
+      if (naptime == 0) {
 	break;
-      sleep (naptime);
+      } else {
+        printf("Observing for %d %s naptime%s\n", naptime,
+               (naptime > 1) ? "more" : "last",
+               (naptime > 1) ? "s." : ".");
+      }
+      sleep((unsigned int)naptime);
+      naptime--;
     }
 
-  exit (0);
+  exit(0);
+# if !defined(__clang__)
+  return 0; /*NOTREACHED*/
+# endif /* !__clang__ */
 }
 #endif /* TEST */
+
+#ifdef setlocale
+# undef setlocale
+#endif /* setlocale */
 
 /* arch-tag: 2b37a242-6289-41f4-8cd5-0e73fd615db1
    (do not change this comment) */

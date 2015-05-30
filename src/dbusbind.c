@@ -918,10 +918,10 @@ xd_retrieve_arg (int dtype, DBusMessageIter *iter)
       {
 	dbus_uint64_t val;
 	uprintmax_t pval;
-	dbus_message_iter_get_basic (iter, &val);
+	dbus_message_iter_get_basic(iter, &val);
 	pval = val;
-	XD_DEBUG_MESSAGE ("%c %"pMd, dtype, pval);
-	return make_fixnum_or_float (val);
+	XD_DEBUG_MESSAGE("%c %"pMd, dtype, (intmax_t)pval);
+	return make_fixnum_or_float(val);
       }
 
     case DBUS_TYPE_DOUBLE:
@@ -1026,29 +1026,29 @@ xd_find_watch_fd (DBusWatch *watch)
   return fd;
 }
 
-/* Prototype.  */
-static void xd_read_queued_messages (int fd, void *data);
+/* Prototype: */
+static void xd_read_queued_messages(int fd, void *data);
 
-/* Start monitoring WATCH for possible I/O.  */
+/* Start monitoring WATCH for possible I/O: */
 static dbus_bool_t
-xd_add_watch (DBusWatch *watch, void *data)
+xd_add_watch(DBusWatch *watch, void *data)
 {
-  unsigned int flags = dbus_watch_get_flags (watch);
-  int fd = xd_find_watch_fd (watch);
+  unsigned int flags = dbus_watch_get_flags(watch);
+  int fd = xd_find_watch_fd(watch);
 
-  XD_DEBUG_MESSAGE ("fd %d, write %d, enabled %d",
-		    fd, flags & DBUS_WATCH_WRITABLE,
-		    dbus_watch_get_enabled (watch));
+  XD_DEBUG_MESSAGE("fd %d, write %d, enabled %d",
+		   fd, (int)(flags & DBUS_WATCH_WRITABLE),
+		   (int)dbus_watch_get_enabled(watch));
 
   if (fd == -1)
     return FALSE;
 
-  if (dbus_watch_get_enabled (watch))
+  if (dbus_watch_get_enabled(watch))
     {
       if (flags & DBUS_WATCH_WRITABLE)
-        add_write_fd (fd, xd_read_queued_messages, data);
+        add_write_fd(fd, xd_read_queued_messages, data);
       if (flags & DBUS_WATCH_READABLE)
-        add_read_fd (fd, xd_read_queued_messages, data);
+        add_read_fd(fd, xd_read_queued_messages, data);
     }
   return TRUE;
 }

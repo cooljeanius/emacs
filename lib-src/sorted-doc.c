@@ -81,7 +81,7 @@ struct docstr			/* Allocated thing for an entry. */
 
 /* prototypes: */
 extern void error(const char *s1, const char *s2);
-extern void _Noreturn fatal(const char *s1, const char *s2);
+extern _Noreturn void fatal(const char *s1, const char *s2);
 extern char *xmalloc(int size);
 extern char *xstrdup(char *str);
 extern int cmpdoc(DOCSTR **a, DOCSTR **b);
@@ -97,7 +97,7 @@ error(const char *s1, const char *s2)
 }
 
 /* Print error message and exit: */
-void _Noreturn
+_Noreturn void
 fatal(const char *s1, const char *s2)
 {
   error(s1, s2);

@@ -914,6 +914,11 @@ bootstrap-emacs$(EXEEXT): temacs$(EXEEXT)
 	@echo "Compiling some files earlier to speed up further compilation."
 	cd ../lisp; $(MAKE) $(MFLAGS) compile-first EMACS="$(bootstrap_exe)"
 
+## for testing:
+getloadavg_test$(EXEEXT): $(srcdir)/getloadavg.c $(config_h)
+	$(AM_V_CCLD)$(CC) -o getloadavg_test -DTEST $(ALL_CFLAGS) \
+	  $(LDFLAGS) $(srcdir)/getloadavg.c
+
 ## Insert either autodeps.mk (if AUTO_DEPEND), else deps.mk.
 @deps_frag@
 

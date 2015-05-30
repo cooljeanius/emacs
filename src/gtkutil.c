@@ -4098,43 +4098,44 @@ xg_tool_bar_menu_proxy (GtkToolItem *toolitem, gpointer user_data)
           const gchar *icon_name;
           GtkIconSize icon_size;
 
-          gtk_image_get_icon_name (wimage, &icon_name, &icon_size);
-          wmenuimage = gtk_image_new_from_icon_name (icon_name,
-                                                     GTK_ICON_SIZE_MENU);
+          gtk_image_get_icon_name(wimage, &icon_name, &icon_size);
+          wmenuimage = gtk_image_new_from_icon_name(icon_name,
+                                                    GTK_ICON_SIZE_MENU);
         }
       else
         {
-          fprintf (stderr, "internal error: store_type is %d\n", store_type);
-          emacs_abort ();
+          fprintf(stderr, "internal error: store_type is %u\n",
+                  store_type);
+          emacs_abort();
         }
     }
   if (wmenuimage)
-    gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (wmenuitem), wmenuimage);
+    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(wmenuitem),
+                                  wmenuimage);
 
-  g_signal_connect (G_OBJECT (wmenuitem),
-                    "activate",
-                    G_CALLBACK (xg_tool_bar_proxy_callback),
-                    user_data);
+  g_signal_connect(G_OBJECT(wmenuitem),
+                   "activate",
+                   G_CALLBACK(xg_tool_bar_proxy_callback),
+                   user_data);
 
 
-  g_object_set_data (G_OBJECT (wmenuitem), XG_TOOL_BAR_PROXY_BUTTON,
-                     (gpointer) wbutton);
-  gtk_tool_item_set_proxy_menu_item (toolitem, "Emacs toolbar item", wmenuitem);
-  gtk_widget_set_sensitive (wmenuitem,
-                            gtk_widget_get_sensitive (GTK_WIDGET (wbutton)));
+  g_object_set_data(G_OBJECT(wmenuitem), XG_TOOL_BAR_PROXY_BUTTON,
+                    (gpointer)wbutton);
+  gtk_tool_item_set_proxy_menu_item(toolitem, "Emacs toolbar item",
+                                    wmenuitem);
+  gtk_widget_set_sensitive(wmenuitem,
+                           gtk_widget_get_sensitive(GTK_WIDGET(wbutton)));
 
   /* Use enter/leave notify to show help.  We use the events
      rather than the GtkButton specific signals "enter" and
      "leave", so we can have only one callback.  The event
      will tell us what kind of event it is.  */
-  g_signal_connect (G_OBJECT (wmenuitem),
-                    "enter-notify-event",
-                    G_CALLBACK (xg_tool_bar_proxy_help_callback),
-                    user_data);
-  g_signal_connect (G_OBJECT (wmenuitem),
-                    "leave-notify-event",
-                    G_CALLBACK (xg_tool_bar_proxy_help_callback),
-                    user_data);
+  g_signal_connect(G_OBJECT(wmenuitem), "enter-notify-event",
+                   G_CALLBACK(xg_tool_bar_proxy_help_callback),
+                   user_data);
+  g_signal_connect(G_OBJECT(wmenuitem), "leave-notify-event",
+                   G_CALLBACK(xg_tool_bar_proxy_help_callback),
+                   user_data);
 
   return TRUE;
 }

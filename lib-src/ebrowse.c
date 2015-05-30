@@ -1226,28 +1226,27 @@ dump_members (FILE *fp, struct member *m)
 }
 
 
-/* Dump class ROOT to stream FP.  */
-
+/* Dump class ROOT to stream FP: */
 static void
-dump_sym (FILE *fp, struct sym *root)
+dump_sym(FILE *fp, struct sym *root)
 {
-  fputs (CLASS_STRUCT, fp);
-  putstr (root->name, fp);
+  fputs(CLASS_STRUCT, fp);
+  putstr(root->name, fp);
 
-  /* Print scope, if any.  */
+  /* Print scope, if any: */
   if (root->namesp)
-    putstr (sym_scope (root), fp);
+    putstr(sym_scope(root), fp);
   else
-    putstr (NULL, fp);
+    putstr(NULL, fp);
 
-  /* Print flags.  */
-  fprintf (fp, "%u", root->flags);
-  putstr (root->filename, fp);
-  putstr (root->regexp, fp);
-  fprintf (fp, "%u", (unsigned) root->pos);
-  putstr (root->sfilename, fp);
-  putc (']', fp);
-  putc ('\n', fp);
+  /* Print flags: */
+  fprintf(fp, "%u", (unsigned int)root->flags);
+  putstr(root->filename, fp);
+  putstr(root->regexp, fp);
+  fprintf(fp, "%u", (unsigned int)root->pos);
+  putstr(root->sfilename, fp);
+  putc(']', fp);
+  putc('\n', fp);
 }
 
 

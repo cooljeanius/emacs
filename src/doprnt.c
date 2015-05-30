@@ -288,20 +288,20 @@ doprnt (char *buffer, ptrdiff_t bufsize, const char *format,
 		  break;
 		case pI_modifier:
 		  {
-		    EMACS_INT v = va_arg (ap, EMACS_INT);
-		    tem = sprintf (sprintf_buffer, fmtcpy, v);
+		    EMACS_INT v = va_arg(ap, EMACS_INT);
+		    tem = sprintf(sprintf_buffer, fmtcpy, v);
 		  }
 		  break;
 		case pM_modifier:
 		  {
-		    intmax_t v = va_arg (ap, intmax_t);
-		    tem = sprintf (sprintf_buffer, fmtcpy, v);
+		    intmax_t v = va_arg(ap, intmax_t);
+		    tem = sprintf(sprintf_buffer, fmtcpy, v);
 		  }
 		  break;
                 default:
-                  error ("Invalid length modifier %d", length_modifier);
+                  error("Invalid length modifier %u", length_modifier);
 		}
-	      /* Now copy into final output, truncating as necessary.  */
+	      /* Now copy into final output, truncating as necessary: */
 	      string = sprintf_buffer;
 	      goto doit;
 
@@ -325,20 +325,20 @@ doprnt (char *buffer, ptrdiff_t bufsize, const char *format,
 		  goto signed_pD_modifier;
 		case pI_modifier:
 		  {
-		    EMACS_UINT v = va_arg (ap, EMACS_UINT);
-		    tem = sprintf (sprintf_buffer, fmtcpy, v);
+		    EMACS_UINT v = va_arg(ap, EMACS_UINT);
+		    tem = sprintf(sprintf_buffer, fmtcpy, v);
 		  }
 		  break;
 		case pM_modifier:
 		  {
-		    uintmax_t v = va_arg (ap, uintmax_t);
-		    tem = sprintf (sprintf_buffer, fmtcpy, v);
+		    uintmax_t v = va_arg(ap, uintmax_t);
+		    tem = sprintf(sprintf_buffer, fmtcpy, v);
 		  }
 		  break;
                 default:
-                  error ("Invalid length modifier %d", length_modifier);
+                  error("Invalid length modifier %u", length_modifier);
 		}
-	      /* Now copy into final output, truncating as necessary.  */
+	      /* Now copy into final output, truncating as necessary: */
 	      string = sprintf_buffer;
 	      goto doit;
 

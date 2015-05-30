@@ -1,4 +1,4 @@
-/* Basic character support.
+/* character.c: Basic character support.
 
 Copyright (C) 2001-2014 Free Software Foundation, Inc.
 Copyright (C) 1995, 1997, 1998, 2001 Electrotechnical Laboratory, JAPAN.
@@ -858,20 +858,20 @@ string_escape_byte8 (Lisp_Object string)
       val = make_uninit_string (nbytes + byte8_count * 3);
     }
 
-  src = SDATA (string);
+  src = SDATA(string);
   src_end = src + nbytes;
-  dst = SDATA (val);
+  dst = SDATA(val);
   if (multibyte)
     while (src < src_end)
       {
 	c = *src;
-	len = BYTES_BY_CHAR_HEAD (c);
+	len = BYTES_BY_CHAR_HEAD(c);
 
-	if (CHAR_BYTE8_HEAD_P (c))
+	if (CHAR_BYTE8_HEAD_P(c))
 	  {
-	    c = STRING_CHAR_ADVANCE (src);
-	    c = CHAR_TO_BYTE8 (c);
-	    dst += sprintf ((char *) dst, "\\%03o", c);
+	    c = STRING_CHAR_ADVANCE(src);
+	    c = CHAR_TO_BYTE8(c);
+	    dst += sprintf((char *)dst, "\\%03o", (unsigned int)c);
 	  }
 	else
 	  while (len--) *dst++ = *src++;
@@ -881,7 +881,7 @@ string_escape_byte8 (Lisp_Object string)
       {
 	c = *src++;
 	if (c >= 0x80)
-	  dst += sprintf ((char *) dst, "\\%03o", c);
+	  dst += sprintf((char *)dst, "\\%03o", (unsigned int)c);
 	else
 	  *dst++ = c;
       }
@@ -1095,3 +1095,5 @@ See The Unicode Standard for the meaning of those values.  */);
 }
 
 #endif /* emacs */
+
+/* EOF */

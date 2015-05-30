@@ -2,7 +2,7 @@
 
 # The gnulib commit ID to use for the update.
 # If you know your version is newer, feel free to replace:
-GNULIB_COMMIT_SHA1="ff714c0a2094bdefd9ed41603493e66aaf285f12"
+GNULIB_COMMIT_SHA1="e176ee0b5d8e90b0d3871ee778d290bc3d6abe96"
 
 if [ $# -ne 1 ]; then
    echo "Warning: Path to gnulib repository missing."
@@ -58,8 +58,8 @@ if test -z "${gnulib_tool}" || test ! -x "${gnulib_tool}"; then
 else
   # The list of gnulib modules we are importing for emacs:
   module_list="\
-      absolute-header alignof alloca alloca-opt allocator assert-h \
-      assure atan atan2 autobuild \
+      absolute-header acl acl-permissions alignof alloca alloca-opt allocator \
+      assert-h assure atan atan2 autobuild \
       bcopy binary-io byteswap \
       c-ctype c-strcase c-strcaseeq canonicalize-lgpl careadlinkat chdir \
       clock-time close-stream closedir configmake count-one-bits \
@@ -83,7 +83,7 @@ else
       obstack openat openat-h openmp \
       pathmax pipe2 posix_spawnp printf-safe progname pselect \
       pthread_sigmask putenv \
-      qacl quote quotearg quotearg-simple \
+      qacl qcopy-acl quote quotearg quotearg-simple \
       readdir readlink readlinkat rename rmdir root-uid \
       sched secure_getenv sig2str signal-h sigpipe sleep \
       snippet/_Noreturn snippet/link-warning snippet/unused-parameter \

@@ -39,6 +39,8 @@ AC_DEFUN([gl_EARLY],
   m4_pattern_allow([^gl_LTLIBOBJS$])dnl a variable
   AC_REQUIRE([gl_PROG_AR_RANLIB])
   # Code from module absolute-header:
+  # Code from module acl:
+  # Code from module acl-permissions:
   # Code from module alignof:
   # Code from module alloca:
   # Code from module alloca-opt:
@@ -175,6 +177,8 @@ AC_DEFUN([gl_EARLY],
   # Code from module pthread_sigmask:
   # Code from module putenv:
   # Code from module qacl:
+  # Code from module qcopy-acl:
+  # Code from module qset-acl:
   # Code from module quote:
   # Code from module quotearg:
   # Code from module quotearg-simple:
@@ -282,6 +286,7 @@ AC_DEFUN([gl_INIT],
   m4_pushdef([gl_LIBSOURCES_DIR], [])
   gl_COMMON
   gl_source_base='lib'
+  gl_FUNC_ACL
   gl_FUNC_ALLOCA
   gl_ASSERT_H
   gl_FUNC_ATAN
@@ -632,7 +637,6 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_PUTENV
   fi
   gl_STDLIB_MODULE_INDICATOR([putenv])
-  gl_FUNC_ACL
   gl_QUOTE
   gl_QUOTEARG
   gl_FUNC_READDIR
@@ -1178,6 +1182,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/close-stream.c
   lib/close-stream.h
   lib/closedir.c
+  lib/copy-acl.c
   lib/count-one-bits.c
   lib/count-one-bits.h
   lib/count-trailing-zeros.c
@@ -1223,6 +1228,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/ftoastr.c
   lib/ftoastr.h
   lib/ftruncate.c
+  lib/get-permissions.c
   lib/getdelim.c
   lib/getdtablesize.c
   lib/getgroups.c
@@ -1295,6 +1301,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/same-inode.h
   lib/sched.in.h
   lib/secure_getenv.c
+  lib/set-acl.c
+  lib/set-permissions.c
   lib/sha1.c
   lib/sha1.h
   lib/sha256.c

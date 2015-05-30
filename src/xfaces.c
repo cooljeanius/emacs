@@ -6335,33 +6335,32 @@ where R,G,B are numbers between 0 and 255 and name is an arbitrary string.  */)
 
 #ifdef GLYPH_DEBUG
 
-/* Print the contents of the realized face FACE to stderr.  */
-
+/* Print the contents of the realized face FACE to stderr: */
 static void
-dump_realized_face (struct face *face)
+dump_realized_face(struct face *face)
 {
-  fprintf (stderr, "ID: %d\n", face->id);
+  fprintf(stderr, "ID: %d\n", face->id);
 #ifdef HAVE_X_WINDOWS
-  fprintf (stderr, "gc: %ld\n", (long) face->gc);
-#endif
-  fprintf (stderr, "foreground: 0x%lx (%s)\n",
-	   face->foreground,
-	   SDATA (face->lface[LFACE_FOREGROUND_INDEX]));
-  fprintf (stderr, "background: 0x%lx (%s)\n",
-	   face->background,
-	   SDATA (face->lface[LFACE_BACKGROUND_INDEX]));
+  fprintf(stderr, "gc: %ld\n", (long)face->gc);
+#endif /* HAVE_X_WINDOWS */
+  fprintf(stderr, "foreground: 0x%lx (%s)\n",
+	  face->foreground,
+	  SDATA(face->lface[LFACE_FOREGROUND_INDEX]));
+  fprintf(stderr, "background: 0x%lx (%s)\n",
+	  face->background,
+	  SDATA(face->lface[LFACE_BACKGROUND_INDEX]));
   if (face->font)
-    fprintf (stderr, "font_name: %s (%s)\n",
-	     SDATA (face->font->props[FONT_NAME_INDEX]),
-	     SDATA (face->lface[LFACE_FAMILY_INDEX]));
+    fprintf(stderr, "font_name: %s (%s)\n",
+	    SDATA(face->font->props[FONT_NAME_INDEX]),
+	    SDATA(face->lface[LFACE_FAMILY_INDEX]));
 #ifdef HAVE_X_WINDOWS
-  fprintf (stderr, "font = %p\n", face->font);
-#endif
-  fprintf (stderr, "fontset: %d\n", face->fontset);
-  fprintf (stderr, "underline: %d (%s)\n",
-	   face->underline_p,
-	   SDATA (Fsymbol_name (face->lface[LFACE_UNDERLINE_INDEX])));
-  fprintf (stderr, "hash: %d\n", face->hash);
+  fprintf(stderr, "font = %p\n", face->font);
+#endif /* HAVE_X_WINDOWS */
+  fprintf(stderr, "fontset: %d\n", face->fontset);
+  fprintf(stderr, "underline: %d (%s)\n",
+	  face->underline_p,
+	  SDATA(Fsymbol_name(face->lface[LFACE_UNDERLINE_INDEX])));
+  fprintf(stderr, "hash: %u\n", face->hash);
 }
 
 

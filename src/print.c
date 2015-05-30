@@ -797,27 +797,26 @@ append to existing target file.  */)
 #endif /* GNU_LINUX */
 
 
-/* This is the interface for debugging printing.  */
-
+/* This is the interface for debugging printing: */
 void
-debug_print (Lisp_Object arg)
+debug_print(Lisp_Object arg)
 {
-  Fprin1 (arg, Qexternal_debugging_output);
-  fprintf (stderr, "\r\n");
+  Fprin1(arg, Qexternal_debugging_output);
+  fprintf(stderr, "\r\n");
 }
 
-void safe_debug_print (Lisp_Object) EXTERNALLY_VISIBLE;
+void safe_debug_print(Lisp_Object) EXTERNALLY_VISIBLE;
 void
-safe_debug_print (Lisp_Object arg)
+safe_debug_print(Lisp_Object arg)
 {
-  int valid = valid_lisp_object_p (arg);
+  int valid = valid_lisp_object_p(arg);
 
   if (valid > 0)
-    debug_print (arg);
+    debug_print(arg);
   else
-    fprintf (stderr, "#<%s_LISP_OBJECT 0x%08"pI"x>\r\n",
-	     !valid ? "INVALID" : "SOME",
-	     XLI (arg));
+    fprintf(stderr, "#<%s_LISP_OBJECT 0x%08"pI"x>\r\n",
+	    (!valid ? "INVALID" : "SOME"),
+	    (unsigned long)XLI(arg));
 }
 
 
@@ -1462,17 +1461,18 @@ print_object (Lisp_Object obj, Lisp_Object printcharfun, bool escapeflag)
 		  char outbuf[50];
 		  int len;
 
-		  if (CHAR_BYTE8_P (c))
-		    len = sprintf (outbuf, "\\%03o", CHAR_TO_BYTE8 (c));
+		  if (CHAR_BYTE8_P(c))
+		    len = sprintf(outbuf, "\\%03o",
+                                  (unsigned int)CHAR_TO_BYTE8(c));
 		  else
 		    {
-		      len = sprintf (outbuf, "\\x%04x", c);
+		      len = sprintf(outbuf, "\\x%04x", (unsigned int)c);
 		      need_nonhex = 1;
 		    }
-		  strout (outbuf, len, len, printcharfun);
+		  strout(outbuf, len, len, printcharfun);
 		}
 	      else if (! multibyte
-		       && SINGLE_BYTE_CHAR_P (c) && ! ASCII_BYTE_P (c)
+		       && SINGLE_BYTE_CHAR_P(c) && ! ASCII_BYTE_P(c)
 		       && print_escape_nonascii)
 		{
 		  /* When printing in a multibyte buffer
@@ -1480,8 +1480,8 @@ print_object (Lisp_Object obj, Lisp_Object printcharfun, bool escapeflag)
 		     print single-byte non-ASCII string chars
 		     using octal escapes.  */
 		  char outbuf[5];
-		  int len = sprintf (outbuf, "\\%03o", c);
-		  strout (outbuf, len, len, printcharfun);
+		  int len = sprintf(outbuf, "\\%03o", (unsigned int)c);
+		  strout(outbuf, len, len, printcharfun);
 		}
 	      else
 		{
@@ -2150,18 +2150,21 @@ print_object (Lisp_Object obj, Lisp_Object printcharfun, bool escapeflag)
     badtype:
       {
 	int len;
-	/* We're in trouble if this happens!
-	   Probably should just emacs_abort ().  */
-	strout ("#<EMACS BUG: INVALID DATATYPE ", -1, -1, printcharfun);
-	if (MISCP (obj))
-	  len = sprintf (buf, "(MISC 0x%04x)", (int) XMISCTYPE (obj));
-	else if (VECTORLIKEP (obj))
-	  len = sprintf (buf, "(PVEC 0x%08"pD"x)", ASIZE (obj));
-	else
-	  len = sprintf (buf, "(0x%02x)", (int) XTYPE (obj));
-	strout (buf, len, len, printcharfun);
-	strout (" Save your buffers immediately and please report this bug>",
-		-1, -1, printcharfun);
+	/* We are in trouble if this happens!
+	   Probably should just emacs_abort().  */
+	strout("#<EMACS BUG: INVALID DATATYPE ", -1, -1, printcharfun);
+	if (MISCP(obj)) {
+	  len = sprintf(buf, "(MISC 0x%04x)",
+                        (unsigned int)XMISCTYPE(obj));
+	} else if (VECTORLIKEP(obj)) {
+	  len = sprintf(buf, "(PVEC 0x%08"pD"x)",
+                        (unsigned long)ASIZE(obj));
+	} else {
+	  len = sprintf(buf, "(0x%02x)", (unsigned int)XTYPE(obj));
+        }
+	strout(buf, len, len, printcharfun);
+	strout(" Save your buffers immediately and please report this bug>",
+               -1, -1, printcharfun);
       }
     }
 

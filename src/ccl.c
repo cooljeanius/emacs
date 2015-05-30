@@ -1716,9 +1716,10 @@ ccl_driver(struct ccl_program *ccl, int *source, int *destination, int src_size,
       switch (ccl->status)
 	{
 	case CCL_STAT_INVALID_CMD:
-	  msglen = sprintf (msg,
-			    "\nCCL: Invalid command %x (ccl_code = %x) at %d.",
-			    code & 0x1F, code, this_ic);
+	  msglen = sprintf(msg,
+			   "\nCCL: Invalid command %x (ccl_code = %x) at %d.",
+			   (unsigned int)(code & 0x1F), (unsigned int)code,
+                           this_ic);
 #ifdef CCL_DEBUG
 	  {
 	    int i = ccl_backtrace_idx - 1;
