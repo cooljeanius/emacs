@@ -1,0 +1,42 @@
+## basic Makefile for machocheck
+
+HARDCODED_CXX = /usr/bin/g++-4.2
+CXX = @CXX@
+HARDCODED_WARN_CXXFLAGS = -Wno-system-headers -Wall -Wextra -Wno-unused-parameter -Wmissing-include-dirs -Winvalid-pch -Wconversion -Wpointer-arith -Wwrite-strings -Wmissing-noreturn -Wformat=2 -Winline -Wswitch -Wswitch-default -Wredundant-decls -Wshadow
+WARN_CXXFLAGS = @WARN_CXXFLAGS@
+HARDCODED_CFLAGS = -mmacosx-version-min=10.6 -mfix-and-continue -gdwarf-2 -ggdb3 -gfull -O0
+MULTIARCH_CFLAGS = -arch x86_64 -arch i386
+CFLAGS = @CFLAGS@
+HARDCODED_BETTER_DEBUG_CFLAGS = -ftrapping-math -fsignaling-nans -fbounds-check -fstack-check -ftrapv -fstack-protector
+BETTER_DEBUG_CFLAGS = @BETTER_DEBUG_CFLAGS@
+HARDCODED_DEFS = -D__STRICT_BSD__ -DDEBUG -DLTO_SUPPORT
+DEFS = @DEFS@
+HARDCODED_CPPFLAGS = -I.
+CPPFLAGS = @CPPFLAGS@
+HARDCODED_CXXFLAGS = $(HARDCODED_WARN_CXXFLAGS) $(HARDCODED_CFLAGS)
+CXXFLAGS = @CXXFLAGS@
+HARDCODED_AR = ar
+AR = @AR@
+HARDCODED_ARFLAGS = cru
+ARFLAGS = @ARFLAGS@
+HARDCODED_RANLIB = ranlib
+RANLIB = @RANLIB@
+
+all: src/ld/configure.h libmachocheck.a
+
+src/ld/configure.h : src/create_configure.sh
+	DERIVED_SOURCES_DIR=src/ld DERIVED_FILE_DIR=src/ld $^ > $@
+
+src/other/machochecker.o: src/other/machochecker.cpp src/ld/configure.h \
+  src/ld/Architectures.hpp src/Abstraction/FileAbstraction.hpp \
+  src/Abstraction/MachOFileAbstraction.hpp src/other/machochecker.h \
+  Makefile ../Makefile
+	$(CXX) $(HARDCODED_CFLAGS) $(HARDCODED_BETTER_DEBUG_CFLAGS) $(HARDCODED_WARN_CXXFLAGS) $(HARDCODED_DEFS) $(DEFS) -Isrc/abstraction -Isrc/ld -Isrc/other -c -o $@ $<
+
+libmachocheck.a: src/other/machochecker.o
+	$(HARDCODED_AR) $(HARDCODED_ARFLAGS) libmachocheck.a src/other/machochecker.o
+	$(HARDCODED_RANLIB) libmachocheck.a
+
+clean:
+	rm -f src/other/*.o src/ld/configure.h src/ld/LTO_option.txt
+	rm -f libmachocheck.a

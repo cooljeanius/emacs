@@ -1752,7 +1752,6 @@ GNULIB_DUP
 GNULIB_CLOSE
 GNULIB_CHOWN
 GNULIB_CHDIR
-LIB_HAS_XATTR_FOR_ACL
 BLESSMAIL_TARGET
 LIBS_MAIL
 liblockfile
@@ -2226,11 +2225,11 @@ enable_assert
 with_x
 with_blocks_runtime
 enable_openmp
-enable_acl
 enable_nls
 enable_rpath
 with_libiconv_prefix
 with_libintl_prefix
+enable_acl
 '
       ac_precious_vars='build_alias
 host_alias
@@ -2945,9 +2944,9 @@ Optional Features:
   --disable-libtool-lock  avoid locking (might break parallel builds)
   --disable-assert        turn off assertions
   --disable-openmp        do not use OpenMP
-  --disable-acl           do not support ACLs
   --disable-nls           do not use Native Language Support
   --disable-rpath         do not hardcode runtime library paths
+  --disable-acl           do not support ACLs
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -15853,7 +15852,7 @@ fi
 
 
       fi  ##end check for clang or Apple compiler
-                  if test "x${CXX}" != "x" && test "x${CC}" = "x${CXX}"; then
+                  if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
         WARN_CXXFLAGS=""
         ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
@@ -17259,7 +17258,7 @@ fi
 
       fi  ##end dummy variable check
       if test "x${ac_cv_lto_supported}" = "xyes" || test -n "${LTO}"; then
-        if test "x${CXX}" != "x" && test "x${CC}" = "x${CXX}"; then
+        if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
           ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -17493,7 +17492,7 @@ if test "x$gl_cv_warn_c__Wshift_overflow" = xyes; then :
 fi
 
 
-      if test "x${CXX}" != "x" && test "x${CC}" = "x${CXX}"; then
+      if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
         ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -44151,63 +44150,6 @@ fi
 
 # functions_extra.m4 ends here
 
-  gl_need_lib_has_acl=
-  # Check whether --enable-acl was given.
-if test "${enable_acl+set}" = set; then :
-  enableval=$enable_acl;
-else
-  enable_acl=auto
-fi
-
-
-
-      ## if that worked, then:
-  if test "x${enable_acl}" != "xno"; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for getxattr with XATTR_NAME_POSIX_ACL macros" >&5
-$as_echo_n "checking for getxattr with XATTR_NAME_POSIX_ACL macros... " >&6; }
-if ${gl_cv_getxattr_with_posix_acls+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  gl_cv_getxattr_with_posix_acls=no
-       cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-#include <sys/types.h>
-#include <sys/xattr.h>
-#include <linux/xattr.h>
-
-int
-main ()
-{
-
-  ssize_t a = getxattr(".", XATTR_NAME_POSIX_ACL_ACCESS, 0, 0);
-  ssize_t b = getxattr(".", XATTR_NAME_POSIX_ACL_DEFAULT, 0, 0);
-  return (a < 0) || (b < 0);
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  gl_cv_getxattr_with_posix_acls=yes
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_getxattr_with_posix_acls" >&5
-$as_echo "$gl_cv_getxattr_with_posix_acls" >&6; }    ## ok, that should be enough of that.
-  fi
-  if test "x${gl_cv_getxattr_with_posix_acls}" = "xyes"; then
-    LIB_HAS_XATTR_FOR_ACL=""
-
-$as_echo "#define GETXATTR_WITH_POSIX_ACLS 1" >>confdefs.h
-    ## end corresponding define
-  else
-            gl_need_lib_has_xattr_for_acl=1
-    LIB_HAS_XATTR_FOR_ACL="${LIB_ACL}"
-  fi
-
-
   GNULIB_CHDIR=0;
   GNULIB_CHOWN=0;
   GNULIB_CLOSE=0;
@@ -48422,7 +48364,6 @@ $as_echo "$gl_cv_func_strstr_linear" >&6; }
         ;;
     esac
   fi
-
 
 
 
@@ -55192,6 +55133,16 @@ LIBS="${LIB_PTHREAD} ${pre_PKG_CONFIG_LIBS}"
   export LIBC_FATAL_STDERR_
 
 
+  gl_need_lib_has_acl=
+  # Check whether --enable-acl was given.
+if test "${enable_acl+set}" = set; then :
+  enableval=$enable_acl;
+else
+  enable_acl=auto
+fi
+
+
+
 
 # The Ultrix 4.2 mips builtin alloca declared by alloca.h only works
 # for constant arguments.  Useless!
@@ -61504,43 +61455,43 @@ _ACEOF
 
 
   if test "$enable_acl" != no; then
-    for ac_header in linux/xattr.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "linux/xattr.h" "ac_cv_header_linux_xattr_h" "$ac_includes_default"
-if test "x$ac_cv_header_linux_xattr_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LINUX_XATTR_H 1
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for getxattr with XATTR_NAME_POSIX_ACL macros" >&5
+$as_echo_n "checking for getxattr with XATTR_NAME_POSIX_ACL macros... " >&6; }
+if ${gl_cv_getxattr_with_posix_acls+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  gl_cv_getxattr_with_posix_acls=no
+       cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <sys/types.h>
+              #include <sys/xattr.h>
+              #include <linux/xattr.h>
+
+int
+main ()
+{
+ssize_t a = getxattr (".", XATTR_NAME_POSIX_ACL_ACCESS, 0, 0);
+              ssize_t b = getxattr (".", XATTR_NAME_POSIX_ACL_DEFAULT, 0, 0);
+              return a < 0 || b < 0;
+
+  ;
+  return 0;
+}
 _ACEOF
-
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_getxattr_with_posix_acls=yes
 fi
-
-done
-
-    for ac_header in sys/xattr.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "sys/xattr.h" "ac_cv_header_sys_xattr_h" "$ac_includes_default"
-if test "x$ac_cv_header_sys_xattr_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_SYS_XATTR_H 1
-_ACEOF
- for ac_func in getxattr
-do :
-  ac_fn_c_check_func "$LINENO" "getxattr" "ac_cv_func_getxattr"
-if test "x$ac_cv_func_getxattr" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_GETXATTR 1
-_ACEOF
-
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
 fi
-done
-
-fi
-
-done
-
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_getxattr_with_posix_acls" >&5
+$as_echo "$gl_cv_getxattr_with_posix_acls" >&6; }
   fi
-  if test "$ac_cv_header_sys_xattr_h,$ac_cv_func_getxattr" = yes,yes; then
+  if test "$gl_cv_getxattr_with_posix_acls" = yes; then
     LIB_HAS_ACL=
+
+$as_echo "#define GETXATTR_WITH_POSIX_ACLS 1" >>confdefs.h
+
   else
             gl_need_lib_has_acl=1
     LIB_HAS_ACL=$LIB_ACL
@@ -66882,6 +66833,46 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_func_pthread_sigmask_in_LIBMULTITHREAD" >&5
 $as_echo "$gl_cv_func_pthread_sigmask_in_LIBMULTITHREAD" >&6; }
           if test $gl_cv_func_pthread_sigmask_in_LIBMULTITHREAD = yes; then
+            { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether pthread_sigmask is only a macro" >&5
+$as_echo_n "checking whether pthread_sigmask is only a macro... " >&6; }
+if ${gl_cv_func_pthread_sigmask_is_macro+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  gl_save_LIBS="$LIBS"
+               LIBS="$LIBS $LIBMULTITHREAD"
+               cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <pthread.h>
+                      #include <signal.h>
+                      #undef pthread_sigmask
+
+int
+main ()
+{
+return pthread_sigmask (0, (sigset_t *) 0, (sigset_t *) 0);
+  ;
+  return 0;
+}
+
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_func_pthread_sigmask_is_macro=no
+else
+  gl_cv_func_pthread_sigmask_is_macro=yes
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+               LIBS="$gl_save_LIBS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_func_pthread_sigmask_is_macro" >&5
+$as_echo "$gl_cv_func_pthread_sigmask_is_macro" >&6; }
+            if test $gl_cv_func_pthread_sigmask_is_macro = yes; then
+                                          REPLACE_PTHREAD_SIGMASK=1
+              gl_cv_func_pthread_sigmask_in_LIBMULTITHREAD=no
+            fi
+          fi
+          if test $gl_cv_func_pthread_sigmask_in_LIBMULTITHREAD = yes; then
                         LIB_PTHREAD_SIGMASK="$LIBMULTITHREAD"
           else
                         HAVE_PTHREAD_SIGMASK=0
@@ -67390,6 +67381,7 @@ $as_echo "#define READLINK_TRAILING_SLASH_BUG 1" >>confdefs.h
 
 
 
+
   if test $ac_cv_func_readlinkat = no; then
     HAVE_READLINKAT=0
   else
@@ -67420,9 +67412,18 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_decl_readlinkat_works" >&5
 $as_echo "$gl_cv_decl_readlinkat_works" >&6; }
-    if test "$gl_cv_decl_readlink_works" != yes; then
-      REPLACE_READLINKAT=1
-    fi
+    # Assume readinkat has the same trailing slash bug as readlink,
+    # as is the case on Mac Os X 10.10
+    case "$gl_cv_func_readlink_works" in
+      *yes)
+        if test "$gl_cv_decl_readlinkat_works" != yes; then
+          REPLACE_READLINKAT=1
+        fi
+        ;;
+      *)
+        REPLACE_READLINKAT=1
+        ;;
+    esac
   fi
 
   if test $HAVE_READLINKAT = 0 || test $REPLACE_READLINKAT = 1; then
@@ -72996,6 +72997,12 @@ if test -f "${srcdir}/${opt_makefile}.in"; then
 
 fi
 
+if test -d machocheck || test -d ${srcdir}/machocheck; then
+  SUBDIR_MAKEFILES="${SUBDIR_MAKEFILES} machocheck/Makefile"
+  ac_config_files="$ac_config_files machocheck/Makefile"
+
+fi
+
 if test -d ${srcdir}/admin; then
   SUBDIR_MAKEFILES="${SUBDIR_MAKEFILES} admin/unidata/Makefile admin/grammars/Makefile"
   ac_config_files="$ac_config_files admin/unidata/Makefile"
@@ -74345,6 +74352,7 @@ do
     "nt/Makefile") CONFIG_FILES="$CONFIG_FILES nt/Makefile" ;;
     "po/Makevars") CONFIG_FILES="$CONFIG_FILES po/Makevars" ;;
     "test/automated/Makefile") CONFIG_FILES="$CONFIG_FILES test/automated/Makefile" ;;
+    "machocheck/Makefile") CONFIG_FILES="$CONFIG_FILES machocheck/Makefile" ;;
     "admin/unidata/Makefile") CONFIG_FILES="$CONFIG_FILES admin/unidata/Makefile" ;;
     "admin/grammars/Makefile") CONFIG_FILES="$CONFIG_FILES admin/grammars/Makefile" ;;
     "src/epaths.h") CONFIG_COMMANDS="$CONFIG_COMMANDS src/epaths.h" ;;

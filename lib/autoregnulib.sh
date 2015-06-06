@@ -2,7 +2,7 @@
 
 # The gnulib commit ID to use for the update.
 # If you know your version is newer, feel free to replace:
-GNULIB_COMMIT_SHA1="e176ee0b5d8e90b0d3871ee778d290bc3d6abe96"
+GNULIB_COMMIT_SHA1="b287b621969d5a3f56058ff01e554839814da4e1"
 
 if [ $# -ne 1 ]; then
    echo "Warning: Path to gnulib repository missing."

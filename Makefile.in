@@ -90,6 +90,8 @@ AWK = @AWK@
 
 CC=@CC@
 CFLAGS=@CFLAGS@
+CXX=@CXX@
+CXXFLAGS=@CXXFLAGS@
 LDFLAGS=@LDFLAGS@
 CPPFLAGS=@CPPFLAGS@
 EXEEXT=@EXEEXT@
@@ -934,6 +936,7 @@ clean: FRC clean-local
 	-cd doc/misc      && $(MAKE) $(MFLAGS) clean
 	-cd doc/lispref   && $(MAKE) $(MFLAGS) clean
 	-cd doc/lispintro && $(MAKE) $(MFLAGS) clean
+	-cd machocheck    && $(MAKE) $(MFLAGS) clean
 	cd mac      && $(MAKE) $(MFLAGS) clean
 	cd nextstep && $(MAKE) $(MFLAGS) clean
 
@@ -1234,12 +1237,20 @@ src/buildobj.lst: src/Makefile
 src/version.h: version.rb
 	ruby version.rb emacs > src/version.h
 
-isemacsvalid.o: isemacsvalid.c dumpemacs.h
-	$(CC) -c $(CFLAGS) $(CPPFLAGS) -Wall -Wextra -o $@ isemacsvalid.c
+isemacsvalid.o: isemacsvalid.c dumpemacs.h \
+  machocheck/src/other/machochecker.h
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) -Imachocheck/src/other \
+	  -Wall -Wextra -o $@ isemacsvalid.c
 
-isemacsvalid: isemacsvalid.c dumpemacs.h
-	$(CC) $(CFLAGS) $(CPPFLAGS) -DSTANDALONE_ISEMACSVALID $(LDFLAGS) \
-	  -Wall -Wextra -g -o $@ isemacsvalid.c
+machocheck/libmachocheck.a: Makefile machocheck/Makefile \
+  machocheck/src/other/machochecker.cpp machocheck/src/other/machochecker.h
+	$(MAKE) -C machocheck
+
+isemacsvalid: isemacsvalid.c dumpemacs.h machocheck/libmachocheck.a \
+  machocheck/src/other/machochecker.h
+	$(CXX) $(CFLAGS) $(CPPFLAGS) $(CXXFLAGS) -Imachocheck/src/other \
+	  -DSTANDALONE_ISEMACSVALID $(LDFLAGS) -Wall -Wextra -g \
+	  -o $@ isemacsvalid.c machocheck/libmachocheck.a
 
 runit.o: runit.c dumpemacs.h
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) -Wall -Wextra -o $@ runit.c

@@ -3375,9 +3375,9 @@ else
       else
         gl_WARN_ADD([-Wunreachable-code])
       fi  ##end check for clang or Apple compiler
-      dnl# even though emacs has no C++ code, also check for some
+      dnl# even though emacs has no major C++ code, also check for some
       dnl# C++-specific flags anyways, just in case:
-      if test "x${CXX}" != "x" && test "x${CC}" = "x${CXX}"; then
+      if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
         WARN_CXXFLAGS=""
         AC_LANG_PUSH([C++])dnl
         gl_WARN_ADD([-Wabi],[WARN_CXXFLAGS])
@@ -3502,7 +3502,7 @@ else
         gl_WARN_ADD([-Wbitfield-conversion])
       fi  ##end dummy variable check
       if test "x${ac_cv_lto_supported}" = "xyes" || test -n "${LTO}"; then
-        if test "x${CXX}" != "x" && test "x${CC}" = "x${CXX}"; then
+        if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
           AC_LANG_PUSH([C++])dnl
           gl_WARN_ADD([-Wodr],[WARN_CXXFLAGS])
           AC_LANG_POP
@@ -3522,7 +3522,7 @@ else
       gl_WARN_ADD([-Woverride-init-side-effects])
       gl_WARN_ADD([-Wshift-negative-value])
       gl_WARN_ADD([-Wshift-overflow])
-      if test "x${CXX}" != "x" && test "x${CC}" = "x${CXX}"; then
+      if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
         AC_LANG_PUSH([C++])dnl
         gl_WARN_ADD([-Wterminate],[WARN_CXXFLAGS])
         AC_LANG_POP
@@ -9936,6 +9936,13 @@ if test -f "${srcdir}/${opt_makefile}.in"; then
   dnl# Again, it is best not to use a variable. Though you can add
   dnl# ",[],[opt_makefile='${opt_makefile}']" and it should work.
   AC_CONFIG_FILES([test/automated/Makefile])
+fi
+
+dnl# this subdir is imported from ld64, and used like a library for the
+dnl# isemacsvalid executable:
+if test -d machocheck || test -d ${srcdir}/machocheck; then
+  SUBDIR_MAKEFILES="${SUBDIR_MAKEFILES} machocheck/Makefile"
+  AC_CONFIG_FILES([machocheck/Makefile])
 fi
 
 dnl########################################################################

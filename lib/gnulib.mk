@@ -50,8 +50,7 @@ libgnu_a_SOURCES += copy-acl.c set-acl.c
 
 ## begin gnulib module acl-permissions
 
-libgnu_a_SOURCES += acl-errno-valid.c acl-internal.c \
-  get-permissions.c set-permissions.c
+libgnu_a_SOURCES += acl-errno-valid.c acl-internal.c    get-permissions.c set-permissions.c
 
 EXTRA_DIST += acl-internal.h acl.h acl_entries.c
 

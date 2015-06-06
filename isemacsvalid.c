@@ -70,7 +70,8 @@ int is_emacs_valid(int debugflag)
 
 /* The Makefile will define this for us when building the executable: */
 #ifdef STANDALONE_ISEMACSVALID
-int main(void)
+# include "machochecker.h"
+int main(int argc, const char* argv[])
 {
   int ret = is_emacs_valid(0);
   printf("Is emacs valid?\n");
@@ -93,6 +94,11 @@ int main(void)
       fprintf(stderr, "Unhandled return value for is_emacs_valid()!\n");
       break;
   }
+
+  /* FIXME: munge argv to insert proper path to built emacs, if needed: */
+  ret = machocheck_main(argc, argv);
+
+  printf("machocheck_main() returned %d.\n", ret);
 }
 #endif /* STANDALONE_ISEMACSVALID */
 

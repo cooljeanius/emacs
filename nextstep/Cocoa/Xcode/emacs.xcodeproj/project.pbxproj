@@ -17,7 +17,7 @@
 		A5361DB81A2126E80058110B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A5361DB71A2126E80058110B /* main.m */; };
 		A5361DF31A212CDA0058110B /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = A5361DEB1A212CDA0058110B /* Credits.rtf */; };
 		A5361DF51A212CDA0058110B /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = A5361DEF1A212CDA0058110B /* MainMenu.xib */; };
-		A53DA6FC1AF274DA00C02B65 /* isemacsvalid.c in Sources */ = {isa = PBXBuildFile; fileRef = A540EEB41A0C33390008DA29 /* isemacsvalid.c */; };
+		A53DA6FC1AF274DA00C02B65 /* isemacsvalid.c in Sources */ = {isa = PBXBuildFile; fileRef = A540EEB41A0C33390008DA29 /* isemacsvalid.c */; settings = {COMPILER_FLAGS = "-Wold-style-definition"; }; };
 		A53DA77A1AF7E2BF00C02B65 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A53DA7791AF7E2BF00C02B65 /* WebKit.framework */; };
 		A53DAE3A1AF7E2DC00C02B65 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A53DAE381AF7E2DC00C02B65 /* Quartz.framework */; };
 		A53DAE3B1AF7E2DC00C02B65 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A53DAE391AF7E2DC00C02B65 /* QuartzCore.framework */; };
@@ -28,6 +28,7 @@
 		A540EEB51A0C33390008DA29 /* isemacsvalid.c in Sources */ = {isa = PBXBuildFile; fileRef = A540EEB41A0C33390008DA29 /* isemacsvalid.c */; };
 		A540EEB81A0C33DF0008DA29 /* runit.c in Sources */ = {isa = PBXBuildFile; fileRef = A540E9D31A0C1FF60008DA29 /* runit.c */; };
 		A540F1951A0EBC5D0008DA29 /* emacs-ppc.c in Sources */ = {isa = PBXBuildFile; fileRef = A540E9BC1A0C1F270008DA29 /* emacs-ppc.c */; };
+		A56E5A211B213597005E1D43 /* machochecker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A56E5A1E1B21336C005E1D43 /* machochecker.cpp */; settings = {COMPILER_FLAGS = "-Wno-unused -Wno-missing-prototypes -Wno-long-long -Wabi -Wctor-dtor-privacy -Wstrict-null-sentinel -Wsign-promo"; }; };
 		A5B3C7181A2C2FA300D553ED /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5B3C7171A2C2FA200D553ED /* ApplicationServices.framework */; };
 		A5B3C7EA1A2C32D900D553ED /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5B3C7E91A2C32D900D553ED /* Cocoa.framework */; };
 		A5B3C8A81A2C333700D553ED /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5B3C8A71A2C333700D553ED /* CoreData.framework */; };
@@ -893,6 +894,12 @@
 		A56E55831B17AFC4005E1D43 /* get-permissions.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "get-permissions.c"; sourceTree = "<group>"; };
 		A56E55841B17AFE3005E1D43 /* set-acl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "set-acl.c"; sourceTree = "<group>"; };
 		A56E55851B17AFE8005E1D43 /* set-permissions.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = "set-permissions.c"; sourceTree = "<group>"; tabWidth = 8; };
+		A56E5A171B21336C005E1D43 /* FileAbstraction.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = FileAbstraction.hpp; sourceTree = "<group>"; };
+		A56E5A181B21336C005E1D43 /* MachOFileAbstraction.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MachOFileAbstraction.hpp; sourceTree = "<group>"; };
+		A56E5A191B21336C005E1D43 /* create_configure.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = create_configure.sh; sourceTree = "<group>"; };
+		A56E5A1C1B21336C005E1D43 /* Architectures.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Architectures.hpp; sourceTree = "<group>"; };
+		A56E5A1E1B21336C005E1D43 /* machochecker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = machochecker.cpp; sourceTree = "<group>"; };
+		A56E5A201B213412005E1D43 /* machochecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = machochecker.h; sourceTree = "<group>"; };
 		A5B3C7021A2A191F00D553ED /* wincompat_test.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = wincompat_test.c; sourceTree = "<group>"; };
 		A5B3C7031A2A191F00D553ED /* wincompat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wincompat.h; sourceTree = "<group>"; };
 		A5B3C7171A2C2FA200D553ED /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = /System/Library/Frameworks/ApplicationServices.framework; sourceTree = "<absolute>"; };
@@ -963,6 +970,7 @@
 				A540EAD31A0C28170008DA29 /* lib-src */,
 				A540EB011A0C28680008DA29 /* lwlib */,
 				A540EB191A0C288A0008DA29 /* mac */,
+				A56E5A131B21336C005E1D43 /* machocheck */,
 				A540EB441A0C28EC0008DA29 /* msdos */,
 				A540EB651A0C29360008DA29 /* nt */,
 				A540EBC21A0C29990008DA29 /* oldXMenu */,
@@ -1980,6 +1988,52 @@
 			name = "Linked Frameworks";
 			sourceTree = "<group>";
 		};
+		A56E5A131B21336C005E1D43 /* machocheck */ = {
+			isa = PBXGroup;
+			children = (
+				A56E5A151B21336C005E1D43 /* src */,
+			);
+			name = machocheck;
+			path = ../../../machocheck;
+			sourceTree = SOURCE_ROOT;
+		};
+		A56E5A151B21336C005E1D43 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				A56E5A161B21336C005E1D43 /* abstraction */,
+				A56E5A191B21336C005E1D43 /* create_configure.sh */,
+				A56E5A1A1B21336C005E1D43 /* ld */,
+				A56E5A1D1B21336C005E1D43 /* other */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		A56E5A161B21336C005E1D43 /* abstraction */ = {
+			isa = PBXGroup;
+			children = (
+				A56E5A171B21336C005E1D43 /* FileAbstraction.hpp */,
+				A56E5A181B21336C005E1D43 /* MachOFileAbstraction.hpp */,
+			);
+			path = abstraction;
+			sourceTree = "<group>";
+		};
+		A56E5A1A1B21336C005E1D43 /* ld */ = {
+			isa = PBXGroup;
+			children = (
+				A56E5A1C1B21336C005E1D43 /* Architectures.hpp */,
+			);
+			path = ld;
+			sourceTree = "<group>";
+		};
+		A56E5A1D1B21336C005E1D43 /* other */ = {
+			isa = PBXGroup;
+			children = (
+				A56E5A1E1B21336C005E1D43 /* machochecker.cpp */,
+				A56E5A201B213412005E1D43 /* machochecker.h */,
+			);
+			path = other;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXLegacyTarget section */
@@ -2153,6 +2207,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A56E5A211B213597005E1D43 /* machochecker.cpp in Sources */,
 				A53DA6FC1AF274DA00C02B65 /* isemacsvalid.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2463,6 +2518,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
+				GCC_CHECK_RETURN_VALUE_OF_OPERATOR_NEW = YES;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
@@ -2472,16 +2528,21 @@
 					_REENTRANT,
 					STANDALONE_ISEMACSVALID,
 				);
+				GCC_TREAT_NONCONFORMANT_CODE_ERRORS_AS_WARNINGS = YES;
+				GCC_WARN_ABOUT_GLOBAL_CONSTRUCTORS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
 				GCC_WARN_UNUSED_PARAMETER = YES;
+				HEADER_SEARCH_PATHS = "$(TOP_SRCROOT)/machocheck/src/ld";
 				INSTALL_PATH = /usr/local/bin;
 				PREBINDING = NO;
 				PRODUCT_NAME = isemacsvalid;
+				SDKROOT = "";
 				WARNING_CFLAGS = (
 					"-Wall",
 					"-Wextra",
 					"-Wformat=2",
 					"-Wimplicit",
-					"-Wold-style-definition",
 					"-Wundef",
 					"-Wwrite-strings",
 					"-Wmissing-noreturn",
@@ -2502,9 +2563,11 @@
 					_REENTRANT,
 					STANDALONE_ISEMACSVALID,
 				);
+				HEADER_SEARCH_PATHS = "$(TOP_SRCROOT)/machocheck/src/ld";
 				INSTALL_PATH = /usr/local/bin;
 				PREBINDING = NO;
 				PRODUCT_NAME = isemacsvalid;
+				SDKROOT = "";
 				ZERO_LINK = NO;
 			};
 			name = Release;
