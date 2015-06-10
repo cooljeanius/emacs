@@ -4117,10 +4117,13 @@ test -e m4/override.m4
 dnl# other type tests that autoscan wants, among other things:
 AC_MSG_CHECKING([types])
 AC_MSG_RESULT([ ])
+AC_TYPE_INT8_T
 AC_TYPE_INT32_T
+AC_TYPE_INT64_T
 AC_TYPE_OFF_T
 AC_TYPE_SIGNAL
 AC_TYPE_SSIZE_T
+AC_TYPE_UINT8_T
 AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
 AC_TYPE_UINT64_T
@@ -4421,8 +4424,8 @@ m4_include([m4/headers_extra.m4])dnl
 AC_REQUIRE_VARIOUS_HEADER_CHECKS
 AC_HEADER_TIME
 dnl# not sure why these decls go in the headers section, but whatever:
-AC_CHECK_DECLS([sys_siglist],[],[],[[#include <signal.h>
-			           ]])
+AC_CHECK_DECLS([sys_siglist, sys_signame],[],[],[[#include <signal.h>
+			                        ]])
 if test "x${ac_cv_have_decl_sys_siglist}" != "xyes"; then
   # For Tru64, at least:
   AC_CHECK_DECLS([__sys_siglist],[],[],[[#include <signal.h>
@@ -7661,7 +7664,7 @@ getrusage get_current_dir_name \
 lrand48 bcopy bcmp cbrt setsid \
 fpathconf select setlocale newlocale \
 utimes getrlimit setrlimit setpgid getwd shutdown getaddrinfo \
-mblen strsignal setitimer ualarm index rindex \
+mblen psignal strsignal setitimer ualarm index rindex \
 sendto recvfrom getsockopt setsockopt getsockname getpeername \
 getifaddrs freeifaddrs gai_strerror mkstemp getline mremap sync \
 difftime memcpy mempcpy getpwent endpwent getgrent endgrent \

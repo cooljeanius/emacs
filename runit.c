@@ -20,7 +20,8 @@ int runit(const char * const argv[], int dropprivs)
   int ret;
 
 #ifdef _DEBUG
-  printf("forking...\n");
+  printf("Forking; will try to exec %s %s after the fork...\n", argv[0],
+         ((argv[1] != NULL) ? argv[1] : ""));
 #endif /* _DEBUG */
   child = fork();
   if (child == 0) {
@@ -36,8 +37,10 @@ int runit(const char * const argv[], int dropprivs)
       err(1, "execve(%s) failed", argv[0]);
     }
   } else {
+    /* declare out here to avoid being re-declared and initialized each
+     * loop iteration: */
+    int loop_counter = 0;
     do {
-      int loop_counter = 0;
       int status = 0;
       int wait_opts = WUNTRACED; /* leave out WNOHANG for now */
       pid_t rch = waitpid(child, &status, wait_opts);
@@ -66,16 +69,8 @@ int runit(const char * const argv[], int dropprivs)
         }
       }
       loop_counter++;
-      /* my version of the clang static analyzer is stupid; this variable
-       * is used in the next iteration of the loop: */
-      if (loop_counter > 0) {
-#ifdef _DEBUG
-        printf("times through loop is plural ('%d').\n", loop_counter);
-#else
-        ;
-#endif /* _DEBUG */
-      }
-    } while(1);
+      /* oops, nvm, I think clang was right... */
+    } while (1);
   }
 
   return 0;

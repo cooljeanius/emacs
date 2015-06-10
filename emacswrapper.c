@@ -25,13 +25,22 @@ int main(int argc, char *argv[])
   if (!is_emacs_valid(0)) {
     const char *newargs[2];
     newargs[0] = kDumpEmacsPath;
-    newargs[1] = NULL;
+    if (geteuid() != 0) {
+      newargs[1] = "-n";
+      newargs[2] = NULL;
+    } else {
+      newargs[1] = NULL;
+    }
 
     ret = runit(newargs, 0);
     if (ret) {
       errx(1, "Failed to dump emacs");
     }
   }
+
+#ifdef DEBUG
+  printf("Done running dumpemacs.\n");
+#endif /* DEBUG */
 
   ret = execv(kEmacsArchPath, argv);
   if (ret) {

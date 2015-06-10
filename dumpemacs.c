@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
   char output[MAXPATHLEN];
   int ch;
   int ret, fd;
-  const char * newargs[5];
+  const char *newargs[5];
 
   umask((mode_t)022U);
   while ((ch = getopt(argc, argv, "Vdfnv")) != -1) {
@@ -66,11 +66,11 @@ int main(int argc, char *argv[])
   if (!testopt) {
     /* must be run as root unless we are not planning on writing: */
     if (geteuid() != 0) {
-      errx(1, "Must be run as root unless -n is used");
+      errx(1, "Must be run as root unless -n flag is used.");
     }
   }
 
-  if(!verboseopt) {
+  if (!verboseopt) {
     fd = open("/dev/null", O_RDWR, 0600);
     if (fd < 0) {
       err(1, "open(/dev/null)");
@@ -95,7 +95,13 @@ int main(int argc, char *argv[])
     if (ret == -1) {
       err(1, "close(/dev/null)");
     }
+  } else {
+    if (debugopt) {
+      printf("No need to redirect output to /dev/null when printing debug "
+             "output.\n");
+    }
   }
+
 
   if (!forceopt) {
     int dumpit = 1;
@@ -119,8 +125,12 @@ int main(int argc, char *argv[])
 	munmap(undumpedMem, undumpedSize);
       }
     }
-    if ((dumpedVersion != NULL) && (undumpedVersion != NULL) &&
-	(0 == strcmp(dumpedVersion, undumpedVersion))) {
+    if ((dumpedVersion != NULL) && (undumpedVersion != NULL)
+        && (0 == strcmp(dumpedVersion, undumpedVersion))) {
+      if (debugopt) {
+        printf("Dumped version of emacs is equivalent to the undumped version.\n");
+        printf("(i.e. they are both \"%s\".)\n", dumpedVersion);
+      }
       dumpit = 0;
     }
     if (dumpedVersion) {
@@ -130,6 +140,9 @@ int main(int argc, char *argv[])
       free(undumpedVersion);
     }
     if (!dumpit) {
+      if (debugopt) {
+        printf("No need to dump after all.\n");
+      }
       return 0;
     }
   }

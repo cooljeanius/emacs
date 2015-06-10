@@ -41,7 +41,7 @@ src/other/machochecker.o: src/other/machochecker.cpp src/ld/configure.h \
   src/ld/Architectures.hpp src/Abstraction/FileAbstraction.hpp \
   src/Abstraction/MachOFileAbstraction.hpp src/other/machochecker.h \
   Makefile ../Makefile
-	$(CXX) $(HARDCODED_CFLAGS) $(HARDCODED_BETTER_DEBUG_CFLAGS) $(HARDCODED_WARN_CXXFLAGS) $(HARDCODED_DEFS) $(DEFS) $(HARDCODED_CPPFLAGS) -c -o $@ $<
+	$(CXX) $(HARDCODED_CFLAGS) $(HARDCODED_BETTER_DEBUG_CFLAGS) $(HARDCODED_WARN_CXXFLAGS) $(WARN_CXXFLAGS) $(HARDCODED_DEFS) $(DEFS) $(HARDCODED_CPPFLAGS) -c -o $@ $<
 
 libmachocheck.a: src/other/machochecker.o
 	$(HARDCODED_AR) $(HARDCODED_ARFLAGS) libmachocheck.a src/other/machochecker.o
