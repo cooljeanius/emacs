@@ -72,7 +72,7 @@
 		A540E9BC1A0C1F270008DA29 /* emacs-ppc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "emacs-ppc.c"; path = "../../../emacs-ppc.c"; sourceTree = SOURCE_ROOT; };
 		A540E9BD1A0C1F270008DA29 /* emacs-undumped.1 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.man; name = "emacs-undumped.1"; path = "../../../emacs-undumped.1"; sourceTree = SOURCE_ROOT; };
 		A540E9BE1A0C1F270008DA29 /* emacs.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; name = emacs.plist; path = ../../../emacs.plist; sourceTree = SOURCE_ROOT; };
-		A540E9BF1A0C1F270008DA29 /* emacswrapper.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = emacswrapper.c; path = ../../../emacswrapper.c; sourceTree = SOURCE_ROOT; };
+		A540E9BF1A0C1F270008DA29 /* emacswrapper.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; name = emacswrapper.c; path = ../../../emacswrapper.c; sourceTree = SOURCE_ROOT; tabWidth = 4; usesTabs = 0; };
 		A540E9CC1A0C1F600008DA29 /* filearch.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; name = filearch.rb; path = ../../../filearch.rb; sourceTree = SOURCE_ROOT; };
 		A540E9CD1A0C1F600008DA29 /* fixMakefile.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; name = fixMakefile.rb; path = ../../../fixMakefile.rb; sourceTree = SOURCE_ROOT; };
 		A540E9CE1A0C1F760008DA29 /* GNUmakefile */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; fileEncoding = 4; name = GNUmakefile; path = ../../../GNUmakefile; sourceTree = SOURCE_ROOT; };

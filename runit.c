@@ -2,11 +2,13 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <errno.h>
 #include <sys/stat.h>
 #include <pwd.h>
 #include <unistd.h>
 #include <err.h>
+#include <signal.h>
 
 #include "dumpemacs.h"
 
@@ -17,6 +19,9 @@ int runit(const char * const argv[], int dropprivs)
   pid_t child;
   int ret;
 
+#ifdef _DEBUG
+  printf("forking...\n");
+#endif /* _DEBUG */
   child = fork();
   if (child == 0) {
     if (dropprivs && (geteuid() == 0)) {
@@ -49,7 +54,8 @@ int runit(const char * const argv[], int dropprivs)
       }
 
       if (WIFSIGNALED(status)) {
-	errx(1, "child exited on signal %d", WTERMSIG(status));
+	errx(1, "child exited on signal %d (i.e. \"%s\").",
+             WTERMSIG(status), strsignal(WTERMSIG(status)));
       }
 
       if (WIFEXITED(status)) {
@@ -108,10 +114,14 @@ int decreasepriv(int debugflag)
   } else if (ret == 127) {
     err(1, "system(id) failed during execution of shell");
   }
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#  warning "not checking id"
+# endif /* __GNUC__ && !__STRICT_ANSI__ */
 #endif /* HAVE_SYSTEM && HAVE_ID_BIN */
 
   if (debugflag > 0) {
-    ; /* FIXME: do something with it... */
+    printf("debugflag is %d.\n", debugflag);
   }
 
   return 0;

@@ -3391,7 +3391,10 @@ else
         gl_WARN_ADD([-Wdeprecated],[WARN_CXXFLAGS])
         gl_WARN_ADD([-Wdelete-incomplete],[WARN_CXXFLAGS])
         gl_WARN_ADD([-Wdelete-non-virtual-dtor],[WARN_CXXFLAGS])
-        gl_WARN_ADD([-Weffc++],[WARN_CXXFLAGS])
+        if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
+          test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
+          gl_WARN_ADD([-Weffc++],[WARN_CXXFLAGS])
+        fi  ##end check for undocumented environment variable.
         gl_WARN_ADD([-Wglobal-constructors],[WARN_CXXFLAGS])
         gl_WARN_ADD([-Winherited-variadic-ctor],[WARN_CXXFLAGS])
         gl_WARN_ADD([-Winvalid-offsetof],[WARN_CXXFLAGS])
@@ -3416,7 +3419,10 @@ else
           gl_WARN_ADD([-Wuseless-cast],[WARN_CXXFLAGS])
         fi  ##end check for undocumented environment variable.
         gl_WARN_ADD([-Wvirtual-move-assign],[WARN_CXXFLAGS])
-        gl_WARN_ADD([-Wzero-as-null-pointer-constant],[WARN_CXXFLAGS])
+        if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
+          test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
+          gl_WARN_ADD([-Wzero-as-null-pointer-constant],[WARN_CXXFLAGS])
+        fi  ##end check for undocumented environment variable.
         AC_SUBST([WARN_CXXFLAGS])dnl
         AC_LANG_POP
       else

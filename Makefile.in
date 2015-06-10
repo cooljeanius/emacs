@@ -96,6 +96,14 @@ LDFLAGS=@LDFLAGS@
 CPPFLAGS=@CPPFLAGS@
 EXEEXT=@EXEEXT@
 
+WARN_CFLAGS = @WARN_CFLAGS@
+BETTER_DEBUG_CFLAGS = @BETTER_DEBUG_CFLAGS@
+
+CLANG_ANALYZER = @CLANG_ANALYZER@
+
+RUN_CLANG_ANALYZER = $(CLANG_ANALYZER) $(CFLAGS) $(DEFS) $(CPPFLAGS) \
+  $(MYCPPFLAGS) -I. -Isrc -Ilib-src --analyze
+
 SED = @SED@
 
 ### These help us choose version- and architecture-specific directories
@@ -196,6 +204,10 @@ mansrcdir=$(srcdir)/doc/man
 
 # Tell make where to find source files; this is needed for the makefiles.
 VPATH=@srcdir@
+
+# Where build output is put.
+builddir = @builddir@
+analysisdir = $(builddir)/clang_static_analysis
 
 # Where to find the application default.
 x_default_search_path=@x_default_search_path@
@@ -1237,10 +1249,8 @@ src/buildobj.lst: src/Makefile
 src/version.h: version.rb
 	ruby version.rb emacs > src/version.h
 
-isemacsvalid.o: isemacsvalid.c dumpemacs.h \
-  machocheck/src/other/machochecker.h
-	$(CC) -c $(CFLAGS) $(CPPFLAGS) -Imachocheck/src/other \
-	  -Wall -Wextra -o $@ isemacsvalid.c
+isemacsvalid.o: isemacsvalid.c dumpemacs.h
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) -Wall -Wextra -o $@ isemacsvalid.c
 
 machocheck/libmachocheck.a: Makefile machocheck/Makefile \
   machocheck/src/other/machochecker.cpp machocheck/src/other/machochecker.h
@@ -1253,7 +1263,8 @@ isemacsvalid: isemacsvalid.c dumpemacs.h machocheck/libmachocheck.a \
 	  -o $@ isemacsvalid.c machocheck/libmachocheck.a
 
 runit.o: runit.c dumpemacs.h
-	$(CC) -c $(CFLAGS) $(CPPFLAGS) -Wall -Wextra -o $@ runit.c
+	$(CC) -c $(CFLAGS) $(BETTER_DEBUG_CFLAGS) $(CPPFLAGS) $(DEFS) \
+	  -D_DEBUG -Wall -Wextra -Wundef -o $@ runit.c
 
 GNUVersion = 22.1
 @ifGNUmake@VERSIONDEFFLAG = -DkEmacsVersion=$(patsubst %,'"%"', $(GNUVersion))
@@ -1265,13 +1276,14 @@ dumpemacs.o: bo.h dumpemacs.c dumpemacs.h src/version.h
 	$(CC) -I. $(VERSIONDEFFLAG) $(CFLAGS) -Wall -o $@ -g -c dumpemacs.c
 
 dumpemacs: dumpemacs.o runit.o
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ -g $^
+	$(CC) $(CFLAGS) $(BETTER_DEBUG_CFLAGS) $(LDFLAGS) -o $@ -g $^
 
 emacswrapper.o: emacswrapper.c dumpemacs.h
-	$(CC) -c $(CFLAGS) $(CPPFLAGS) -Wall -Wextra -o $@ emacswrapper.c
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(DEFS) -DDEBUG -Wall -Wextra \
+	  $(BETTER_DEBUG_CFLAGS) -o $@ emacswrapper.c
 
 emacswrapper: emacswrapper.o isemacsvalid.o runit.o
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ -g $^
+	$(CC) $(CFLAGS) $(BETTER_DEBUG_CFLAGS) $(LDFLAGS) -o $@ -g $^
 
 # umbrella target for the above:
 apple_helper_executables: dumpemacs emacswrapper isemacsvalid
@@ -1279,6 +1291,15 @@ apple_helper_executables: dumpemacs emacswrapper isemacsvalid
 	stat emacswrapper
 	stat isemacsvalid
 .PHONY: apple_helper_executables
+
+.SUFFIXES: .c .plist
+.c.plist:
+	@if test ! -d $(analysisdir); then $(MKDIR_P) $(analysisdir); fi
+	$(RUN_CLANG_ANALYZER) -Wall -Wextra -o $(analysisdir)/$@ $< 
+
+apple_check: isemacsvalid.plist runit.plist dumpemacs.plist \
+  emacswrapper.plist @MAINT@ unexmacosx.plist
+.PHONY: apple_check
 
 ### To avoid lisp byte-compilation errors, try this:
 # (make globals.h early to prevent errors)

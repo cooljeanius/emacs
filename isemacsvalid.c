@@ -1,4 +1,4 @@
-/* isemacsvalid.c */
+/* isemacsvalid.c -*- C -*- */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -57,7 +57,7 @@ int is_emacs_valid(int debugflag)
   }
 
   if (debugflag > 0) {
-    ; /* FIXME: do something with it... */
+    printf("debugflag is %d.\n", debugflag);
   }
 
   /* per-arch emacs is present and newer than the

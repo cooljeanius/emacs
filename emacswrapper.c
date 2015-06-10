@@ -1,4 +1,4 @@
-/* emacswrapper.c */
+/* emacswrapper.c -*- C -*- */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -16,6 +16,11 @@
 int main(int argc, char *argv[])
 {
   int ret;
+
+#if defined(DEBUG) || defined(lint)
+  printf("Program is running from path '%s' with '%i' argument(s).\n",
+         argv[0], argc);
+#endif /* DEBUG || lint */
 
   if (!is_emacs_valid(0)) {
     const char *newargs[2];

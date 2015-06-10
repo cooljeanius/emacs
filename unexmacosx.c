@@ -1,4 +1,5 @@
 /* unexmacosx.c -*- C -*-
+ * (this is the top-level one; use the one in ./src instead)
  * Dump Emacs in Mach-O format for use on Mac OS X.
  * Copyright (C) 2001, 2002, 2003, 2004, 2005,
  *************** 2006, 2007 Free Software Foundation, Inc. */
@@ -20,7 +21,7 @@ along with GNU Emacs; see the file COPYING.  If not, write to
 the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 Boston, MA 02110-1301, USA.  */
 
-/* Contributed by Andrew Choi (akochoi@mac.com).  */
+/* Contributed by Andrew Choi <akochoi@mac.com>.  */
 
 /* Documentation note.
 

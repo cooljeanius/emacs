@@ -16158,6 +16158,8 @@ if test "x$gl_cv_warn_cxx__Wdelete_non_virtual_dtor" = xyes; then :
 fi
 
 
+        if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
+          test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C++ compiler handles -Weffc++" >&5
 $as_echo_n "checking whether C++ compiler handles -Weffc++... " >&6; }
@@ -16195,6 +16197,7 @@ if test "x$gl_cv_warn_cxx__Weffcpp" = xyes; then :
 fi
 
 
+        fi  ##end check for undocumented environment variable.
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C++ compiler handles -Wglobal-constructors" >&5
 $as_echo_n "checking whether C++ compiler handles -Wglobal-constructors... " >&6; }
@@ -16759,6 +16762,8 @@ if test "x$gl_cv_warn_cxx__Wvirtual_move_assign" = xyes; then :
 fi
 
 
+        if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
+          test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C++ compiler handles -Wzero-as-null-pointer-constant" >&5
 $as_echo_n "checking whether C++ compiler handles -Wzero-as-null-pointer-constant... " >&6; }
@@ -16796,6 +16801,7 @@ if test "x$gl_cv_warn_cxx__Wzero_as_null_pointer_constant" = xyes; then :
 fi
 
 
+        fi  ##end check for undocumented environment variable.
                 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'

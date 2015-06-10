@@ -47,6 +47,17 @@
 # endif /* compatible compiler check */
 #endif /* have _Noreturn */
 
+/* Define to 1 if we have the 'id' program: */
+#ifndef HAVE_ID_BIN
+# define HAVE_ID_BIN 1
+#endif /* !HAVE_ID_BIN */
+
+/* Define to 1 if we have the 'system' function: */
+#ifndef HAVE_SYSTEM
+# define HAVE_SYSTEM 1
+#endif /* !HAVE_SYSTEM */
+
+/* Prototypes: */
 int is_emacs_valid(int debugflag);
 int runit(const char * const argv[], int dropprivs);
 

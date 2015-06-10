@@ -1187,6 +1187,7 @@ copy_data_segment(struct load_command *lc)
      block because the total of the sizes of all sections in the
      segment is generally smaller than vmsize.  */
   scp->filesize = scp->vmsize;
+  /* FIXME: assert that. */
 
   printf("Writing segment %-16.16s @ %#8lx (%#8lx/%#8lx @ %#10lx)\n",
 	 scp->segname, curr_file_offset, (unsigned long)(scp->filesize),
@@ -1194,7 +1195,7 @@ copy_data_segment(struct load_command *lc)
 
   /* Offsets in the output file for writing the next section structure
      and segment data block, respectively.  */
-  header_offset = curr_header_offset + sizeof(struct segment_command);
+  header_offset = (curr_header_offset + sizeof(struct segment_command));
 
   sectp = (struct section *)(scp + 1);
   for (j = 0U; (j < scp->nsects) && (j < UINT_MAX); j++)
@@ -1242,8 +1243,17 @@ copy_data_segment(struct load_command *lc)
 	break;
 
       case S_ZEROFILL:
+          if (!((strncmp(sectp->sectname, "__bss", 16) == 0)
+                || (strncmp(sectp->sectname, "__common", 16) == 0)
+                || (strstr(sectp->sectname, "__bss") != NULL))) {
+            fprintf(stderr,
+                    "Warning: only expected __bss and __common sections "
+                    "to be zerofilled, but this section is called %s.\n",
+                    sectp->sectname);
+          }
 #if defined(VERBOSE) && VERBOSE
-          printf("jumping to zerofilling part...\n");
+          printf("Flags are 0x%01x, jumping to zerofilling part...\n",
+                 (unsigned int)S_ZEROFILL);
 #endif /* VERBOSE */
           goto zerofill_entry_point;
       default:
