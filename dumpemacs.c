@@ -312,7 +312,7 @@ int dumpemacs(int debugflag, char *output)
     errx(1, "Failed to dump emacs");
   }
 
-  snprintf(output, MAXPATHLEN, "%s/src/emacs", tempdir);
+  snprintf(output, (size_t)MAXPATHLEN, "%s/src/emacs", tempdir);
   if (debugflag) {
     printf("emacs dumped as %s\n", output);
   }
@@ -363,14 +363,14 @@ int copythintemacs(int debugflag, const char *src, const char *dst)
     }
 
     for (i = 0U; i < fh->nfat_arch; i++) {
-      archs[i].cputype = OSSwapBigToHostInt32((uint32_t)archs[i].cputype);
-      archs[i].cpusubtype = OSSwapBigToHostInt32((uint32_t)archs[i].cpusubtype);
+      archs[i].cputype = (cpu_type_t)OSSwapBigToHostInt32((uint32_t)archs[i].cputype);
+      archs[i].cpusubtype = (cpu_subtype_t)OSSwapBigToHostInt32((uint32_t)archs[i].cpusubtype);
       archs[i].offset = OSSwapBigToHostInt32(archs[i].offset);
       archs[i].size = OSSwapBigToHostInt32(archs[i].size);
       archs[i].align = OSSwapBigToHostInt32(archs[i].align);
     }
     isFat = 1;
-    archCount = fh->nfat_arch;
+    archCount = (int)fh->nfat_arch;
   } else if (fh->magic == MH_MAGIC) {
     struct mach_header *mh = (struct mach_header *)buffer;
     fakearch.cputype = mh->cputype;
@@ -382,8 +382,8 @@ int copythintemacs(int debugflag, const char *src, const char *dst)
     archCount = 1;
   } else if (fh->magic == MH_CIGAM) {
     struct mach_header *mh = (struct mach_header *)buffer;
-    fakearch.cputype = OSSwapInt32((uint32_t)mh->cputype);
-    fakearch.cpusubtype = OSSwapInt32((uint32_t)mh->cpusubtype);
+    fakearch.cputype = (cpu_type_t)OSSwapInt32((uint32_t)mh->cputype);
+    fakearch.cpusubtype = (cpu_subtype_t)OSSwapInt32((uint32_t)mh->cpusubtype);
     fakearch.offset = 0;
     fakearch.size = 0;
     fakearch.align = 0;
@@ -400,8 +400,8 @@ int copythintemacs(int debugflag, const char *src, const char *dst)
     archCount = 1;
   } else if (fh->magic == MH_CIGAM_64) {
     struct mach_header_64 *mh = (struct mach_header_64 *)buffer;
-    fakearch.cputype = OSSwapInt32((uint32_t)mh->cputype);
-    fakearch.cpusubtype = OSSwapInt32((uint32_t)mh->cpusubtype);
+    fakearch.cputype = (cpu_type_t)OSSwapInt32((uint32_t)mh->cputype);
+    fakearch.cpusubtype = (cpu_subtype_t)OSSwapInt32((uint32_t)mh->cpusubtype);
     fakearch.offset = 0;
     fakearch.size = 0;
     fakearch.align = 0;
@@ -502,14 +502,14 @@ void *mmaparch(const char *filename, size_t *psize)
     }
 
     for (i = 0U; i < fh->nfat_arch; i++) {
-      archs[i].cputype = OSSwapBigToHostInt32((uint32_t)archs[i].cputype);
-      archs[i].cpusubtype = OSSwapBigToHostInt32((uint32_t)archs[i].cpusubtype);
+      archs[i].cputype = (cpu_type_t)OSSwapBigToHostInt32((uint32_t)archs[i].cputype);
+      archs[i].cpusubtype = (cpu_subtype_t)OSSwapBigToHostInt32((uint32_t)archs[i].cpusubtype);
       archs[i].offset = OSSwapBigToHostInt32(archs[i].offset);
       archs[i].size = OSSwapBigToHostInt32(archs[i].size);
       archs[i].align = OSSwapBigToHostInt32(archs[i].align);
     }
     isFat = 1;
-    archCount = fh->nfat_arch;
+    archCount = (int)fh->nfat_arch;
   } else if (fh->magic == MH_MAGIC) {
     struct mach_header *mh = (struct mach_header *)buffer;
     fakearch.cputype = mh->cputype;
@@ -521,8 +521,8 @@ void *mmaparch(const char *filename, size_t *psize)
     archCount = 1;
   } else if (fh->magic == MH_CIGAM) {
     struct mach_header *mh = (struct mach_header *)buffer;
-    fakearch.cputype = OSSwapInt32((uint32_t)mh->cputype);
-    fakearch.cpusubtype = OSSwapInt32((uint32_t)mh->cpusubtype);
+    fakearch.cputype = (cpu_type_t)OSSwapInt32((uint32_t)mh->cputype);
+    fakearch.cpusubtype = (cpu_subtype_t)OSSwapInt32((uint32_t)mh->cpusubtype);
     fakearch.offset = 0;
     fakearch.size = 0;
     fakearch.align = 0;
@@ -539,8 +539,8 @@ void *mmaparch(const char *filename, size_t *psize)
     archCount = 1;
   } else if (fh->magic == MH_CIGAM_64) {
     struct mach_header_64 *mh = (struct mach_header_64 *)buffer;
-    fakearch.cputype = OSSwapInt32((uint32_t)mh->cputype);
-    fakearch.cpusubtype = OSSwapInt32((uint32_t)mh->cpusubtype);
+    fakearch.cputype = (cpu_type_t)OSSwapInt32((uint32_t)mh->cputype);
+    fakearch.cpusubtype = (cpu_subtype_t)OSSwapInt32((uint32_t)mh->cpusubtype);
     fakearch.offset = 0;
     fakearch.size = 0;
     fakearch.align = 0;
@@ -600,7 +600,8 @@ char *verfind(void *mem, size_t size, char marker, const char *search)
       return strdup(here);
     } else {
       found = memchr((here + 1), marker,
-                     (last - (here + 1) - (search_size + 1)));
+                     ((size_t)(last - (here + 1UL))
+                      - (search_size + 1UL)));
     }
   }
   return NULL;

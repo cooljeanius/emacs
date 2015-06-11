@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <err.h>
 #include <signal.h>
+#include <sys/param.h>
 
 #include "dumpemacs.h"
 
@@ -20,8 +21,47 @@ int runit(const char * const argv[], int dropprivs)
   int ret;
 
 #ifdef _DEBUG
-  printf("Forking; will try to exec %s %s after the fork...\n", argv[0],
-         ((argv[1] != NULL) ? argv[1] : ""));
+  char *whole_argstring = NULL;
+  int i;
+  size_t prev_size = (ARG_MAX + 1UL);
+  char *retstring;
+
+  whole_argstring = (char *)malloc(prev_size);
+
+  bzero(whole_argstring, prev_size);
+
+  for (i = 0; argv[i] != NULL; i++) {
+# if (_DEBUG > 1)
+    printf("arg %d is %s.\n", i, argv[i]);
+# endif /* (_DEBUG > 1) */
+    prev_size += strlen(argv[i]);
+    if (whole_argstring != NULL) {
+      whole_argstring = (char *)reallocf(whole_argstring, prev_size);
+    } else {
+      err(1, "failed to allocate memory for string");
+    }
+    if ((strlen(argv[i]) + 1UL) > prev_size) {
+      warn("%lu is greater than %lu; argstring printed will be truncated for arg %d",
+           (strlen(argv[i]) + 1UL), prev_size, i);
+    }
+
+    retstring = strncat(whole_argstring, argv[i], (prev_size - 1UL));
+    if (retstring == NULL) {
+      warn("argstring concatenation failed for arg %d", i);
+    }
+    retstring = strncat(whole_argstring, " ", (prev_size - 1UL));
+    if (retstring == NULL) {
+      warn("failed to pad arg %d with an extra space", i);
+    }
+    retstring = NULL;
+  }
+# ifndef __clang_analyzer__
+  prev_size = 0UL;
+# endif /* !__clang_analyzer__ */
+  printf("Forking; will try to exec %s after the fork...\n",
+         whole_argstring);
+  free(whole_argstring);
+  whole_argstring = NULL;
 #endif /* _DEBUG */
   child = fork();
   if (child == 0) {
@@ -69,7 +109,7 @@ int runit(const char * const argv[], int dropprivs)
         }
       }
       loop_counter++;
-      /* oops, nvm, I think clang was right... */
+      /* oops, nvm, I think clang was right about that variable... */
     } while (1);
   }
 

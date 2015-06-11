@@ -65,11 +65,10 @@ int is_emacs_valid(int debugflag)
   return 1;
 }
 
-/* FIXME: steal code from the machocheck program that comes with ld64 to
- * call from here */
-
 /* The Makefile will define this for us when building the executable: */
 #ifdef STANDALONE_ISEMACSVALID
+/* a header providing a library interface to the machochecker program,
+ * whose sources we stole from ld64: */
 # include "machochecker.h"
 int main(int argc, const char* argv[])
 {
