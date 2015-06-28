@@ -699,7 +699,7 @@ set_acls (struct permission_context *ctx, const char *name, int desc,
       if (desc != -1)
 	ret = fchacl (desc, &ctx->u.a, ctx->u.a.acl_len);
       else
-	ret = chacl (name, &ctx->u.a, ctx->u.a.acl_len);
+	ret = chacl ((char *) name, &ctx->u.a, ctx->u.a.acl_len);
       if (ret < 0)
 	{
 	  if (errno == ENOSYS && from_mode)
@@ -774,7 +774,7 @@ set_permissions (struct permission_context *ctx, const char *name, int desc)
 
   early_chmod = false;
 # else
-  /* All other plaforms */
+  /* All other platforms */
   /* On Cygwin, it is necessary to call chmod before acl, because
      chmod can change the contents of the ACL (in ways that don't
      change the allowed accesses, but still visible).  */

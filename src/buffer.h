@@ -1114,7 +1114,7 @@ extern struct buffer *current_buffer;
    Setting the default value also goes through the alist of buffers
    and stores into each buffer that does not say it has a local value.  */
 
-extern struct buffer buffer_defaults;
+extern struct buffer alignas (GCALIGNMENT) buffer_defaults;
 
 /* This structure marks which slots in a buffer have corresponding
    default values in buffer_defaults.

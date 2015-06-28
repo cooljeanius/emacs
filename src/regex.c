@@ -5155,21 +5155,23 @@ re_match_2_internal (struct re_pattern_buffer *bufp, const_re_char *string1,
 	    {
 	      /* 1 if this match ends in the same string (string1 or string2)
 		 as the best previous match.  */
-	      boolean same_str_p = (FIRST_STRING_P (match_end)
-				    == FIRST_STRING_P (d));
-	      /* 1 if this match is the best seen so far.  */
+	      boolean same_str_p;
+	      /* 1 if this match is the best seen so far: */
 	      boolean best_match_p;
+
+	      same_str_p = (FIRST_STRING_P(match_end)
+	                    == FIRST_STRING_P(d));
 
 	      /* AIX compiler got confused when this was combined
 		 with the previous declaration.  */
 	      if (same_str_p)
-		best_match_p = d > match_end;
+		best_match_p = (d > match_end);
 	      else
-		best_match_p = !FIRST_STRING_P (d);
+		best_match_p = !FIRST_STRING_P(d);
 
-	      DEBUG_PRINT ("backtracking.\n");
+	      DEBUG_PRINT("backtracking.\n");
 
-	      if (!FAIL_STACK_EMPTY ())
+	      if (!FAIL_STACK_EMPTY())
 		{ /* More failure points to try.  */
 
 		  /* If exceeds best match so far, save it.  */

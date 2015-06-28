@@ -1,4 +1,4 @@
-/* Record indices of function doc strings stored in a file.
+/* doc.c: Record indices of function doc strings stored in a file.
 
 Copyright (C) 1985-1986, 1993-1995, 1997-2014 Free Software Foundation, Inc.
 
@@ -838,59 +838,61 @@ Otherwise, return a new string, without any text properties.  */)
 	{
 	  struct buffer *oldbuf;
 	  ptrdiff_t start_idx;
-	  /* This is for computing the SHADOWS arg for describe_map_tree.  */
-	  Lisp_Object active_maps = Fcurrent_active_maps (Qnil, Qnil);
+	  /* This is for computing the SHADOWS arg for describe_map_tree: */
+	  Lisp_Object active_maps;
 	  Lisp_Object earlier_maps;
-	  ptrdiff_t count = SPECPDL_INDEX ();
+	  ptrdiff_t count;
 
 	  changed = 1;
 	  strp += 2;		/* skip \{ or \< */
 	  start = strp;
-	  start_idx = start - SDATA (string);
+	  start_idx = (start - SDATA(string));
 
-	  while ((strp - SDATA (string) < SBYTES (string))
-		 && *strp != '}' && *strp != '>')
+	  while (((strp - SDATA(string)) < SBYTES(string))
+		 && (*strp != '}') && (*strp != '>'))
 	    strp++;
 
-	  length_byte = strp - start;
+	  length_byte = (strp - start);
 	  strp++;			/* skip } or > */
 
-	  /* Save STRP in IDX.  */
-	  idx = strp - SDATA (string);
+	  /* Save STRP in IDX: */
+	  idx = (strp - SDATA(string));
 
 	  /* Get the value of the keymap in TEM, or nil if undefined.
 	     Do this while still in the user's current buffer
 	     in case it is a local variable.  */
-	  name = Fintern (make_string ((char *) start, length_byte), Qnil);
-	  tem = Fboundp (name);
-	  if (! NILP (tem))
+	  name = Fintern(make_string((char *)start, length_byte), Qnil);
+	  tem = Fboundp(name);
+	  if (! NILP(tem))
 	    {
-	      tem = Fsymbol_value (name);
-	      if (! NILP (tem))
+	      tem = Fsymbol_value(name);
+	      if (! NILP(tem))
 		{
-		  tem = get_keymap (tem, 0, 1);
-		  /* Note that get_keymap can GC.  */
-		  strp = SDATA (string) + idx;
-		  start = SDATA (string) + start_idx;
+		  tem = get_keymap(tem, 0, 1);
+		  /* Note that get_keymap can GC: */
+		  strp = (SDATA(string) + idx);
+		  start = (SDATA(string) + start_idx);
 		}
 	    }
 
-	  /* Now switch to a temp buffer.  */
+	  /* Now switch to a temp buffer: */
 	  oldbuf = current_buffer;
-	  set_buffer_internal (XBUFFER (Vprin1_to_string_buffer));
+	  set_buffer_internal(XBUFFER(Vprin1_to_string_buffer));
 	  /* This is for an unusual case where some after-change
 	     function uses 'format' or 'prin1' or something else that
 	     will thrash Vprin1_to_string_buffer we are using.  */
-	  specbind (Qinhibit_modification_hooks, Qt);
+	  specbind(Qinhibit_modification_hooks, Qt);
 
-	  if (NILP (tem))
+          active_maps = Fcurrent_active_maps(Qnil, Qnil);
+
+	  if (NILP(tem))
 	    {
-	      name = Fsymbol_name (name);
-	      insert_string ("\nUses keymap `");
-	      insert_from_string (name, 0, 0,
-				  SCHARS (name),
-				  SBYTES (name), 1);
-	      insert_string ("', which is not currently defined.\n");
+	      name = Fsymbol_name(name);
+	      insert_string("\nUses keymap `");
+	      insert_from_string(name, 0, 0,
+				 SCHARS(name),
+				 SBYTES(name), 1);
+	      insert_string("', which is not currently defined.\n");
 	      if (start[-1] == '<') keymap = Qnil;
 	    }
 	  else if (start[-1] == '<')
@@ -899,31 +901,32 @@ Otherwise, return a new string, without any text properties.  */)
 	    {
 	      /* Get the list of active keymaps that precede this one.
 		 If this one's not active, get nil.  */
-	      earlier_maps = Fcdr (Fmemq (tem, Freverse (active_maps)));
-	      describe_map_tree (tem, 1, Fnreverse (earlier_maps),
-				 Qnil, 0, 1, 0, 0, 1);
+	      earlier_maps = Fcdr(Fmemq(tem, Freverse(active_maps)));
+	      describe_map_tree(tem, 1, Fnreverse(earlier_maps),
+                                Qnil, 0, 1, 0, 0, 1);
 	    }
-	  tem = Fbuffer_string ();
-	  Ferase_buffer ();
-	  set_buffer_internal (oldbuf);
-	  unbind_to (count, Qnil);
+	  tem = Fbuffer_string();
+	  Ferase_buffer();
+	  set_buffer_internal(oldbuf);
+          count = SPECPDL_INDEX();
+	  unbind_to(count, Qnil);
 
 	subst_string:
-	  start = SDATA (tem);
-	  length = SCHARS (tem);
-	  length_byte = SBYTES (tem);
+	  start = SDATA(tem);
+	  length = SCHARS(tem);
+	  length_byte = SBYTES(tem);
 	subst:
 	  {
-	    ptrdiff_t offset = bufp - buf;
-	    if (STRING_BYTES_BOUND - length_byte < bsize)
-	      string_overflow ();
-	    buf = xrealloc (buf, bsize += length_byte);
-	    bufp = buf + offset;
-	    memcpy (bufp, start, length_byte);
+	    ptrdiff_t offset = (bufp - buf);
+	    if ((STRING_BYTES_BOUND - length_byte) < bsize)
+	      string_overflow();
+	    buf = xrealloc(buf, bsize += length_byte);
+	    bufp = (buf + offset);
+	    memcpy(bufp, start, length_byte);
 	    bufp += length_byte;
 	    nchars += length;
-	    /* Check STRING again in case gc relocated it.  */
-	    strp = SDATA (string) + idx;
+	    /* Check STRING again in case gc relocated it: */
+	    strp = (SDATA(string) + idx);
 	  }
 	}
       else if (! multibyte)		/* just copy other chars */
@@ -932,11 +935,11 @@ Otherwise, return a new string, without any text properties.  */)
 	{
 	  int len;
 
-	  STRING_CHAR_AND_LENGTH (strp, len);
+	  STRING_CHAR_AND_LENGTH(strp, len);
 	  if (len == 1)
 	    *bufp = *strp;
 	  else
-	    memcpy (bufp, strp, len);
+	    memcpy(bufp, strp, len);
 	  strp += len;
 	  bufp += len;
 	  nchars++;

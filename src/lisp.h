@@ -3622,9 +3622,9 @@ extern intmax_t cons_to_signed (Lisp_Object, intmax_t, intmax_t);
 extern uintmax_t cons_to_unsigned (Lisp_Object, uintmax_t);
 
 #if defined(_USE_OLD_LISP_DATA_STRUCTURES) && defined(P_)
-extern Lisp_Object indirect_variable P_ ((Lisp_Object));
+extern Lisp_Object indirect_variable P_((Lisp_Object));
 #else
-extern struct Lisp_Symbol *indirect_variable (struct Lisp_Symbol *);
+extern struct Lisp_Symbol *indirect_variable(struct Lisp_Symbol *);
 #endif /* _USE_OLD_LISP_DATA_STRUCTURES && P_ */
 extern Lisp_Object long_to_cons (unsigned long);
 extern unsigned long cons_to_long (Lisp_Object);

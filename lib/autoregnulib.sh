@@ -2,7 +2,7 @@
 
 # The gnulib commit ID to use for the update.
 # If you know your version is newer, feel free to replace:
-GNULIB_COMMIT_SHA1="b287b621969d5a3f56058ff01e554839814da4e1"
+GNULIB_COMMIT_SHA1="49078a780041205fbbab56802033595eb44f854d"
 
 if [ $# -ne 1 ]; then
    echo "Warning: Path to gnulib repository missing."
@@ -71,20 +71,20 @@ else
       faccessat fcntl fcntl-h fdatasync fdopendir file-has-acl filemode \
       float fopen fpending fpieee fpucw fseek fseeko fstat fstatat fsync \
       ftell ftello ftoastr ftruncate func \
-      gendocs getdelim getdtablesize getgroups getline getloadavg \
+      gendocs getdelim getdtablesize getgroups gethostname getline getloadavg \
       getlogin getopt-gnu getopt-posix getpagesize getpass getpass-gnu \
       gettext gettext-h gettime gettimeofday \
       git-version-gen gitlog-to-changelog gnu-make group-member \
       havelib host-cpu-c-abi host-os \
-      include_next inline intprops inttypes-incomplete \
+      ignore-value include_next inline intprops inttypes-incomplete \
       largefile ldd longlong lseek lstat \
       manywarnings math mbsinit memchr memrchr mkostemp mktime multiarch \
       nextafter no-c++ nocrash \
       obstack openat openat-h openmp \
-      pathmax pipe2 posix_spawnp printf-safe progname pselect \
+      pathmax perror pipe2 posix_spawnp printf-safe progname pselect \
       pthread_sigmask putenv \
       qacl qcopy-acl quote quotearg quotearg-simple \
-      readdir readlink readlinkat rename rmdir root-uid \
+      read readdir readlink readlinkat rename rmdir root-uid \
       sched secure_getenv sig2str signal-h sigpipe sleep \
       snippet/_Noreturn snippet/link-warning snippet/unused-parameter \
       snippet/warn-on-use socklen spawn ssize_t stat stat-time stdalign \
@@ -92,9 +92,9 @@ else
       strerror strftime string strstr strtoimax strtoumax symlink \
       sys_ioctl sys_resource sys_select sys_stat sys_time sys_types \
       tempname time time_r timer-time timespec timespec-add timespec-sub \
-      u64 unistd unsetenv update-copyright utimens \
+      u64 uname unistd unsetenv update-copyright utimens \
       vararrays va-args vc-list-files verify vla vma-iter \
-      warnings wchar wctype-h winsz-ioctl winsz-termios \
+      waitpid warnings wchar wctype-h winsz-ioctl winsz-termios write \
       xalloc xalloc-die xalloc-oversized"
    # Ones I am tempted to add, but cannot:
    # - atexit, which is obsolete
@@ -105,6 +105,8 @@ else
    # - obstack-printf, which drags in all the vasnprintf stuff
    # - fprintf-posix and vfprintf-posix also depend on vasnprintf, as does
    #   printf-posix, which gets it indirectly via vfprintf-posix
+   # - likewise with snprintf and snprintf-posix
+   # - sigaction, which depends on sigprocmask, which is avoided
    # (even though I cannot add them, there is no need to explicitly ignore
    # them below, though)
    # Other obsolete modules that I have stopped explicitly adding:

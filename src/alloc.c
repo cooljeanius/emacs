@@ -1539,20 +1539,20 @@ static char const string_overrun_cookie[GC_STRING_OVERRUN_COOKIE_SIZE] =
    arithmetic in allocate_string_data would overflow while it is
    calculating a value to be passed to malloc.  */
 static ptrdiff_t const STRING_BYTES_MAX =
-  min (STRING_BYTES_BOUND,
-       ((SIZE_MAX - XMALLOC_OVERRUN_CHECK_OVERHEAD
-	 - GC_STRING_EXTRA
-	 - offsetof (struct sblock, data)
-	 - SDATA_DATA_OFFSET)
-	& ~(sizeof (EMACS_INT) - 1)));
+  min(STRING_BYTES_BOUND,
+      (((SIZE_MAX - XMALLOC_OVERRUN_CHECK_OVERHEAD)
+        - GC_STRING_EXTRA
+        - offsetof(struct sblock, data)
+        - SDATA_DATA_OFFSET)
+       & ~(sizeof(EMACS_INT) - 1L)));
+/* FIXME: non-constant? */
 
-/* Initialize string allocation.  Called from init_alloc_once.  */
-
+/* Initialize string allocation.  Called from init_alloc_once: */
 static void
-init_strings (void)
+init_strings(void)
 {
-  empty_unibyte_string = make_pure_string ("", 0, 0, 0);
-  empty_multibyte_string = make_pure_string ("", 0, 0, 1);
+  empty_unibyte_string = make_pure_string("", 0, 0, 0);
+  empty_multibyte_string = make_pure_string("", 0, 0, 1);
 }
 
 
@@ -2106,17 +2106,18 @@ INIT must be an integer that represents a character.  */)
    Return A.  */
 
 Lisp_Object
-bool_vector_fill (Lisp_Object a, Lisp_Object init)
+bool_vector_fill(Lisp_Object a, Lisp_Object init)
 {
-  EMACS_INT nbits = bool_vector_size (a);
+  EMACS_INT nbits = bool_vector_size(a);
   if (0 < nbits)
     {
-      unsigned char *data = bool_vector_uchar_data (a);
-      int pattern = NILP (init) ? 0 : (1 << BOOL_VECTOR_BITS_PER_CHAR) - 1;
-      ptrdiff_t nbytes = bool_vector_bytes (nbits);
-      int last_mask = ~ (~0 << ((nbits - 1) % BOOL_VECTOR_BITS_PER_CHAR + 1));
-      memset (data, pattern, nbytes - 1);
-      data[nbytes - 1] = pattern & last_mask;
+      unsigned char *data = bool_vector_uchar_data(a);
+      int pattern = (NILP(init)
+                     ? 0 : ((1 << BOOL_VECTOR_BITS_PER_CHAR) - 1));
+      ptrdiff_t nbytes = bool_vector_bytes(nbits);
+      int last_mask = ~(~0 << (((nbits - 1) % BOOL_VECTOR_BITS_PER_CHAR) + 1));
+      memset(data, pattern, (nbytes - 1L));
+      data[nbytes - 1L] = pattern & last_mask;
     }
   return a;
 }
@@ -6786,13 +6787,13 @@ which_symbols (Lisp_Object obj, EMACS_INT find_max)
 bool suppress_checking;
 
 void
-die (const char *msg, const char *file, int line)
+die(const char *msg, const char *file, int line)
 {
-  fprintf (stderr, "\r\n%s:%d: Emacs fatal error: assertion failed: %s\r\n",
-	   file, line, msg);
-  terminate_due_to_signal (SIGABRT, INT_MAX);
+  fprintf(stderr, "\r\n%s:%d: Emacs fatal error: assertion failed: %s\r\n",
+	  file, line, msg);
+  terminate_due_to_signal(SIGABRT, INT_MAX);
 }
-#endif
+#endif /* ENABLE_CHECKING */
 
 /* Initialization: */
 void

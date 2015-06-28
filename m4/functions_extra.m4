@@ -125,6 +125,9 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_FUNC_CHECKS],[
       ])dnl
     ])dnl
   ])dnl# end replication of problematic macro call stack
+  m4_ifdef([gl_FUNC_PERROR],[
+    AC_REQUIRE([gl_FUNC_PERROR])dnl
+  ])dnl
   m4_ifdef([gl_FUNC_POSIX_SPAWN_FILE_ACTIONS_ADDCLOSE],[
     AC_REQUIRE([gl_FUNC_POSIX_SPAWN_FILE_ACTIONS_ADDCLOSE])dnl
   ])dnl
@@ -137,6 +140,9 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_FUNC_CHECKS],[
   m4_ifdef([gl_FUNC_RAWMEMCHR],[
     AC_REQUIRE([gl_FUNC_RAWMEMCHR])dnl
   ])dnl
+  m4_ifdef([gl_FUNC_READ],[
+    AC_REQUIRE([gl_FUNC_READ])dnl
+  ])dnl
   dnl# we override this, but still need to subst something from the
   dnl# overriding version:
   m4_ifdef([gl_FUNC_SELECT],[
@@ -144,6 +150,11 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_FUNC_CHECKS],[
   ])dnl
   m4_ifdef([gl_FUNC_STRCHRNUL],[
     AC_REQUIRE([gl_FUNC_STRCHRNUL])dnl
+  ])dnl
+  m4_ifdef([gl_FUNC_STRERROR_R],[
+    AC_REQUIRE([gl_FUNC_STRERROR_R])dnl
+  ],[
+    AC_REQUIRE([AC_FUNC_STRERROR_R])dnl
   ])dnl
   m4_ifdef([gl_FUNC_GNU_STRFTIME],[
     AC_REQUIRE([gl_FUNC_GNU_STRFTIME])dnl
@@ -174,6 +185,20 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_FUNC_CHECKS],[
     ],[
       AC_CHECK_FUNCS([strstr])dnl
     ])dnl
+  ])dnl
+  m4_ifdef([gl_FUNC_UNAME],[
+    AC_REQUIRE([gl_FUNC_UNAME])dnl
+  ],[
+    if test "x${ac_cv_func_uname}" = "x"; then
+      test -z "${ac_cv_func_uname}"
+      AC_CHECK_FUNCS([uname])
+    fi
+  ])dnl
+  m4_ifdef([gl_FUNC_WAITPID],[
+    AC_REQUIRE([gl_FUNC_WAITPID])dnl
+  ])dnl
+  m4_ifdef([gl_FUNC_WRITE],[
+    AC_REQUIRE([gl_FUNC_WRITE])dnl
   ])dnl
 ])dnl# end macro definition
 

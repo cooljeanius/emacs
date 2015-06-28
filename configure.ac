@@ -2979,7 +2979,7 @@ gl_GCC_VERSION_IFELSE([4],[5],[
           gl_COMPILER_OPTION_IF([-ffat-lto-objects],
             [CFLAGS="${CFLAGS} -ffat-lto-objects"])dnl# end check for flag
         ])dnl# end code for gcc4.9+
-        ## end case for compiling with gcc lto
+        ##end case for compiling with gcc lto
      elif test "x${ac_cv_ld_lto_supported}" = "xyes"; then
         LDFLAGS="${LDFLAGS} ${LTO}"
      fi
@@ -3126,10 +3126,13 @@ else
   nw="${nw} -Wvla"       # warnings in "gettext.h", and Emacs uses <vla.h>.
   nw="${nw} -Wnested-externs"          # use of XARGMATCH/verify_function__
   nw="${nw} -Winline"                               # OK to ignore 'inline'
-  nw="${nw} -Wjump-misses-init"       # We sometimes safely jump over init.
-  nw="${nw} -Wstrict-overflow"  # OK to assume signed overflow is undefined
+  # I am leaving "-Wjump-misses-init" on; I am distrustful of the assertion
+  # that we sometimes safely jump over init.
+  nw="${nw} -Wstrict-overflow"       # use it with a specific value instead
   nw="${nw} -Wsync-nand"       # irrelevant here, and provokes ObjC warning
-  nw="${nw} -Wunsafe-loop-optimizations"  # OK to stop unsafe optimizations
+  # I am leaving "-Wunsafe-loop-optimizations" on; the warning is not so
+  # much about the unsafe optimizations being stopped, as it is about the
+  # loops possibly going infinite unintentionally.
   nw="${nw} -Wbad-function-cast"    # These casts are no worse than others.
   nw="${nw} -Wignored-qualifiers"                        # invalid for ObjC
   nw="${nw} -Wopenmp-simd"                               # invalid for ObjC
@@ -3167,6 +3170,7 @@ else
     # Same "shorten-the-command-line" reasoning as above:
     nw="${nw} -Wformat-extra-args"
     nw="${nw} -Wtautological-constant-out-of-range-compare"
+    nw="${nw} -Wpointer-sign"
     nw="${nw} -Wunused-command-line-argument"
     nw="${nw} -Wunused-value"
   else
@@ -3190,6 +3194,8 @@ else
       nw="${nw} -Wmissing-prototypes"
       nw="${nw} -Wmissing-declarations"
     fi  ##end check for g3 flags
+    # Same "shorten-the-command-line" reasoning as above:
+    nw="${nw} -Wpointer-sign"
   fi  ##end check for Apple compiler
 
   gl_MANYWARN_ALL_GCC([ws])
@@ -3251,6 +3257,9 @@ else
     dnl# comments discovered the following warning flag with gcc 4.9:
     gl_WARN_ADD([-Wnonportable-cfstrings])dnl
 
+    dnl# We removed this above to retry it with a specific value here:
+    gl_WARN_ADD([-Wstrict-overflow=1])dnl
+
     dnl# These next ones are linker warnings, which we do need to keep
     dnl# conditionalized on the vendor, because preprocessor macro
     dnl# declarations (which is what 'emacs_cv_apple' is based on) tell us
@@ -3280,8 +3289,8 @@ else
           if test "x${LD_PRINT_OPTIONS}" != "x" || test "x${LD_PRINT_ORDER_FILE_STATISTICS}" != "x" || test "x${PRINT_COMMAND}" != "x"; then
             test -n "${PRINT_COMMAND}" || test -n "${LD_PRINT_OPTIONS}" || test -n "${LD_PRINT_ORDER_FILE_STATISTICS}"
             gl_WARN_ADD([${acl_cv_wl}-print_statistics],[WARN_LDFLAGS])
-          fi  ## end check for a few printing-related ld envvars
-        fi  ## end check for debugging symbols envvars
+          fi  ##end check for a few printing-related ld envvars
+        fi  ##end check for debugging symbols envvars
         test -n "${LD_WARN_FILE}"
         gl_WARN_ADD([${acl_cv_wl}-warn_compact_unwind],[WARN_LDFLAGS])
         gl_WARN_ADD([${acl_cv_wl}-warn_weak_exports],[WARN_LDFLAGS])
@@ -3535,6 +3544,12 @@ else
       else
         AC_MSG_NOTICE([-Wterminate is only relevant for C++, skipping it])
       fi  ##end check for C++ compiler
+      if test "x${ac_cv_lto_supported}" = "xyes" || test -n "${LTO}"; then
+        gl_WARN_ADD([-Wlto-type-mismatch])
+      else
+        nw="${nw} -Wlto-type-mismatch"
+        AC_MSG_NOTICE([-Wlto-type-mismatch is only relevant when using LTO, skipping it])
+      fi  ##end check for LTO
     ],[
       AC_MSG_NOTICE([skipping checks for warnings for gcc 6.0 or newer])
     ])dnl# end block of code for gcc trunk
@@ -3570,6 +3585,10 @@ else
   nw="${nw} -Wc90-c99-compat"   # Emacs/gnulib both use boolean types a lot
   nw="${nw} -Wc99-c11-compat"       # Emacs/gnulib both use _Noreturn a lot
   nw="${nw} -Wsuggest-attribute=const"                                # meh
+  nw="${nw} -Wformat-signedness"                 # shorten the command line
+
+  dnl# see if this will silence a warning in error.c:
+  gl_WARN_ADD([-Wno-format-signedness],[GNULIB_WARN_CFLAGS])dnl
 
   dnl# m4/manywarnings.m4 skips this one, because, apparently:
   dnl# "FIXME maybe? too many false positives"
@@ -3588,6 +3607,7 @@ if test "x${gl_better_debugging}" = "xyes"; then
   gl_WARN_ADD([-fno-eliminate-unused-debug-symbols],[BETTER_DEBUG_CFLAGS])
   gl_WARN_ADD([-fbounds-check],[BETTER_DEBUG_CFLAGS])
   gl_WARN_ADD([-fstack-check],[BETTER_DEBUG_CFLAGS])
+  gl_WARN_ADD([-ftrapv],[BETTER_DEBUG_CFLAGS])
   gl_WARN_ADD([-gstrict-dwarf],[BETTER_DEBUG_CFLAGS])
   AC_SUBST([BETTER_DEBUG_CFLAGS])dnl
   ## Is that enough?
@@ -5028,7 +5048,7 @@ if test "x${with_ns}" != "xno" || test "x${MAC_OBJC_OBJ}" != "x"; then
     gl_WARN_ADD([-Wprotocol],[GNU_OBJC_WARN_CFLAGS])
     gl_GCC_VERSION_IFELSE([5],[0],[
       gl_WARN_ADD([-Wshadow-ivar],[GNU_OBJC_WARN_CFLAGS])
-    ])
+    ])dnl
     ## these two selector-related warnings can be overly noisy:
     if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
       test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
@@ -5042,6 +5062,7 @@ if test "x${with_ns}" != "xno" || test "x${MAC_OBJC_OBJ}" != "x"; then
     ## this selector-related warning is perfectly fine though:
     gl_WARN_ADD([-Wundeclared-selector],[GNU_OBJC_WARN_CFLAGS])
     ## some Objective C compilers have buggy support for method attributes:
+    nw="${nw} -Wmissing-noreturn"
     gl_WARN_ADD([-Wno-missing-noreturn],[GNU_OBJC_WARN_CFLAGS])
     ## in case the C compiler forgot to add it:
     if test -z "${emacs_g3_OBJCFLAGS}"; then
@@ -5353,6 +5374,9 @@ if test "x${window_system}" = "xnone" && test "x${gl_gcc_warnings}" = "xyes"; th
    nw="${nw} -Wsuggest-attribute=noreturn"
    gl_MANYWARN_COMPLEMENT([WARN_CFLAGS],[${WARN_CFLAGS}],[${nw}])dnl
 
+   nw="${nw} -Wunused-variable"
+   nw="${nw} -Wunused-but-set-variable"
+   nw="${nw} -Wunused-but-set-parameter"
    gl_WARN_ADD([-Wno-unused-variable])
    gl_WARN_ADD([-Wno-unused-but-set-variable])
    gl_WARN_ADD([-Wno-unused-but-set-parameter])
@@ -6910,66 +6934,68 @@ dnl# now subst:
 AC_SUBST([LIBXPM])dnl
 
 ### Use -ljpeg if available, unless `--with-jpeg=no'.
-### mingw32 does NOT use -ljpeg, since it loads the library dynamically.
 HAVE_JPEG=no
 LIBJPEG=""
-if test "x${opsys}" = "xmingw32"; then
-  if test "x${with_jpeg}" != "xno"; then
-    dnl# Checking for jpeglib.h can lose because of a redefinition of
-    dnl# HAVE_STDLIB_H, so do it conditionally:
-    if test "x${ac_cv_header_stdlib_h}" = "x"; then
-      test -z "${ac_cv_header_stdlib_h}"
-      AC_CHECK_HEADER([jpeglib.h],[HAVE_JPEG=yes],[:])
-    fi
-    dnl# and also check for this just in case:
-    AC_CHECK_HEADER([jerror.h],[HAVE_JPEG=yes],[HAVE_JPEG=no])
+if test "x${with_jpeg}" != "xno"; then
+  dnl# Checking for jpeglib.h can lose because of a redefinition of
+  dnl# HAVE_STDLIB_H, so do it conditionally:
+  if test "x${ac_cv_header_stdlib_h}" = "x"; then
+    test -z "${ac_cv_header_stdlib_h}"
+    AC_CHECK_HEADER([jpeglib.h],[HAVE_JPEG=yes],[:])
   fi
-  AH_TEMPLATE([HAVE_JPEG],
-              [Define to 1 if you have the jpeg library (-ljpeg).])dnl
-  if test "x${HAVE_JPEG}" = "xyes"; then
-    AC_DEFINE([HAVE_JPEG])dnl
-    ##FIXME: this conftest seems to have broken:
-    AC_EGREP_CPP([version= *(6[2-9]|[7-9][0-9])],
-        [#include <jpeglib.h>
-	 version=JPEG_LIB_VERSION
-        ],[AC_DEFINE([HAVE_JPEG])],
-        [AC_MSG_WARN([libjpeg found, but not version 6b or later])
-         HAVE_JPEG=no])
-  fi
-elif test "x${HAVE_X11}" = "xyes" || test "x${HAVE_W32}" = "xyes"; then
-  if test "x${with_jpeg}" != "xno"; then
-    dnl# Checking for jpeglib.h can lose because of a redefinition of
-    dnl# HAVE_STDLIB_H, so do it conditionally:
-    if test "x${ac_cv_header_stdlib_h}" = "x"; then
-      test -z "${ac_cv_header_stdlib_h}"
-      AC_CHECK_HEADER([jpeglib.h],[HAVE_JPEG=yes],[:])
-    fi
-    dnl# and also check for this just in case:
-    AC_CHECK_HEADER([jerror.h],
-      [AC_CHECK_LIB([jpeg],[jpeg_destroy_compress],[HAVE_JPEG=yes],
-        [AC_CHECK_LIB([jpeg],[main],[HAVE_JPEG=yes],
-          [AC_SEARCH_LIBS([jpeg_destroy_compress],
-                          [jpeg jpeg-turbo mozjpeg],[HAVE_JPEG=yes])
-        ])dnl
+  dnl# and also check for this just in case:
+  AC_CHECK_HEADER([jerror.h],
+    [AC_CHECK_LIB([jpeg],[jpeg_destroy_compress],[HAVE_JPEG=yes],
+      [AC_CHECK_LIB([jpeg],[main],[HAVE_JPEG=yes],
+        [AC_SEARCH_LIBS([jpeg_destroy_compress],
+                        [jpeg jpeg-turbo mozjpeg],[HAVE_JPEG=yes])
       ])dnl
     ])dnl
-    ## ...okay, should be good.
-  fi
+  ])dnl
+  ## ...okay, should be good... for that part, at least.
 
-  AH_TEMPLATE([HAVE_JPEG],
-              [Define to 1 if you have the jpeg library (-ljpeg).])dnl
   if test "x${HAVE_JPEG}" = "xyes"; then
-    AC_DEFINE([HAVE_JPEG],[1])dnl
-    ##FIXME: this conftest seems to have broken:
-    AC_EGREP_CPP([version= *(6[2-9]|[7-9][0-9])],
-	[#include <jpeglib.h>
-	 version=JPEG_LIB_VERSION
-        ],[AC_DEFINE([HAVE_JPEG],[1])],
-	[AC_MSG_WARN([libjpeg found, but not version 6b or later])
-	 HAVE_JPEG=no])
+    AC_CACHE_CHECK([for jpeglib 6b or later],
+      [emacs_cv_jpeglib],
+      [OLD_LIBS="${LIBS}"
+       for emacs_cv_jpeglib in yes -ljpeg -ljpeg-turbo -lmozjpeg no; do
+         case ${emacs_cv_jpeglib} in
+	   yes) ;;
+           no) break;;
+	   *) LIBS="${LIBS} ${emacs_cv_jpeglib}";;
+         esac
+         AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+#undef HAVE_STDLIB_H /* Avoid config.h/jpeglib.h collision.  */
+#include <stdio.h> /* jpeglib.h needs FILE and size_t.  */
+#include <jpeglib.h>
+#include <jerror.h>
+char verify[JPEG_LIB_VERSION < 62 ? -1 : 1];
+struct jpeg_decompress_struct cinfo;
+	      ]],[[
+  jpeg_create_decompress(&cinfo);
+  WARNMS(&cinfo, JWRN_JPEG_EOF);
+  jpeg_destroy_decompress(&cinfo);
+	      ]])],
+	   [emacs_link_ok=yes],
+	   [emacs_link_ok=no])
+         LIBS="${OLD_LIBS}"
+         test "x${emacs_link_ok}" = "xyes" && break
+       done])dnl
+    ## hopefully it sets the cache value correctly...
+    if test "x${emacs_cv_jpeglib}" != "xno"; then
+      HAVE_JPEG=yes
+      AC_DEFINE([HAVE_JPEG],[1],
+        [Define to 1 if you have the jpeg library (typically -ljpeg).])
+    else
+      HAVE_JPEG=no
+    fi
   fi
   if test "x${HAVE_JPEG}" = "xyes"; then
-    LIBJPEG='-ljpeg'
+    ### mingw32 does NOT use -ljpeg, since it loads the library
+    ### dynamically when needed, and does NOT want a run-time
+    ### dependency on the jpeglib DLL.
+    test "x${emacs_cv_jpeglib}" != "xyes" && test "${opsys}" != "mingw32" \
+      && LIBJPEG="${emacs_cv_jpeglib}"
   fi
 else
   AC_MSG_NOTICE([skipping checks for libjpeg])
@@ -7651,7 +7677,12 @@ AC_FUNC_SELECT_ARGTYPES
 AC_FUNC_SETPGRP
 AC_FUNC_SETVBUF_REVERSED
 AC_FUNC_STAT
-AC_FUNC_STRERROR_R
+if test "x${ac_cv_func_strerror_r_char_p}" = "x"; then
+  test -z "${ac_cv_func_strerror_r_char_p}"
+  unset ac_cv_have_decl_strerror_r
+  unset ac_cv_func_strerror_r
+  AC_FUNC_STRERROR_R
+fi
 AC_FUNC_STRFTIME
 AC_FUNC_STRTOD
 AC_FUNC_UTIME_NULL
@@ -7671,6 +7702,11 @@ getifaddrs freeifaddrs gai_strerror mkstemp getline mremap sync \
 difftime memcpy mempcpy getpwent endpwent getgrent endgrent \
 touchlock \
 cfmakeraw cfsetspeed copysign __executable_start log2])dnl
+AC_CHECK_DECLS([cfmakeraw],[],[],[[
+#ifdef HAVE_TERMIOS_H
+# include <termios.h>
+#endif /* HAVE_TERMIOS_H */
+]])dnl
 m4_ifdef([AC_CHECK_FUNCS_ONCE],[
   AC_CHECK_FUNCS_ONCE([getdelim pthread_sigmask])dnl
 ],[
@@ -7710,7 +7746,7 @@ AC_CHECK_FUNCS([__fpending _stricmp acl atexit atof atoi btowc bzero \
                 setenv socket sqrt strcasecmp strcasestr strchr strcmp \
                 strcspn strdup strerror stricmp strlcat strlcpy \
                 strncasecmp strncat strncmp strnicmp strnstr strpbrk \
-                strrchr strtok strtol strtoul system xstricmp uname utime \
+                strrchr strtok strtol strtoul system xstricmp utime \
                 utmpname vfprintf])
 dnl# Keep autoscan happy with a dummy condition:
 if test "x" = "Y0"; then
@@ -7723,7 +7759,9 @@ if test "x" = "Y0"; then
     AC_CHECK_FUNCS([getdelim])dnl
   ])dnl
   AC_CHECK_FUNCS([alarm dup2 fchdir ftruncate getcwd gethostbyname \
-                  getpagesize gettimeofday localtime_r strtoumax tzset])
+                  getpagesize gettimeofday localtime_r strtoumax \
+                  tzset uname])dnl
+  ## just in case...
 fi
 
 dnl# No need to check for aligned_alloc and posix_memalign if using

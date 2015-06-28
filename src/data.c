@@ -29,6 +29,10 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <count-trailing-zeros.h>
 #include <intprops.h>
 
+#ifdef _USE_OLD_LISP_DATA_STRUCTURES
+# undef _USE_OLD_LISP_DATA_STRUCTURES
+#endif /* _USE_OLD_LISP_DATA_STRUCTURES */
+
 #include "lisp.h"
 #include "puresize.h"
 #include "character.h"
@@ -921,7 +925,7 @@ Value, if non-nil, is a list \(interactive SPEC).  */)
    indirections contains a loop.  */
 
 struct Lisp_Symbol *
-indirect_variable (struct Lisp_Symbol *symbol)
+indirect_variable(struct Lisp_Symbol *symbol)
 {
   struct Lisp_Symbol *tortoise, *hare;
 
@@ -929,18 +933,18 @@ indirect_variable (struct Lisp_Symbol *symbol)
 
   while (hare->redirect == SYMBOL_VARALIAS)
     {
-      hare = SYMBOL_ALIAS (hare);
+      hare = SYMBOL_ALIAS(hare);
       if (hare->redirect != SYMBOL_VARALIAS)
 	break;
 
-      hare = SYMBOL_ALIAS (hare);
-      tortoise = SYMBOL_ALIAS (tortoise);
+      hare = SYMBOL_ALIAS(hare);
+      tortoise = SYMBOL_ALIAS(tortoise);
 
       if (hare == tortoise)
 	{
 	  Lisp_Object tem;
-	  XSETSYMBOL (tem, symbol);
-	  xsignal1 (Qcyclic_variable_indirection, tem);
+	  XSETSYMBOL(tem, symbol);
+	  xsignal1(Qcyclic_variable_indirection, tem);
 	}
     }
 

@@ -13761,19 +13761,20 @@ redisplay_internal (void)
     }
   else if (FRAME_VISIBLE_P (sf) && !FRAME_OBSCURED_P (sf))
     {
-      Lisp_Object mini_window = FRAME_MINIBUF_WINDOW (sf);
+      Lisp_Object mini_window;
       struct frame *mini_frame;
 
-      displayed_buffer = XBUFFER (XWINDOW (selected_window)->contents);
+      displayed_buffer = XBUFFER(XWINDOW(selected_window)->contents);
       /* Use list_of_error, not Qerror, so that
 	 we catch only errors and don't run the debugger.  */
-      internal_condition_case_1 (redisplay_window_1, selected_window,
-				 list_of_error,
-				 redisplay_window_error);
+      internal_condition_case_1(redisplay_window_1, selected_window,
+                                list_of_error, redisplay_window_error);
+
+      mini_window = FRAME_MINIBUF_WINDOW(sf);
+
       if (update_miniwindow_p)
-	internal_condition_case_1 (redisplay_window_1, mini_window,
-				   list_of_error,
-				   redisplay_window_error);
+	internal_condition_case_1(redisplay_window_1, mini_window,
+				  list_of_error, redisplay_window_error);
 
       /* Compare desired and current matrices, perform output.  */
 

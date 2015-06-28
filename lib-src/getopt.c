@@ -211,33 +211,33 @@ exchange (char **argv, struct _getopt_data *d)
       if ((top - middle) > (middle - bottom))
 	{
 	  /* Bottom segment is the short one: */
-	  int len = (middle - bottom);
+	  size_t len = (size_t)(middle - bottom);
 	  register int i;
 
 	  /* Swap it with the top part of the top segment: */
-	  for (i = 0; i < len; i++)
+	  for (i = 0; i < (int)len; i++)
 	    {
 	      tem = argv[bottom + i];
 	      argv[bottom + i] = argv[top - (middle - bottom) + i];
 	      argv[top - (middle - bottom) + i] = tem;
-	      SWAP_FLAGS (bottom + i, top - (middle - bottom) + i);
+	      SWAP_FLAGS(bottom + i, top - (middle - bottom) + i);
 	    }
 	  /* Exclude the moved bottom segment from further swapping.  */
 	  top -= len;
 	}
       else
 	{
-	  /* Top segment is the short one.  */
-	  int len = top - middle;
+	  /* Top segment is the short one: */
+	  size_t len = (size_t)(top - middle);
 	  register int i;
 
 	  /* Swap it with the bottom part of the bottom segment.  */
-	  for (i = 0; i < len; i++)
+	  for (i = 0; i < (int)len; i++)
 	    {
 	      tem = argv[bottom + i];
 	      argv[bottom + i] = argv[middle + i];
 	      argv[middle + i] = tem;
-	      SWAP_FLAGS (bottom + i, middle + i);
+	      SWAP_FLAGS(bottom + i, middle + i);
 	    }
 	  /* Exclude the moved top segment from further swapping.  */
 	  bottom += len;

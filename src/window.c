@@ -1840,6 +1840,7 @@ POS, ROWH is the visible height of that row, and VPOS is the row number
       && pos_visible_p(w, posint, &x, &y, &rtop, &rbot, &rowh, &vpos)
       && ((fully_p = !rtop) && !rbot, (!NILP(partially) || fully_p)))
     in_window = Qt;
+  /* FIXME: '-Wunused-value' */
 
   if (!NILP(in_window) && !NILP(partially))
     {

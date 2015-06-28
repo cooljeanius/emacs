@@ -37,14 +37,14 @@ If you change it, you will make that program fail.\n";
 
 /* Like `read' but keeps trying until it gets SIZE bytes or reaches eof: */
 static int
-cool_read (int fd, char *buf, size_t size)
+cool_read(int fd, char *buf, size_t size)
 {
   ssize_t num;
   ssize_t sofar = 0;
 
   while (1)
     {
-      if ((num = read (fd, (buf + sofar), (size - sofar))) == 0)
+      if ((num = read(fd, (buf + sofar), (size - sofar))) == 0)
 	return sofar;
       else if (num < 0)
 	return num;
@@ -55,35 +55,40 @@ cool_read (int fd, char *buf, size_t size)
   return 0;
 }
 
+/* in case gnulib re-defined this on us: */
+#ifdef perror
+# undef perror
+#endif /* perror */
+
 int
-main (int argc, char **argv)
+main(int argc, char **argv)
 {
   int fd;
   char buf[300];
 
   if (argc != 2)
     {
-      fprintf (stderr, "Usage: %s testfile\n", argv[0]);
-      exit (EXIT_FAILURE);
+      fprintf(stderr, "Usage: %s testfile\n", argv[0]);
+      exit(EXIT_FAILURE);
     }
-  fd = open (argv[1], O_RDONLY);
+  fd = open(argv[1], O_RDONLY);
   if (fd < 0)
     {
-      perror (argv[1]);
-      exit (EXIT_FAILURE);
+      perror(argv[1]);
+      exit(EXIT_FAILURE);
     }
-  if (cool_read (fd, buf, sizeof string1) != sizeof string1 ||
-      strcmp (buf, string1) ||
-      cool_read (fd, buf, sizeof string2) != sizeof string2 - 1 ||
-      strncmp (buf, string2, sizeof string2 - 1))
+  if ((cool_read(fd, buf, sizeof(string1)) != sizeof(string1))
+      || strcmp(buf, string1)
+      || (cool_read(fd, buf, sizeof(string2)) != (sizeof(string2) - 1UL))
+      || strncmp(buf, string2, (sizeof(string2) - 1UL)))
     {
-      fprintf (stderr, "Data in file `%s' has been damaged.\n\
+      fprintf(stderr, "Data in file `%s' has been damaged.\n\
 Most likely this means that many nonprinting characters\n\
 have been corrupted in the files of Emacs, and it will not work.\n",
-	       argv[1]);
-      exit (EXIT_FAILURE);
+              argv[1]);
+      exit(EXIT_FAILURE);
     }
-  close (fd);
+  close(fd);
   return EXIT_SUCCESS;
 }
 
