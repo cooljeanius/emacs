@@ -965,9 +965,9 @@ extern void do_apple_menu P_((SInt16));
 extern void mac_prepare_for_quickdraw P_((struct frame *));
 #endif /* USE_CG_DRAWING */
 extern int mac_quit_char_key_p P_((UInt32, UInt32));
-#if 0
+#if !defined(EMACS_FRAME_H) || defined(COMING_FROM_MACTERM_C)
 Lisp_Object x_new_font P_((struct frame *, register const char *));
-#endif /* 0 */
+#endif /* !EMACS_FRAME_H || COMING_FROM_MACTERM_C */
 Lisp_Object x_new_fontset P_((struct frame *, const char *));
 extern void mac_initialize P_((void));
 extern void syms_of_macterm P_((void));
@@ -981,10 +981,15 @@ extern Lisp_Object Qmac_apple_event_class, Qmac_apple_event_id;
 extern Lisp_Object QCactions, Qcopy, Qlink, Qgeneric, Qprivate, Qmove, Qdelete;
 extern void x_clear_frame_selections P_((struct frame *));
 extern Lisp_Object mac_find_apple_event_spec P_((AEEventClass, AEEventID,
-                                                 Lisp_Object *, Lisp_Object *));
+                                                 Lisp_Object *,
+                                                 Lisp_Object *,
+                                                 Lisp_Object *));
 extern pascal OSErr mac_handle_apple_event P_((const AppleEvent *, AppleEvent *,
                                                SInt32));
 extern void cleanup_all_suspended_apple_events P_((void));
+extern void init_apple_event_handler P_((void));
+extern OSErr install_drag_handler P_((WindowRef));
+extern void remove_drag_handler P_((WindowRef));
 
 /* Defined in macfns.c */
 extern Lisp_Object Qbacking_scale_factor;
@@ -1000,9 +1005,14 @@ extern int x_pixel_width P_((struct frame *));
 extern int x_pixel_height P_((struct frame *));
 extern int x_char_width P_((struct frame *));
 extern int x_char_height P_((struct frame *));
+extern int x_screen_planes P_((struct frame *));
 extern void x_sync P_((struct frame *));
 extern void x_set_tool_bar_lines P_((struct frame *, Lisp_Object, Lisp_Object));
-extern bool mac_defined_color (struct frame *, const char *, XColor *, bool);
+#if 0
+extern bool mac_defined_color(struct frame *, const char *, XColor *, bool);
+#else
+extern int mac_defined_color(FRAME_PTR, char *, XColor *, int);
+#endif /* 0 */
 extern void mac_update_title_bar P_((struct frame *, int));
 extern Lisp_Object x_get_focus_frame P_((struct frame *));
 
@@ -1012,6 +1022,7 @@ extern void x_activate_menubar P_((struct frame *));
 extern void free_frame_menubar P_((struct frame *));
 extern Lisp_Object mac_popup_dialog P_((struct frame *, Lisp_Object,
                                         Lisp_Object));
+extern OSStatus install_menu_target_item_handler P_((WindowPtr));
 #ifdef MAC_APPKIT_M
 extern bool name_is_separator P_((const char *));
 #endif /* MAC_APPKIT_M */
@@ -1151,7 +1162,7 @@ extern void mac_draw_to_frame (struct frame *, GC, void (^)(CGContextRef, GC));
 extern CGContextRef mac_begin_cg_clip (struct frame *, GC);
 extern void mac_end_cg_clip (struct frame *);
 #endif /* DRAWING_USE_GCD && HAVE_CBLOCKS_LANGUAGE_FEATURE */
-extern void mac_scroll_area (struct frame *, GC, int, int, int, int, int, int);
+extern void mac_scroll_area(struct frame *, GC, int, int, int, int, int, int);
 extern Lisp_Object mac_display_monitor_attributes_list (struct mac_display_info *);
 extern void mac_create_scroll_bar (struct scroll_bar *);
 extern void mac_dispose_scroll_bar (struct scroll_bar *);

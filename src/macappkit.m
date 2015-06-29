@@ -1391,18 +1391,21 @@ mac_foreach_window (struct frame *f, int (^block) (struct window *))
 
 static EmacsController *emacsController;
 
-static void init_menu_bar (void);
-static void init_apple_event_handler (void);
-static void init_accessibility (void);
+static void init_menu_bar(void);
+#ifndef _EMACS_MACTERM_H
+static
+#endif /* !_EMACS_MACTERM_H */
+void init_apple_event_handler(void);
+static void init_accessibility(void);
 
-static BOOL is_action_selector (SEL);
-static BOOL is_services_handler_selector (SEL);
-static NSMethodSignature *action_signature (void);
-static NSMethodSignature *services_handler_signature (void);
-static void handle_action_invocation (NSInvocation *);
-static void handle_services_invocation (NSInvocation *);
+static BOOL is_action_selector(SEL);
+static BOOL is_services_handler_selector(SEL);
+static NSMethodSignature *action_signature(void);
+static NSMethodSignature *services_handler_signature(void);
+static void handle_action_invocation(NSInvocation *);
+static void handle_services_invocation(NSInvocation *);
 
-static void mac_update_accessibility_display_options (void);
+static void mac_update_accessibility_display_options(void);
 
 @implementation EmacsApplication
 
@@ -4469,22 +4472,23 @@ mac_change_frame_window_wm_state (struct frame *f, WMState flags_to_set,
 }
 
 Cursor
-mac_cursor_create (ThemeCursor shape, const XColor *fore_color,
-		   const XColor *back_color)
+mac_cursor_create(ThemeCursor shape, const XColor *fore_color,
+		  const XColor *back_color)
 {
   NSCursor *cursor = nil;
   NSImage *image;
   NSSize imageSize;
   NSEnumerator *enumerator;
   NSImageRep *rep;
-  enum {RED, GREEN, BLUE, ALPHA, NCOMPONENTS = ALPHA} c;
+  enum { RED, GREEN, BLUE, ALPHA, NCOMPONENTS = ALPHA } c;
   int fg[NCOMPONENTS], delta[NCOMPONENTS];
 
   if ((fore_color && fore_color->pixel != 0)
       || (back_color && back_color->pixel != 0xffffff))
     cursor = [NSCursor cursorWithThemeCursor:shape];
   if (cursor == nil)
-    return (Cursor)CFNumberCreate(NULL, kCFNumberSInt32Type, &shape);
+    return (Cursor)(intptr_t)CFNumberCreate(NULL, kCFNumberSInt32Type,
+                                            &shape);
 
   if (fore_color == NULL)
     fg[RED] = fg[GREEN] = fg[BLUE] = 0;
@@ -4546,42 +4550,42 @@ mac_cursor_create (ThemeCursor shape, const XColor *fore_color,
 	    {
 	      rep = [[[NSImage imageWithCGImage:cgImage exclusive:NO]
 		       representations] objectAtIndex:0];
-	      CGImageRelease (cgImage);
+	      CGImageRelease(cgImage);
 	    }
 	}
-      xfree (data);
+      xfree(data);
       [rep setSize:imageSize];
       [image addRepresentation:rep];
     }
   cursor = [[NSCursor alloc] initWithImage:image hotSpot:[cursor hotSpot]];
   MRC_RELEASE (image);
 
-  return (Cursor)CF_BRIDGING_RETAIN(MRC_AUTORELEASE(cursor));
+  return (Cursor)(intptr_t)CF_BRIDGING_RETAIN(MRC_AUTORELEASE(cursor));
 }
 
 void
 mac_cursor_set(Cursor cursor)
 {
-  if (CFGetTypeID((CFTypeRef)cursor) == CFNumberGetTypeID())
+  if (CFGetTypeID((CFTypeRef)(intptr_t)cursor) == CFNumberGetTypeID())
     {
 #if __LP64__
       extern OSStatus SetThemeCursor(ThemeCursor);
 #endif /* __LP64__ */
       ThemeCursor cursor_value;
 
-      if (CFNumberGetValue((CFNumberRef)cursor, kCFNumberSInt32Type,
-                           &cursor_value))
+      if (CFNumberGetValue((CFNumberRef)(intptr_t)cursor,
+                           kCFNumberSInt32Type, &cursor_value))
 	SetThemeCursor(cursor_value);
     }
   else
-    [(__bridge NSCursor *)cursor set];
+    [(__bridge NSCursor *)(intptr_t)cursor set];
 }
 
 void
 mac_cursor_release(Cursor cursor)
 {
   if (cursor)
-    CFRelease((CFTypeRef)cursor);
+    CFRelease((CFTypeRef)(intptr_t)cursor);
 }
 
 void
@@ -10160,24 +10164,27 @@ register_apple_event_specs (Lisp_Object key, Lisp_Object binding,
    upper and lower half stand for class and ID, respectively.  */
 
 static void
-update_apple_event_handler (void)
+update_apple_event_handler(void)
 {
-  Lisp_Object keymap = get_keymap (Vmac_apple_event_map, 0, 0);
+  Lisp_Object keymap = get_keymap(Vmac_apple_event_map, 0, 0);
 
-  if (!NILP (keymap))
-    map_keymap (keymap, register_apple_event_specs, Qnil,
-		(__bridge void *) registered_apple_event_specs, 0);
+  if (!NILP(keymap))
+    map_keymap(keymap, register_apple_event_specs, Qnil,
+               (__bridge void *)registered_apple_event_specs, 0);
 }
 
-static void
-init_apple_event_handler (void)
+#ifndef _EMACS_MACTERM_H
+static
+#endif /* !_EMACS_MACTERM_H */
+void
+init_apple_event_handler(void)
 {
   /* Force NSScriptSuiteRegistry to initialize here so our custom
      handlers may not be overwritten by lazy initialization.  */
   [NSScriptSuiteRegistry sharedScriptSuiteRegistry];
   registered_apple_event_specs = [[NSMutableSet alloc] initWithCapacity:0];
-  update_apple_event_handler ();
-  atexit (cleanup_all_suspended_apple_events);
+  update_apple_event_handler();
+  atexit(cleanup_all_suspended_apple_events);
 }
 
 

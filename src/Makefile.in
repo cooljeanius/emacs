@@ -492,15 +492,14 @@ obj = $(base_obj) $(MAC_OBJC_OBJ) $(NS_OBJC_OBJ) $(MAC_OBJ_SUBSTED) \
 ## in the list, in case they ever add any such entries.
 SOME_MACHINE_OBJECTS = dosfns.o msdos.o \
   xterm.o xfns.o xmenu.o xselect.o xrdb.o xsmfns.o fringe.o image.o \
-  fontset.o dbusbind.o cygw32.o \
+  mac.o macterm.o macfns.o macmenu.o macselect.o fontset.o dbusbind.o \
   nsterm.o nsfns.o nsmenu.o nsselect.o nsimage.o nsfont.o macfont.o \
-  w32.o w32console.o w32fns.o w32heap.o w32inevt.o w32notify.o \
+  cygw32.o w32.o w32console.o w32fns.o w32heap.o w32inevt.o w32notify.o \
   w32menu.o w32proc.o w32reg.o w32select.o w32term.o w32xfns.o \
   w16select.o widget.o xfont.o ftfont.o xftfont.o ftxfont.o gtkutil.o \
   xsettings.o xgselect.o termcap.o @MAINT@ $(EXTRA_MACHINE_OBJECTS)
 
-EXTRA_MACHINE_OBJECTS = sunfns.o mac.o macterm.o macfns.o macmenu.o \
-  macselect.o w32bdf.o
+EXTRA_MACHINE_OBJECTS = sunfns.o w32bdf.o
 
 ## gmalloc.o if !SYSTEM_MALLOC && !DOUG_LEA_MALLOC, else empty.
 GMALLOC_OBJ=@GMALLOC_OBJ@
@@ -666,6 +665,19 @@ gnulib_headers: $(lib)/Makefile
 
 $(lib)/libgnu.a: $(config_h) gnulib_headers
 	cd $(lib) && $(MAKE) libgnu.a
+
+#FIXME: broken due to headers for some reason; a lot of these flags are
+# trying to hack around that... (of course it is also broken for other
+# reasons, as well...)
+macterm_32.o: macterm.c
+	@$(MKDEPDIR)
+	$(AM_V_CC)$(CC) -c $(CPPFLAGS) $(ALL_CFLAGS) $(PROFILING_CFLAGS) \
+	  -Wno-deprecated-declarations -Wno-multichar \
+	  -m32 -mno-mmx -mno-sse -mno-sse2 -mno-sse3 \
+	  -mno-sse4.1 -mno-sse4.2 -mno-ssse3 -mfpmath=387 \
+	  -fno-tree-vectorize -arch i386 -mmacosx-version-min=10.4 \
+	  -U__x86_64__ -UTARGET_CPU_X86 -UTARGET_CPU_X86_64 \
+	  -D_XMMINTRIN_H_INCLUDED -D__MACHINEEXCEPTIONS__ -o $@ $<
 
 ## We have to create $(etc) here because init_cmdargs tests its
 ## existence when setting Vinstallation_directory (FIXME?).

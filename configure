@@ -13908,6 +13908,48 @@ fi
        ;;
   esac
 
+  ## Carbon is deprecated, so naturally it will provoke lots of these:
+  if test "x${HAVE_CARBON}" = "xyes" || test "x${with_carbon}" != "xno"; then
+    nw="${nw} -Wdeprecated-declarations"
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wno-deprecated-declarations" >&5
+$as_echo_n "checking whether C compiler handles -Wno-deprecated-declarations... " >&6; }
+if ${gl_cv_warn_c__Wno_deprecated_declarations+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wdeprecated-declarations"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__Wno_deprecated_declarations=yes
+else
+  gl_cv_warn_c__Wno_deprecated_declarations=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wno_deprecated_declarations" >&5
+$as_echo "$gl_cv_warn_c__Wno_deprecated_declarations" >&6; }
+if test "x$gl_cv_warn_c__Wno_deprecated_declarations" = xyes; then :
+  as_fn_append WARN_CFLAGS " -Wno-deprecated-declarations"
+fi
+
+
+  fi
+
 
   nw="${nw} -W"                                    # redundant with -Wextra
   nw="${nw} -Wsystem-headers"  # Do NOT let system headers trigger warnings
@@ -17613,6 +17655,9 @@ if test "x$gl_cv_warn_c__Wshift_overflow" = xyes; then :
 fi
 
 
+      ## this got stricter, I think?
+      nw="${nw} -Wbool-compare"
+      ## but anyways...
       if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
         ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
@@ -36319,13 +36364,16 @@ fi
 
   for ac_header in CarbonCore/Files.h CarbonCore/MacTypes.h \
                     CarbonCore/Script.h CarbonCore/StringCompare.h \
-                    CarbonCore/TextUtils.h \
+                    CarbonCore/TextUtils.h HIToolbox/Appearance.h \
                     HIToolbox/CarbonEvents.h HIToolbox/Controls.h \
-                    HIToolbox/Drag.h HIToolbox/Events.h \
-                    HIToolbox/HIProgressViews.h HIToolbox/MacWindows.h \
-                    HIToolbox/Menus.h MacTypes.h \
+                    HIToolbox/Dialogs.h HIToolbox/Drag.h \
+                    HIToolbox/Events.h HIToolbox/HIButtonViews.h \
+                    HIToolbox/HIImageViews.h HIToolbox/HIProgressViews.h \
+                    HIToolbox/HITextViews.h HIToolbox/MacWindows.h \
+                    HIToolbox/Menus.h HIToolbox/Scrap.h MacTypes.h \
                     NavigationServices/Navigation.h \
-                    QD/QuickdrawAPI.h QD/QDOffscreen.h
+                    QD/QuickdrawAPI.h QD/QDOffscreen.h \
+                    QuickTime/ImageCompression.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -36865,6 +36913,8 @@ elif test "x${MAC_OBJC_OBJ}" != "x"; then
   test -n "${MAC_OBJC_OBJ}"
   if test "x${opsys}" = "xdarwin"; then
      test -z "${GNU_OBJC_CFLAGS}" && GNU_OBJC_CFLAGS="-fobjc-exceptions"
+     GNU_OBJC_CFLAGS="${GNU_OBJC_CFLAGS} -fno-strict-aliasing"
+     test -z "${GNUSTEP_CFLAGS}" && GNUSTEP_CFLAGS="-fno-strict-aliasing"
   fi
 fi  ##end ns conditional
 
@@ -37241,6 +37291,45 @@ fi
 $as_echo "$gl_cv_warn_objc__Wno_missing_noreturn" >&6; }
 if test "x$gl_cv_warn_objc__Wno_missing_noreturn" = xyes; then :
   as_fn_append GNU_OBJC_WARN_CFLAGS " -Wno-missing-noreturn"
+fi
+
+
+    ## sometimes a built-in string gets generated that triggers this:
+    nw="${nw} -Woverlength-strings"
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether Objective C compiler handles -Wno-overlength-strings" >&5
+$as_echo_n "checking whether Objective C compiler handles -Wno-overlength-strings... " >&6; }
+if ${gl_cv_warn_objc__Wno_overlength_strings+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$OBJCFLAGS"
+  as_fn_append OBJCFLAGS " $gl_unknown_warnings_are_errors -Woverlength-strings"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_objc_try_link "$LINENO"; then :
+  gl_cv_warn_objc__Wno_overlength_strings=yes
+else
+  gl_cv_warn_objc__Wno_overlength_strings=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  OBJCFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_objc__Wno_overlength_strings" >&5
+$as_echo "$gl_cv_warn_objc__Wno_overlength_strings" >&6; }
+if test "x$gl_cv_warn_objc__Wno_overlength_strings" = xyes; then :
+  as_fn_append GNU_OBJC_WARN_CFLAGS " -Wno-overlength-strings"
 fi
 
 

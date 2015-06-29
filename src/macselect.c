@@ -35,38 +35,114 @@ Boston, MA 02110-1301, USA.  */
 typedef int ScrapRef;
 typedef ResType ScrapFlavorType;
 #else /* TARGET_API is actually MAC_CARBON: */
+# if defined(HAVE_CARBON) && defined(HAVE_HITOOLBOX_APPEARANCE_H)
+#  include <HIToolbox/Appearance.h>
+# else
+#  if !defined(__APPEARANCE__) || defined(__LP64__)
+OSStatus SetThemeCursor(ThemeCursor inCursor);
+#  endif /* !__APPEARANCE__ || __LP64__ */
+# endif /* HAVE_CARBON && HAVE_HITOOLBOX_APPEARANCE_H */
+# if defined(HAVE_CARBON) && defined(HAVE_HITOOLBOX_CARBONEVENTS_H)
+#  include <HIToolbox/CarbonEvents.h>
+# else
+#  if !defined(__CARBONEVENTS__) || defined(__LP64__)
+CFStringRef CreateTypeStringWithOSType(OSType inType);
+#  endif /* !__CARBONEVENTS__ || __LP64__ */
+# endif /* HAVE_CARBON && HAVE_HITOOLBOX_CARBONEVENTS_H */
+# if defined(HAVE_CARBON) && defined(HAVE_HITOOLBOX_DRAG_H)
+#  include <HIToolbox/Drag.h>
+# else
+#  if !defined(__DRAG__) || defined(__LP64__)
+/* inline the prototypes we need: */
+OSErr CountDragItems(DragRef theDrag, UInt16 *numItems);
+OSErr GetDragItemReferenceNumber(DragRef theDrag, UInt16 theIndex,
+                                 DragItemRef *theItemRef);
+OSErr GetDragModifiers(DragRef theDrag, SInt16 *modifiers,
+                       SInt16 *mouseDownModifiers,
+                       SInt16 *mouseUpModifiers);
+OSErr GetDragMouse(DragRef theDrag, Point *mouse,
+                   Point *globalPinnedMouse);
+OSErr GetFlavorFlags(DragRef theDrag, DragItemRef theItemRef,
+                     FlavorType theType, FlavorFlags *theFlags);
+OSErr HideDragHilite(DragRef theDrag);
+OSErr InstallReceiveHandler(DragReceiveHandlerUPP receiveHandler,
+                            WindowRef theWindow, void *handlerRefCon);
+OSErr InstallTrackingHandler(DragTrackingHandlerUPP trackingHandler,
+                             WindowRef theWindow, void *handlerRefCon);
+OSErr RemoveReceiveHandler(DragReceiveHandlerUPP receiveHandler,
+                           WindowRef theWindow);
+OSErr RemoveTrackingHandler(DragTrackingHandlerUPP trackingHandler,
+                            WindowRef theWindow);
+OSErr ShowDragHilite(DragRef theDrag, RgnHandle hiliteFrame,
+                     Boolean inside);
+#  endif /* !__DRAG__ || __LP64__ */
+# endif /* HAVE_CARBON && HAVE_HITOOLBOX_DRAG_H */
+# if defined(HAVE_CARBON) && defined(HAVE_HITOOLBOX_MACWINDOWS_H)
+#  include <HIToolbox/MacWindows.h>
+# else
+#  if !defined(__MACWINDOWS__) || defined(__LP64__)
+/* inline the prototypes we need: */
+WindowRef GetFrontWindowOfClass(WindowClass inWindowClass,
+                                Boolean mustBeVisible);
+Rect *GetWindowPortBounds(WindowRef window, Rect *bounds);
+#  endif /* !__MACWINDOWS__ || __LP64__ */
+# endif /* HAVE_CARBON && HAVE_HITOOLBOX_MACWINDOWS_H */
+# if defined(HAVE_CARBON) && defined(HAVE_HITOOLBOX_SCRAP_H)
+#  include <HIToolbox/Scrap.h>
+# else
+#  if !defined(__SCRAP__) || defined(__LP64__)
+/* inline the prototypes we need: */
+OSStatus ClearScrap(ScrapRef *inOutScrap);
+OSStatus GetScrapByName(CFStringRef name, OptionBits options,
+                        ScrapRef *scrap);
+OSStatus GetScrapFlavorCount(ScrapRef scrap, UInt32 *infoCount);
+OSStatus GetScrapFlavorData(ScrapRef scrap, ScrapFlavorType flavorType,
+                            Size *byteCount, void *destination);
+OSStatus GetScrapFlavorFlags(ScrapRef scrap, ScrapFlavorType flavorType,
+                             ScrapFlavorFlags *flavorFlags);
+OSStatus GetScrapFlavorInfoList(ScrapRef scrap, UInt32 *infoCount,
+                                ScrapFlavorInfo info[]);
+OSStatus GetScrapFlavorSize(ScrapRef scrap, ScrapFlavorType flavorType,
+                            Size *byteCount);
+OSStatus PutScrapFlavor(ScrapRef scrap, ScrapFlavorType flavorType,
+                        ScrapFlavorFlags flavorFlags, Size flavorSize,
+                        const void *flavorData);
+#  endif /* !__SCRAP__ || __LP64__ */
+# endif /* HAVE_CARBON && HAVE_HITOOLBOX_SCRAP_H */
 # if defined(HAVE_CARBON) && defined(HAVE_QD_QUICKDRAWAPI_H)
 #  include <QD/QuickdrawAPI.h>
 # else
 #  if !defined(__QUICKDRAWAPI__) || defined(__LP64__)
-/* inline the prototype we need: */
+/* inline the prototypes we need: */
+void DisposeRgn(RgnHandle rgn);
+void GlobalToLocal(Point *pt);
 RgnHandle NewRgn(void);
+void RectRgn(RgnHandle rgn, const Rect *r);
 #  endif /* !__QUICKDRAWAPI__ || __LP64__ */
 # endif /* HAVE_CARBON && HAVE_QD_QUICKDRAWAPI_H */
 #endif /* !TARGET_API_MAC_CARBON */
 
-static OSStatus get_scrap_from_symbol P_ ((Lisp_Object, int, ScrapRef *));
-static ScrapFlavorType get_flavor_type_from_symbol P_ ((Lisp_Object));
-static int valid_scrap_target_type_p P_ ((Lisp_Object));
-static OSStatus clear_scrap P_ ((ScrapRef *));
-static OSStatus put_scrap_string P_ ((ScrapRef, Lisp_Object, Lisp_Object));
-static OSStatus put_scrap_private_timestamp P_ ((ScrapRef, unsigned long));
-static ScrapFlavorType scrap_has_target_type P_ ((ScrapRef, Lisp_Object));
-static Lisp_Object get_scrap_string P_ ((ScrapRef, Lisp_Object));
-static OSStatus get_scrap_private_timestamp P_ ((ScrapRef, unsigned long *));
-static Lisp_Object get_scrap_target_type_list P_ ((ScrapRef));
-static void x_own_selection P_ ((Lisp_Object, Lisp_Object));
-static Lisp_Object x_get_local_selection P_ ((Lisp_Object, Lisp_Object, int));
-static Lisp_Object x_get_foreign_selection P_ ((Lisp_Object,
-                                                Lisp_Object,
-                                                Lisp_Object));
+static OSStatus get_scrap_from_symbol P_((Lisp_Object, int, ScrapRef *));
+static ScrapFlavorType get_flavor_type_from_symbol P_((Lisp_Object));
+static int valid_scrap_target_type_p P_((Lisp_Object));
+static OSStatus clear_scrap P_((ScrapRef *));
+static OSStatus put_scrap_string P_((ScrapRef, Lisp_Object, Lisp_Object));
+static OSStatus put_scrap_private_timestamp P_((ScrapRef, unsigned long));
+static ScrapFlavorType scrap_has_target_type P_((ScrapRef, Lisp_Object));
+static Lisp_Object get_scrap_string P_((ScrapRef, Lisp_Object));
+static OSStatus get_scrap_private_timestamp P_((ScrapRef, unsigned long *));
+static Lisp_Object get_scrap_target_type_list P_((ScrapRef));
+static void x_own_selection P_((Lisp_Object, Lisp_Object));
+static Lisp_Object x_get_local_selection P_((Lisp_Object, Lisp_Object, int));
+static Lisp_Object x_get_foreign_selection P_((Lisp_Object, Lisp_Object,
+                                               Lisp_Object));
 #ifndef EMACS_GLOBALS_H
 EXFUN (Fx_selection_owner_p, 1);
 #endif /* !EMACS_GLOBALS_H */
 #ifdef MAC_OSX
-static OSStatus mac_handle_service_event P_ ((EventHandlerCallRef,
-					      EventRef, void *));
-void init_service_handler P_ ((void));
+static OSStatus mac_handle_service_event P_((EventHandlerCallRef,
+					     EventRef, void *));
+void init_service_handler P_((void));
 #endif /* MAC_OSX */
 
 Lisp_Object QPRIMARY, QSECONDARY, QTIMESTAMP, QTARGETS;
@@ -103,7 +179,20 @@ extern unsigned long last_event_timestamp;
     selection-values.  */
 static Lisp_Object Vselection_alist;
 
+#if defined(__GNUC__) && defined(__GNUC_MINOR__)
+# if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6))
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wmultichar"
+# endif /* gcc 4.6+ */
+#endif /* any gcc */
+
 #define SCRAP_FLAVOR_TYPE_EMACS_TIMESTAMP 'Etsp'
+
+#if defined(__GNUC__) && defined(__GNUC_MINOR__)
+# if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6))
+#  pragma GCC diagnostic pop
+# endif /* gcc 4.6+ */
+#endif /* any gcc */
 
 #ifndef EMACS_GLOBALS_H
 /* This is an alist whose CARs are selection-types and whose CDRs are
@@ -133,7 +222,7 @@ static OSStatus
 get_scrap_from_symbol(Lisp_Object sym, int clear_p, ScrapRef *scrap)
 {
   OSStatus err = noErr;
-  Lisp_Object str = Fget (sym, Qmac_scrap_name);
+  Lisp_Object str = Fget(sym, Qmac_scrap_name);
 
   if (!STRINGP (str))
     *scrap = NULL;
@@ -141,21 +230,21 @@ get_scrap_from_symbol(Lisp_Object sym, int clear_p, ScrapRef *scrap)
     {
 #if TARGET_API_MAC_CARBON
 # ifdef MAC_OSX
-      CFStringRef scrap_name = cfstring_create_with_string (str);
+      CFStringRef scrap_name = cfstring_create_with_string(str);
       OptionBits options = (clear_p ? kScrapClearNamedScrap
 			    : kScrapGetNamedScrap);
 
-      err = GetScrapByName (scrap_name, options, scrap);
-      CFRelease (scrap_name);
+      err = GetScrapByName(scrap_name, options, scrap);
+      CFRelease(scrap_name);
 # else	/* !MAC_OSX: */
       if (clear_p)
-	err = ClearCurrentScrap ();
+	err = ClearCurrentScrap();
       if (err == noErr)
-	err = GetCurrentScrap (scrap);
+	err = GetCurrentScrap(scrap);
 # endif	/* !MAC_OSX */
 #else	/* !TARGET_API_MAC_CARBON */
       if (clear_p)
-	err = ZeroScrap ();
+	err = ZeroScrap();
       if (err == noErr)
 	*scrap = 1;
 #endif	/* !TARGET_API_MAC_CARBON */
@@ -168,10 +257,10 @@ get_scrap_from_symbol(Lisp_Object sym, int clear_p, ScrapRef *scrap)
    corresponding flavor type.  */
 static ScrapFlavorType get_flavor_type_from_symbol(Lisp_Object sym)
 {
-  Lisp_Object str = Fget (sym, Qmac_ostype);
+  Lisp_Object str = Fget(sym, Qmac_ostype);
 
-  if (STRINGP (str) && SBYTES (str) == 4)
-    return EndianU32_BtoN (*((UInt32 *) SDATA (str)));
+  if (STRINGP(str) && SBYTES(str) == 4)
+    return EndianU32_BtoN(*((UInt32 *)SDATA(str)));
 
   return 0;
 }
@@ -179,7 +268,7 @@ static ScrapFlavorType get_flavor_type_from_symbol(Lisp_Object sym)
 /* Check if the symbol SYM has a corresponding scrap flavor type: */
 static int valid_scrap_target_type_p(Lisp_Object sym)
 {
-  return get_flavor_type_from_symbol (sym) != 0;
+  return get_flavor_type_from_symbol(sym) != 0;
 }
 
 /* Clear the scrap whose reference is *SCRAP. */
@@ -187,12 +276,12 @@ static INLINE OSStatus clear_scrap(ScrapRef *scrap)
 {
 #if TARGET_API_MAC_CARBON
 # ifdef MAC_OSX
-  return ClearScrap (scrap);
+  return ClearScrap(scrap);
 # else
-  return ClearCurrentScrap ();
+  return ClearCurrentScrap();
 # endif /* MAC_OSX */
 #else  /* !TARGET_API_MAC_CARBON */
-  return ZeroScrap ();
+  return ZeroScrap();
 #endif	/* !TARGET_API_MAC_CARBON */
 }
 
@@ -201,18 +290,25 @@ static INLINE OSStatus clear_scrap(ScrapRef *scrap)
 static OSStatus
 put_scrap_string(ScrapRef scrap, Lisp_Object type, Lisp_Object str)
 {
-  ScrapFlavorType flavor_type = get_flavor_type_from_symbol (type);
+  ScrapFlavorType flavor_type = get_flavor_type_from_symbol(type);
 
   if (flavor_type == 0)
     return noTypeErr;
 
 #if TARGET_API_MAC_CARBON
-  return PutScrapFlavor (scrap, flavor_type, kScrapFlavorMaskNone,
-			 SBYTES (str), SDATA (str));
+  return PutScrapFlavor(scrap, flavor_type, kScrapFlavorMaskNone,
+                        SBYTES(str), SDATA(str));
 #else  /* !TARGET_API_MAC_CARBON */
-  return PutScrap (SBYTES (str), flavor_type, SDATA (str));
+  return PutScrap(SBYTES(str), flavor_type, SDATA(str));
 #endif	/* !TARGET_API_MAC_CARBON */
 }
+
+#if defined(__GNUC__) && defined(__GNUC_MINOR__)
+# if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6))
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wmultichar"
+# endif /* gcc 4.6+ */
+#endif /* any gcc */
 
 /* Put TIMESTAMP to the scrap SCRAP.  The timestamp is used for
    checking if the scrap is owned by the process.  */
@@ -220,34 +316,40 @@ static INLINE OSStatus
 put_scrap_private_timestamp(ScrapRef scrap, unsigned long timestamp)
 {
 #if TARGET_API_MAC_CARBON
-  return PutScrapFlavor (scrap, SCRAP_FLAVOR_TYPE_EMACS_TIMESTAMP,
-			 kScrapFlavorMaskSenderOnly,
-			 sizeof (timestamp), &timestamp);
+  return PutScrapFlavor(scrap, SCRAP_FLAVOR_TYPE_EMACS_TIMESTAMP,
+                        kScrapFlavorMaskSenderOnly,
+                        sizeof(timestamp), &timestamp);
 #else  /* !TARGET_API_MAC_CARBON */
-  return PutScrap (sizeof (timestamp), SCRAP_FLAVOR_TYPE_EMACS_TIMESTAMP,
-		   &timestamp);
+  return PutScrap(sizeof(timestamp), SCRAP_FLAVOR_TYPE_EMACS_TIMESTAMP,
+		  &timestamp);
 #endif	/* !TARGET_API_MAC_CARBON */
 }
+
+#if defined(__GNUC__) && defined(__GNUC_MINOR__)
+# if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6))
+#  pragma GCC diagnostic pop
+# endif /* gcc 4.6+ */
+#endif /* any gcc */
 
 /* Check if data for the target type TYPE is available in SCRAP: */
 static ScrapFlavorType
 scrap_has_target_type(ScrapRef scrap, Lisp_Object type)
 {
   OSStatus err;
-  ScrapFlavorType flavor_type = get_flavor_type_from_symbol (type);
+  ScrapFlavorType flavor_type = get_flavor_type_from_symbol(type);
 
   if (flavor_type)
     {
 #if TARGET_API_MAC_CARBON
       ScrapFlavorFlags flags;
 
-      err = GetScrapFlavorFlags (scrap, flavor_type, &flags);
+      err = GetScrapFlavorFlags(scrap, flavor_type, &flags);
       if (err != noErr)
 	flavor_type = 0;
 #else  /* !TARGET_API_MAC_CARBON */
       SInt32 size, offset;
 
-      size = GetScrap (NULL, flavor_type, &offset);
+      size = GetScrap(NULL, flavor_type, &offset);
       if (size < 0)
 	flavor_type = 0;
 #endif	/* !TARGET_API_MAC_CARBON */
@@ -262,26 +364,25 @@ static Lisp_Object get_scrap_string(ScrapRef scrap, Lisp_Object type)
 {
   OSStatus err;
   Lisp_Object result = Qnil;
-  ScrapFlavorType flavor_type = get_flavor_type_from_symbol (type);
+  ScrapFlavorType flavor_type = get_flavor_type_from_symbol(type);
 #if TARGET_API_MAC_CARBON
   Size size;
 
   if (flavor_type)
     {
-      err = GetScrapFlavorSize (scrap, flavor_type, &size);
+      err = GetScrapFlavorSize(scrap, flavor_type, &size);
       if (err == noErr)
 	{
-	  do
-	    {
-	      result = make_uninit_string (size);
-	      err = GetScrapFlavorData (scrap, flavor_type,
-					&size, SDATA (result));
-	      if (err != noErr)
-		result = Qnil;
-	      else if (size < SBYTES (result))
-		result = make_unibyte_string((const char *)SDATA(result), size);
-	    }
-	  while (STRINGP (result) && size > SBYTES (result));
+	  do {
+            result = make_uninit_string(size);
+            err = GetScrapFlavorData(scrap, flavor_type, &size,
+                                     SDATA(result));
+            if (err != noErr)
+              result = Qnil;
+            else if (size < SBYTES(result))
+              result = make_unibyte_string((const char *)SDATA(result),
+                                           size);
+          } while (STRINGP(result) && (size > SBYTES(result)));
 	}
     }
 #else
@@ -289,22 +390,30 @@ static Lisp_Object get_scrap_string(ScrapRef scrap, Lisp_Object type)
   SInt32 size, offset;
 
   if (flavor_type)
-    size = GetScrap (NULL, flavor_type, &offset);
+    size = GetScrap(NULL, flavor_type, &offset);
   if (size >= 0)
     {
-      handle = NewHandle (size);
-      HLock (handle);
-      size = GetScrap (handle, flavor_type, &offset);
+      handle = NewHandle(size);
+      HLock(handle);
+      size = GetScrap(handle, flavor_type, &offset);
       if (size >= 0)
-	result = make_unibyte_string (*handle, size);
-      DisposeHandle (handle);
+	result = make_unibyte_string(*handle, size);
+      DisposeHandle(handle);
     }
 #endif /* TARGET_API_MAC_CARBON */
 
   return result;
 }
 
-/* Get timestamp from the scrap SCRAP and set to *TIMESTAMP.  */
+
+#if defined(__GNUC__) && defined(__GNUC_MINOR__)
+# if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6))
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wmultichar"
+# endif /* gcc 4.6+ */
+#endif /* any gcc */
+
+/* Get timestamp from the scrap SCRAP and set to *TIMESTAMP: */
 static OSStatus
 get_scrap_private_timestamp(ScrapRef scrap, unsigned long *timestamp)
 {
@@ -312,18 +421,20 @@ get_scrap_private_timestamp(ScrapRef scrap, unsigned long *timestamp)
 #if TARGET_API_MAC_CARBON
   ScrapFlavorFlags flags;
 
-  err = GetScrapFlavorFlags (scrap, SCRAP_FLAVOR_TYPE_EMACS_TIMESTAMP, &flags);
+  err = GetScrapFlavorFlags(scrap, SCRAP_FLAVOR_TYPE_EMACS_TIMESTAMP,
+                            &flags);
   if (err == noErr)
     {
       if (!(flags & kScrapFlavorMaskSenderOnly))
 	err = noTypeErr;
       else
 	{
-	  Size size = sizeof (*timestamp);
+	  Size size = sizeof(*timestamp);
 
-	  err = GetScrapFlavorData (scrap, SCRAP_FLAVOR_TYPE_EMACS_TIMESTAMP,
-				    &size, timestamp);
-	  if (err == noErr && size != sizeof (*timestamp))
+	  err =
+            GetScrapFlavorData(scrap, SCRAP_FLAVOR_TYPE_EMACS_TIMESTAMP,
+                               &size, timestamp);
+	  if ((err == noErr) && (size != sizeof(*timestamp)))
 	    err = noTypeErr;
 	}
     }
@@ -331,22 +442,28 @@ get_scrap_private_timestamp(ScrapRef scrap, unsigned long *timestamp)
   Handle handle;
   SInt32 size, offset;
 
-  size = GetScrap (NULL, SCRAP_FLAVOR_TYPE_EMACS_TIMESTAMP, &offset);
-  if (size == sizeof (*timestamp))
+  size = GetScrap(NULL, SCRAP_FLAVOR_TYPE_EMACS_TIMESTAMP, &offset);
+  if (size == sizeof(*timestamp))
     {
-      handle = NewHandle (size);
-      HLock (handle);
-      size = GetScrap (handle, SCRAP_FLAVOR_TYPE_EMACS_TIMESTAMP, &offset);
-      if (size == sizeof (*timestamp))
-	*timestamp = *((unsigned long *) *handle);
-      DisposeHandle (handle);
+      handle = NewHandle(size);
+      HLock(handle);
+      size = GetScrap(handle, SCRAP_FLAVOR_TYPE_EMACS_TIMESTAMP, &offset);
+      if (size == sizeof(*timestamp))
+	*timestamp = *((unsigned long *)*handle);
+      DisposeHandle(handle);
     }
-  if (size != sizeof (*timestamp))
+  if (size != sizeof(*timestamp))
     err = noTypeErr;
 #endif	/* !TARGET_API_MAC_CARBON */
 
   return err;
 }
+
+#if defined(__GNUC__) && defined(__GNUC_MINOR__)
+# if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6))
+#  pragma GCC diagnostic pop
+# endif /* gcc 4.6+ */
+#endif /* any gcc */
 
 /* Get the list of target types in SCRAP.  The return value is a list
    of target type symbols possibly followed by scrap flavor type
@@ -357,13 +474,14 @@ static Lisp_Object get_scrap_target_type_list(ScrapRef scrap)
 #if TARGET_API_MAC_CARBON
   OSStatus err;
   UInt32 count, i, type;
-  ScrapFlavorInfo *flavor_info = NULL;
+  ScrapFlavorInfo *flavor_info = (ScrapFlavorInfo *)NULL;
   Lisp_Object strings = Qnil;
 
-  err = GetScrapFlavorCount (scrap, &count);
+  err = GetScrapFlavorCount(scrap, &count);
   if (err == noErr)
-    flavor_info = xmalloc (sizeof (ScrapFlavorInfo) * count);
-  err = GetScrapFlavorInfoList (scrap, &count, flavor_info);
+    flavor_info = ((ScrapFlavorInfo *)
+                   xmalloc(sizeof(ScrapFlavorInfo) * count));
+  err = GetScrapFlavorInfoList(scrap, &count, flavor_info);
   if (err != noErr)
     {
       xfree (flavor_info);
@@ -421,47 +539,49 @@ x_own_selection(Lisp_Object selection_name, Lisp_Object selection_value)
   Lisp_Object rest, handler_fn, value, type;
   int count;
 
-  CHECK_SYMBOL (selection_name);
+  value = LISP_INITIALLY_ZERO;
 
-  GCPRO2 (selection_name, selection_value);
+  CHECK_SYMBOL(selection_name);
+
+  GCPRO2(selection_name, selection_value);
 
   BLOCK_INPUT;
 
-  err = get_scrap_from_symbol (selection_name, 1, &scrap);
+  err = get_scrap_from_symbol(selection_name, 1, &scrap);
   if (err == noErr && scrap)
     {
       /* Don't allow a quit within the converter.
 	 When the user types C-g, he would be surprised
 	 if by luck it came during a converter.  */
-      count = SPECPDL_INDEX ();
-      specbind (Qinhibit_quit, Qt);
+      count = SPECPDL_INDEX();
+      specbind(Qinhibit_quit, Qt);
 
-      for (rest = Vselection_converter_alist; CONSP (rest); rest = XCDR (rest))
+      for (rest = Vselection_converter_alist; CONSP(rest); rest = XCDR(rest))
 	{
-	  if (!(CONSP (XCAR (rest))
-		&& (type = XCAR (XCAR (rest)),
-		    SYMBOLP (type))
-		&& valid_scrap_target_type_p (type)
-		&& (handler_fn = XCDR (XCAR (rest)),
-		    SYMBOLP (handler_fn))))
+	  if (!(CONSP(XCAR(rest))
+		&& (type = XCAR(XCAR(rest)),
+		    SYMBOLP(type))
+		&& valid_scrap_target_type_p(type)
+		&& (handler_fn = XCDR(XCAR(rest)),
+		    SYMBOLP(handler_fn))))
 	    continue;
 
-	  if (!NILP (handler_fn))
-	    value = call3 (handler_fn, selection_name,
-			   type, selection_value);
+	  if (!NILP(handler_fn))
+	    value = call3(handler_fn, selection_name,
+			  type, selection_value);
 
-	  if (STRINGP (value))
-	    err = put_scrap_string (scrap, type, value);
-	  else if (CONSP (value)
-		   && EQ (XCAR (value), type)
-		   && STRINGP (XCDR (value)))
-	    err = put_scrap_string (scrap, type, XCDR (value));
+	  if (STRINGP(value))
+	    err = put_scrap_string(scrap, type, value);
+	  else if (CONSP(value)
+		   && EQ(XCAR(value), type)
+		   && STRINGP(XCDR(value)))
+	    err = put_scrap_string(scrap, type, XCDR(value));
 	}
 
-      unbind_to (count, Qnil);
+      unbind_to(count, Qnil);
 
       if (err == noErr)
-	err = put_scrap_private_timestamp (scrap, last_event_timestamp);
+	err = put_scrap_private_timestamp(scrap, last_event_timestamp);
     }
 
   UNBLOCK_INPUT;
@@ -510,84 +630,86 @@ x_own_selection(Lisp_Object selection_name, Lisp_Object selection_value)
 
    This calls random Lisp code, and may signal or gc.  */
 static Lisp_Object
-x_get_local_selection (selection_symbol, target_type, local_request)
-     Lisp_Object selection_symbol, target_type;
-     int local_request;
+x_get_local_selection(Lisp_Object selection_symbol,
+                      Lisp_Object target_type, int local_request)
 {
   Lisp_Object local_value;
   Lisp_Object handler_fn, value, type, check;
   int count;
 
-  if (NILP (Fx_selection_owner_p (selection_symbol)))
+  type = LISP_INITIALLY_ZERO;
+
+  if (NILP(Fx_selection_owner_p(selection_symbol,
+                                LISP_INITIALLY_ZERO)))
     return Qnil;
 
-  local_value = assq_no_quit (selection_symbol, Vselection_alist);
+  local_value = assq_no_quit(selection_symbol, Vselection_alist);
 
-  /* TIMESTAMP is a special case 'cause that's easiest.  */
-  if (EQ (target_type, QTIMESTAMP))
+  /* TIMESTAMP is a special case because that is/was easiest: */
+  if (EQ(target_type, QTIMESTAMP))
     {
       handler_fn = Qnil;
-      value = XCAR (XCDR (XCDR (local_value)));
+      value = XCAR(XCDR(XCDR(local_value)));
     }
 #if 0
-  else if (EQ (target_type, QDELETE))
+  else if (EQ(target_type, QDELETE))
     {
       handler_fn = Qnil;
-      Fx_disown_selection_internal
-	(selection_symbol,
-	 XCAR (XCDR (XCDR (local_value))));
+      Fx_disown_selection_internal(selection_symbol,
+                                   XCAR(XCDR(XCDR(local_value))));
       value = QNULL;
     }
-#endif
+#endif /* 0 */
   else
     {
       /* Don't allow a quit within the converter.
 	 When the user types C-g, he would be surprised
 	 if by luck it came during a converter.  */
-      count = SPECPDL_INDEX ();
-      specbind (Qinhibit_quit, Qt);
+      count = SPECPDL_INDEX();
+      specbind(Qinhibit_quit, Qt);
 
-      CHECK_SYMBOL (target_type);
-      handler_fn = Fcdr (Fassq (target_type, Vselection_converter_alist));
+      CHECK_SYMBOL(target_type);
+      handler_fn = Fcdr(Fassq(target_type, Vselection_converter_alist));
       /* gcpro is not needed here since nothing but HANDLER_FN
 	 is live, and that ought to be a symbol.  */
 
-      if (!NILP (handler_fn))
-	value = call3 (handler_fn,
-		       selection_symbol, (local_request ? Qnil : target_type),
-		       XCAR (XCDR (local_value)));
+      if (!NILP(handler_fn))
+	value = call3(handler_fn,
+		      selection_symbol, (local_request ? Qnil : target_type),
+		      XCAR(XCDR(local_value)));
       else
 	value = Qnil;
-      unbind_to (count, Qnil);
+      unbind_to(count, Qnil);
     }
 
   /* Make sure this value is of a type that we could transmit
      to another X client.  */
 
   check = value;
-  if (CONSP (value)
-      && SYMBOLP (XCAR (value)))
-    type = XCAR (value),
-    check = XCDR (value);
+  if (CONSP(value) && SYMBOLP(XCAR(value)))
+    {
+      type = XCAR(value),
+      check = XCDR(value);
+    }
 
-  if (STRINGP (check)
-      || VECTORP (check)
-      || SYMBOLP (check)
-      || INTEGERP (check)
-      || NILP (value))
+  if (NILP(type)) {
+    ; /* ??? */
+  }
+
+  if (STRINGP(check) || VECTORP(check) || SYMBOLP(check)
+      || INTEGERP(check) || NILP(value))
     return value;
-  /* Check for a value that cons_to_long could handle.  */
-  else if (CONSP (check)
-	   && INTEGERP (XCAR (check))
-	   && (INTEGERP (XCDR (check))
-	       ||
-	       (CONSP (XCDR (check))
-		&& INTEGERP (XCAR (XCDR (check)))
-		&& NILP (XCDR (XCDR (check))))))
+  /* Check for a value that cons_to_long could handle: */
+  else if (CONSP(check)
+	   && INTEGERP(XCAR(check))
+	   && (INTEGERP(XCDR(check))
+	       || (CONSP(XCDR(check))
+                   && INTEGERP(XCAR(XCDR(check)))
+                   && NILP(XCDR(XCDR(check))))))
     return value;
 
-  signal_error ("Invalid data returned by selection-conversion function",
-		list2 (handler_fn, value));
+  signal_error("Invalid data returned by selection-conversion function",
+               list2(handler_fn, value));
 }
 
 
@@ -598,56 +720,58 @@ void x_clear_frame_selections(FRAME_PTR f)
   Lisp_Object frame;
   Lisp_Object rest;
 
-  XSETFRAME (frame, f);
+  XSETFRAME(frame, f);
 
   /* Otherwise, we are really honest and truly being told to drop it.
      Do NOT use Fdelq as that may QUIT;.  */
 
   /* Delete elements from the beginning of Vselection_alist.  */
-  while (!NILP (Vselection_alist)
-	 && EQ (frame, Fcar (Fcdr (Fcdr (Fcdr (Fcar (Vselection_alist)))))))
+  while (!NILP(Vselection_alist)
+	 && EQ(frame, Fcar(Fcdr(Fcdr(Fcdr(Fcar(Vselection_alist)))))))
     {
-      /* Let random Lisp code notice that the selection has been stolen.  */
+      /* Let random Lisp code notice that the selection has been stolen: */
       Lisp_Object hooks, selection_symbol;
 
       hooks = Vx_lost_selection_functions;
-      selection_symbol = Fcar (Fcar (Vselection_alist));
+      selection_symbol = Fcar(Fcar(Vselection_alist));
 
-      if (!EQ (hooks, Qunbound)
-	  && !NILP (Fx_selection_owner_p (selection_symbol)))
+      if (!EQ(hooks, Qunbound)
+	  && !NILP(Fx_selection_owner_p(selection_symbol,
+                                        LISP_INITIALLY_ZERO)))
 	{
-	  for (; CONSP (hooks); hooks = Fcdr (hooks))
-	    call1 (Fcar (hooks), selection_symbol);
+	  for (; CONSP(hooks); hooks = Fcdr(hooks))
+	    call1(Fcar(hooks), selection_symbol);
 #if 0 /* This can crash when deleting a frame
        * from x_connection_closed.  Anyway, it seems unnecessary;
        * something else should cause a redisplay.  */
-	  redisplay_preserve_echo_area (21);
+	  redisplay_preserve_echo_area(21);
 #endif /* 0 */
 	}
 
-      Vselection_alist = Fcdr (Vselection_alist);
+      Vselection_alist = Fcdr(Vselection_alist);
     }
 
-  /* Delete elements after the beginning of Vselection_alist.  */
-  for (rest = Vselection_alist; !NILP (rest); rest = Fcdr (rest))
-    if (EQ (frame, Fcar (Fcdr (Fcdr (Fcdr (Fcar (XCDR (rest))))))))
+  /* Delete elements after the beginning of Vselection_alist: */
+  for (rest = Vselection_alist; !NILP(rest); rest = Fcdr(rest))
+    if (EQ(frame, Fcar(Fcdr(Fcdr(Fcdr(Fcar(XCDR(rest))))))))
       {
-	/* Let random Lisp code notice that the selection has been stolen.  */
+	/* Let random Lisp code notice that the selection has been stolen: */
 	Lisp_Object hooks, selection_symbol;
 
 	hooks = Vx_lost_selection_functions;
-	selection_symbol = Fcar (Fcar (XCDR (rest)));
+	selection_symbol = Fcar(Fcar(XCDR(rest)));
 
-	if (!EQ (hooks, Qunbound)
-	  && !NILP (Fx_selection_owner_p (selection_symbol)))
+	if (!EQ(hooks, Qunbound)
+	  && !NILP(Fx_selection_owner_p(selection_symbol,
+                                        LISP_INITIALLY_ZERO)))
 	  {
-	    for (; CONSP (hooks); hooks = Fcdr (hooks))
-	      call1 (Fcar (hooks), selection_symbol);
+	    for (; CONSP(hooks); hooks = Fcdr(hooks))
+	      call1(Fcar(hooks), selection_symbol);
 #if 0 /* See above */
-	    redisplay_preserve_echo_area (22);
+	    redisplay_preserve_echo_area(22);
 #endif /* 0 */
 	  }
-	XSETCDR (rest, Fcdr (XCDR (rest)));
+	XSETCDR(rest, Fcdr(XCDR(rest)));
 	break;
       }
 }
@@ -655,8 +779,8 @@ void x_clear_frame_selections(FRAME_PTR f)
 /* Do protocol to read selection-data from the server.
    Converts this to Lisp data and returns it.  */
 static Lisp_Object
-x_get_foreign_selection (selection_symbol, target_type, time_stamp)
-     Lisp_Object selection_symbol, target_type, time_stamp;
+x_get_foreign_selection(Lisp_Object selection_symbol,
+                        Lisp_Object target_type, Lisp_Object time_stamp)
 {
   OSStatus err;
   ScrapRef scrap;
@@ -724,30 +848,37 @@ TIME_STAMP is ignored on Mac.  */)
 #endif /* __APPLE_CC__ */
   Lisp_Object val = Qnil;
   struct gcpro gcpro1, gcpro2;
-  GCPRO2 (target_type, val); /* we store newly consed data into these */
-  check_mac ();
-  CHECK_SYMBOL (selection_symbol);
-  CHECK_SYMBOL (target_type);
+  GCPRO2(target_type, val); /* we store newly consed data into these */
+  check_mac();
+  CHECK_SYMBOL(selection_symbol);
+  CHECK_SYMBOL(target_type);
 
-  val = x_get_local_selection (selection_symbol, target_type, 1);
+  if (NILP(val)) {
+    ; /* ??? */
+  }
 
-  if (NILP (val))
+  val = x_get_local_selection(selection_symbol, target_type, 1);
+
+  if (NILP(val))
     {
-      val = x_get_foreign_selection (selection_symbol, target_type, time_stamp);
+      val = x_get_foreign_selection(selection_symbol, target_type, time_stamp);
       goto DONE;
     }
 
-  if (CONSP (val)
-      && SYMBOLP (XCAR (val)))
+  if (CONSP(val)
+      && SYMBOLP(XCAR(val)))
     {
-      val = XCDR (val);
-      if (CONSP (val) && NILP (XCDR (val)))
-	val = XCAR (val);
+      val = XCDR(val);
+      if (CONSP(val) && NILP(XCDR(val)))
+	val = XCAR(val);
     }
  DONE:
   UNGCPRO;
   return val;
 }
+
+/* from xdisp.c: */
+extern void prepare_menu_bars(void);
 
 DEFUN ("x-disown-selection-internal", Fx_disown_selection_internal,
        Sx_disown_selection_internal, 1, 3, 0,
@@ -755,25 +886,22 @@ DEFUN ("x-disown-selection-internal", Fx_disown_selection_internal,
 Disowning it means there is no such selection.  */)
      (Lisp_Object selection, Lisp_Object time, Lisp_Object terminal)
 {
-#ifdef __APPLE_CC__
-# pragma unused (terminal)
-#endif /* __APPLE_CC__ */
   OSStatus err;
   ScrapRef scrap;
   Lisp_Object local_selection_data;
 
-  check_mac ();
-  CHECK_SYMBOL (selection);
+  check_mac();
+  CHECK_SYMBOL(selection);
 
-  if (NILP (Fx_selection_owner_p (selection)))
+  if (NILP(Fx_selection_owner_p(selection, terminal)))
     return Qnil; /* Do NOT disown the selection when we are not the owner. */
 
-  local_selection_data = assq_no_quit (selection, Vselection_alist);
+  local_selection_data = assq_no_quit(selection, Vselection_alist);
 
   /* Do NOT use Fdelq as that may QUIT;.  */
 
-  if (EQ (local_selection_data, Fcar (Vselection_alist)))
-    Vselection_alist = Fcdr (Vselection_alist);
+  if (EQ(local_selection_data, Fcar(Vselection_alist)))
+    Vselection_alist = Fcdr(Vselection_alist);
   else
     {
       Lisp_Object rest;
@@ -785,25 +913,24 @@ Disowning it means there is no such selection.  */)
 	  }
     }
 
-  /* Let random lisp code notice that the selection has been stolen.  */
-
+  /* Let random lisp code notice that the selection has been stolen: */
   {
     Lisp_Object rest;
     rest = Vx_lost_selection_functions;
-    if (!EQ (rest, Qunbound))
+    if (!EQ(rest, Qunbound))
       {
-	for (; CONSP (rest); rest = Fcdr (rest))
-	  call1 (Fcar (rest), selection);
-	prepare_menu_bars ();
-	redisplay_preserve_echo_area (20);
+	for (; CONSP(rest); rest = Fcdr(rest))
+	  call1(Fcar(rest), selection);
+	prepare_menu_bars();
+	redisplay_preserve_echo_area(20);
       }
   }
 
   BLOCK_INPUT;
 
-  err = get_scrap_from_symbol (selection, 0, &scrap);
+  err = get_scrap_from_symbol(selection, 0, &scrap);
   if (err == noErr && scrap)
-    clear_scrap (&scrap);
+    clear_scrap(&scrap);
 
   UNBLOCK_INPUT;
 
@@ -827,20 +954,20 @@ and t is the same as `SECONDARY'.  */)
   ScrapRef scrap;
   Lisp_Object result = Qnil, local_selection_data;
 
-  check_mac ();
-  CHECK_SYMBOL (selection);
-  if (EQ (selection, Qnil)) selection = QPRIMARY;
-  if (EQ (selection, Qt)) selection = QSECONDARY;
+  check_mac();
+  CHECK_SYMBOL(selection);
+  if (EQ(selection, Qnil)) selection = QPRIMARY;
+  if (EQ(selection, Qt)) selection = QSECONDARY;
 
-  local_selection_data = assq_no_quit (selection, Vselection_alist);
+  local_selection_data = assq_no_quit(selection, Vselection_alist);
 
-  if (NILP (local_selection_data))
+  if (NILP(local_selection_data))
     return Qnil;
 
   BLOCK_INPUT;
 
-  err = get_scrap_from_symbol (selection, 0, &scrap);
-  if (err == noErr && scrap)
+  err = get_scrap_from_symbol(selection, 0, &scrap);
+  if ((err == noErr) && scrap)
     {
       unsigned long timestamp;
 
@@ -867,31 +994,28 @@ For convenience, the symbol nil is the same as `PRIMARY',
 and t is the same as `SECONDARY'.  */)
      (Lisp_Object selection, Lisp_Object terminal)
 {
-#ifdef __APPLE_CC__
-# pragma unused (terminal)
-#endif /* __APPLE_CC__ */
   OSStatus err;
   ScrapRef scrap;
   Lisp_Object result = Qnil, rest;
 
-  /* It should be safe to call this before we have an Mac frame.  */
-  if (! FRAME_MAC_P (SELECTED_FRAME ()))
+  /* It should be safe to call this before we have an Mac frame: */
+  if (! FRAME_MAC_P(SELECTED_FRAME()))
     return Qnil;
 
-  CHECK_SYMBOL (selection);
-  if (!NILP (Fx_selection_owner_p (selection)))
+  CHECK_SYMBOL(selection);
+  if (!NILP(Fx_selection_owner_p(selection, terminal)))
     return Qt;
-  if (EQ (selection, Qnil)) selection = QPRIMARY;
-  if (EQ (selection, Qt)) selection = QSECONDARY;
+  if (EQ(selection, Qnil)) selection = QPRIMARY;
+  if (EQ(selection, Qt)) selection = QSECONDARY;
 
   BLOCK_INPUT;
 
-  err = get_scrap_from_symbol (selection, 0, &scrap);
-  if (err == noErr && scrap)
-    for (rest = Vselection_converter_alist; CONSP (rest); rest = XCDR (rest))
+  err = get_scrap_from_symbol(selection, 0, &scrap);
+  if ((err == noErr) && scrap)
+    for (rest = Vselection_converter_alist; CONSP(rest); rest = XCDR(rest))
       {
-	if (CONSP (XCAR (rest)) && SYMBOLP (XCAR (XCAR (rest)))
-	    && scrap_has_target_type (scrap, XCAR (XCAR (rest))))
+	if (CONSP(XCAR(rest)) && SYMBOLP(XCAR(XCAR(rest)))
+	    && scrap_has_target_type(scrap, XCAR(XCAR(rest))))
 	  {
 	    result = Qt;
 	    break;
@@ -911,11 +1035,14 @@ int mac_ready_for_apple_events = 0;
 #ifndef EMACS_GLOBALS_H
 static Lisp_Object Vmac_apple_event_map;
 #endif /* !EMACS_GLOBALS_H */
-static Lisp_Object Qmac_apple_event_class, Qmac_apple_event_id;
+#ifndef _EMACS_MACTERM_H
+static
+#endif /* !_EMACS_MACTERM_H */
+Lisp_Object Qmac_apple_event_class, Qmac_apple_event_id;
 static Lisp_Object Qemacs_suspension_id;
 extern Lisp_Object Qundefined;
-extern void mac_store_apple_event P_ ((Lisp_Object, Lisp_Object,
-				       const AEDesc *));
+extern void mac_store_apple_event P_((Lisp_Object, Lisp_Object,
+				      const AEDesc *));
 
 struct apple_event_binding
 {
@@ -937,9 +1064,8 @@ static struct suspended_ae_info *deferred_apple_events = NULL;
 static struct suspended_ae_info *suspended_apple_events = NULL;
 
 static void
-find_event_binding_fun (key, binding, args, data)
-     Lisp_Object key, binding, args;
-     void *data;
+find_event_binding_fun(Lisp_Object key, Lisp_Object binding,
+                       Lisp_Object args, void *data)
 {
   struct apple_event_binding *event_binding =
     (struct apple_event_binding *)data;
@@ -958,10 +1084,8 @@ find_event_binding_fun (key, binding, args, data)
 }
 
 static void
-find_event_binding (keymap, event_binding, class_p)
-     Lisp_Object keymap;
-     struct apple_event_binding *event_binding;
-     int class_p;
+find_event_binding(Lisp_Object keymap,
+                   struct apple_event_binding *event_binding, int class_p)
 {
   if (event_binding->code == 0)
     event_binding->binding =
@@ -975,113 +1099,114 @@ find_event_binding (keymap, event_binding, class_p)
     }
 }
 
-void
-mac_find_apple_event_spec (class, id, class_key, id_key, binding)
-     AEEventClass class;
-     AEEventID id;
-     Lisp_Object *class_key, *id_key, *binding;
+Lisp_Object
+mac_find_apple_event_spec(AEEventClass class, AEEventID id,
+                          Lisp_Object *class_key, Lisp_Object *id_key,
+                          Lisp_Object *binding)
 {
   struct apple_event_binding event_binding;
   Lisp_Object keymap;
 
   *binding = Qnil;
 
-  keymap = get_keymap (Vmac_apple_event_map, 0, 0);
-  if (NILP (keymap))
-    return;
+  keymap = get_keymap(Vmac_apple_event_map, 0, 0);
+  if (NILP(keymap))
+    return LISP_INITIALLY_ZERO;
 
   event_binding.code = class;
   event_binding.key = *class_key;
   event_binding.binding = Qnil;
-  find_event_binding (keymap, &event_binding, 1);
+  find_event_binding(keymap, &event_binding, 1);
   *class_key = event_binding.key;
-  keymap = get_keymap (event_binding.binding, 0, 0);
-  if (NILP (keymap))
-    return;
+  keymap = get_keymap(event_binding.binding, 0, 0);
+  if (NILP(keymap))
+    return LISP_INITIALLY_ZERO;
 
   event_binding.code = id;
   event_binding.key = *id_key;
   event_binding.binding = Qnil;
-  find_event_binding (keymap, &event_binding, 0);
+  find_event_binding(keymap, &event_binding, 0);
   *id_key = event_binding.key;
   *binding = event_binding.binding;
+
+  return LISP_INITIALLY_ZERO;
 }
 
 static OSErr
-defer_apple_events (apple_event, reply)
-     const AppleEvent *apple_event, *reply;
+defer_apple_events(const AppleEvent *apple_event, const AppleEvent *reply)
 {
   OSErr err;
-  struct suspended_ae_info *new;
+  struct suspended_ae_info *newinf;
 
-  new = xmalloc (sizeof (struct suspended_ae_info));
-  bzero (new, sizeof (struct suspended_ae_info));
-  new->apple_event.descriptorType = typeNull;
-  new->reply.descriptorType = typeNull;
+  newinf = ((struct suspended_ae_info *)
+            xmalloc(sizeof(struct suspended_ae_info)));
+  bzero(newinf, sizeof(struct suspended_ae_info));
+  newinf->apple_event.descriptorType = typeNull;
+  newinf->reply.descriptorType = typeNull;
 
-  err = AESuspendTheCurrentEvent (apple_event);
+  err = AESuspendTheCurrentEvent(apple_event);
 
   /* Mac OS 10.3 Xcode manual says AESuspendTheCurrentEvent makes
      copies of the Apple event and the reply, but Mac OS 10.4 Xcode
      manual says it doesn't.  Anyway we create copies of them and save
      them in `deferred_apple_events'.  */
   if (err == noErr)
-    err = AEDuplicateDesc (apple_event, &new->apple_event);
+    err = AEDuplicateDesc(apple_event, &newinf->apple_event);
   if (err == noErr)
-    err = AEDuplicateDesc (reply, &new->reply);
+    err = AEDuplicateDesc(reply, &newinf->reply);
   if (err == noErr)
     {
-      new->next = deferred_apple_events;
-      deferred_apple_events = new;
+      newinf->next = deferred_apple_events;
+      deferred_apple_events = newinf;
     }
   else
     {
-      AEDisposeDesc (&new->apple_event);
-      AEDisposeDesc (&new->reply);
-      xfree (new);
+      AEDisposeDesc(&newinf->apple_event);
+      AEDisposeDesc(&newinf->reply);
+      xfree(newinf);
     }
 
   return err;
 }
 
 static OSErr
-mac_handle_apple_event_1 (class, id, apple_event, reply)
-     Lisp_Object class, id;
-     const AppleEvent *apple_event;
-     AppleEvent *reply;
+mac_handle_apple_event_1(Lisp_Object class, Lisp_Object id,
+                         const AppleEvent *apple_event, AppleEvent *reply)
 {
   OSErr err;
-  static UInt32 suspension_id = 0;
-  struct suspended_ae_info *new;
+  static UInt32 suspension_id = 0U;
+  struct suspended_ae_info *new_info;
 
-  new = xmalloc (sizeof (struct suspended_ae_info));
-  bzero (new, sizeof (struct suspended_ae_info));
-  new->apple_event.descriptorType = typeNull;
-  new->reply.descriptorType = typeNull;
+  new_info = ((struct suspended_ae_info *)
+              xmalloc(sizeof(struct suspended_ae_info)));
+  bzero(new_info, sizeof(struct suspended_ae_info));
+  new_info->apple_event.descriptorType = typeNull;
+  new_info->reply.descriptorType = typeNull;
 
-  err = AESuspendTheCurrentEvent (apple_event);
+  err = AESuspendTheCurrentEvent(apple_event);
   if (err == noErr)
-    err = AEDuplicateDesc (apple_event, &new->apple_event);
+    err = AEDuplicateDesc(apple_event, &new_info->apple_event);
   if (err == noErr)
-    err = AEDuplicateDesc (reply, &new->reply);
+    err = AEDuplicateDesc(reply, &new_info->reply);
   if (err == noErr)
-    err = AEPutAttributePtr (&new->apple_event, KEY_EMACS_SUSPENSION_ID_ATTR,
-			     typeUInt32, &suspension_id, sizeof (UInt32));
+    err = AEPutAttributePtr(&new_info->apple_event,
+                            KEY_EMACS_SUSPENSION_ID_ATTR, typeUInt32,
+                            &suspension_id, sizeof(UInt32));
   if (err == noErr)
     {
       OSErr err1;
       SInt32 reply_requested;
 
-      err1 = AEGetAttributePtr (&new->apple_event, keyReplyRequestedAttr,
-				typeSInt32, NULL, &reply_requested,
-				sizeof (SInt32), NULL);
+      err1 = AEGetAttributePtr(&new_info->apple_event,
+                               keyReplyRequestedAttr, typeSInt32, NULL,
+                               &reply_requested, sizeof(SInt32), NULL);
       if (err1 != noErr)
 	{
-	  /* Emulate keyReplyRequestedAttr in older versions.  */
+	  /* Emulate keyReplyRequestedAttr in older versions: */
 	  reply_requested = reply->descriptorType != typeNull;
-	  err = AEPutAttributePtr (&new->apple_event, keyReplyRequestedAttr,
-				   typeSInt32, &reply_requested,
-				   sizeof (SInt32));
+	  err = AEPutAttributePtr(&new_info->apple_event,
+                                  keyReplyRequestedAttr, typeSInt32,
+                                  &reply_requested, sizeof(SInt32));
 	}
     }
   if (err == noErr)
@@ -1089,34 +1214,35 @@ mac_handle_apple_event_1 (class, id, apple_event, reply)
       SInt32 timeout = 0;
       struct suspended_ae_info **p;
 
-      new->suspension_id = suspension_id;
+      new_info->suspension_id = suspension_id;
       suspension_id++;
-      err = AEGetAttributePtr (apple_event, keyTimeoutAttr, typeSInt32,
-			       NULL, &timeout, sizeof (SInt32), NULL);
-      new->expiration_tick = TickCount () + timeout;
+      err = AEGetAttributePtr(apple_event, keyTimeoutAttr, typeSInt32,
+			      NULL, &timeout, sizeof(SInt32), NULL);
+      new_info->expiration_tick = (TickCount() + timeout);
 
       for (p = &suspended_apple_events; *p; p = &(*p)->next)
-	if ((*p)->expiration_tick >= new->expiration_tick)
+	if ((*p)->expiration_tick >= new_info->expiration_tick)
 	  break;
-      new->next = *p;
-      *p = new;
+      new_info->next = *p;
+      *p = new_info;
 
-      mac_store_apple_event (class, id, &new->apple_event);
+      mac_store_apple_event(class, id, &new_info->apple_event);
     }
   else
     {
-      AEDisposeDesc (&new->reply);
-      AEDisposeDesc (&new->apple_event);
-      xfree (new);
+      AEDisposeDesc(&new_info->reply);
+      AEDisposeDesc(&new_info->apple_event);
+      xfree(new_info);
     }
 
   return err;
 }
 
-static pascal OSErr mac_handle_apple_event(apple_event, reply, refcon)
-     const AppleEvent *apple_event;
-     AppleEvent *reply;
-     SInt32 refcon;
+#ifndef _EMACS_MACTERM_H
+static
+#endif /* !_EMACS_MACTERM_H */
+pascal OSErr mac_handle_apple_event(const AppleEvent *apple_event,
+                                    AppleEvent *reply, SInt32 refcon)
 {
   OSErr err;
   UInt32 suspension_id;
@@ -1188,7 +1314,10 @@ cleanup_suspended_apple_events(struct suspended_ae_info **head, int all_p)
   return nresumed;
 }
 
-static void cleanup_all_suspended_apple_events(void)
+#ifndef _EMACS_MACTERM_H
+static
+#endif /* !_EMACS_MACTERM_H */
+void cleanup_all_suspended_apple_events(void)
 {
   cleanup_suspended_apple_events (&deferred_apple_events, 1);
   cleanup_suspended_apple_events (&suspended_apple_events, 1);
@@ -1379,23 +1508,23 @@ nil, which means the event is already resumed or expired.  */)
     {
       ae = *p;
       *p = (*p)->next;
-      if (INTEGERP (error_code)
+      if (INTEGERP(error_code)
 	  && ae->reply.descriptorType != typeNull)
 	{
-	  SInt32 errn = XINT (error_code);
+	  SInt32 errn = XINT(error_code);
 
-	  AEPutParamPtr (&ae->reply, keyErrorNumber, typeSInt32,
-			 &errn, sizeof (SInt32));
+	  AEPutParamPtr(&ae->reply, keyErrorNumber, typeSInt32,
+                        &errn, sizeof(SInt32));
 	}
-      AESetTheCurrentEvent (&ae->apple_event);
-      AEResumeTheCurrentEvent (&ae->apple_event, &ae->reply,
-			       ((AEEventHandlerUPP)
-				(EQ (error_code, Qt) ?
-				 kAEUseStandardDispatch : kAENoDispatch)),
-			       0);
-      AEDisposeDesc (&ae->reply);
-      AEDisposeDesc (&ae->apple_event);
-      xfree (ae);
+      AESetTheCurrentEvent(&ae->apple_event);
+      AEResumeTheCurrentEvent(&ae->apple_event, &ae->reply,
+			      ((AEEventHandlerUPP)(intptr_t)
+                               (EQ(error_code, Qt) ?
+                                kAEUseStandardDispatch : kAENoDispatch)),
+			      0);
+      AEDisposeDesc(&ae->reply);
+      AEDisposeDesc(&ae->apple_event);
+      xfree(ae);
       result = Qt;
     }
   UNBLOCK_INPUT;
@@ -1411,32 +1540,30 @@ nil, which means the event is already resumed or expired.  */)
 # ifndef EMACS_GLOBALS_H
 static Lisp_Object Vmac_dnd_known_types;
 # endif /* !EMACS_GLOBALS_H */
-static pascal OSErr mac_do_track_drag P_ ((DragTrackingMessage, WindowRef,
-					   void *, DragRef));
-static pascal OSErr mac_do_receive_drag P_ ((WindowRef, void *, DragRef));
+static pascal OSErr mac_do_track_drag P_((DragTrackingMessage, WindowRef,
+					  void *, DragRef));
+static pascal OSErr mac_do_receive_drag P_((WindowRef, void *, DragRef));
 static DragTrackingHandlerUPP mac_do_track_dragUPP = NULL;
 static DragReceiveHandlerUPP mac_do_receive_dragUPP = NULL;
 
-extern void mac_store_drag_event P_ ((WindowRef, Point, SInt16,
-				      const AEDesc *));
+extern void mac_store_drag_event P_((WindowRef, Point, SInt16,
+				     const AEDesc *));
 
-static pascal OSErr mac_do_track_drag(message, window, refcon, drag)
-     DragTrackingMessage message;
-     WindowRef window;
-     void *refcon;
-     DragRef drag;
+static pascal OSErr mac_do_track_drag(DragTrackingMessage message,
+                                      WindowRef window, void *refcon,
+                                      DragRef drag)
 {
   OSErr err = noErr;
   static int can_accept;
   UInt16 num_items, index;
 
-  if (GetFrontWindowOfClass (kMovableModalWindowClass, false))
+  if (GetFrontWindowOfClass(kMovableModalWindowClass, false))
     return dragNotAcceptedErr;
 
   switch (message)
     {
     case kDragTrackingEnterHandler:
-      err = CountDragItems (drag, &num_items);
+      err = CountDragItems(drag, &num_items);
       if (err != noErr)
 	break;
       can_accept = 0;
@@ -1446,20 +1573,20 @@ static pascal OSErr mac_do_track_drag(message, window, refcon, drag)
 	  FlavorFlags flags;
 	  Lisp_Object rest;
 
-	  err = GetDragItemReferenceNumber (drag, index, &item);
+	  err = GetDragItemReferenceNumber(drag, index, &item);
 	  if (err != noErr)
 	    continue;
-	  for (rest = Vmac_dnd_known_types; CONSP (rest); rest = XCDR (rest))
+	  for (rest = Vmac_dnd_known_types; CONSP(rest); rest = XCDR(rest))
 	    {
 	      Lisp_Object str;
 	      FlavorType type;
 
-	      str = XCAR (rest);
-	      if (!(STRINGP (str) && SBYTES (str) == 4))
+	      str = XCAR(rest);
+	      if (!(STRINGP(str) && (SBYTES(str) == 4)))
 		continue;
-	      type = EndianU32_BtoN (*((UInt32 *) SDATA (str)));
+	      type = EndianU32_BtoN(*((UInt32 *)SDATA(str)));
 
-	      err = GetFlavorFlags (drag, item, type, &flags);
+	      err = GetFlavorFlags(drag, item, type, &flags);
 	      if (err == noErr)
 		{
 		  can_accept = 1;
@@ -1472,19 +1599,19 @@ static pascal OSErr mac_do_track_drag(message, window, refcon, drag)
     case kDragTrackingEnterWindow:
       if (can_accept)
 	{
-	  RgnHandle hilite_rgn = NewRgn ();
+	  RgnHandle hilite_rgn = NewRgn();
 
 	  if (hilite_rgn)
 	    {
 	      Rect r;
 
-	      GetWindowPortBounds (window, &r);
-	      OffsetRect (&r, -r.left, -r.top);
-	      RectRgn (hilite_rgn, &r);
-	      ShowDragHilite (drag, hilite_rgn, true);
-	      DisposeRgn (hilite_rgn);
+	      GetWindowPortBounds(window, &r);
+	      OffsetRect(&r, -r.left, -r.top);
+	      RectRgn(hilite_rgn, &r);
+	      ShowDragHilite(drag, hilite_rgn, true);
+	      DisposeRgn(hilite_rgn);
 	    }
-	  SetThemeCursor (kThemeCopyArrowCursor);
+	  SetThemeCursor(kThemeCopyArrowCursor);
 	}
       break;
 
@@ -1494,12 +1621,15 @@ static pascal OSErr mac_do_track_drag(message, window, refcon, drag)
     case kDragTrackingLeaveWindow:
       if (can_accept)
 	{
-	  HideDragHilite (drag);
-	  SetThemeCursor (kThemeArrowCursor);
+	  HideDragHilite(drag);
+	  SetThemeCursor(kThemeArrowCursor);
 	}
       break;
 
     case kDragTrackingLeaveHandler:
+      break;
+
+    default:
       break;
     }
 
@@ -1519,50 +1649,50 @@ mac_do_receive_drag(WindowRef window, void *refcon, DragRef drag)
   Point mouse_pos;
   SInt16 modifiers;
 
-  if (GetFrontWindowOfClass (kMovableModalWindowClass, false))
+  if (GetFrontWindowOfClass(kMovableModalWindowClass, false))
     return dragNotAcceptedErr;
 
   num_types = 0;
-  for (rest = Vmac_dnd_known_types; CONSP (rest); rest = XCDR (rest))
+  for (rest = Vmac_dnd_known_types; CONSP(rest); rest = XCDR(rest))
     {
-      str = XCAR (rest);
-      if (STRINGP (str) && SBYTES (str) == 4)
+      str = XCAR(rest);
+      if (STRINGP(str) && (SBYTES(str) == 4))
 	num_types++;
     }
 
-  types = xmalloc (sizeof (FlavorType) * num_types);
+  types = (FlavorType *)xmalloc(sizeof(FlavorType) * num_types);
   i = 0;
-  for (rest = Vmac_dnd_known_types; CONSP (rest); rest = XCDR (rest))
+  for (rest = Vmac_dnd_known_types; CONSP(rest); rest = XCDR(rest))
     {
-      str = XCAR (rest);
-      if (STRINGP (str) && SBYTES (str) == 4)
-	types[i++] = EndianU32_BtoN (*((UInt32 *) SDATA (str)));
+      str = XCAR(rest);
+      if (STRINGP(str) && (SBYTES(str) == 4))
+	types[i++] = EndianU32_BtoN(*((UInt32 *)SDATA(str)));
     }
 
-  err = create_apple_event_from_drag_ref (drag, num_types, types,
-					  &apple_event);
+  err = create_apple_event_from_drag_ref(drag, num_types, types,
+					 &apple_event);
   xfree (types);
 
   if (err == noErr)
-    err = GetDragMouse (drag, &mouse_pos, NULL);
+    err = GetDragMouse(drag, &mouse_pos, NULL);
   if (err == noErr)
     {
-      GlobalToLocal (&mouse_pos);
-      err = GetDragModifiers (drag, NULL, NULL, &modifiers);
+      GlobalToLocal(&mouse_pos);
+      err = GetDragModifiers(drag, NULL, NULL, &modifiers);
     }
   if (err == noErr)
     {
       UInt32 key_modifiers = modifiers;
 
-      err = AEPutParamPtr (&apple_event, kEventParamKeyModifiers,
-			   typeUInt32, &key_modifiers, sizeof (UInt32));
+      err = AEPutParamPtr(&apple_event, kEventParamKeyModifiers,
+			  typeUInt32, &key_modifiers, sizeof(UInt32));
     }
 
   if (err == noErr)
     {
-      mac_store_drag_event (window, mouse_pos, 0, &apple_event);
-      AEDisposeDesc (&apple_event);
-      mac_wakeup_from_rne ();
+      mac_store_drag_event(window, mouse_pos, 0, &apple_event);
+      AEDisposeDesc(&apple_event);
+      mac_wakeup_from_rne();
       return noErr;
     }
   else
@@ -1576,13 +1706,13 @@ OSErr install_drag_handler(WindowRef window)
 
 #if TARGET_API_MAC_CARBON
   if (mac_do_track_dragUPP == NULL)
-    mac_do_track_dragUPP = NewDragTrackingHandlerUPP (mac_do_track_drag);
+    mac_do_track_dragUPP = NewDragTrackingHandlerUPP(mac_do_track_drag);
   if (mac_do_receive_dragUPP == NULL)
-    mac_do_receive_dragUPP = NewDragReceiveHandlerUPP (mac_do_receive_drag);
+    mac_do_receive_dragUPP = NewDragReceiveHandlerUPP(mac_do_receive_drag);
 
-  err = InstallTrackingHandler (mac_do_track_dragUPP, window, NULL);
+  err = InstallTrackingHandler(mac_do_track_dragUPP, window, NULL);
   if (err == noErr)
-    err = InstallReceiveHandler (mac_do_receive_dragUPP, window, NULL);
+    err = InstallReceiveHandler(mac_do_receive_dragUPP, window, NULL);
 #endif /* TARGET_API_MAC_CARBON */
 
   return err;
@@ -1592,9 +1722,9 @@ void remove_drag_handler(WindowRef window)
 {
 #if TARGET_API_MAC_CARBON
   if (mac_do_track_dragUPP)
-    RemoveTrackingHandler (mac_do_track_dragUPP, window);
+    RemoveTrackingHandler(mac_do_track_dragUPP, window);
   if (mac_do_receive_dragUPP)
-    RemoveReceiveHandler (mac_do_receive_dragUPP, window);
+    RemoveReceiveHandler(mac_do_receive_dragUPP, window);
 #endif /* TARGET_API_MAC_CARBON */
 }
 
@@ -1610,35 +1740,34 @@ void init_service_handler(void)
      {kEventClassService, kEventServiceCopy},
      {kEventClassService, kEventServicePaste},
      {kEventClassService, kEventServicePerform}};
-  InstallApplicationEventHandler (NewEventHandlerUPP (mac_handle_service_event),
-				  GetEventTypeCount (specs), specs, NULL, NULL);
+  InstallApplicationEventHandler(NewEventHandlerUPP(mac_handle_service_event),
+				 GetEventTypeCount(specs), specs, NULL, NULL);
 }
 
-extern OSStatus mac_store_service_event P_ ((EventRef));
+extern OSStatus mac_store_service_event P_((EventRef));
 
 static OSStatus
-copy_scrap_flavor_data (from_scrap, to_scrap, flavor_type)
-     ScrapRef from_scrap, to_scrap;
-     ScrapFlavorType flavor_type;
+copy_scrap_flavor_data(ScrapRef from_scrap, ScrapRef to_scrap,
+                       ScrapFlavorType flavor_type)
 {
   OSStatus err;
   Size size, size_allocated;
   char *buf = NULL;
 
-  err = GetScrapFlavorSize (from_scrap, flavor_type, &size);
+  err = GetScrapFlavorSize(from_scrap, flavor_type, &size);
   if (err == noErr)
-    buf = xmalloc (size);
+    buf = (char *)xmalloc(size);
   while (buf)
     {
       size_allocated = size;
-      err = GetScrapFlavorData (from_scrap, flavor_type, &size, buf);
+      err = GetScrapFlavorData(from_scrap, flavor_type, &size, buf);
       if (err != noErr)
 	{
-	  xfree (buf);
+	  xfree(buf);
 	  buf = NULL;
 	}
       else if (size_allocated < size)
-	buf = xrealloc (buf, size);
+	buf = xrealloc(buf, size);
       else
 	break;
     }
@@ -1658,10 +1787,8 @@ copy_scrap_flavor_data (from_scrap, to_scrap, flavor_type)
 }
 
 static OSStatus
-mac_handle_service_event (call_ref, event, data)
-     EventHandlerCallRef call_ref;
-     EventRef event;
-     void *data;
+mac_handle_service_event(EventHandlerCallRef call_ref, EventRef event,
+                         void *data)
 {
   OSStatus err = noErr;
   ScrapRef cur_scrap, specific_scrap;
@@ -1713,17 +1840,19 @@ mac_handle_service_event (call_ref, event, data)
       if (err != noErr)
 	break;
 
-      if (NILP (Fx_selection_owner_p (Vmac_service_selection)))
+      if (NILP(Fx_selection_owner_p(Vmac_service_selection,
+                                    LISP_INITIALLY_ZERO)))
 	break;
       else
 	goto copy_all_flavors;
 
     case kEventServiceCopy:
-      err = GetEventParameter (event, kEventParamScrapRef,
-			       typeScrapRef, NULL,
-			       sizeof (ScrapRef), NULL, &specific_scrap);
-      if (err != noErr
-	  || NILP (Fx_selection_owner_p (Vmac_service_selection)))
+      err = GetEventParameter(event, kEventParamScrapRef,
+			      typeScrapRef, NULL,
+			      sizeof(ScrapRef), NULL, &specific_scrap);
+      if ((err != noErr)
+	  || NILP(Fx_selection_owner_p(Vmac_service_selection,
+                                       LISP_INITIALLY_ZERO)))
 	{
 	  err = eventNotHandledErr;
 	  break;
@@ -1732,13 +1861,14 @@ mac_handle_service_event (call_ref, event, data)
     copy_all_flavors:
       {
 	UInt32 count, i;
-	ScrapFlavorInfo *flavor_info = NULL;
+	ScrapFlavorInfo *flavor_info = (ScrapFlavorInfo *)NULL;
 	ScrapFlavorFlags flags;
 
-	err = GetScrapFlavorCount (cur_scrap, &count);
+	err = GetScrapFlavorCount(cur_scrap, &count);
 	if (err == noErr)
-	  flavor_info = xmalloc (sizeof (ScrapFlavorInfo) * count);
-	err = GetScrapFlavorInfoList (cur_scrap, &count, flavor_info);
+	  flavor_info = ((ScrapFlavorInfo *)
+                         xmalloc(sizeof(ScrapFlavorInfo) * count));
+	err = GetScrapFlavorInfoList(cur_scrap, &count, flavor_info);
 	if (err != noErr)
 	  {
 	    xfree (flavor_info);
@@ -1800,6 +1930,9 @@ mac_handle_service_event (call_ref, event, data)
 	else
 	  err = mac_store_service_event (event);
       }
+      break;
+
+    default:
       break;
     }
 
@@ -1880,28 +2013,28 @@ The types are chosen in the order they appear in the list.  */);
   Vmac_service_selection = intern ("PRIMARY");
 #endif /* MAC_OSX */
 
-  QPRIMARY   = intern ("PRIMARY");	staticpro (&QPRIMARY);
-  QSECONDARY = intern ("SECONDARY");	staticpro (&QSECONDARY);
-  QTIMESTAMP = intern ("TIMESTAMP");	staticpro (&QTIMESTAMP);
-  QTARGETS   = intern ("TARGETS");	staticpro (&QTARGETS);
+  QPRIMARY   = intern("PRIMARY");	staticpro(&QPRIMARY);
+  QSECONDARY = intern("SECONDARY");	staticpro(&QSECONDARY);
+  QTIMESTAMP = intern("TIMESTAMP");	staticpro(&QTIMESTAMP);
+  QTARGETS   = intern("TARGETS");	staticpro(&QTARGETS);
 
-  Qforeign_selection = intern ("foreign-selection");
-  staticpro (&Qforeign_selection);
+  Qforeign_selection = intern("foreign-selection");
+  staticpro(&Qforeign_selection);
 
-  Qmac_scrap_name = intern ("mac-scrap-name");
-  staticpro (&Qmac_scrap_name);
+  Qmac_scrap_name = intern("mac-scrap-name");
+  staticpro(&Qmac_scrap_name);
 
-  Qmac_ostype = intern ("mac-ostype");
-  staticpro (&Qmac_ostype);
+  Qmac_ostype = intern("mac-ostype");
+  staticpro(&Qmac_ostype);
 
-  Qmac_apple_event_class = intern ("mac-apple-event-class");
-  staticpro (&Qmac_apple_event_class);
+  Qmac_apple_event_class = intern("mac-apple-event-class");
+  staticpro(&Qmac_apple_event_class);
 
-  Qmac_apple_event_id = intern ("mac-apple-event-id");
-  staticpro (&Qmac_apple_event_id);
+  Qmac_apple_event_id = intern("mac-apple-event-id");
+  staticpro(&Qmac_apple_event_id);
 
-  Qemacs_suspension_id = intern ("emacs-suspension-id");
-  staticpro (&Qemacs_suspension_id);
+  Qemacs_suspension_id = intern("emacs-suspension-id");
+  staticpro(&Qemacs_suspension_id);
 }
 
 /* arch-tag: f3c91ad8-99e0-4bd6-9eef-251b2f848732

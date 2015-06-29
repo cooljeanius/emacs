@@ -718,24 +718,24 @@ mac_coerce_file_name_ptr(DescType type_code, const void *data_ptr,
       CFURLRef url = NULL;
       CFDataRef data = NULL;
 
-      str = CFStringCreateWithBytes (NULL, data_ptr, data_size,
-				     kCFStringEncodingUTF8, false);
+      str = CFStringCreateWithBytes(NULL, data_ptr, data_size,
+				    kCFStringEncodingUTF8, false);
       if (str)
 	{
-	  url = CFURLCreateWithFileSystemPath (NULL, str,
-					       kCFURLPOSIXPathStyle, false);
-	  CFRelease (str);
+	  url = CFURLCreateWithFileSystemPath(NULL, str,
+					      kCFURLPOSIXPathStyle, false);
+	  CFRelease(str);
 	}
       if (url)
 	{
-	  data = CFURLCreateData (NULL, url, kCFStringEncodingUTF8, true);
-	  CFRelease (url);
+	  data = CFURLCreateData(NULL, url, kCFStringEncodingUTF8, true);
+	  CFRelease(url);
 	}
       if (data)
 	{
-	  err = AECoercePtr (typeFileURL, CFDataGetBytePtr (data),
-			     CFDataGetLength (data), to_type, result);
-	  CFRelease (data);
+	  err = AECoercePtr(typeFileURL, CFDataGetBytePtr(data),
+			    CFDataGetLength(data), to_type, result);
+	  CFRelease(data);
 	}
       else
 	err = memFullErr;
@@ -746,7 +746,7 @@ mac_coerce_file_name_ptr(DescType type_code, const void *data_ptr,
 	  FSRef fref;
 	  char *buf;
 
-	  buf = xmalloc(data_size + 1);
+	  buf = (char *)xmalloc(data_size + 1);
 	  memcpy(buf, data_ptr, data_size);
 	  buf[data_size] = '\0';
 	  err = FSPathMakeRef((const UInt8 *)buf, &fref, NULL);
@@ -760,11 +760,11 @@ mac_coerce_file_name_ptr(DescType type_code, const void *data_ptr,
       FSSpec fs;
       char *buf;
 
-      buf = xmalloc (data_size + 1);
-      memcpy (buf, data_ptr, data_size);
+      buf = (char *)xmalloc(data_size + 1UL);
+      memcpy(buf, data_ptr, data_size);
       buf[data_size] = '\0';
-      err = posix_pathname_to_fsspec (buf, &fs);
-      xfree (buf);
+      err = posix_pathname_to_fsspec(buf, &fs);
+      xfree(buf);
       if (err == noErr)
 	err = AECoercePtr(typeFSS, &fs, sizeof(FSSpec), to_type, result);
 #endif /* MAC_OSX */
@@ -778,27 +778,27 @@ mac_coerce_file_name_ptr(DescType type_code, const void *data_ptr,
       CFDataRef data = NULL;
 
       if (type_code == typeFileURL)
-	url = CFURLCreateWithBytes (NULL, data_ptr, data_size,
-				    kCFStringEncodingUTF8, NULL);
+	url = CFURLCreateWithBytes(NULL, data_ptr, data_size,
+				   kCFStringEncodingUTF8, NULL);
       else
 	{
 	  AEDesc desc;
 	  Size size;
 	  char *buf;
 
-	  err = AECoercePtr (type_code, data_ptr, data_size,
-			     typeFileURL, &desc);
+	  err = AECoercePtr(type_code, data_ptr, data_size,
+			    typeFileURL, &desc);
 	  if (err == noErr)
 	    {
-	      size = AEGetDescDataSize (&desc);
-	      buf = xmalloc (size);
-	      err = AEGetDescData (&desc, buf, size);
+	      size = AEGetDescDataSize(&desc);
+	      buf = (char *)xmalloc(size);
+	      err = AEGetDescData(&desc, buf, size);
 	      if (err == noErr) {
 		url = CFURLCreateWithBytes(NULL, (const UInt8 *)buf, size,
                                            kCFStringEncodingUTF8, NULL);
               }
-	      xfree (buf);
-	      AEDisposeDesc (&desc);
+	      xfree(buf);
+	      AEDisposeDesc(&desc);
 	    }
 	}
       if (url)
@@ -896,28 +896,28 @@ mac_coerce_file_name_desc(const AEDesc *from_desc, DescType to_type,
   if (from_type == typeNull)
     err = errAECoercionFail;
   else if (from_type == to_type || to_type == typeWildCard)
-    err = AEDuplicateDesc (from_desc, result);
+    err = AEDuplicateDesc(from_desc, result);
   else
     {
       char *data_ptr;
       Size data_size;
 
 #if TARGET_API_MAC_CARBON
-      data_size = AEGetDescDataSize (from_desc);
+      data_size = AEGetDescDataSize(from_desc);
 #else
-      data_size = GetHandleSize (from_desc->dataHandle);
+      data_size = GetHandleSize(from_desc->dataHandle);
 #endif /* TARGET_API_MAC_CARBON */
-      data_ptr = xmalloc (data_size);
+      data_ptr = (char *)xmalloc(data_size);
 #if TARGET_API_MAC_CARBON
-      err = AEGetDescData (from_desc, data_ptr, data_size);
+      err = AEGetDescData(from_desc, data_ptr, data_size);
 #else
-      memcpy (data_ptr, *(from_desc->dataHandle), data_size);
+      memcpy(data_ptr, *(from_desc->dataHandle), data_size);
 #endif /* TARGET_API_MAC_CARBON */
       if (err == noErr)
-	err = mac_coerce_file_name_ptr (from_type, data_ptr,
-					data_size, to_type,
-					handler_refcon, result);
-      xfree (data_ptr);
+	err = mac_coerce_file_name_ptr(from_type, data_ptr,
+                                       data_size, to_type,
+                                       handler_refcon, result);
+      xfree(data_ptr);
     }
 
   if (err != noErr)
@@ -1329,62 +1329,66 @@ Lisp_Object
 cfproperty_list_to_lisp(CFPropertyListRef plist,
                         int with_tag, int hash_bound)
 {
-  CFTypeID type_id = CFGetTypeID (plist);
+  CFTypeID type_id = CFGetTypeID(plist);
   Lisp_Object tag = Qnil, result = Qnil;
   struct gcpro gcpro1, gcpro2;
 
-  GCPRO2 (tag, result);
+  GCPRO2(tag, result);
 
-  if (type_id == CFStringGetTypeID ())
+  if (NILP(tag)) {
+    ; /* ??? */
+  }
+
+  if (type_id == CFStringGetTypeID())
     {
       tag = Qstring;
-      result = cfstring_to_lisp (plist);
+      result = cfstring_to_lisp(plist);
     }
-  else if (type_id == CFNumberGetTypeID ())
+  else if (type_id == CFNumberGetTypeID())
     {
       tag = Qnumber;
-      result = cfnumber_to_lisp (plist);
+      result = cfnumber_to_lisp(plist);
     }
-  else if (type_id == CFBooleanGetTypeID ())
+  else if (type_id == CFBooleanGetTypeID())
     {
       tag = Qboolean;
-      result = cfboolean_to_lisp (plist);
+      result = cfboolean_to_lisp(plist);
     }
-  else if (type_id == CFDateGetTypeID ())
+  else if (type_id == CFDateGetTypeID())
     {
       tag = Qdate;
-      result = cfdate_to_lisp (plist);
+      result = cfdate_to_lisp(plist);
     }
-  else if (type_id == CFDataGetTypeID ())
+  else if (type_id == CFDataGetTypeID())
     {
       tag = Qdata;
-      result = cfdata_to_lisp (plist);
+      result = cfdata_to_lisp(plist);
     }
-  else if (type_id == CFArrayGetTypeID ())
+  else if (type_id == CFArrayGetTypeID())
     {
-      CFIndex index, count = CFArrayGetCount (plist);
+      CFIndex index, count = CFArrayGetCount(plist);
 
       tag = Qarray;
-      result = Fmake_vector (make_number (count), Qnil);
+      result = Fmake_vector(make_number(count), Qnil);
       for (index = 0; index < count; index++)
-	XVECTOR (result)->contents[index] =
-	  cfproperty_list_to_lisp (CFArrayGetValueAtIndex (plist, index),
-				   with_tag, hash_bound);
+	XVECTOR(result)->contents[index] =
+	  cfproperty_list_to_lisp(CFArrayGetValueAtIndex(plist, index),
+				  with_tag, hash_bound);
     }
-  else if (type_id == CFDictionaryGetTypeID ())
+  else if (type_id == CFDictionaryGetTypeID())
     {
       struct cfdict_context context;
-      CFIndex count = CFDictionaryGetCount (plist);
+      CFIndex count = CFDictionaryGetCount(plist);
 
       tag = Qdictionary;
-      context.result  = &result;
+      context.result = &result;
       context.with_tag = with_tag;
       context.hash_bound = hash_bound;
-      if (hash_bound < 0 || count < hash_bound)
+      if ((hash_bound < 0) || (count < hash_bound))
 	{
 	  result = Qnil;
-	  CFDictionaryApplyFunction (plist, cfdictionary_add_to_list,
-				     &context);
+	  CFDictionaryApplyFunction(plist, cfdictionary_add_to_list,
+				    &context);
 	}
       else
 	{
@@ -1392,17 +1396,17 @@ cfproperty_list_to_lisp(CFPropertyListRef plist,
                                            make_float(DEFAULT_REHASH_SIZE),
                                            make_float(DEFAULT_REHASH_THRESHOLD),
                                            Qnil, Qnil, Qnil);
-	  CFDictionaryApplyFunction (plist, cfdictionary_puthash,
-				     &context);
+	  CFDictionaryApplyFunction(plist, cfdictionary_puthash,
+				    &context);
 	}
     }
   else
-    abort ();
+    abort();
 
   UNGCPRO;
 
   if (with_tag)
-    result = Fcons (tag, result);
+    result = Fcons(tag, result);
 
   return result;
 }
@@ -1533,10 +1537,10 @@ static Lisp_Object parse_resource_name(const char **p)
     }
 
   /* The final component should not be '?'.  */
-  if (EQ (component, SINGLE_COMPONENT))
+  if (EQ(component, SINGLE_COMPONENT))
     return Qnil;
 
-  return Fnreverse (result);
+  return Fnreverse(result);
 }
 
 static Lisp_Object parse_value(const char **p)
@@ -1546,9 +1550,9 @@ static Lisp_Object parse_value(const char **p)
   int buf_len, total_len = 0, len, continue_p;
   int loop_counter;
 
-  q = strchr (P, '\n');
-  buf_len = q ? q - P : strlen (P);
-  buf = xmalloc (buf_len);
+  q = strchr(P, '\n');
+  buf_len = (q ? (q - P) : strlen(P));
+  buf = (char *)xmalloc(buf_len);
 
   while (1)
     {
@@ -1590,30 +1594,30 @@ static Lisp_Object parse_value(const char **p)
 	  else
 	    *q++ = *P++;
 	}
-      len = q - buf;
-      seq = Fcons (make_unibyte_string (buf, len), seq);
+      len = (q - buf);
+      seq = Fcons(make_unibyte_string(buf, len), seq);
       total_len += len;
 
       if (continue_p)
 	{
-	  q = strchr (P, '\n');
-	  len = q ? q - P : strlen (P);
+	  q = strchr(P, '\n');
+	  len = (q ? (q - P) : strlen(P));
 	  if (len > buf_len)
 	    {
-	      xfree (buf);
+	      xfree(buf);
 	      buf_len = len;
-	      buf = xmalloc (buf_len);
+	      buf = (char *)xmalloc(buf_len);
 	    }
 	}
       else
 	break;
     }
-  xfree (buf);
+  xfree(buf);
 
   if (SBYTES(XCAR(seq)) == total_len) {
       return make_string((const char *)SDATA(XCAR(seq)), total_len);
   } else {
-      buf = xmalloc(total_len);
+      buf = (char *)xmalloc(total_len);
       q = (buf + total_len);
       for (loop_counter = 0; CONSP(seq); seq = XCDR(seq)) {
 	  len = SBYTES(XCAR(seq));
@@ -1901,58 +1905,62 @@ XrmDatabase xrm_get_preference_database(const char *application)
   host_doms[0] = kCFPreferencesCurrentHost;
   host_doms[1] = kCFPreferencesAnyHost;
 
-  database = xrm_create_database ();
+  database = xrm_create_database();
 
-  GCPRO3 (database, quarks, value);
+  GCPRO3(database, quarks, value);
+
+  if (EQ(quarks, value)) {
+    ; /* ??? */
+  }
 
   BLOCK_INPUT;
 
   app_id = kCFPreferencesCurrentApplication;
   if (application)
     {
-      app_id = cfstring_create_with_utf8_cstring (application);
+      app_id = cfstring_create_with_utf8_cstring(application);
       if (app_id == NULL)
 	goto out;
     }
-  if (!CFPreferencesAppSynchronize (app_id))
+  if (!CFPreferencesAppSynchronize(app_id))
     goto out;
 
-  key_set = CFSetCreateMutable (NULL, 0, &kCFCopyStringSetCallBacks);
+  key_set = CFSetCreateMutable(NULL, 0, &kCFCopyStringSetCallBacks);
   if (key_set == NULL)
     goto out;
   for (iu = 0; iu < (sizeof(user_doms) / sizeof(*user_doms)); iu++)
     for (ih = 0; ih < (sizeof(host_doms) / sizeof(*host_doms)); ih++)
       {
-	key_array = CFPreferencesCopyKeyList (app_id, user_doms[iu],
-					      host_doms[ih]);
+	key_array = CFPreferencesCopyKeyList(app_id, user_doms[iu],
+					     host_doms[ih]);
 	if (key_array)
 	  {
-	    count = CFArrayGetCount (key_array);
+	    count = CFArrayGetCount(key_array);
 	    for (index = 0; index < count; index++)
-	      CFSetAddValue (key_set,
-			     CFArrayGetValueAtIndex (key_array, index));
-	    CFRelease (key_array);
+	      CFSetAddValue(key_set,
+			    CFArrayGetValueAtIndex(key_array, index));
+	    CFRelease(key_array);
 	  }
       }
 
-  count = CFSetGetCount (key_set);
-  keys = xmalloc (sizeof (CFStringRef) * count);
-  CFSetGetValues (key_set, (const void **)keys);
+  count = CFSetGetCount(key_set);
+  keys = (CFStringRef *)xmalloc(sizeof(CFStringRef) * count);
+  CFSetGetValues(key_set, (const void **)keys);
   for (index = 0; index < count; index++)
     {
       res_name = (char *)SDATA(cfstring_to_lisp_nodecode(keys[index]));
       quarks = parse_resource_name((const char **)&res_name);
-      if (!(NILP (quarks) || *res_name))
+      if (!(NILP(quarks) || *res_name))
 	{
-	  plist = CFPreferencesCopyAppValue (keys[index], app_id);
-	  value = xrm_cfproperty_list_to_value (plist);
-	  CFRelease (plist);
-	  if (!NILP (value))
-	    xrm_q_put_resource (database, quarks, value);
+	  plist = CFPreferencesCopyAppValue(keys[index], app_id);
+	  value = xrm_cfproperty_list_to_value(plist);
+	  CFRelease(plist);
+	  if (!NILP(value))
+	    xrm_q_put_resource(database, quarks, value);
 	}
     }
 
-  xfree (keys);
+  xfree(keys);
  out:
   if (key_set)
     CFRelease(key_set);
@@ -4801,7 +4809,7 @@ cfstring_create_normalized(CFStringRef str, Lisp_Object symbol)
       in_text = (UniChar *)CFStringGetCharactersPtr(str);
       if (in_text == NULL)
 	{
-	  buffer = xmalloc(sizeof(UniChar) * length);
+	  buffer = (UniChar *)xmalloc(sizeof(UniChar) * length);
 	  CFStringGetCharacters(str, CFRangeMake(0, length), buffer);
 	  in_text = buffer;
 	}
@@ -4810,7 +4818,7 @@ cfstring_create_normalized(CFStringRef str, Lisp_Object symbol)
 	err = CreateUnicodeToTextInfo(&map, &uni);
       while (err == noErr)
 	{
-	  out_buf = xmalloc(out_size);
+	  out_buf = (UniChar *)xmalloc(out_size);
 	  err = ConvertFromUnicodeToText(uni, (length * sizeof(UniChar)),
                                          in_text,
                                          kUnicodeDefaultDirectionMask,

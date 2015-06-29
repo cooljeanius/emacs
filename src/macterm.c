@@ -97,9 +97,38 @@ extern SRefCon GetWRefCon(WindowRef window);
 #  include <QD/QuickdrawAPI.h>
 # else
 #  if !defined(__QUICKDRAWAPI__) || defined(__LP64__)
+/* inline the prototypes we need: */
+void GetClip(RgnHandle rgn);
+#   if TARGET_OS_MAC
+#    define MacLineTo LineTo
+#   endif /* TARGET_OS_MAC */
+void MacLineTo(short h, short v);
+void MoveTo(short h, short v);
 RgnHandle NewRgn(void);
+OSStatus QDBeginCGContext(CGrafPtr inPort, CGContextRef *outContext);
+OSStatus QDEndCGContext(CGrafPtr inPort, CGContextRef *inoutContext);
+void RGBForeColor(const RGBColor *color);
+void SectRgn(RgnHandle srcRgnA, RgnHandle srcRgnB, RgnHandle dstRgn);
+void SetClip(RgnHandle rgn);
 #  endif /* !__QUICKDRAWAPI__ || __LP64__ */
 # endif /* HAVE_CARBON && HAVE_QD_QUICKDRAWAPI_H */
+# if defined(HAVE_CARBON) && defined(HAVE_QD_QDOFFSCREEN_H)
+#  include <QD/QDOffscreen.h>
+# else
+#  if !defined(__QDOFFSCREEN__) || defined(__LP64__)
+/* inline the prototypes we need: */
+void DisposeGWorld(GWorldPtr offscreenGWorld);
+#  endif /* !__QDOFFSCREEN__ || __LP64__ */
+# endif /* HAVE_CARBON && HAVE_QD_QDOFFSCREEN_H */
+# if defined(HAVE_CARBON) && defined(HAVE_QUICKTIME_IMAGECOMPRESSION_H)
+#  include <QuickTime/ImageCompression.h>
+# else
+#  if !defined(__IMAGECOMPRESSION__) || defined(__LP64__)
+OSErr QTNewGWorld(GWorldPtr *offscreenGWorld, OSType PixelFormat,
+                  const Rect *boundsRect, CTabHandle cTable,
+                  GDHandle aGDevice, GWorldFlags flags);
+#  endif /* !__IMAGECOMPRESSION__ || __LP64__ */
+# endif /* HAVE_CARBON && HAVE_QUICKTIME_IMAGECOMPRESSION_H */
 #else /* not TARGET_API_MAC_CARBON: */
 # include <Quickdraw.h>
 # include <ToolUtils.h>
@@ -307,8 +336,11 @@ static void x_clear_frame P_ ((void));
 static void frame_highlight P_ ((struct frame *));
 static void frame_unhighlight P_ ((struct frame *));
 static void x_new_focus_frame P_ ((struct x_display_info *, struct frame *));
-static void mac_focus_changed P_ ((int, struct mac_display_info *,
-				   struct frame *, struct input_event *));
+#ifndef _EMACS_MACTERM_H
+static
+#endif /* !_EMACS_MACTERM_H */
+void mac_focus_changed P_((int, struct mac_display_info *,
+                           struct frame *, struct input_event *));
 static void x_detect_focus_change P_ ((struct mac_display_info *,
 				       const EventRecord *,
 				       struct input_event *));
@@ -319,7 +351,10 @@ static void x_draw_bar_cursor P_ ((struct window *, struct glyph_row *, int,
 				   enum text_cursor_kinds));
 
 static void x_clip_to_row P_ ((struct window *, struct glyph_row *, int, GC));
-static void x_flush P_ ((struct frame *f));
+#ifndef _EMACS_MACTERM_H
+static
+#endif /* !_EMACS_MACTERM_H */
+void x_flush P_((struct frame *f));
 static void x_update_begin P_ ((struct frame *));
 static void x_update_window_begin P_ ((struct window *));
 static void x_after_update_window_line P_ ((struct glyph_row *));
@@ -400,7 +435,10 @@ static void XSetFont P_ ((Display *, GC, XFontStruct *));
 static int max_fringe_bmp = 0;
 static CGImageRef *fringe_bmp = 0;
 
-static CGColorSpaceRef mac_cg_color_space_rgb;
+# ifndef _EMACS_MACTERM_H
+static
+# endif /* !_EMACS_MACTERM_H */
+CGColorSpaceRef mac_cg_color_space_rgb;
 # if MAC_OS_X_VERSION_MAX_ALLOWED >= 1030
 static CGColorRef mac_cg_color_black;
 # endif /* 10.3+ */
@@ -423,7 +461,10 @@ static void init_cg_color(void)
 # endif /* 10.3+ */
 }
 
-static CGContextRef mac_begin_cg_clip(struct frame *f, GC gc)
+# ifndef _EMACS_MACTERM_H
+static
+# endif /* !_EMACS_MACTERM_H */
+CGContextRef mac_begin_cg_clip(struct frame *f, GC gc)
 {
   CGContextRef context = FRAME_CG_CONTEXT(f);
 
@@ -442,7 +483,10 @@ static CGContextRef mac_begin_cg_clip(struct frame *f, GC gc)
   return context;
 }
 
-static void
+# ifndef _EMACS_MACTERM_H
+static
+# endif /* !_EMACS_MACTERM_H */
+void
 mac_end_cg_clip(struct frame *f)
 {
   CGContextRestoreGState(FRAME_CG_CONTEXT(f));
@@ -1580,11 +1624,22 @@ mac_copy_area_with_mask(Pixmap src, Pixmap mask, struct frame *f, GC gc,
 }
 #endif	/* !USE_CG_DRAWING */
 
+#ifndef UNSIGNED_WITHOUT_HEADER
+# ifdef _EMACS_MACTERM_H
+#  define UNSIGNED_WITHOUT_HEADER /* (nothing) */
+# else
+#  define UNSIGNED_WITHOUT_HEADER unsigned
+# endif /* _EMACS_MACTERM_H */
+#endif /* !UNSIGNED_WITHOUT_HEADER */
 
 /* Mac replacement for XCopyArea: used only for scrolling: */
-static void
+#ifndef _EMACS_MACTERM_H
+static
+#endif /* !_EMACS_MACTERM_H */
+void
 mac_scroll_area(struct frame *f, GC gc, int src_x, int src_y,
-                unsigned int width, unsigned int height,
+                UNSIGNED_WITHOUT_HEADER int width,
+                UNSIGNED_WITHOUT_HEADER int height,
                 int dest_x, int dest_y)
 {
 #if TARGET_API_MAC_CARBON
@@ -1857,7 +1912,10 @@ XSetWindowBackground(Display *display, WindowPtr w, unsigned long color)
 }
 
 /* Flush display of frame F, or of all frames if F is null: */
-static void x_flush(struct frame *f)
+#ifndef _EMACS_MACTERM_H
+static
+#endif /* !_EMACS_MACTERM_H */
+void x_flush(struct frame *f)
 {
 #if TARGET_API_MAC_CARBON
   BLOCK_INPUT;
@@ -2448,7 +2506,13 @@ static int mac_encode_char(int c, XChar2b *char2b,
         {
           int sjis1, sjis2;
 
+          /* FIXME: Find the proper definition for this: */
+#ifdef ENCODE_SJIS
           ENCODE_SJIS(char2b->byte1, char2b->byte2, sjis1, sjis2);
+#else
+          sjis1 = 0;
+          sjis2 = 0;
+#endif /* ENCODE_SJIS */
           char2b->byte1 = sjis1;
           char2b->byte2 = sjis2;
         }
@@ -2617,7 +2681,7 @@ static void x_draw_box_rect P_ ((struct glyph_string *, int, int, int, int,
 				 int, int, int, Rect *));
 
 #if GLYPH_DEBUG
-static void x_check_font P_ ((struct frame *, XFontStruct *));
+static void x_check_font P_((struct frame *, XFontStruct *));
 #endif /* GLYPH_DEBUG */
 
 
@@ -2655,7 +2719,7 @@ static void x_set_cursor_gc(struct glyph_string *s)
 	  xgcv.foreground = s->face->background;
 	}
 
-      IF_DEBUG(x_check_font(s->f, s->font));
+      IF_DEBUG(x_check_font(s->f, (XFontStruct *)s->font));
       xgcv.font = s->font;
       mask = (GCForeground | GCBackground | GCFont);
 
@@ -2703,7 +2767,7 @@ static void x_set_mouse_face_gc(struct glyph_string *s)
 
       xgcv.background = s->face->background;
       xgcv.foreground = s->face->foreground;
-      IF_DEBUG(x_check_font(s->f, s->font));
+      IF_DEBUG(x_check_font(s->f, (XFontStruct *)s->font));
       xgcv.font = s->font;
       mask = (GCForeground | GCBackground | GCFont);
 
@@ -2805,7 +2869,8 @@ static void mac_compute_glyph_string_overhangs(struct glyph_string *s)
     {
       XCharStruct cs;
 
-      mac_text_extents_16(s->font, s->char2b, s->nchars, &cs);
+      mac_text_extents_16((XFontStruct *)s->font, s->char2b, s->nchars,
+                          &cs);
       s->right_overhang = ((cs.rbearing > cs.width)
                            ? (cs.rbearing - cs.width) : 0);
       s->left_overhang = ((cs.lbearing < 0) ? -cs.lbearing : 0);
@@ -4261,7 +4326,10 @@ x_new_focus_frame(struct x_display_info *dpyinfo, struct frame *frame)
 /* Handle FocusIn and FocusOut state changes for FRAME.
    If FRAME has focus and there exists more than one frame, puts
    a FOCUS_IN_EVENT into *BUFP.  */
-static void
+#ifndef _EMACS_MACTERM_H
+static
+#endif /* !_EMACS_MACTERM_H */
+void
 mac_focus_changed(int type, struct mac_display_info *dpyinfo,
                   struct frame *frame, struct input_event *bufp)
 {
@@ -4414,7 +4482,7 @@ static int note_mouse_movement(FRAME_PTR frame, Point *pos)
       /* This case corresponds to LeaveNotify in X11.  If we move
 	 outside the frame, then we're certainly no longer on any text
 	 in the frame.  */
-      clear_mouse_face(dpyinfo);
+      clear_mouse_face((Mouse_HLInfo *)dpyinfo);
       dpyinfo->mouse_face_mouse_frame = 0;
       if (!dpyinfo->grabbed)
 	rif->define_frame_cursor(frame,
@@ -4455,8 +4523,10 @@ static void redo_mouse_highlight(void)
   return;
 }
 
-
-static struct frame *mac_focus_frame(struct mac_display_info *dpyinfo)
+#ifndef _EMACS_MACTERM_H
+static
+#endif /* !_EMACS_MACTERM_H */
+struct frame *mac_focus_frame(struct mac_display_info *dpyinfo)
 {
   if (dpyinfo->x_focus_frame) {
     return dpyinfo->x_focus_frame;
@@ -5854,25 +5924,31 @@ xim_close_dpy (dpyinfo)
 void mac_get_window_bounds(struct frame *f, Rect *inner, Rect *outer)
 {
 #if TARGET_API_MAC_CARBON
-  GetWindowBounds (FRAME_MAC_WINDOW (f), kWindowContentRgn, inner);
-  GetWindowBounds (FRAME_MAC_WINDOW (f), kWindowStructureRgn, outer);
+  GetWindowBounds(FRAME_MAC_WINDOW(f), kWindowContentRgn, inner);
+  GetWindowBounds(FRAME_MAC_WINDOW(f), kWindowStructureRgn, outer);
 #else /* not TARGET_API_MAC_CARBON */
-  RgnHandle region = NewRgn ();
+  RgnHandle region = NewRgn();
 
-  GetWindowRegion (FRAME_MAC_WINDOW (f), kWindowContentRgn, region);
+  GetWindowRegion(FRAME_MAC_WINDOW(f), kWindowContentRgn, region);
   *inner = (*region)->rgnBBox;
-  GetWindowRegion (FRAME_MAC_WINDOW (f), kWindowStructureRgn, region);
+  GetWindowRegion(FRAME_MAC_WINDOW(f), kWindowStructureRgn, region);
   *outer = (*region)->rgnBBox;
-  DisposeRgn (region);
+  DisposeRgn(region);
 #endif /* not TARGET_API_MAC_CARBON */
 }
 
-static void mac_handle_origin_change(struct frame *f)
+#ifndef _EMACS_MACTERM_H
+static
+#endif /* !_EMACS_MACTERM_H */
+void mac_handle_origin_change(struct frame *f)
 {
-  x_real_positions (f, &f->left_pos, &f->top_pos);
+  x_real_positions(f, &f->left_pos, &f->top_pos);
 }
 
-static void
+#ifndef _EMACS_MACTERM_H
+static
+#endif /* !_EMACS_MACTERM_H */
+void
 mac_handle_size_change(struct frame *f, int pixelwidth, int pixelheight)
 {
   int cols, rows;
@@ -6181,15 +6257,18 @@ static void XTframe_raise_lower(FRAME_PTR f, int raise_flag)
 }
 
 /* Change of visibility: */
-static void mac_handle_visibility_change(struct frame *f)
+#ifndef _EMACS_MACTERM_H
+static
+#endif /* !_EMACS_MACTERM_H */
+void mac_handle_visibility_change(struct frame *f)
 {
-  WindowPtr wp = FRAME_MAC_WINDOW (f);
+  WindowPtr wp = FRAME_MAC_WINDOW(f);
   int visible = 0, iconified = 0;
   struct input_event buf;
 
-  if (IsWindowVisible (wp))
+  if (IsWindowVisible(wp))
     {
-      if (IsWindowCollapsed (wp))
+      if (IsWindowCollapsed(wp))
 	iconified = 1;
       else
 	visible = 1;
@@ -7272,7 +7351,7 @@ static Lisp_Object atsu_find_font_family_name(ATSUFontID font_id)
       family = make_uninit_string(len);
       err = ATSUFindFontName(font_id, kFontFamilyName,
                              kFontMacintoshPlatform, kFontNoScript,
-                             kFontNoLanguage, len, SDATA(family),
+                             kFontNoLanguage, len, (Ptr)SDATA(family),
                              NULL, NULL);
     }
   if (err == noErr)
@@ -8667,8 +8746,11 @@ int mac_pass_control_to_system;
    Carbon/Apple event handlers.  */
 static struct input_event *read_socket_inev = NULL;
 
-/* Whether or not the screen configuration has changed.  */
-static int mac_screen_config_changed = 0;
+/* Whether or not the screen configuration has changed: */
+#ifndef _EMACS_MACTERM_H
+static
+#endif /* !_EMACS_MACTERM_H */
+bool mac_screen_config_changed = 0;
 
 Point saved_menu_event_location;
 
@@ -8681,11 +8763,17 @@ static Lisp_Object Qtoolbar_switch_mode;
 # endif /* MAC_OSX */
 # if USE_MAC_FONT_PANEL
 extern Lisp_Object Qfont;
-static Lisp_Object Qpanel_closed, Qselection;
+#  ifndef _EMACS_MACTERM_H
+static
+#  endif /* !_EMACS_MACTERM_H */
+Lisp_Object Qpanel_closed, Qselection;
 # endif /* USE_MAC_FONT_PANEL */
 # if USE_MAC_TSM
 static TSMDocumentID tsm_document_id;
-static Lisp_Object Qtext_input;
+#  ifndef _EMACS_MACTERM_H
+static
+#  endif /* !_EMACS_MACTERM_H */
+Lisp_Object Qtext_input;
 static Lisp_Object Qupdate_active_input_area, Qunicode_for_key_event;
 #  ifndef Vmac_ts_active_input_overlay
 static Lisp_Object Vmac_ts_active_input_overlay;
@@ -8701,23 +8789,27 @@ static Component saved_ts_component;
 #endif /* USE_CARBON_EVENTS */
 extern int mac_ready_for_apple_events;
 extern Lisp_Object Qundefined;
-extern void init_apple_event_handler P_ ((void));
-extern void mac_find_apple_event_spec P_ ((AEEventClass, AEEventID,
-					   Lisp_Object *, Lisp_Object *,
-					   Lisp_Object *));
-extern OSErr init_coercion_handler P_ ((void));
+extern void init_apple_event_handler P_((void));
+extern Lisp_Object mac_find_apple_event_spec P_((AEEventClass, AEEventID,
+                                                 Lisp_Object *,
+                                                 Lisp_Object *,
+                                                 Lisp_Object *));
+extern OSErr init_coercion_handler P_((void));
 
 /* Drag and Drop */
-extern OSErr install_drag_handler P_ ((WindowRef));
-extern void remove_drag_handler P_ ((WindowRef));
+extern OSErr install_drag_handler P_((WindowRef));
+extern void remove_drag_handler P_((WindowRef));
 
-/* Showing help echo string during menu tracking  */
-extern OSStatus install_menu_target_item_handler P_ ((WindowPtr));
+/* Showing help echo string during menu tracking: */
+extern OSStatus install_menu_target_item_handler P_((WindowPtr));
 
 #if USE_CARBON_EVENTS
 # ifdef MAC_OSX
-extern void init_service_handler P_ ((void));
-static Lisp_Object Qservice, Qpaste, Qperform;
+extern void init_service_handler P_((void));
+#  ifndef _EMACS_MACTERM_H
+static
+#  endif /* !_EMACS_MACTERM_H */
+Lisp_Object Qservice, Qpaste, Qperform;
 # endif /* MAC_OSX */
 
 /* Window Event Handler: */
@@ -9461,7 +9553,10 @@ void mac_store_apple_event(Lisp_Object class, Lisp_Object id,
 }
 
 #if TARGET_API_MAC_CARBON
-static OSStatus
+# ifndef _EMACS_MACTERM_H
+static
+# endif /* !_EMACS_MACTERM_H */
+OSStatus
 mac_store_event_ref_as_apple_event(AEEventClass class, AEEventID id,
                                    Lisp_Object class_key,
                                    Lisp_Object id_key,
@@ -10211,7 +10306,10 @@ static OSErr init_dm_notification_handler(void)
   return err;
 }
 
-static void mac_get_screen_info(struct mac_display_info *dpyinfo)
+#ifndef _EMACS_MACTERM_H
+static
+#endif /* !_EMACS_MACTERM_H */
+void mac_get_screen_info(struct mac_display_info *dpyinfo)
 {
 #ifdef MAC_OSX
   /* HasDepth returns true if it is possible to have a 32 bit display,
@@ -10826,7 +10924,7 @@ int XTread_socket(int sd, int expected, struct input_event *hold_quit)
 	      if (dpyinfo->mouse_face_hidden)
 		{
 		  dpyinfo->mouse_face_hidden = 0;
-		  clear_mouse_face(dpyinfo);
+		  clear_mouse_face((Mouse_HLInfo *)dpyinfo);
 		}
 
 	      if (f)
@@ -10949,7 +11047,7 @@ int XTread_socket(int sd, int expected, struct input_event *hold_quit)
 		  {
 		    /* If we move outside the frame, then we are
 		       certainly no longer on any text in the frame: */
-		    clear_mouse_face(dpyinfo);
+		    clear_mouse_face((Mouse_HLInfo *)dpyinfo);
 		    dpyinfo->mouse_face_mouse_frame = 0;
 		  }
 
@@ -11008,7 +11106,7 @@ int XTread_socket(int sd, int expected, struct input_event *hold_quit)
 	    if (!dpyinfo->mouse_face_hidden && INTEGERP(Vmouse_highlight)
 		&& !EQ(f->tool_bar_window, dpyinfo->mouse_face_window))
 	      {
-		clear_mouse_face (dpyinfo);
+		clear_mouse_face((Mouse_HLInfo *)dpyinfo);
 		dpyinfo->mouse_face_hidden = 1;
 	      }
 

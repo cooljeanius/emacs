@@ -6295,35 +6295,35 @@ where R,G,B are numbers between 0 and 255 and name is an arbitrary string.  */)
   Lisp_Object cmap = Qnil;
   Lisp_Object abspath;
 
-  CHECK_STRING (filename);
-  abspath = Fexpand_file_name (filename, Qnil);
+  CHECK_STRING(filename);
+  abspath = Fexpand_file_name(filename, Qnil);
 
-  block_input ();
-  fp = emacs_fopen (SSDATA (abspath), "rt");
+  block_input();
+  fp = emacs_fopen(SSDATA(abspath), "rt");
   if (fp)
     {
       char buf[512];
-      int red, green, blue;
+      unsigned int red, green, blue;
       int num;
 
-      while (fgets (buf, sizeof (buf), fp) != NULL) {
-	if (sscanf (buf, "%u %u %u %n", &red, &green, &blue, &num) == 3)
+      while (fgets(buf, sizeof(buf), fp) != NULL) {
+	if (sscanf(buf, "%u %u %u %n", &red, &green, &blue, &num) == 3)
 	  {
 #ifdef HAVE_NTGUI
-	    int color = RGB (red, green, blue);
+	    int color = RGB(red, green, blue);
 #else
-	    int color = (red << 16) | (green << 8) | blue;
-#endif
-	    char *name = buf + num;
-	    ptrdiff_t len = strlen (name);
-	    len -= 0 < len && name[len - 1] == '\n';
-	    cmap = Fcons (Fcons (make_string (name, len), make_number (color)),
-			  cmap);
+	    int color = ((red << 16) | (green << 8) | blue);
+#endif /* HAVE_NTGUI */
+	    char *name = (buf + num);
+	    ptrdiff_t len = strlen(name);
+	    len -= ((0 < len) && (name[len - 1] == '\n'));
+	    cmap = Fcons(Fcons(make_string(name, len), make_number(color)),
+			 cmap);
 	  }
       }
-      fclose (fp);
+      fclose(fp);
     }
-  unblock_input ();
+  unblock_input();
   return cmap;
 }
 #endif

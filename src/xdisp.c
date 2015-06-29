@@ -2258,12 +2258,9 @@ get_phys_cursor_geometry (struct window *w, struct glyph_row *row,
   *heightp = h;
 }
 
-/*
- * Remember which glyph the mouse is over.
- */
-
+/* Remember which glyph the mouse is over: */
 void
-remember_mouse_glyph (struct frame *f, int gx, int gy, NativeRectangle *rect)
+remember_mouse_glyph(struct frame *f, int gx, int gy, NativeRectangle *rect)
 {
   Lisp_Object window;
   struct window *w;
@@ -16024,12 +16021,10 @@ redisplay_window (Lisp_Object window, bool just_this_one_p)
 	case CURSOR_MOVEMENT_SUCCESS:
 	  used_current_matrix_p = 1;
 	  goto done;
-
 	case CURSOR_MOVEMENT_MUST_SCROLL:
 	  goto try_to_scroll;
-
 	default:
-	  emacs_abort ();
+	  emacs_abort();
 	}
     }
   /* If current starting point was originally the beginning of a line
@@ -16180,15 +16175,12 @@ redisplay_window (Lisp_Object window, bool just_this_one_p)
 	{
 	case SCROLLING_SUCCESS:
 	  goto done;
-
 	case SCROLLING_NEED_LARGER_MATRICES:
 	  goto need_larger_matrices;
-
 	case SCROLLING_FAILED:
 	  break;
-
 	default:
-	  emacs_abort ();
+	  emacs_abort();
 	}
     }
 
@@ -20489,7 +20481,7 @@ See also `bidi-paragraph-direction'.  */)
 	  return Qright_to_left;
 	  break;
 	default:
-	  emacs_abort ();
+	  emacs_abort();
 	}
     }
 }
@@ -24289,8 +24281,7 @@ compute_overhangs_and_x (struct glyph_string *s, int x, int backward_p)
    asynchronously).  */
 
 #define BUILD_GLYPH_STRINGS(START, END, HEAD, TAIL, HL, X, LAST_X)	\
-  do									\
-    {									\
+  do {									\
       HEAD = TAIL = NULL;						\
       while (START < END)						\
 	{								\
@@ -24327,7 +24318,7 @@ compute_overhangs_and_x (struct glyph_string *s, int x, int backward_p)
 	      break;							\
 									\
 	    default:							\
-	      emacs_abort ();							\
+	      emacs_abort();						\
 	    }								\
 									\
 	  if (s)							\
@@ -29280,8 +29271,7 @@ expose_overlaps (struct window *w,
 }
 
 
-/* Return non-zero if W's cursor intersects rectangle R.  */
-
+/* Return non-zero if W's cursor intersects rectangle R: */
 static int
 phys_cursor_in_rect_p (struct window *w, XRectangle *r)
 {
@@ -29418,9 +29408,9 @@ static void x_draw_bottom_divider(struct window *w)
    input blocked.  Value is non-zero if the exposure overwrites
    mouse-face.  */
 static int
-expose_window (struct window *w, XRectangle *fr)
+expose_window(struct window *w, XRectangle *fr)
 {
-  struct frame *f = XFRAME (w->frame);
+  struct frame *f = XFRAME(w->frame);
   XRectangle wr, r;
   int mouse_face_overwritten_p = 0;
 
@@ -29436,35 +29426,35 @@ expose_window (struct window *w, XRectangle *fr)
      later.  */
   if (w->must_be_updated_p)
     {
-      SET_FRAME_GARBAGED (f);
+      SET_FRAME_GARBAGED(f);
       return 0;
     }
 
-  /* Frame-relative pixel rectangle of W.  */
-  wr.x = WINDOW_LEFT_EDGE_X (w);
-  wr.y = WINDOW_TOP_EDGE_Y (w);
-  wr.width = WINDOW_PIXEL_WIDTH (w);
-  wr.height = WINDOW_PIXEL_HEIGHT (w);
+  /* Frame-relative pixel rectangle of W: */
+  wr.x = WINDOW_LEFT_EDGE_X(w);
+  wr.y = WINDOW_TOP_EDGE_Y(w);
+  wr.width = WINDOW_PIXEL_WIDTH(w);
+  wr.height = WINDOW_PIXEL_HEIGHT(w);
 
-  if (x_intersect_rectangles (fr, &wr, &r))
+  if (x_intersect_rectangles(fr, &wr, &r))
     {
-      int yb = window_text_bottom_y (w);
+      int yb = window_text_bottom_y(w);
       struct glyph_row *row;
       int cursor_cleared_p, phys_cursor_on_p;
       struct glyph_row *first_overlapping_row, *last_overlapping_row;
 
-      TRACE ((stderr, "expose_window (%d, %d, %d, %d)\n",
-	      r.x, r.y, r.width, r.height));
+      TRACE((stderr, "expose_window (%d, %d, %d, %d)\n",
+	     r.x, r.y, (int)r.width, (int)r.height));
 
-      /* Convert to window coordinates.  */
-      r.x -= WINDOW_LEFT_EDGE_X (w);
-      r.y -= WINDOW_TOP_EDGE_Y (w);
+      /* Convert to window coordinates: */
+      r.x -= WINDOW_LEFT_EDGE_X(w);
+      r.y -= WINDOW_TOP_EDGE_Y(w);
 
-      /* Turn off the cursor.  */
+      /* Turn off the cursor: */
       if (!w->pseudo_window_p
-	  && phys_cursor_in_rect_p (w, &r))
+	  && phys_cursor_in_rect_p(w, &r))
 	{
-	  x_clear_cursor (w);
+	  x_clear_cursor(w);
 	  cursor_cleared_p = 1;
 	}
       else
@@ -29628,13 +29618,14 @@ expose_frame (struct frame *f, int x, int y, int w, int h)
       r.height = h;
     }
 
-  TRACE ((stderr, "(%d, %d, %d, %d)\n", r.x, r.y, r.width, r.height));
-  mouse_face_overwritten_p = expose_window_tree (XWINDOW (f->root_window), &r);
+  TRACE((stderr, "(%d, %d, %d, %d)\n",
+         r.x, r.y, (int)r.width, (int)r.height));
+  mouse_face_overwritten_p = expose_window_tree(XWINDOW(f->root_window), &r);
 
-#if ! defined (USE_GTK) && ! defined (HAVE_NS)
-  if (WINDOWP (f->tool_bar_window))
+#if ! defined(USE_GTK) && ! defined(HAVE_NS)
+  if (WINDOWP(f->tool_bar_window))
     mouse_face_overwritten_p
-      |= expose_window (XWINDOW (f->tool_bar_window), &r);
+      |= expose_window(XWINDOW(f->tool_bar_window), &r);
 #endif
 
 #ifdef HAVE_X_WINDOWS

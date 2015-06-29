@@ -89,10 +89,73 @@ extern StringPtr c2pstr(char *aStr);
 #else
 # if !defined(__CARBONEVENTS__) || defined(__LP64__)
 /* inline the prototypes we need: */
+extern EventTargetRef GetMenuEventTarget(MenuRef inMenu);
 extern EventTargetRef GetWindowEventTarget(WindowRef inWindow);
+extern OSStatus QuitAppModalLoopForWindow(WindowRef inWindow);
 extern OSStatus RunAppModalLoopForWindow(WindowRef inWindow);
 # endif /* !__CARBONEVENTS__ || __LP64__ */
 #endif /* HAVE_CARBON && HAVE_HITOOLBOX_CARBONEVENTS_H */
+
+#if defined(HAVE_CARBON) && defined(HAVE_HITOOLBOX_CONTROLS_H)
+# include <HIToolbox/Controls.h>
+#else
+# if !defined(__CONTROLS__) || defined(__LP64__)
+/* inline the prototypes we need: */
+extern OSStatus DisableControl(ControlRef inControl);
+extern OSErr GetBestControlRect(ControlRef inControl, Rect *outRect,
+                                SInt16 *outBaseLineOffset);
+extern void SetControlBounds(ControlRef control, const Rect *bounds);
+OSStatus SetControlCommandID(ControlRef inControl, UInt32 inCommandID);
+# endif /* !__CONTROLS__ || __LP64__ */
+#endif /* HAVE_CARBON && HAVE_HITOOLBOX_CONTROLS_H */
+
+#if defined(HAVE_CARBON) && defined(HAVE_HITOOLBOX_DIALOGS_H)
+# include <HIToolbox/Dialogs.h>
+#else
+# if !defined(__DIALOGS__) || defined(__LP64__)
+/* inline the prototypes we need: */
+OSStatus CreateStandardAlert(AlertType alertType, CFStringRef error,
+                             CFStringRef explanation,
+                             const AlertStdCFStringAlertParamRec *param,
+                             DialogRef *outAlert);
+OSStatus GetStandardAlertDefaultParams(AlertStdCFStringAlertParamPtr parm,
+                                       UInt32 version);
+OSStatus RunStandardAlert(DialogRef inAlert, ModalFilterUPP filterProc,
+                          DialogItemIndex *outItemHit);
+extern Boolean StdFilterProc(DialogRef theDialog, EventRecord *event,
+                             DialogItemIndex *itemHit);
+# endif /* !__DIALOGS__ || __LP64__ */
+#endif /* HAVE_CARBON && HAVE_HITOOLBOX_DIALOGS_H */
+
+#if defined(HAVE_CARBON) && defined(HAVE_HITOOLBOX_HIBUTTONVIEWS_H)
+# include <HIToolbox/HIButtonViews.h>
+#else
+# if !defined(__HIBUTTONVIEWS__) || defined(__LP64__)
+OSStatus CreatePushButtonControl(WindowRef window, const Rect *boundsRect,
+                                 CFStringRef title, ControlRef *outCtrl);
+# endif /* !__HIBUTTONVIEWS__ || __LP64__ */
+#endif /* HAVE_CARBON && HAVE_HITOOLBOX_HIBUTTONVIEWS_H */
+
+#if defined(HAVE_CARBON) && defined(HAVE_HITOOLBOX_HIIMAGEVIEWS_H)
+# include <HIToolbox/HIImageViews.h>
+#else
+# if !defined(__HIIMAGEVIEWS__) || defined(__LP64__)
+OSStatus CreateIconControl(WindowRef inWindow, const Rect *inBoundsRect,
+                           const ControlButtonContentInfo *inIconContent,
+                           Boolean inDontTrack, ControlRef *outControl);
+# endif /* !__HIIMAGEVIEWS__ || __LP64__ */
+#endif /* HAVE_CARBON && HAVE_HITOOLBOX_HIIMAGEVIEWS_H */
+
+#if defined(HAVE_CARBON) && defined(HAVE_HITOOLBOX_HITEXTVIEWS_H)
+# include <HIToolbox/HITextViews.h>
+#else
+# if !defined(__HITEXTVIEWS__) || defined(__LP64__)
+OSStatus CreateStaticTextControl(WindowRef window, const Rect *boundsRect,
+                                 CFStringRef text,
+                                 const ControlFontStyleRec *style,
+                                 ControlRef *outControl);
+# endif /* !__HITEXTVIEWS__ || __LP64__ */
+#endif /* HAVE_CARBON && HAVE_HITOOLBOX_HITEXTVIEWS_H */
 
 #if defined(HAVE_CARBON) && defined(HAVE_HITOOLBOX_MACWINDOWS_H)
 # include <HIToolbox/MacWindows.h>
@@ -100,8 +163,24 @@ extern OSStatus RunAppModalLoopForWindow(WindowRef inWindow);
 # if !defined(__MACWINDOWS__) || defined(__LP64__)
 /* inline the prototypes we need: */
 extern void BringToFront(WindowRef window);
+extern OSStatus CreateNewWindow(WindowClass windowClass,
+                                WindowAttributes attributes,
+                                const Rect *contentBounds,
+                                WindowRef *outWindow);
 extern void DisposeWindow(WindowRef window);
 extern SRefCon GetWRefCon(WindowRef window);
+extern OSStatus RepositionWindow(WindowRef window, WindowRef parentWindow,
+                                 WindowPositionMethod method);
+extern void SetPortWindowPort(WindowRef window);
+extern OSStatus SetThemeWindowBackground(WindowRef inWindow,
+                                         ThemeBrush inBrush,
+                                         Boolean inUpdate);
+extern OSStatus SetWindowDefaultButton(WindowRef inWindow,
+                                       ControlRef inControl);
+extern OSStatus SetWindowTitleWithCFString(WindowRef inWindow,
+                                           CFStringRef inString);
+extern void SetWRefCon(WindowRef window, SRefCon data);
+void SizeWindow(WindowRef window, short w, short h, Boolean fUpdate);
 # endif /* !__MACWINDOWS__ || __LP64__ */
 #endif /* HAVE_CARBON && HAVE_HITOOLBOX_MACWINDOWS_H */
 
@@ -114,19 +193,42 @@ extern void MacShowWindow(WindowRef window);
 #else
 # if !defined(__MENUS__) || defined(__LP64__)
 /* inline the prototypes we need: */
+extern MenuRef AcquireRootMenu(void);
 #  if defined(TARGET_OS_MAC) && TARGET_OS_MAC
 #   define MacAppendMenu AppendMenu
 #  endif /* TARGET_OS_MAC */
 extern void MacAppendMenu(MenuRef menu, ConstStr255Param data);
+extern OSStatus CancelMenuTracking(MenuRef inRootMenu, Boolean inImmediate,
+                                   UInt32 inDismissalReason);
+#  if TARGET_OS_MAC
+#   define MacDeleteMenu DeleteMenu
+#  endif /* TARGET_OS_MAC */
+extern void MacDeleteMenu(MenuID menuID);
 extern void DisableMenuItem(MenuRef theMenu,
                             MenuItemIndex item);
+extern void DisposeMenu(MenuRef theMenu);
 #  if defined(TARGET_OS_MAC) && TARGET_OS_MAC
 #   define MacEnableMenuItem EnableMenuItem
 #  endif /* TARGET_OS_MAC */
 extern void MacEnableMenuItem(MenuRef theMenu, MenuItemIndex item);
 extern MenuRef GetMenuHandle(MenuID menuID);
+OSStatus GetMenuItemProperty(MenuRef menu, MenuItemIndex item,
+                             OSType propertyCreator, OSType propertyTag,
+                             ByteCount bufferSize, ByteCount *actualSize,
+                             void *propertyBuffer);
+extern OSErr GetMenuItemRefCon(MenuRef inMenu, MenuItemIndex inItem,
+                               URefCon *outRefCon);
 extern StringPtr GetMenuTitle(MenuRef menu, Str255 title);
+extern void HiliteMenu(MenuID menuID);
+#  if TARGET_OS_MAC
+#   define MacInsertMenu InsertMenu
+#  endif /* TARGET_OS_MAC */
+extern void MacInsertMenu(MenuRef theMenu, MenuID beforeID);
+extern SInt32 MenuSelect(Point startPt);
 extern MenuRef NewMenu(MenuID menuID, ConstStr255Param menuTitle);
+extern SInt32 PopUpMenuSelect(MenuRef menu, short top, short left,
+                              MenuItemIndex popUpItem);
+extern OSStatus ReleaseMenu(MenuRef inMenu);
 extern void SetItemMark(MenuRef theMenu, MenuItemIndex item,
                         CharParameter markChar);
 extern OSErr SetMenuItemHierarchicalID(MenuRef inMenu,
@@ -145,6 +247,20 @@ extern OSStatus SetMenuItemTextWithCFString(MenuRef inMenu,
 extern OSStatus SetMenuTitle(MenuRef menu, ConstStr255Param title);
 # endif /* !__MENUS__ || __LP64__ */
 #endif /* HAVE_CARBON && HAVE_HITOOLBOX_MENUS_H */
+
+#if defined(HAVE_CARBON) && defined(HAVE_QD_QUICKDRAWAPI_H)
+# include <QD/QuickdrawAPI.h>
+#else
+# if !defined(__QUICKDRAWAPI__) || defined(__LP64__)
+/* inline the prototypes we need: */
+extern void GetPort(GrafPtr *port);
+extern void LocalToGlobal(Point *pt);
+#  if TARGET_OS_MAC
+#   define MacSetPort SetPort
+#  endif /* TARGET_OS_MAC */
+extern void MacSetPort(GrafPtr port);
+# endif /* !__QUICKDRAWAPI__ || __LP64__ */
+#endif /* HAVE_CARBON && HAVE_QD_QUICKDRAWAPI_H */
 
 enum mac_menu_kind {		/* Menu ID range  */
   MAC_MENU_APPLE,		/* 0 (Reserved by Apple) */
@@ -932,25 +1048,25 @@ no quit occurs and `x-popup-menu' returns nil.  */)
 
   if (NILP (position))
     {
-      discard_menu_items ();
+      discard_menu_items();
       UNGCPRO;
       return Qnil;
     }
 
 #ifdef HAVE_MENUS
-  /* Display them in a menu.  */
-  record_unwind_protect (cleanup_popup_menu, Qnil);
+  /* Display them in a menu: */
+  record_unwind_protect(cleanup_popup_menu, Qnil);
   BLOCK_INPUT;
 
-  selection = mac_menu_show (f, xpos, ypos, for_click,
-			     keymaps, title, &error_name);
+  selection = mac_menu_show(f, xpos, ypos, for_click,
+			    keymaps, title, &error_name);
   UNBLOCK_INPUT;
-  unbind_to (specpdl_count, Qnil);
+  unbind_to(specpdl_count, Qnil);
 
   UNGCPRO;
 #endif /* HAVE_MENUS */
 
-  if (error_name) error (error_name);
+  if (error_name) error("%s", error_name);
   return selection;
 }
 
@@ -965,7 +1081,7 @@ mac_dialog_modal_filter(DialogRef dialog, EventRecord *event,
 {
   Boolean result;
 
-  result = StdFilterProc (dialog, event, item_hit);
+  result = StdFilterProc(dialog, event, item_hit);
   if (result == false
       && (event->what == keyDown || event->what == autoKey)
       && ((event->message & charCodeMask) == kEscapeCharCode
@@ -1123,29 +1239,29 @@ for instance using the window manager, then this produces a quit and
 	    }
 	}
       if (err == noErr)
-	err = GetStandardAlertDefaultParams (&param,
-					     kStdCFStringAlertVersionOne);
+	err = GetStandardAlertDefaultParams(&param,
+					    kStdCFStringAlertVersionOne);
       if (err == noErr)
 	{
 	  param.movable = true;
 	  param.position = kWindowAlertPositionParentWindow;
-	  if (NILP (header))
+	  if (NILP(header))
 	    {
-	      param.defaultText = CFSTR ("Yes");
-	      param.otherText = CFSTR ("No");
+	      param.defaultText = CFSTR("Yes");
+	      param.otherText = CFSTR("No");
 #if 0
-	      param.cancelText = CFSTR ("Cancel");
+	      param.cancelText = CFSTR("Cancel");
 	      param.cancelButton = kAlertStdAlertCancelButton;
-#endif
+#endif /* 0 */
 	    }
-	  err = CreateStandardAlert (kAlertNoteAlert, error_string,
-				     explanation_string, &param, &alert);
-	  CFRelease (error_string);
+	  err = CreateStandardAlert(kAlertNoteAlert, error_string,
+				    explanation_string, &param, &alert);
+	  CFRelease(error_string);
 	  if (explanation_string)
-	    CFRelease (explanation_string);
+	    CFRelease(explanation_string);
 	}
       if (err == noErr)
-	err = RunStandardAlert (alert, mac_dialog_modal_filter, &item_hit);
+	err = RunStandardAlert(alert, mac_dialog_modal_filter, &item_hit);
       UNBLOCK_INPUT;
 
       if (err == noErr)
@@ -1177,22 +1293,22 @@ for instance using the window manager, then this produces a quit and
     Lisp_Object title;
     char *error_name;
     Lisp_Object selection;
-    int specpdl_count = SPECPDL_INDEX ();
+    int specpdl_count = SPECPDL_INDEX();
 
-    /* Decode the dialog items from what was specified.  */
-    title = Fcar (contents);
-    CHECK_STRING (title);
+    /* Decode the dialog items from what was specified: */
+    title = Fcar(contents);
+    CHECK_STRING(title);
 
-    list_of_panes (Fcons (contents, Qnil));
+    list_of_panes(Fcons(contents, Qnil));
 
-    /* Display them in a dialog box.  */
-    record_unwind_protect (cleanup_popup_menu, Qnil);
+    /* Display them in a dialog box: */
+    record_unwind_protect(cleanup_popup_menu, Qnil);
     BLOCK_INPUT;
-    selection = mac_dialog_show (f, 0, title, header, &error_name);
+    selection = mac_dialog_show(f, 0, title, header, &error_name);
     UNBLOCK_INPUT;
-    unbind_to (specpdl_count, Qnil);
+    unbind_to(specpdl_count, Qnil);
 
-    if (error_name) error (error_name);
+    if (error_name) error("%s", error_name);
     return selection;
   }
 #endif /* HAVE_DIALOGS */
@@ -1218,35 +1334,36 @@ x_activate_menubar(FRAME_PTR f)
   SInt16 menu_id, menu_item;
   extern Point saved_menu_event_location;
 
-  set_frame_menubar (f, 0, 1);
+  set_frame_menubar(f, 0, 1);
   BLOCK_INPUT;
 
   popup_activated_flag = 1;
-  menu_choice = MenuSelect (saved_menu_event_location);
+  menu_choice = MenuSelect(saved_menu_event_location);
   popup_activated_flag = 0;
-  menu_id = HiWord (menu_choice);
-  menu_item = LoWord (menu_choice);
+  menu_id = HiWord(menu_choice);
+  menu_item = LoWord(menu_choice);
 
 #if !TARGET_API_MAC_CARBON
   if (menu_id == min_menu_id[MAC_MENU_M_APPLE])
-    do_apple_menu (menu_item);
+    do_apple_menu(menu_item);
   else
-#endif
+#endif /* !TARGET_API_MAC_CARBON */
     if (menu_id)
       {
-        MenuHandle menu = GetMenuHandle (menu_id);
+        MenuHandle menu = GetMenuHandle(menu_id);
 
         if (menu)
           {
             UInt32 refcon;
 
-            GetMenuItemRefCon (menu, menu_item, &refcon);
-            find_and_call_menu_selection (f, f->menu_bar_items_used,
-					  f->menu_bar_vector, (void *) refcon);
+            GetMenuItemRefCon(menu, menu_item, (URefCon *)&refcon);
+            find_and_call_menu_selection(f, f->menu_bar_items_used,
+					 f->menu_bar_vector,
+                                         (void *)(uintptr_t)refcon);
           }
       }
 
-  HiliteMenu (0);
+  HiliteMenu(0);
 
   UNBLOCK_INPUT;
 }
@@ -1439,10 +1556,10 @@ digest_single_submenu(int start, int end, int top_level_items)
   widget_value **submenu_stack;
   int panes_seen = 0;
 
-  submenu_stack
-    = (widget_value **) alloca (menu_items_used * sizeof (widget_value *));
-  wv = xmalloc_widget_value ();
-  wv->name = "menu";
+  submenu_stack =
+    (widget_value **)alloca(menu_items_used * sizeof(widget_value *));
+  wv = xmalloc_widget_value();
+  wv->name = (char *)"menu";
   wv->value = 0;
   wv->enabled = 1;
   wv->button_type = BUTTON_TYPE_NONE;
@@ -1486,29 +1603,33 @@ digest_single_submenu(int start, int end, int top_level_items)
 
 	  panes_seen++;
 
-	  pane_name = XVECTOR (menu_items)->contents[i + MENU_ITEMS_PANE_NAME];
-	  prefix = XVECTOR (menu_items)->contents[i + MENU_ITEMS_PANE_PREFIX];
+	  pane_name = XVECTOR(menu_items)->contents[i + MENU_ITEMS_PANE_NAME];
+	  prefix = XVECTOR(menu_items)->contents[i + MENU_ITEMS_PANE_PREFIX];
+
+          if (NILP(prefix)) {
+            ; /* ??? */
+          }
 
 #ifndef HAVE_MULTILINGUAL_MENU
-	  if (STRINGP (pane_name) && STRING_MULTIBYTE (pane_name))
+	  if (STRINGP(pane_name) && STRING_MULTIBYTE(pane_name))
 	    {
-	      pane_name = ENCODE_MENU_STRING (pane_name);
-	      AREF (menu_items, i + MENU_ITEMS_PANE_NAME) = pane_name;
+	      pane_name = ENCODE_MENU_STRING(pane_name);
+	      AREF(menu_items, (i + MENU_ITEMS_PANE_NAME)) = pane_name;
 	    }
-#endif
-	  pane_string = (NILP (pane_name)
-			 ? "" : (char *) SDATA (pane_name));
+#endif /* HAVE_MULTILINGUAL_MENU */
+	  pane_string = (NILP(pane_name)
+			 ? (char *)"" : (char *)SDATA(pane_name));
 	  /* If there is just one top-level pane, put all its items directly
 	     under the top-level menu.  */
 	  if (menu_items_n_panes == 1)
-	    pane_string = "";
+	    pane_string = (char *)"";
 
 	  /* If the pane has a meaningful name,
 	     make the pane a top-level menu item
 	     with its items as a submenu beneath it.  */
-	  if (strcmp (pane_string, ""))
+	  if (strcmp(pane_string, ""))
 	    {
-	      wv = xmalloc_widget_value ();
+	      wv = xmalloc_widget_value();
 	      if (save_wv)
 		save_wv->next = wv;
 	      else
@@ -1535,7 +1656,7 @@ digest_single_submenu(int start, int end, int top_level_items)
 
 	  /* All items should be contained in panes.  */
 	  if (panes_seen == 0)
-	    abort ();
+	    abort();
 
 	  item_name = AREF (menu_items, i + MENU_ITEMS_ITEM_NAME);
 	  enable = AREF (menu_items, i + MENU_ITEMS_ITEM_ENABLE);
@@ -1546,20 +1667,20 @@ digest_single_submenu(int start, int end, int top_level_items)
 	  help = AREF (menu_items, i + MENU_ITEMS_ITEM_HELP);
 
 #ifndef HAVE_MULTILINGUAL_MENU
-          if (STRING_MULTIBYTE (item_name))
+          if (STRING_MULTIBYTE(item_name))
 	    {
-	      item_name = ENCODE_MENU_STRING (item_name);
-	      AREF (menu_items, i + MENU_ITEMS_ITEM_NAME) = item_name;
+	      item_name = ENCODE_MENU_STRING(item_name);
+	      AREF(menu_items, (i + MENU_ITEMS_ITEM_NAME)) = item_name;
 	    }
 
-          if (STRINGP (descrip) && STRING_MULTIBYTE (descrip))
+          if (STRINGP(descrip) && STRING_MULTIBYTE(descrip))
 	    {
-	      descrip = ENCODE_MENU_STRING (descrip);
-	      AREF (menu_items, i + MENU_ITEMS_ITEM_EQUIV_KEY) = descrip;
+	      descrip = ENCODE_MENU_STRING(descrip);
+	      AREF(menu_items, (i + MENU_ITEMS_ITEM_EQUIV_KEY)) = descrip;
 	    }
 #endif /* not HAVE_MULTILINGUAL_MENU */
 
-	  wv = xmalloc_widget_value ();
+	  wv = xmalloc_widget_value();
 	  if (prev_wv)
 	    prev_wv->next = wv;
 	  else
@@ -1619,9 +1740,9 @@ update_submenu_strings(widget_value *first_wv)
 
   for (wv = first_wv; wv; wv = wv->next)
     {
-      if (STRINGP (wv->lname))
+      if (STRINGP(wv->lname))
         {
-          wv->name = SDATA (wv->lname);
+          wv->name = (char *)SDATA(wv->lname);
 
           /* Ignore the @ that means "separate pane".
              This is a kludge, but this is NOT worth more time: */
@@ -1633,11 +1754,11 @@ update_submenu_strings(widget_value *first_wv)
             }
         }
 
-      if (STRINGP (wv->lkey))
-        wv->key = SDATA (wv->lkey);
+      if (STRINGP(wv->lkey))
+        wv->key = (char *)SDATA(wv->lkey);
 
       if (wv->contents)
-        update_submenu_strings (wv->contents);
+        update_submenu_strings(wv->contents);
     }
 }
 
@@ -1677,35 +1798,35 @@ menu_target_item_handler(EventHandlerCallRef next_handler, EventRef event,
   MenuItemIndex menu_item;
   Lisp_Object help;
   GrafPtr port;
-  int specpdl_count = SPECPDL_INDEX ();
+  int specpdl_count = SPECPDL_INDEX();
 
-  result = CallNextEventHandler (next_handler, event);
+  result = CallNextEventHandler(next_handler, event);
 
-  err = GetEventParameter (event, kEventParamDirectObject, typeMenuRef,
-			   NULL, sizeof (MenuRef), NULL, &menu);
+  err = GetEventParameter(event, kEventParamDirectObject, typeMenuRef,
+			  NULL, sizeof(MenuRef), NULL, &menu);
   if (err == noErr)
-    err = GetEventParameter (event, kEventParamMenuItemIndex,
-			     typeMenuItemIndex, NULL,
-			     sizeof (MenuItemIndex), NULL, &menu_item);
+    err = GetEventParameter(event, kEventParamMenuItemIndex,
+			    typeMenuItemIndex, NULL,
+			    sizeof(MenuItemIndex), NULL, &menu_item);
   if (err == noErr)
-    err = GetMenuItemProperty (menu, menu_item,
-			       MAC_EMACS_CREATOR_CODE, 'help',
-			       sizeof (Lisp_Object), NULL, &help);
+    err = GetMenuItemProperty(menu, menu_item,
+			      MAC_EMACS_CREATOR_CODE, 'help',
+			      sizeof(Lisp_Object), NULL, &help);
   if (err != noErr)
     help = Qnil;
 
   /* Temporarily bind Vshow_help_function to Qnil because we don't
      want tooltips during menu tracking.  */
-  record_unwind_protect (restore_show_help_function, Vshow_help_function);
+  record_unwind_protect(restore_show_help_function, Vshow_help_function);
   Vshow_help_function = Qnil;
-  GetPort (&port);
-  show_help_echo (help, Qnil, Qnil, Qnil, 1);
-  SetPort (port);
-  unbind_to (specpdl_count, Qnil);
+  GetPort(&port);
+  show_help_echo(help, Qnil, Qnil, Qnil, 1);
+  SetPort(port);
+  unbind_to(specpdl_count, Qnil);
 
-  return err == noErr ? noErr : result;
+  return ((err == noErr) ? noErr : result);
 }
-#endif
+#endif /* TARGET_API_MAC_CARBON */
 
 OSStatus
 install_menu_target_item_handler(WindowPtr window)
@@ -1739,25 +1860,26 @@ menu_quit_handler(EventHandlerCallRef nextHandler, EventRef theEvent,
   UInt32 keyCode;
   UInt32 keyModifiers;
 
-  err = GetEventParameter (theEvent, kEventParamKeyCode,
-			   typeUInt32, NULL, sizeof(UInt32), NULL, &keyCode);
+  err = GetEventParameter(theEvent, kEventParamKeyCode,
+			  typeUInt32, NULL, sizeof(UInt32), NULL,
+                          &keyCode);
 
   if (err == noErr)
-    err = GetEventParameter (theEvent, kEventParamKeyModifiers,
-			     typeUInt32, NULL, sizeof(UInt32),
-			     NULL, &keyModifiers);
+    err = GetEventParameter(theEvent, kEventParamKeyModifiers,
+			    typeUInt32, NULL, sizeof(UInt32),
+			    NULL, &keyModifiers);
 
-  if (err == noErr && mac_quit_char_key_p (keyModifiers, keyCode))
+  if (err == noErr && mac_quit_char_key_p(keyModifiers, keyCode))
     {
-      MenuRef menu = userData != 0
-        ? (MenuRef)userData : AcquireRootMenu ();
+      MenuRef menu = ((userData != 0)
+                      ? (MenuRef)userData : AcquireRootMenu());
 
-      CancelMenuTracking (menu, true, 0);
-      if (!userData) ReleaseMenu (menu);
+      CancelMenuTracking(menu, true, 0);
+      if (!userData) ReleaseMenu(menu);
       return noErr;
     }
 
-  return CallNextEventHandler (nextHandler, theEvent);
+  return CallNextEventHandler(nextHandler, theEvent);
 }
 #endif	/* MAC_OS_X_VERSION_MAX_ALLOWED >= 1030 */
 
@@ -1774,19 +1896,19 @@ install_menu_quit_handler(enum mac_menu_kind kind, MenuHandle menu_handle)
     {{kEventClassKeyboard, kEventRawKeyDown}};
   int id;
 
-#if MAC_OS_X_VERSION_MIN_REQUIRED == 1020
+# if MAC_OS_X_VERSION_MIN_REQUIRED == 1020
   if (CancelMenuTracking == NULL)
     return;
-#endif
+# endif /* 10.2 */
   for (id = min_menu_id[kind]; id < min_menu_id[kind + 1]; id++)
     {
       MenuHandle menu = GetMenuHandle (id);
 
       if (menu == NULL)
 	break;
-      InstallMenuEventHandler (menu, menu_quit_handler,
-			       GetEventTypeCount (typesList),
-			       typesList, menu_handle, NULL);
+      InstallMenuEventHandler(menu, menu_quit_handler,
+			      GetEventTypeCount(typesList),
+			      typesList, menu_handle, NULL);
     }
 #endif	/* MAC_OS_X_VERSION_MAX_ALLOWED >= 1030 */
 }
@@ -1858,50 +1980,50 @@ set_frame_menubar(FRAME_PTR f, int first_time, int deep_p)
 
       /* Save the frame's previous menu bar contents data.  */
       if (previous_menu_items_used)
-	bcopy (XVECTOR (f->menu_bar_vector)->contents, previous_items,
-	       previous_menu_items_used * sizeof (Lisp_Object));
+	bcopy(XVECTOR(f->menu_bar_vector)->contents, previous_items,
+	      (previous_menu_items_used * sizeof(Lisp_Object)));
 
       /* Fill in menu_items with the current menu bar contents.
 	 This can evaluate Lisp code.  */
-      save_menu_items ();
+      save_menu_items();
 
       menu_items = f->menu_bar_vector;
-      menu_items_allocated = VECTORP (menu_items) ? ASIZE (menu_items) : 0;
-      submenu_start = (int *) alloca (XVECTOR (items)->size * sizeof (int *));
-      submenu_end = (int *) alloca (XVECTOR (items)->size * sizeof (int *));
-      submenu_n_panes = (int *) alloca (XVECTOR (items)->size * sizeof (int));
-      submenu_top_level_items
-	= (int *) alloca (XVECTOR (items)->size * sizeof (int *));
-      init_menu_items ();
-      for (i = 0; i < XVECTOR (items)->size; i += 4)
+      menu_items_allocated = (VECTORP(menu_items) ? ASIZE(menu_items) : 0);
+      submenu_start = (int *)alloca(XVECTOR(items)->size * sizeof(int *));
+      submenu_end = (int *)alloca(XVECTOR(items)->size * sizeof(int *));
+      submenu_n_panes = (int *)alloca(XVECTOR(items)->size * sizeof(int));
+      submenu_top_level_items =
+        (int *)alloca(XVECTOR(items)->size * sizeof(int *));
+      init_menu_items();
+      for (i = 0; i < XVECTOR(items)->size; i += 4)
 	{
 	  Lisp_Object key, string, maps;
 
 	  last_i = i;
 
-	  key = XVECTOR (items)->contents[i];
-	  string = XVECTOR (items)->contents[i + 1];
-	  maps = XVECTOR (items)->contents[i + 2];
-	  if (NILP (string))
+	  key = XVECTOR(items)->contents[i];
+	  string = XVECTOR(items)->contents[i + 1];
+	  maps = XVECTOR(items)->contents[i + 2];
+	  if (NILP(string))
 	    break;
 
 	  submenu_start[i] = menu_items_used;
 
 	  menu_items_n_panes = 0;
-	  submenu_top_level_items[i]
-	    = parse_single_submenu (key, string, maps);
+	  submenu_top_level_items[i] =
+            parse_single_submenu(key, string, maps);
 	  submenu_n_panes[i] = menu_items_n_panes;
 
 	  submenu_end[i] = menu_items_used;
 	}
 
-      finish_menu_items ();
+      finish_menu_items();
 
       /* Convert menu_items into widget_value trees
 	 to display the menu.  This cannot evaluate Lisp code.  */
 
-      wv = xmalloc_widget_value ();
-      wv->name = "menubar";
+      wv = xmalloc_widget_value();
+      wv->name = (char *)"menubar";
       wv->value = 0;
       wv->enabled = 1;
       wv->button_type = BUTTON_TYPE_NONE;
@@ -1911,8 +2033,8 @@ set_frame_menubar(FRAME_PTR f, int first_time, int deep_p)
       for (i = 0; i < last_i; i += 4)
 	{
 	  menu_items_n_panes = submenu_n_panes[i];
-	  wv = digest_single_submenu (submenu_start[i], submenu_end[i],
-				      submenu_top_level_items[i]);
+	  wv = digest_single_submenu(submenu_start[i], submenu_end[i],
+				     submenu_top_level_items[i]);
 	  if (prev_wv)
 	    prev_wv->next = wv;
 	  else
@@ -1954,14 +2076,14 @@ set_frame_menubar(FRAME_PTR f, int first_time, int deep_p)
       /* Now GC cannot happen during the lifetime of the widget_value,
 	 so it's safe to store data from a Lisp_String.  */
       wv = first_wv->contents;
-      for (i = 0; i < XVECTOR (items)->size; i += 4)
+      for (i = 0; i < XVECTOR(items)->size; i += 4)
 	{
 	  Lisp_Object string;
-	  string = XVECTOR (items)->contents[i + 1];
-	  if (NILP (string))
+	  string = XVECTOR(items)->contents[i + 1];
+	  if (NILP(string))
 	    break;
-	  wv->name = (char *) SDATA (string);
-          update_submenu_strings (wv->contents);
+	  wv->name = (char *)SDATA(string);
+          update_submenu_strings(wv->contents);
 	  wv = wv->next;
 	}
 
@@ -1971,25 +2093,25 @@ set_frame_menubar(FRAME_PTR f, int first_time, int deep_p)
       /* Make a widget-value tree containing
 	 just the top level menu bar strings.  */
 
-      wv = xmalloc_widget_value ();
-      wv->name = "menubar";
+      wv = xmalloc_widget_value();
+      wv->name = (char *)"menubar";
       wv->value = 0;
       wv->enabled = 1;
       wv->button_type = BUTTON_TYPE_NONE;
       wv->help = Qnil;
       first_wv = wv;
 
-      items = FRAME_MENU_BAR_ITEMS (f);
-      for (i = 0; i < XVECTOR (items)->size; i += 4)
+      items = FRAME_MENU_BAR_ITEMS(f);
+      for (i = 0; i < XVECTOR(items)->size; i += 4)
 	{
 	  Lisp_Object string;
 
-	  string = XVECTOR (items)->contents[i + 1];
-	  if (NILP (string))
+	  string = XVECTOR(items)->contents[i + 1];
+	  if (NILP(string))
 	    break;
 
-	  wv = xmalloc_widget_value ();
-	  wv->name = (char *) SDATA (string);
+	  wv = xmalloc_widget_value();
+	  wv->name = (char *)SDATA(string);
 	  wv->value = 0;
 	  wv->enabled = 1;
 	  wv->button_type = BUTTON_TYPE_NONE;
@@ -2046,20 +2168,24 @@ free_frame_menubar(FRAME_PTR f)
 static Lisp_Object
 pop_down_menu(Lisp_Object arg)
 {
-  struct Lisp_Save_Value *p = XSAVE_VALUE (arg);
+  struct Lisp_Save_Value *p = XSAVE_VALUE(arg);
   FRAME_PTR f = p->pointer;
-  MenuHandle menu = GetMenuHandle (min_menu_id[MAC_MENU_POPUP]);
+  MenuHandle menu = GetMenuHandle(min_menu_id[MAC_MENU_POPUP]);
+
+  if (f == (FRAME_PTR)NULL) {
+    ; /* ??? */
+  }
 
   BLOCK_INPUT;
 
   /* Must reset this manually because the button release event is not
      passed to Emacs event loop. */
-  FRAME_MAC_DISPLAY_INFO (f)->grabbed = 0;
+  FRAME_MAC_DISPLAY_INFO(f)->grabbed = 0;
 
-  /* delete all menus */
-  dispose_menus (MAC_MENU_POPUP_SUB, 0);
-  DeleteMenu (min_menu_id[MAC_MENU_POPUP]);
-  DisposeMenu (menu);
+  /* delete all menus: */
+  dispose_menus(MAC_MENU_POPUP_SUB, 0);
+  DeleteMenu(min_menu_id[MAC_MENU_POPUP]);
+  DisposeMenu(menu);
 
   UNBLOCK_INPUT;
 
@@ -2091,10 +2217,10 @@ mac_menu_show(FRAME_PTR f, int x, int y, int for_click, int keymaps,
   MenuHandle menu;
   Point pos;
   widget_value *wv, *save_wv = 0, *first_wv = 0, *prev_wv = 0;
-  widget_value **submenu_stack
-    = (widget_value **)alloca(menu_items_used * sizeof(widget_value *));
-  Lisp_Object *subprefix_stack
-    = (Lisp_Object *)alloca(menu_items_used * sizeof(Lisp_Object));
+  widget_value **submenu_stack =
+    (widget_value **)alloca(menu_items_used * sizeof(widget_value *));
+  Lisp_Object *subprefix_stack =
+    (Lisp_Object *)alloca(menu_items_used * sizeof(Lisp_Object));
   int submenu_depth = 0;
 
   int first_pane;
@@ -2104,14 +2230,14 @@ mac_menu_show(FRAME_PTR f, int x, int y, int for_click, int keymaps,
 
   if (menu_items_used <= MENU_ITEMS_PANE_LENGTH)
     {
-      *error = "Empty menu";
+      *error = (char *)"Empty menu";
       return Qnil;
     }
 
   /* Create a tree of widget_value objects
      representing the panes and their items.  */
   wv = xmalloc_widget_value();
-  wv->name = "menu";
+  wv->name = (char *)"menu";
   wv->value = 0;
   wv->enabled = 1;
   wv->button_type = BUTTON_TYPE_NONE;
@@ -2162,11 +2288,11 @@ mac_menu_show(FRAME_PTR f, int x, int y, int for_click, int keymaps,
 	    }
 #endif /* !HAVE_MULTILINGUAL_MENU */
 	  pane_string = (NILP(pane_name)
-			 ? "" : (char *)SDATA(pane_name));
+			 ? (char *)"" : (char *)SDATA(pane_name));
 	  /* If there is just 1 top-level pane, put all its items directly
 	     under the top-level menu.  */
 	  if (menu_items_n_panes == 1)
-	    pane_string = "";
+	    pane_string = (char *)"";
 
 	  /* If the pane has a meaningful name,
 	     make the pane a top-level menu item
@@ -2266,7 +2392,7 @@ mac_menu_show(FRAME_PTR f, int x, int y, int for_click, int keymaps,
 
       /* Maybe replace this separator with a bitmap or owner-draw item
 	 so that it looks better.  Having two separators looks odd.  */
-      wv_sep->name = "--";
+      wv_sep->name = (char *)"--";
       wv_sep->next = first_wv->contents;
       wv_sep->help = Qnil;
 
@@ -2292,40 +2418,40 @@ mac_menu_show(FRAME_PTR f, int x, int y, int for_click, int keymaps,
 
   /* Free the widget_value objects we used to specify the
      contents.  */
-  free_menubar_widget_value_tree (first_wv);
+  free_menubar_widget_value_tree(first_wv);
 
-  /* Adjust coordinates to be root-window-relative.  */
+  /* Adjust coordinates to be root-window-relative: */
   pos.h = x;
   pos.v = y;
 
-  SetPortWindowPort (FRAME_MAC_WINDOW (f));
-  LocalToGlobal (&pos);
+  SetPortWindowPort(FRAME_MAC_WINDOW(f));
+  LocalToGlobal(&pos);
 
-  /* No selection has been chosen yet.  */
+  /* No selection has been chosen yet: */
   menu_item_selection = 0;
 
-  record_unwind_protect (pop_down_menu, make_save_value (f, 0));
+  record_unwind_protect(pop_down_menu, make_save_value(f, 0));
 
   /* Add event handler so we can detect C-g. */
-  install_menu_quit_handler (MAC_MENU_POPUP, menu);
-  install_menu_quit_handler (MAC_MENU_POPUP_SUB, menu);
+  install_menu_quit_handler(MAC_MENU_POPUP, menu);
+  install_menu_quit_handler(MAC_MENU_POPUP_SUB, menu);
 
-  /* Display the menu.  */
+  /* Display the menu: */
   popup_activated_flag = 1;
-  menu_item_choice = PopUpMenuSelect (menu, pos.v, pos.h, 0);
+  menu_item_choice = PopUpMenuSelect(menu, pos.v, pos.h, 0);
   popup_activated_flag = 0;
 
-  /* Get the refcon to find the correct item */
+  /* Get the refcon to find the correct item: */
   if (menu_item_choice)
     {
-      MenuHandle sel_menu = GetMenuHandle (HiWord (menu_item_choice));
+      MenuHandle sel_menu = GetMenuHandle(HiWord(menu_item_choice));
 
       if (sel_menu)
-	GetMenuItemRefCon (sel_menu, LoWord (menu_item_choice),
-			   &menu_item_selection);
+	GetMenuItemRefCon(sel_menu, LoWord(menu_item_choice),
+			  (URefCon *)&menu_item_selection);
     }
 
-  unbind_to (specpdl_count, Qnil);
+  unbind_to(specpdl_count, Qnil);
 
   /* Find the selected item, and its pane, to return
      the proper value.  */
@@ -2413,7 +2539,7 @@ mac_handle_dialog_event(EventHandlerCallRef next_handler, EventRef event,
 	if (err == noErr)
 	  if ((command.commandID & ~0xffff) == 'Bt\0\0')
 	    {
-	      SetWRefCon(window, command.commandID);
+	      SetWRefCon(window, (SRefCon)(uintptr_t)command.commandID);
 	      err = QuitAppModalLoopForWindow(window);
 
 	      return ((err == noErr) ? noErr : eventNotHandledErr);
@@ -2585,7 +2711,8 @@ create_and_show_dialog(FRAME_PTR f, widget_value *first_wv)
 		rects[i].right = DIALOG_MAX_INNER_WIDTH;
 
 	      err = SetControlCommandID(buttons[i],
-                                        ('Bt\0\0' + (int)wv->call_data));
+                                        ('Bt\0\0'
+                                         + (int)(intptr_t)wv->call_data));
 	    }
 	  if (err != noErr)
 	    break;
@@ -2762,7 +2889,7 @@ create_and_show_dialog(FRAME_PTR f, widget_value *first_wv)
     }
   if (err == noErr)
     {
-      UInt32 command_id = (UInt32)GetWRefCon(window);
+      UInt32 command_id = (UInt32)(uintptr_t)GetWRefCon(window);
 
       if ((command_id & ~0xffff) == 'Bt\0\0')
 	result = (command_id - 'Bt\0\0');

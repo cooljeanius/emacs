@@ -227,7 +227,6 @@ static void put_filename(char *filename)
 /* Return 1 if file is not found, 0 if it is found.  */
 static int scan_file(char *filename)
 {
-
   size_t len = strlen (filename);
 
   if (!generate_globals)

@@ -3117,6 +3117,12 @@ else
   esac
   AC_SUBST([WERROR_CFLAGS])dnl
 
+  ## Carbon is deprecated, so naturally it will provoke lots of these:
+  if test "x${HAVE_CARBON}" = "xyes" || test "x${with_carbon}" != "xno"; then
+    nw="${nw} -Wdeprecated-declarations"
+    gl_WARN_ADD([-Wno-deprecated-declarations])
+  fi
+
   dnl# m4-quoted block number 3 begins:
   [
   nw="${nw} -W"                                    # redundant with -Wextra
@@ -3537,6 +3543,9 @@ else
       gl_WARN_ADD([-Woverride-init-side-effects])
       gl_WARN_ADD([-Wshift-negative-value])
       gl_WARN_ADD([-Wshift-overflow])
+      ## this got stricter, I think?
+      nw="${nw} -Wbool-compare"
+      ## but anyways...
       if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
         AC_LANG_PUSH([C++])dnl
         gl_WARN_ADD([-Wterminate],[WARN_CXXFLAGS])
@@ -4845,13 +4854,16 @@ if test "x${with_carbon}" != "xno"; then
   AC_CHECK_HEADER([Carbon/Carbon.h],[HAVE_CARBON=yes])
   AC_CHECK_HEADERS([CarbonCore/Files.h CarbonCore/MacTypes.h \
                     CarbonCore/Script.h CarbonCore/StringCompare.h \
-                    CarbonCore/TextUtils.h \
+                    CarbonCore/TextUtils.h HIToolbox/Appearance.h \
                     HIToolbox/CarbonEvents.h HIToolbox/Controls.h \
-                    HIToolbox/Drag.h HIToolbox/Events.h \
-                    HIToolbox/HIProgressViews.h HIToolbox/MacWindows.h \
-                    HIToolbox/Menus.h MacTypes.h \
+                    HIToolbox/Dialogs.h HIToolbox/Drag.h \
+                    HIToolbox/Events.h HIToolbox/HIButtonViews.h \
+                    HIToolbox/HIImageViews.h HIToolbox/HIProgressViews.h \
+                    HIToolbox/HITextViews.h HIToolbox/MacWindows.h \
+                    HIToolbox/Menus.h HIToolbox/Scrap.h MacTypes.h \
                     NavigationServices/Navigation.h \
-                    QD/QuickdrawAPI.h QD/QDOffscreen.h])dnl
+                    QD/QuickdrawAPI.h QD/QDOffscreen.h \
+                    QuickTime/ImageCompression.h])dnl
   ## end Carbon headers check
 fi
 if test "x${window_system}" = "xx11" && test "x${HAVE_CARBON}" = "xyes"; then
@@ -5035,6 +5047,8 @@ elif test "x${MAC_OBJC_OBJ}" != "x"; then
   test -n "${MAC_OBJC_OBJ}"
   if test "x${opsys}" = "xdarwin"; then
      test -z "${GNU_OBJC_CFLAGS}" && GNU_OBJC_CFLAGS="-fobjc-exceptions"
+     GNU_OBJC_CFLAGS="${GNU_OBJC_CFLAGS} -fno-strict-aliasing"
+     test -z "${GNUSTEP_CFLAGS}" && GNUSTEP_CFLAGS="-fno-strict-aliasing"
   fi
 fi  ##end ns conditional
 
@@ -5064,6 +5078,9 @@ if test "x${with_ns}" != "xno" || test "x${MAC_OBJC_OBJ}" != "x"; then
     ## some Objective C compilers have buggy support for method attributes:
     nw="${nw} -Wmissing-noreturn"
     gl_WARN_ADD([-Wno-missing-noreturn],[GNU_OBJC_WARN_CFLAGS])
+    ## sometimes a built-in string gets generated that triggers this:
+    nw="${nw} -Woverlength-strings"
+    gl_WARN_ADD([-Wno-overlength-strings],[GNU_OBJC_WARN_CFLAGS])
     ## in case the C compiler forgot to add it:
     if test -z "${emacs_g3_OBJCFLAGS}"; then
       gl_WARN_ADD([-Wundef],[GNU_OBJC_WARN_CFLAGS])
