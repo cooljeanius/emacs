@@ -397,19 +397,19 @@ adjust_glyph_matrix(struct window *w, struct glyph_matrix *matrix,
      Do nothing if MATRIX' size, position, vscroll, and marginal areas
      haven't changed.  This optimization is important because preserving
      the matrix means preventing redisplay.  */
-  if (matrix->pool == NULL)
+  if ((matrix->pool == NULL) && (w != NULL))
     {
       left = margin_glyphs_to_reserve(w, dim.width, w->left_margin_cols);
       right = margin_glyphs_to_reserve(w, dim.width, w->right_margin_cols);
-      eassert(left >= 0 && right >= 0);
+      eassert((left >= 0) && (right >= 0));
       marginal_areas_changed_p = (left != matrix->left_margin_glyphs
 				  || right != matrix->right_margin_glyphs);
 
       if (!marginal_areas_changed_p
-	  && !XFRAME (w->frame)->fonts_changed
+	  && !XFRAME(w->frame)->fonts_changed
 	  && !header_line_changed_p
-	  && matrix->window_pixel_left == WINDOW_LEFT_PIXEL_EDGE (w)
-	  && matrix->window_pixel_top == WINDOW_TOP_PIXEL_EDGE (w)
+	  && matrix->window_pixel_left == WINDOW_LEFT_PIXEL_EDGE(w)
+	  && matrix->window_pixel_top == WINDOW_TOP_PIXEL_EDGE(w)
 	  && matrix->window_height == window_height
 	  && matrix->window_vscroll == w->vscroll
 	  && matrix->window_width == window_width)
@@ -4760,8 +4760,10 @@ update_frame_line(struct frame *f, int vpos)
   struct glyph_row *desired_row = MATRIX_ROW(desired_matrix, vpos);
   bool must_write_whole_line_p;
   bool write_spaces_p = FRAME_MUST_WRITE_SPACES(f);
-  bool colored_spaces_p = (FACE_FROM_ID(f, DEFAULT_FACE_ID)->background
-			   != FACE_TTY_DEFAULT_BG_COLOR);
+  bool colored_spaces_p =
+    ((FACE_FROM_ID(f, DEFAULT_FACE_ID) != NULL)
+     ? (FACE_FROM_ID(f, DEFAULT_FACE_ID)->background
+	!= FACE_TTY_DEFAULT_BG_COLOR) : false);
 
   if (colored_spaces_p)
     write_spaces_p = 1;

@@ -494,11 +494,15 @@ usage: (prog1 FIRST BODY...)  */)
 
   args_left = args;
   val = args;
-  GCPRO2 (args, val);
+  GCPRO2(args, val);
 
-  val = eval_sub (XCAR (args_left));
-  while (CONSP (args_left = XCDR (args_left)))
-    eval_sub (XCAR (args_left));
+  if (NILP(val)) {
+    ; /* ??? */
+  }
+
+  val = eval_sub(XCAR(args_left));
+  while (CONSP(args_left = XCDR(args_left)))
+    eval_sub(XCAR(args_left));
 
   UNGCPRO;
   return val;
@@ -1149,41 +1153,49 @@ internal_catch (Lisp_Object tag, Lisp_Object (*func) (Lisp_Object), Lisp_Object 
    This is used for correct unwinding in Fthrow and Fsignal.  */
 
 static _Noreturn void
-unwind_to_catch (struct handler *catch, Lisp_Object value)
+unwind_to_catch(struct handler *catch, Lisp_Object value)
 {
   bool last_time;
 
-  eassert (catch->next);
+  eassert(catch->next);
 
-  /* Save the value in the tag.  */
-  catch->val = value;
+  if (catch != NULL) {
+    /* Save the value in the tag: */
+    catch->val = value;
 
-  /* Restore certain special C variables.  */
-  set_poll_suppress_count (catch->poll_suppress_count);
-  unblock_input_to (catch->interrupt_input_blocked);
+    /* Restore certain special C variables: */
+    set_poll_suppress_count(catch->poll_suppress_count);
+    unblock_input_to(catch->interrupt_input_blocked);
+  } else {
+    set_poll_suppress_count(poll_suppress_count);
+    unblock_input_to(0);
+  }
+
   immediate_quit = 0;
 
-  do
-    {
-      /* Unwind the specpdl stack, and then restore the proper set of
-	 handlers.  */
-      unbind_to (handlerlist->pdlcount, Qnil);
-      last_time = handlerlist == catch;
-      if (! last_time)
-	handlerlist = handlerlist->next;
-    }
-  while (! last_time);
+  do {
+    /* Unwind the specpdl stack, and then restore the proper set of
+     * handlers.  */
+    unbind_to(handlerlist->pdlcount, Qnil);
+    last_time = (handlerlist == catch);
+    if (! last_time)
+      handlerlist = handlerlist->next;
+  } while (! last_time);
 
-  eassert (handlerlist == catch);
+  eassert(handlerlist == catch);
 
-  byte_stack_list = catch->byte_stack;
-  gcprolist = catch->gcpro;
+  if (catch != NULL) {
+    byte_stack_list = catch->byte_stack;
+    gcprolist = catch->gcpro;
+  }
 #ifdef DEBUG_GCPRO
   gcpro_level = (cprolist ? (gcprolist->level + 1) : 0);
 #endif /* DEBUG_GCPRO */
-  lisp_eval_depth = catch->lisp_eval_depth;
+  if (catch != NULL) {
+    lisp_eval_depth = catch->lisp_eval_depth;
+  }
 
-  sys_longjmp (catch->jmp, 1);
+  sys_longjmp(catch->jmp, 1);
 }
 
 DEFUN ("throw", Fthrow, Sthrow, 2, 2, 0,
@@ -1566,7 +1578,7 @@ See also the function `condition-case'.  */)
 	      && !NILP(Fmemq(Qdebug, clause)))
 	  /* Special handler that means "print a message and run debugger
 	     if requested".  */
-	  || EQ(h->tag_or_ch, Qerror)))
+	  || ((h != NULL) && EQ(h->tag_or_ch, Qerror))))
     {
       bool debugger_called
 	= maybe_call_debugger (conditions, error_symbol, data);
@@ -2323,30 +2335,33 @@ usage: (apply FUNCTION &rest ARGUMENTS)  */)
   numargs += nargs - 2;
 
   /* Optimize for no indirection.  */
-  if (SYMBOLP (fun) && !NILP (fun)
-      && (fun = XSYMBOL (fun)->function, SYMBOLP (fun)))
-    fun = indirect_function (fun);
-  if (NILP (fun))
+  if (SYMBOLP(fun) && !NILP(fun)
+      && (fun = XSYMBOL(fun)->function, SYMBOLP(fun)))
+    fun = indirect_function(fun);
+  if (NILP(fun))
     {
-      /* Let funcall get the error.  */
+      /* Let funcall get the error: */
       fun = args[0];
+      if (NILP(fun)) {
+        ; /* ??? */
+      }
       goto funcall;
     }
 
-  if (SUBRP (fun))
+  if (SUBRP(fun))
     {
-      if (numargs < XSUBR (fun)->min_args
-	  || (XSUBR (fun)->max_args >= 0 && XSUBR (fun)->max_args < numargs))
+      if (numargs < XSUBR(fun)->min_args
+	  || (XSUBR(fun)->max_args >= 0 && XSUBR(fun)->max_args < numargs))
 	goto funcall;		/* Let funcall get the error.  */
-      else if (XSUBR (fun)->max_args >= 0 && XSUBR (fun)->max_args > numargs)
+      else if (XSUBR(fun)->max_args >= 0 && XSUBR(fun)->max_args > numargs)
 	{
 	  /* Avoid making funcall cons up a yet another new vector of arguments
 	     by explicitly supplying nil's for optional values.  */
-	  SAFE_ALLOCA_LISP (funcall_args, 1 + XSUBR (fun)->max_args);
-	  for (i = numargs; i < XSUBR (fun)->max_args;)
+	  SAFE_ALLOCA_LISP(funcall_args, (1 + XSUBR(fun)->max_args));
+	  for (i = numargs; i < XSUBR(fun)->max_args;)
 	    funcall_args[++i] = Qnil;
-	  GCPRO1 (*funcall_args);
-	  gcpro1.nvars = 1 + XSUBR (fun)->max_args;
+	  GCPRO1(*funcall_args);
+	  gcpro1.nvars = (1 + XSUBR(fun)->max_args);
 	}
     }
  funcall:
@@ -2354,25 +2369,25 @@ usage: (apply FUNCTION &rest ARGUMENTS)  */)
      function itself as well as its arguments.  */
   if (!funcall_args)
     {
-      SAFE_ALLOCA_LISP (funcall_args, 1 + numargs);
-      GCPRO1 (*funcall_args);
-      gcpro1.nvars = 1 + numargs;
+      SAFE_ALLOCA_LISP(funcall_args, (1 + numargs));
+      GCPRO1(*funcall_args);
+      gcpro1.nvars = (1 + numargs);
     }
 
-  memcpy (funcall_args, args, nargs * word_size);
+  memcpy(funcall_args, args, (nargs * word_size));
   /* Spread the last arg we got.  Its first element goes in
      the slot that it used to occupy, hence this value of I.  */
-  i = nargs - 1;
+  i = (nargs - 1);
   while (!NILP (spread_arg))
     {
-      funcall_args [i++] = XCAR (spread_arg);
-      spread_arg = XCDR (spread_arg);
+      funcall_args[i++] = XCAR(spread_arg);
+      spread_arg = XCDR(spread_arg);
     }
 
-  /* By convention, the caller needs to gcpro Ffuncall's args.  */
-  retval = Ffuncall (gcpro1.nvars, funcall_args);
+  /* By convention, the caller needs to gcpro Ffuncall's args: */
+  retval = Ffuncall(gcpro1.nvars, funcall_args);
   UNGCPRO;
-  SAFE_FREE ();
+  SAFE_FREE();
 
   return retval;
 }
@@ -2508,66 +2523,71 @@ usage: (run-hook-wrapped HOOK WRAP-FUNCTION &rest ARGS)  */)
    except that it isn't necessary to gcpro ARGS[0].  */
 
 Lisp_Object
-run_hook_with_args (ptrdiff_t nargs, Lisp_Object *args,
-		    Lisp_Object (*funcall) (ptrdiff_t nargs, Lisp_Object *args))
+run_hook_with_args(ptrdiff_t nargs, Lisp_Object *args,
+		   Lisp_Object (*funcall)(ptrdiff_t nargs,
+                                          Lisp_Object *args))
 {
   Lisp_Object sym, val, ret = Qnil;
   struct gcpro gcpro1, gcpro2, gcpro3;
 
   /* If we are dying or still initializing,
      don't do anything--it would probably crash if we tried.  */
-  if (NILP (Vrun_hooks))
+  if (NILP(Vrun_hooks))
     return Qnil;
 
   sym = args[0];
-  val = find_symbol_value (sym);
+  val = find_symbol_value(sym);
 
-  if (EQ (val, Qunbound) || NILP (val))
+  if (EQ(val, Qunbound) || NILP(val))
     return ret;
-  else if (!CONSP (val) || FUNCTIONP (val))
+  else if (!CONSP(val) || FUNCTIONP(val))
     {
       args[0] = val;
-      return funcall (nargs, args);
+      return funcall(nargs, args);
     }
   else
     {
       Lisp_Object global_vals = Qnil;
-      GCPRO3 (sym, val, global_vals);
+      GCPRO3(sym, val, global_vals);
+
+      if (NILP(global_vals)) {
+        ; /* ??? */
+      }
 
       for (;
-	   CONSP (val) && NILP (ret);
-	   val = XCDR (val))
+	   CONSP(val) && NILP(ret);
+	   val = XCDR(val))
 	{
-	  if (EQ (XCAR (val), Qt))
+	  if (EQ(XCAR(val), Qt))
 	    {
 	      /* t indicates this hook has a local binding;
 		 it means to run the global binding too.  */
-	      global_vals = Fdefault_value (sym);
-	      if (NILP (global_vals)) continue;
+	      global_vals = Fdefault_value(sym);
+	      if (NILP(global_vals)) continue;
 
-	      if (!CONSP (global_vals) || EQ (XCAR (global_vals), Qlambda))
+	      if (!CONSP(global_vals) || EQ(XCAR(global_vals), Qlambda))
 		{
 		  args[0] = global_vals;
-		  ret = funcall (nargs, args);
+		  ret = funcall(nargs, args);
 		}
 	      else
 		{
 		  for (;
-		       CONSP (global_vals) && NILP (ret);
-		       global_vals = XCDR (global_vals))
+		       CONSP(global_vals) && NILP(ret);
+		       global_vals = XCDR(global_vals))
 		    {
-		      args[0] = XCAR (global_vals);
+		      args[0] = XCAR(global_vals);
 		      /* In a global value, t should not occur.  If it does, we
 			 must ignore it to avoid an endless loop.  */
-		      if (!EQ (args[0], Qt))
-			ret = funcall (nargs, args);
+		      if (!EQ(args[0], Qt))
+			ret = funcall(nargs, args);
 		    }
 		}
 	    }
 	  else
 	    {
-	      args[0] = XCAR (val);
-	      ret = funcall (nargs, args);
+	      args[0] = XCAR(val);
+	      ret = funcall(nargs, args);
 	    }
 	}
 

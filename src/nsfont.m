@@ -569,9 +569,10 @@ ns_findfonts (Lisp_Object font_spec, BOOL isMatch)
 	debug_print (font_spec);
       }
 
-    cFamilies = ns_get_covering_families (ns_get_req_script (font_spec), 0.90);
+    cFamilies = ns_get_covering_families(ns_get_req_script(font_spec),
+                                         0.90f);
 
-    fdesc = ns_spec_to_descriptor (font_spec);
+    fdesc = ns_spec_to_descriptor(font_spec);
     fkeys = [NSMutableSet setWithArray: [[fdesc fontAttributes] allKeys]];
     if (isMatch)
 	[fkeys removeObject: NSFontFamilyAttribute];
@@ -587,9 +588,9 @@ ns_findfonts (Lisp_Object font_spec, BOOL isMatch)
 	if (![cFamilies containsObject:
 	         [desc objectForKey: NSFontFamilyAttribute]])
 	    continue;
-        tem = ns_descriptor_to_entity (desc,
-					 AREF (font_spec, FONT_EXTRA_INDEX),
-                                       NULL);
+        tem = ns_descriptor_to_entity(desc,
+                                      AREF(font_spec, FONT_EXTRA_INDEX),
+                                      NULL);
         if (isMatch)
           return tem;
 	list = Fcons (tem, list);

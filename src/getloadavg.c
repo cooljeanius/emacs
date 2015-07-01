@@ -1079,6 +1079,10 @@ getloadavg(double loadavg[], int nelem)
 #endif /* ! HAVE_GETLOADAVG */
 
 #ifdef TEST
+/* in case gnulib re-defined this on us: */
+# ifdef perror
+#  undef perror
+# endif /* perror */
 int
 main(int argc, char **argv)
 {

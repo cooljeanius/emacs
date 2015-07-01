@@ -3171,8 +3171,10 @@ else
   dnl# m4-quoted block number 3 ends
 
   if test "x${emacs_cv_clang}" = "xyes"; then
-    # Prints way too many warnings for now:
-    nw="${nw} -Wcast-align"
+    # Prints way too many warnings for now, but they might be needed:
+    if test "x${with_ns}" != "xyes"; then
+      nw="${nw} -Wcast-align"
+    fi ##end for check for NS
     # Same "shorten-the-command-line" reasoning as above:
     nw="${nw} -Wformat-extra-args"
     nw="${nw} -Wtautological-constant-out-of-range-compare"
@@ -4390,6 +4392,10 @@ AC_CHECK_HEADERS([OS.h arpa/inet.h dpmi.h err.h errno.h fcntl.h float.h \
                   timespec.h unixlib.h])
 dnl# (usually I would have checked <malloc/malloc.h> just after <malloc.h>,
 dnl# but we do that elsewhere in this one)
+if test "x${ac_cv_header_stdalign_h}" = "x"; then
+  test -z "${ac_cv_header_stdalign_h}"
+  AC_CHECK_HEADERS([stdalign.h])
+fi
 if test "x${ac_cv_header_wctype_h}" = "x"; then
   test -z "${ac_cv_header_wctype_h}"
   AC_CHECK_HEADERS([wctype.h])
@@ -4480,6 +4486,13 @@ fi
 if test "x${ac_cv_have_decl___MACH__}" = "xyes" || test -d /usr/include/mach-o; then
   ## this is referred to as "documentation" by unexmacosx.c:
   AC_CHECK_HEADERS([mach-o/loader.h])
+  ## other possibly useful headers from that directory:
+  AC_CHECK_HEADERS([mach-o/arch.h mach-o/getsect.h mach-o/nlist.h \
+                    mach-o/ldsyms.h mach-o/reloc.h])
+  if test "x${machine}" = "xmacppc" || test "x${machine}" = "xpowermac"; then
+    test -n "${machine}"
+    AC_CHECK_HEADERS([mach-o/ppc/reloc.h])
+  fi
 fi
 if test "x${enable_acl}" != "xno"; then
   AC_CHECK_DECLS([acl])dnl
@@ -4615,7 +4628,10 @@ dnl# Signedness of char can produce some warnings:
 AC_C_CHAR_UNSIGNED
 
 dnl# "src/lisp.h" mentions flexible arrays:
-AC_C_FLEXIBLE_ARRAY_MEMBER
+if test "x${ac_cv_c_flexmember}" = "x"; then
+  test -z "${ac_cv_c_flexmember}"
+  AC_C_FLEXIBLE_ARRAY_MEMBER
+fi
 
 dnl# Testing __STDC__ to determine prototype support is NOT good enough.
 dnl# DEC C, for instance, does NOT define it with default options, and
@@ -5057,6 +5073,7 @@ if test "x${with_ns}" != "xno" || test "x${MAC_OBJC_OBJ}" != "x"; then
   if test "x${gl_gcc_warnings}" = "xyes" && test "x${WERROR_CFLAGS}" = "x"; then
     AC_LANG_PUSH([Objective C])dnl
     gl_WARN_ADD([-Wassign-intercept],[GNU_OBJC_WARN_CFLAGS])
+    gl_WARN_ADD([-Wcast-align],[GNU_OBJC_WARN_CFLAGS])
     gl_WARN_ADD([-Wglobal-constructors],[GNU_OBJC_WARN_CFLAGS])
     gl_WARN_ADD([-Wproperty-assign-default],[GNU_OBJC_WARN_CFLAGS])
     gl_WARN_ADD([-Wprotocol],[GNU_OBJC_WARN_CFLAGS])
@@ -7362,6 +7379,8 @@ if test "x${HAVE_NS}" = "xyes"; then
       test -n "${NS_GNUSTEP_CONFIG}"
       AC_MSG_NOTICE([using values from gnustep-config for flags])
     fi
+  elif test "x${NS_IMPL_COCOA}" = "xyes"; then
+    test -z "${GNUSTEP_CFLAGS}" && GNUSTEP_CFLAGS="-fno-strict-aliasing"
   fi
   OTHER_FILES=ns-app
 fi
@@ -7756,15 +7775,15 @@ if test "x${libm_has_fmod}" = "x" && test "x${ac_cv_func_fmod}" = "x"; then
 fi
 dnl# these ones should be in alphabetical order:
 AC_CHECK_FUNCS([__fpending _stricmp acl atexit atof atoi btowc bzero \
-                cuserid doprnt errc fabs fabsf floor ftime geteuid \
-                getpass getpwuid inet_ntoa isascii iswprint mbrlen \
-                memmove memset mkdir munmap nl_langinfo pathconf \
-                posix_spawnp pow putenv re_comp reallocf regcomp rmdir \
-                setenv socket sqrt strcasecmp strcasestr strchr strcmp \
-                strcspn strdup strerror stricmp strlcat strlcpy \
-                strncasecmp strncat strncmp strnicmp strnstr strpbrk \
-                strrchr strtok strtol strtoul system xstricmp utime \
-                utmpname vfprintf])
+                cuserid doprnt errc fabs fabsf floor ftime get_etext \
+                get_edata get_end geteuid getpass getpwuid inet_ntoa \
+                isascii iswprint mbrlen memmove memset mkdir munmap \
+                nl_langinfo pathconf posix_spawnp pow putenv re_comp \
+                reallocf regcomp rmdir setenv socket sqrt strcasecmp \
+                strcasestr strchr strcmp strcspn strdup strerror stricmp \
+                strlcat strlcpy strncasecmp strncat strncmp strnicmp \
+                strnstr strpbrk strrchr strtok strtol strtoul system \
+                xstricmp utime utmpname vfprintf])
 dnl# Keep autoscan happy with a dummy condition:
 if test "x" = "Y0"; then
   test -x "`which autoscan`"

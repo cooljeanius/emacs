@@ -2052,20 +2052,20 @@ stop_polling (void)
    and start or stop polling accordingly.  */
 
 void
-set_poll_suppress_count (int count)
+set_poll_suppress_count(int count)
 {
 #ifdef POLL_FOR_INPUT
   if (count == 0 && poll_suppress_count != 0)
     {
       poll_suppress_count = 1;
-      start_polling ();
+      start_polling();
     }
   else if (count != 0 && poll_suppress_count == 0)
     {
-      stop_polling ();
+      stop_polling();
     }
   poll_suppress_count = count;
-#endif
+#endif /* POLL_FOR_INPUT */
 }
 
 /* Bind polling_period to a value at least N.
@@ -2421,12 +2421,16 @@ read_char (int commandflag, Lisp_Object map,
 
 #if 0  /* This was commented out as part of fixing echo for C-u left.  */
   before_command_key_count = this_command_key_count;
-  before_command_echo_length = echo_length ();
+  before_command_echo_length = echo_length();
 #endif /* 0 */
   c = Qnil;
   previous_echo_area_message = Qnil;
 
-  GCPRO2 (c, previous_echo_area_message);
+  GCPRO2(c, previous_echo_area_message);
+
+  if (NILP(c)) {
+    ; /* ??? */
+  }
 
  retry:
 
@@ -4403,6 +4407,10 @@ timer_check_2(Lisp_Object timers, Lisp_Object idle_timers)
 
   chosen_timer = Qnil;
   GCPRO1(chosen_timer);
+
+  if (NILP(chosen_timer)) {
+    ; /* ??? */
+  }
 
   /* First run the code that was delayed: */
   while (CONSP(pending_funcalls))
@@ -7104,8 +7112,8 @@ void
 process_pending_signals (void)
 {
   pending_signals = 0;
-  handle_async_input ();
-  do_pending_atimers ();
+  handle_async_input();
+  do_pending_atimers();
 }
 
 /* Undo any number of BLOCK_INPUT calls down to level LEVEL,
@@ -7113,16 +7121,16 @@ process_pending_signals (void)
    a fatal error is not already in progress.  */
 
 void
-unblock_input_to (int level)
+unblock_input_to(int level)
 {
   interrupt_input_blocked = level;
   if (level == 0)
     {
       if (pending_signals && !fatal_error_in_progress)
-	process_pending_signals ();
+	process_pending_signals();
     }
   else if (level < 0)
-    emacs_abort ();
+    emacs_abort();
 }
 
 /* End critical section.

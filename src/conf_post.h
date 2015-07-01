@@ -240,6 +240,15 @@ extern void _DebPrint (const char *fmt, ...);
    ATTRIBUTE_FORMAT ((__printf__, formatstring_parameter, first_argument))
 #endif /* gcc 4.4+ */
 
+/* Attribute `nonnull' was valid as of gcc 3.3: */
+#ifndef ATTRIBUTE_NONNULL
+# if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 3)
+#  define ATTRIBUTE_NONNULL(m) __attribute__((__nonnull__(m)))
+# else
+#  define ATTRIBUTE_NONNULL(m)
+# endif /* GNUC >= 3.3 */
+#endif /* ATTRIBUTE_NONNULL */
+
 #define ATTRIBUTE_CONST _GL_ATTRIBUTE_CONST
 
 /* Work around GCC bug 59600: when a function is inlined, the inlined

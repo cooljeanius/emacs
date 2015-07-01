@@ -482,7 +482,8 @@ base_obj = dispnew.o frame.o scroll.o xdisp.o menu.o $(XMENU_OBJ) \
 	profiler.o decompress.o \
 	$(MSDOS_OBJ) $(MSDOS_X_OBJ) $(NS_OBJ) $(CYGWIN_OBJ) $(FONT_OBJ) \
 	$(W32_OBJ) $(WINDOW_SYSTEM_OBJ) $(XGSELOBJ)
-old_obj = abbrev.o @MAINT@ strftime.o md5.o # $(MAC_OBJ)
+old_obj = abbrev.o filemode.o alloca.o ecrt0.o \
+	getloadavg.o @MAINT@ strftime.o md5.o # $(MAC_OBJ)
 obj = $(base_obj) $(MAC_OBJC_OBJ) $(NS_OBJC_OBJ) $(MAC_OBJ_SUBSTED) \
 	$(old_obj)
 
@@ -499,7 +500,8 @@ SOME_MACHINE_OBJECTS = dosfns.o msdos.o \
   w16select.o widget.o xfont.o ftfont.o xftfont.o ftxfont.o gtkutil.o \
   xsettings.o xgselect.o termcap.o @MAINT@ $(EXTRA_MACHINE_OBJECTS)
 
-EXTRA_MACHINE_OBJECTS = sunfns.o w32bdf.o
+EXTRA_MACHINE_OBJECTS = pre-crt0.o sunfns.o w32bdf.o \
+  vmsfns.o vmsgmalloc.o vmsmap.o
 
 ## gmalloc.o if !SYSTEM_MALLOC && !DOUG_LEA_MALLOC, else empty.
 GMALLOC_OBJ=@GMALLOC_OBJ@
@@ -524,6 +526,8 @@ otherobj= $(TERMCAP_OBJ) $(PRE_ALLOC_OBJ) $(GMALLOC_OBJ) $(RALLOC_OBJ) \
 FIRSTFILE_OBJ=@FIRSTFILE_OBJ@
 ALLOBJS = $(FIRSTFILE_OBJ) $(VMLIMIT_OBJ) $(obj) $(otherobj)
 
+ALLPLISTS = `echo $(ALLOBJS) | $(SED) -e 's/\.o/\.plist/g'`
+
 ## Configure inserts the file lisp.mk at this point, defining $lisp.
 @lisp_frag@
 
@@ -542,6 +546,10 @@ LIBES = $(LIBS) $(W32_LIBS) $(LIBS_GNUSTEP) $(LIBX_BASE) $(LIBIMAGE) \
 
 all: emacs$(EXEEXT) $(OTHER_FILES)
 .PHONY: all
+
+check: gnulib_headers getloadavg_test$(EXEEXT)
+	$(MAKE) $(ALLPLISTS)
+.PHONY: check
 
 $(leimdir)/leim-list.el: bootstrap-emacs$(EXEEXT)
 	cd ../leim && $(MAKE) $(MFLAGS) leim-list.el EMACS="$(bootstrap_exe)"
@@ -658,6 +666,7 @@ gl-stamp: $(libsrc)/make-docfile$(EXEEXT) $(GLOBAL_SOURCES) Makefile
 	echo "timestamp: `date`" > $@
 
 $(ALLOBJS): globals.h
+$(ALLPLISTS): globals.h
 
 gnulib_headers: $(lib)/Makefile
 	$(MAKE) -C $(lib) headers

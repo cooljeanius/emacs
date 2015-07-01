@@ -543,7 +543,7 @@ static int
 read_emacs_mule_char (int c, int (*readbyte) (int, Lisp_Object), Lisp_Object readcharfun)
 {
   /* Emacs-mule coding uses at most 4-byte for one character.  */
-  unsigned char buf[4];
+  unsigned char buf[4] = { 0U, 0U, 0U, 0U };
   int len = emacs_mule_bytes[c];
   struct charset *charset;
   int i;

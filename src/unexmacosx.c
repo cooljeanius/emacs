@@ -256,6 +256,13 @@ static int in_dumped_exec = 0;
 
 static malloc_zone_t *emacs_zone;
 
+/* A macro for debugging the emacs_zone: */
+#if 1
+# define check_emacs_zone() emacs_zone->introspect->check(emacs_zone)
+#else
+# define check_emacs_zone() /* (nothing) */
+#endif /* 1 */
+
 /* file offset of input file's data segment: */
 static off_t data_segment_old_fileoff = 0L;
 
@@ -595,7 +602,9 @@ build_region_list(void)
 	    }
 	  else
 	    {
-	      region_list_tail->next = r;
+	      if (region_list_tail != NULL) {
+	        region_list_tail->next = r;
+	      }
 	      region_list_tail = r;
 	    }
 
@@ -674,6 +683,8 @@ static void
 find_emacs_zone_regions(void)
 {
   num_unexec_regions = 0;
+
+  check_emacs_zone();
 
   emacs_zone->introspect->enumerator(mach_task_self(), 0,
 				     (MALLOC_PTR_REGION_RANGE_TYPE
@@ -2221,6 +2232,7 @@ void unexec_init_emacs_zone(void)
 {
   emacs_zone = malloc_create_zone(0, 0);
   malloc_set_zone_name(emacs_zone, "EmacsZone");
+  check_emacs_zone();
 }
 
 #ifndef MACOSX_MALLOC_MULT16
@@ -2266,10 +2278,15 @@ void *unexec_malloc(size_t size)
     {
       unexec_malloc_header_t *ptr;
 
+      check_emacs_zone();
+
       ptr =
         ((unexec_malloc_header_t *)
          malloc_zone_malloc(emacs_zone,
                             (size + sizeof(unexec_malloc_header_t))));
+
+      check_emacs_zone();
+
       ptr->u.size = size;
       ptr++;
 #if MACOSX_MALLOC_MULT16
@@ -2311,11 +2328,16 @@ void *unexec_realloc(void *old_ptr, size_t new_size)
     {
       unexec_malloc_header_t *ptr;
 
+      check_emacs_zone();
+
       ptr =
         ((unexec_malloc_header_t *)
          malloc_zone_realloc(emacs_zone,
                              ((unexec_malloc_header_t *)old_ptr - 1),
                              (new_size + sizeof(unexec_malloc_header_t))));
+
+      check_emacs_zone();
+
       ptr->u.size = new_size;
       ptr++;
 #if MACOSX_MALLOC_MULT16
@@ -2335,7 +2357,10 @@ void unexec_free(void *ptr)
 	free(ptr);
     }
   else
-    malloc_zone_free(emacs_zone, ((unexec_malloc_header_t *)ptr - 1));
+    {
+      check_emacs_zone();
+      malloc_zone_free(emacs_zone, ((unexec_malloc_header_t *)ptr - 1));
+    }
 }
 
 /* arch-tag: 1a784f7b-a184-4c4f-9544-da8619593d72

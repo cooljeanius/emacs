@@ -321,7 +321,7 @@ fontset_ref (Lisp_Object fontset, int c)
    specifying a range.  */
 
 #define FONTSET_SET(fontset, range, elt)	\
-  Fset_char_table_range ((fontset), (range), (elt))
+  Fset_char_table_range((fontset), (range), (elt))
 
 
 /* Modify the elements of FONTSET for characters in RANGE by replacing
@@ -527,42 +527,42 @@ fontset_get_font_group (Lisp_Object fontset, int c)
    If FALLBACK, search only fallback fonts.  */
 
 static Lisp_Object
-fontset_find_font (Lisp_Object fontset, int c, struct face *face, int id,
-                   bool fallback)
+fontset_find_font(Lisp_Object fontset, int c, struct face *face, int id,
+                  bool fallback)
 {
   Lisp_Object vec, font_group;
   int i, charset_matched = 0, found_index;
-  struct frame *f = (FRAMEP (FONTSET_FRAME (fontset))
-		     ? XFRAME (FONTSET_FRAME (fontset))
-		     : XFRAME (selected_frame));
+  struct frame *f = (FRAMEP(FONTSET_FRAME(fontset))
+		     ? XFRAME(FONTSET_FRAME(fontset))
+		     : XFRAME(selected_frame));
   Lisp_Object rfont_def;
 
-  font_group = fontset_get_font_group (fontset, fallback ? -1 : c);
-  if (! CONSP (font_group))
+  font_group = fontset_get_font_group(fontset, (fallback ? -1 : c));
+  if (! CONSP(font_group))
     return font_group;
-  vec = XCDR (font_group);
-  if (ASIZE (vec) == 0)
+  vec = XCDR(font_group);
+  if (ASIZE(vec) == 0)
     return Qnil;
 
-  if (ASIZE (vec) > 1)
+  if (ASIZE(vec) > 1)
     {
-      if (XINT (XCAR (font_group)) != charset_ordered_list_tick)
+      if (XINT(XCAR(font_group)) != charset_ordered_list_tick)
 	/* We have just created the font-group,
 	   or the charset priorities were changed.  */
-	reorder_font_vector (font_group, face->ascii_face->font);
+	reorder_font_vector(font_group, face->ascii_face->font);
       if (id >= 0)
 	/* Find a spec matching with the charset ID to try at
 	   first.  */
-	for (i = 0; i < ASIZE (vec); i++)
+	for (i = 0; i < ASIZE(vec); i++)
 	  {
 	    Lisp_Object repertory;
 
-	    rfont_def = AREF (vec, i);
-	    if (NILP (rfont_def))
+	    rfont_def = AREF(vec, i);
+	    if (NILP(rfont_def))
 	      break;
-	    repertory = FONT_DEF_REPERTORY (RFONT_DEF_FONT_DEF (rfont_def));
+	    repertory = FONT_DEF_REPERTORY(RFONT_DEF_FONT_DEF(rfont_def));
 
-	    if (XINT (repertory) == id)
+	    if (XINT(repertory) == id)
 	      {
 		charset_matched = i;
 		break;
@@ -570,8 +570,8 @@ fontset_find_font (Lisp_Object fontset, int c, struct face *face, int id,
 	  }
     }
 
-  /* Find the first available font in the vector of RFONT-DEF.  */
-  for (i = 0; i < ASIZE (vec); i++)
+  /* Find the first available font in the vector of RFONT-DEF: */
+  for (i = 0; i < ASIZE(vec); i++)
     {
       Lisp_Object font_def;
       Lisp_Object font_entity, font_object;
@@ -581,7 +581,7 @@ fontset_find_font (Lisp_Object fontset, int c, struct face *face, int id,
 	{
 	  if (charset_matched > 0)
 	    {
-	      /* Try the element matching with the charset ID at first.  */
+	      /* Try the element matching with the charset ID at first: */
 	      found_index = charset_matched;
 	      /* Make this negative so that we don't come here in the
 		 next loop.  */
@@ -809,7 +809,7 @@ struct font_info * ATTRIBUTE_CONST
 fs_load_font(FRAME_PTR f, int c, char *fontname, int id, struct face *face)
 {
   Lisp_Object fontset;
-  Lisp_Object list, elt, fullname;
+  Lisp_Object list, elt = LISP_INITIALLY_ZERO, fullname;
   int size = 0;
   struct font_info *fontp;
   int charset = 0;
@@ -823,25 +823,24 @@ fs_load_font(FRAME_PTR f, int c, char *fontname, int id, struct face *face)
 
   if (!NILP(fontset)
       && !BASE_FONTSET_P(fontset))
-  {
-    elt = LISP_INITIALLY_ZERO;
-    if (!NILP(elt))
-      {
-        /* A suitable face for C is already recorded, which means
-         * that a proper font is already loaded.  */
-        int face_id = XINT(elt);
+    {
+      if (!NILP(elt))
+        {
+          /* A suitable face for C is already recorded, which means
+           * that a proper font is already loaded.  */
+          int face_id = XINT(elt);
 
-        xassert(face_id == face->id);
-        face = FACE_FROM_ID(f, face_id);
-        return (struct font_info *)NULL;
-      }
+          xassert(face_id == face->id);
+          face = FACE_FROM_ID(f, face_id);
+          return (struct font_info *)NULL;
+        }
 
-    if (!fontname && (charset == CHARSET_ASCII))
-      {
-        elt = FONTSET_ASCII(fontset);
-        fontname = (char *)SDATA(XCDR(elt));
-      }
-  }
+      if (!fontname && (charset == CHARSET_ASCII))
+        {
+          elt = FONTSET_ASCII(fontset);
+          fontname = (char *)SDATA(XCDR(elt));
+        }
+    }
 
   if (!fontname)
     /* No way to get fontname: */
@@ -913,7 +912,7 @@ fs_load_font(FRAME_PTR f, int c, char *fontname, int id, struct face *face)
   /* If we loaded a font for a face that has fontset, record the face
    * ID in the fontset for C: */
   if (face && !NILP(fontset) && !BASE_FONTSET_P(fontset))
-    FONTSET_SET(fontset, c, make_number(face->id));
+    FONTSET_SET(fontset, make_number(c), make_number(face->id));
   return fontp;
 }
 

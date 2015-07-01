@@ -2278,7 +2278,7 @@ macfont_list(struct frame *f, Lisp_Object spec)
       CFDictionaryRemoveValue(attributes, MAC_FONT_LANGUAGES_ATTRIBUTE);
     }
 
-  if (val != Qnil) {
+  if (!NILP(val)) {
     val = Qnil;
   }
   extra = AREF(spec, FONT_EXTRA_INDEX);
@@ -2430,27 +2430,46 @@ macfont_list(struct frame *f, Lisp_Object spec)
 	       (mmask <= (mask_max & MAC_FONT_TRAIT_MONO_SPACE))
                && (mmask <= UINT32_MAX);
 	       mmask += MAC_FONT_TRAIT_MONO_SPACE)
-	    for (bmask = (mask_min & MAC_FONT_TRAIT_BOLD);
-		 (bmask <= (mask_max & MAC_FONT_TRAIT_BOLD))
-                 && (bmask < UINT32_MAX);
-		 bmask += MAC_FONT_TRAIT_BOLD)
-	      for (imask = (mask_min & MAC_FONT_TRAIT_ITALIC);
-		   (imask <= (mask_max & MAC_FONT_TRAIT_ITALIC))
-                   && (imask < UINT32_MAX);
-		   imask += MAC_FONT_TRAIT_ITALIC)
-		{
-		  FontSymbolicTraits synth = (imask | bmask | mmask);
+            {
+              for (bmask = (mask_min & MAC_FONT_TRAIT_BOLD);
+                   (bmask <= (mask_max & MAC_FONT_TRAIT_BOLD))
+                   && (bmask < UINT32_MAX);
+                   bmask += MAC_FONT_TRAIT_BOLD)
+                {
+                  for (imask = (mask_min & MAC_FONT_TRAIT_ITALIC);
+                       (imask <= (mask_max & MAC_FONT_TRAIT_ITALIC))
+                       && (imask < UINT32_MAX);
+                       imask += MAC_FONT_TRAIT_ITALIC)
+                    {
+                      FontSymbolicTraits synth = (imask | bmask | mmask);
 
-		  if ((synth == 0)
-		      || (j == macfont_closest_traits_index(traits_array,
-                                                            (sym_traits
-                                                             | synth))))
-		    {
-		      entity = macfont_descriptor_entity(desc, extra, synth);
-		      if (! NILP(entity))
-			val = Fcons(entity, val);
-		    }
-		}
+/* use a shorter name: */
+#ifndef MacFontClosestTraitsIndex
+# define MacFontClosestTraitsIndex(x, y) macfont_closest_traits_index(x, y)
+#endif /* !MacFontClosestTraitsIndex */
+                      if ((synth == 0)
+                          || (j == MacFontClosestTraitsIndex(traits_array,
+                                                             (sym_traits
+                                                              | synth))))
+                        {
+                          entity = macfont_descriptor_entity(desc, extra,
+                                                             synth);
+                          if (! NILP(entity))
+                            val = Fcons(entity, val);
+                        }
+
+                      if (imask >= (FontSymbolicTraits)INFINITY) {
+                        break;
+                      }
+                    }
+                }
+              if (bmask >= (FontSymbolicTraits)INFINITY) {
+                break;
+              }
+            }
+          if (mmask >= (FontSymbolicTraits)INFINITY) {
+            break;
+          }
 	}
 
       CFRelease(traits_array);

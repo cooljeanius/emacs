@@ -23,6 +23,7 @@ missing
 # as allowing the configure script
 po/Makevars
 src/config.in
+test_mach_o_binary
 # this catches both autom4te.cache and config.cache:
 *.cache
 makefile

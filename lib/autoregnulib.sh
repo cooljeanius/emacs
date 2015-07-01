@@ -69,8 +69,8 @@ else
       dtoastr dtotimespec dup2 \
       environ errno error execinfo euidaccess extensions extern-inline \
       faccessat fcntl fcntl-h fdatasync fdopendir file-has-acl filemode \
-      float fopen fpending fpieee fpucw fseek fseeko fstat fstatat fsync \
-      ftell ftello ftoastr ftruncate func \
+      flexmember float fopen fpending fpieee fpucw fseek fseeko fstat fstatat \
+      fsync ftell ftello ftoastr ftruncate func \
       gendocs getdelim getdtablesize getgroups gethostname getline getloadavg \
       getlogin getopt-gnu getopt-posix getpagesize getpass getpass-gnu \
       gettext gettext-h gettime gettimeofday \
@@ -81,8 +81,8 @@ else
       manywarnings math mbsinit memchr memrchr mkostemp mktime multiarch \
       nextafter no-c++ nocrash \
       obstack openat openat-h openmp \
-      pathmax perror pipe2 posix_spawnp printf-safe progname pselect \
-      pthread_sigmask putenv \
+      pagealign_alloc pathmax perror pipe2 posix_spawnp printf-safe progname \
+      pselect pthread_sigmask putenv \
       qacl qcopy-acl quote quotearg quotearg-simple \
       read readdir readlink readlinkat rename rmdir root-uid \
       sched secure_getenv sig2str signal-h sigpipe sleep \

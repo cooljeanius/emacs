@@ -105,7 +105,7 @@ CLANG_ANALYZER = @CLANG_ANALYZER@
 
 RUN_CLANG_ANALYZER = $(CLANG_ANALYZER) $(CFLAGS) $(DEFS) $(CPPFLAGS) \
   $(MYCPPFLAGS) -DDEBUG -D_DEBUG -DSTANDALONE_ISEMACSVALID -Dlint \
-  -I. -Isrc -Ilib-src -Imachocheck/src/other --analyze
+  -I. -Isrc -Ilib-src -idirafter lib -Imachocheck/src/other --analyze
 
 SED = @SED@
 
@@ -1294,11 +1294,20 @@ emacswrapper: emacswrapper.o isemacsvalid.o runit.o
 	$(CC) $(CFLAGS) $(BETTER_DEBUG_CFLAGS) $(LDFLAGS) $(WARN_LDFLAGS) \
 	  -O0 -o $@ -g $^
 
+test_mach_o_binary: test_mach_o_binary.c src/config.h src/lisp.h \
+  lib/intprops.h
+	$(CC) $(CFLAGS) $(CPPFLAGS) -Ilib -Isrc $(DEFS) $(WARN_CFLAGS) \
+	  -Wformat=2 $(BETTER_DEBUG_CFLAGS) $(LDFLAGS) $(WARN_LDFLAGS) \
+	  -O0 -o $@ -g $<
+
+APPLE_AUX_EXES = dumpemacs emacswrapper isemacsvalid test_mach_o_binary
+
 # umbrella target for the above:
-apple_helper_executables: dumpemacs emacswrapper isemacsvalid
+apple_helper_executables: $(APPLE_AUX_EXES)
 	stat dumpemacs
 	stat emacswrapper
 	stat isemacsvalid
+	stat test_mach_o_binary
 .PHONY: apple_helper_executables
 
 .SUFFIXES: .c .plist
@@ -1307,7 +1316,8 @@ apple_helper_executables: dumpemacs emacswrapper isemacsvalid
 	$(RUN_CLANG_ANALYZER) -Wall -Wextra -o $(analysisdir)/$@ $< 
 
 apple_check: isemacsvalid.plist runit.plist dumpemacs.plist \
-  emacswrapper.plist @MAINT@ unexmacosx.plist
+  emacswrapper.plist test_mach_o_binary.plist @MAINT@ unexmacosx.plist
+	if test -x test_mach_o_binary; then ./test_mach_o_binary; fi
 .PHONY: apple_check
 
 ### To avoid lisp byte-compilation errors, try this:
@@ -1324,7 +1334,7 @@ gnulib_headers: lib/Makefile
 
 ### Targets for in case we convert to automake:
 clean-local:
-	rm -f bo.h dumpemacs emacswrapper isemacsvalid *.o
+	rm -f bo.h $(APPLE_AUX_EXES) *.o
 .PHONY: clean-local
 
 distclean-local: clean-local

@@ -123,7 +123,7 @@ int popup_activated(void)
     3) deep_p, submenu = non-nil: Update contents of a single submenu.
    --------------------------------------------------------------------- */
 static void
-ns_update_menubar (struct frame *f, bool deep_p, EmacsMenu *submenu)
+ns_update_menubar(struct frame *f, bool deep_p, EmacsMenu *submenu)
 {
   NSAutoreleasePool *pool;
   id menu = [NSApp mainMenu];
@@ -141,9 +141,9 @@ ns_update_menubar (struct frame *f, bool deep_p, EmacsMenu *submenu)
 
   NSTRACE (ns_update_menubar);
 
-  if (f != SELECTED_FRAME ())
+  if (f != SELECTED_FRAME())
       return;
-  XSETFRAME (Vmenu_updating_frame, f);
+  XSETFRAME(Vmenu_updating_frame, f);
 #ifdef DEBUG
   fprintf(stderr, "ns_update_menubar: frame: %p\tdeep: %d\tsub: %p\n",
           f, deep_p, submenu);
@@ -152,7 +152,7 @@ ns_update_menubar (struct frame *f, bool deep_p, EmacsMenu *submenu)
   block_input ();
   pool = [[NSAutoreleasePool alloc] init];
 
-  /* Menu may have been created automatically; if so, discard it. */
+  /* Menu may have been created automatically; if so, discard it: */
   if ([menu isKindOfClass: [EmacsMenu class]] == NO)
     {
       [menu release];
@@ -165,15 +165,15 @@ ns_update_menubar (struct frame *f, bool deep_p, EmacsMenu *submenu)
       needsSet = YES;
     }
   else
-    {  /* close up anything on there */
-      id attMenu = [menu attachedMenu];
+    {  /* close up anything on there: */
+      id attMenu = [menu attachedMenu]; /* FIXME: deprecated */
       if (attMenu != nil)
         [attMenu close];
     }
 
 #if NSMENUPROFILE
-  ftime (&tb);
-  t = -(1000*tb.time+tb.millitm);
+  ftime(&tb);
+  t = -(1000 * tb.time + tb.millitm);
 #endif /* NSMENUPROFILE */
 
 #ifdef NS_IMPL_GNUSTEP
@@ -545,9 +545,11 @@ x_activate_menubar (struct frame *f)
 /* override designated initializer: */
 - (id)initWithTitle: (NSString *)title
 {
-  frame = 0;
   if ((self = [super initWithTitle: title]))
-    [self setAutoenablesItems: NO];
+    {
+      frame = 0;
+      [self setAutoenablesItems: NO];
+    }
   return self;
 }
 
@@ -1159,9 +1161,13 @@ update_frame_tool_bar (struct frame *f)
 
       if ((img == NULL) || img->load_failed_p || (img->pixmap == nil))
         {
-          NSLog(@"Could not prepare toolbar image for display.");
+          NSLog(@"%@\n", @"Could not prepare toolbar image for display.");
           continue;
         }
+
+      if (idx > 0) {
+        ; /* ??? */
+      }
 
       [toolbar addDisplayItemWithImage: img->pixmap
                                    idx: k++
@@ -1172,7 +1178,7 @@ update_frame_tool_bar (struct frame *f)
     }
 
   if (![toolbar isVisible])
-      [toolbar setVisible: YES];
+    [toolbar setVisible: YES];
 
 #ifdef NS_IMPL_COCOA
   if ([toolbar changed])
@@ -1380,6 +1386,8 @@ update_frame_tool_bar (struct frame *f)
   [font boundingRectForFont].size.height;
 #endif /* 0 */
   NSRect r = NSMakeRect(0, 0, 100, (height + 6));
+
+  self = [super init];
 
   textField = [[NSTextField alloc] initWithFrame: r];
   [textField setFont: font];
@@ -1645,10 +1653,10 @@ ns_popup_dialog (Lisp_Object position, Lisp_Object header, Lisp_Object contents)
   aStyle = (NSTitledWindowMask | NSClosableWindowMask
             | NSUtilityWindowMask);
   flag = YES;
+  self = [super initWithContentRect: contentRect styleMask: aStyle
+                     backing: backingType defer: flag];
   rows = 0;
   cols = 1;
-  [super initWithContentRect: contentRect styleMask: aStyle
-                     backing: backingType defer: flag];
   contentView = [[FlippedView alloc] initWithFrame: [[self contentView] frame]];
   [contentView autorelease];
 

@@ -6,6 +6,11 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <pwd.h>
+
+#ifdef HAVE_CONFIG_H
+# include "src/config.h"
+#endif /* HAVE_CONFIG_H */
+
 #include <unistd.h>
 #include <err.h>
 #include <signal.h>

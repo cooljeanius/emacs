@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A5017D221B41D5C1004F7B48 /* test_mach_o_binary.c in Sources */ = {isa = PBXBuildFile; fileRef = A5017CF31B41CB19004F7B48 /* test_mach_o_binary.c */; };
 		A5361DAF1A2126260058110B /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5513A131A0FEAFD00E9E9C5 /* AppKit.framework */; };
 		A5361DB01A2126260058110B /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5513ACE1A0FEB0F00E9E9C5 /* Carbon.framework */; };
 		A5361DB11A2126260058110B /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5513B8A1A0FEB1F00E9E9C5 /* CoreFoundation.framework */; };
@@ -36,6 +37,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		A5017CF31B41CB19004F7B48 /* test_mach_o_binary.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = test_mach_o_binary.c; path = ../../../test_mach_o_binary.c; sourceTree = SOURCE_ROOT; };
+		A5017D1E1B41D5B5004F7B48 /* test_mach_o_binary */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test_mach_o_binary; sourceTree = BUILT_PRODUCTS_DIR; };
 		A52C809D1A1D1D7800897236 /* autodeps.mk */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; fileEncoding = 4; path = autodeps.mk; sourceTree = "<group>"; };
 		A52C80A41A1D1D9300897236 /* deps.mk */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; fileEncoding = 4; path = deps.mk; sourceTree = "<group>"; };
 		A52C80A81A1D1DC100897236 /* autodeps.mk */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; fileEncoding = 4; path = autodeps.mk; sourceTree = "<group>"; };
@@ -909,6 +912,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		A5017D1C1B41D5B5004F7B48 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A53617D11A2125E00058110B /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -1023,6 +1033,7 @@
 				A540E9D11A0C1FD60008DA29 /* make-dist */,
 				A540E9D21A0C1FEA0008DA29 /* pipefail.sh */,
 				A540E9D31A0C1FF60008DA29 /* runit.c */,
+				A5017CF31B41CB19004F7B48 /* test_mach_o_binary.c */,
 				A540E9E01A0C25920008DA29 /* unexmacosx.c */,
 				A540E9E11A0C25B70008DA29 /* update-subdirs.sh */,
 				A540E9E21A0C25C40008DA29 /* version.rb */,
@@ -1038,6 +1049,7 @@
 				A540F1911A0EBC540008DA29 /* emacs-ppc */,
 				A53617D31A2125E00058110B /* dummy.app */,
 				A53DA6F81AF274C600C02B65 /* isemacsvalid */,
+				A5017D1E1B41D5B5004F7B48 /* test_mach_o_binary */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2053,6 +2065,22 @@
 /* End PBXLegacyTarget section */
 
 /* Begin PBXNativeTarget section */
+		A5017D1D1B41D5B5004F7B48 /* test_mach_o_binary */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A5017D231B41D5DF004F7B48 /* Build configuration list for PBXNativeTarget "test_mach_o_binary" */;
+			buildPhases = (
+				A5017D1B1B41D5B5004F7B48 /* Sources */,
+				A5017D1C1B41D5B5004F7B48 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = test_mach_o_binary;
+			productName = test_mach_o_binary;
+			productReference = A5017D1E1B41D5B5004F7B48 /* test_mach_o_binary */;
+			productType = "com.apple.product-type.tool";
+		};
 		A53617D21A2125E00058110B /* dummy */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = A53617D81A2125E10058110B /* Build configuration list for PBXNativeTarget "dummy" */;
@@ -2162,6 +2190,7 @@
 				A540F1901A0EBC540008DA29 /* emacs-ppc */,
 				A53617D21A2125E00058110B /* dummy */,
 				A53DA6F71AF274C600C02B65 /* isemacsvalid */,
+				A5017D1D1B41D5B5004F7B48 /* test_mach_o_binary */,
 			);
 		};
 /* End PBXProject section */
@@ -2195,6 +2224,14 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		A5017D1B1B41D5B5004F7B48 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A5017D221B41D5C1004F7B48 /* test_mach_o_binary.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A53617D01A2125E00058110B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -2402,6 +2439,109 @@
 					"-Winit-self",
 					"-Wvolatile-register-var",
 				);
+			};
+			name = Release;
+		};
+		A5017D201B41D5B5004F7B48 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				"ARCHS[sdk=macosx10.3.9]" = ppc;
+				"ARCHS[sdk=macosx10.4]" = (
+					ppc,
+					i386,
+				);
+				"ARCHS[sdk=macosx10.5]" = (
+					ppc,
+					ppc64,
+					i386,
+					x86_64,
+				);
+				"ARCHS[sdk=macosx10.6]" = "$(ARCHS_STANDARD_32_64_BIT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"XASSERTS=1",
+					_REENTRANT,
+					BUILDING_FROM_XCODE,
+					__STRICT_ANSI__,
+				);
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				GCC_WARN_PROTOTYPE_CONVERSION = NO;
+				HEADER_SEARCH_PATHS = (
+					"$(TOP_SRCROOT)",
+					"$(TOP_SRCROOT)/src",
+					"$(TOP_SRCROOT)/lib",
+				);
+				INSTALL_PATH = /usr/local/bin;
+				OTHER_CFLAGS = (
+					"-gfull",
+					"-ggdb3",
+					"-fno-pie",
+					"-fblocks",
+					"-fgnu89-inline",
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = test_mach_o_binary;
+				"SDKROOT[arch=ppc64]" = macosx10.5;
+				"SDKROOT[arch=ppc]" = macosx10.4;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Wno-unused",
+					"-Wformat=2",
+					"-Wimplicit",
+					"-Wold-style-definition",
+					"-Wundef",
+					"-Wwrite-strings",
+					"-Winline",
+					"-Wmissing-noreturn",
+				);
+			};
+			name = Debug;
+		};
+		A5017D211B41D5B5004F7B48 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				"ARCHS[sdk=macosx10.3.9]" = ppc;
+				"ARCHS[sdk=macosx10.4]" = (
+					ppc,
+					i386,
+				);
+				"ARCHS[sdk=macosx10.5]" = (
+					ppc,
+					ppc64,
+					i386,
+					x86_64,
+				);
+				"ARCHS[sdk=macosx10.6]" = "$(ARCHS_STANDARD_32_64_BIT)";
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					NDEBUG,
+					_REENTRANT,
+					BUILDING_FROM_XCODE,
+					__STRICT_ANSI__,
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(TOP_SRCROOT)",
+					"$(TOP_SRCROOT)/src",
+					"$(TOP_SRCROOT)/lib",
+				);
+				INSTALL_PATH = /usr/local/bin;
+				PREBINDING = NO;
+				PRODUCT_NAME = test_mach_o_binary;
+				"SDKROOT[arch=ppc64]" = macosx10.5;
+				"SDKROOT[arch=ppc]" = macosx10.4;
+				ZERO_LINK = NO;
 			};
 			name = Release;
 		};
@@ -2709,6 +2849,15 @@
 			buildConfigurations = (
 				1DEB919408733D9F0010E9CD /* Debug */,
 				1DEB919508733D9F0010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A5017D231B41D5DF004F7B48 /* Build configuration list for PBXNativeTarget "test_mach_o_binary" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A5017D201B41D5B5004F7B48 /* Debug */,
+				A5017D211B41D5B5004F7B48 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

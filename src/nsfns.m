@@ -232,10 +232,12 @@ interpret_services_menu (NSMenu *menu, Lisp_Object prefix, Lisp_Object old)
 #  pragma unused (menu, prefix, old)
 # endif /* __APPLE__ && (__APPLE_CC__ > 1) */
 # if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(lint) && \
-     defined(GNULIB_PORTCHECK) && defined(DEPRECATED_IN_MAC_OS_X_VERSION_10_6_AND_LATER)
+     defined(GNULIB_PORTCHECK) && defined(DEPRECATED_IN_MAC_OS_X_VERSION_10_6_AND_LATER) && \
+     defined(__APPLE__) && (defined(__APPLE_CC__) && (__APPLE_CC__ > 1))
 #  warning "Go back to an OS version that supports services properly to test the services menu."
 # endif /* __GNUC__ && !__STRICT_ANSI__ && lint && GNULIB_PORTCHECK && \
-         * DEPRECATED_IN_MAC_OS_X_VERSION_10_6_AND_LATER */
+         * DEPRECATED_IN_MAC_OS_X_VERSION_10_6_AND_LATER && \
+         * __APPLE__ && (__APPLE_CC__ > 1) */
   /* (the service menu got broken in 10.6) */
   return Qnil;
 #else /* earlier than 10.6: */
@@ -739,48 +741,48 @@ ns_implicitly_set_icon_type (struct frame *f)
 
   NSTRACE (ns_implicitly_set_icon_type);
 
-  block_input ();
+  block_input();
   pool = [[NSAutoreleasePool alloc] init];
   if (f->output_data.ns->miniimage
-      && [[NSString stringWithUTF8String: SSDATA (f->name)]
+      && [[NSString stringWithUTF8String: SSDATA(f->name)]
                isEqualToString: [(NSImage *)f->output_data.ns->miniimage name]])
     {
       [pool release];
-      unblock_input ();
+      unblock_input();
       return;
     }
 
-  tem = assq_no_quit (Qicon_type, f->param_alist);
-  if (CONSP (tem) && ! NILP (XCDR (tem)))
+  tem = assq_no_quit(Qicon_type, f->param_alist);
+  if (CONSP(tem) && ! NILP(XCDR(tem)))
     {
       [pool release];
-      unblock_input ();
+      unblock_input();
       return;
     }
 
   for (chain = Vns_icon_type_alist;
-       image == nil && CONSP (chain);
-       chain = XCDR (chain))
+       image == nil && CONSP(chain);
+       chain = XCDR(chain))
     {
-      elt = XCAR (chain);
+      elt = XCAR(chain);
       /* special case: 't' means go by file type */
-      if (SYMBOLP (elt) && EQ (elt, Qt) && SSDATA (f->name)[0] == '/')
+      if (SYMBOLP(elt) && EQ(elt, Qt) && SSDATA(f->name)[0] == '/')
         {
           NSString *str
-	     = [NSString stringWithUTF8String: SSDATA (f->name)];
+	     = [NSString stringWithUTF8String: SSDATA(f->name)];
           if ([[NSFileManager defaultManager] fileExistsAtPath: str])
             image = [[[NSWorkspace sharedWorkspace] iconForFile: str] retain];
         }
-      else if (CONSP (elt) &&
-               STRINGP (XCAR (elt)) &&
-               STRINGP (XCDR (elt)) &&
-               fast_string_match (XCAR (elt), f->name) >= 0)
+      else if (CONSP(elt) &&
+               STRINGP(XCAR(elt)) &&
+               STRINGP(XCDR(elt)) &&
+               fast_string_match(XCAR(elt), f->name) >= 0)
         {
-          image = [EmacsImage allocInitFromFile: XCDR (elt)];
+          image = [EmacsImage allocInitFromFile: XCDR(elt)];
           if (image == nil)
             image = [[NSImage imageNamed:
                                [NSString stringWithUTF8String:
-					    SSDATA (XCDR (elt))]] retain];
+					    SSDATA(XCDR(elt))]] retain];
         }
     }
 
@@ -793,81 +795,88 @@ ns_implicitly_set_icon_type (struct frame *f)
   [f->output_data.ns->miniimage release];
   f->output_data.ns->miniimage = image;
   [view setMiniwindowImage: setMini];
+  [image release];
   [pool release];
-  unblock_input ();
+  unblock_input();
 }
 
 
 static void
-x_set_icon_type (struct frame *f, Lisp_Object arg, Lisp_Object oldval)
+x_set_icon_type(struct frame *f, Lisp_Object arg, Lisp_Object oldval)
 {
-  EmacsView *view = FRAME_NS_VIEW (f);
+  EmacsView *view = FRAME_NS_VIEW(f);
+  NSAutoreleasePool *pool;
   id image = nil;
   BOOL setMini = YES;
 
-  NSTRACE (x_set_icon_type);
+  pool = [[NSAutoreleasePool alloc] init];
 
-  if (!NILP (arg) && SYMBOLP (arg))
+  NSTRACE(x_set_icon_type);
+
+  if (!NILP(arg) && SYMBOLP(arg))
     {
-      arg =build_string (SSDATA (SYMBOL_NAME (arg)));
-      store_frame_param (f, Qicon_type, arg);
+      arg = build_string(SSDATA(SYMBOL_NAME(arg)));
+      store_frame_param(f, Qicon_type, arg);
     }
 
   /* do it the implicit way */
-  if (NILP (arg))
+  if (NILP(arg))
     {
-      ns_implicitly_set_icon_type (f);
+      ns_implicitly_set_icon_type(f);
+      [pool release];
       return;
     }
 
-  CHECK_STRING (arg);
+  CHECK_STRING(arg);
 
   image = [EmacsImage allocInitFromFile: arg];
   if (image == nil)
-    image =[NSImage imageNamed: [NSString stringWithUTF8String:
-                                            SSDATA (arg)]];
+    image = [[NSImage imageNamed: [NSString stringWithUTF8String:
+                                            SSDATA(arg)]] retain];
 
   if (image == nil)
     {
-      image = [NSImage imageNamed: @"text"];
+      image = [[NSImage imageNamed: @"text"] retain];
       setMini = NO;
     }
 
   f->output_data.ns->miniimage = image;
   [view setMiniwindowImage: setMini];
+  [image release];
+  [pool release];
 }
 
 
 /* TODO: move to nsterm? */
 int
-ns_lisp_to_cursor_type (Lisp_Object arg)
+ns_lisp_to_cursor_type(Lisp_Object arg)
 {
   char *str;
-  if (XTYPE (arg) == Lisp_String)
-    str = SSDATA (arg);
-  else if (XTYPE (arg) == Lisp_Symbol)
-    str = SSDATA (SYMBOL_NAME (arg));
+  if (XTYPE(arg) == Lisp_String)
+    str = SSDATA(arg);
+  else if (XTYPE(arg) == Lisp_Symbol)
+    str = SSDATA(SYMBOL_NAME(arg));
   else return -1;
-  if (!strcmp (str, "box"))	return FILLED_BOX_CURSOR;
-  if (!strcmp (str, "hollow"))	return HOLLOW_BOX_CURSOR;
-  if (!strcmp (str, "hbar"))	return HBAR_CURSOR;
-  if (!strcmp (str, "bar"))	return BAR_CURSOR;
-  if (!strcmp (str, "no"))	return NO_CURSOR;
+  if (!strcmp(str, "box"))	return FILLED_BOX_CURSOR;
+  if (!strcmp(str, "hollow"))	return HOLLOW_BOX_CURSOR;
+  if (!strcmp(str, "hbar"))	return HBAR_CURSOR;
+  if (!strcmp(str, "bar"))	return BAR_CURSOR;
+  if (!strcmp(str, "no"))	return NO_CURSOR;
   return -1;
 }
 
 
 Lisp_Object
-ns_cursor_type_to_lisp (int arg)
+ns_cursor_type_to_lisp(int arg)
 {
   switch (arg)
     {
       case FILLED_BOX_CURSOR: return Qbox;
-      case HOLLOW_BOX_CURSOR: return intern ("hollow");
-      case HBAR_CURSOR:       return intern ("hbar");
-      case BAR_CURSOR:        return intern ("bar");
+      case HOLLOW_BOX_CURSOR: return intern("hollow");
+      case HBAR_CURSOR:       return intern("hbar");
+      case BAR_CURSOR:        return intern("bar");
       case NO_CURSOR:
-      default:                return intern ("no");
+      default:                return intern("no");
     }
 }
 
@@ -1131,82 +1140,104 @@ This function is an internal primitive--use `make-frame' instead.  */)
   /* No need to protect DISPLAY because that's not used after passing
      it to make_frame_without_minibuffer.  */
   frame = Qnil;
-  GCPRO4 (parms, parent, name, frame);
-  tem = x_get_arg (dpyinfo, parms, Qminibuffer, "minibuffer", "Minibuffer",
+  GCPRO4(parms, parent, name, frame);
+  tem = x_get_arg(dpyinfo, parms, Qminibuffer, "minibuffer", "Minibuffer",
                   RES_TYPE_SYMBOL);
-  if (EQ (tem, Qnone) || NILP (tem))
-      f = make_frame_without_minibuffer (Qnil, kb, display);
-  else if (EQ (tem, Qonly))
+  if (EQ(tem, Qnone) || NILP(tem))
     {
-      f = make_minibuffer_frame ();
+      f = make_frame_without_minibuffer(Qnil, kb, display);
+    }
+  else if (EQ(tem, Qonly))
+    {
+      f = make_minibuffer_frame();
       minibuffer_only = 1;
     }
-  else if (WINDOWP (tem))
-      f = make_frame_without_minibuffer (tem, kb, display);
+  else if (WINDOWP(tem))
+    {
+      f = make_frame_without_minibuffer(tem, kb, display);
+    }
   else
-      f = make_frame (1);
+    {
+      f = make_frame(1);
+    }
 
-  XSETFRAME (frame, f);
+  if (NILP(frame)) {
+    ; /* ??? */
+  }
+
+  XSETFRAME(frame, f);
 
   f->terminal = dpyinfo->terminal;
 
   f->output_method = output_ns;
-  f->output_data.ns = xzalloc (sizeof *f->output_data.ns);
+  f->output_data.ns = xzalloc(sizeof *f->output_data.ns);
 
-  FRAME_FONTSET (f) = -1;
+  FRAME_FONTSET(f) = -1;
 
-  fset_icon_name (f, x_get_arg (dpyinfo, parms, Qicon_name,
-				"iconName", "Title",
-				RES_TYPE_STRING));
-  if (! STRINGP (f->icon_name))
-    fset_icon_name (f, Qnil);
+  fset_icon_name(f, x_get_arg(dpyinfo, parms, Qicon_name,
+                              "iconName", "Title",
+                              RES_TYPE_STRING));
+  if (! STRINGP(f->icon_name))
+    fset_icon_name(f, Qnil);
 
-  FRAME_DISPLAY_INFO (f) = dpyinfo;
+  FRAME_DISPLAY_INFO(f) = dpyinfo;
 
-  /* With FRAME_DISPLAY_INFO set up, this unwind-protect is safe.  */
-  record_unwind_protect (unwind_create_frame, frame);
+  /* With FRAME_DISPLAY_INFO set up, this unwind-protect is safe: */
+  record_unwind_protect(unwind_create_frame, frame);
 
   f->output_data.ns->window_desc = desc_ctr++;
-  if (TYPE_RANGED_INTEGERP (Window, parent))
+  if (TYPE_RANGED_INTEGERP(Window, parent))
     {
-      f->output_data.ns->parent_desc = XFASTINT (parent);
+      f->output_data.ns->parent_desc = XFASTINT(parent);
       f->output_data.ns->explicit_parent = 1;
     }
   else
     {
-      f->output_data.ns->parent_desc = FRAME_DISPLAY_INFO (f)->root_window;
+      f->output_data.ns->parent_desc = FRAME_DISPLAY_INFO(f)->root_window;
       f->output_data.ns->explicit_parent = 0;
     }
 
   /* Set the name; the functions to which we pass f expect the name to
      be set.  */
-  if (EQ (name, Qunbound) || NILP (name) || ! STRINGP (name))
+  if (EQ(name, Qunbound) || NILP(name) || ! STRINGP(name))
     {
-      fset_name (f, build_string ([ns_app_name UTF8String]));
+      fset_name(f, build_string([ns_app_name UTF8String]));
       f->explicit_name = 0;
     }
   else
     {
-      fset_name (f, name);
+      fset_name(f, name);
       f->explicit_name = 1;
-      specbind (Qx_resource_name, name);
+      specbind(Qx_resource_name, name);
     }
 
-  block_input ();
+  block_input();
 
 #ifdef NS_IMPL_COCOA
 # if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5
   /* '-Waddress' seems to think it is smarter than the CTGetCoreTextVersion
-   * documentation here... not sure what to do about that... */
+   * documentation here... not sure what to do about that, besides ignoring
+   * it like this: */
+#  if defined(__GNUC__) && defined(__GNUC_MINOR__)
+#   if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6))
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Waddress"
+#   endif /* gcc 4.6+ */
+#  endif /* any gcc */
   if ((&CTGetCoreTextVersion != NULL)
-      && (CTGetCoreTextVersion () >= kCTVersionNumber10_5))
-    mac_register_font_driver (f);
+      && (CTGetCoreTextVersion() >= kCTVersionNumber10_5))
+    mac_register_font_driver(f);
+#  if defined(__GNUC__) && defined(__GNUC_MINOR__)
+#   if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6))
+#    pragma GCC diagnostic pop
+#   endif /* gcc 4.6+ */
+#  endif /* any gcc */
 # endif /* 10.5+ */
 #endif /* NS_IMPL_COCOA */
-  register_font_driver (&nsfont_driver, f);
+  register_font_driver(&nsfont_driver, f);
 
-  x_default_parameter (f, parms, Qfont_backend, Qnil,
-			"fontBackend", "FontBackend", RES_TYPE_STRING);
+  x_default_parameter(f, parms, Qfont_backend, Qnil,
+                      "fontBackend", "FontBackend", RES_TYPE_STRING);
 
   {
     char *fontname;
@@ -1600,15 +1631,23 @@ If OWNER is nil, Emacs is assumed.  */)
 {
   const char *value;
 
-  check_window_system (NULL);
-  if (NILP (owner))
-    owner = build_string([ns_app_name UTF8String]);
-  CHECK_STRING (name);
+  check_window_system(NULL);
+  if (NILP(owner))
+    {
+      owner = build_string([ns_app_name UTF8String]);
+    }
+  CHECK_STRING(name);
 
-  value = ns_get_defaults_value (SSDATA (name));
+  if (NILP(owner)) {
+    ; /* ??? */
+  }
+
+  value = ns_get_defaults_value(SSDATA(name));
 
   if (value)
-    return build_string (value);
+    {
+      return build_string(value);
+    }
   return Qnil;
 }
 
@@ -1636,6 +1675,10 @@ If VALUE is nil, the default is removed.  */)
                                         forKey: [NSString stringWithUTF8String:
                                                          SSDATA(name)]];
     }
+
+  if (NILP(owner)) {
+    ; /* ??? */
+  }
 
   return Qnil;
 }
@@ -2541,7 +2584,7 @@ the attributes:
 Internal use only, use `display-monitor-attributes-list' instead.  */)
   (Lisp_Object terminal)
 {
-  struct terminal *term = get_terminal (terminal, 1);
+  struct terminal *term = get_terminal(terminal, 1);
   NSArray *screens;
   NSUInteger i, n_monitors;
   struct MonitorInfo *monitors;
@@ -2556,7 +2599,7 @@ Internal use only, use `display-monitor-attributes-list' instead.  */)
   if (n_monitors == 0)
     return Qnil;
 
-  monitors = xzalloc (n_monitors * sizeof *monitors);
+  monitors = xzalloc(n_monitors * sizeof(*monitors));
 
   for (i = 0; i < [screens count]; ++i)
     {
@@ -2580,15 +2623,15 @@ Internal use only, use `display-monitor-attributes-list' instead.  */)
       if (i == 0)
         {
           primary_display_height = fr.size.height;
-          y = (short) fr.origin.y;
-          vy = (short) vfr.origin.y;
+          y = (short)fr.origin.y;
+          vy = (short)vfr.origin.y;
         }
       else
         {
           // Flip y coordinate as NS has y starting from the bottom.
-          y = (short) (primary_display_height - fr.size.height - fr.origin.y);
-          vy = (short) (primary_display_height -
-                        vfr.size.height - vfr.origin.y);
+          y = (short)(primary_display_height - fr.size.height - fr.origin.y);
+          vy = (short)(primary_display_height -
+                       vfr.size.height - vfr.origin.y);
         }
 
 #if defined(CONVERT_TO_XRECT)
@@ -2605,45 +2648,49 @@ Internal use only, use `display-monitor-attributes-list' instead.  */)
       m_xwork.width = (unsigned short)vfr.size.width;
       m_xwork.height = (unsigned short)vfr.size.height;
 #else
-      m->geom.x = (short) fr.origin.x;
+      m->geom.x = (short)fr.origin.x;
       m->geom.y = y;
-      m->geom.width = (unsigned short) fr.size.width;
-      m->geom.height = (unsigned short) fr.size.height;
+      m->geom.width = (unsigned short)fr.size.width;
+      m->geom.height = (unsigned short)fr.size.height;
 
-      m->work.x = (short) vfr.origin.x;
+      m->work.x = (short)vfr.origin.x;
       // y is flipped on NS, so vy - y are pixels missing at the bottom,
       // and fr.size.height - vfr.size.height are pixels missing in total.
       // Pixels missing at top are
       // fr.size.height - vfr.size.height - vy + y.
       // work.y is then pixels missing at top + y.
-      m->work.y = (short) (fr.size.height - vfr.size.height) - vy + y + y;
-      m->work.width = (unsigned short) vfr.size.width;
-      m->work.height = (unsigned short) vfr.size.height;
+      m->work.y = (short)(fr.size.height - vfr.size.height) - vy + y + y;
+      m->work.width = (unsigned short)vfr.size.width;
+      m->work.height = (unsigned short)vfr.size.height;
 #endif /* CONVERT_TO_XRECT */
 
 #ifdef NS_IMPL_COCOA
-      m->name = ns_screen_name (did);
+      m->name = ns_screen_name(did);
 
       {
-        CGSize mms = CGDisplayScreenSize (did);
-        m->mm_width = (int) mms.width;
-        m->mm_height = (int) mms.height;
+        CGSize mms = CGDisplayScreenSize(did);
+        m->mm_width = (int)mms.width;
+        m->mm_height = (int)mms.height;
       }
 
       IF_LINT((void)m_xgeom);
       IF_LINT((void)m_xwork);
 #else
       // Assume 92 dpi as x-display-mm-height/x-display-mm-width does.
-      m->mm_width = (int) (25.4 * fr.size.width / 92.0);
-      m->mm_height = (int) (25.4 * fr.size.height / 92.0);
+      m->mm_width = (int)(25.4 * fr.size.width / 92.0);
+      m->mm_height = (int)(25.4 * fr.size.height / 92.0);
 #endif /* NS_IMPL_COCOA */
     }
 
-  // Primary monitor is always first for NS.
-  attributes_list = ns_make_monitor_attribute_list (monitors, n_monitors,
-                                                    0, "NS");
+  if (NILP(attributes_list)) {
+    ; /* ??? */
+  }
 
-  free_monitors (monitors, n_monitors);
+  // Primary monitor is always first for NS.
+  attributes_list = ns_make_monitor_attribute_list(monitors, n_monitors,
+                                                   0, "NS");
+
+  free_monitors(monitors, n_monitors);
   return attributes_list;
 }
 

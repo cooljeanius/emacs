@@ -4783,6 +4783,7 @@ as_fn_append ac_header_list " inttypes.h"
 as_fn_append ac_header_list " math.h"
 as_fn_append ac_func_list " mkostemp"
 as_fn_append ac_func_list " openat"
+as_fn_append ac_func_list " posix_memalign"
 as_fn_append ac_func_list " pipe2"
 gl_printf_safe=yes
 as_fn_append ac_header_list " sys/select.h"
@@ -12398,6 +12399,7 @@ $as_echo "$as_me: autobuild timestamp... $date" >&6;}
   # Code from module fdopendir:
   # Code from module file-has-acl:
   # Code from module filemode:
+  # Code from module flexmember:
   # Code from module float:
   # Code from module fopen:
   # Code from module fpending:
@@ -12471,6 +12473,7 @@ $as_echo "$as_me: autobuild timestamp... $date" >&6;}
   # Code from module openat:
   # Code from module openat-h:
   # Code from module openmp:
+  # Code from module pagealign_alloc:
   # Code from module pathmax:
   # Code from module perror:
   # Code from module pipe2:
@@ -13996,8 +13999,10 @@ fi
 
 
   if test "x${emacs_cv_clang}" = "xyes"; then
-    # Prints way too many warnings for now:
-    nw="${nw} -Wcast-align"
+    # Prints way too many warnings for now, but they might be needed:
+    if test "x${with_ns}" != "xyes"; then
+      nw="${nw} -Wcast-align"
+    fi ##end for check for NS
     # Same "shorten-the-command-line" reasoning as above:
     nw="${nw} -Wformat-extra-args"
     nw="${nw} -Wtautological-constant-out-of-range-compare"
@@ -31028,6 +31033,21 @@ fi
 
 done
 
+if test "x${ac_cv_header_stdalign_h}" = "x"; then
+  test -z "${ac_cv_header_stdalign_h}"
+  for ac_header in stdalign.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "stdalign.h" "ac_cv_header_stdalign_h" "$ac_includes_default"
+if test "x$ac_cv_header_stdalign_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_STDALIGN_H 1
+_ACEOF
+
+fi
+
+done
+
+fi
 if test "x${ac_cv_header_wctype_h}" = "x"; then
   test -z "${ac_cv_header_wctype_h}"
   for ac_header in wctype.h
@@ -33833,6 +33853,36 @@ fi
 
 done
 
+  ## other possibly useful headers from that directory:
+  for ac_header in mach-o/arch.h mach-o/getsect.h mach-o/nlist.h \
+                    mach-o/ldsyms.h mach-o/reloc.h
+do :
+  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
+ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
+if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+
+done
+
+  if test "x${machine}" = "xmacppc" || test "x${machine}" = "xpowermac"; then
+    test -n "${machine}"
+    for ac_header in mach-o/ppc/reloc.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "mach-o/ppc/reloc.h" "ac_cv_header_mach_o_ppc_reloc_h" "$ac_includes_default"
+if test "x$ac_cv_header_mach_o_ppc_reloc_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_MACH_O_PPC_RELOC_H 1
+_ACEOF
+
+fi
+
+done
+
+  fi
 fi
 if test "x${enable_acl}" != "xno"; then
   ac_fn_c_check_decl "$LINENO" "acl" "ac_cv_have_decl_acl" "$ac_includes_default"
@@ -34658,26 +34708,28 @@ if test $ac_cv_c_char_unsigned = yes && test "$GCC" != yes; then
 fi
 
 
+if test "x${ac_cv_c_flexmember}" = "x"; then
+  test -z "${ac_cv_c_flexmember}"
 
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for flexible array members" >&5
-$as_echo_n "checking for flexible array members... " >&6; }
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for flexible array member" >&5
+$as_echo_n "checking for flexible array member... " >&6; }
 if ${ac_cv_c_flexmember+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <stdlib.h>
-	    #include <stdio.h>
-	    #include <stddef.h>
-	    struct s { int n; double d[]; };
+            #include <stdio.h>
+            #include <stddef.h>
+            struct s { int n; double d[]; };
 int
 main ()
 {
 int m = getchar ();
-	    struct s *p = malloc (offsetof (struct s, d)
-				  + m * sizeof (double));
-	    p->d[0] = 0.0;
-	    return p->d != (double *) NULL;
+            struct s *p = malloc (offsetof (struct s, d)
+                                  + m * sizeof (double));
+            p->d[0] = 0.0;
+            return p->d != (double *) NULL;
   ;
   return 0;
 }
@@ -34700,6 +34752,7 @@ $as_echo "#define FLEXIBLE_ARRAY_MEMBER /**/" >>confdefs.h
 
   fi
 
+fi
 
 if test "x${ac_cv_c_prototypes}" = "x"; then
   test -z "${ac_cv_c_prototypes}"
@@ -36960,6 +37013,43 @@ fi
 $as_echo "$gl_cv_warn_objc__Wassign_intercept" >&6; }
 if test "x$gl_cv_warn_objc__Wassign_intercept" = xyes; then :
   as_fn_append GNU_OBJC_WARN_CFLAGS " -Wassign-intercept"
+fi
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether Objective C compiler handles -Wcast-align" >&5
+$as_echo_n "checking whether Objective C compiler handles -Wcast-align... " >&6; }
+if ${gl_cv_warn_objc__Wcast_align+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$OBJCFLAGS"
+  as_fn_append OBJCFLAGS " $gl_unknown_warnings_are_errors -Wcast-align"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_objc_try_link "$LINENO"; then :
+  gl_cv_warn_objc__Wcast_align=yes
+else
+  gl_cv_warn_objc__Wcast_align=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  OBJCFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_objc__Wcast_align" >&5
+$as_echo "$gl_cv_warn_objc__Wcast_align" >&6; }
+if test "x$gl_cv_warn_objc__Wcast_align" = xyes; then :
+  as_fn_append GNU_OBJC_WARN_CFLAGS " -Wcast-align"
 fi
 
 
@@ -43443,6 +43533,8 @@ $as_echo "#define NS_IMPL_GNUSTEP 1" >>confdefs.h
       { $as_echo "$as_me:${as_lineno-$LINENO}: using values from gnustep-config for flags" >&5
 $as_echo "$as_me: using values from gnustep-config for flags" >&6;}
     fi
+  elif test "x${NS_IMPL_COCOA}" = "xyes"; then
+    test -z "${GNUSTEP_CFLAGS}" && GNUSTEP_CFLAGS="-fno-strict-aliasing"
   fi
   OTHER_FILES=ns-app
 fi
@@ -50565,15 +50657,15 @@ done
 
 fi
 for ac_func in __fpending _stricmp acl atexit atof atoi btowc bzero \
-                cuserid doprnt errc fabs fabsf floor ftime geteuid \
-                getpass getpwuid inet_ntoa isascii iswprint mbrlen \
-                memmove memset mkdir munmap nl_langinfo pathconf \
-                posix_spawnp pow putenv re_comp reallocf regcomp rmdir \
-                setenv socket sqrt strcasecmp strcasestr strchr strcmp \
-                strcspn strdup strerror stricmp strlcat strlcpy \
-                strncasecmp strncat strncmp strnicmp strnstr strpbrk \
-                strrchr strtok strtol strtoul system xstricmp utime \
-                utmpname vfprintf
+                cuserid doprnt errc fabs fabsf floor ftime get_etext \
+                get_edata get_end geteuid getpass getpwuid inet_ntoa \
+                isascii iswprint mbrlen memmove memset mkdir munmap \
+                nl_langinfo pathconf posix_spawnp pow putenv re_comp \
+                reallocf regcomp rmdir setenv socket sqrt strcasecmp \
+                strcasestr strchr strcmp strcspn strdup strerror stricmp \
+                strlcat strlcpy strncasecmp strncat strncmp strnicmp \
+                strnstr strpbrk strrchr strtok strtol strtoul system \
+                xstricmp utime utmpname vfprintf
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -58755,6 +58847,8 @@ _ACEOF
 
 
 
+
+
   GNULIB_PSELECT=0;
   GNULIB_SELECT=0;
     HAVE_PSELECT=1;
@@ -62745,6 +62839,48 @@ $as_echo "#define GETXATTR_WITH_POSIX_ACLS 1" >>confdefs.h
 
 
 
+
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for flexible array member" >&5
+$as_echo_n "checking for flexible array member... " >&6; }
+if ${ac_cv_c_flexmember+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <stdlib.h>
+            #include <stdio.h>
+            #include <stddef.h>
+            struct s { int n; double d[]; };
+int
+main ()
+{
+int m = getchar ();
+            struct s *p = malloc (offsetof (struct s, d)
+                                  + m * sizeof (double));
+            p->d[0] = 0.0;
+            return p->d != (double *) NULL;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  ac_cv_c_flexmember=yes
+else
+  ac_cv_c_flexmember=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_c_flexmember" >&5
+$as_echo "$ac_cv_c_flexmember" >&6; }
+  if test $ac_cv_c_flexmember = yes; then
+
+$as_echo "#define FLEXIBLE_ARRAY_MEMBER /**/" >>confdefs.h
+
+  else
+    $as_echo "#define FLEXIBLE_ARRAY_MEMBER 1" >>confdefs.h
+
+  fi
 
 
 
@@ -67978,6 +68114,15 @@ $as_echo "$ac_cv_prog_c_openmp" >&6; }
 	OPENMP_CFLAGS=$ac_cv_prog_c_openmp ;;
     esac
   fi
+
+
+
+
+
+
+
+
+
 
 
 

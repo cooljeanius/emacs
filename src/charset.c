@@ -2301,11 +2301,11 @@ See also `charset-priority-list' and `set-charset-priority'.  */)
 
 
 void
-init_charset (void)
+init_charset(void)
 {
   Lisp_Object tempdir;
-  tempdir = Fexpand_file_name (build_string ("charsets"), Vdata_directory);
-  if (! file_accessible_directory_p (SSDATA (tempdir)))
+  tempdir = Fexpand_file_name(build_string("charsets"), Vdata_directory);
+  if (! file_accessible_directory_p(SSDATA(tempdir)))
     {
       /* This used to be non-fatal (dir_warning), but it should not
          happen, and if it does sooner or later it will cause some
@@ -2314,22 +2314,22 @@ init_charset (void)
 %s\n\
 Emacs will not function correctly without the character map files.\n\
 Please check your installation!\n",
-                   SDATA (tempdir));
-      exit (1);
+                   SDATA(tempdir));
+      exit(1);
     }
 
-  Vcharset_map_path = list1 (tempdir);
+  Vcharset_map_path = list1(tempdir);
 }
 
 
 void
-init_charset_once (void)
+init_charset_once(void)
 {
   int i, j, k;
 
   staticpro(&Vcharset_table);
 
-  Vcharset_table = LISP_INITIALLY_ZERO;
+  Vcharset_table = Qnil;
 
   for (i = 0; i < ISO_MAX_DIMENSION; i++)
     for (j = 0; j < ISO_MAX_CHARS; j++)

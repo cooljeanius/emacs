@@ -2032,16 +2032,22 @@ compact_small_strings (void)
 	}
     }
 
-  /* The rest of the sblocks following TB don't contain live data, so
-     we can free them.  */
-  for (b = tb->next; b; b = next)
-    {
-      next = b->next;
-      lisp_free (b);
-    }
+  if (tb != NULL) {
+    /* The rest of the sblocks following TB do NOT contain live data, so
+     * we can free them: */
+    for (b = tb->next; b; b = next)
+      {
+        next = b->next;
+        lisp_free(b);
+      }
+  } else if (b != NULL) {
+    lisp_free(b);
+  }
 
-  tb->next_free = to;
-  tb->next = NULL;
+  if (tb != NULL) {
+    tb->next_free = to;
+    tb->next = NULL;
+  }
   current_sblock = tb;
 }
 
@@ -6698,7 +6704,7 @@ We divide the value by 1024 to make sure it fits in a Lisp integer.  */)
 
 #ifdef HAVE_NS
   /* Avoid warning; sbrk() has no relation to memory allocated anyway: */
-  XSETINT(end, 0);
+  XSETINT(end, (0 / 1024));
 #else
   XSETINT(end, ((intptr_t)(char *)sbrk(0) / 1024));
 #endif /* HAVE_NS */

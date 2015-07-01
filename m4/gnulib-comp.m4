@@ -97,6 +97,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module fdopendir:
   # Code from module file-has-acl:
   # Code from module filemode:
+  # Code from module flexmember:
   # Code from module float:
   # Code from module fopen:
   # Code from module fpending:
@@ -170,6 +171,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module openat:
   # Code from module openat-h:
   # Code from module openmp:
+  # Code from module pagealign_alloc:
   # Code from module pathmax:
   # Code from module perror:
   # Code from module pipe2:
@@ -394,6 +396,7 @@ AC_DEFUN([gl_INIT],
   gl_MODULE_INDICATOR([fdopendir])
   gl_FILE_HAS_ACL
   gl_FILEMODE
+  AC_C_FLEXIBLE_ARRAY_MEMBER
   gl_FLOAT_H
   if test $REPLACE_FLOAT_LDBL = 1; then
     AC_LIBOBJ([float])
@@ -628,6 +631,7 @@ AC_DEFUN([gl_INIT],
   gl_MODULE_INDICATOR([openat]) dnl for lib/getcwd.c
   gl_FCNTL_MODULE_INDICATOR([openat])
   AC_OPENMP
+  gl_PAGEALIGN_ALLOC
   gl_PATHMAX
   gl_FUNC_PERROR
   if test $REPLACE_PERROR = 1; then
@@ -1419,6 +1423,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/openat-proc.c
   lib/openat.c
   lib/openat.h
+  lib/pagealign_alloc.c
+  lib/pagealign_alloc.h
   lib/pathmax.h
   lib/perror.c
   lib/pipe2.c
@@ -1579,6 +1585,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/fdatasync.m4
   m4/fdopendir.m4
   m4/filemode.m4
+  m4/flexmember.m4
   m4/float_h.m4
   m4/fopen.m4
   m4/fpending.m4
@@ -1665,6 +1672,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/off_t.m4
   m4/openat.m4
   m4/openmp.m4
+  m4/pagealign_alloc.m4
   m4/pathmax.m4
   m4/perror.m4
   m4/pipe2.m4
