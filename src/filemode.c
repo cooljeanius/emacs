@@ -135,7 +135,7 @@ static void setst(unsigned short, char *);
 void
 filemodestring(struct stat *statp, char *str)
 {
-  mode_string(statp->st_mode, str);
+  mode_string((unsigned short)statp->st_mode, str);
 }
 
 /* Like filemodestring, but only the relevant part of the `struct stat'
@@ -145,10 +145,10 @@ void
 mode_string(unsigned short mode, char *str)
 {
   str[0] = ftypelet((long)mode);
-  rwx(((mode & 0700) << 0), &str[1]);
-  rwx(((mode & 0070) << 3), &str[4]);
-  rwx(((mode & 0007) << 6), &str[7]);
-  setst(mode, str);
+  rwx((unsigned short)((mode & 0700) << 0), &str[1]);
+  rwx((unsigned short)((mode & 0070) << 3), &str[4]);
+  rwx((unsigned short)((mode & 0007) << 6), &str[7]);
+  setst((unsigned short)mode, str);
 }
 
 /* Return a character indicating the type of file described by

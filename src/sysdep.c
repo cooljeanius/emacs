@@ -123,40 +123,40 @@ static const int baud_convert[] =
   };
 
 
-#if !defined (HAVE_GET_CURRENT_DIR_NAME) || defined (BROKEN_GET_CURRENT_DIR_NAME)
+#if !defined(HAVE_GET_CURRENT_DIR_NAME) || defined(BROKEN_GET_CURRENT_DIR_NAME)
 
 /* Return the current working directory.  Returns NULL on errors.
    Any other returned value must be freed with free. This is used
    only when get_current_dir_name is not defined on the system.  */
 char*
-get_current_dir_name (void)
+get_current_dir_name(void)
 {
   char *buf;
-  char *pwd = getenv ("PWD");
+  char *pwd = getenv("PWD");
   struct stat dotstat, pwdstat;
   /* If PWD is accurate, use it instead of calling getcwd.  PWD is
      sometimes a nicer name, and using it may avoid a fatal error if a
      parent directory is searchable but not readable.  */
   if (pwd
-      && (IS_DIRECTORY_SEP (*pwd) || (*pwd && IS_DEVICE_SEP (pwd[1])))
-      && stat (pwd, &pwdstat) == 0
-      && stat (".", &dotstat) == 0
+      && (IS_DIRECTORY_SEP(*pwd) || (*pwd && IS_DEVICE_SEP(pwd[1])))
+      && stat(pwd, &pwdstat) == 0
+      && stat(".", &dotstat) == 0
       && dotstat.st_ino == pwdstat.st_ino
       && dotstat.st_dev == pwdstat.st_dev
 #ifdef MAXPATHLEN
-      && strlen (pwd) < MAXPATHLEN
+      && strlen(pwd) < MAXPATHLEN
 #endif
-      )
+      && (pwd != (char *)NULL))
     {
-      buf = malloc (strlen (pwd) + 1);
+      buf = (char *)malloc(strlen(pwd) + 1UL);
       if (!buf)
         return NULL;
-      strcpy (buf, pwd);
+      strcpy(buf, pwd);
     }
   else
     {
       size_t buf_size = 1024;
-      buf = malloc (buf_size);
+      buf = malloc(buf_size);
       if (!buf)
         return NULL;
       for (;;)
@@ -830,27 +830,26 @@ static int old_fcntl_owner[FD_SETSIZE];
    but if so, this does no harm,
    and using the same name avoids wasting the other one's space.  */
 
-#if defined (USG)
-unsigned char _sobuf[BUFSIZ+8];
+#if defined(USG)
+unsigned char _sobuf[BUFSIZ + 8];
 #else
 char _sobuf[BUFSIZ];
-#endif
+#endif /* USG */
 
 /* Initialize the terminal mode on all tty devices that are currently
    open. */
 
 void
-init_all_sys_modes (void)
+init_all_sys_modes(void)
 {
   struct tty_display_info *tty;
   for (tty = tty_list; tty; tty = tty->next)
-    init_sys_modes (tty);
+    init_sys_modes(tty);
 }
 
-/* Initialize the terminal mode on the given tty device. */
-
+/* Initialize the terminal mode on the given tty device: */
 void
-init_sys_modes (struct tty_display_info *tty_out)
+init_sys_modes(struct tty_display_info *tty_out)
 {
   struct emacs_tty tty;
   Lisp_Object terminal;
@@ -863,17 +862,17 @@ init_sys_modes (struct tty_display_info *tty_out)
   if (!tty_out->output)
     return;                     /* The tty is suspended. */
 
-  narrow_foreground_group (fileno (tty_out->input));
+  narrow_foreground_group(fileno(tty_out->input));
 
   if (! tty_out->old_tty)
-    tty_out->old_tty = xmalloc (sizeof *tty_out->old_tty);
+    tty_out->old_tty = xmalloc(sizeof(*tty_out->old_tty));
 
-  emacs_get_tty (fileno (tty_out->input), tty_out->old_tty);
+  emacs_get_tty(fileno(tty_out->input), tty_out->old_tty);
 
   tty = *tty_out->old_tty;
 
-#if !defined (DOS_NT)
-  XSETINT (Vtty_erase_char, tty.main.c_cc[VERASE]);
+#if !defined(DOS_NT)
+  XSETINT(Vtty_erase_char, tty.main.c_cc[VERASE]);
 
   tty.main.c_iflag |= (IGNBRK);	/* Ignore break condition */
   tty.main.c_iflag &= ~ICRNL;	/* Disable map of CR to NL on input */
@@ -1335,7 +1334,7 @@ setup_pty(int fd)
   }
 #  endif /* UNIX98_PTYS */
 # endif /* FIONBIO */
-  
+
   return;
 }
 #endif /* HAVE_PTYS */
@@ -2147,14 +2146,14 @@ emacs_abort (void)
    Allow the user to quit.  */
 
 int
-emacs_open (const char *file, int oflags, int mode)
+emacs_open(const char *file, int oflags, int mode)
 {
   int fd;
   oflags |= O_CLOEXEC;
-  while ((fd = open (file, oflags, mode)) < 0 && errno == EINTR)
+  while ((fd = open(file, oflags, mode)) < 0 && errno == EINTR)
     QUIT;
   if (! O_CLOEXEC && 0 <= fd)
-    fcntl (fd, F_SETFD, FD_CLOEXEC);
+    fcntl(fd, F_SETFD, FD_CLOEXEC);
   return fd;
 }
 
@@ -2162,7 +2161,7 @@ emacs_open (const char *file, int oflags, int mode)
    Act like emacs_open with respect to threads, signals, and quits.  */
 
 FILE *
-emacs_fopen (char const *file, char const *mode)
+emacs_fopen(char const *file, char const *mode)
 {
   int fd, omode, oflags;
   int bflag = 0;

@@ -1347,7 +1347,7 @@ create_and_show_popup_menu (struct frame *f, widget_value *first_wv,
 LWLIB_ID widget_id_tick;
 
 static void
-popup_selection_callback (Widget widget, LWLIB_ID id, XtPointer client_data)
+popup_selection_callback(Widget widget, LWLIB_ID id, XtPointer client_data)
 {
   menu_item_selection = client_data;
 }
@@ -1356,14 +1356,14 @@ popup_selection_callback (Widget widget, LWLIB_ID id, XtPointer client_data)
    as a Lisp object as (HIGHPART . LOWPART).  */
 
 static void
-pop_down_menu (Lisp_Object arg)
+pop_down_menu(Lisp_Object arg)
 {
-  LWLIB_ID id = (XINT (XCAR (arg)) << 4 * sizeof (LWLIB_ID)
-                 | XINT (XCDR (arg)));
+  LWLIB_ID id = (XINT(XCAR(arg)) << 4 * sizeof(LWLIB_ID)
+                 | XINT(XCDR(arg)));
 
-  block_input ();
-  lw_destroy_all_widgets (id);
-  unblock_input ();
+  block_input();
+  lw_destroy_all_widgets(id);
+  unblock_input();
   popup_activated_flag = 0;
 }
 
@@ -1371,8 +1371,8 @@ pop_down_menu (Lisp_Object arg)
    menu pops down.
    menu_item_selection will be set to the selection.  */
 static void
-create_and_show_popup_menu (struct frame *f, widget_value *first_wv,
-			    int x, int y, bool for_click)
+create_and_show_popup_menu(struct frame *f, widget_value *first_wv,
+			   int x, int y, bool for_click)
 {
   int i;
   Arg av[2];
@@ -1382,32 +1382,32 @@ create_and_show_popup_menu (struct frame *f, widget_value *first_wv,
   LWLIB_ID menu_id;
   Widget menu;
 
-  eassert (FRAME_X_P (f));
+  eassert(FRAME_X_P(f));
 
 #ifdef USE_LUCID
-  apply_systemfont_to_menu (f, f->output_data.x->widget);
-#endif
+  apply_systemfont_to_menu(f, f->output_data.x->widget);
+#endif /* USE_LUCID */
 
   menu_id = widget_id_tick++;
-  menu = lw_create_widget ("popup", first_wv->name, menu_id, first_wv,
-                           f->output_data.x->widget, 1, 0,
-                           popup_selection_callback,
-                           popup_deactivate_callback,
-                           menu_highlight_callback);
+  menu = lw_create_widget("popup", first_wv->name, menu_id, first_wv,
+                          f->output_data.x->widget, 1, 0,
+                          popup_selection_callback,
+                          popup_deactivate_callback,
+                          menu_highlight_callback);
 
   event->type = ButtonPress;
   event->serial = 0;
   event->send_event = 0;
-  event->display = FRAME_X_DISPLAY (f);
+  event->display = FRAME_X_DISPLAY(f);
   event->time = CurrentTime;
-  event->root = FRAME_DISPLAY_INFO (f)->root_window;
+  event->root = FRAME_DISPLAY_INFO(f)->root_window;
   event->window = event->subwindow = event->root;
   event->x = x;
   event->y = y;
 
-  /* Adjust coordinates to be root-window-relative.  */
-  x += f->left_pos + FRAME_OUTER_TO_INNER_DIFF_X (f);
-  y += f->top_pos + FRAME_OUTER_TO_INNER_DIFF_Y (f);
+  /* Adjust coordinates to be root-window-relative: */
+  x += (f->left_pos + FRAME_OUTER_TO_INNER_DIFF_X(f));
+  y += (f->top_pos + FRAME_OUTER_TO_INNER_DIFF_Y(f));
 
   event->x_root = x;
   event->y_root = y;
@@ -1415,29 +1415,29 @@ create_and_show_popup_menu (struct frame *f, widget_value *first_wv,
   event->state = 0;
   event->button = 0;
   for (i = 0; i < 5; i++)
-    if (FRAME_DISPLAY_INFO (f)->grabbed & (1 << i))
+    if (FRAME_DISPLAY_INFO(f)->grabbed & (1 << i))
       event->button = i;
 
-  /* Don't allow any geometry request from the user.  */
-  XtSetArg (av[ac], XtNgeometry, 0); ac++;
-  XtSetValues (menu, av, ac);
+  /* Do NOT allow any geometry request from the user: */
+  XtSetArg(av[ac], XtNgeometry, 0); ac++;
+  XtSetValues(menu, av, ac);
 
-  /* Display the menu.  */
-  lw_popup_menu (menu, &dummy);
+  /* Display the menu: */
+  lw_popup_menu(menu, &dummy);
   popup_activated_flag = 1;
-  x_activate_timeout_atimer ();
+  x_activate_timeout_atimer();
 
   {
-    int fact = 4 * sizeof (LWLIB_ID);
-    ptrdiff_t specpdl_count = SPECPDL_INDEX ();
-    record_unwind_protect (pop_down_menu,
-                           Fcons (make_number (menu_id >> (fact)),
-                                  make_number (menu_id & ~(-1 << (fact)))));
+    int fact = (4 * sizeof(LWLIB_ID));
+    ptrdiff_t specpdl_count = SPECPDL_INDEX();
+    record_unwind_protect(pop_down_menu,
+                          Fcons(make_number(menu_id >> (fact)),
+                                make_number(menu_id & ~(-1 << (fact)))));
 
-    /* Process events that apply to the menu.  */
-    popup_get_selection (0, FRAME_DISPLAY_INFO (f), menu_id, 1);
+    /* Process events that apply to the menu: */
+    popup_get_selection(0, FRAME_DISPLAY_INFO(f), menu_id, 1);
 
-    unbind_to (specpdl_count, Qnil);
+    unbind_to(specpdl_count, Qnil);
   }
 }
 
@@ -1796,39 +1796,39 @@ dialog_selection_callback (Widget widget, LWLIB_ID id, XtPointer client_data)
    dialog pops down.
    menu_item_selection will be set to the selection.  */
 static void
-create_and_show_dialog (struct frame *f, widget_value *first_wv)
+create_and_show_dialog(struct frame *f, widget_value *first_wv)
 {
   LWLIB_ID dialog_id;
 
-  eassert (FRAME_X_P (f));
+  eassert(FRAME_X_P(f));
 
   dialog_id = widget_id_tick++;
 #ifdef USE_LUCID
-  apply_systemfont_to_dialog (f->output_data.x->widget);
-#endif
-  lw_create_widget (first_wv->name, "dialog", dialog_id, first_wv,
-                    f->output_data.x->widget, 1, 0,
-                    dialog_selection_callback, 0, 0);
-  lw_modify_all_widgets (dialog_id, first_wv->contents, True);
-  /* Display the dialog box.  */
-  lw_pop_up_all_widgets (dialog_id);
+  apply_systemfont_to_dialog(f->output_data.x->widget);
+#endif /* USE_LUCID */
+  lw_create_widget(first_wv->name, "dialog", dialog_id, first_wv,
+                   f->output_data.x->widget, 1, 0,
+                   dialog_selection_callback, 0, 0);
+  lw_modify_all_widgets(dialog_id, first_wv->contents, True);
+  /* Display the dialog box: */
+  lw_pop_up_all_widgets(dialog_id);
   popup_activated_flag = 1;
-  x_activate_timeout_atimer ();
+  x_activate_timeout_atimer();
 
   /* Process events that apply to the dialog box.
      Also handle timers.  */
   {
-    ptrdiff_t count = SPECPDL_INDEX ();
-    int fact = 4 * sizeof (LWLIB_ID);
+    ptrdiff_t count = SPECPDL_INDEX();
+    int fact = (4 * sizeof(LWLIB_ID));
 
-    /* xdialog_show_unwind is responsible for popping the dialog box down.  */
-    record_unwind_protect (pop_down_menu,
-                           Fcons (make_number (dialog_id >> (fact)),
-                                  make_number (dialog_id & ~(-1 << (fact)))));
+    /* xdialog_show_unwind is responsible for popping the dialog box down: */
+    record_unwind_protect(pop_down_menu,
+                          Fcons(make_number(dialog_id >> (fact)),
+                                make_number(dialog_id & ~(-1 << (fact)))));
 
-    popup_get_selection (0, FRAME_DISPLAY_INFO (f), dialog_id, 1);
+    popup_get_selection(0, FRAME_DISPLAY_INFO(f), dialog_id, 1);
 
-    unbind_to (count, Qnil);
+    unbind_to(count, Qnil);
   }
 }
 
@@ -2409,16 +2409,16 @@ xmenu_show (struct frame *f, int x, int y, bool for_click, bool keymaps,
 	 the menu was invoked with a mouse event as POSITION).  */
       if (! for_click)
 	{
-	  unblock_input ();
-	  Fsignal (Qquit, Qnil);
+	  unblock_input();
+	  Fsignal(Qquit, Qnil);
 	}
       break;
     default:
       break;
     }
 
-  unblock_input ();
-  unbind_to (specpdl_count, Qnil);
+  unblock_input();
+  unbind_to(specpdl_count, Qnil);
 
   return entry;
 }
@@ -2430,25 +2430,24 @@ xmenu_show (struct frame *f, int x, int y, bool for_click, bool keymaps,
    implementation on msdos.c.  */
 
 int ATTRIBUTE_CONST
-popup_activated (void)
+popup_activated(void)
 {
   return popup_activated_flag;
 }
 #endif	/* not MSDOS */
 
-/* The following is used by delayed window autoselection.  */
-
-DEFUN ("menu-or-popup-active-p", Fmenu_or_popup_active_p, Smenu_or_popup_active_p, 0, 0, 0,
-       doc: /* Return t if a menu or popup dialog is active.  */)
+/* The following is used by delayed window autoselection: */
+DEFUN("menu-or-popup-active-p", Fmenu_or_popup_active_p, Smenu_or_popup_active_p, 0, 0, 0,
+      doc: /* Return t if a menu or popup dialog is active.  */)
   (void)
 {
-  return (popup_activated ()) ? Qt : Qnil;
+  return ((popup_activated()) ? Qt : Qnil);
 }
 
 void
-syms_of_xmenu (void)
+syms_of_xmenu(void)
 {
-  DEFSYM (Qdebug_on_next_call, "debug-on-next-call");
+  DEFSYM(Qdebug_on_next_call, "debug-on-next-call");
 
 #ifdef USE_X_TOOLKIT
   widget_id_tick = (1 << 16);
@@ -2457,10 +2456,10 @@ syms_of_xmenu (void)
 
   defsubr (&Smenu_or_popup_active_p);
 
-#if defined (USE_GTK) || defined (USE_X_TOOLKIT)
-  defsubr (&Sx_menu_bar_open_internal);
-  Ffset (intern_c_string ("accelerate-menu"),
-	 intern_c_string (Sx_menu_bar_open_internal.symbol_name));
+#if defined(USE_GTK) || defined(USE_X_TOOLKIT)
+  defsubr(&Sx_menu_bar_open_internal);
+  Ffset(intern_c_string("accelerate-menu"),
+        intern_c_string(Sx_menu_bar_open_internal.symbol_name));
 #endif /* USE_GTK || USE_X_TOOLKIT */
 }
 

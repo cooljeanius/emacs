@@ -205,8 +205,8 @@ extern void _DebPrint (const char *fmt, ...);
 #ifdef emacs /* Do NOT do this for lib-src.  */
 /* Tell regex.c to use a type compatible with Emacs.  */
 # define RE_TRANSLATE_TYPE Lisp_Object
-# define RE_TRANSLATE(TBL, C) char_table_translate (TBL, C)
-# define RE_TRANSLATE_P(TBL) (!EQ (TBL, make_number (0)))
+# define RE_TRANSLATE(TBL, C) char_table_translate(TBL, (int)(C))
+# define RE_TRANSLATE_P(TBL) (!EQ(TBL, make_number((EMACS_INT)0)))
 #endif /* emacs */
 
 #include <string.h>

@@ -4399,26 +4399,26 @@ use the Bourne shell command `TERM=... export TERM' (C-shell:\n\
         || tty->TS_pad_inserted_char || tty->TS_ins_multi_chars)
        && (tty->TS_del_char || tty->TS_del_multi_chars));
 
-  init_baud_rate (fileno (tty->input));
+  init_baud_rate(fileno(tty->input));
 
 #endif /* not DOS_NT */
 
   /* Init system terminal modes (RAW or CBREAK, etc.).  */
-  init_sys_modes (tty);
+  init_sys_modes(tty);
 
   return terminal;
 }
 
 
 static void
-vfatal (const char *str, va_list ap)
+vfatal(const char *str, va_list ap)
 {
-  fprintf (stderr, "emacs: ");
-  vfprintf (stderr, str, ap);
-  if (!(strlen (str) > 0 && str[strlen (str) - 1] == '\n'))
-    fprintf (stderr, "\n");
-  fflush (stderr);
-  exit (1);
+  fprintf(stderr, "emacs: ");
+  vfprintf(stderr, str, ap);
+  if (!(strlen(str) > 0 && str[strlen(str) - 1] == '\n'))
+    fprintf(stderr, "\n");
+  fflush(stderr);
+  exit(1);
 }
 
 
@@ -4427,26 +4427,26 @@ vfatal (const char *str, va_list ap)
    respectively, according to whether MUST_SUCCEED is true.  */
 
 static void
-maybe_fatal (bool must_succeed, struct terminal *terminal,
-	     const char *str1, const char *str2, ...)
+maybe_fatal(bool must_succeed, struct terminal *terminal,
+	    const char *str1, const char *str2, ...)
 {
   va_list ap;
-  va_start (ap, str2);
+  va_start(ap, str2);
   if (terminal)
-    delete_tty (terminal);
+    delete_tty(terminal);
 
   if (must_succeed)
-    vfatal (str2, ap);
+    vfatal(str2, ap);
   else
-    verror (str1, ap);
+    verror(str1, ap);
 }
 
 void
-fatal (const char *str, ...)
+fatal(const char *str, ...)
 {
   va_list ap;
-  va_start (ap, str);
-  vfatal (str, ap);
+  va_start(ap, str);
+  vfatal(str, ap);
 }
 
 
@@ -4454,7 +4454,7 @@ fatal (const char *str, ...)
 /* Delete the given tty terminal, closing all frames on it. */
 
 static void
-delete_tty (struct terminal *terminal)
+delete_tty(struct terminal *terminal)
 {
   struct tty_display_info *tty;
 
@@ -4463,7 +4463,7 @@ delete_tty (struct terminal *terminal)
   if (!terminal->name)
     return;
 
-  eassert (terminal->type == output_termcap);
+  eassert(terminal->type == output_termcap);
 
   tty = terminal->display_info.tty;
 
@@ -4477,7 +4477,7 @@ delete_tty (struct terminal *terminal)
 
       if (! p)
         /* This should not happen. */
-        emacs_abort ();
+        emacs_abort();
 
       p->next = tty->next;
       tty->next = 0;
@@ -4485,33 +4485,33 @@ delete_tty (struct terminal *terminal)
 
   /* reset_sys_modes needs a valid device, so this call needs to be
      before delete_terminal. */
-  reset_sys_modes (tty);
+  reset_sys_modes(tty);
 
-  delete_terminal (terminal);
+  delete_terminal(terminal);
 
-  xfree (tty->name);
-  xfree (tty->type);
+  xfree(tty->name);
+  xfree(tty->type);
 
   if (tty->input)
     {
-      delete_keyboard_wait_descriptor (fileno (tty->input));
+      delete_keyboard_wait_descriptor(fileno(tty->input));
       if (tty->input != stdin)
-        fclose (tty->input);
+        fclose(tty->input);
     }
   if (tty->output && tty->output != stdout && tty->output != tty->input)
-    fclose (tty->output);
+    fclose(tty->output);
   if (tty->termscript)
-    fclose (tty->termscript);
+    fclose(tty->termscript);
 
-  xfree (tty->old_tty);
-  xfree (tty->Wcm);
-  xfree (tty);
+  xfree(tty->old_tty);
+  xfree(tty->Wcm);
+  xfree(tty);
 }
 
 void
-syms_of_term (void)
+syms_of_term(void)
 {
-  DEFVAR_BOOL ("system-uses-terminfo", system_uses_terminfo,
+  DEFVAR_BOOL("system-uses-terminfo", system_uses_terminfo,
     doc: /* Non-nil means the system uses terminfo rather than termcap.
 This variable can be used by terminal emulator packages.  */);
 #ifdef TERMINFO
@@ -4520,37 +4520,37 @@ This variable can be used by terminal emulator packages.  */);
   system_uses_terminfo = 0;
 #endif
 
-  DEFVAR_LISP ("suspend-tty-functions", Vsuspend_tty_functions,
+  DEFVAR_LISP("suspend-tty-functions", Vsuspend_tty_functions,
     doc: /* Functions run after suspending a tty.
 The functions are run with one argument, the terminal object to be suspended.
 See `suspend-tty'.  */);
   Vsuspend_tty_functions = Qnil;
 
 
-  DEFVAR_LISP ("resume-tty-functions", Vresume_tty_functions,
+  DEFVAR_LISP("resume-tty-functions", Vresume_tty_functions,
     doc: /* Functions run after resuming a tty.
 The functions are run with one argument, the terminal object that was revived.
 See `resume-tty'.  */);
   Vresume_tty_functions = Qnil;
 
-  DEFVAR_BOOL ("visible-cursor", visible_cursor,
-	       doc: /* Non-nil means to make the cursor very visible.
+  DEFVAR_BOOL("visible-cursor", visible_cursor,
+	      doc: /* Non-nil means to make the cursor very visible.
 This only has an effect when running in a text terminal.
 What means \"very visible\" is up to your terminal.  It may make the cursor
 bigger, or it may make it blink, or it may do nothing at all.  */);
   visible_cursor = 1;
 
-  defsubr (&Stty_display_color_p);
-  defsubr (&Stty_display_color_cells);
-  defsubr (&Stty_no_underline);
-  defsubr (&Stty_type);
-  defsubr (&Scontrolling_tty_p);
-  defsubr (&Stty_top_frame);
-  defsubr (&Ssuspend_tty);
-  defsubr (&Sresume_tty);
+  defsubr(&Stty_display_color_p);
+  defsubr(&Stty_display_color_cells);
+  defsubr(&Stty_no_underline);
+  defsubr(&Stty_type);
+  defsubr(&Scontrolling_tty_p);
+  defsubr(&Stty_top_frame);
+  defsubr(&Ssuspend_tty);
+  defsubr(&Sresume_tty);
 #ifdef HAVE_GPM
-  defsubr (&Sgpm_mouse_start);
-  defsubr (&Sgpm_mouse_stop);
+  defsubr(&Sgpm_mouse_start);
+  defsubr(&Sgpm_mouse_stop);
 #endif /* HAVE_GPM */
 
 #ifndef DOS_NT
@@ -4562,13 +4562,15 @@ bigger, or it may make it blink, or it may do nothing at all.  */);
   encode_terminal_src = NULL;
   encode_terminal_dst = NULL;
 
-  DEFSYM (Qtty_menu_next_item, "tty-menu-next-item");
-  DEFSYM (Qtty_menu_prev_item, "tty-menu-prev-item");
-  DEFSYM (Qtty_menu_next_menu, "tty-menu-next-menu");
-  DEFSYM (Qtty_menu_prev_menu, "tty-menu-prev-menu");
-  DEFSYM (Qtty_menu_select, "tty-menu-select");
-  DEFSYM (Qtty_menu_ignore, "tty-menu-ignore");
-  DEFSYM (Qtty_menu_exit, "tty-menu-exit");
-  DEFSYM (Qtty_menu_mouse_movement, "tty-menu-mouse-movement");
-  DEFSYM (Qtty_menu_navigation_map, "tty-menu-navigation-map");
+  DEFSYM(Qtty_menu_next_item, "tty-menu-next-item");
+  DEFSYM(Qtty_menu_prev_item, "tty-menu-prev-item");
+  DEFSYM(Qtty_menu_next_menu, "tty-menu-next-menu");
+  DEFSYM(Qtty_menu_prev_menu, "tty-menu-prev-menu");
+  DEFSYM(Qtty_menu_select, "tty-menu-select");
+  DEFSYM(Qtty_menu_ignore, "tty-menu-ignore");
+  DEFSYM(Qtty_menu_exit, "tty-menu-exit");
+  DEFSYM(Qtty_menu_mouse_movement, "tty-menu-mouse-movement");
+  DEFSYM(Qtty_menu_navigation_map, "tty-menu-navigation-map");
 }
+
+/* EOF */

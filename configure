@@ -1803,6 +1803,7 @@ GNULIB_CHOWN
 GNULIB_CHDIR
 BLESSMAIL_TARGET
 LIBS_MAIL
+LD_LIBRARY_PATH
 liblockfile
 LIBM
 LIBXML2_LIBS
@@ -2015,6 +2016,7 @@ pre_PKG_CONFIG_LIBS
 pre_PKG_CONFIG_CFLAGS
 LIB_MATH
 LIBS_SYSTEM
+LIBRARY_PATH
 C_SWITCH_SYSTEM_TEMACS
 C_SWITCH_SYSTEM
 C_SWITCH_MACHINE
@@ -2052,6 +2054,7 @@ RELPATH_BIN
 MACHOCHECK
 FILE_MAGIC_BIN
 ac_ct_AR
+PRE_WARNING_TESTING_CFLAGS
 BETTER_DEBUG_CFLAGS
 GNULIB_WARN_CFLAGS
 WARN_CXXFLAGS
@@ -2302,6 +2305,7 @@ OBJCPP
 CLANG_ANALYZER
 LT_SYS_LIBRARY_PATH
 CANNOT_DUMP
+LIBRARY_PATH
 PKG_CONFIG
 PKG_CONFIG_PATH
 PKG_CONFIG_LIBDIR
@@ -2951,7 +2955,8 @@ Optional Features:
   --enable-check-lisp-object-type
                           enable compile time checks for the Lisp_Object data
                           type. This is useful for development for catching
-                          certain types of bugs.
+                          certain types of bugs by turning them into build
+                          errors.
   --enable-profiling      build emacs with low-level, gprof profiling support.
                           Mainly useful for debugging Emacs itself. May not
                           work on all platforms. Stops profiler.el working.
@@ -3101,6 +3106,9 @@ Some influential environment variables:
   LT_SYS_LIBRARY_PATH
               User-defined run-time library search path.
   CANNOT_DUMP Set to "yes" to disable the dump-emacs function.
+  LIBRARY_PATH
+              Additional directories for the compiler to search for libraries
+              when linking, after any '-L' options.
   PKG_CONFIG  path to pkg-config utility
   PKG_CONFIG_PATH
               directories to add to pkg-config's search path
@@ -5086,6 +5094,10 @@ fi
       { $as_echo "$as_me:${as_lineno-$LINENO}: xcsdkdir is \"${xcsdkdir}\"" >&5
 $as_echo "$as_me: xcsdkdir is \"${xcsdkdir}\"" >&6;}
 
+    else
+      test -n "${MAKE_PROG}" && test -x "${MAKE_PROG}"
+      { $as_echo "$as_me:${as_lineno-$LINENO}: no need to find xcsdkdir when we already have a working 'make' program (i.e. '${MAKE_PROG}')" >&5
+$as_echo "$as_me: no need to find xcsdkdir when we already have a working 'make' program (i.e. '${MAKE_PROG}')" >&6;}
     fi
   fi
 else
@@ -12662,12 +12674,8 @@ if test "x${ac_test_CFLAGS}" != "xset"; then
     '-g')
       emacs_g3_CFLAGS="${gthree}";;
     '-g -O2')
-      if test "x${GCC}" = "xyes" && test "x${CLANG_ANALYZER}" = "xfalse"; then
-        extra_debug_opt_CFLAGS="-fno-omit-frame-pointer -fno-crossjumping"
-      else
-        extra_debug_opt_CFLAGS="-fno-omit-frame-pointer"
-      fi
-      emacs_g3_CFLAGS="${gthree} -O2 ${extra_debug_opt_CFLAGS}";;
+      ## try to limit the flags tested here; others have been moved below.
+      emacs_g3_CFLAGS="${gthree} -O2";;
     '-g -Og')
       emacs_g3_CFLAGS="${gthree} -Og";;
     *)
@@ -17889,7 +17897,11 @@ fi
 fi  ##end conditional on gl_gcc_warnings
 
 if test "x${gl_better_debugging}" = "xyes"; then
-  ## Not exactly warning flags, but adding them this way is easier:
+  ##### Not exactly warning flags, but adding them this way is easier:
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking other compiler flags" >&5
+$as_echo_n "checking other compiler flags... " >&6; }
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result:  " >&5
+$as_echo " " >&6; }
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -fno-eliminate-unused-debug-symbols" >&5
 $as_echo_n "checking whether C compiler handles -fno-eliminate-unused-debug-symbols... " >&6; }
@@ -17928,6 +17940,344 @@ fi
 
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -fno-crossjumping" >&5
+$as_echo_n "checking whether C compiler handles -fno-crossjumping... " >&6; }
+if ${gl_cv_warn_c__fno_crossjumping+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -fno-crossjumping"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__fno_crossjumping=yes
+else
+  gl_cv_warn_c__fno_crossjumping=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__fno_crossjumping" >&5
+$as_echo "$gl_cv_warn_c__fno_crossjumping" >&6; }
+if test "x$gl_cv_warn_c__fno_crossjumping" = xyes; then :
+  as_fn_append BETTER_DEBUG_CFLAGS " -fno-crossjumping"
+fi
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -fno-delete-dead-exceptions" >&5
+$as_echo_n "checking whether C compiler handles -fno-delete-dead-exceptions... " >&6; }
+if ${gl_cv_warn_c__fno_delete_dead_exceptions+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -fno-delete-dead-exceptions"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__fno_delete_dead_exceptions=yes
+else
+  gl_cv_warn_c__fno_delete_dead_exceptions=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__fno_delete_dead_exceptions" >&5
+$as_echo "$gl_cv_warn_c__fno_delete_dead_exceptions" >&6; }
+if test "x$gl_cv_warn_c__fno_delete_dead_exceptions" = xyes; then :
+  as_fn_append BETTER_DEBUG_CFLAGS " -fno-delete-dead-exceptions"
+fi
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -fno-delete-null-pointer-checks" >&5
+$as_echo_n "checking whether C compiler handles -fno-delete-null-pointer-checks... " >&6; }
+if ${gl_cv_warn_c__fno_delete_null_pointer_checks+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -fno-delete-null-pointer-checks"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__fno_delete_null_pointer_checks=yes
+else
+  gl_cv_warn_c__fno_delete_null_pointer_checks=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__fno_delete_null_pointer_checks" >&5
+$as_echo "$gl_cv_warn_c__fno_delete_null_pointer_checks" >&6; }
+if test "x$gl_cv_warn_c__fno_delete_null_pointer_checks" = xyes; then :
+  as_fn_append BETTER_DEBUG_CFLAGS " -fno-delete-null-pointer-checks"
+fi
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -fno-isolate-erroneous-paths-dereference" >&5
+$as_echo_n "checking whether C compiler handles -fno-isolate-erroneous-paths-dereference... " >&6; }
+if ${gl_cv_warn_c__fno_isolate_erroneous_paths_dereference+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -fno-isolate-erroneous-paths-dereference"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__fno_isolate_erroneous_paths_dereference=yes
+else
+  gl_cv_warn_c__fno_isolate_erroneous_paths_dereference=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__fno_isolate_erroneous_paths_dereference" >&5
+$as_echo "$gl_cv_warn_c__fno_isolate_erroneous_paths_dereference" >&6; }
+if test "x$gl_cv_warn_c__fno_isolate_erroneous_paths_dereference" = xyes; then :
+  as_fn_append BETTER_DEBUG_CFLAGS " -fno-isolate-erroneous-paths-dereference"
+fi
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -fno-omit-frame-pointer" >&5
+$as_echo_n "checking whether C compiler handles -fno-omit-frame-pointer... " >&6; }
+if ${gl_cv_warn_c__fno_omit_frame_pointer+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -fno-omit-frame-pointer"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__fno_omit_frame_pointer=yes
+else
+  gl_cv_warn_c__fno_omit_frame_pointer=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__fno_omit_frame_pointer" >&5
+$as_echo "$gl_cv_warn_c__fno_omit_frame_pointer" >&6; }
+if test "x$gl_cv_warn_c__fno_omit_frame_pointer" = xyes; then :
+  as_fn_append BETTER_DEBUG_CFLAGS " -fno-omit-frame-pointer"
+fi
+
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -fno-optimize-sibling-calls" >&5
+$as_echo_n "checking whether C compiler handles -fno-optimize-sibling-calls... " >&6; }
+if ${gl_cv_warn_c__fno_optimize_sibling_calls+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -fno-optimize-sibling-calls"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__fno_optimize_sibling_calls=yes
+else
+  gl_cv_warn_c__fno_optimize_sibling_calls=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__fno_optimize_sibling_calls" >&5
+$as_echo "$gl_cv_warn_c__fno_optimize_sibling_calls" >&6; }
+if test "x$gl_cv_warn_c__fno_optimize_sibling_calls" = xyes; then :
+  if test "x${GCC}" = "xyes" \
+  && test x"`${CC} --version 2>/dev/null | grep 'gcc.* 4.5.0'`" != x"" \
+  && test x"`echo ${CFLAGS} | grep '\-O[23]'`" != x""; then
+   CFLAGS="${CFLAGS} -fno-optimize-sibling-calls"
+  else
+   BETTER_DEBUG_CFLAGS="${BETTER_DEBUG_CFLAGS} -fno-optimize-sibling-calls"
+  fi
+fi
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -fno-optimize-strlen" >&5
+$as_echo_n "checking whether C compiler handles -fno-optimize-strlen... " >&6; }
+if ${gl_cv_warn_c__fno_optimize_strlen+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -fno-optimize-strlen"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__fno_optimize_strlen=yes
+else
+  gl_cv_warn_c__fno_optimize_strlen=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__fno_optimize_strlen" >&5
+$as_echo "$gl_cv_warn_c__fno_optimize_strlen" >&6; }
+if test "x$gl_cv_warn_c__fno_optimize_strlen" = xyes; then :
+  as_fn_append BETTER_DEBUG_CFLAGS " -fno-optimize-strlen"
+fi
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -fno-sched-spec-load-dangerous" >&5
+$as_echo_n "checking whether C compiler handles -fno-sched-spec-load-dangerous... " >&6; }
+if ${gl_cv_warn_c__fno_sched_spec_load_dangerous+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -fno-sched-spec-load-dangerous"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__fno_sched_spec_load_dangerous=yes
+else
+  gl_cv_warn_c__fno_sched_spec_load_dangerous=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__fno_sched_spec_load_dangerous" >&5
+$as_echo "$gl_cv_warn_c__fno_sched_spec_load_dangerous" >&6; }
+if test "x$gl_cv_warn_c__fno_sched_spec_load_dangerous" = xyes; then :
+  as_fn_append BETTER_DEBUG_CFLAGS " -fno-sched-spec-load-dangerous"
+fi
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -fno-split-wide-types" >&5
+$as_echo_n "checking whether C compiler handles -fno-split-wide-types... " >&6; }
+if ${gl_cv_warn_c__fno_split_wide_types+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -fno-split-wide-types"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__fno_split_wide_types=yes
+else
+  gl_cv_warn_c__fno_split_wide_types=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__fno_split_wide_types" >&5
+$as_echo "$gl_cv_warn_c__fno_split_wide_types" >&6; }
+if test "x$gl_cv_warn_c__fno_split_wide_types" = xyes; then :
+  as_fn_append BETTER_DEBUG_CFLAGS " -fno-split-wide-types"
+fi
+
+
+      ##
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -fbounds-check" >&5
 $as_echo_n "checking whether C compiler handles -fbounds-check... " >&6; }
 if ${gl_cv_warn_c__fbounds_check+:} false; then :
@@ -17961,6 +18311,80 @@ fi
 $as_echo "$gl_cv_warn_c__fbounds_check" >&6; }
 if test "x$gl_cv_warn_c__fbounds_check" = xyes; then :
   as_fn_append BETTER_DEBUG_CFLAGS " -fbounds-check"
+fi
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -fcheck-data-deps" >&5
+$as_echo_n "checking whether C compiler handles -fcheck-data-deps... " >&6; }
+if ${gl_cv_warn_c__fcheck_data_deps+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -fcheck-data-deps"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__fcheck_data_deps=yes
+else
+  gl_cv_warn_c__fcheck_data_deps=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__fcheck_data_deps" >&5
+$as_echo "$gl_cv_warn_c__fcheck_data_deps" >&6; }
+if test "x$gl_cv_warn_c__fcheck_data_deps" = xyes; then :
+  as_fn_append BETTER_DEBUG_CFLAGS " -fcheck-data-deps"
+fi
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -fexceptions" >&5
+$as_echo_n "checking whether C compiler handles -fexceptions... " >&6; }
+if ${gl_cv_warn_c__fexceptions+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -fexceptions"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__fexceptions=yes
+else
+  gl_cv_warn_c__fexceptions=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__fexceptions" >&5
+$as_echo "$gl_cv_warn_c__fexceptions" >&6; }
+if test "x$gl_cv_warn_c__fexceptions" = xyes; then :
+  as_fn_append BETTER_DEBUG_CFLAGS " -fexceptions"
 fi
 
 
@@ -18039,6 +18463,117 @@ fi
 
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -fvar-tracking" >&5
+$as_echo_n "checking whether C compiler handles -fvar-tracking... " >&6; }
+if ${gl_cv_warn_c__fvar_tracking+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -fvar-tracking"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__fvar_tracking=yes
+else
+  gl_cv_warn_c__fvar_tracking=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__fvar_tracking" >&5
+$as_echo "$gl_cv_warn_c__fvar_tracking" >&6; }
+if test "x$gl_cv_warn_c__fvar_tracking" = xyes; then :
+  as_fn_append BETTER_DEBUG_CFLAGS " -fvar-tracking"
+fi
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -fvar-tracking-assignments" >&5
+$as_echo_n "checking whether C compiler handles -fvar-tracking-assignments... " >&6; }
+if ${gl_cv_warn_c__fvar_tracking_assignments+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -fvar-tracking-assignments"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__fvar_tracking_assignments=yes
+else
+  gl_cv_warn_c__fvar_tracking_assignments=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__fvar_tracking_assignments" >&5
+$as_echo "$gl_cv_warn_c__fvar_tracking_assignments" >&6; }
+if test "x$gl_cv_warn_c__fvar_tracking_assignments" = xyes; then :
+  as_fn_append BETTER_DEBUG_CFLAGS " -fvar-tracking-assignments"
+fi
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -gpubnames" >&5
+$as_echo_n "checking whether C compiler handles -gpubnames... " >&6; }
+if ${gl_cv_warn_c__gpubnames+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -gpubnames"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__gpubnames=yes
+else
+  gl_cv_warn_c__gpubnames=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__gpubnames" >&5
+$as_echo "$gl_cv_warn_c__gpubnames" >&6; }
+if test "x$gl_cv_warn_c__gpubnames" = xyes; then :
+  as_fn_append BETTER_DEBUG_CFLAGS " -gpubnames"
+fi
+
+
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -gstrict-dwarf" >&5
 $as_echo_n "checking whether C compiler handles -gstrict-dwarf... " >&6; }
 if ${gl_cv_warn_c__gstrict_dwarf+:} false; then :
@@ -18078,8 +18613,6 @@ fi
     ## Is that enough?
 fi
 
-##FIXME: also change "-O2/-O3" to "-Og" if "gl_better_debugging" is yes,
-## and the compiler supports it:
 edit_cflags="
   s,///*,/,g
   s/^/ /
@@ -18087,7 +18620,79 @@ edit_cflags="
   s/^ //
 "
 
-CFLAGS="${PRE_WARNING_TESTING_CFLAGS}"
+if test "x${gl_better_debugging}" = "xyes"; then
+  ## might want to add back '&& test "x${CLANG_ANALYZER}" = "xfalse"':
+  if test "x${GCC}" = "xyes"; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Og" >&5
+$as_echo_n "checking whether C compiler handles -Og... " >&6; }
+if ${gl_cv_warn_c__Og+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Og"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__Og=yes
+else
+  gl_cv_warn_c__Og=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Og" >&5
+$as_echo "$gl_cv_warn_c__Og" >&6; }
+if test "x$gl_cv_warn_c__Og" = xyes; then :
+
+    case ${CFLAGS} in
+      *-O2*)
+        edit_cflags="
+          ${edit_cflags}
+          s/ -O2/ -Og/g
+        "
+        ;;
+      *-O3*)
+        edit_cflags="
+          ${edit_cflags}
+          s/ -O3/ -Og/g
+        "
+        ;;
+      *-Ofast*)
+        edit_cflags="
+          ${edit_cflags}
+          s/ -Ofast/ -Og/g
+        "
+        ;;
+    esac
+
+fi
+
+  fi
+fi
+
+
+if test "x${edit_cflags}" != "x"; then
+  test -x "`which sed`"
+  test -n "${edit_cflags}" && export CFLAGS=`$as_echo "${PRE_WARNING_TESTING_CFLAGS}" | sed -e "${edit_cflags}"`
+  if test "x${CFLAGS}" != "x${PRE_WARNING_TESTING_CFLAGS}"; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: we have edited CFLAGS; they are now '${CFLAGS}'" >&5
+$as_echo "$as_me: we have edited CFLAGS; they are now '${CFLAGS}'" >&6;}
+  fi
+else
+  CFLAGS="${PRE_WARNING_TESTING_CFLAGS}"
+fi
 
 : ${AM_DEFAULT_VERBOSITY=1}
 : ${AM_V=${AM_DEFAULT_VERBOSITY}}
@@ -29896,6 +30501,7 @@ esac
 
 
 
+
 ### Make sure subsequent tests use flags consistent with the build flags.
 if test x"${OVERRIDE_CPPFLAGS}" != x""; then
   CPPFLAGS="${OVERRIDE_CPPFLAGS}"
@@ -30177,72 +30783,6 @@ _ACEOF
 # version HP92453-01 B.11.11.23709.GP, which incorrectly rejects
 # declarations like `int a3[[(sizeof (unsigned char)) >= 0]];'.
 # This bug is HP SR number 8606223364.
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking size of char *" >&5
-$as_echo_n "checking size of char *... " >&6; }
-if ${ac_cv_sizeof_char_p+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if ac_fn_c_compute_int "$LINENO" "(long int) (sizeof (char *))" "ac_cv_sizeof_char_p"        "$ac_includes_default"; then :
-
-else
-  if test "$ac_cv_type_char_p" = yes; then
-     { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error 77 "cannot compute sizeof (char *)
-See \`config.log' for more details" "$LINENO" 5; }
-   else
-     ac_cv_sizeof_char_p=0
-   fi
-fi
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_sizeof_char_p" >&5
-$as_echo "$ac_cv_sizeof_char_p" >&6; }
-
-
-
-cat >>confdefs.h <<_ACEOF
-#define SIZEOF_CHAR_P $ac_cv_sizeof_char_p
-_ACEOF
-
-# The cast to long int works around a bug in the HP C Compiler,
-# see AC_CHECK_SIZEOF for more information.
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking alignment of char *" >&5
-$as_echo_n "checking alignment of char *... " >&6; }
-if ${ac_cv_alignof_char_p+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if ac_fn_c_compute_int "$LINENO" "(long int) offsetof (ac__type_alignof_, y)" "ac_cv_alignof_char_p"        "$ac_includes_default
-#ifndef offsetof
-# define offsetof(type, member) ((char *) &((type *) 0)->member - (char *) 0)
-#endif
-typedef struct { char x; char * y; } ac__type_alignof_;"; then :
-
-else
-  if test "$ac_cv_type_char_p" = yes; then
-     { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error 77 "cannot compute alignment of char *
-See \`config.log' for more details" "$LINENO" 5; }
-   else
-     ac_cv_alignof_char_p=0
-   fi
-fi
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_alignof_char_p" >&5
-$as_echo "$ac_cv_alignof_char_p" >&6; }
-
-
-
-cat >>confdefs.h <<_ACEOF
-#define ALIGNOF_CHAR_P $ac_cv_alignof_char_p
-_ACEOF
-
-# The cast to long int works around a bug in the HP C Compiler
-# version HP92453-01 B.11.11.23709.GP, which incorrectly rejects
-# declarations like `int a3[[(sizeof (unsigned char)) >= 0]];'.
-# This bug is HP SR number 8606223364.
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking size of short" >&5
 $as_echo_n "checking size of short... " >&6; }
 if ${ac_cv_sizeof_short+:} false; then :
@@ -30437,6 +30977,250 @@ cat >>confdefs.h <<_ACEOF
 #define ALIGNOF_LONG $ac_cv_alignof_long
 _ACEOF
 
+# The cast to long int works around a bug in the HP C Compiler
+# version HP92453-01 B.11.11.23709.GP, which incorrectly rejects
+# declarations like `int a3[[(sizeof (unsigned char)) >= 0]];'.
+# This bug is HP SR number 8606223364.
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking size of char *" >&5
+$as_echo_n "checking size of char *... " >&6; }
+if ${ac_cv_sizeof_char_p+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if ac_fn_c_compute_int "$LINENO" "(long int) (sizeof (char *))" "ac_cv_sizeof_char_p"        "$ac_includes_default"; then :
+
+else
+  if test "$ac_cv_type_char_p" = yes; then
+     { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error 77 "cannot compute sizeof (char *)
+See \`config.log' for more details" "$LINENO" 5; }
+   else
+     ac_cv_sizeof_char_p=0
+   fi
+fi
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_sizeof_char_p" >&5
+$as_echo "$ac_cv_sizeof_char_p" >&6; }
+
+
+
+cat >>confdefs.h <<_ACEOF
+#define SIZEOF_CHAR_P $ac_cv_sizeof_char_p
+_ACEOF
+
+# The cast to long int works around a bug in the HP C Compiler,
+# see AC_CHECK_SIZEOF for more information.
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking alignment of char *" >&5
+$as_echo_n "checking alignment of char *... " >&6; }
+if ${ac_cv_alignof_char_p+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if ac_fn_c_compute_int "$LINENO" "(long int) offsetof (ac__type_alignof_, y)" "ac_cv_alignof_char_p"        "$ac_includes_default
+#ifndef offsetof
+# define offsetof(type, member) ((char *) &((type *) 0)->member - (char *) 0)
+#endif
+typedef struct { char x; char * y; } ac__type_alignof_;"; then :
+
+else
+  if test "$ac_cv_type_char_p" = yes; then
+     { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error 77 "cannot compute alignment of char *
+See \`config.log' for more details" "$LINENO" 5; }
+   else
+     ac_cv_alignof_char_p=0
+   fi
+fi
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_alignof_char_p" >&5
+$as_echo "$ac_cv_alignof_char_p" >&6; }
+
+
+
+cat >>confdefs.h <<_ACEOF
+#define ALIGNOF_CHAR_P $ac_cv_alignof_char_p
+_ACEOF
+
+
+if test "x${gl_better_debugging}" = "xyes"; then
+  if test "x${ac_cv_sizeof_char_p}" != "x"; then
+    test -n "${ac_cv_sizeof_char_p}"
+
+as_gl_Warn=`$as_echo "gl_cv_warn_c_-falign-functions=${ac_cv_alignof_char_p}" | $as_tr_sh`
+gl_positive="-falign-functions=${ac_cv_alignof_char_p}"
+case $gl_positive in
+  -Wno-*) gl_positive=-W`expr "X$gl_positive" : 'X-Wno-\(.*\)'` ;;
+esac
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -falign-functions=${ac_cv_alignof_char_p}" >&5
+$as_echo_n "checking whether C compiler handles -falign-functions=${ac_cv_alignof_char_p}... " >&6; }
+if eval \${$as_gl_Warn+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors $gl_positive"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  eval "$as_gl_Warn=yes"
+else
+  eval "$as_gl_Warn=no"
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+eval ac_res=\$$as_gl_Warn
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+if eval test \"x\$"$as_gl_Warn"\" = x"yes"; then :
+  as_fn_append BETTER_DEBUG_CFLAGS " -falign-functions=${ac_cv_alignof_char_p}"
+fi
+
+
+
+as_gl_Warn=`$as_echo "gl_cv_warn_c_-falign-labels=${ac_cv_alignof_char_p}" | $as_tr_sh`
+gl_positive="-falign-labels=${ac_cv_alignof_char_p}"
+case $gl_positive in
+  -Wno-*) gl_positive=-W`expr "X$gl_positive" : 'X-Wno-\(.*\)'` ;;
+esac
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -falign-labels=${ac_cv_alignof_char_p}" >&5
+$as_echo_n "checking whether C compiler handles -falign-labels=${ac_cv_alignof_char_p}... " >&6; }
+if eval \${$as_gl_Warn+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors $gl_positive"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  eval "$as_gl_Warn=yes"
+else
+  eval "$as_gl_Warn=no"
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+eval ac_res=\$$as_gl_Warn
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+if eval test \"x\$"$as_gl_Warn"\" = x"yes"; then :
+  as_fn_append BETTER_DEBUG_CFLAGS " -falign-labels=${ac_cv_alignof_char_p}"
+fi
+
+
+
+as_gl_Warn=`$as_echo "gl_cv_warn_c_-falign-loops=${ac_cv_alignof_char_p}" | $as_tr_sh`
+gl_positive="-falign-loops=${ac_cv_alignof_char_p}"
+case $gl_positive in
+  -Wno-*) gl_positive=-W`expr "X$gl_positive" : 'X-Wno-\(.*\)'` ;;
+esac
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -falign-loops=${ac_cv_alignof_char_p}" >&5
+$as_echo_n "checking whether C compiler handles -falign-loops=${ac_cv_alignof_char_p}... " >&6; }
+if eval \${$as_gl_Warn+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors $gl_positive"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  eval "$as_gl_Warn=yes"
+else
+  eval "$as_gl_Warn=no"
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+eval ac_res=\$$as_gl_Warn
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+if eval test \"x\$"$as_gl_Warn"\" = x"yes"; then :
+  as_fn_append BETTER_DEBUG_CFLAGS " -falign-loops=${ac_cv_alignof_char_p}"
+fi
+
+
+
+as_gl_Warn=`$as_echo "gl_cv_warn_c_-falign-jumps=${ac_cv_alignof_char_p}" | $as_tr_sh`
+gl_positive="-falign-jumps=${ac_cv_alignof_char_p}"
+case $gl_positive in
+  -Wno-*) gl_positive=-W`expr "X$gl_positive" : 'X-Wno-\(.*\)'` ;;
+esac
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -falign-jumps=${ac_cv_alignof_char_p}" >&5
+$as_echo_n "checking whether C compiler handles -falign-jumps=${ac_cv_alignof_char_p}... " >&6; }
+if eval \${$as_gl_Warn+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors $gl_positive"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  eval "$as_gl_Warn=yes"
+else
+  eval "$as_gl_Warn=no"
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+eval ac_res=\$$as_gl_Warn
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+if eval test \"x\$"$as_gl_Warn"\" = x"yes"; then :
+  as_fn_append BETTER_DEBUG_CFLAGS " -falign-jumps=${ac_cv_alignof_char_p}"
+fi
+
+
+  fi
+fi
 
 if test "x${ac_cv_header_termios_h}" = "x"; then
   test -z "${ac_cv_header_termios_h}"
@@ -31018,9 +31802,9 @@ for ac_header in OS.h arpa/inet.h dpmi.h err.h errno.h fcntl.h float.h \
                   io.h langinfo.h libc.h libintl.h limits.h locale.h \
                   malloc.h mbstring.h msvcrt/string.h paths.h nl_types.h \
                   sgtty.h signal.h stddef.h sys/_mbstate_t.h sys/bsdtty.h \
-                  sys/file.h sys/ptyio.h sys/signal.h sys/syslimits.h \
-                  sys/timeb.h sys/vfs.h sysexits.h termcap.h termio.h \
-                  timespec.h unixlib.h
+                  sys/file.h sys/ptyio.h sys/signal.h sys/sysctl.h \
+                  sys/syslimits.h sys/timeb.h sys/vfs.h sysexits.h \
+                  termcap.h termio.h timespec.h unixlib.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -33825,7 +34609,8 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 if test "x${ac_cv_have_decl___MACH__}" = "xyes" || test -d /usr/include/mach; then
-  for ac_header in mach/mach.h mach/machine/vm_param.h mach/vm_region.h
+  for ac_header in mach/mach.h mach/machine/vm_param.h \
+                    mach/processor_info.h mach/vm_region.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -33854,8 +34639,8 @@ fi
 done
 
   ## other possibly useful headers from that directory:
-  for ac_header in mach-o/arch.h mach-o/getsect.h mach-o/nlist.h \
-                    mach-o/ldsyms.h mach-o/reloc.h
+  for ac_header in mach-o/arch.h mach-o/dyld.h mach-o/getsect.h \
+                    mach-o/nlist.h mach-o/ldsyms.h mach-o/reloc.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -34175,6 +34960,63 @@ if test "x$ac_cv_member_struct_ifreq_ifr_addr_sa_len" = xyes; then :
 
 cat >>confdefs.h <<_ACEOF
 #define HAVE_STRUCT_IFREQ_IFR_ADDR_SA_LEN 1
+_ACEOF
+
+
+fi
+ac_fn_c_check_member "$LINENO" "struct processor_set_basic_info" "default_policy" "ac_cv_member_struct_processor_set_basic_info_default_policy" "
+$ac_includes_default
+#ifdef HAVE_MACH_PROCESSOR_INFO_H
+# include <mach/processor_info.h>
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(__MACH__)
+#  warning \"this conftest expects <mach/processor_info.h> to be included.\"
+# endif /* __GNUC__ && !__STRICT_ANSI__ && __MACH__ */
+#endif /* HAVE_MACH_PROCESSOR_INFO_H */
+
+"
+if test "x$ac_cv_member_struct_processor_set_basic_info_default_policy" = xyes; then :
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_STRUCT_PROCESSOR_SET_BASIC_INFO_DEFAULT_POLICY 1
+_ACEOF
+
+
+fi
+ac_fn_c_check_member "$LINENO" "struct processor_set_basic_info" "load_average" "ac_cv_member_struct_processor_set_basic_info_load_average" "
+$ac_includes_default
+#ifdef HAVE_MACH_PROCESSOR_INFO_H
+# include <mach/processor_info.h>
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(__MACH__)
+#  warning \"this conftest expects <mach/processor_info.h> to be included.\"
+# endif /* __GNUC__ && !__STRICT_ANSI__ && __MACH__ */
+#endif /* HAVE_MACH_PROCESSOR_INFO_H */
+
+"
+if test "x$ac_cv_member_struct_processor_set_basic_info_load_average" = xyes; then :
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_STRUCT_PROCESSOR_SET_BASIC_INFO_LOAD_AVERAGE 1
+_ACEOF
+
+
+fi
+ac_fn_c_check_member "$LINENO" "struct processor_set_basic_info" "processor_count" "ac_cv_member_struct_processor_set_basic_info_processor_count" "
+$ac_includes_default
+#ifdef HAVE_MACH_PROCESSOR_INFO_H
+# include <mach/processor_info.h>
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(__MACH__)
+#  warning \"this conftest expects <mach/processor_info.h> to be included.\"
+# endif /* __GNUC__ && !__STRICT_ANSI__ && __MACH__ */
+#endif /* HAVE_MACH_PROCESSOR_INFO_H */
+
+"
+if test "x$ac_cv_member_struct_processor_set_basic_info_processor_count" = xyes; then :
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_STRUCT_PROCESSOR_SET_BASIC_INFO_PROCESSOR_COUNT 1
 _ACEOF
 
 
@@ -35245,6 +36087,8 @@ $as_echo "#define HAVE_LONG_FILE_NAMES 1" >>confdefs.h
 fi
 
 
+    if test "x${I_CAN_AFFORD_TO_WAIT_AROUND}" = "xyes"; then
+    test -n "${I_CAN_AFFORD_TO_WAIT_AROUND}"
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for restartable system calls" >&5
 $as_echo_n "checking for restartable system calls... " >&6; }
@@ -35317,6 +36161,7 @@ $as_echo "#define HAVE_RESTARTABLE_SYSCALLS 1" >>confdefs.h
 
 fi
 
+  fi
 ac_ext=m
 ac_cpp='$OBJCPP $CPPFLAGS'
 ac_compile='$OBJC -c $OBJCFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -44469,6 +45314,7 @@ $as_echo "no" >&6; }
 fi
 
 
+    ## error message:
   if test "x${ac_cv_prog_liblockfile}" = "xyes"; then
     as_fn_error $? "Shared liblockfile found but cannot link against it.
 This probably means that movemail could lose mail.
@@ -50664,8 +51510,8 @@ for ac_func in __fpending _stricmp acl atexit atof atoi btowc bzero \
                 reallocf regcomp rmdir setenv socket sqrt strcasecmp \
                 strcasestr strchr strcmp strcspn strdup strerror stricmp \
                 strlcat strlcpy strncasecmp strncat strncmp strnicmp \
-                strnstr strpbrk strrchr strtok strtol strtoul system \
-                xstricmp utime utmpname vfprintf
+                strnstr strpbrk strrchr strtok strtol strtoul sysctl \
+                system xstricmp utime utmpname vfprintf
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -53506,8 +54352,10 @@ version=`grep 'defconst[	 ]*emacs-version' ./lisp/version.el \
 fi
 if test x"${version}" = x""; then
   if test "x${PACKAGE_VERSION}" != "x"; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: cannot find current emacs version in \`${srcdir}/lisp/version.el', using ${PACKAGE_VERSION} instead." >&5
+    if test -e ${srcdir}/lisp/version.el; then
+      { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: cannot find current emacs version in \`${srcdir}/lisp/version.el', using ${PACKAGE_VERSION} instead." >&5
 $as_echo "$as_me: WARNING: cannot find current emacs version in \`${srcdir}/lisp/version.el', using ${PACKAGE_VERSION} instead." >&2;}
+    fi
     test -z "${version}" && test -n "${PACKAGE_VERSION}" && export version="${PACKAGE_VERSION}"
   else
     as_fn_error $? "cannot find current emacs version in \`${srcdir}/lisp/version.el', and PACKAGE_VERSION is undefined." "$LINENO" 5
@@ -74948,8 +75796,8 @@ case "${opsys}" in
    fi
    LD_SWITCH_SYSTEM_TEMACS="-fno-pie ${prebind} ${libs_nsgui} -Xlinker -headerpad -Xlinker ${headerpad_extra}"
    ## (why not just use '-headerpad_max_install_names'? Would that not be
-   ## more inline with GNU policy of preferring dynamic limits over
-   ## arbitrary, hard-coded ones?)
+   ##  more in line with GNU policy of preferring dynamic limits over
+   ##  arbitrary, hard-coded ones?)
 
    if test "x${LD_NO_PIE}" != "xNO"; then
      ## Apple uses this in their Makefile, and other platforms use

@@ -67,20 +67,20 @@ INLINE_HEADER_BEGIN
 #define BYTE8_TO_CHAR(byte) ((byte) + 0x3FFF00)
 
 #define UNIBYTE_TO_CHAR(byte) \
-  (ASCII_BYTE_P (byte) ? (byte) : BYTE8_TO_CHAR (byte))
+  (ASCII_BYTE_P((unsigned int)(byte)) ? (byte) : BYTE8_TO_CHAR(byte))
 
 /* Return the raw 8-bit byte for character C.  */
 #define CHAR_TO_BYTE8(c)	\
-  (CHAR_BYTE8_P (c)		\
-   ? (c) - 0x3FFF00		\
-   : multibyte_char_to_unibyte (c))
+  (CHAR_BYTE8_P(c)		\
+   ? ((c) - 0x3FFF00)		\
+   : multibyte_char_to_unibyte(c))
 
 /* Return the raw 8-bit byte for character C,
    or -1 if C doesn't correspond to a byte.  */
 #define CHAR_TO_BYTE_SAFE(c)	\
-  (CHAR_BYTE8_P (c)		\
-   ? (c) - 0x3FFF00		\
-   : multibyte_char_to_unibyte_safe (c))
+  (CHAR_BYTE8_P(c)		\
+   ? (int)((c) - 0x3FFF00)	\
+   : multibyte_char_to_unibyte_safe((int)(c)))
 
 /* Nonzero iff BYTE is the 1st byte of a multibyte form of a character
    that corresponds to a raw 8-bit byte.  */
@@ -127,18 +127,18 @@ INLINE_HEADER_BEGIN
 
 #define CHECK_CHARACTER_CDR(x) \
   do {					\
-    Lisp_Object tmp = XCDR (x);		\
-    CHECK_CHARACTER (tmp);		\
-    XSETCDR ((x), tmp);			\
+    Lisp_Object tmp = XCDR(x);		\
+    CHECK_CHARACTER(tmp);		\
+    XSETCDR((x), tmp);			\
   } while (false)
 
 /* Nonzero iff C is a character of code less than 0x100.  */
-#define SINGLE_BYTE_CHAR_P(c) UNSIGNED_CMP (c, <, 0x100)
+#define SINGLE_BYTE_CHAR_P(c) UNSIGNED_CMP(c, <, 0x100)
 
 /* Nonzero if character C has a printable glyph.  */
 #define CHAR_PRINTABLE_P(c)	\
   (((c) >= 32 && (c) < 127)	\
-   || ! NILP (CHAR_TABLE_REF (Vprintable_chars, (c))))
+   || ! NILP(CHAR_TABLE_REF(Vprintable_chars, (c))))
 
 /* Return byte length of multibyte form for character C.  */
 #define CHAR_BYTES(c)			\
@@ -165,19 +165,20 @@ INLINE_HEADER_BEGIN
    Returns the length of the multibyte form.  */
 
 #define CHAR_STRING(c, p)			\
-  (UNSIGNED_CMP (c, <=, MAX_1_BYTE_CHAR)	\
-   ? ((p)[0] = (c),				\
+  (UNSIGNED_CMP((unsigned int)(c), <=, MAX_1_BYTE_CHAR) \
+   ? ((p)[0] = (__typeof__((p)[0]))(c),			\
       1)					\
-   : UNSIGNED_CMP (c, <=, MAX_2_BYTE_CHAR)	\
-   ? ((p)[0] = (0xC0 | ((c) >> 6)),		\
-      (p)[1] = (0x80 | ((c) & 0x3F)),		\
+   : UNSIGNED_CMP((unsigned int)(c), <=, MAX_2_BYTE_CHAR) \
+   ? ((p)[0] = (__typeof__((p)[0]))(0xC0 | ((c) >> 6)),	  \
+      (p)[1] = (__typeof__((p)[1]))(0x80 | ((c) & 0x3F)), \
       2)					\
-   : UNSIGNED_CMP (c, <=, MAX_3_BYTE_CHAR)	\
-   ? ((p)[0] = (0xE0 | ((c) >> 12)),		\
-      (p)[1] = (0x80 | (((c) >> 6) & 0x3F)),	\
-      (p)[2] = (0x80 | ((c) & 0x3F)),		\
+   : UNSIGNED_CMP((unsigned int)(c), <=, MAX_3_BYTE_CHAR) \
+   ? ((p)[0] = (__typeof__((p)[0]))(0xE0 | ((c) >> 12)),  \
+      (p)[1] = (__typeof__((p)[1]))(0x80 | (((c) >> 6) & 0x3F)), \
+      (p)[2] = (__typeof__((p)[2]))(0x80 | ((c) & 0x3F)), \
       3)					\
-   : verify_expr (sizeof (c) <= sizeof (unsigned), char_string (c, p)))
+   : verify_expr((sizeof(c) <= sizeof(unsigned)),\
+                 char_string((unsigned int)(c), p)))
 
 /* Store multibyte form of byte B in P.  The caller should allocate at
    least MAX_MULTIBYTE_LENGTH bytes area at P in advance.  Returns the
@@ -298,18 +299,18 @@ INLINE_HEADER_BEGIN
    are in the Private Use Areas (PUAs), so it might return a different
    codepoint from the one actually stored at P.  */
 
-#define STRING_CHAR(p)						\
+#define STRING_CHAR(p)	\
   (!((p)[0] & 0x80)						\
-   ? (p)[0]							\
-   : ! ((p)[0] & 0x20)						\
-   ? (((((p)[0] & 0x1F) << 6)					\
-       | ((p)[1] & 0x3F))					\
-      + (((unsigned char) (p)[0]) < 0xC2 ? 0x3FFF80 : 0))	\
-   : ! ((p)[0] & 0x10)						\
-   ? ((((p)[0] & 0x0F) << 12)					\
-      | (((p)[1] & 0x3F) << 6)					\
-      | ((p)[2] & 0x3F))					\
-   : string_char ((p), NULL, NULL))
+   ? (int)(p)[0]						\
+   : (!((p)[0] & 0x20)						\
+      ? (int)(((((p)[0] & 0x1F) << 6)				\
+               | ((p)[1] & 0x3F))				\
+              + (((unsigned char)(p)[0]) < 0xC2 ? 0x3FFF80 : 0)) \
+      : (!((p)[0] & 0x10)					\
+         ? (int)((((p)[0] & 0x0F) << 12)			\
+                 | (((p)[1] & 0x3F) << 6)			\
+                 | ((p)[2] & 0x3F))				\
+         : string_char((p), NULL, NULL))))
 
 
 /* Like STRING_CHAR, but set ACTUAL_LEN to the length of multibyte
@@ -556,9 +557,9 @@ INLINE_HEADER_BEGIN
 #define SANE_TAB_WIDTH(buf) \
   sanitize_tab_width (XFASTINT (BVAR (buf, tab_width)))
 INLINE int
-sanitize_tab_width (EMACS_INT width)
+sanitize_tab_width(EMACS_INT width)
 {
-  return 0 < width && width <= 1000 ? width : 8;
+  return (int)(((0 < width) && (width <= 1000)) ? width : 8);
 }
 
 /* Return the width of ASCII character C.  The width is measured by
@@ -577,9 +578,9 @@ sanitize_tab_width (EMACS_INT width)
 /* Return a non-outlandish value for a character width.  */
 
 INLINE int
-sanitize_char_width (EMACS_INT width)
+sanitize_char_width(EMACS_INT width)
 {
-  return 0 <= width && width <= 1000 ? width : 1000;
+  return (int)(((0 <= width) && (width <= 1000)) ? width : 1000);
 }
 
 /* Return the width of character C.  The width is measured by how many

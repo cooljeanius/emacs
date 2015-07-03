@@ -103,92 +103,97 @@ Lisp_Object Vsignaling_function;
    frame is half-initialized.  */
 Lisp_Object inhibit_lisp_code;
 
-/* These would ordinarily be static, but they need to be visible to GDB.  */
-bool backtrace_p (union specbinding *) EXTERNALLY_VISIBLE;
-Lisp_Object *backtrace_args (union specbinding *) EXTERNALLY_VISIBLE;
-Lisp_Object backtrace_function (union specbinding *) EXTERNALLY_VISIBLE;
-union specbinding *backtrace_next (union specbinding *) EXTERNALLY_VISIBLE;
-union specbinding *backtrace_top (void) EXTERNALLY_VISIBLE;
+/* These would ordinarily be static, but they need to be visible to GDB: */
+bool backtrace_p(union specbinding *) EXTERNALLY_VISIBLE;
+Lisp_Object *backtrace_args(union specbinding *) EXTERNALLY_VISIBLE;
+Lisp_Object backtrace_function(union specbinding *) EXTERNALLY_VISIBLE;
+union specbinding *backtrace_next(union specbinding *) EXTERNALLY_VISIBLE;
+union specbinding *backtrace_top(void) EXTERNALLY_VISIBLE;
 
-static Lisp_Object funcall_lambda (Lisp_Object, ptrdiff_t, Lisp_Object *);
-static Lisp_Object apply_lambda (Lisp_Object fun, Lisp_Object args);
+static Lisp_Object funcall_lambda(Lisp_Object, ptrdiff_t, Lisp_Object *);
+static Lisp_Object apply_lambda(Lisp_Object fun, Lisp_Object args);
 
 static Lisp_Object
-specpdl_symbol (union specbinding *pdl)
+specpdl_symbol(union specbinding *pdl)
 {
-  eassert (pdl->kind >= SPECPDL_LET);
+  eassert(pdl->kind >= SPECPDL_LET);
   return pdl->let.symbol;
 }
 
 static Lisp_Object
-specpdl_old_value (union specbinding *pdl)
+specpdl_old_value(union specbinding *pdl)
 {
-  eassert (pdl->kind >= SPECPDL_LET);
+  eassert(pdl->kind >= SPECPDL_LET);
   return pdl->let.old_value;
 }
 
 static void
-set_specpdl_old_value (union specbinding *pdl, Lisp_Object val)
+set_specpdl_old_value(union specbinding *pdl, Lisp_Object val)
 {
-  eassert (pdl->kind >= SPECPDL_LET);
+  eassert(pdl->kind >= SPECPDL_LET);
   pdl->let.old_value = val;
 }
 
 static Lisp_Object
-specpdl_where (union specbinding *pdl)
+specpdl_where(union specbinding *pdl)
 {
-  eassert (pdl->kind > SPECPDL_LET);
+  eassert(pdl->kind > SPECPDL_LET);
   return pdl->let.where;
 }
 
 static Lisp_Object
-specpdl_arg (union specbinding *pdl)
+specpdl_arg(union specbinding *pdl)
 {
-  eassert (pdl->kind == SPECPDL_UNWIND);
+  eassert(pdl->kind == SPECPDL_UNWIND);
   return pdl->unwind.arg;
 }
 
 Lisp_Object
-backtrace_function (union specbinding *pdl)
+backtrace_function(union specbinding *pdl)
 {
-  eassert (pdl->kind == SPECPDL_BACKTRACE);
-  return pdl->bt.function;
+  eassert(pdl->kind == SPECPDL_BACKTRACE);
+  if ((pdl != (union specbinding *)NULL)
+      && (pdl != (union specbinding *)0xffffffffffffffe0)) {
+    return pdl->bt.function;
+  } else {
+    return Qnil;
+  }
 }
 
 static ptrdiff_t
-backtrace_nargs (union specbinding *pdl)
+backtrace_nargs(union specbinding *pdl)
 {
-  eassert (pdl->kind == SPECPDL_BACKTRACE);
+  eassert(pdl->kind == SPECPDL_BACKTRACE);
   return pdl->bt.nargs;
 }
 
 Lisp_Object *
-backtrace_args (union specbinding *pdl)
+backtrace_args(union specbinding *pdl)
 {
-  eassert (pdl->kind == SPECPDL_BACKTRACE);
+  eassert(pdl->kind == SPECPDL_BACKTRACE);
   return pdl->bt.args;
 }
 
 static bool
-backtrace_debug_on_exit (union specbinding *pdl)
+backtrace_debug_on_exit(union specbinding *pdl)
 {
-  eassert (pdl->kind == SPECPDL_BACKTRACE);
+  eassert(pdl->kind == SPECPDL_BACKTRACE);
   return pdl->bt.debug_on_exit;
 }
 
 /* Functions to modify slots of backtrace records.  */
 
 static void
-set_backtrace_args (union specbinding *pdl, Lisp_Object *args)
+set_backtrace_args(union specbinding *pdl, Lisp_Object *args)
 {
-  eassert (pdl->kind == SPECPDL_BACKTRACE);
+  eassert(pdl->kind == SPECPDL_BACKTRACE);
   pdl->bt.args = args;
 }
 
 static void
-set_backtrace_nargs (union specbinding *pdl, ptrdiff_t n)
+set_backtrace_nargs(union specbinding *pdl, ptrdiff_t n)
 {
-  eassert (pdl->kind == SPECPDL_BACKTRACE);
+  eassert(pdl->kind == SPECPDL_BACKTRACE);
   pdl->bt.nargs = n;
 }
 
@@ -207,8 +212,9 @@ backtrace_p(union specbinding *pdl)
 union specbinding *
 backtrace_top(void)
 {
-  union specbinding *pdl = (specpdl_ptr - 1);
-  while (backtrace_p(pdl) && (pdl->kind != SPECPDL_BACKTRACE))
+  union specbinding *pdl = (union specbinding *)(specpdl_ptr - 1);
+  while ((pdl != NULL) && (pdl != (union specbinding *)0xffffffffffffffe0)
+         && backtrace_p(pdl) && (pdl->kind != SPECPDL_BACKTRACE))
     pdl--;
   return pdl;
 }
@@ -217,19 +223,21 @@ union specbinding *
 backtrace_next(union specbinding *pdl)
 {
   pdl--;
-  while (backtrace_p(pdl) && (pdl->kind != SPECPDL_BACKTRACE))
+  while ((pdl != NULL) && (pdl != (union specbinding *)0xffffffffffffffc0)
+         && backtrace_p(pdl) && (pdl->kind != SPECPDL_BACKTRACE))
     pdl--;
   return pdl;
 }
 
 
 void
-init_eval_once (void)
+init_eval_once(void)
 {
   enum { size = 50 };
-  union specbinding *pdlvec = xmalloc ((size + 1) * sizeof *specpdl);
+  union specbinding *pdlvec = ((union specbinding *)
+                               xmalloc((size + 1UL) * sizeof(*specpdl)));
   specpdl_size = size;
-  specpdl = specpdl_ptr = pdlvec + 1;
+  specpdl = specpdl_ptr = (pdlvec + 1);
   /* Don't forget to update docs (lispref node "Local Variables").  */
   max_specpdl_size = 1300; /* 1000 is not enough for CEDET's c-by.el.  */
   max_lisp_eval_depth = 600;

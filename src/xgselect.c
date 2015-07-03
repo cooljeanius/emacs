@@ -1,4 +1,4 @@
-/* Function for handling the GLib event loop.
+/* xgselect.c: Function for handling the GLib event loop.
 
 Copyright (C) 2009-2014 Free Software Foundation, Inc.
 
@@ -30,19 +30,19 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "frame.h"
 
 int
-xg_select (int fds_lim, fd_set *rfds, fd_set *wfds, fd_set *efds,
-	   struct timespec const *timeout, sigset_t const *sigmask)
+xg_select(int fds_lim, fd_set *rfds, fd_set *wfds, fd_set *efds,
+	  struct timespec const *timeout, sigset_t const *sigmask)
 {
   fd_set all_rfds, all_wfds;
   struct timespec tmo;
   struct timespec const *tmop = timeout;
 
   GMainContext *context;
-  int have_wfds = wfds != NULL;
+  int have_wfds = (wfds != NULL);
   GPollFD gfds_buf[128];
   GPollFD *gfds = gfds_buf;
-  int gfds_size = sizeof gfds_buf / sizeof *gfds_buf;
-  int n_gfds, retval = 0, our_fds = 0, max_fds = fds_lim - 1;
+  size_t gfds_size = (sizeof(gfds_buf) / sizeof(*gfds_buf));
+  int n_gfds, retval = 0, our_fds = 0, max_fds = (fds_lim - 1);
   int i, nfds, tmo_in_millisec;
   bool need_to_dispatch;
   USE_SAFE_ALLOCA;
@@ -53,51 +53,53 @@ xg_select (int fds_lim, fd_set *rfds, fd_set *wfds, fd_set *efds,
      return false, but the timeout will be 1 second, thus missing the gdk
      timeout with a lot.  */
 
-  context = g_main_context_default ();
+  context = g_main_context_default();
 
   if (rfds) all_rfds = *rfds;
-  else FD_ZERO (&all_rfds);
+  else FD_ZERO(&all_rfds);
   if (wfds) all_wfds = *wfds;
-  else FD_ZERO (&all_wfds);
+  else FD_ZERO(&all_wfds);
 
-  n_gfds = g_main_context_query (context, G_PRIORITY_LOW, &tmo_in_millisec,
-				 gfds, gfds_size);
+  n_gfds = g_main_context_query(context, G_PRIORITY_LOW, &tmo_in_millisec,
+                                gfds, (gint)gfds_size);
   if (gfds_size < n_gfds)
     {
-      SAFE_NALLOCA (gfds, sizeof *gfds, n_gfds);
-      gfds_size = n_gfds;
-      n_gfds = g_main_context_query (context, G_PRIORITY_LOW, &tmo_in_millisec,
-				     gfds, gfds_size);
+      SAFE_NALLOCA(gfds, sizeof(*gfds), n_gfds);
+      gfds_size = (size_t)n_gfds;
+      n_gfds = g_main_context_query(context, G_PRIORITY_LOW,
+                                    &tmo_in_millisec, gfds,
+                                    (gint)gfds_size);
     }
 
   for (i = 0; i < n_gfds; ++i)
     {
       if (gfds[i].events & G_IO_IN)
         {
-          FD_SET (gfds[i].fd, &all_rfds);
+          FD_SET(gfds[i].fd, &all_rfds);
           if (gfds[i].fd > max_fds) max_fds = gfds[i].fd;
         }
       if (gfds[i].events & G_IO_OUT)
         {
-          FD_SET (gfds[i].fd, &all_wfds);
+          FD_SET(gfds[i].fd, &all_wfds);
           if (gfds[i].fd > max_fds) max_fds = gfds[i].fd;
           have_wfds = 1;
         }
     }
 
-  SAFE_FREE ();
+  SAFE_FREE();
 
   if (tmo_in_millisec >= 0)
     {
-      tmo = make_timespec (tmo_in_millisec / 1000,
-			   1000 * 1000 * (tmo_in_millisec % 1000));
-      if (!timeout || timespec_cmp (tmo, *timeout) < 0)
+      tmo = make_timespec((time_t)(tmo_in_millisec / 1000L),
+			  (long int)(1000L * 1000L
+                                     * (tmo_in_millisec % 1000L)));
+      if (!timeout || (timespec_cmp(tmo, *timeout) < 0))
 	tmop = &tmo;
     }
 
-  fds_lim = max_fds + 1;
-  nfds = pselect (fds_lim, &all_rfds, have_wfds ? &all_wfds : NULL,
-		  efds, tmop, sigmask);
+  fds_lim = (max_fds + 1);
+  nfds = pselect(fds_lim, &all_rfds, (have_wfds ? &all_wfds : NULL),
+		 efds, tmop, sigmask);
 
   if (nfds < 0)
     retval = nfds;
@@ -105,23 +107,23 @@ xg_select (int fds_lim, fd_set *rfds, fd_set *wfds, fd_set *efds,
     {
       for (i = 0; i < fds_lim; ++i)
         {
-          if (FD_ISSET (i, &all_rfds))
+          if (FD_ISSET(i, &all_rfds))
             {
-              if (rfds && FD_ISSET (i, rfds)) ++retval;
+              if (rfds && FD_ISSET(i, rfds)) ++retval;
               else ++our_fds;
             }
           else if (rfds)
-            FD_CLR (i, rfds);
+            FD_CLR(i, rfds);
 
-          if (have_wfds && FD_ISSET (i, &all_wfds))
+          if (have_wfds && FD_ISSET(i, &all_wfds))
             {
-              if (wfds && FD_ISSET (i, wfds)) ++retval;
+              if (wfds && FD_ISSET(i, wfds)) ++retval;
               else ++our_fds;
             }
           else if (wfds)
-            FD_CLR (i, wfds);
+            FD_CLR(i, wfds);
 
-          if (efds && FD_ISSET (i, efds))
+          if (efds && FD_ISSET(i, efds))
             ++retval;
         }
     }
@@ -129,19 +131,19 @@ xg_select (int fds_lim, fd_set *rfds, fd_set *wfds, fd_set *efds,
   /* If Gtk+ is in use eventually gtk_main_iteration will be called,
      unless retval is zero.  */
 #ifdef USE_GTK
-  need_to_dispatch = retval == 0;
+  need_to_dispatch = (retval == 0);
 #else
   need_to_dispatch = true;
-#endif
+#endif /* USE_GTK */
   if (need_to_dispatch)
     {
       int pselect_errno = errno;
-      while (g_main_context_pending (context))
-	g_main_context_dispatch (context);
+      while (g_main_context_pending(context))
+	g_main_context_dispatch(context);
       errno = pselect_errno;
     }
 
-  /* To not have to recalculate timeout, return like this.  */
+  /* To not have to recalculate timeout, return like this: */
   if ((our_fds > 0 || (nfds == 0 && tmop == &tmo)) && (retval == 0))
     {
       retval = -1;
@@ -151,3 +153,5 @@ xg_select (int fds_lim, fd_set *rfds, fd_set *wfds, fd_set *efds,
   return retval;
 }
 #endif /* HAVE_GLIB */
+
+/* EOF */

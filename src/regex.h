@@ -423,7 +423,7 @@ typedef ssize_t regoff_t;
    regex.texinfo for a full description of what registers match.  */
 struct re_registers
 {
-  unsigned num_regs;
+  unsigned int num_regs;
   regoff_t *start;
   regoff_t *end;
 };
@@ -635,6 +635,10 @@ typedef int re_wchar_t;
 extern void re_set_whitespace_regexp (const char *regexp);
 
 #endif /* not WIDE_CHAR_SUPPORT */
+
+#ifdef __clang__
+extern size_t re_max_failures; /* -Wmissing-variable-declarations */
+#endif /* __clang__ */
 
 #endif /* regex.h */
 

@@ -45,6 +45,22 @@ Original author: YAMAMOTO Mitsuharu
 # include <dispatch/dispatch.h>
 #endif /* HAVE_DISPATCH_DISPATCH_H */
 
+
+#if defined(HAVE_MATH_H) || (defined(HAVE_CARBON) && !defined(__MATH__))
+# include <math.h>
+#endif /* HAVE_MATH_H || (HAVE_CARBON && !__MATH__) */
+#if !defined(INFINITY)
+# if defined(HUGE_VALF)
+#  define INFINITY HUGE_VALF
+# else
+#  if defined(__GNUC__)
+#   define INFINITY __builtin_huge_valf()
+#  else
+#   define INFINITY 1e50f
+#  endif /* __GNUC__ */
+# endif /* HUGE_VALF */
+#endif /* !INFINITY */
+
 #if !defined(HAVE_NS) || (MAC_OS_X_VERSION_MAX_ALLOWED >= 1050)
 
 # include <libkern/OSByteOrder.h>
@@ -182,11 +198,16 @@ static void mac_font_get_glyphs_for_variants(CFDataRef, UTF32Char,
 					     const UTF32Char[],
 					     CGGlyph[], CFIndex);
 
-/* From CFData to a lisp string.  Always returns a unibyte string: */
+#ifndef STATIC_WITHOUT_MACTERM_H
 # ifndef _EMACS_MACTERM_H
-static
+#  define STATIC_WITHOUT_MACTERM_H static
+# else
+#  define STATIC_WITHOUT_MACTERM_H /* (nothing) */
 # endif /* !_EMACS_MACTERM_H */
-Lisp_Object
+#endif /* !STATIC_WITHOUT_MACTERM_H */
+
+/* From CFData to a lisp string.  Always returns a unibyte string: */
+STATIC_WITHOUT_MACTERM_H Lisp_Object
 cfdata_to_lisp(CFDataRef data)
 {
   CFIndex len = CFDataGetLength(data);
@@ -201,10 +222,7 @@ cfdata_to_lisp(CFDataRef data)
 
 /* From CFString to a lisp string.  Returns a unibyte string
    containing a UTF-8 byte sequence: */
-# ifndef _EMACS_MACTERM_H
-static
-# endif /* !_EMACS_MACTERM_H */
-Lisp_Object
+STATIC_WITHOUT_MACTERM_H Lisp_Object
 cfstring_to_lisp_nodecode(CFStringRef string)
 {
   Lisp_Object result = Qnil;
@@ -237,10 +255,7 @@ cfstring_to_lisp_nodecode(CFStringRef string)
 /* Lisp string containing a UTF-8 byte sequence to CFString.  Unlike
    cfstring_create_with_utf8_cstring, this function preserves NUL
    characters: */
-# ifndef _EMACS_MACTERM_H
-static
-# endif /* !_EMACS_MACTERM_H */
-CFStringRef
+STATIC_WITHOUT_MACTERM_H CFStringRef
 cfstring_create_with_string_noencode(Lisp_Object s)
 {
   CFStringRef string = CFStringCreateWithBytes(NULL, SDATA(s), SBYTES(s),
@@ -2886,7 +2901,9 @@ macfont_draw(struct glyph_string *s, int from, int to, int x, int y,
         }
 
 #if defined(CG_SET_FILL_COLOR_WITH_FACE_BACKGROUND) || defined(HAVE_NS)
-      CG_SET_FILL_COLOR_WITH_FACE_BACKGROUND(context, face, f);
+      if (face != NULL) {
+        CG_SET_FILL_COLOR_WITH_FACE_BACKGROUND(context, face, f);
+      }
 #endif /* CG_SET_FILL_COLOR_WITH_FACE_BACKGROUND || HAVE_NS */
       CGContextFillRect(context,
                         CGRectMake(x, y,
@@ -2923,7 +2940,9 @@ macfont_draw(struct glyph_string *s, int from, int to, int x, int y,
 
       CGContextScaleCTM(context, 1, -1);
 #if defined(CG_SET_FILL_COLOR_WITH_FACE_FOREGROUND) || defined(HAVE_NS)
-      CG_SET_FILL_COLOR_WITH_FACE_FOREGROUND(context, face, s->f);
+      if (face != NULL) {
+        CG_SET_FILL_COLOR_WITH_FACE_FOREGROUND(context, face, s->f);
+      }
 #endif /* CG_SET_FILL_COLOR_WITH_FACE_FOREGROUND || HAVE_NS */
       if (macfont_info->synthetic_italic_p)
 	atfm = synthetic_italic_atfm;
@@ -2935,7 +2954,9 @@ macfont_draw(struct glyph_string *s, int from, int to, int x, int y,
 	  CGContextSetLineWidth(context,
                                 (synthetic_bold_factor * font_size));
 #if defined(CG_SET_STROKE_COLOR_WITH_FACE_FOREGROUND) || defined(HAVE_NS)
-	  CG_SET_STROKE_COLOR_WITH_FACE_FOREGROUND(context, face, f);
+          if (face != NULL) {
+            CG_SET_STROKE_COLOR_WITH_FACE_FOREGROUND(context, face, f);
+          }
 #endif /* CG_SET_STROKE_COLOR_WITH_FACE_FOREGROUND || HAVE_NS */
 	}
       if (no_antialias_p)
@@ -3064,7 +3085,12 @@ macfont_shape(Lisp_Object lgstring)
 	  LGSTRING_SET_GLYPH(lgstring, i, lglyph);
 	}
 
-      from = (EMACS_INT)gl->comp_range.location;
+      if (gl != NULL) {
+        from = (EMACS_INT)gl->comp_range.location;
+      } else {
+        from = (EMACS_INT)0;
+      }
+
       /* Convert UTF-16 index to UTF-32: */
       j = 0;
       while ((j < (sizeof(nonbmp_indices) / sizeof(nonbmp_indices[0])))
@@ -3194,10 +3220,13 @@ mac_font_copy_uvs_table(FontRef font)
   cmap_table = mac_font_copy_non_synthetic_table(font, cmapFontTableTag);
   if (cmap_table)
     {
-      sfntCMapHeader *cmap = (sfntCMapHeader *)CFDataGetBytePtr(cmap_table);
+      sfntCMapHeader *cmap = ((sfntCMapHeader *)
+                              CFDataGetBytePtr(cmap_table));
       struct uvs_table *uvs;
       struct variation_selector_record *records;
-      UInt32 cmap_len, ntables, i, uvs_offset, uvs_len, nrecords;
+      UInt32 cmap_len, ntables, i;
+      UInt32 uvs_offset IF_LINT(= 0U);
+      UInt32 uvs_len, nrecords;
 
 #if defined(__LP64__) && __LP64__
       if (CFDataGetLength(cmap_table) > UINT32_MAX)
@@ -3219,26 +3248,26 @@ mac_font_copy_uvs_table(FontRef font)
 	    && (BUINT16_VALUE(cmap->encoding[i].scriptID)
 		== 5)) /* kFontUnicodeV4_0VariationSequenceSemantics */
 	  {
-	    uvs_offset = BUINT32_VALUE (cmap->encoding[i].offset);
+	    uvs_offset = BUINT32_VALUE(cmap->encoding[i].offset);
 	    break;
 	  }
-      if (i == ntables
-	  || uvs_offset > cmap_len
-	  || SIZEOF_UVS_TABLE_HEADER > cmap_len - uvs_offset)
+      if ((i == ntables)
+	  || (uvs_offset > cmap_len)
+	  || (SIZEOF_UVS_TABLE_HEADER > (cmap_len - uvs_offset)))
 	goto finish;
 
-      uvs = (struct uvs_table *) ((UInt8 *) cmap + uvs_offset);
-      uvs_len = BUINT32_VALUE (uvs->length);
-      if (uvs_len > cmap_len - uvs_offset
-	  || SIZEOF_UVS_TABLE_HEADER > uvs_len)
+      uvs = (struct uvs_table *)((UInt8 *)cmap + uvs_offset);
+      uvs_len = BUINT32_VALUE(uvs->length);
+      if ((uvs_len > (cmap_len - uvs_offset))
+	  || (SIZEOF_UVS_TABLE_HEADER > uvs_len))
 	goto finish;
 
-      if (BUINT16_VALUE (uvs->format) != 14)
+      if (BUINT16_VALUE(uvs->format) != 14)
 	goto finish;
 
-      nrecords = BUINT32_VALUE (uvs->num_var_selector_records);
+      nrecords = BUINT32_VALUE(uvs->num_var_selector_records);
       if (nrecords > ((uvs_len - SIZEOF_UVS_TABLE_HEADER)
-		      / sizeof (struct variation_selector_record)))
+		      / sizeof(struct variation_selector_record)))
 	goto finish;
 
       records = uvs->variation_selector_records;
@@ -3246,23 +3275,23 @@ mac_font_copy_uvs_table(FontRef font)
 	{
 	  UInt32 default_uvs_offset, non_default_uvs_offset;
 
-	  default_uvs_offset = BUINT32_VALUE (records[i].default_uvs_offset);
+	  default_uvs_offset = BUINT32_VALUE(records[i].default_uvs_offset);
 	  if (default_uvs_offset)
 	    {
 	      struct default_uvs_table *default_uvs;
 	      UInt32 nranges;
 
-	      if (default_uvs_offset > uvs_len
+	      if ((default_uvs_offset > uvs_len)
 		  || (SIZEOF_DEFAULT_UVS_TABLE_HEADER
-		      > uvs_len - default_uvs_offset))
+		      > (uvs_len - default_uvs_offset)))
 		goto finish;
 
 	      default_uvs = ((struct default_uvs_table *)
-			     ((UInt8 *) uvs + default_uvs_offset));
-	      nranges = BUINT32_VALUE (default_uvs->num_unicode_value_ranges);
-	      if (nranges > ((uvs_len - default_uvs_offset
+			     ((UInt8 *)uvs + default_uvs_offset));
+	      nranges = BUINT32_VALUE(default_uvs->num_unicode_value_ranges);
+	      if (nranges > (((uvs_len - default_uvs_offset)
 			      - SIZEOF_DEFAULT_UVS_TABLE_HEADER)
-			     / sizeof (struct unicode_value_range)))
+			     / sizeof(struct unicode_value_range)))
 		goto finish;
 	      /* Now 2 * nranges can't overflow, so we can safely use
 		 `(lo + hi) / 2' instead of `lo + (hi - lo) / 2' in
@@ -3270,23 +3299,23 @@ mac_font_copy_uvs_table(FontRef font)
 	    }
 
 	  non_default_uvs_offset =
-	    BUINT32_VALUE (records[i].non_default_uvs_offset);
+	    BUINT32_VALUE(records[i].non_default_uvs_offset);
 	  if (non_default_uvs_offset)
 	    {
 	      struct non_default_uvs_table *non_default_uvs;
 	      UInt32 nmappings;
 
-	      if (non_default_uvs_offset > uvs_len
+	      if ((non_default_uvs_offset > uvs_len)
 		  || (SIZEOF_NON_DEFAULT_UVS_TABLE_HEADER
-		      > uvs_len - non_default_uvs_offset))
+		      > (uvs_len - non_default_uvs_offset)))
 		goto finish;
 
 	      non_default_uvs = ((struct non_default_uvs_table *)
-				 ((UInt8 *) uvs + non_default_uvs_offset));
-	      nmappings = BUINT32_VALUE (non_default_uvs->num_uvs_mappings);
-	      if (nmappings > ((uvs_len - non_default_uvs_offset
+				 ((UInt8 *)uvs + non_default_uvs_offset));
+	      nmappings = BUINT32_VALUE(non_default_uvs->num_uvs_mappings);
+	      if (nmappings > (((uvs_len - non_default_uvs_offset)
 				- SIZEOF_NON_DEFAULT_UVS_TABLE_HEADER)
-			       / sizeof (struct uvs_mapping)))
+			       / sizeof(struct uvs_mapping)))
 		goto finish;
 	      /* Now 2 * nmappings can't overflow, so we can safely
 		 use `(lo + hi) / 2' instead of `lo + (hi - lo) / 2'
@@ -3294,10 +3323,10 @@ mac_font_copy_uvs_table(FontRef font)
 	    }
 	}
 
-      uvs_table = CFDataCreate (NULL, (UInt8 *) uvs, uvs_len);
+      uvs_table = CFDataCreate(NULL, (UInt8 *)uvs, uvs_len);
 
     finish:
-      CFRelease (cmap_table);
+      CFRelease(cmap_table);
     }
 
   return uvs_table;

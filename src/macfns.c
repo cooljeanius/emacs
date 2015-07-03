@@ -1963,7 +1963,11 @@ void x_set_menu_bar_lines(struct frame *f, Lisp_Object value,
   FRAME_EXTERNAL_MENU_BAR(f) = 1;
   if (FRAME_MAC_P(f) && (f->output_data.mac->menubar_widget == 0)) {
     /* Make sure next redisplay shows the menu bar: */
+#if defined(_USE_OLD_LISP_DATA_STRUCTURES) && !defined(CHECK_LISP_OBJECT_TYPE)
     XWINDOW(FRAME_SELECTED_WINDOW(f))->update_mode_line = Qt;
+#else
+    XWINDOW(FRAME_SELECTED_WINDOW(f))->update_mode_line = true;
+#endif /* _USE_OLD_LISP_DATA_STRUCTURES && !CHECK_LISP_OBJECT_TYPE */
   }
 #ifndef _USE_OLD_LISP_DATA_STRUCTURES
   adjust_frame_glyphs(f);
@@ -2335,21 +2339,21 @@ mac_update_title_bar(struct frame *f, int save_match_data)
   struct window *w;
   int modified_p;
 
-  if (!FRAME_MAC_P (f))
+  if (!FRAME_MAC_P(f))
     return;
 
-  w = XWINDOW (FRAME_SELECTED_WINDOW (f));
-  modified_p = (BUF_SAVE_MODIFF (XBUFFER (w->buffer))
-		< BUF_MODIFF (XBUFFER (w->buffer)));
+  w = XWINDOW(FRAME_SELECTED_WINDOW(f));
+  modified_p = (BUF_SAVE_MODIFF(XBUFFER(w->buffer))
+		< BUF_MODIFF(XBUFFER(w->buffer)));
   if (windows_or_buffers_changed
       /* Minibuffer modification status shown in the close button is
 	 confusing.  */
-      || (!MINI_WINDOW_P (w)
-	  && (modified_p != !NILP (w->last_had_star))))
+      || (!MINI_WINDOW_P(w)
+	  && (modified_p != !(w->last_had_star == false))))
     {
       SetWindowModified(FRAME_MAC_WINDOW(f),
                         (!MINI_WINDOW_P(w) && modified_p));
-      mac_update_proxy_icon (f);
+      mac_update_proxy_icon(f);
     }
 #else
   return;
@@ -4537,24 +4541,24 @@ Text larger than the specified size is clipped.  */)
   if (NILP(last_show_tip_args))
     last_show_tip_args = Fmake_vector(make_number(3), Qnil);
 
-  if (!NILP (tip_frame))
+  if (!NILP(tip_frame))
     {
-      Lisp_Object last_string = AREF (last_show_tip_args, 0);
-      Lisp_Object last_frame = AREF (last_show_tip_args, 1);
-      Lisp_Object last_parms = AREF (last_show_tip_args, 2);
+      Lisp_Object last_string = AREF(last_show_tip_args, 0);
+      Lisp_Object last_frame = AREF(last_show_tip_args, 1);
+      Lisp_Object last_parms = AREF(last_show_tip_args, 2);
 
-      if (EQ (frame, last_frame)
-	  && !NILP (Fequal (last_string, string))
-	  && !NILP (Fequal (last_parms, parms)))
+      if (EQ(frame, last_frame)
+	  && !NILP(Fequal(last_string, string))
+	  && !NILP(Fequal(last_parms, parms)))
 	{
-	  struct frame *f = XFRAME (tip_frame);
+	  struct frame *f = XFRAME(tip_frame);
 
-	  /* Only DX and DY have changed.  */
-	  if (!NILP (tip_timer))
+	  /* Only DX and DY have changed: */
+	  if (!NILP(tip_timer))
 	    {
 	      Lisp_Object timer = tip_timer;
 	      tip_timer = Qnil;
-	      call1 (Qcancel_timer, timer);
+	      call1(Qcancel_timer, timer);
 	    }
 
 	  BLOCK_INPUT;
@@ -4569,48 +4573,49 @@ Text larger than the specified size is clipped.  */)
   /* Hide a previous tip, if any: */
   Fx_hide_tip();
 
-  ASET (last_show_tip_args, 0, string);
-  ASET (last_show_tip_args, 1, frame);
-  ASET (last_show_tip_args, 2, parms);
+  ASET(last_show_tip_args, 0, string);
+  ASET(last_show_tip_args, 1, frame);
+  ASET(last_show_tip_args, 2, parms);
 
-  /* Add default values to frame parameters.  */
-  if (NILP (Fassq (Qname, parms)))
-    parms = Fcons (Fcons (Qname, build_string ("tooltip")), parms);
-  if (NILP (Fassq (Qinternal_border_width, parms)))
-    parms = Fcons (Fcons (Qinternal_border_width, make_number (3)), parms);
-  if (NILP (Fassq (Qborder_width, parms)))
-    parms = Fcons (Fcons (Qborder_width, make_number (1)), parms);
-  if (NILP (Fassq (Qborder_color, parms)))
-    parms = Fcons (Fcons (Qborder_color, build_string ("lightyellow")), parms);
-  if (NILP (Fassq (Qbackground_color, parms)))
-    parms = Fcons (Fcons (Qbackground_color, build_string ("lightyellow")),
-		   parms);
+  /* Add default values to frame parameters: */
+  if (NILP(Fassq(Qname, parms)))
+    parms = Fcons(Fcons(Qname, build_string("tooltip")), parms);
+  if (NILP(Fassq(Qinternal_border_width, parms)))
+    parms = Fcons(Fcons(Qinternal_border_width, make_number(3)), parms);
+  if (NILP(Fassq(Qborder_width, parms)))
+    parms = Fcons(Fcons(Qborder_width, make_number(1)), parms);
+  if (NILP(Fassq(Qborder_color, parms)))
+    parms = Fcons(Fcons(Qborder_color, build_string("lightyellow")),
+                  parms);
+  if (NILP(Fassq(Qbackground_color, parms)))
+    parms = Fcons(Fcons(Qbackground_color, build_string("lightyellow")),
+		  parms);
 
   /* Create a frame for the tooltip, and record it in the global
      variable tip_frame.  */
-  frame = x_create_tip_frame (FRAME_MAC_DISPLAY_INFO (f), parms, string);
-  f = XFRAME (frame);
+  frame = x_create_tip_frame(FRAME_MAC_DISPLAY_INFO(f), parms, string);
+  f = XFRAME(frame);
 
-  /* Set up the frame's root window.  */
-  w = XWINDOW (FRAME_ROOT_WINDOW (f));
-  w->left_col = w->top_line = make_number (0);
+  /* Set up the frame's root window: */
+  w = XWINDOW(FRAME_ROOT_WINDOW(f));
+  w->left_col = w->top_line = XINT(make_number(0));
 
-  if (CONSP (Vx_max_tooltip_size)
-      && INTEGERP (XCAR (Vx_max_tooltip_size))
-      && XINT (XCAR (Vx_max_tooltip_size)) > 0
-      && INTEGERP (XCDR (Vx_max_tooltip_size))
-      && XINT (XCDR (Vx_max_tooltip_size)) > 0)
+  if (CONSP(Vx_max_tooltip_size)
+      && INTEGERP(XCAR(Vx_max_tooltip_size))
+      && (XINT(XCAR(Vx_max_tooltip_size)) > 0)
+      && INTEGERP(XCDR(Vx_max_tooltip_size))
+      && (XINT(XCDR(Vx_max_tooltip_size)) > 0))
     {
-      w->total_cols = XCAR(Vx_max_tooltip_size);
-      w->total_lines = XCDR(Vx_max_tooltip_size);
+      w->total_cols = XINT(XCAR(Vx_max_tooltip_size));
+      w->total_lines = XINT(XCDR(Vx_max_tooltip_size));
     }
   else
     {
-      w->total_cols = make_number(80);
-      w->total_lines = make_number(40);
+      w->total_cols = XINT(make_number(80));
+      w->total_lines = XINT(make_number(40));
     }
 
-  FRAME_TOTAL_COLS(f) = XINT(w->total_cols);
+  FRAME_TOTAL_COLS(f) = XINT(make_number(w->total_cols));
 #ifndef _USE_OLD_LISP_DATA_STRUCTURES
   adjust_frame_glyphs(f);
 #else
@@ -4627,7 +4632,7 @@ Text larger than the specified size is clipped.  */)
   SET_TEXT_POS(pos, BEGV, BEGV_BYTE);
   try_window(FRAME_ROOT_WINDOW(f), pos, 0);
 
-  /* Compute width and height of the tooltip.  */
+  /* Compute width and height of the tooltip: */
   width = height = 0;
   for (i = 0; i < w->desired_matrix->nrows; ++i)
     {
@@ -4635,11 +4640,11 @@ Text larger than the specified size is clipped.  */)
       struct glyph *last;
       int row_width;
 
-      /* Stop at the first empty row at the end.  */
+      /* Stop at the first empty row at the end: */
       if (!row->enabled_p || !row->displays_text_p)
 	break;
 
-      /* Let the row go over the full width of the frame.  */
+      /* Let the row go over the full width of the frame: */
       row->full_width_p = 1;
 
       /* There's a glyph at the end of rows that is used to place
@@ -4647,23 +4652,23 @@ Text larger than the specified size is clipped.  */)
       if (row->used[TEXT_AREA])
 	{
 	  last = &row->glyphs[TEXT_AREA][row->used[TEXT_AREA] - 1];
-	  row_width = row->pixel_width - last->pixel_width;
+	  row_width = (row->pixel_width - last->pixel_width);
 	}
       else
 	row_width = row->pixel_width;
 
       height += row->height;
-      width = max (width, row_width);
+      width = max(width, row_width);
     }
 
   /* Add the frame's internal border to the width and height the X
      window should have.  */
-  height += 2 * FRAME_INTERNAL_BORDER_WIDTH (f);
-  width += 2 * FRAME_INTERNAL_BORDER_WIDTH (f);
+  height += (2 * FRAME_INTERNAL_BORDER_WIDTH(f));
+  width += (2 * FRAME_INTERNAL_BORDER_WIDTH(f));
 
   /* Move the tooltip window where the mouse pointer is.  Resize and
      show it.  */
-  compute_tip_xy (f, parms, dx, dy, width, height, &root_x, &root_y);
+  compute_tip_xy(f, parms, dx, dy, width, height, &root_x, &root_y);
 
   BLOCK_INPUT;
   MoveWindow(FRAME_MAC_WINDOW(f), root_x, root_y, false);
@@ -5084,87 +5089,87 @@ void syms_of_macfns(void)
   /* The section below is built by the lisp expression at the top of the file,
      just above where these variables are declared.  */
   /*&&& init symbols here &&&*/
-  Qnone = intern ("none");
-  staticpro (&Qnone);
-  Qsuppress_icon = intern ("suppress-icon");
-  staticpro (&Qsuppress_icon);
-  Qundefined_color = intern ("undefined-color");
-  staticpro (&Qundefined_color);
-  Qcancel_timer = intern ("cancel-timer");
-  staticpro (&Qcancel_timer);
+  Qnone = intern("none");
+  staticpro(&Qnone);
+  Qsuppress_icon = intern("suppress-icon");
+  staticpro(&Qsuppress_icon);
+  Qundefined_color = intern("undefined-color");
+  staticpro(&Qundefined_color);
+  Qcancel_timer = intern("cancel-timer");
+  staticpro(&Qcancel_timer);
   /* This is the end of symbol initialization.  */
 
-  /* Text property `display' should be nonsticky by default.  */
-  Vtext_property_default_nonsticky
-    = Fcons (Fcons (Qdisplay, Qt), Vtext_property_default_nonsticky);
+  /* Text property `display' should be nonsticky by default: */
+  Vtext_property_default_nonsticky =
+    Fcons(Fcons(Qdisplay, Qt), Vtext_property_default_nonsticky);
 
 
-  Fput (Qundefined_color, Qerror_conditions,
-	Fcons (Qundefined_color, Fcons (Qerror, Qnil)));
-  Fput (Qundefined_color, Qerror_message,
-	build_string ("Undefined color"));
+  Fput(Qundefined_color, Qerror_conditions,
+       Fcons(Qundefined_color, Fcons(Qerror, Qnil)));
+  Fput(Qundefined_color, Qerror_message,
+       build_string("Undefined color"));
 
-  DEFVAR_LISP ("x-pointer-shape", Vx_pointer_shape,
+  DEFVAR_LISP("x-pointer-shape", Vx_pointer_shape,
     doc: /* The shape of the pointer when over text.
 Changing the value does not affect existing frames
 unless you set the mouse color.  */);
   Vx_pointer_shape = Qnil;
 
 #if 0 /* This does NOT really do anything.  */
-  DEFVAR_LISP ("x-nontext-pointer-shape", Vx_nontext_pointer_shape,
+  DEFVAR_LISP("x-nontext-pointer-shape", Vx_nontext_pointer_shape,
     doc: /* The shape of the pointer when not over text.
 This variable takes effect when you create a new frame
 or when you set the mouse color.  */);
 #endif /* 0 */
   Vx_nontext_pointer_shape = Qnil;
 
-  DEFVAR_LISP ("x-hourglass-pointer-shape", Vx_hourglass_pointer_shape,
+  DEFVAR_LISP("x-hourglass-pointer-shape", Vx_hourglass_pointer_shape,
     doc: /* The shape of the pointer when Emacs is busy.
 This variable takes effect when you create a new frame
 or when you set the mouse color.  */);
   Vx_hourglass_pointer_shape = Qnil;
 
-  DEFVAR_BOOL ("display-hourglass", display_hourglass_p,
+  DEFVAR_BOOL("display-hourglass", display_hourglass_p,
     doc: /* Non-zero means Emacs displays an hourglass pointer on window systems.  */);
   display_hourglass_p = 1;
 
-  DEFVAR_LISP ("hourglass-delay", Vhourglass_delay,
+  DEFVAR_LISP("hourglass-delay", Vhourglass_delay,
     doc: /* *Seconds to wait before displaying an hourglass pointer.
 Value must be an integer or float.  */);
-  Vhourglass_delay = make_number (DEFAULT_HOURGLASS_DELAY);
+  Vhourglass_delay = make_number(DEFAULT_HOURGLASS_DELAY);
 
 #if 0 /* This does NOT really do anything.  */
-  DEFVAR_LISP ("x-mode-pointer-shape", Vx_mode_pointer_shape,
+  DEFVAR_LISP("x-mode-pointer-shape", Vx_mode_pointer_shape,
     doc: /* The shape of the pointer when over the mode line.
 This variable takes effect when you create a new frame
 or when you set the mouse color.  */);
 #endif /* 0 */
   Vx_mode_pointer_shape = Qnil;
 
-  DEFVAR_LISP ("x-sensitive-text-pointer-shape",
-	       Vx_sensitive_text_pointer_shape,
-	       doc: /* The shape of the pointer when over mouse-sensitive text.
+  DEFVAR_LISP("x-sensitive-text-pointer-shape",
+	      Vx_sensitive_text_pointer_shape,
+	      doc: /* The shape of the pointer when over mouse-sensitive text.
 This variable takes effect when you create a new frame
 or when you set the mouse color.  */);
   Vx_sensitive_text_pointer_shape = Qnil;
 
-  DEFVAR_LISP ("x-window-horizontal-drag-cursor",
-	       Vx_window_horizontal_drag_shape,
+  DEFVAR_LISP("x-window-horizontal-drag-cursor",
+	      Vx_window_horizontal_drag_shape,
   doc: /* Pointer shape to use for indicating a window can be dragged horizontally.
 This variable takes effect when you create a new frame
 or when you set the mouse color.  */);
   Vx_window_horizontal_drag_shape = Qnil;
 
-  DEFVAR_LISP ("x-cursor-fore-pixel", Vx_cursor_fore_pixel,
+  DEFVAR_LISP("x-cursor-fore-pixel", Vx_cursor_fore_pixel,
     doc: /* A string indicating the foreground color of the cursor box.  */);
   Vx_cursor_fore_pixel = Qnil;
 
-  DEFVAR_LISP ("x-max-tooltip-size", Vx_max_tooltip_size,
+  DEFVAR_LISP("x-max-tooltip-size", Vx_max_tooltip_size,
     doc: /* Maximum size for tooltips.  Value is a pair (COLUMNS . ROWS).
 Text larger than this is clipped.  */);
-  Vx_max_tooltip_size = Fcons (make_number (80), make_number (40));
+  Vx_max_tooltip_size = Fcons(make_number(80), make_number(40));
 
-  DEFVAR_LISP ("x-no-window-manager", Vx_no_window_manager,
+  DEFVAR_LISP("x-no-window-manager", Vx_no_window_manager,
     doc: /* Non-nil if no window manager is in use.
 Emacs does NOT try to figure this out; this is always nil
 unless you set it to something else.  */);
@@ -5172,8 +5177,8 @@ unless you set it to something else.  */);
      and maybe the user would like to set it to t.  */
   Vx_no_window_manager = Qnil;
 
-  DEFVAR_LISP ("x-pixel-size-width-font-regexp",
-	        Vx_pixel_size_width_font_regexp,
+  DEFVAR_LISP("x-pixel-size-width-font-regexp",
+              Vx_pixel_size_width_font_regexp,
     doc: /* Regexp matching a font name whose width is the same as `PIXEL_SIZE'.
 
 Since Emacs gets width of a font matching with this regexp from
@@ -5183,7 +5188,7 @@ Chinese, Japanese, and Korean.  */);
   Vx_pixel_size_width_font_regexp = Qnil;
 
 #if TARGET_API_MAC_CARBON
-  DEFVAR_LISP ("mac-carbon-version-string", Vmac_carbon_version_string,
+  DEFVAR_LISP("mac-carbon-version-string", Vmac_carbon_version_string,
     doc: /* Version info for Carbon API.  */);
   {
     OSErr err;
@@ -5200,34 +5205,34 @@ Chinese, Japanese, and Korean.  */);
   }
 #endif /* TARGET_API_MAC_CARBON */
 
-  /* X window properties.  */
-  defsubr (&Sx_change_window_property);
-  defsubr (&Sx_delete_window_property);
-  defsubr (&Sx_window_property);
+  /* X window properties: */
+  defsubr(&Sx_change_window_property);
+  defsubr(&Sx_delete_window_property);
+  defsubr(&Sx_window_property);
 
-  defsubr (&Sxw_display_color_p);
-  defsubr (&Sx_display_grayscale_p);
-  defsubr (&Sxw_color_defined_p);
-  defsubr (&Sxw_color_values);
-  defsubr (&Sx_server_max_request_size);
-  defsubr (&Sx_server_vendor);
-  defsubr (&Sx_server_version);
-  defsubr (&Sx_display_pixel_width);
-  defsubr (&Sx_display_pixel_height);
-  defsubr (&Sx_display_mm_width);
-  defsubr (&Sx_display_mm_height);
-  defsubr (&Sx_display_screens);
-  defsubr (&Sx_display_planes);
-  defsubr (&Sx_display_color_cells);
-  defsubr (&Sx_display_visual_class);
-  defsubr (&Sx_display_backing_store);
-  defsubr (&Sx_display_save_under);
-  defsubr (&Sx_create_frame);
-  defsubr (&Sx_open_connection);
-  defsubr (&Sx_close_connection);
-  defsubr (&Sx_display_list);
-  defsubr (&Sx_synchronize);
-  defsubr (&Sx_focus_frame);
+  defsubr(&Sxw_display_color_p);
+  defsubr(&Sx_display_grayscale_p);
+  defsubr(&Sxw_color_defined_p);
+  defsubr(&Sxw_color_values);
+  defsubr(&Sx_server_max_request_size);
+  defsubr(&Sx_server_vendor);
+  defsubr(&Sx_server_version);
+  defsubr(&Sx_display_pixel_width);
+  defsubr(&Sx_display_pixel_height);
+  defsubr(&Sx_display_mm_width);
+  defsubr(&Sx_display_mm_height);
+  defsubr(&Sx_display_screens);
+  defsubr(&Sx_display_planes);
+  defsubr(&Sx_display_color_cells);
+  defsubr(&Sx_display_visual_class);
+  defsubr(&Sx_display_backing_store);
+  defsubr(&Sx_display_save_under);
+  defsubr(&Sx_create_frame);
+  defsubr(&Sx_open_connection);
+  defsubr(&Sx_close_connection);
+  defsubr(&Sx_display_list);
+  defsubr(&Sx_synchronize);
+  defsubr(&Sx_focus_frame);
 
   /* Setting callback functions for fontset handler: */
   get_font_info_func = x_get_font_info;
@@ -5246,27 +5251,34 @@ Chinese, Japanese, and Korean.  */);
   hourglass_atimer = NULL;
   hourglass_shown_p = 0;
 
-  defsubr (&Sx_show_tip);
-  defsubr (&Sx_hide_tip);
+  defsubr(&Sx_show_tip);
+  defsubr(&Sx_hide_tip);
   tip_timer = Qnil;
-  staticpro (&tip_timer);
+  staticpro(&tip_timer);
   tip_frame = Qnil;
-  staticpro (&tip_frame);
+  staticpro(&tip_frame);
 
   last_show_tip_args = Qnil;
-  staticpro (&last_show_tip_args);
+  staticpro(&last_show_tip_args);
 
 #if TARGET_API_MAC_CARBON
-  defsubr (&Sx_file_dialog);
+  defsubr(&Sx_file_dialog);
 #endif /* TARGET_API_MAC_CARBON */
-  defsubr (&Smac_clear_font_name_table);
+  defsubr(&Smac_clear_font_name_table);
 #if USE_MAC_FONT_PANEL
-  defsubr (&Smac_set_font_panel_visible_p);
+  defsubr(&Smac_set_font_panel_visible_p);
 #endif /* USE_MAC_FONT_PANEL */
 #if USE_ATSUI
-  defsubr (&Smac_atsu_font_face_attributes);
+  defsubr(&Smac_atsu_font_face_attributes);
 #endif /* USE_ATSUI */
 }
+
+#ifdef True
+# undef True
+#endif /* True */
+#ifdef False
+# undef False
+#endif /* False */
 
 /* arch-tag: d7591289-f374-4377-b245-12f5dbbb8edc
    (do not change this comment) */

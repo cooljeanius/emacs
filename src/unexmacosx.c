@@ -187,7 +187,7 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 /* Size of buffer used to copy data from the input file to the output
    file in function unexec_copy.  */
-#define UNEXEC_COPY_BUFSZ 1024
+#define UNEXEC_COPY_BUFSZ 1024UL
 
 /* Regions with memory addresses above this value are assumed to be
    mapped to dynamically loaded libraries and will not be dumped.  */
@@ -303,14 +303,14 @@ static int unexec_write_zero(off_t dest, size_t count)
   char buf[UNEXEC_COPY_BUFSZ];
   ssize_t bytes;
 
-  memset(buf, 0, UNEXEC_COPY_BUFSZ);
+  memset(buf, 0, (size_t)UNEXEC_COPY_BUFSZ);
   if (lseek(outfd, dest, SEEK_SET) != dest)
     return 0;
 
   while (count > 0UL)
     {
       bytes = ((count > UNEXEC_COPY_BUFSZ)
-               ? UNEXEC_COPY_BUFSZ : (ssize_t)count);
+               ? (ssize_t)UNEXEC_COPY_BUFSZ : (ssize_t)count);
       if (write(outfd, buf, (size_t)bytes) != bytes)
 	return 0;
       count -= (size_t)bytes;
@@ -338,7 +338,7 @@ static int unexec_copy(off_t dest, off_t src, ssize_t count)
   while (count > 0L)
     {
       bytes_to_read = ((count > UNEXEC_COPY_BUFSZ)
-                       ? UNEXEC_COPY_BUFSZ : count);
+                       ? (ssize_t)UNEXEC_COPY_BUFSZ : count);
       bytes_read = read(infd, buf, (size_t)bytes_to_read);
       if (bytes_read <= 0)
 	return 0;
@@ -719,7 +719,7 @@ static void unexec_regions_merge(void)
 #ifdef ALLOW_UNUSED_VARIABLES
   long total = 0L;
 #endif /* ALLOW_UNUSED_VARIABLES */
-  void *zeropage = calloc(1, pagesize);
+  void *zeropage = calloc((size_t)1UL, pagesize);
   vm_size_t padsize;
 
   qsort(unexec_regions, (size_t)num_unexec_regions,
@@ -821,7 +821,7 @@ static void unexec_regions_merge(void)
 
 
 /* More informational messages routines: */
-static void print_load_command_name(int lc)
+static void print_load_command_name(long lc)
 {
   /* FIXME: have the number of trailing spaces vary based on the length of
    * whatever the longest LC name is, instead of hard-coding them: */
@@ -1009,7 +1009,7 @@ static void print_load_command_name(int lc)
 static void
 print_load_command(struct load_command *lc)
 {
-  print_load_command_name((int)lc->cmd);
+  print_load_command_name((long)lc->cmd);
 
 #ifdef __LP64__
   assert((lc->cmdsize % 8) == 0);
@@ -1070,7 +1070,7 @@ enum mach_header_filetype_constants_e
 };
 
 /* Like strerror(), but for mach filetype flags: */
-static const char *strmachfiletype(int inflags)
+static const char *strmachfiletype(uint32_t inflags)
 {
   enum mach_header_filetype_constants_e flags_e;
   flags_e = (enum mach_header_filetype_constants_e)inflags;
@@ -1170,7 +1170,7 @@ read_load_commands(void)
 #ifdef __cplusplus
       lca[i] = (struct load_command *)malloc(lc.cmdsize);
 #else
-      lca[i] = malloc(lc.cmdsize);
+      lca[i] = malloc((size_t)lc.cmdsize);
 #endif /* __cplusplus */
       memcpy(lca[i], &lc, sizeof(struct load_command));
       if (!unexec_read((lca[i] + 1),
@@ -1183,7 +1183,7 @@ read_load_commands(void)
 	  if ((scp->vmaddr + scp->vmsize) > infile_lc_highest_addr)
 	    infile_lc_highest_addr = (scp->vmaddr + scp->vmsize);
 
-	  if (strncmp(scp->segname, SEG_TEXT, 16) == 0)
+	  if (strncmp(scp->segname, SEG_TEXT, (size_t)16UL) == 0)
 	    {
 	      struct section *sectp = (struct section *)(scp + 1);
 	      uint32_t j;
@@ -1227,14 +1227,14 @@ copy_segment(struct load_command *lc)
   sectp = (struct section *)(scp + 1);
   for (j = 0U; (j < scp->nsects) && (j < UINT_MAX); j++)
     {
-      sectp->offset += (curr_file_offset - old_fileoff);
+      sectp->offset += (uint32_t)(curr_file_offset - old_fileoff);
       sectp++;
     }
 
 #if defined(VERBOSE) && (VERBOSE > 1)
   /* this looks ugly interwoven with the rest of the text: */
   printf("Writing ");
-  print_load_command_name((int)lc->cmd);
+  print_load_command_name((long)lc->cmd);
   printf(" \t\tcommand (%2d)\n", ++nlc_written);
 #else
   /* still need to increment the counter, even if not printing it: */
@@ -1257,7 +1257,7 @@ copy_segment(struct load_command *lc)
   assert((lc->cmdsize % 4) == 0);
 #endif /* __LP64__ */
 
-  if (!unexec_write((off_t)curr_header_offset, lc, lc->cmdsize))
+  if (!unexec_write((off_t)curr_header_offset, lc, (size_t)lc->cmdsize))
     unexec_error("cannot write load command to header");
 
   curr_header_offset += lc->cmdsize;
@@ -1369,7 +1369,7 @@ copy_data_segment(struct load_command *lc)
 #if defined(VERBOSE) && (VERBOSE > 1)
   /* this looks ugly interwoven with the rest of the text: */
   printf("Writing ");
-  print_load_command_name((int)lc->cmd);
+  print_load_command_name((long)lc->cmd);
   printf(" \t\tcommand (%2d)\n", ++nlc_written);
 #else
   /* still need to increment the counter, even if not printing it: */
@@ -1425,7 +1425,7 @@ copy_data_segment(struct load_command *lc)
       case S_LAZY_SYMBOL_POINTERS:
       case S_NON_LAZY_SYMBOL_POINTERS:
       case S_CSTRING_LITERALS:
-	  if (!unexec_copy(sectp->offset, (off_t)old_file_offset,
+	  if (!unexec_copy((off_t)sectp->offset, (off_t)old_file_offset,
                            (ssize_t)sectp->size))
 	    unexec_error("cannot copy section %s", sectp->sectname);
 	  if (!unexec_write((off_t)header_offset, sectp,
@@ -1435,13 +1435,13 @@ copy_data_segment(struct load_command *lc)
 	  break;
 
       case S_REGULAR:
-	if ((strncmp(sectp->sectname, "__const", 16) == 0)
-            || (strncmp(sectp->sectname, "__program_vars", 16) == 0)) {
-          if (!unexec_copy(sectp->offset, (off_t)old_file_offset,
+	if ((strncmp(sectp->sectname, "__const", 16UL) == 0)
+            || (strncmp(sectp->sectname, "__program_vars", 16UL) == 0)) {
+          if (!unexec_copy((off_t)sectp->offset, (off_t)old_file_offset,
                            (ssize_t)sectp->size))
             unexec_error("cannot copy section %s", sectp->sectname);
 	} else {
-          if (!unexec_write(sectp->offset, (void *)sectp->addr,
+          if (!unexec_write((off_t)sectp->offset, (void *)sectp->addr,
                             sectp->size))
             unexec_error("cannot write section %s", sectp->sectname);
 	}
@@ -1452,8 +1452,8 @@ copy_data_segment(struct load_command *lc)
 	break;
 
       case S_ZEROFILL:
-          if (!((strncmp(sectp->sectname, "__bss", 16) == 0)
-                || (strncmp(sectp->sectname, "__common", 16) == 0)
+          if (!((strncmp(sectp->sectname, "__bss", 16UL) == 0)
+                || (strncmp(sectp->sectname, "__common", 16UL) == 0)
                 || (strstr(sectp->sectname, "__bss") != NULL)
                 || (strstr(sectp->sectname, "__pu_bss") != NULL))) {
             /* ???: are the __pu_bss sections okay, or not? */
@@ -1468,22 +1468,22 @@ copy_data_segment(struct load_command *lc)
 #endif /* VERBOSE > 1 */
           goto zerofill_entry_point;
       default:
-          if ((strncmp(sectp->sectname, SECT_DATA, 16) == 0)
-              || (strncmp(sectp->sectname, SECT_COMMON, 16) == 0)
-              || (strncmp(sectp->sectname, SECT_BSS, 16) == 0)
-              || ((strncmp(sectp->sectname, "__la_symbol_ptr", 16) == 0)
-                  || (strncmp(sectp->sectname, "__nl_symbol_ptr", 16) == 0)
-                  || (strncmp(sectp->sectname, "__got", 16) == 0)
-                  || (strncmp(sectp->sectname, "__la_sym_ptr2", 16) == 0)
-                  || (strncmp(sectp->sectname, "__dyld", 16) == 0)
-                  || (strncmp(sectp->sectname, "__const", 16) == 0)
-                  || (strncmp(sectp->sectname, "__cfstring", 16) == 0)
-                  || (strncmp(sectp->sectname, "__gcc_except_tab", 16) == 0)
-                  || (strncmp(sectp->sectname, "__program_vars", 16) == 0)
-                  || (strncmp(sectp->sectname, "__mod_init_func", 16) == 0)
-                  || (strncmp(sectp->sectname, "__mod_term_func", 16) == 0)
-                  || (strncmp(sectp->sectname, "__static_data", 16) == 0)
-                  || (strncmp(sectp->sectname, "__objc_", 7) == 0)))
+          if ((strncmp(sectp->sectname, SECT_DATA, 16UL) == 0)
+              || (strncmp(sectp->sectname, SECT_COMMON, 16UL) == 0)
+              || (strncmp(sectp->sectname, SECT_BSS, 16UL) == 0)
+              || ((strncmp(sectp->sectname, "__la_symbol_ptr", 16UL) == 0)
+                  || (strncmp(sectp->sectname, "__nl_symbol_ptr", 16UL) == 0)
+                  || (strncmp(sectp->sectname, "__got", 16UL) == 0)
+                  || (strncmp(sectp->sectname, "__la_sym_ptr2", 16UL) == 0)
+                  || (strncmp(sectp->sectname, "__dyld", 16UL) == 0)
+                  || (strncmp(sectp->sectname, "__const", 16UL) == 0)
+                  || (strncmp(sectp->sectname, "__cfstring", 16UL) == 0)
+                  || (strncmp(sectp->sectname, "__gcc_except_tab", 16UL) == 0)
+                  || (strncmp(sectp->sectname, "__program_vars", 16UL) == 0)
+                  || (strncmp(sectp->sectname, "__mod_init_func", 16UL) == 0)
+                  || (strncmp(sectp->sectname, "__mod_term_func", 16UL) == 0)
+                  || (strncmp(sectp->sectname, "__static_data", 16UL) == 0)
+                  || (strncmp(sectp->sectname, "__objc_", 7UL) == 0)))
             {
                 break;
             }
@@ -1493,7 +1493,7 @@ copy_data_segment(struct load_command *lc)
             }
       }
 
-      if (strncmp(sectp->sectname, SECT_DATA, 16) == 0)
+      if (strncmp(sectp->sectname, SECT_DATA, 16UL) == 0)
 	{
 	  extern char my_edata[];
 	  unsigned long my_size;
@@ -1508,7 +1508,8 @@ copy_data_segment(struct load_command *lc)
 	  if (!((sectp->addr <= (unsigned long)my_edata)
 		&& (my_size <= sectp->size)))
 	    unexec_error("my_edata is not in section %s", SECT_DATA);
-	  if (!unexec_write(sectp->offset, (void *)sectp->addr, my_size))
+	  if (!unexec_write((off_t)sectp->offset, (void *)sectp->addr,
+                            my_size))
 	    unexec_error("cannot write section %s", SECT_DATA);
 	  if (!unexec_copy((off_t)(sectp->offset + my_size),
                            (off_t)(old_file_offset + my_size),
@@ -1518,10 +1519,10 @@ copy_data_segment(struct load_command *lc)
                             sizeof(struct section)))
 	    unexec_error("cannot write section %s's header", SECT_DATA);
 	}
-      else if (strncmp(sectp->sectname, SECT_COMMON, 16) == 0)
+      else if (strncmp(sectp->sectname, SECT_COMMON, 16UL) == 0)
 	{
 	  sectp->flags = S_REGULAR;
-	  if (!unexec_write(sectp->offset, (void *)sectp->addr,
+	  if (!unexec_write((off_t)sectp->offset, (void *)sectp->addr,
                             sectp->size))
 	    unexec_error("cannot write section %.16s", sectp->sectname);
 	  if (!unexec_write((off_t)header_offset, sectp,
@@ -1529,7 +1530,7 @@ copy_data_segment(struct load_command *lc)
 	    unexec_error("cannot write section %.16s's header",
                          sectp->sectname);
 	}
-      else if (strncmp(sectp->sectname, SECT_BSS, 16) == 0)
+      else if (strncmp(sectp->sectname, SECT_BSS, 16UL) == 0)
 	{
 	  extern char *my_endbss_static;
 	  unsigned long my_old_size;
@@ -1547,7 +1548,7 @@ zerofill_entry_point:
 
 	  sectp->flags = S_REGULAR;
 
-	  if (strncmp(sectp->sectname, SECT_BSS, 16) == 0) {
+	  if (strncmp(sectp->sectname, SECT_BSS, (size_t)16UL) == 0) {
 	    extern char *my_endbss_static;
 	    unsigned long my_new_size;
 
@@ -1567,7 +1568,8 @@ zerofill_entry_point:
                 unexec_error("my_endbss_static is not in section %.16s",
                              sectp->sectname); /* FIXME(?) */
               }
-	    if (!unexec_write(sectp->offset, (void *)sectp->addr, my_new_size))
+	    if (!unexec_write((off_t)sectp->offset, (void *)sectp->addr,
+                              my_new_size))
 	      unexec_error("cannot write section %.16s", sectp->sectname);
 	    if (!unexec_write_zero((off_t)(sectp->offset + my_new_size),
 				   (sectp->size - my_new_size)))
@@ -1578,7 +1580,7 @@ zerofill_entry_point:
                            sectp->sectname);
 	    printf("copying SECT_BSS\n");
 	  } else {
-	    if (!unexec_write(sectp->offset, (void *)sectp->addr,
+	    if (!unexec_write((off_t)sectp->offset, (void *)sectp->addr,
                               sectp->size))
 	      unexec_error("cannot write section %s", sectp->sectname);
 	    if (!unexec_write((off_t)header_offset, sectp,
@@ -1590,8 +1592,8 @@ zerofill_entry_point:
 #endif /* VERBOSE > 1 */
 	  }
 	}
-      else if ((strncmp(sectp->sectname, "__bss", 5) == 0)
-               || (strncmp(sectp->sectname, "__pu_bss", 8) == 0))
+      else if ((strncmp(sectp->sectname, "__bss", 5UL) == 0)
+               || (strncmp(sectp->sectname, "__pu_bss", 8UL) == 0))
         {
           sectp->flags = S_REGULAR;
 
@@ -1606,7 +1608,7 @@ zerofill_entry_point:
              sections are numbered by their alignment in GCC 4.6, but
              by log2(alignment) in GCC 4.7. */
 
-          if (!unexec_write(sectp->offset, (void *)sectp->addr,
+          if (!unexec_write((off_t)sectp->offset, (void *)sectp->addr,
                             sectp->size))
             unexec_error("cannot copy section %.16s", sectp->sectname);
           if (!unexec_write((off_t)header_offset, sectp,
@@ -1614,21 +1616,21 @@ zerofill_entry_point:
             unexec_error("cannot write section %.16s's header",
                          sectp->sectname);
         }
-      else if ((strncmp(sectp->sectname, "__la_symbol_ptr", 16) == 0)
-	       || (strncmp(sectp->sectname, "__nl_symbol_ptr", 16) == 0)
-	       || (strncmp(sectp->sectname, "__got", 16) == 0)
-	       || (strncmp(sectp->sectname, "__la_sym_ptr2", 16) == 0)
-	       || (strncmp(sectp->sectname, "__dyld", 16) == 0)
-	       || (strncmp(sectp->sectname, "__const", 16) == 0)
-	       || (strncmp(sectp->sectname, "__cfstring", 16) == 0)
-	       || (strncmp(sectp->sectname, "__gcc_except_tab", 16) == 0)
-	       || (strncmp(sectp->sectname, "__program_vars", 16) == 0)
-	       || (strncmp(sectp->sectname, "__mod_init_func", 16) == 0)
-	       || (strncmp(sectp->sectname, "__mod_term_func", 16) == 0)
-               || (strncmp(sectp->sectname, "__static_data", 16) == 0)
-	       || (strncmp(sectp->sectname, "__objc_", 7) == 0))
+      else if ((strncmp(sectp->sectname, "__la_symbol_ptr", 16UL) == 0)
+	       || (strncmp(sectp->sectname, "__nl_symbol_ptr", 16UL) == 0)
+	       || (strncmp(sectp->sectname, "__got", 16UL) == 0)
+	       || (strncmp(sectp->sectname, "__la_sym_ptr2", 16UL) == 0)
+	       || (strncmp(sectp->sectname, "__dyld", 16UL) == 0)
+	       || (strncmp(sectp->sectname, "__const", 16UL) == 0)
+	       || (strncmp(sectp->sectname, "__cfstring", 16UL) == 0)
+	       || (strncmp(sectp->sectname, "__gcc_except_tab", 16UL) == 0)
+	       || (strncmp(sectp->sectname, "__program_vars", 16UL) == 0)
+	       || (strncmp(sectp->sectname, "__mod_init_func", 16UL) == 0)
+	       || (strncmp(sectp->sectname, "__mod_term_func", 16UL) == 0)
+               || (strncmp(sectp->sectname, "__static_data", 16UL) == 0)
+	       || (strncmp(sectp->sectname, "__objc_", 7UL) == 0))
 	{
-	  if (!unexec_copy(sectp->offset, (off_t)old_file_offset,
+	  if (!unexec_copy((off_t)sectp->offset, (off_t)old_file_offset,
                            (ssize_t)sectp->size))
 	    unexec_error("cannot copy section %.16s", sectp->sectname);
 	  if (!unexec_write((off_t)header_offset, sectp,
@@ -1650,7 +1652,7 @@ failure_spot:
              strsecttype((int)sect_type));
 
       header_offset += sizeof(struct section);
-      total_size += sectp->size;
+      total_size += (uint32_t)sectp->size;
       sectp++;
     }
 #if defined(VERBOSE) && VERBOSE
@@ -1690,7 +1692,7 @@ failure_spot:
 
       sc.cmd = LC_SEGMENT;
       sc.cmdsize = sizeof(struct segment_command);
-      strncpy(sc.segname, SEG_DATA, 16);
+      strncpy(sc.segname, SEG_DATA, (size_t)16UL);
       sc.vmaddr = unexec_regions[j].range.address;
       sc.vmsize = unexec_regions[j].range.size;
       sc.fileoff = curr_file_offset;
@@ -1699,11 +1701,11 @@ failure_spot:
       sc.initprot = (VM_PROT_READ | VM_PROT_WRITE);
       sc.nsects = 0;
       sc.flags = 0;
-      total += sc.filesize;
+      total = (long)(total + (long)sc.filesize);
 
 #if defined(VERBOSE) && (VERBOSE > 1)
       printf("Writing ");
-      print_load_command_name((int)sc.cmd);
+      print_load_command_name((long)sc.cmd);
       /* leave off the ++nlc_written here, because these were never in the
        * original input file: */
       printf(" \t\tcommand (extra)\n");
@@ -1719,7 +1721,8 @@ failure_spot:
                      sc.vmaddr, sc.filesize);
       curr_file_offset += ROUNDUP_TO_PAGE_BOUNDARY(sc.filesize);
 
-      if (!unexec_write((off_t)curr_header_offset, &sc, sc.cmdsize))
+      if (!unexec_write((off_t)curr_header_offset, &sc,
+                        (size_t)sc.cmdsize))
 	unexec_error("cannot write new __DATA segment's header");
       curr_header_offset += sc.cmdsize;
       mh.ncmds++;
@@ -1734,8 +1737,8 @@ copy_symtab(struct load_command *lc, long delta)
 {
   struct symtab_command *stp = (struct symtab_command *)lc;
 
-  stp->symoff += delta;
-  stp->stroff += delta;
+  stp->symoff += (uint32_t)delta;
+  stp->stroff += (uint32_t)delta;
 
   printf("Writing LC_SYMTAB                      \t\tcommand (%2d)\n",
          ++nlc_written);
@@ -1746,7 +1749,7 @@ copy_symtab(struct load_command *lc, long delta)
   assert((lc->cmdsize % 4) == 0);
 #endif /* __LP64__ */
 
-  if (!unexec_write((off_t)curr_header_offset, lc, lc->cmdsize))
+  if (!unexec_write((off_t)curr_header_offset, lc, (size_t)lc->cmdsize))
     unexec_error("cannot write symtab command to header");
 
   curr_header_offset += lc->cmdsize;
@@ -1760,18 +1763,18 @@ copy_dyld_info_only(struct load_command *lc, long delta)
   struct dyld_info_command *dyld = (struct dyld_info_command *)lc;
 
   if (dyld->rebase_size)
-    dyld->rebase_off += delta;
+    dyld->rebase_off += (uint32_t)delta;
   if (dyld->bind_size)
-    dyld->bind_off += delta;
+    dyld->bind_off += (uint32_t)delta;
   if (dyld->weak_bind_size)
-    dyld->weak_bind_off += delta;
+    dyld->weak_bind_off += (uint32_t)delta;
   if (dyld->lazy_bind_size)
-    dyld->lazy_bind_off += delta;
+    dyld->lazy_bind_off += (uint32_t)delta;
   if (dyld->export_size)
-    dyld->export_off += delta;
+    dyld->export_off += (uint32_t)delta;
 
   printf("Writing ");
-  print_load_command_name((int)lc->cmd);
+  print_load_command_name((long)lc->cmd);
   printf(" \t\tcommand (%2d)\n", ++nlc_written);
 
 #ifdef __LP64__
@@ -1780,7 +1783,7 @@ copy_dyld_info_only(struct load_command *lc, long delta)
   assert((lc->cmdsize % 4) == 0);
 #endif /* __LP64__ */
 
-  if (!unexec_write((off_t)curr_header_offset, lc, lc->cmdsize))
+  if (!unexec_write((off_t)curr_header_offset, lc, (size_t)lc->cmdsize))
     unexec_error("cannot write LC_DYLD_INFO_ONLY command to header");
 
   curr_header_offset += lc->cmdsize;
@@ -1803,7 +1806,7 @@ unrelocate(const char *name, off_t reloff, int nrel, vm_address_t base)
                      name, i);
       if (!unexec_read(&reloc_info, sizeof(reloc_info)))
 	unexec_error("unrelocate: %s:%d cannot read reloc_info", name, i);
-      reloff += sizeof(reloc_info);
+      reloff += (off_t)sizeof(reloc_info);
 
       if (sc_reloc_info->r_scattered == 0)
 	switch (reloc_info.r_type)
@@ -1823,7 +1826,7 @@ unrelocate(const char *name, off_t reloff, int nrel, vm_address_t base)
                                        - data_segment_scp->vmaddr));
 
 		if (!unexec_copy(dst_off, src_off,
-                                 (1 << reloc_info.r_length)))
+                                 (ssize_t)(1L << reloc_info.r_length)))
 		  unexec_error("unrelocate: %s:%d cannot copy original value",
                                name, i);
 		unreloc_count++;
@@ -1917,19 +1920,19 @@ copy_dysymtab(struct load_command *lc, long delta)
   base = 0;
 #endif /* _LP64 */
 
-  unrelocate("local", dstp->locreloff, (int)dstp->nlocrel, base);
-  unrelocate("external", dstp->extreloff, (int)dstp->nextrel, base);
+  unrelocate("local", (off_t)dstp->locreloff, (int)dstp->nlocrel, base);
+  unrelocate("external", (off_t)dstp->extreloff, (int)dstp->nextrel, base);
 
   if (dstp->nextrel > 0) {
-    dstp->extreloff += delta;
+    dstp->extreloff += (uint32_t)delta;
   }
 
   if (dstp->nlocrel > 0) {
-    dstp->locreloff += delta;
+    dstp->locreloff += (uint32_t)delta;
   }
 
   if (dstp->nindirectsyms > 0)
-    dstp->indirectsymoff += delta;
+    dstp->indirectsymoff += (uint32_t)delta;
 
   printf("Writing LC_DYSYMTAB                    \t\tcommand (%2d)\n",
          ++nlc_written);
@@ -1940,7 +1943,7 @@ copy_dysymtab(struct load_command *lc, long delta)
   assert((lc->cmdsize % 4) == 0);
 #endif /* __LP64__ */
 
-  if (!unexec_write((off_t)curr_header_offset, lc, lc->cmdsize))
+  if (!unexec_write((off_t)curr_header_offset, lc, (size_t)lc->cmdsize))
     unexec_error("cannot write symtab command to header");
 
   curr_header_offset += lc->cmdsize;
@@ -1977,7 +1980,7 @@ copy_twolevelhints(struct load_command *lc, long delta)
   struct twolevel_hints_command *tlhp = (struct twolevel_hints_command*)lc;
 
   if (tlhp->nhints > 0) {
-    tlhp->offset += delta;
+    tlhp->offset += (uint32_t)delta;
   }
 
   printf("Writing LC_TWOLEVEL_HINTS \t\tcommand (%2d)\n", ++nlc_written);
@@ -1988,7 +1991,7 @@ copy_twolevelhints(struct load_command *lc, long delta)
   assert((lc->cmdsize % 4) == 0);
 #endif /* __LP64__ */
 
-  if (!unexec_write((off_t)curr_header_offset, lc, lc->cmdsize))
+  if (!unexec_write((off_t)curr_header_offset, lc, (size_t)lc->cmdsize))
     unexec_error("cannot write two level hint command to header");
 
   curr_header_offset += lc->cmdsize;
@@ -2003,18 +2006,18 @@ copy_dyld_info(struct load_command *lc, long delta)
   struct dyld_info_command *dip = (struct dyld_info_command *)lc;
 
   if (dip->rebase_off > 0)
-    dip->rebase_off += delta;
+    dip->rebase_off += (uint32_t)delta;
   if (dip->bind_off > 0)
-    dip->bind_off += delta;
+    dip->bind_off += (uint32_t)delta;
   if (dip->weak_bind_off > 0)
-    dip->weak_bind_off += delta;
+    dip->weak_bind_off += (uint32_t)delta;
   if (dip->lazy_bind_off > 0)
-    dip->lazy_bind_off += delta;
+    dip->lazy_bind_off += (uint32_t)delta;
   if (dip->export_off > 0)
-    dip->export_off += delta;
+    dip->export_off += (uint32_t)delta;
 
   printf("Writing ");
-  print_load_command_name((int)lc->cmd);
+  print_load_command_name((long)lc->cmd);
   printf(" \t\tcommand (%2d)\n", ++nlc_written);
 
 #ifdef __LP64__
@@ -2023,7 +2026,7 @@ copy_dyld_info(struct load_command *lc, long delta)
   assert((lc->cmdsize % 4) == 0);
 #endif /* __LP64__ */
 
-  if (!unexec_write((off_t)curr_header_offset, lc, lc->cmdsize))
+  if (!unexec_write((off_t)curr_header_offset, lc, (size_t)lc->cmdsize))
     unexec_error("cannot write dyld info command to header");
 
   curr_header_offset += lc->cmdsize;
@@ -2040,10 +2043,10 @@ copy_linkedit_data(struct load_command *lc, long delta)
   struct linkedit_data_command *ldp = (struct linkedit_data_command *)lc;
 
   if (ldp->dataoff > 0)
-    ldp->dataoff += delta;
+    ldp->dataoff += (uint32_t)delta;
 
   printf("Writing ");
-  print_load_command_name((int)lc->cmd);
+  print_load_command_name((long)lc->cmd);
   /* FIXME: hackish; see note about hardcoding print widths above: */
   if (lc->cmd == LC_FUNCTION_STARTS) {
     printf(" \tcommand (%2d)\n", ++nlc_written);
@@ -2057,7 +2060,7 @@ copy_linkedit_data(struct load_command *lc, long delta)
   assert((lc->cmdsize % 4) == 0);
 #endif /* __LP64__ */
 
-  if (!unexec_write((off_t)curr_header_offset, lc, lc->cmdsize))
+  if (!unexec_write((off_t)curr_header_offset, lc, (size_t)lc->cmdsize))
     unexec_error("cannot write linkedit data command to header");
 
   curr_header_offset += lc->cmdsize;
@@ -2070,7 +2073,7 @@ static void
 copy_other(struct load_command *lc)
 {
   printf("Writing ");
-  print_load_command_name((int)lc->cmd);
+  print_load_command_name((long)lc->cmd);
   /* FIXME: hackish; see note about hardcoding print widths above: */
   if (lc->cmd == LC_VERSION_MIN_MACOSX) {
     printf(" \tcommand (%2d)\n", ++nlc_written);
@@ -2087,7 +2090,7 @@ copy_other(struct load_command *lc)
   assert((lc->cmdsize % 4) == 0);
 #endif /* __LP64__ */
 
-  if (!unexec_write((off_t)curr_header_offset, lc, lc->cmdsize))
+  if (!unexec_write((off_t)curr_header_offset, lc, (size_t)lc->cmdsize))
     unexec_error("cannot write symtab command to header");
 
   curr_header_offset += lc->cmdsize;
@@ -2109,7 +2112,7 @@ dump_it(void)
       case LC_SEGMENT:
 	{
 	  struct segment_command *scp = (struct segment_command *)lca[i];
-	  if (strncmp(scp->segname, SEG_DATA, 16) == 0)
+	  if (strncmp(scp->segname, SEG_DATA, (size_t)16UL) == 0)
 	    {
 	      /* save data segment file offset and segment_command for
 		 unrelocate */
@@ -2123,7 +2126,7 @@ dump_it(void)
 	    }
 	  else
 	    {
-	      if (strncmp(scp->segname, SEG_LINKEDIT, 16) == 0)
+	      if (strncmp(scp->segname, SEG_LINKEDIT, (size_t)16UL) == 0)
 		{
 		  if (linkedit_delta)
 		    unexec_error("cannot handle multiple LINKEDIT segments"
@@ -2181,7 +2184,7 @@ dump_it(void)
 
   mh.sizeofcmds = (uint32_t)(curr_header_offset
                              - sizeof(struct mach_header));
-  if (!unexec_write(0, &mh, sizeof(struct mach_header)))
+  if (!unexec_write((off_t)0L, &mh, sizeof(struct mach_header)))
     unexec_error("cannot write final header contents");
 
   if (nlc != nlc_written) {
@@ -2230,7 +2233,7 @@ unexec(const char *outfile, const char *infile)
 
 void unexec_init_emacs_zone(void)
 {
-  emacs_zone = malloc_create_zone(0, 0);
+  emacs_zone = malloc_create_zone((vm_size_t)0, 0);
   malloc_set_zone_name(emacs_zone, "EmacsZone");
   check_emacs_zone();
 }

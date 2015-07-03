@@ -254,8 +254,8 @@ INLINE_HEADER_BEGIN
 
 /* Macros to set PT in the current buffer, or another buffer.  */
 
-#define SET_PT(position) (set_point (position))
-#define TEMP_SET_PT(position) (temp_set_point (current_buffer, (position)))
+#define SET_PT(position) (set_point((ptrdiff_t)(position)))
+#define TEMP_SET_PT(position) (temp_set_point(current_buffer, (position)))
 
 #define SET_PT_BOTH(position, byte) (set_point_both (position, byte))
 #define TEMP_SET_PT_BOTH(position, byte) \
@@ -1408,36 +1408,36 @@ set_per_buffer_value(struct buffer *b, int offset, Lisp_Object value)
   *(Lisp_Object *)(offset + (char *)b) = value;
 }
 
-/* Downcase a character C, or make no change if that cannot be done.  */
+/* Downcase a character C, or make no change if that cannot be done: */
 INLINE int
-downcase (int c)
+downcase(int c)
 {
-  Lisp_Object downcase_table = BVAR (current_buffer, downcase_table);
-  Lisp_Object down = CHAR_TABLE_REF (downcase_table, c);
-  return NATNUMP (down) ? XFASTINT (down) : c;
+  Lisp_Object downcase_table = BVAR(current_buffer, downcase_table);
+  Lisp_Object down = CHAR_TABLE_REF(downcase_table, c);
+  return (int)(NATNUMP(down) ? XFASTINT(down) : c);
 }
 
-/* True if C is upper case.  */
-INLINE bool uppercasep (int c) { return downcase (c) != c; }
+/* True if C is upper case: */
+INLINE bool uppercasep(int c) { return (downcase(c) != c); }
 
-/* Upcase a character C known to be not upper case.  */
+/* Upcase a character C known to be not upper case: */
 INLINE int
-upcase1 (int c)
+upcase1(int c)
 {
-  Lisp_Object upcase_table = BVAR (current_buffer, upcase_table);
-  Lisp_Object up = CHAR_TABLE_REF (upcase_table, c);
-  return NATNUMP (up) ? XFASTINT (up) : c;
+  Lisp_Object upcase_table = BVAR(current_buffer, upcase_table);
+  Lisp_Object up = CHAR_TABLE_REF(upcase_table, c);
+  return (int)(NATNUMP(up) ? XFASTINT(up) : c);
 }
 
 /* True if C is lower case.  */
 INLINE bool
-lowercasep (int c)
+lowercasep(int c)
 {
-  return !uppercasep (c) && upcase1 (c) != c;
+  return (!uppercasep(c) && (upcase1(c) != c));
 }
 
-/* Upcase a character C, or make no change if that cannot be done.  */
-INLINE int upcase (int c) { return uppercasep (c) ? c : upcase1 (c); }
+/* Upcase a character C, or make no change if that cannot be done: */
+INLINE int upcase(int c) { return (uppercasep(c) ? c : upcase1(c)); }
 
 INLINE_HEADER_END
 

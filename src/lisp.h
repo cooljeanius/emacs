@@ -435,7 +435,7 @@ enum enum_USE_LSB_TAG { USE_LSB_TAG = false };
 #define lisp_h_CONSP(x) (XTYPE(x) == Lisp_Cons)
 #define lisp_h_EQ(x, y) (XLI(x) == XLI(y))
 #define lisp_h_FLOATP(x) (XTYPE(x) == Lisp_Float)
-#define lisp_h_INTEGERP(x) ((XTYPE(x) & (~Lisp_Int1)) == 0)
+#define lisp_h_INTEGERP(x) ((XTYPE(x) & (enum Lisp_Type)(~Lisp_Int1)) == 0)
 #define lisp_h_MARKERP(x) (MISCP(x) && XMISCTYPE(x) == Lisp_Misc_Marker)
 #define lisp_h_MISCP(x) (XTYPE(x) == Lisp_Misc)
 #define lisp_h_NILP(x) EQ(x, Qnil)
@@ -508,12 +508,21 @@ enum enum_USE_LSB_TAG { USE_LSB_TAG = false };
 # endif /* USE_LSB_TAG */
 #endif /* check for inlining */
 
+/* We use __extension__ in some places to suppress -pedantic warnings
+ * about GCC extensions.  This feature did NOT work properly before
+ * gcc 2.8.  */
+#if !defined(__extension__) && defined(GCC_VERSION)
+# if (GCC_VERSION < 2008)
+#  define __extension__
+# endif /* gcc pre-2.8 */
+#endif /* !__extension__ && GCC_VERSION */
+
 /* Define NAME as a lisp.h inline function that returns TYPE and has
    arguments declared as ARGDECLS and passed as ARGS.  ARGDECLS and
    ARGS should be parenthesized.  Implement the function by calling
    lisp_h_NAME ARGS.  */
 #define LISP_MACRO_DEFUN(name, type, argdecls, args) \
-  INLINE type (name) argdecls { return (type)lisp_h_##name args; }
+  INLINE type (name) argdecls { return __extension__ (type)lisp_h_##name args; }
 
 /* like LISP_MACRO_DEFUN, except NAME returns void.  */
 #define LISP_MACRO_DEFUN_VOID(name, argdecls, args) \
@@ -531,14 +540,7 @@ enum enum_USE_LSB_TAG { USE_LSB_TAG = false };
 #define INTMASK (EMACS_INT_MAX >> (INTTYPEBITS - 1))
 #define case_Lisp_Int case Lisp_Int0: case Lisp_Int1
 
-/* We use __extension__ in some places to suppress -pedantic warnings
- * about GCC extensions.  This feature did NOT work properly before
- * gcc 2.8.  */
-#if !defined(__extension__) && defined(GCC_VERSION)
-# if (GCC_VERSION < 2008)
-#  define __extension__
-# endif /* gcc pre-2.8 */
-#endif /* !__extension__ && GCC_VERSION */
+/* back-up re-definition of __extension__ has been moved above */
 
 /* Idea stolen from GDB.  Pedantic GCC complains about enum bitfields,
    MSVC does NOT support them, and xlc and Oracle Studio c99 complain
@@ -671,7 +673,9 @@ enum Lisp_Fwd_Type
    several disparate C structures.  */
 
 #ifdef CHECK_LISP_OBJECT_TYPE
-typedef struct { EMACS_INT i; } Lisp_Object;
+/* Caveat: adding '__attribute__((aligned))' is an attempt to hunt a bug;
+ * I am not sure if it is correct or not... */
+typedef struct { EMACS_INT i; } Lisp_Object __attribute__((aligned(__alignof__(EMACS_INT))));
 # define LISP_INITIALLY_ZERO { 0 }
 # undef CHECK_LISP_OBJECT_TYPE
 enum CHECK_LISP_OBJECT_TYPE { CHECK_LISP_OBJECT_TYPE = true };
@@ -1058,7 +1062,8 @@ INLINE Lisp_Object make_lisp_ptr(void *ptr, enum Lisp_Type type)
 {
   EMACS_UINT utype = type;
   EMACS_UINT typebits = (USE_LSB_TAG ? type : (utype << VALBITS));
-  Lisp_Object a = (Lisp_Object)XIL(typebits | (uintptr_t)ptr);
+  Lisp_Object a =
+    __extension__ (Lisp_Object)XIL((EMACS_INT)(typebits | (uintptr_t)ptr));
   eassert((XTYPE(a) == type) && (XUNTAG(a, (int)type) == ptr));
   return a;
 }
@@ -1469,7 +1474,9 @@ bool_vector_set(Lisp_Object a, EMACS_INT i, bool b)
   addr = &bool_vector_uchar_data (a)[i / BOOL_VECTOR_BITS_PER_CHAR];
 
   if (b)
-    *addr |= (unsigned char)(1U << (i % BOOL_VECTOR_BITS_PER_CHAR));
+    *addr = ((unsigned char)
+             (*addr | ((unsigned char)
+                       (1U << (i % BOOL_VECTOR_BITS_PER_CHAR)))));
   else
     *addr &= (unsigned char)(~(1U << (i % BOOL_VECTOR_BITS_PER_CHAR)));
 }
@@ -1539,12 +1546,12 @@ gc_aset (Lisp_Object array, ptrdiff_t idx, Lisp_Object val)
    returns true.  For efficiency, prefer plain unsigned comparison if A
    and B's sizes both fit (after integer promotion).  */
 #define UNSIGNED_CMP(a, op, b)						\
-  (max (sizeof ((a) + 0), sizeof ((b) + 0)) <= sizeof (unsigned)	\
-   ? ((a) + (unsigned) 0) op ((b) + (unsigned) 0)			\
-   : ((a) + (uintmax_t) 0) op ((b) + (uintmax_t) 0))
+  ((max(sizeof((a) + 0), sizeof((b) + 0)) <= sizeof(unsigned int))	\
+   ? ((a) + (unsigned int)0U) op((b) + (unsigned int)0U)		\
+   : ((a) + (uintmax_t)0UL) op((b) + (uintmax_t)0UL))
 
-/* True iff C is an ASCII character.  */
-#define ASCII_CHAR_P(c) UNSIGNED_CMP (c, <, 0x80)
+/* True iff C is an ASCII character: */
+#define ASCII_CHAR_P(c) UNSIGNED_CMP(c, <, 0x80)
 
 /* A char-table is a kind of vectorlike, with contents are like a
    vector but with a few other slots.  For some purposes, it makes
@@ -1647,7 +1654,8 @@ INLINE Lisp_Object CHAR_TABLE_REF(Lisp_Object ct, int idx)
    8-bit European characters.  Do not check validity of CT.  */
 INLINE void CHAR_TABLE_SET(Lisp_Object ct, int idx, Lisp_Object val)
 {
-  if (ASCII_CHAR_P(idx) && SUB_CHAR_TABLE_P(XCHAR_TABLE(ct)->ascii))
+  if (ASCII_CHAR_P((unsigned int)idx)
+      && SUB_CHAR_TABLE_P(XCHAR_TABLE(ct)->ascii))
     set_sub_char_table_contents(XCHAR_TABLE(ct)->ascii, (ptrdiff_t)idx,
                                 val);
   else
@@ -4731,9 +4739,9 @@ extern void *record_xmalloc (size_t);
 
 /* SAFE_ALLOCA allocates a simple buffer.  */
 
-#define SAFE_ALLOCA(size) ((size) < MAX_ALLOCA	\
-			   ? alloca (size)	\
-			   : (sa_must_free = true, record_xmalloc (size)))
+#define SAFE_ALLOCA(size) (((size) < MAX_ALLOCA)\
+			   ? alloca(size)	\
+			   : (sa_must_free = true, record_xmalloc(size)))
 
 /* SAFE_NALLOCA sets BUF to a newly allocated array of MULTIPLIER *
    NITEMS items, each of the same type as *BUF.  MULTIPLIER must
@@ -4741,13 +4749,13 @@ extern void *record_xmalloc (size_t);
 
 #define SAFE_NALLOCA(buf, multiplier, nitems)			 \
   do {								 \
-    if ((nitems) <= MAX_ALLOCA / sizeof *(buf) / (multiplier))	 \
-      (buf) = alloca (sizeof *(buf) * (multiplier) * (nitems));	 \
+    if ((nitems) <= (MAX_ALLOCA / sizeof(*(buf)) / (multiplier)))\
+      (buf) = alloca(sizeof(*(buf)) * (multiplier) * (size_t)(nitems));\
     else							 \
       {								 \
-	(buf) = xnmalloc (nitems, sizeof *(buf) * (multiplier)); \
+	(buf) = xnmalloc((ptrdiff_t)nitems, (sizeof(*(buf)) * (multiplier))); \
 	sa_must_free = true;					 \
-	record_unwind_protect_ptr (xfree, buf);			 \
+	record_unwind_protect_ptr(xfree, buf);			 \
       }								 \
   } while (false)
 

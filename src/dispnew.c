@@ -6007,13 +6007,13 @@ pass nil for VARIABLE.  */)
    decoding routine to set up variables in the terminal package.  */
 
 void
-init_display (void)
+init_display(void)
 {
   char *terminal_type;
 
   /* Construct the space glyph.  */
   space_glyph.type = CHAR_GLYPH;
-  SET_CHAR_GLYPH (space_glyph, ' ', DEFAULT_FACE_ID, 0);
+  SET_CHAR_GLYPH(space_glyph, ' ', DEFAULT_FACE_ID, 0);
   space_glyph.charpos = -1;
 
   inverse_video = 0;
@@ -6027,13 +6027,13 @@ init_display (void)
      with.  Otherwise newly opened tty frames will not resize
      automatically. */
 #ifdef SIGWINCH
-#ifndef CANNOT_DUMP
+# ifndef CANNOT_DUMP
   if (initialized)
-#endif /* CANNOT_DUMP */
+# endif /* CANNOT_DUMP */
     {
       struct sigaction action;
-      emacs_sigaction_init (&action, deliver_window_change_signal);
-      sigaction (SIGWINCH, &action, 0);
+      emacs_sigaction_init(&action, deliver_window_change_signal);
+      sigaction(SIGWINCH, &action, 0);
     }
 #endif /* SIGWINCH */
 
@@ -6053,13 +6053,13 @@ init_display (void)
   if (! inhibit_window_system && ! display_arg)
     {
       char *display;
-      display = getenv ("DISPLAY");
+      display = getenv("DISPLAY");
       display_arg = (display != 0 && *display != 0);
 
-      if (display_arg && !x_display_ok (display))
+      if (display_arg && !x_display_ok(display))
 	{
-	  fprintf (stderr, "Display %s unavailable, simulating -nw\n",
-		   display);
+	  fprintf(stderr, "Display %s unavailable, simulating -nw\n",
+		  display);
 	  inhibit_window_system = 1;
 	}
     }
@@ -6068,13 +6068,13 @@ init_display (void)
     {
       Vinitial_window_system = Qx;
 # ifdef HAVE_X11
-      Vwindow_system_version = make_number (11);
+      Vwindow_system_version = make_number(11);
 # endif /* HAVE_X11 */
 # ifdef USE_NCURSES
       /* In some versions of ncurses,
 	 tputs crashes if we have not called tgetent.
 	 So call tgetent.  */
-      { char b[2044]; tgetent (b, "xterm");}
+      { char b[2044]; tgetent(b, "xterm");}
 # endif /* USE_NCURSES */
       return;
     }
@@ -6084,7 +6084,7 @@ init_display (void)
   if (!inhibit_window_system)
     {
       Vinitial_window_system = Qw32;
-      Vwindow_system_version = make_number (1);
+      Vwindow_system_version = make_number(1);
       return;
     }
 #endif /* HAVE_NTGUI */
@@ -6093,8 +6093,8 @@ init_display (void)
   /* treat tty /dev/stdin as emacs -nw */
   if (!inhibit_window_system && !isatty(0))
     {
-      Vwindow_system = intern ("mac");
-      Vwindow_system_version = make_number (1);
+      Vwindow_system = intern("mac");
+      Vwindow_system_version = make_number(1);
       return;
     }
 #endif /* MAC_OS && !HAVE_NS */
@@ -6107,43 +6107,43 @@ init_display (void)
       )
     {
       Vinitial_window_system = Qns;
-      Vwindow_system_version = make_number (10);
+      Vwindow_system_version = make_number(10);
       return;
     }
 #endif /* HAVE_NS */
 
   /* If no window system has been specified, try to use the terminal.  */
-  if (! isatty (0))
-    fatal ("standard input is not a tty");
+  if (! isatty(0))
+    fatal("standard input is not a tty");
 
 #ifdef WINDOWSNT
   terminal_type = "w32console";
 #else
-  terminal_type = getenv ("TERM");
+  terminal_type = getenv("TERM");
 #endif /* WINDOWSNT */
   if (!terminal_type)
     {
 #ifdef HAVE_WINDOW_SYSTEM
       if (! inhibit_window_system)
-	fprintf (stderr, "Please set the environment variable DISPLAY or TERM (see `tset').\n");
+	fprintf(stderr, "Please set the environment variable DISPLAY or TERM (see `tset').\n");
       else
 #endif /* HAVE_WINDOW_SYSTEM */
-	fprintf (stderr, "Please set the environment variable TERM; see `tset'.\n");
-      exit (1);
+	fprintf(stderr, "Please set the environment variable TERM; see `tset'.\n");
+      exit(1);
     }
 
   {
     struct terminal *t;
-    struct frame *f = XFRAME (selected_frame);
+    struct frame *f = XFRAME(selected_frame);
 
-    init_foreground_group ();
+    init_foreground_group();
 
     /* Open a display on the controlling tty. */
-    t = init_tty (0, terminal_type, 1); /* Errors are fatal. */
+    t = init_tty(0, terminal_type, 1); /* Errors are fatal. */
 
     /* Convert the initial frame to use the new display. */
     if (f->output_method != output_initial)
-      emacs_abort ();
+      emacs_abort();
     f->output_method = t->type;
     f->terminal = t;
 
@@ -6152,7 +6152,7 @@ init_display (void)
     f->output_data.tty->display_info = &the_only_display_info;
 #else
     if (f->output_method == output_termcap)
-      create_tty_output (f);
+      create_tty_output(f);
 #endif
     t->display_info.tty->top_frame = selected_frame;
     change_frame_size (XFRAME (selected_frame),

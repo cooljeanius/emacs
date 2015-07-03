@@ -107,8 +107,8 @@ DEFUN ("clear-abbrev-table", Fclear_abbrev_table, Sclear_abbrev_table, 1, 1, 0,
   return Qnil;
 }
 
-DEFUN ("define-abbrev", Fdefine_abbrev, Sdefine_abbrev, 3, 6, 0,
-       doc: /* Define an abbrev in TABLE named NAME, to expand to EXPANSION and call HOOK.
+DEFUN("define-abbrev", Fdefine_abbrev, Sdefine_abbrev, 3, 6, 0,
+      doc: /* Define an abbrev in TABLE named NAME, to expand to EXPANSION and call HOOK.
 NAME must be a string, and should be lower-case.
 EXPANSION should usually be a string.
 To undefine an abbrev, define it with EXPANSION = nil.
@@ -129,73 +129,73 @@ overwrite a non-system abbreviation of the same name.  */)
       Lisp_Object hook, Lisp_Object count, Lisp_Object system_flag)
 {
   Lisp_Object sym, oexp, ohook, tem;
-  CHECK_VECTOR (table);
-  CHECK_STRING (name);
+  CHECK_VECTOR(table);
+  CHECK_STRING(name);
 
   /* If defining a system abbrev, do not overwrite a non-system abbrev
      of the same name, unless 'force is used. */
-  if (!NILP (system_flag) && !EQ (system_flag, Qforce))
+  if (!NILP(system_flag) && !EQ(system_flag, Qforce))
     {
-      sym = Fintern_soft (name, table);
+      sym = Fintern_soft(name, table);
 
-      if (!NILP (SYMBOL_VALUE (sym)) &&
-          NILP (Fplist_get (XSYMBOL (sym)->plist, Qsystem_type))) return Qnil;
+      if (!NILP(SYMBOL_VALUE(sym)) &&
+          NILP(Fplist_get(XSYMBOL(sym)->plist, Qsystem_type))) return Qnil;
     }
 
-  if (NILP (count))
-    count = make_number (0);
+  if (NILP(count))
+    count = make_number(0);
   else
-    CHECK_NUMBER (count);
+    CHECK_NUMBER(count);
 
-  sym = Fintern (name, table);
+  sym = Fintern(name, table);
 
-  oexp = SYMBOL_VALUE (sym);
-  ohook = XSYMBOL (sym)->function;
-  if (!((EQ (oexp, expansion)
-	 || (STRINGP (oexp) && STRINGP (expansion)
-	     && (tem = Fstring_equal (oexp, expansion), !NILP (tem))))
+  oexp = SYMBOL_VALUE(sym);
+  ohook = XSYMBOL(sym)->function;
+  if (!((EQ(oexp, expansion)
+	 || (STRINGP(oexp) && STRINGP(expansion)
+	     && (tem = Fstring_equal(oexp, expansion), !NILP(tem))))
 	&&
-	(EQ (ohook, hook)
-	 || (tem = Fequal (ohook, hook), !NILP (tem))))
+	(EQ(ohook, hook)
+	 || (tem = Fequal(ohook, hook), !NILP(tem))))
       && NILP (system_flag))
     abbrevs_changed = 1;
 
-  Fset (sym, expansion);
-  Ffset (sym, hook);
+  Fset(sym, expansion);
+  Ffset(sym, hook);
 
-  if (! NILP (system_flag))
-    Fsetplist (sym, list4 (Qcount, count, Qsystem_type, system_flag));
+  if (! NILP(system_flag))
+    Fsetplist(sym, list4(Qcount, count, Qsystem_type, system_flag));
   else
-    Fsetplist (sym, count);
+    Fsetplist(sym, count);
 
   return name;
 }
 
-DEFUN ("define-global-abbrev", Fdefine_global_abbrev, Sdefine_global_abbrev, 2, 2,
-       "sDefine global abbrev: \nsExpansion for %s: ",
-       doc: /* Define ABBREV as a global abbreviation for EXPANSION.  */)
+DEFUN("define-global-abbrev", Fdefine_global_abbrev, Sdefine_global_abbrev, 2, 2,
+      "sDefine global abbrev: \nsExpansion for %s: ",
+      doc: /* Define ABBREV as a global abbreviation for EXPANSION.  */)
      (Lisp_Object abbrev, Lisp_Object expansion)
 {
-  Fdefine_abbrev (Vglobal_abbrev_table, Fdowncase (abbrev),
-		  expansion, Qnil, make_number (0), Qnil);
+  Fdefine_abbrev(Vglobal_abbrev_table, Fdowncase(abbrev),
+		 expansion, Qnil, make_number(0), Qnil);
   return abbrev;
 }
 
-DEFUN ("define-mode-abbrev", Fdefine_mode_abbrev, Sdefine_mode_abbrev, 2, 2,
-       "sDefine mode abbrev: \nsExpansion for %s: ",
-       doc: /* Define ABBREV as a mode-specific abbreviation for EXPANSION.  */)
+DEFUN("define-mode-abbrev", Fdefine_mode_abbrev, Sdefine_mode_abbrev, 2, 2,
+      "sDefine mode abbrev: \nsExpansion for %s: ",
+      doc: /* Define ABBREV as a mode-specific abbreviation for EXPANSION.  */)
      (Lisp_Object abbrev, Lisp_Object expansion)
 {
-  if (NILP (current_buffer->INTERNAL_FIELD(abbrev_table)))
-    error ("Major mode has no abbrev table");
+  if (NILP(current_buffer->INTERNAL_FIELD(abbrev_table)))
+    error("Major mode has no abbrev table");
 
   Fdefine_abbrev(current_buffer->INTERNAL_FIELD(abbrev_table),
                  Fdowncase(abbrev), expansion, Qnil, make_number(0), Qnil);
   return abbrev;
 }
 
-DEFUN ("abbrev-symbol", Fabbrev_symbol, Sabbrev_symbol, 1, 2, 0,
-       doc: /* Return the symbol representing abbrev named ABBREV.
+DEFUN("abbrev-symbol", Fabbrev_symbol, Sabbrev_symbol, 1, 2, 0,
+      doc: /* Return the symbol representing abbrev named ABBREV.
 This symbol's name is ABBREV, but it is not the canonical symbol of that name;
 it is interned in an abbrev-table rather than the normal obarray.
 The value is nil if that abbrev is not defined.
@@ -204,9 +204,9 @@ The default is to try buffer's mode-specific abbrev table, then global table.  *
      (Lisp_Object abbrev, Lisp_Object table)
 {
   Lisp_Object sym;
-  CHECK_STRING (abbrev);
-  if (!NILP (table))
-    sym = Fintern_soft (abbrev, table);
+  CHECK_STRING(abbrev);
+  if (!NILP(table))
+    sym = Fintern_soft(abbrev, table);
   else
     {
       sym = Qnil;
@@ -221,27 +221,27 @@ The default is to try buffer's mode-specific abbrev table, then global table.  *
 	sym = Fintern_soft(abbrev, Vglobal_abbrev_table);
       }
     }
-  if (NILP (SYMBOL_VALUE (sym)))
+  if (NILP(SYMBOL_VALUE(sym)))
     return Qnil;
   return sym;
 }
 
-DEFUN ("abbrev-expansion", Fabbrev_expansion, Sabbrev_expansion, 1, 2, 0,
-       doc: /* Return the string that ABBREV expands into in the current buffer.
+DEFUN("abbrev-expansion", Fabbrev_expansion, Sabbrev_expansion, 1, 2, 0,
+      doc: /* Return the string that ABBREV expands into in the current buffer.
 Optionally specify an abbrev table as second arg;
 then ABBREV is looked up in that table only.  */)
      (Lisp_Object abbrev, Lisp_Object table)
 {
   Lisp_Object sym;
-  sym = Fabbrev_symbol (abbrev, table);
-  if (NILP (sym)) return sym;
-  return Fsymbol_value (sym);
+  sym = Fabbrev_symbol(abbrev, table);
+  if (NILP(sym)) return sym;
+  return Fsymbol_value(sym);
 }
 
 /* Expand the word before point, if it is an abbrev.
    Returns 1 if an expansion is done. */
-DEFUN ("expand-abbrev", Fexpand_abbrev, Sexpand_abbrev, 0, 0, "",
-       doc: /* Expand the abbrev before point, if there is an abbrev there.
+DEFUN("expand-abbrev", Fexpand_abbrev, Sexpand_abbrev, 0, 0, "",
+      doc: /* Expand the abbrev before point, if there is an abbrev there.
 Effective when explicitly called even when `abbrev-mode' is nil.
 Returns the abbrev symbol, if expansion took place.  */)
      (void)
@@ -258,47 +258,47 @@ Returns the abbrev symbol, if expansion took place.  */)
 
   value = Qnil;
 
-  Frun_hooks (1, &Qpre_abbrev_expand_hook);
+  Frun_hooks(1, &Qpre_abbrev_expand_hook);
 
   wordstart = 0;
-  if (!(BUFFERP (Vabbrev_start_location_buffer)
-	&& XBUFFER (Vabbrev_start_location_buffer) == current_buffer))
+  if (!(BUFFERP(Vabbrev_start_location_buffer)
+	&& XBUFFER(Vabbrev_start_location_buffer) == current_buffer))
     Vabbrev_start_location = Qnil;
-  if (!NILP (Vabbrev_start_location))
+  if (!NILP(Vabbrev_start_location))
     {
       tem = Vabbrev_start_location;
-      CHECK_NUMBER_COERCE_MARKER (tem);
-      wordstart = XINT (tem);
+      CHECK_NUMBER_COERCE_MARKER(tem);
+      wordstart = XINT(tem);
       Vabbrev_start_location = Qnil;
       if (wordstart < BEGV || wordstart > ZV)
 	wordstart = 0;
       if (wordstart && wordstart != ZV)
 	{
-	  wordstart_byte = CHAR_TO_BYTE (wordstart);
-	  if (FETCH_BYTE (wordstart_byte) == '-')
-	    del_range (wordstart, wordstart + 1);
+	  wordstart_byte = CHAR_TO_BYTE(wordstart);
+	  if (FETCH_BYTE(wordstart_byte) == '-')
+	    del_range(wordstart, wordstart + 1);
 	}
     }
   if (!wordstart)
-    wordstart = scan_words (PT, -1);
+    wordstart = scan_words(PT, -1);
 
   if (!wordstart)
     return value;
 
-  wordstart_byte = CHAR_TO_BYTE (wordstart);
-  wordend = scan_words (wordstart, 1);
+  wordstart_byte = CHAR_TO_BYTE(wordstart);
+  wordend = scan_words(wordstart, 1);
   if (!wordend)
     return value;
 
   if (wordend > PT)
     wordend = PT;
 
-  wordend_byte = CHAR_TO_BYTE (wordend);
+  wordend_byte = CHAR_TO_BYTE(wordend);
   whitecnt = PT - wordend;
   if (wordend <= wordstart)
     return value;
 
-  p = buffer = (char *) alloca (wordend_byte - wordstart_byte);
+  p = buffer = (char *)alloca(wordend_byte - wordstart_byte);
 
   for (idx = wordstart, idx_byte = wordstart_byte; idx < wordend; )
     {
@@ -306,17 +306,17 @@ Returns the abbrev symbol, if expansion took place.  */)
 
       if (multibyte)
 	{
-	  FETCH_CHAR_ADVANCE (c, idx, idx_byte);
+	  FETCH_CHAR_ADVANCE(c, idx, idx_byte);
 	}
       else
 	{
-	  c = FETCH_BYTE (idx_byte);
+	  c = FETCH_BYTE(idx_byte);
 	  idx++, idx_byte++;
 	}
 
       if (UPPERCASEP(c))
 	c = DOWNCASE(c), uccount++;
-      else if (! NOCASEP (c))
+      else if (! NOCASEP(c))
 	lccount++;
       if (multibyte)
 	p += CHAR_STRING(c, (unsigned char *)p);
@@ -324,28 +324,28 @@ Returns the abbrev symbol, if expansion took place.  */)
 	*p++ = c;
     }
 
-  if (VECTORP (current_buffer->INTERNAL_FIELD(abbrev_table)))
-    sym = oblookup (current_buffer->INTERNAL_FIELD(abbrev_table),
-                    buffer, (wordend - wordstart), (p - buffer));
+  if (VECTORP(current_buffer->INTERNAL_FIELD(abbrev_table)))
+    sym = oblookup(current_buffer->INTERNAL_FIELD(abbrev_table),
+                   buffer, (wordend - wordstart), (p - buffer));
   else
-    XSETFASTINT (sym, 0);
+    XSETFASTINT(sym, 0);
 
-  if (INTEGERP (sym) || NILP (SYMBOL_VALUE (sym)))
-    sym = oblookup (Vglobal_abbrev_table, buffer,
-		    wordend - wordstart, p - buffer);
-  if (INTEGERP (sym) || NILP (SYMBOL_VALUE (sym)))
+  if (INTEGERP(sym) || NILP(SYMBOL_VALUE(sym)))
+    sym = oblookup(Vglobal_abbrev_table, buffer,
+		   wordend - wordstart, p - buffer);
+  if (INTEGERP(sym) || NILP(SYMBOL_VALUE(sym)))
     return value;
 
-  if (INTERACTIVE && !EQ (minibuf_window, selected_window))
+  if (INTERACTIVE && !EQ(minibuf_window, selected_window))
     {
       /* Add an undo boundary, in case we are doing this for
 	 a self-inserting command which has avoided making one so far.  */
-      SET_PT (wordend);
-      Fundo_boundary ();
+      SET_PT(wordend);
+      Fundo_boundary();
     }
 
-  Vlast_abbrev_text
-    = Fbuffer_substring (make_number (wordstart), make_number (wordend));
+  Vlast_abbrev_text =
+    Fbuffer_substring(make_number(wordstart), make_number(wordend));
 
   /* Now sym is the abbrev symbol.  */
   Vlast_abbrev = sym;
@@ -364,16 +364,16 @@ Returns the abbrev symbol, if expansion took place.  */)
   expansion = SYMBOL_VALUE (sym);
   if (STRINGP (expansion))
     {
-      SET_PT (wordstart);
+      SET_PT(wordstart);
 
-      insert_from_string (expansion, 0, 0, SCHARS (expansion),
-			  SBYTES (expansion), 1);
-      del_range_both (PT, PT_BYTE,
-		      wordend + (PT - wordstart),
-		      wordend_byte + (PT_BYTE - wordstart_byte),
-		      1);
+      insert_from_string(expansion, 0, 0, SCHARS(expansion),
+			 SBYTES(expansion), 1);
+      del_range_both(PT, PT_BYTE,
+		     (wordend + (PT - wordstart)),
+		     (wordend_byte + (PT_BYTE - wordstart_byte)),
+		     1);
 
-      SET_PT (PT + whitecnt);
+      SET_PT(PT + whitecnt);
 
       if (uccount && !lccount)
 	{
@@ -382,34 +382,34 @@ Returns the abbrev symbol, if expansion took place.  */)
 	  /* This used to be if (!... && ... >= ...) Fcapitalize; else Fupcase
 	     but Megatest 68000 compiler can't handle that */
 	  if (!abbrev_all_caps)
-	    if (scan_words (PT, -1) > scan_words (wordstart, 1))
+	    if (scan_words(PT, -1) > scan_words(wordstart, 1))
 	      {
-		Fupcase_initials_region (make_number (wordstart),
-					 make_number (PT));
+		Fupcase_initials_region(make_number(wordstart),
+                                        make_number(PT));
 		goto caped;
 	      }
-	  /* If expansion is one word, or if user says so, upcase it all. */
-	  Fupcase_region (make_number (wordstart), make_number (PT));
+	  /* If expansion is 1 word, or if user says so, upcase it all: */
+	  Fupcase_region(make_number(wordstart), make_number(PT));
 	caped: ;
 	}
       else if (uccount)
 	{
-	  /* Abbrev included some caps.  Cap first initial of expansion */
+	  /* Abbrev included some caps.  Cap first initial of expansion: */
 	  int pos = wordstart_byte;
 
-	  /* Find the initial.  */
-	  while (pos < PT_BYTE
-		 && SYNTAX (*BUF_BYTE_ADDRESS (current_buffer, pos)) != Sword)
+	  /* Find the initial: */
+	  while ((pos < PT_BYTE)
+		 && (SYNTAX(*BUF_BYTE_ADDRESS(current_buffer, pos)) != Sword))
 	    pos++;
 
-	  /* Change just that.  */
-	  pos = BYTE_TO_CHAR (pos);
-	  Fupcase_initials_region (make_number (pos), make_number (pos + 1));
+	  /* Change just that: */
+	  pos = (int)BYTE_TO_CHAR(pos);
+	  Fupcase_initials_region(make_number(pos), make_number(pos + 1));
 	}
     }
 
-  hook = XSYMBOL (sym)->function;
-  if (!NILP (hook))
+  hook = XSYMBOL(sym)->function;
+  if (!NILP(hook))
     {
       Lisp_Object expanded, prop;
 
@@ -431,39 +431,38 @@ Returns the abbrev symbol, if expansion took place.  */)
   return value;
 }
 
-DEFUN ("unexpand-abbrev", Funexpand_abbrev, Sunexpand_abbrev, 0, 0, "",
-       doc: /* Undo the expansion of the last abbrev that expanded.
+DEFUN("unexpand-abbrev", Funexpand_abbrev, Sunexpand_abbrev, 0, 0, "",
+      doc: /* Undo the expansion of the last abbrev that expanded.
 This differs from ordinary undo in that other editing done since then
 is not undone.  */)
      (void)
 {
-  int opoint = PT;
+  int opoint = (int)PT;
   int adjust = 0;
-  if (last_abbrev_point < BEGV
-      || last_abbrev_point > ZV)
+  if ((last_abbrev_point < BEGV) || (last_abbrev_point > ZV))
     return Qnil;
-  SET_PT (last_abbrev_point);
-  if (STRINGP (Vlast_abbrev_text))
+  SET_PT(last_abbrev_point);
+  if (STRINGP(Vlast_abbrev_text))
     {
       /* This isn't correct if Vlast_abbrev->function was used
          to do the expansion */
       Lisp_Object val;
       int zv_before;
 
-      val = SYMBOL_VALUE (Vlast_abbrev);
-      if (!STRINGP (val))
-	error ("Value of `abbrev-symbol' must be a string");
-      zv_before = ZV;
-      del_range_byte (PT_BYTE, PT_BYTE + SBYTES (val), 1);
-      /* Do NOT inherit properties here; just copy from old contents.  */
-      insert_from_string (Vlast_abbrev_text, 0, 0,
-			  SCHARS (Vlast_abbrev_text),
-			  SBYTES (Vlast_abbrev_text), 0);
+      val = SYMBOL_VALUE(Vlast_abbrev);
+      if (!STRINGP(val))
+	error("Value of `abbrev-symbol' must be a string");
+      zv_before = (int)ZV;
+      del_range_byte(PT_BYTE, (PT_BYTE + SBYTES(val)), (bool)1);
+      /* Do NOT inherit properties here; just copy from old contents: */
+      insert_from_string(Vlast_abbrev_text, (ptrdiff_t)0, (ptrdiff_t)0,
+			 SCHARS(Vlast_abbrev_text),
+			 SBYTES(Vlast_abbrev_text), (bool)0);
       Vlast_abbrev_text = Qnil;
-      /* Total number of characters deleted.  */
-      adjust = ZV - zv_before;
+      /* Total number of characters deleted: */
+      adjust = (int)(ZV - zv_before);
     }
-  SET_PT (last_abbrev_point < opoint ? opoint + adjust : opoint);
+  SET_PT((last_abbrev_point < opoint) ? (opoint + adjust) : opoint);
   return Qnil;
 }
 
@@ -472,30 +471,30 @@ static void write_abbrev(Lisp_Object sym, Lisp_Object stream)
 {
   Lisp_Object name, count, system_flag;
 
-  if (INTEGERP (XSYMBOL (sym)->plist))
+  if (INTEGERP(XSYMBOL(sym)->plist))
     {
-      count = XSYMBOL (sym)->plist;
+      count = XSYMBOL(sym)->plist;
       system_flag = Qnil;
     }
   else
     {
-      count = Fget (sym, Qcount);
-      system_flag = Fget (sym, Qsystem_type);
+      count = Fget(sym, Qcount);
+      system_flag = Fget(sym, Qsystem_type);
     }
 
-  if (NILP (SYMBOL_VALUE (sym)) || ! NILP (system_flag))
+  if (NILP(SYMBOL_VALUE(sym)) || ! NILP(system_flag))
     return;
 
-  insert ("    (", 5);
-  name = SYMBOL_NAME (sym);
-  Fprin1 (name, stream);
-  insert (" ", 1);
-  Fprin1 (SYMBOL_VALUE (sym), stream);
-  insert (" ", 1);
-  Fprin1 (XSYMBOL (sym)->function, stream);
-  insert (" ", 1);
-  Fprin1 (count, stream);
-  insert (")\n", 2);
+  insert("    (", (ptrdiff_t)5);
+  name = SYMBOL_NAME(sym);
+  Fprin1(name, stream);
+  insert(" ", (ptrdiff_t)1);
+  Fprin1(SYMBOL_VALUE(sym), stream);
+  insert(" ", (ptrdiff_t)1);
+  Fprin1(XSYMBOL(sym)->function, stream);
+  insert(" ", (ptrdiff_t)1);
+  Fprin1(count, stream);
+  insert(")\n", (ptrdiff_t)2);
 }
 
 /* newly proto-ized: */
@@ -503,40 +502,40 @@ static void describe_abbrev(Lisp_Object sym, Lisp_Object stream)
 {
   Lisp_Object one, count, system_flag;
 
-  if (INTEGERP (XSYMBOL (sym)->plist))
+  if (INTEGERP(XSYMBOL(sym)->plist))
     {
-      count = XSYMBOL (sym)->plist;
+      count = XSYMBOL(sym)->plist;
       system_flag = Qnil;
     }
   else
     {
-      count = Fget (sym, Qcount);
-      system_flag = Fget (sym, Qsystem_type);
+      count = Fget(sym, Qcount);
+      system_flag = Fget(sym, Qsystem_type);
     }
 
-  if (NILP (SYMBOL_VALUE (sym)))
+  if (NILP(SYMBOL_VALUE(sym)))
     return;
 
-  one = make_number (1);
-  Fprin1 (Fsymbol_name (sym), stream);
+  one = make_number((EMACS_INT)1);
+  Fprin1(Fsymbol_name(sym), stream);
 
-  if (!NILP (system_flag))
+  if (!NILP(system_flag))
     {
-      insert_string (" (sys)");
-      Findent_to (make_number (20), one);
+      insert_string(" (sys)");
+      Findent_to(make_number((EMACS_INT)20), one);
     }
   else
-    Findent_to (make_number (15), one);
+    Findent_to(make_number((EMACS_INT)15), one);
 
-  Fprin1 (count, stream);
-  Findent_to (make_number (20), one);
-  Fprin1 (SYMBOL_VALUE (sym), stream);
-  if (!NILP (XSYMBOL (sym)->function))
+  Fprin1(count, stream);
+  Findent_to(make_number((EMACS_INT)20), one);
+  Fprin1(SYMBOL_VALUE(sym), stream);
+  if (!NILP(XSYMBOL(sym)->function))
     {
-      Findent_to (make_number (45), one);
-      Fprin1 (XSYMBOL (sym)->function, stream);
+      Findent_to(make_number((EMACS_INT)45), one);
+      Fprin1(XSYMBOL(sym)->function, stream);
     }
-  Fterpri (stream);
+  Fterpri(stream);
 }
 
 /* newly proto-ized: */
@@ -545,9 +544,9 @@ static void record_symbol(Lisp_Object sym, Lisp_Object list)
   XSETCDR(list, Fcons(sym, XCDR(list)));
 }
 
-DEFUN ("insert-abbrev-table-description", Finsert_abbrev_table_description,
-       Sinsert_abbrev_table_description, 1, 2, 0,
-       doc: /* Insert before point a full description of abbrev table named NAME.
+DEFUN("insert-abbrev-table-description", Finsert_abbrev_table_description,
+      Sinsert_abbrev_table_description, 1, 2, 0,
+      doc: /* Insert before point a full description of abbrev table named NAME.
 NAME is a symbol whose value is an abbrev table.
 If optional 2nd arg READABLE is non-nil, a human-readable description
 is inserted.  Otherwise the description is an expression,
@@ -562,49 +561,49 @@ READABLE is non-nil, they are listed.  */)
   Lisp_Object symbols;
   Lisp_Object stream;
 
-  CHECK_SYMBOL (name);
-  table = Fsymbol_value (name);
-  CHECK_VECTOR (table);
+  CHECK_SYMBOL(name);
+  table = Fsymbol_value(name);
+  CHECK_VECTOR(table);
 
-  XSETBUFFER (stream, current_buffer);
+  XSETBUFFER(stream, current_buffer);
 
-  symbols = Fcons (Qnil, Qnil);
-  map_obarray (table, record_symbol, symbols);
-  symbols = XCDR (symbols);
-  symbols = Fsort (symbols, Qstring_lessp);
+  symbols = Fcons(Qnil, Qnil);
+  map_obarray(table, record_symbol, symbols);
+  symbols = XCDR(symbols);
+  symbols = Fsort(symbols, Qstring_lessp);
 
-  if (!NILP (readable))
+  if (!NILP(readable))
     {
-      insert_string ("(");
-      Fprin1 (name, stream);
-      insert_string (")\n\n");
-      while (! NILP (symbols))
+      insert_string("(");
+      Fprin1(name, stream);
+      insert_string(")\n\n");
+      while (! NILP(symbols))
 	{
-	  describe_abbrev (XCAR (symbols), stream);
-	  symbols = XCDR (symbols);
+	  describe_abbrev(XCAR(symbols), stream);
+	  symbols = XCDR(symbols);
 	}
 
-      insert_string ("\n\n");
+      insert_string("\n\n");
     }
   else
     {
-      insert_string ("(define-abbrev-table '");
-      Fprin1 (name, stream);
-      insert_string (" '(\n");
-      while (! NILP (symbols))
+      insert_string("(define-abbrev-table '");
+      Fprin1(name, stream);
+      insert_string(" '(\n");
+      while (! NILP(symbols))
 	{
-	  write_abbrev (XCAR (symbols), stream);
+	  write_abbrev(XCAR(symbols), stream);
 	  symbols = XCDR (symbols);
 	}
-      insert_string ("    ))\n\n");
+      insert_string("    ))\n\n");
     }
 
   return Qnil;
 }
 
-DEFUN ("define-abbrev-table", Fdefine_abbrev_table, Sdefine_abbrev_table,
-       2, 2, 0,
-       doc: /* Define TABLENAME (a symbol) as an abbrev table name.
+DEFUN("define-abbrev-table", Fdefine_abbrev_table, Sdefine_abbrev_table,
+      2, 2, 0,
+      doc: /* Define TABLENAME (a symbol) as an abbrev table name.
 Define abbrevs in it according to DEFINITIONS, which is a list of elements
 of the form (ABBREVNAME EXPANSION HOOK USECOUNT SYSTEMFLAG).
 \(If the list is shorter than that, omitted elements default to nil).  */)
@@ -614,25 +613,25 @@ of the form (ABBREVNAME EXPANSION HOOK USECOUNT SYSTEMFLAG).
   Lisp_Object table, elt, sys;
   int i;
 
-  CHECK_SYMBOL (tablename);
-  table = Fboundp (tablename);
-  if (NILP (table) || (table = Fsymbol_value (tablename), NILP (table)))
+  CHECK_SYMBOL(tablename);
+  table = Fboundp(tablename);
+  if (NILP(table) || (table = Fsymbol_value(tablename), NILP(table)))
     {
-      table = Fmake_abbrev_table ();
-      Fset (tablename, table);
-      Vabbrev_table_name_list = Fcons (tablename, Vabbrev_table_name_list);
+      table = Fmake_abbrev_table();
+      Fset(tablename, table);
+      Vabbrev_table_name_list = Fcons(tablename, Vabbrev_table_name_list);
     }
-  CHECK_VECTOR (table);
+  CHECK_VECTOR(table);
 
   for (i = 0; CONSP(definitions); definitions = XCDR(definitions))
     {
-      elt = XCAR (definitions);
-      name  = Fcar (elt);	elt = Fcdr (elt);
-      exp   = Fcar (elt);	elt = Fcdr (elt);
-      hook  = Fcar (elt);	elt = Fcdr (elt);
-      count = Fcar (elt);	elt = Fcdr (elt);
-      sys   = Fcar (elt);
-      Fdefine_abbrev (table, name, exp, hook, count, sys);
+      elt = XCAR(definitions);
+      name  = Fcar(elt);	elt = Fcdr(elt);
+      exp   = Fcar(elt);	elt = Fcdr(elt);
+      hook  = Fcar(elt);	elt = Fcdr(elt);
+      count = Fcar(elt);	elt = Fcdr(elt);
+      sys   = Fcar(elt);
+      Fdefine_abbrev(table, name, exp, hook, count, sys);
       i++;
     }
   return Qnil;
@@ -640,92 +639,92 @@ of the form (ABBREVNAME EXPANSION HOOK USECOUNT SYSTEMFLAG).
 
 void syms_of_abbrev(void)
 {
-  Qsystem_type = intern ("system-type");
+  Qsystem_type = intern("system-type");
   staticpro (&Qsystem_type);
 
-  Qcount = intern ("count");
-  staticpro (&Qcount);
+  Qcount = intern("count");
+  staticpro(&Qcount);
 
-  Qforce = intern ("force");
-  staticpro (&Qforce);
+  Qforce = intern("force");
+  staticpro(&Qforce);
 
-  DEFVAR_LISP ("abbrev-table-name-list", Vabbrev_table_name_list,
-	       doc: /* List of symbols whose values are abbrev tables.  */);
-  Vabbrev_table_name_list = Fcons (intern ("fundamental-mode-abbrev-table"),
-				   Fcons (intern ("global-abbrev-table"),
-					  Qnil));
+  DEFVAR_LISP("abbrev-table-name-list", Vabbrev_table_name_list,
+	      doc: /* List of symbols whose values are abbrev tables.  */);
+  Vabbrev_table_name_list = Fcons(intern("fundamental-mode-abbrev-table"),
+				  Fcons(intern("global-abbrev-table"),
+                                        Qnil));
 
-  DEFVAR_LISP ("global-abbrev-table", Vglobal_abbrev_table,
-	       doc: /* The abbrev table whose abbrevs affect all buffers.
+  DEFVAR_LISP("global-abbrev-table", Vglobal_abbrev_table,
+	      doc: /* The abbrev table whose abbrevs affect all buffers.
 Each buffer may also have a local abbrev table.
 If it does, the local table overrides the global one
 for any particular abbrev defined in both.  */);
-  Vglobal_abbrev_table = Fmake_abbrev_table ();
+  Vglobal_abbrev_table = Fmake_abbrev_table();
 
-  DEFVAR_LISP ("fundamental-mode-abbrev-table", Vfundamental_mode_abbrev_table,
-	       doc: /* The abbrev table of mode-specific abbrevs for Fundamental Mode.  */);
-  Vfundamental_mode_abbrev_table = Fmake_abbrev_table ();
+  DEFVAR_LISP("fundamental-mode-abbrev-table", Vfundamental_mode_abbrev_table,
+	      doc: /* The abbrev table of mode-specific abbrevs for Fundamental Mode.  */);
+  Vfundamental_mode_abbrev_table = Fmake_abbrev_table();
   current_buffer->INTERNAL_FIELD(abbrev_table) = Vfundamental_mode_abbrev_table;
   buffer_defaults.INTERNAL_FIELD(abbrev_table) = Vfundamental_mode_abbrev_table;
 
-  DEFVAR_LISP ("last-abbrev", Vlast_abbrev,
-	       doc: /* The abbrev-symbol of the last abbrev expanded.  See `abbrev-symbol'.  */);
+  DEFVAR_LISP("last-abbrev", Vlast_abbrev,
+	      doc: /* The abbrev-symbol of the last abbrev expanded.  See `abbrev-symbol'.  */);
 
-  DEFVAR_LISP ("last-abbrev-text", Vlast_abbrev_text,
-	       doc: /* The exact text of the last abbrev expanded.
+  DEFVAR_LISP("last-abbrev-text", Vlast_abbrev_text,
+	      doc: /* The exact text of the last abbrev expanded.
 A value of nil means the abbrev has already been unexpanded.  */);
 
-  DEFVAR_INT ("last-abbrev-location", last_abbrev_point,
-	      doc: /* The location of the start of the last abbrev expanded.  */);
+  DEFVAR_INT("last-abbrev-location", last_abbrev_point,
+	     doc: /* The location of the start of the last abbrev expanded.  */);
 
   Vlast_abbrev = Qnil;
   Vlast_abbrev_text = Qnil;
   last_abbrev_point = 0;
 
-  DEFVAR_LISP ("abbrev-start-location", Vabbrev_start_location,
-	       doc: /* Buffer position for `expand-abbrev' to use as the start of the abbrev.
+  DEFVAR_LISP("abbrev-start-location", Vabbrev_start_location,
+	      doc: /* Buffer position for `expand-abbrev' to use as the start of the abbrev.
 When nil, use the word before point as the abbrev.
 Calling `expand-abbrev' sets this to nil.  */);
   Vabbrev_start_location = Qnil;
 
-  DEFVAR_LISP ("abbrev-start-location-buffer", Vabbrev_start_location_buffer,
-	       doc: /* Buffer that `abbrev-start-location' has been set for.
+  DEFVAR_LISP("abbrev-start-location-buffer", Vabbrev_start_location_buffer,
+	      doc: /* Buffer that `abbrev-start-location' has been set for.
 Trying to expand an abbrev in any other buffer clears `abbrev-start-location'.  */);
   Vabbrev_start_location_buffer = Qnil;
 
   /* DEFVAR_PER_BUFFER is special and can continue to start its second
    * parameter with an ampersand: */
-  DEFVAR_PER_BUFFER ("local-abbrev-table", &current_buffer->INTERNAL_FIELD(abbrev_table), Qnil,
-		     doc: /* Local (mode-specific) abbrev table of current buffer.  */);
+  DEFVAR_PER_BUFFER("local-abbrev-table", &current_buffer->INTERNAL_FIELD(abbrev_table), Qnil,
+		    doc: /* Local (mode-specific) abbrev table of current buffer.  */);
 
-  DEFVAR_BOOL ("abbrevs-changed", abbrevs_changed,
-	       doc: /* Set non-nil by defining or altering any word abbrevs.
+  DEFVAR_BOOL("abbrevs-changed", abbrevs_changed,
+	      doc: /* Set non-nil by defining or altering any word abbrevs.
 This causes `save-some-buffers' to offer to save the abbrevs.  */);
   abbrevs_changed = 0;
 
-  DEFVAR_BOOL ("abbrev-all-caps", abbrev_all_caps,
-	       doc: /* *Set non-nil means expand multi-word abbrevs all caps if abbrev was so.  */);
+  DEFVAR_BOOL("abbrev-all-caps", abbrev_all_caps,
+	      doc: /* *Set non-nil means expand multi-word abbrevs all caps if abbrev was so.  */);
   abbrev_all_caps = 0;
 
-  DEFVAR_LISP ("pre-abbrev-expand-hook", Vpre_abbrev_expand_hook,
-	       doc: /* Function or functions to be called before abbrev expansion is done.
+  DEFVAR_LISP("pre-abbrev-expand-hook", Vpre_abbrev_expand_hook,
+	      doc: /* Function or functions to be called before abbrev expansion is done.
 This is the first thing that `expand-abbrev' does, and so this may change
 the current abbrev table before abbrev lookup happens.  */);
   Vpre_abbrev_expand_hook = Qnil;
-  Qpre_abbrev_expand_hook = intern ("pre-abbrev-expand-hook");
-  staticpro (&Qpre_abbrev_expand_hook);
+  Qpre_abbrev_expand_hook = intern("pre-abbrev-expand-hook");
+  staticpro(&Qpre_abbrev_expand_hook);
 
-  defsubr (&Smake_abbrev_table);
-  defsubr (&Sclear_abbrev_table);
-  defsubr (&Sdefine_abbrev);
-  defsubr (&Sdefine_global_abbrev);
-  defsubr (&Sdefine_mode_abbrev);
-  defsubr (&Sabbrev_expansion);
-  defsubr (&Sabbrev_symbol);
-  defsubr (&Sexpand_abbrev);
-  defsubr (&Sunexpand_abbrev);
-  defsubr (&Sinsert_abbrev_table_description);
-  defsubr (&Sdefine_abbrev_table);
+  defsubr(&Smake_abbrev_table);
+  defsubr(&Sclear_abbrev_table);
+  defsubr(&Sdefine_abbrev);
+  defsubr(&Sdefine_global_abbrev);
+  defsubr(&Sdefine_mode_abbrev);
+  defsubr(&Sabbrev_expansion);
+  defsubr(&Sabbrev_symbol);
+  defsubr(&Sexpand_abbrev);
+  defsubr(&Sunexpand_abbrev);
+  defsubr(&Sinsert_abbrev_table_description);
+  defsubr(&Sdefine_abbrev_table);
 }
 
 /* arch-tag: b721db69-f633-44a8-a361-c275acbdad7d

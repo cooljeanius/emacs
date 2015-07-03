@@ -165,11 +165,11 @@ extern time_t timezone;
  * should be an absolute time, since the epoch and B have a nonnegative
  * offset.  */
 
-/* Return an invalid timespec.  */
+/* Return an invalid timespec: */
 INLINE struct timespec
 invalid_timespec(void)
 {
-  return make_timespec(0, -1);
+  return make_timespec((time_t)0L, -1L);
 }
 
 /* Return true if TIME is a valid timespec.  This currently doesn't worry

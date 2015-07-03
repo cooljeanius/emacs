@@ -143,12 +143,15 @@ if test -n "${XCRUN}"; then
       xcsdkdir="`${XCRUN} --show-sdk-path 2>/dev/null`"
       AC_MSG_NOTICE([xcsdkdir is "${xcsdkdir}"])
       AC_SUBST([xcsdkdir])
+    else
+      test -n "${MAKE_PROG}" && test -x "${MAKE_PROG}"
+      AC_MSG_NOTICE([no need to find xcsdkdir when we already have a working 'make' program (i.e. '${MAKE_PROG}')])
     fi
   fi
 else
   if test -z "${MAKE}"; then
     dnl# since we do NOT have xcrun in this case, we can check more names
-    dnl# for 'make' than xcrun knows about:
+    dnl# for 'make' than just what xcrun knows about:
     AC_CHECK_PROGS([MAKE_PROG],[make gmake gnumake remake])
   fi
 fi
@@ -566,7 +569,7 @@ AC_ARG_ENABLE([check-lisp-object-type],
 [AS_HELP_STRING([--enable-check-lisp-object-type],
                 [enable compile time checks for the Lisp_Object data type.
 		 This is useful for development for catching certain types
-		 of bugs.])],
+		 of bugs by turning them into build errors.])],
 [if test "x${enableval}" != "xno"; then
    AC_DEFINE([CHECK_LISP_OBJECT_TYPE],[1],
    [Define this to enable compile time checks for the Lisp_Object data type.])
@@ -2730,12 +2733,8 @@ if test "x${ac_test_CFLAGS}" != "xset"; then
     '-g')
       emacs_g3_CFLAGS="${gthree}";;
     '-g -O2')
-      if test "x${GCC}" = "xyes" && test "x${CLANG_ANALYZER}" = "xfalse"; then
-        extra_debug_opt_CFLAGS="-fno-omit-frame-pointer -fno-crossjumping"
-      else
-        extra_debug_opt_CFLAGS="-fno-omit-frame-pointer"
-      fi
-      emacs_g3_CFLAGS="${gthree} -O2 ${extra_debug_opt_CFLAGS}";;
+      ## try to limit the flags tested here; others have been moved below.
+      emacs_g3_CFLAGS="${gthree} -O2";;
     '-g -Og')
       emacs_g3_CFLAGS="${gthree} -Og";;
     *)
@@ -3614,18 +3613,70 @@ else
 fi  ##end conditional on gl_gcc_warnings
 
 if test "x${gl_better_debugging}" = "xyes"; then
-  ## Not exactly warning flags, but adding them this way is easier:
+  ##### Not exactly warning flags, but adding them this way is easier:
+  AC_MSG_CHECKING([other compiler flags])
+  AC_MSG_RESULT([ ])
+  dnl# Apple includes this as parts of its GCC_DEBUGGING_SYMBOLS checkbox
+  dnl# that it exposes in its Xcode GUI:
   gl_WARN_ADD([-fno-eliminate-unused-debug-symbols],[BETTER_DEBUG_CFLAGS])
+  dnl# etc/DEBUG mentions this:
+  gl_WARN_ADD([-fno-crossjumping],[BETTER_DEBUG_CFLAGS])
+  dnl# See note about '-fexceptions' below:
+  gl_WARN_ADD([-fno-delete-dead-exceptions],[BETTER_DEBUG_CFLAGS])
+  dnl# I have added a bunch of null pointer checks to satisfy the clang
+  dnl# static analyzer, and want to make sure that I am not causing any
+  dnl# code paths to be deleted when I use null pointer checks like that:
+  gl_WARN_ADD([-fno-delete-null-pointer-checks],[BETTER_DEBUG_CFLAGS])
+  gl_WARN_ADD([-fno-isolate-erroneous-paths-dereference],
+              [BETTER_DEBUG_CFLAGS])
+  dnl# etc/DEBUG mentions this:
+  gl_WARN_ADD([-fno-omit-frame-pointer],[BETTER_DEBUG_CFLAGS])
+  dnl# etc/PROBLEMS mentions this, as well as a later part of this file:
+  gl_COMPILER_OPTION_IF([-fno-optimize-sibling-calls],
+                        [if test "x${GCC}" = "xyes" \
+  && test x"`${CC} --version 2>/dev/null | grep 'gcc.* 4.5.0'`" != x"" \
+  && test x"`echo ${CFLAGS} | grep '\-O@<:@23@:>@'`" != x""; then
+   CFLAGS="${CFLAGS} -fno-optimize-sibling-calls"
+  else
+   BETTER_DEBUG_CFLAGS="${BETTER_DEBUG_CFLAGS} -fno-optimize-sibling-calls"
+  fi])
+  dnl# I remember a thread on the emacs-devel mailing list about the
+  dnl# positive version of this flag causing issues, so use its negative:
+  gl_WARN_ADD([-fno-optimize-strlen],[BETTER_DEBUG_CFLAGS])
+  dnl# It has "dangerous" in its name:
+  gl_WARN_ADD([-fno-sched-spec-load-dangerous],[BETTER_DEBUG_CFLAGS])
+  dnl# The GCC manual says that this can affect the debugging experience:
+  gl_WARN_ADD([-fno-split-wide-types],[BETTER_DEBUG_CFLAGS])
+  dnl# FIXME: investigate if '-fno-zero-initialized-in-bss' affects the
+  dnl# unexec/dumping process at all.  Likewise with '-fno-common'.
+  ##
+  dnl# This next one is not supported for C currently, but it is not
+  dnl# rejected either, so why not try it, in case one day the C frontend
+  dnl# does support it?
   gl_WARN_ADD([-fbounds-check],[BETTER_DEBUG_CFLAGS])
+  dnl# More for debugging gcc than emacs, but whatever:
+  gl_WARN_ADD([-fcheck-data-deps],[BETTER_DEBUG_CFLAGS])
+  dnl# emacs does some weird exception handling stuff (specifically the
+  dnl# .gdbinit file signals some sort of exception handler function in the
+  dnl# program), so this might be necessary:
+  gl_WARN_ADD([-fexceptions],[BETTER_DEBUG_CFLAGS])
+  dnl# FIXME: might also want to check for the required runtime support
+  dnl# for this next one:
   gl_WARN_ADD([-fstack-check],[BETTER_DEBUG_CFLAGS])
+  dnl# For stuff that -Wstrict-overflow=1 might miss:
   gl_WARN_ADD([-ftrapv],[BETTER_DEBUG_CFLAGS])
+  dnl# These next two should both already be enabled by '-g', but just in
+  dnl# case something happened:
+  gl_WARN_ADD([-fvar-tracking],[BETTER_DEBUG_CFLAGS])
+  gl_WARN_ADD([-fvar-tracking-assignments],[BETTER_DEBUG_CFLAGS])
+  dnl# Who knows, might be useful:
+  gl_WARN_ADD([-gpubnames],[BETTER_DEBUG_CFLAGS])
+  dnl# I think I added this to try to fix some issues with dsymutil:
   gl_WARN_ADD([-gstrict-dwarf],[BETTER_DEBUG_CFLAGS])
   AC_SUBST([BETTER_DEBUG_CFLAGS])dnl
   ## Is that enough?
 fi
 
-##FIXME: also change "-O2/-O3" to "-Og" if "gl_better_debugging" is yes,
-## and the compiler supports it:
 edit_cflags="
   s,///*,/,g
   s/^/ /
@@ -3633,7 +3684,48 @@ edit_cflags="
   s/^ //
 "
 
-CFLAGS="${PRE_WARNING_TESTING_CFLAGS}"
+if test "x${gl_better_debugging}" = "xyes"; then
+  ## might want to add back '&& test "x${CLANG_ANALYZER}" = "xfalse"':
+  if test "x${GCC}" = "xyes"; then
+    gl_COMPILER_OPTION_IF([-Og],[
+    case ${CFLAGS} in
+      *-O2*)
+        edit_cflags="
+          ${edit_cflags}
+          s/ -O2/ -Og/g
+        "
+        ;;
+      *-O3*)
+        edit_cflags="
+          ${edit_cflags}
+          s/ -O3/ -Og/g
+        "
+        ;;
+      *-Ofast*)
+        edit_cflags="
+          ${edit_cflags}
+          s/ -Ofast/ -Og/g
+        "
+        ;;
+    esac
+    ])
+  fi
+fi
+
+dnl# FIXME: I would like to be able to subst edit_cflags, but that leads to
+dnl# make errors...
+
+if test "x${edit_cflags}" != "x"; then
+  test -x "`which sed`"
+  test -n "${edit_cflags}" && export CFLAGS=`AS_ECHO(["${PRE_WARNING_TESTING_CFLAGS}"]) | sed -e "${edit_cflags}"`
+  if test "x${CFLAGS}" != "x${PRE_WARNING_TESTING_CFLAGS}"; then
+    AC_MSG_NOTICE([we have edited CFLAGS; they are now '${CFLAGS}'])
+  fi
+else
+  CFLAGS="${PRE_WARNING_TESTING_CFLAGS}"
+fi
+dnl# This is a hack to avoid breaking the clang static analyzer:
+AC_SUBST([PRE_WARNING_TESTING_CFLAGS])dnl
 
 dnl########################################################################
 dnl# Port to Automake 1.11.
@@ -4117,6 +4209,11 @@ esac
 ]
 dnl# m4-quotation block 7 ends (for LIBS_SYSTEM)
 
+AC_SUBST([LIBRARY_PATH])dnl
+AC_ARG_VAR([LIBRARY_PATH],
+           [Additional directories for the compiler to search for libraries
+            when linking, after any '-L' options.])dnl
+
 AC_SUBST([LIBS_SYSTEM])dnl
 
 dnl# m4-quotation block 8 begins:
@@ -4166,17 +4263,33 @@ AC_CHECK_TYPES([ptrdiff_t])dnl
 AC_CHECK_TYPES([rlim_t])dnl
 AC_CHECK_TYPES([time_t])dnl
 
-dnl# sizes/alignments:
+dnl# sizes/alignments, in order of what should be the smallest to what
+dnl# should be the largest:
 AC_CHECK_SIZEOF([char])dnl
 AC_CHECK_ALIGNOF([char])dnl
-AC_CHECK_SIZEOF([char *])dnl
-AC_CHECK_ALIGNOF([char *])dnl
 AC_CHECK_SIZEOF([short])dnl
 AC_CHECK_ALIGNOF([short])dnl
 AC_CHECK_SIZEOF([int])dnl
 AC_CHECK_ALIGNOF([int])dnl
 AC_CHECK_SIZEOF([long])dnl
 AC_CHECK_ALIGNOF([long])dnl
+AC_CHECK_SIZEOF([char *])dnl# Notice that it is a pointer this time.
+AC_CHECK_ALIGNOF([char *])dnl# Likewise.
+
+if test "x${gl_better_debugging}" = "xyes"; then
+  if test "x${ac_cv_sizeof_char_p}" != "x"; then
+    test -n "${ac_cv_sizeof_char_p}"
+    dnl# see if these will silence some '-Wcast-align' warnings:
+    gl_WARN_ADD([-falign-functions=${ac_cv_alignof_char_p}],
+                [BETTER_DEBUG_CFLAGS])
+    gl_WARN_ADD([-falign-labels=${ac_cv_alignof_char_p}],
+                [BETTER_DEBUG_CFLAGS])
+    gl_WARN_ADD([-falign-loops=${ac_cv_alignof_char_p}],
+                [BETTER_DEBUG_CFLAGS])
+    gl_WARN_ADD([-falign-jumps=${ac_cv_alignof_char_p}],
+                [BETTER_DEBUG_CFLAGS])
+  fi
+fi  
 
 dnl# Check for speed_t typedef.
 if test "x${ac_cv_header_termios_h}" = "x"; then
@@ -4387,9 +4500,9 @@ AC_CHECK_HEADERS([OS.h arpa/inet.h dpmi.h err.h errno.h fcntl.h float.h \
                   io.h langinfo.h libc.h libintl.h limits.h locale.h \
                   malloc.h mbstring.h msvcrt/string.h paths.h nl_types.h \
                   sgtty.h signal.h stddef.h sys/_mbstate_t.h sys/bsdtty.h \
-                  sys/file.h sys/ptyio.h sys/signal.h sys/syslimits.h \
-                  sys/timeb.h sys/vfs.h sysexits.h termcap.h termio.h \
-                  timespec.h unixlib.h])
+                  sys/file.h sys/ptyio.h sys/signal.h sys/sysctl.h \
+                  sys/syslimits.h sys/timeb.h sys/vfs.h sysexits.h \
+                  termcap.h termio.h timespec.h unixlib.h])
 dnl# (usually I would have checked <malloc/malloc.h> just after <malloc.h>,
 dnl# but we do that elsewhere in this one)
 if test "x${ac_cv_header_stdalign_h}" = "x"; then
@@ -4481,14 +4594,15 @@ dnl# well this one at least is here so we can know if we need to check
 dnl# for mach headers:
 AC_CHECK_DECLS([__MACH__])
 if test "x${ac_cv_have_decl___MACH__}" = "xyes" || test -d /usr/include/mach; then
-  AC_CHECK_HEADERS([mach/mach.h mach/machine/vm_param.h mach/vm_region.h])
+  AC_CHECK_HEADERS([mach/mach.h mach/machine/vm_param.h \
+                    mach/processor_info.h mach/vm_region.h])
 fi
 if test "x${ac_cv_have_decl___MACH__}" = "xyes" || test -d /usr/include/mach-o; then
   ## this is referred to as "documentation" by unexmacosx.c:
   AC_CHECK_HEADERS([mach-o/loader.h])
   ## other possibly useful headers from that directory:
-  AC_CHECK_HEADERS([mach-o/arch.h mach-o/getsect.h mach-o/nlist.h \
-                    mach-o/ldsyms.h mach-o/reloc.h])
+  AC_CHECK_HEADERS([mach-o/arch.h mach-o/dyld.h mach-o/getsect.h \
+                    mach-o/nlist.h mach-o/ldsyms.h mach-o/reloc.h])
   if test "x${machine}" = "xmacppc" || test "x${machine}" = "xpowermac"; then
     test -n "${machine}"
     AC_CHECK_HEADERS([mach-o/ppc/reloc.h])
@@ -4560,6 +4674,18 @@ AC_CHECK_MEMBERS([struct ifreq.ifr_flags, struct ifreq.ifr_hwaddr,
 # endif /* __GNUC__ && !__STRICT_ANSI__ */
 #endif /* HAVE_NET_IF_H */
 ])dnl
+AC_CHECK_MEMBERS([struct processor_set_basic_info.default_policy,
+                  struct processor_set_basic_info.load_average,
+                  struct processor_set_basic_info.processor_count],[],[],[
+AC_INCLUDES_DEFAULT
+#ifdef HAVE_MACH_PROCESSOR_INFO_H
+# include <mach/processor_info.h>
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(__MACH__)
+#  warning "this conftest expects <mach/processor_info.h> to be included."
+# endif /* __GNUC__ && !__STRICT_ANSI__ && __MACH__ */
+#endif /* HAVE_MACH_PROCESSOR_INFO_H */
+])dnl
 dnl# definition of macro for checking timezone structs has been moved to:
 m4_include([m4/timezone_structs.m4])dnl
 AC_REQUIRE_TIMEZONE_STRUCTS
@@ -4575,6 +4701,8 @@ x.name = ""; x.type = 1;
 HAVE_EXCEPTION="${emacs_cv_struct_exception}"
 AC_SUBST([HAVE_STRUCT_EXCEPTION],["${HAVE_EXCEPTION}"])
 if test "x${emacs_cv_struct_exception}" != "xyes"; then
+  dnl# Specifically, it was the name of this define that made me think that
+  dnl# the next check might be related:
   AC_DEFINE([NO_MATHERR],[1],
             [Define to 1 if you do NOT have struct exception in <math.h>.])
   MATHLESS_CFLAGS="${CFLAGS}"
@@ -4745,7 +4873,11 @@ AC_MSG_CHECKING([operating system services])
 AC_MSG_RESULT([ ])
 AC_SYS_LONG_FILE_NAMES
 m4_ifdef([AC_SYS_RESTARTABLE_SYSCALLS],[
-  AC_SYS_RESTARTABLE_SYSCALLS
+  dnl# This takes a while to execute, due to calls to sleep:
+  if test "x${I_CAN_AFFORD_TO_WAIT_AROUND}" = "xyes"; then
+    test -n "${I_CAN_AFFORD_TO_WAIT_AROUND}"
+    AC_SYS_RESTARTABLE_SYSCALLS
+  fi
 ])dnl
 dnl# this one is kind of a different type of "service", but whatever:
 AC_LANG_PUSH([Objective C])dnl
@@ -7620,6 +7752,8 @@ else
   dnl# Should we look elsewhere for it?  Maybe examine /etc/ld.so.conf?
   AC_CHECK_PROG([liblockfile],[liblockfile.so],[yes],[no],
                 [/usr/lib:/lib:/usr/local/lib:${LD_LIBRARY_PATH}])
+  AC_SUBST([LD_LIBRARY_PATH])dnl
+  ## error message:
   if test "x${ac_cv_prog_liblockfile}" = "xyes"; then
     AC_MSG_ERROR([Shared liblockfile found but cannot link against it.
 This probably means that movemail could lose mail.
@@ -7782,8 +7916,8 @@ AC_CHECK_FUNCS([__fpending _stricmp acl atexit atof atoi btowc bzero \
                 reallocf regcomp rmdir setenv socket sqrt strcasecmp \
                 strcasestr strchr strcmp strcspn strdup strerror stricmp \
                 strlcat strlcpy strncasecmp strncat strncmp strnicmp \
-                strnstr strpbrk strrchr strtok strtol strtoul system \
-                xstricmp utime utmpname vfprintf])
+                strnstr strpbrk strrchr strtok strtol strtoul sysctl \
+                system xstricmp utime utmpname vfprintf])
 dnl# Keep autoscan happy with a dummy condition:
 if test "x" = "Y0"; then
   test -x "`which autoscan`"
@@ -9165,7 +9299,9 @@ elif test -e ./lisp/version.el; then
 fi
 if test x"${version}" = x""; then
   if test "x${PACKAGE_VERSION}" != "x"; then
-    AC_MSG_WARN([cannot find current emacs version in `${srcdir}/lisp/version.el', using ${PACKAGE_VERSION} instead.])
+    if test -e ${srcdir}/lisp/version.el; then
+      AC_MSG_WARN([cannot find current emacs version in `${srcdir}/lisp/version.el', using ${PACKAGE_VERSION} instead.])
+    fi
     test -z "${version}" && test -n "${PACKAGE_VERSION}" && export version="${PACKAGE_VERSION}"
   else
     AC_MSG_ERROR([cannot find current emacs version in `${srcdir}/lisp/version.el', and PACKAGE_VERSION is undefined.])
@@ -9589,8 +9725,8 @@ case "${opsys}" in
    fi
    LD_SWITCH_SYSTEM_TEMACS="-fno-pie ${prebind} ${libs_nsgui} -Xlinker -headerpad -Xlinker ${headerpad_extra}"
    ## (why not just use '-headerpad_max_install_names'? Would that not be
-   ## more inline with GNU policy of preferring dynamic limits over
-   ## arbitrary, hard-coded ones?)
+   ##  more in line with GNU policy of preferring dynamic limits over
+   ##  arbitrary, hard-coded ones?)
 
    if test "x${LD_NO_PIE}" != "xNO"; then
      ## Apple uses this in their Makefile, and other platforms use

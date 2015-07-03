@@ -455,6 +455,9 @@ extern int errno;
 #  else
 #   include <mach.h>
 #  endif /* HAVE_MACH_MACH_H */
+#  ifdef HAVE_MACH_PROCESSOR_INFO_H
+#   include <mach/processor_info.h>
+#  endif /* HAVE_MACH_PROCESSOR_INFO_H */
 #  ifdef HAVE_MACH_VM_PARAM_H
 #   include <mach/vm_param.h>
 #  endif /* HAVE_MACH_VM_PARAM_H */
@@ -501,7 +504,6 @@ extern int errno;
 #  include <sys/resource.h>
 # endif /* HAVE_SYS_RESOURCE_H */
 
-/* FIXME: add a proper conftest for this header: */
 # if defined(HAVE_SYS_SYSCTL_H) || defined(NeXT)
 #  include <sys/sysctl.h>
 # else
@@ -704,7 +706,6 @@ getloadavg(double loadavg[], int nelem)
   struct loadavg loadinfo;
   int i;
 
-  /* FIXME: add a proper conftest for this function: */
 #  if defined(HAVE_SYSCTL) || (defined(CTL_VM) && defined(VM_LOADAVG))
   int mib[2];
   size_t the_size;
@@ -712,7 +713,7 @@ getloadavg(double loadavg[], int nelem)
   mib[0] = CTL_VM;
   mib[1] = VM_LOADAVG;
   the_size = sizeof(loadinfo);
-  if (sysctl(mib, 2, &loadinfo, &the_size, NULL, 0) < 0)
+  if (sysctl(mib, (u_int)2U, &loadinfo, &the_size, NULL, (size_t)0UL) < 0)
     return (-1);
 #  else
 #   if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(NeXT)
@@ -744,15 +745,17 @@ getloadavg(double loadavg[], int nelem)
       else
 	{
 	  if (nelem > 0) {
-            /* FIXME: add a proper conftest for this structure member: */
-#  ifdef HAVE_PROCESSOR_SET_BASIC_INFO_LOAD_AVERAGE
+#  ifdef HAVE_STRUCT_PROCESSOR_SET_BASIC_INFO_LOAD_AVERAGE
 	    loadavg[elem++] = ((double)info.load_average / LOAD_SCALE);
 #  else
             for (i = 0; i < nelem; i++) {
-              loadavg[i] = ((double)loadinfo.ldavg[i] / loadinfo.fscale);
+              /* no, this cannot be reduced to a single cast outside the
+               * parentheses; that makes it print incorrect output: */
+              loadavg[i] = ((double)loadinfo.ldavg[i]
+                            / (double)loadinfo.fscale);
               elem++;
             }
-#  endif /* HAVE_PROCESSOR_SET_BASIC_INFO_LOAD_AVERAGE */
+#  endif /* HAVE_STRUCT_PROCESSOR_SET_BASIC_INFO_LOAD_AVERAGE */
           }
 	}
     }

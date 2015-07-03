@@ -70,7 +70,7 @@ int main(void)
 {
     struct rlimit *rlp = (struct rlimit *)malloc(sizeof(struct rlimit));
     unsigned long long int max_data_seg_size;
-    long long int end; /* i.e. EMACS_INT, or Lisp_Object */
+    Lisp_Object end;
     int err = getrlimit(RLIMIT_DATA, rlp);
     if (err == -1) {
         fprintf(stderr, "getrlimit() failed w/errno %d (i.e. \"%s\").\n",
@@ -83,8 +83,12 @@ int main(void)
     XSETINT(end, ((intptr_t)(char *)sbrk(0) / 1024));
     printf("sbrk(0)      returned %lld, aka %p.\n",
            (long long int)(intptr_t)sbrk(0), sbrk(0));
-    printf("emacs would see that as %lld, aka 0x%llx.\n", end,
-           (unsigned long long int)end);
+#if !defined(CHECK_LISP_OBJECT_TYPE) && defined(XINT) && defined(XUINT)
+    printf("emacs would see that as %lld, aka 0x%llx.\n",
+           XINT(end), (unsigned long long int)XUINT(end));
+#else
+    IF_LINT((void)end);
+#endif /* !CHECK_LISP_OBJECT_TYPE && XINT && XUINT */
     printf("get_etext()  returned %lu, aka 0x%lx.\n", get_etext(),
            get_etext());
     printf("get_edata()  returned %lu, aka 0x%lx.\n", get_edata(),

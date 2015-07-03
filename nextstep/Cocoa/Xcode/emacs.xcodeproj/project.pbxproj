@@ -860,7 +860,7 @@
 		A540EDE31A0C29D50008DA29 /* w32term.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = w32term.h; sourceTree = "<group>"; tabWidth = 8; };
 		A540EDE41A0C29D50008DA29 /* w32uniscribe.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = w32uniscribe.c; sourceTree = "<group>"; };
 		A540EDE51A0C29D50008DA29 /* w32xfns.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = w32xfns.c; sourceTree = "<group>"; };
-		A540EDE61A0C29D50008DA29 /* widget.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = widget.c; sourceTree = "<group>"; };
+		A540EDE61A0C29D50008DA29 /* widget.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = widget.c; sourceTree = "<group>"; tabWidth = 8; };
 		A540EDE71A0C29D50008DA29 /* widget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = widget.h; sourceTree = "<group>"; };
 		A540EDE81A0C29D50008DA29 /* widgetprv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = widgetprv.h; sourceTree = "<group>"; };
 		A540EDE91A0C29D50008DA29 /* window.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = window.c; sourceTree = "<group>"; tabWidth = 8; };

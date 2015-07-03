@@ -2453,7 +2453,7 @@ mac_per_char_metric(XFontStruct *font, XChar2b *char2b, int font_type)
 static int mac_encode_char(int c, XChar2b *char2b,
                            struct font_info *font_info, int *two_byte_p)
 {
-  int charset = (int)CHAR_CHARSET(c);
+  int charset = (int)(intptr_t)CHAR_CHARSET(c);
   XFontStruct *font = font_info->font;
 
   /* FONT_INFO may define a scheme by which to encode byte1 and byte2.
@@ -6878,7 +6878,7 @@ xlfdpat_block_match_1(struct xlfdpat_block *blk,
   const unsigned char *s;
 
   xassert(blk->len > 0);
-  xassert((start_max + blk->len) <= strlen(string));
+  xassert((start_max + blk->len) <= strlen((const char *)string));
   xassert(blk->last_char != '?');
 
   /* See the comments in the function `boyer_moore' (search.c) for the

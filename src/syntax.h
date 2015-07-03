@@ -100,40 +100,40 @@ syntax_property_entry (int c, bool via_property)
   return CHAR_TABLE_REF (BVAR (current_buffer, syntax_table), c);
 }
 INLINE Lisp_Object
-SYNTAX_ENTRY (int c)
+SYNTAX_ENTRY(int c)
 {
-  return syntax_property_entry (c, false);
+  return syntax_property_entry(c, false);
 }
 
 /* Extract the information from the entry for character C
    in the current syntax table.  */
 
 INLINE int
-syntax_property_with_flags (int c, bool via_property)
+syntax_property_with_flags(int c, bool via_property)
 {
-  Lisp_Object ent = syntax_property_entry (c, via_property);
-  return CONSP (ent) ? XINT (XCAR (ent)) : Swhitespace;
+  Lisp_Object ent = syntax_property_entry(c, via_property);
+  return (int)(CONSP(ent) ? XINT (XCAR(ent)) : Swhitespace);
 }
 INLINE int
-SYNTAX_WITH_FLAGS (int c)
+SYNTAX_WITH_FLAGS(int c)
 {
-  return syntax_property_with_flags (c, false);
+  return syntax_property_with_flags(c, false);
 }
 
 INLINE enum syntaxcode
-syntax_property (int c, bool via_property)
+syntax_property(int c, bool via_property)
 {
-  return syntax_property_with_flags (c, via_property) & 0xff;
+  return (syntax_property_with_flags(c, via_property) & 0xff);
 }
 INLINE enum syntaxcode
-SYNTAX (int c)
+SYNTAX(int c)
 {
-  return syntax_property (c, false);
+  return syntax_property(c, false);
 }
 
 
 /* Whether the syntax of the character C has the prefix flag set.  */
-extern bool syntax_prefix_flag_p (int c);
+extern bool syntax_prefix_flag_p(int c);
 
 /* This array, indexed by a character less than 256, contains the
    syntax code which that character signifies (as an unsigned char).
@@ -173,42 +173,42 @@ SYNTAX_TABLE_BYTE_TO_CHAR (ptrdiff_t bytepos)
    currently good for a position before CHARPOS.  */
 
 INLINE void
-UPDATE_SYNTAX_TABLE_FORWARD (ptrdiff_t charpos)
+UPDATE_SYNTAX_TABLE_FORWARD(ptrdiff_t charpos)
 {
-  if (parse_sexp_lookup_properties && charpos >= gl_state.e_property)
-    update_syntax_table (charpos + gl_state.offset, 1, false, gl_state.object);
+  if (parse_sexp_lookup_properties && (charpos >= gl_state.e_property))
+    update_syntax_table((charpos + gl_state.offset), (EMACS_INT)1, false,
+                        gl_state.object);
 }
 
 /* Make syntax table state (gl_state) good for CHARPOS, assuming it is
    currently good for a position after CHARPOS.  */
 
 INLINE void
-UPDATE_SYNTAX_TABLE_BACKWARD (ptrdiff_t charpos)
+UPDATE_SYNTAX_TABLE_BACKWARD(ptrdiff_t charpos)
 {
-  if (parse_sexp_lookup_properties && charpos < gl_state.b_property)
-    update_syntax_table (charpos + gl_state.offset, -1, false, gl_state.object);
+  if (parse_sexp_lookup_properties && (charpos < gl_state.b_property))
+    update_syntax_table((charpos + gl_state.offset), (EMACS_INT)-1, false,
+                        gl_state.object);
 }
 
-/* Make syntax table good for CHARPOS.  */
-
+/* Make syntax table good for CHARPOS: */
 INLINE void
-UPDATE_SYNTAX_TABLE (ptrdiff_t charpos)
+UPDATE_SYNTAX_TABLE(ptrdiff_t charpos)
 {
-  UPDATE_SYNTAX_TABLE_BACKWARD (charpos);
-  UPDATE_SYNTAX_TABLE_FORWARD (charpos);
+  UPDATE_SYNTAX_TABLE_BACKWARD(charpos);
+  UPDATE_SYNTAX_TABLE_FORWARD(charpos);
 }
 
-/* Set up the buffer-global syntax table.  */
-
+/* Set up the buffer-global syntax table: */
 INLINE void
-SETUP_BUFFER_SYNTAX_TABLE (void)
+SETUP_BUFFER_SYNTAX_TABLE(void)
 {
   gl_state.use_global = false;
-  gl_state.current_syntax_table = BVAR (current_buffer, syntax_table);
+  gl_state.current_syntax_table = BVAR(current_buffer, syntax_table);
 }
 
-extern ptrdiff_t scan_words (ptrdiff_t, EMACS_INT);
-extern void SETUP_SYNTAX_TABLE_FOR_OBJECT (Lisp_Object, ptrdiff_t, ptrdiff_t);
+extern ptrdiff_t scan_words(ptrdiff_t, EMACS_INT);
+extern void SETUP_SYNTAX_TABLE_FOR_OBJECT(Lisp_Object, ptrdiff_t, ptrdiff_t);
 
 INLINE_HEADER_END
 

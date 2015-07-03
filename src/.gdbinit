@@ -1280,3 +1280,12 @@ commands
   end
   continue
 end
+
+# I always like to set a breakpoint here:
+break main
+
+# Other places I usually put breakpoints:
+# - malloc_error_break
+# - _objc_init
+# (I am clueless as to how to conditionalize those on system type in a
+#  .gdbinit file like this, though...)

@@ -66,6 +66,8 @@ LIBOBJS = @LIBOBJS@
 
 CLANG_ANALYZER = @CLANG_ANALYZER@
 
+PRE_WARNING_TESTING_CFLAGS = @PRE_WARNING_TESTING_CFLAGS@
+
 # Instead of setting CFLAGS in here, use the one for the correct language
 # farther below instead:
 RUN_CLANG_ANALYZER = $(CLANG_ANALYZER) $(DEFS) $(CPPFLAGS) \
@@ -440,7 +442,7 @@ ALL_CFLAGS=-Demacs $(MYCPPFLAGS) -I. -I$(srcdir) \
   $(SETTINGS_CFLAGS) $(FREETYPE_CFLAGS) $(FONTCONFIG_CFLAGS) \
   $(LIBOTF_CFLAGS) $(M17N_FLT_CFLAGS) $(DEPFLAGS) \
   $(LIBGNUTLS_CFLAGS) $(GFILENOTIFY_CFLAGS) \
-  $(WARN_CFLAGS) $(CFLAGS) @MAINT@ $(WERROR_CFLAGS)
+  $(WARN_CFLAGS) $(BETTER_DEBUG_CFLAGS) $(CFLAGS) @MAINT@ $(WERROR_CFLAGS)
 ALL_OBJC_CFLAGS=$(ALL_CFLAGS) $(GNU_OBJC_CFLAGS)
 
 SUFFIXES = .c .o .m .plist
@@ -457,7 +459,8 @@ SUFFIXES = .c .o .m .plist
 .SUFFIXES: .c .m .plist
 .c.plist:
 	@if test ! -d $(analysisdir); then $(MKDIR_P) $(analysisdir); fi
-	$(RUN_CLANG_ANALYZER) $(CFLAGS) -o $(analysisdir)/$@ $< 
+	$(RUN_CLANG_ANALYZER) $(PRE_WARNING_TESTING_CFLAGS) \
+	  -o $(analysisdir)/$@ $< 
 
 .m.plist:
 	@if test ! -d $(analysisdir); then $(MKDIR_P) $(analysisdir); fi

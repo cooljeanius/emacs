@@ -3106,83 +3106,84 @@ It returns the number of characters changed.  */)
   int cnt;			/* Number of changes made. */
   ptrdiff_t size;		/* Size of translate table. */
   ptrdiff_t pos, pos_byte, end_pos;
-  bool multibyte = !NILP (BVAR (current_buffer, enable_multibyte_characters));
-  bool string_multibyte IF_LINT (= 0);
+  bool multibyte = !NILP(BVAR(current_buffer, enable_multibyte_characters));
+  bool string_multibyte IF_LINT(= 0);
 
-  validate_region (&start, &end);
-  if (CHAR_TABLE_P (table))
+  validate_region(&start, &end);
+  if (CHAR_TABLE_P(table))
     {
-      if (! EQ (XCHAR_TABLE (table)->purpose, Qtranslation_table))
-	error ("Not a translation table");
+      if (! EQ(XCHAR_TABLE(table)->purpose, Qtranslation_table))
+	error("Not a translation table");
       size = MAX_CHAR;
       tt = NULL;
     }
   else
     {
-      CHECK_STRING (table);
+      CHECK_STRING(table);
 
-      if (! multibyte && (SCHARS (table) < SBYTES (table)))
-	table = string_make_unibyte (table);
-      string_multibyte = SCHARS (table) < SBYTES (table);
-      size = SBYTES (table);
-      tt = SDATA (table);
+      if (! multibyte && (SCHARS(table) < SBYTES(table)))
+	table = string_make_unibyte(table);
+      string_multibyte = SCHARS(table) < SBYTES(table);
+      size = SBYTES(table);
+      tt = SDATA(table);
     }
 
-  pos = XINT (start);
-  pos_byte = CHAR_TO_BYTE (pos);
-  end_pos = XINT (end);
-  modify_text (pos, end_pos);
+  pos = XINT(start);
+  pos_byte = CHAR_TO_BYTE(pos);
+  end_pos = XINT(end);
+  modify_text(pos, end_pos);
 
   cnt = 0;
   for (; pos < end_pos; )
     {
-      register unsigned char *p = BYTE_POS_ADDR (pos_byte);
-      unsigned char *str, buf[MAX_MULTIBYTE_LENGTH];
+      register unsigned char *p = BYTE_POS_ADDR(pos_byte);
+      unsigned char *str IF_LINT(= (unsigned char *)NULL);
+      unsigned char buf[MAX_MULTIBYTE_LENGTH];
       int len, str_len;
       int oc;
       Lisp_Object val;
 
       if (multibyte)
-	oc = STRING_CHAR_AND_LENGTH (p, len);
+	oc = STRING_CHAR_AND_LENGTH(p, len);
       else
 	oc = *p, len = 1;
       if (oc < size)
 	{
 	  if (tt)
 	    {
-	      /* Reload as signal_after_change in last iteration may GC.  */
-	      tt = SDATA (table);
+	      /* Reload as signal_after_change in last iteration may GC: */
+	      tt = SDATA(table);
 	      if (string_multibyte)
 		{
-		  str = tt + string_char_to_byte (table, oc);
-		  nc = STRING_CHAR_AND_LENGTH (str, str_len);
+		  str = (tt + string_char_to_byte(table, oc));
+		  nc = STRING_CHAR_AND_LENGTH(str, str_len);
 		}
 	      else
 		{
 		  nc = tt[oc];
-		  if (! ASCII_BYTE_P (nc) && multibyte)
+		  if (! ASCII_BYTE_P(nc) && multibyte)
 		    {
-		      str_len = BYTE8_STRING (nc, buf);
+		      str_len = BYTE8_STRING(nc, buf);
 		      str = buf;
 		    }
 		  else
 		    {
 		      str_len = 1;
-		      str = tt + oc;
+		      str = (tt + oc);
 		    }
 		}
 	    }
 	  else
 	    {
 	      nc = oc;
-	      val = CHAR_TABLE_REF (table, oc);
-	      if (CHARACTERP (val))
+	      val = CHAR_TABLE_REF(table, oc);
+	      if (CHARACTERP(val))
 		{
-		  nc = XFASTINT (val);
-		  str_len = CHAR_STRING (nc, buf);
+		  nc = XFASTINT(val);
+		  str_len = CHAR_STRING(nc, buf);
 		  str = buf;
 		}
-	      else if (VECTORP (val) || (CONSP (val)))
+	      else if (VECTORP(val) || (CONSP(val)))
 		{
 		  /* VAL is [TO_CHAR ...] or (([FROM-CHAR ...] .  TO) ...)
 		     where TO is TO-CHAR or [TO-CHAR ...].  */
@@ -3190,26 +3191,26 @@ It returns the number of characters changed.  */)
 		}
 	    }
 
-	  if (nc != oc && nc >= 0)
+	  if ((nc != oc) && (nc >= 0))
 	    {
-	      /* Simple one char to one char translation.  */
+	      /* Simple one char to one char translation: */
 	      if (len != str_len)
 		{
 		  Lisp_Object string;
 
 		  /* This is less efficient, because it moves the gap,
 		     but it should handle multibyte characters correctly.  */
-		  string = make_multibyte_string ((char *) str, 1, str_len);
-		  replace_range (pos, pos + 1, string, 1, 0, 1);
+		  string = make_multibyte_string((char *)str, 1, str_len);
+		  replace_range(pos, (pos + 1), string, 1, 0, 1);
 		  len = str_len;
 		}
 	      else
 		{
-		  record_change (pos, 1);
+		  record_change(pos, 1);
 		  while (str_len-- > 0)
 		    *p++ = *str++;
-		  signal_after_change (pos, 1, 1);
-		  update_compositions (pos, pos + 1, CHECK_BORDER);
+		  signal_after_change(pos, 1, 1);
+		  update_compositions(pos, (pos + 1), CHECK_BORDER);
 		}
 	      ++cnt;
 	    }

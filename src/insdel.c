@@ -1596,10 +1596,9 @@ del_range_1 (ptrdiff_t from, ptrdiff_t to, bool prepare, bool ret_string)
   return deletion;
 }
 
-/* Like del_range_1 but args are byte positions, not char positions.  */
-
+/* Like del_range_1 but args are byte positions, not char positions: */
 void
-del_range_byte (ptrdiff_t from_byte, ptrdiff_t to_byte, bool prepare)
+del_range_byte(ptrdiff_t from_byte, ptrdiff_t to_byte, bool prepare)
 {
   ptrdiff_t from, to;
 

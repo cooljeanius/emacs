@@ -2829,15 +2829,20 @@ void x_set_frame_parameters(struct frame *f, Lisp_Object alist)
     {
       Lisp_Object elt;
 
-      elt = XCAR (tail);
-      parms[i] = Fcar (elt);
-      values[i] = Fcdr (elt);
+      elt = XCAR(tail);
+      parms[i] = Fcar(elt);
+      values[i] = Fcdr(elt);
       i++;
     }
-  /* TAIL and ALIST are not used again below here.  */
+  /* TAIL and ALIST are not used again below here: */
   alist = tail = Qnil;
 
-  GCPRO2 (*parms, *values);
+  /* ...well, except to silence clang: */
+  if (NILP(alist)) {
+    ; /* ??? */
+  }
+
+  GCPRO2(*parms, *values);
   gcpro1.nvars = i;
   gcpro2.nvars = i;
 

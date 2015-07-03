@@ -6712,8 +6712,8 @@ We divide the value by 1024 to make sure it fits in a Lisp integer.  */)
   return end;
 }
 
-DEFUN ("memory-use-counts", Fmemory_use_counts, Smemory_use_counts, 0, 0, 0,
-       doc: /* Return a list of counters that measure how much consing there has been.
+DEFUN("memory-use-counts", Fmemory_use_counts, Smemory_use_counts, 0, 0, 0,
+      doc: /* Return a list of counters that measure how much consing there has been.
 Each of these counters increments for a certain kind of object.
 The counters wrap around from the largest positive integer to zero.
 Garbage collection does not decrease them.
@@ -6742,13 +6742,13 @@ Frames, windows, buffers, and subprocesses count as vectors
    function.  This is used in gdbinit's `xwhichsymbols' command.  */
 
 Lisp_Object
-which_symbols (Lisp_Object obj, EMACS_INT find_max)
+which_symbols(Lisp_Object obj, EMACS_INT find_max)
 {
    struct symbol_block *sblk;
-   ptrdiff_t gc_count = inhibit_garbage_collection ();
+   ptrdiff_t gc_count = inhibit_garbage_collection();
    Lisp_Object found = Qnil;
 
-   if (! DEADP (obj))
+   if (! DEADP(obj))
      {
        for (sblk = symbol_block; sblk; sblk = sblk->next)
 	 {
@@ -6764,18 +6764,18 @@ which_symbols (Lisp_Object obj, EMACS_INT find_max)
 	       if (sblk == symbol_block && bn >= symbol_block_index)
 		 break;
 
-	       XSETSYMBOL (tem, sym);
-	       val = find_symbol_value (tem);
-	       if (EQ (val, obj)
-		   || EQ (sym->function, obj)
-		   || (!NILP (sym->function)
-		       && COMPILEDP (sym->function)
-		       && EQ (AREF (sym->function, COMPILED_BYTECODE), obj))
-		   || (!NILP (val)
-		       && COMPILEDP (val)
-		       && EQ (AREF (val, COMPILED_BYTECODE), obj)))
+	       XSETSYMBOL(tem, sym);
+	       val = find_symbol_value(tem);
+	       if (EQ(val, obj)
+		   || EQ(sym->function, obj)
+		   || (!NILP(sym->function)
+		       && COMPILEDP(sym->function)
+		       && EQ(AREF(sym->function, COMPILED_BYTECODE), obj))
+		   || (!NILP(val)
+		       && COMPILEDP(val)
+		       && EQ(AREF(val, COMPILED_BYTECODE), obj)))
 		 {
-		   found = Fcons (tem, found);
+		   found = Fcons(tem, found);
 		   if (--find_max == 0)
 		     goto out;
 		 }
@@ -6784,7 +6784,7 @@ which_symbols (Lisp_Object obj, EMACS_INT find_max)
      }
 
   out:
-   unbind_to (gc_count, Qnil);
+   unbind_to(gc_count, Qnil);
    return found;
 }
 
@@ -6827,7 +6827,7 @@ init_alloc_once(void)
 }
 
 void
-init_alloc (void)
+init_alloc(void)
 {
   gcprolist = 0;
   byte_stack_list = 0;
@@ -6836,19 +6836,19 @@ init_alloc (void)
   setjmp_tested_p = longjmps_done = 0;
 # endif /* !GC_SAVE_REGISTERS_ON_STACK && !GC_SETJMP_WORKS */
 #endif /* GC_MARK_STACK */
-  Vgc_elapsed = make_float (0.0);
+  Vgc_elapsed = make_float(0.0);
   gcs_done = 0;
 
 #if USE_VALGRIND
-  valgrind_p = RUNNING_ON_VALGRIND != 0;
+  valgrind_p = (RUNNING_ON_VALGRIND != 0);
 #endif /* USE_VALGRIND */
 }
 
 void
-syms_of_alloc (void)
+syms_of_alloc(void)
 {
-  DEFVAR_INT ("gc-cons-threshold", gc_cons_threshold,
-	      doc: /* Number of bytes of consing between garbage collections.
+  DEFVAR_INT("gc-cons-threshold", gc_cons_threshold,
+	     doc: /* Number of bytes of consing between garbage collections.
 Garbage collection can happen automatically once this many bytes have been
 allocated since the last garbage collection.  All data types count.
 
@@ -6858,90 +6858,90 @@ By binding this temporarily to a large number, you can effectively
 prevent garbage collection during a part of the program.
 See also `gc-cons-percentage'.  */);
 
-  DEFVAR_LISP ("gc-cons-percentage", Vgc_cons_percentage,
-	       doc: /* Portion of the heap used for allocation.
+  DEFVAR_LISP("gc-cons-percentage", Vgc_cons_percentage,
+	      doc: /* Portion of the heap used for allocation.
 Garbage collection can happen automatically once this portion of the heap
 has been allocated since the last garbage collection.
 If this portion is smaller than `gc-cons-threshold', this is ignored.  */);
-  Vgc_cons_percentage = make_float (0.1);
+  Vgc_cons_percentage = make_float(0.1);
 
-  DEFVAR_INT ("pure-bytes-used", pure_bytes_used,
-	      doc: /* Number of bytes of shareable Lisp data allocated so far.  */);
+  DEFVAR_INT("pure-bytes-used", pure_bytes_used,
+	     doc: /* Number of bytes of shareable Lisp data allocated so far.  */);
 
-  DEFVAR_INT ("cons-cells-consed", cons_cells_consed,
-	      doc: /* Number of cons cells that have been consed so far.  */);
+  DEFVAR_INT("cons-cells-consed", cons_cells_consed,
+	     doc: /* Number of cons cells that have been consed so far.  */);
 
-  DEFVAR_INT ("floats-consed", floats_consed,
-	      doc: /* Number of floats that have been consed so far.  */);
+  DEFVAR_INT("floats-consed", floats_consed,
+	     doc: /* Number of floats that have been consed so far.  */);
 
-  DEFVAR_INT ("vector-cells-consed", vector_cells_consed,
-	      doc: /* Number of vector cells that have been consed so far.  */);
+  DEFVAR_INT("vector-cells-consed", vector_cells_consed,
+	     doc: /* Number of vector cells that have been consed so far.  */);
 
-  DEFVAR_INT ("symbols-consed", symbols_consed,
-	      doc: /* Number of symbols that have been consed so far.  */);
+  DEFVAR_INT("symbols-consed", symbols_consed,
+	     doc: /* Number of symbols that have been consed so far.  */);
 
-  DEFVAR_INT ("string-chars-consed", string_chars_consed,
-	      doc: /* Number of string characters that have been consed so far.  */);
+  DEFVAR_INT("string-chars-consed", string_chars_consed,
+	     doc: /* Number of string characters that have been consed so far.  */);
 
-  DEFVAR_INT ("misc-objects-consed", misc_objects_consed,
-	      doc: /* Number of miscellaneous objects that have been consed so far.
+  DEFVAR_INT("misc-objects-consed", misc_objects_consed,
+	     doc: /* Number of miscellaneous objects that have been consed so far.
 These include markers and overlays, plus certain objects not visible
 to users.  */);
 
-  DEFVAR_INT ("intervals-consed", intervals_consed,
-	      doc: /* Number of intervals that have been consed so far.  */);
+  DEFVAR_INT("intervals-consed", intervals_consed,
+	     doc: /* Number of intervals that have been consed so far.  */);
 
-  DEFVAR_INT ("strings-consed", strings_consed,
-	      doc: /* Number of strings that have been consed so far.  */);
+  DEFVAR_INT("strings-consed", strings_consed,
+	     doc: /* Number of strings that have been consed so far.  */);
 
-  DEFVAR_LISP ("purify-flag", Vpurify_flag,
-	       doc: /* Non-nil means loading Lisp code in order to dump an executable.
+  DEFVAR_LISP("purify-flag", Vpurify_flag,
+	      doc: /* Non-nil means loading Lisp code in order to dump an executable.
 This means that certain objects should be allocated in shared (pure) space.
 It can also be set to a hash-table, in which case this table is used to
 do hash-consing of the objects allocated to pure space.  */);
 
-  DEFVAR_BOOL ("garbage-collection-messages", garbage_collection_messages,
-	       doc: /* Non-nil means display messages at start and end of garbage collection.  */);
+  DEFVAR_BOOL("garbage-collection-messages", garbage_collection_messages,
+	      doc: /* Non-nil means display messages at start and end of garbage collection.  */);
   garbage_collection_messages = 0;
 
-  DEFVAR_LISP ("post-gc-hook", Vpost_gc_hook,
-	       doc: /* Hook run after garbage collection has finished.  */);
+  DEFVAR_LISP("post-gc-hook", Vpost_gc_hook,
+	      doc: /* Hook run after garbage collection has finished.  */);
   Vpost_gc_hook = Qnil;
-  DEFSYM (Qpost_gc_hook, "post-gc-hook");
+  DEFSYM(Qpost_gc_hook, "post-gc-hook");
 
-  DEFVAR_LISP ("memory-signal-data", Vmemory_signal_data,
-	       doc: /* Precomputed `signal' argument for memory-full error.  */);
+  DEFVAR_LISP("memory-signal-data", Vmemory_signal_data,
+	      doc: /* Precomputed `signal' argument for memory-full error.  */);
   /* We build this in advance because if we wait until we need it, we might
      not be able to allocate the memory to hold it.  */
-  Vmemory_signal_data
-    = listn (CONSTYPE_PURE, 2, Qerror,
-	     build_pure_c_string ("Memory exhausted--use M-x save-some-buffers then exit and restart Emacs"));
+  Vmemory_signal_data =
+    listn(CONSTYPE_PURE, 2, Qerror,
+          build_pure_c_string("Memory exhausted--use M-x save-some-buffers then exit and restart Emacs"));
 
-  DEFVAR_LISP ("memory-full", Vmemory_full,
-	       doc: /* Non-nil means Emacs cannot get much more Lisp memory.  */);
+  DEFVAR_LISP("memory-full", Vmemory_full,
+	      doc: /* Non-nil means Emacs cannot get much more Lisp memory.  */);
   Vmemory_full = Qnil;
 
-  DEFSYM (Qconses, "conses");
-  DEFSYM (Qsymbols, "symbols");
-  DEFSYM (Qmiscs, "miscs");
-  DEFSYM (Qstrings, "strings");
-  DEFSYM (Qvectors, "vectors");
-  DEFSYM (Qfloats, "floats");
-  DEFSYM (Qintervals, "intervals");
-  DEFSYM (Qbuffers, "buffers");
-  DEFSYM (Qstring_bytes, "string-bytes");
-  DEFSYM (Qvector_slots, "vector-slots");
-  DEFSYM (Qheap, "heap");
-  DEFSYM (Qautomatic_gc, "Automatic GC");
+  DEFSYM(Qconses, "conses");
+  DEFSYM(Qsymbols, "symbols");
+  DEFSYM(Qmiscs, "miscs");
+  DEFSYM(Qstrings, "strings");
+  DEFSYM(Qvectors, "vectors");
+  DEFSYM(Qfloats, "floats");
+  DEFSYM(Qintervals, "intervals");
+  DEFSYM(Qbuffers, "buffers");
+  DEFSYM(Qstring_bytes, "string-bytes");
+  DEFSYM(Qvector_slots, "vector-slots");
+  DEFSYM(Qheap, "heap");
+  DEFSYM(Qautomatic_gc, "Automatic GC");
 
-  DEFSYM (Qgc_cons_threshold, "gc-cons-threshold");
-  DEFSYM (Qchar_table_extra_slots, "char-table-extra-slots");
+  DEFSYM(Qgc_cons_threshold, "gc-cons-threshold");
+  DEFSYM(Qchar_table_extra_slots, "char-table-extra-slots");
 
-  DEFVAR_LISP ("gc-elapsed", Vgc_elapsed,
-	       doc: /* Accumulated time elapsed in garbage collections.
+  DEFVAR_LISP("gc-elapsed", Vgc_elapsed,
+	      doc: /* Accumulated time elapsed in garbage collections.
 The time is in seconds as a floating point value.  */);
-  DEFVAR_INT ("gcs-done", gcs_done,
-	      doc: /* Accumulated number of garbage collections done.  */);
+  DEFVAR_INT("gcs-done", gcs_done,
+	     doc: /* Accumulated number of garbage collections done.  */);
 
   defsubr(&Scons);
   defsubr(&Slist);

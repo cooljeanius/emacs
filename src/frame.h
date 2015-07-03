@@ -1161,7 +1161,7 @@ SET_FRAME_VISIBLE(struct frame *f, int v)
   eassert((0 <= v) && (v <= 2));
   if ((v == 1) && (f->visible != 1))
     redisplay_other_windows();
-  f->visible = (unsigned)v;
+  f->visible = (unsigned char)v; /* see GCC PR 39170 re: bitfields */
 }
 
 /* Set iconify of frame F.  */

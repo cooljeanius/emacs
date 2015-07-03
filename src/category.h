@@ -78,17 +78,17 @@ INLINE_HEADER_BEGIN
 /* Return true if CATEGORY_SET contains CATEGORY.
    Faster than '!NILP (Faref (category_set, make_number (category)))'.  */
 INLINE bool
-CATEGORY_MEMBER (EMACS_INT category, Lisp_Object category_set)
+CATEGORY_MEMBER(EMACS_INT category, Lisp_Object category_set)
 {
-  return bool_vector_bitref (category_set, category);
+  return bool_vector_bitref(category_set, category);
 }
 
 /* Return true if category set of CH contains CATEGORY.  */
 INLINE bool
-CHAR_HAS_CATEGORY (int ch, int category)
+CHAR_HAS_CATEGORY(int ch, int category)
 {
-  Lisp_Object category_set = CATEGORY_SET (ch);
-  return CATEGORY_MEMBER (category, category_set);
+  Lisp_Object category_set = CATEGORY_SET(ch);
+  return CATEGORY_MEMBER((EMACS_INT)category, category_set);
 }
 
 /* The standard category table is stored where it will automatically
@@ -113,8 +113,9 @@ CHAR_HAS_CATEGORY (int ch, int category)
    There is no word boundary between two word-constituent ASCII and
    Latin-1 characters.  */
 #define WORD_BOUNDARY_P(c1, c2)					\
-  (!(SINGLE_BYTE_CHAR_P (c1) && SINGLE_BYTE_CHAR_P (c2))	\
-   && word_boundary_p (c1, c2))
+  (!(SINGLE_BYTE_CHAR_P((unsigned int)(c1)) \
+     && SINGLE_BYTE_CHAR_P((unsigned int)(c2)))	\
+     && word_boundary_p(c1, c2))
 
 extern bool word_boundary_p (int, int);
 

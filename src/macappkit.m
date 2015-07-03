@@ -523,37 +523,37 @@ get_srgb_color_space (void)
 - (CGColorRef)copyCGColor
 {
   if ([self respondsToSelector:@selector(CGColor)])
-    return CGColorRetain ([self CGColor]);
+    return CGColorRetain([self CGColor]);
   else
     {
       NSColorSpace *colorSpace = [self colorSpace];
       CGColorSpaceRef cgColorSpace = nil;
-      CGFloat *components;
+      CGFloat *components IF_LINT(= (CGFloat *)NULL);
 
       if ([colorSpace respondsToSelector:@selector(CGColorSpace)])
 	{
 	  cgColorSpace = [colorSpace CGColorSpace];
 	  if (cgColorSpace)
 	    {
-	      components = alloca (sizeof (CGFloat)
-				   * [self numberOfComponents]);
+	      components = (CGFloat *)alloca(sizeof(CGFloat)
+                                             * [self numberOfComponents]);
 	      [self getComponents:components];
 	    }
 	}
       if (cgColorSpace == nil)
 	{
 	  NSColor *colorInSRGB =
-	    [self colorUsingColorSpace:(get_srgb_color_space ())];
+	    [self colorUsingColorSpace:(get_srgb_color_space())];
 
 	  if (colorInSRGB)
 	    {
-	      components = alloca (sizeof (CGFloat) * 4);
+	      components = (CGFloat *)alloca(sizeof(CGFloat) * 4UL);
 	      cgColorSpace = mac_cg_color_space_rgb;
 	      [colorInSRGB getComponents:components];
 	    }
 	}
       if (cgColorSpace)
-	return CGColorCreate (cgColorSpace, components);
+	return CGColorCreate(cgColorSpace, components);
     }
 
   return NULL;
@@ -13148,68 +13148,68 @@ get_symbol_from_filter_input_key (NSString *key)
   NSString *filterName;
   CIFilter *filter;
   NSDictionary *attributes;
-  Lisp_Object type = Fplist_get (properties, QCtype);
+  Lisp_Object type = Fplist_get(properties, QCtype);
 
-  if (EQ (type, Qbars_swipe))
+  if (EQ(type, Qbars_swipe))
     filterName = @"CIBarsSwipeTransition";
-  else if (EQ (type, Qcopy_machine))
+  else if (EQ(type, Qcopy_machine))
     filterName = @"CICopyMachineTransition";
-  else if (EQ (type, Qdissolve))
+  else if (EQ(type, Qdissolve))
     filterName = @"CIDissolveTransition";
-  else if (EQ (type, Qflash))
+  else if (EQ(type, Qflash))
     filterName = @"CIFlashTransition";
-  else if (EQ (type, Qmod))
+  else if (EQ(type, Qmod))
     filterName = @"CIModTransition";
-  else if (EQ (type, Qpage_curl))
+  else if (EQ(type, Qpage_curl))
     filterName = @"CIPageCurlTransition";
-  else if (EQ (type, Qpage_curl_with_shadow))
+  else if (EQ(type, Qpage_curl_with_shadow))
     {
-      if (floor (NSAppKitVersionNumber) <= NSAppKitVersionNumber10_6)
+      if (floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_6)
 	filterName = @"CIPageCurlTransition";
       else
 	filterName = @"CIPageCurlWithShadowTransition";
     }
-  else if (EQ (type, Qripple))
+  else if (EQ(type, Qripple))
     filterName = @"CIRippleTransition";
-  else if (EQ (type, Qswipe))
+  else if (EQ(type, Qswipe))
     filterName = @"CISwipeTransition";
   else
     return nil;
 
   filter = [CIFilter filterWithName:filterName];
   [filter setDefaults];
-  if (EQ (type, Qbars_swipe)		   /* [0, 2pi], default pi */
-      || EQ (type, Qcopy_machine)	   /* [0, 2pi], default 0 */
-      || EQ (type, Qpage_curl)		   /* [-pi, pi], default 0 */
-      || EQ (type, Qpage_curl_with_shadow) /* [-pi, pi], default 0 */
-      || EQ (type, Qswipe))		   /* [-pi, pi], default 0 */
+  if (EQ(type, Qbars_swipe)		   /* [0, 2pi], default pi */
+      || EQ(type, Qcopy_machine)	   /* [0, 2pi], default 0 */
+      || EQ(type, Qpage_curl)		   /* [-pi, pi], default 0 */
+      || EQ(type, Qpage_curl_with_shadow)  /* [-pi, pi], default 0 */
+      || EQ(type, Qswipe))		   /* [-pi, pi], default 0 */
     {
-      Lisp_Object direction = Fplist_get (properties, QCdirection);
-      double direction_angle;
+      Lisp_Object direction = Fplist_get(properties, QCdirection);
+      double direction_angle IF_LINT(= 0.0);
 
-      if (EQ (direction, Qleft))
+      if (EQ(direction, Qleft))
 	direction_angle = M_PI;
-      else if (EQ (direction, Qright))
-	direction_angle = 0;
-      else if (EQ (direction, Qdown))
+      else if (EQ(direction, Qright))
+	direction_angle = 0.0;
+      else if (EQ(direction, Qdown))
 	{
-	  if (EQ (type, Qbars_swipe) || EQ (type, Qcopy_machine))
-	    direction_angle = 3 * M_PI_2;
+	  if (EQ(type, Qbars_swipe) || EQ(type, Qcopy_machine))
+	    direction_angle = (3.0 * M_PI_2);
 	  else
-	    direction_angle = - M_PI_2;
+	    direction_angle = (0.0 - M_PI_2);
 	}
-      else if (EQ (direction, Qup))
+      else if (EQ(direction, Qup))
 	direction_angle = M_PI_2;
       else
 	direction = Qnil;
 
-      if (!NILP (direction))
+      if (!NILP(direction))
 	[filter setValue:[NSNumber numberWithDouble:direction_angle]
 		  forKey:kCIInputAngleKey];
     }
 
   if ([filterName isEqualToString:@"CIPageCurlTransition"]
-      || EQ (type, Qripple))
+      || EQ(type, Qripple))
     /* TODO: create a real shading image like
        /Library/Widgets/CI Filter Browser.wdgt/Images/restrictedshine.png */
     [filter setValue:[CIImage emptyImage] forKey:kCIInputShadingImageKey];

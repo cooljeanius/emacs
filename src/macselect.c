@@ -484,22 +484,22 @@ static Lisp_Object get_scrap_target_type_list(ScrapRef scrap)
   err = GetScrapFlavorInfoList(scrap, &count, flavor_info);
   if (err != noErr)
     {
-      xfree (flavor_info);
+      xfree(flavor_info);
       flavor_info = NULL;
     }
   if (flavor_info == NULL)
     count = 0;
 #endif /* TARGET_API_MAC_CARBON */
-  for (rest = Vselection_converter_alist; CONSP (rest); rest = XCDR (rest))
+  for (rest = Vselection_converter_alist; CONSP(rest); rest = XCDR(rest))
     {
       ScrapFlavorType flavor_type = 0;
 
-      if (CONSP (XCAR (rest))
-	  && (target_type = XCAR (XCAR (rest)),
-	      SYMBOLP (target_type))
-	  && (flavor_type = scrap_has_target_type (scrap, target_type)))
+      if (CONSP(XCAR(rest))
+	  && (target_type = XCAR(XCAR(rest)),
+	      SYMBOLP(target_type))
+	  && (flavor_type = scrap_has_target_type(scrap, target_type)))
 	{
-	  result = Fcons (target_type, result);
+	  result = Fcons(target_type, result);
 #if TARGET_API_MAC_CARBON
 	  for (i = 0; i < count; i++)
 	    if (flavor_info[i].flavorType == flavor_type)
@@ -516,11 +516,12 @@ static Lisp_Object get_scrap_target_type_list(ScrapRef scrap)
       for (i = 0; i < count; i++)
 	if (flavor_info[i].flavorType)
 	  {
-	    type = EndianU32_NtoB (flavor_info[i].flavorType);
-	    strings = Fcons (make_unibyte_string ((char *) &type, 4), strings);
+	    type = EndianU32_NtoB(flavor_info[i].flavorType);
+	    strings = Fcons(make_unibyte_string((char *)&type, 4),
+                            strings);
 	  }
-      result = nconc2 (result, strings);
-      xfree (flavor_info);
+      result = nconc2(result, strings);
+      xfree(flavor_info);
     }
 #endif /* TARGET_API_MAC_CARBON */
 
@@ -536,10 +537,8 @@ x_own_selection(Lisp_Object selection_name, Lisp_Object selection_value)
   OSStatus err;
   ScrapRef scrap;
   struct gcpro gcpro1, gcpro2;
-  Lisp_Object rest, handler_fn, value, type;
+  Lisp_Object rest, handler_fn, value = LISP_INITIALLY_ZERO, type;
   int count;
-
-  value = LISP_INITIALLY_ZERO;
 
   CHECK_SYMBOL(selection_name);
 
@@ -634,13 +633,10 @@ x_get_local_selection(Lisp_Object selection_symbol,
                       Lisp_Object target_type, int local_request)
 {
   Lisp_Object local_value;
-  Lisp_Object handler_fn, value, type, check;
+  Lisp_Object handler_fn, value, type = LISP_INITIALLY_ZERO, check;
   int count;
 
-  type = LISP_INITIALLY_ZERO;
-
-  if (NILP(Fx_selection_owner_p(selection_symbol,
-                                LISP_INITIALLY_ZERO)))
+  if (NILP(Fx_selection_owner_p(selection_symbol, Qnil)))
     return Qnil;
 
   local_value = assq_no_quit(selection_symbol, Vselection_alist);
@@ -725,7 +721,7 @@ void x_clear_frame_selections(FRAME_PTR f)
   /* Otherwise, we are really honest and truly being told to drop it.
      Do NOT use Fdelq as that may QUIT;.  */
 
-  /* Delete elements from the beginning of Vselection_alist.  */
+  /* Delete elements from the beginning of Vselection_alist: */
   while (!NILP(Vselection_alist)
 	 && EQ(frame, Fcar(Fcdr(Fcdr(Fcdr(Fcar(Vselection_alist)))))))
     {
@@ -736,8 +732,7 @@ void x_clear_frame_selections(FRAME_PTR f)
       selection_symbol = Fcar(Fcar(Vselection_alist));
 
       if (!EQ(hooks, Qunbound)
-	  && !NILP(Fx_selection_owner_p(selection_symbol,
-                                        LISP_INITIALLY_ZERO)))
+	  && !NILP(Fx_selection_owner_p(selection_symbol, Qnil)))
 	{
 	  for (; CONSP(hooks); hooks = Fcdr(hooks))
 	    call1(Fcar(hooks), selection_symbol);
@@ -762,8 +757,7 @@ void x_clear_frame_selections(FRAME_PTR f)
 	selection_symbol = Fcar(Fcar(XCDR(rest)));
 
 	if (!EQ(hooks, Qunbound)
-	  && !NILP(Fx_selection_owner_p(selection_symbol,
-                                        LISP_INITIALLY_ZERO)))
+	  && !NILP(Fx_selection_owner_p(selection_symbol, Qnil)))
 	  {
 	    for (; CONSP(hooks); hooks = Fcdr(hooks))
 	      call1(Fcar(hooks), selection_symbol);
@@ -1111,7 +1105,7 @@ mac_find_apple_event_spec(AEEventClass class, AEEventID id,
 
   keymap = get_keymap(Vmac_apple_event_map, 0, 0);
   if (NILP(keymap))
-    return LISP_INITIALLY_ZERO;
+    return Qnil;
 
   event_binding.code = class;
   event_binding.key = *class_key;
@@ -1120,7 +1114,7 @@ mac_find_apple_event_spec(AEEventClass class, AEEventID id,
   *class_key = event_binding.key;
   keymap = get_keymap(event_binding.binding, 0, 0);
   if (NILP(keymap))
-    return LISP_INITIALLY_ZERO;
+    return Qnil;
 
   event_binding.code = id;
   event_binding.key = *id_key;
@@ -1129,7 +1123,7 @@ mac_find_apple_event_spec(AEEventClass class, AEEventID id,
   *id_key = event_binding.key;
   *binding = event_binding.binding;
 
-  return LISP_INITIALLY_ZERO;
+  return Qnil;
 }
 
 static OSErr
@@ -1777,9 +1771,9 @@ copy_scrap_flavor_data(ScrapRef from_scrap, ScrapRef to_scrap,
 	err = memFullErr;
       else
 	{
-	  err = PutScrapFlavor (to_scrap, flavor_type, kScrapFlavorMaskNone,
-				size, buf);
-	  xfree (buf);
+	  err = PutScrapFlavor(to_scrap, flavor_type, kScrapFlavorMaskNone,
+                               size, buf);
+	  xfree(buf);
 	}
     }
 
@@ -1792,7 +1786,7 @@ mac_handle_service_event(EventHandlerCallRef call_ref, EventRef event,
 {
   OSStatus err = noErr;
   ScrapRef cur_scrap, specific_scrap;
-  UInt32 event_kind = GetEventKind (event);
+  UInt32 event_kind = GetEventKind(event);
   CFMutableArrayRef copy_types, paste_types;
   CFStringRef type;
   Lisp_Object rest;
@@ -1800,48 +1794,47 @@ mac_handle_service_event(EventHandlerCallRef call_ref, EventRef event,
 
   /* Check if Vmac_service_selection is a valid selection that has a
      corresponding scrap.  */
-  if (!SYMBOLP (Vmac_service_selection))
+  if (!SYMBOLP(Vmac_service_selection))
     err = eventNotHandledErr;
   else
-    err = get_scrap_from_symbol (Vmac_service_selection, 0, &cur_scrap);
+    err = get_scrap_from_symbol(Vmac_service_selection, 0, &cur_scrap);
   if (!(err == noErr && cur_scrap))
     return eventNotHandledErr;
 
   switch (event_kind)
     {
     case kEventServiceGetTypes:
-      /* Set paste types. */
-      err = GetEventParameter (event, kEventParamServicePasteTypes,
-			       typeCFMutableArrayRef, NULL,
-			       sizeof (CFMutableArrayRef), NULL,
-			       &paste_types);
+      /* Set paste types: */
+      err = GetEventParameter(event, kEventParamServicePasteTypes,
+			      typeCFMutableArrayRef, NULL,
+			      sizeof(CFMutableArrayRef), NULL,
+			      &paste_types);
       if (err != noErr)
 	break;
 
-      for (rest = Vselection_converter_alist; CONSP (rest);
-	   rest = XCDR (rest))
-	if (CONSP (XCAR (rest)) && SYMBOLP (XCAR (XCAR (rest)))
+      for (rest = Vselection_converter_alist; CONSP(rest);
+	   rest = XCDR(rest))
+	if (CONSP(XCAR(rest)) && SYMBOLP(XCAR(XCAR(rest)))
 	    && (flavor_type =
-		get_flavor_type_from_symbol (XCAR (XCAR (rest)))))
+		get_flavor_type_from_symbol(XCAR(XCAR(rest)))))
 	  {
-	    type = CreateTypeStringWithOSType (flavor_type);
+	    type = CreateTypeStringWithOSType(flavor_type);
 	    if (type)
 	      {
-		CFArrayAppendValue (paste_types, type);
-		CFRelease (type);
+		CFArrayAppendValue(paste_types, type);
+		CFRelease(type);
 	      }
 	  }
 
-      /* Set copy types.  */
-      err = GetEventParameter (event, kEventParamServiceCopyTypes,
-			       typeCFMutableArrayRef, NULL,
-			       sizeof (CFMutableArrayRef), NULL,
-			       &copy_types);
+      /* Set copy types: */
+      err = GetEventParameter(event, kEventParamServiceCopyTypes,
+			      typeCFMutableArrayRef, NULL,
+			      sizeof(CFMutableArrayRef), NULL,
+			      &copy_types);
       if (err != noErr)
 	break;
 
-      if (NILP(Fx_selection_owner_p(Vmac_service_selection,
-                                    LISP_INITIALLY_ZERO)))
+      if (NILP(Fx_selection_owner_p(Vmac_service_selection, Qnil)))
 	break;
       else
 	goto copy_all_flavors;
@@ -1851,8 +1844,7 @@ mac_handle_service_event(EventHandlerCallRef call_ref, EventRef event,
 			      typeScrapRef, NULL,
 			      sizeof(ScrapRef), NULL, &specific_scrap);
       if ((err != noErr)
-	  || NILP(Fx_selection_owner_p(Vmac_service_selection,
-                                       LISP_INITIALLY_ZERO)))
+	  || NILP(Fx_selection_owner_p(Vmac_service_selection, Qnil)))
 	{
 	  err = eventNotHandledErr;
 	  break;

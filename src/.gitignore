@@ -31,3 +31,6 @@ getloadavg_test
 
 # static analysis output:
 clang_static_analysis/*
+
+# just something I redirected some output to; I intend to remove it later:
+obj.txt

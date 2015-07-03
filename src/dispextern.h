@@ -394,20 +394,18 @@ INLINE int GLYPH_FACE (GLYPH glyph) { return glyph.face_id; }
 #define SET_GLYPH(glyph, char, face) \
   ((glyph).ch = (char), (glyph).face_id = (face))
 
-/* The following are valid only if GLYPH_CODE_P (gc).  */
+/* The following are valid only if GLYPH_CODE_P(gc).  */
 
 INLINE int
-GLYPH_CODE_CHAR (Lisp_Object gc)
+GLYPH_CODE_CHAR(Lisp_Object gc)
 {
-  return (CONSP (gc)
-	  ? XINT (XCAR (gc))
-	  : XINT (gc) & MAX_CHAR);
+  return (int)(CONSP(gc) ? XINT(XCAR(gc)) : (XINT(gc) & MAX_CHAR));
 }
 
 INLINE int
-GLYPH_CODE_FACE (Lisp_Object gc)
+GLYPH_CODE_FACE(Lisp_Object gc)
 {
-  return CONSP (gc) ? XINT (XCDR (gc)) : XINT (gc) >> CHARACTERBITS;
+  return (int)(CONSP(gc) ? XINT(XCDR(gc)) : (XINT(gc) >> CHARACTERBITS));
 }
 
 #define SET_GLYPH_FROM_GLYPH_CODE(glyph, gc)				\
@@ -1949,11 +1947,11 @@ struct face_cache
 # define FACE_FOR_CHAR(F, FACE, CHAR, POS, OBJECT) ((FACE)->id)
 #endif /* not HAVE_WINDOW_SYSTEM */
 
-/* Return true if G contains a valid character code.  */
+/* Return true if G contains a valid character code: */
 INLINE bool
-GLYPH_CHAR_VALID_P (GLYPH g)
+GLYPH_CHAR_VALID_P(GLYPH g)
 {
-  return CHAR_VALID_P (GLYPH_CHAR (g));
+  return CHAR_VALID_P((unsigned int)GLYPH_CHAR(g));
 }
 
 /* The glyph code from a display vector may either be an integer which
@@ -1961,16 +1959,19 @@ GLYPH_CHAR_VALID_P (GLYPH g)
    face-id in the upper bits, or it may be a cons (CHAR . FACE-ID).  */
 
 INLINE bool
-GLYPH_CODE_P (Lisp_Object gc)
+GLYPH_CODE_P(Lisp_Object gc)
 {
-  return (CONSP (gc)
-	  ? (CHARACTERP (XCAR (gc))
-	     && RANGED_INTEGERP (0, XCDR (gc), MAX_FACE_ID))
-	  : (RANGED_INTEGERP
-	     (0, gc,
-	      (MAX_FACE_ID < TYPE_MAXIMUM (EMACS_INT) >> CHARACTERBITS
-	       ? ((EMACS_INT) MAX_FACE_ID << CHARACTERBITS) | MAX_CHAR
-	       : TYPE_MAXIMUM (EMACS_INT)))));
+  return (CONSP(gc)
+	  ? (CHARACTERP(XCAR(gc))
+	     && RANGED_INTEGERP((intmax_t)0L, XCDR(gc),
+                                (intmax_t)MAX_FACE_ID))
+	  : (RANGED_INTEGERP((intmax_t)0L, gc,
+                             (intmax_t)((MAX_FACE_ID
+                                         < (TYPE_MAXIMUM(EMACS_INT)
+                                            >> CHARACTERBITS))
+                                        ? (((EMACS_INT)MAX_FACE_ID
+                                            << CHARACTERBITS) | MAX_CHAR)
+                                        : TYPE_MAXIMUM(EMACS_INT)))));
 }
 
 /* Non-zero means face attributes have been changed since the last

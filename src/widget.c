@@ -1,4 +1,4 @@
-/* The emacs frame widget.
+/* widget.c: The emacs frame widget.
    Copyright (C) 1992-1993, 2000-2014 Free Software Foundation, Inc.
 
 This file is part of GNU Emacs.
@@ -118,12 +118,12 @@ static XtResource resources[] = {
 
 #undef offset
 
-/*
+#if 0
 static XtActionsRec
 emacsFrameActionsTable [] = {
-  {"keypress",  key_press},
-  {"focus_in",  emacs_frame_focus_handler},
-  {"focus_out", emacs_frame_focus_handler},
+  { "keypress",  key_press },
+  { "focus_in",  emacs_frame_focus_handler },
+  { "focus_out", emacs_frame_focus_handler },
 };
 
 static char
@@ -132,13 +132,13 @@ emacsFrameTranslations [] = "\
 <FocusIn>:  focus_in()\n\
 <FocusOut>: focus_out()\n\
 ";
-*/
+#endif /* 0 */
 
 static EmacsFrameClassRec emacsFrameClassRec = {
     { /* core fields */
     /* superclass		*/	&widgetClassRec,
     /* class_name		*/	"EmacsFrame",
-    /* widget_size		*/	sizeof (EmacsFrameRec),
+    /* widget_size		*/	sizeof(EmacsFrameRec),
     /* class_initialize		*/	0,
     /* class_part_initialize	*/	0,
     /* class_inited		*/	FALSE,
@@ -146,9 +146,9 @@ static EmacsFrameClassRec emacsFrameClassRec = {
     /* initialize_hook		*/	0,
     /* realize			*/	EmacsFrameRealize,
     /* actions			*/	0, /*emacsFrameActionsTable*/
-    /* num_actions		*/	0, /*XtNumber (emacsFrameActionsTable)*/
+    /* num_actions		*/	0, /*XtNumber(emacsFrameActionsTable)*/
     /* resources		*/	resources,
-    /* resource_count		*/	XtNumber (resources),
+    /* resource_count		*/	XtNumber(resources),
     /* xrm_class		*/	NULLQUARK,
     /* compress_motion		*/	TRUE,
     /* compress_exposure	*/	TRUE,
@@ -171,73 +171,71 @@ static EmacsFrameClassRec emacsFrameClassRec = {
     }
 };
 
-WidgetClass emacsFrameClass = (WidgetClass) &emacsFrameClassRec;
+WidgetClass emacsFrameClass = (WidgetClass)&emacsFrameClassRec;
 
 static void
-get_default_char_pixel_size (EmacsFrame ew, int *pixel_width, int *pixel_height)
+get_default_char_pixel_size(EmacsFrame ew, int *pixel_width, int *pixel_height)
 {
   struct frame* f = ew->emacs_frame.frame;
-  *pixel_width = FRAME_COLUMN_WIDTH (f);
-  *pixel_height = FRAME_LINE_HEIGHT (f);
+  *pixel_width = FRAME_COLUMN_WIDTH(f);
+  *pixel_height = FRAME_LINE_HEIGHT(f);
 }
 
 static void
-pixel_to_char_size (EmacsFrame ew, Dimension pixel_width, Dimension pixel_height, int *char_width, int *char_height)
+pixel_to_char_size(EmacsFrame ew, Dimension pixel_width, Dimension pixel_height, int *char_width, int *char_height)
 {
   struct frame* f = ew->emacs_frame.frame;
-  *char_width = FRAME_PIXEL_WIDTH_TO_TEXT_COLS (f, (int) pixel_width);
-  *char_height = FRAME_PIXEL_HEIGHT_TO_TEXT_LINES (f, (int) pixel_height);
+  *char_width = FRAME_PIXEL_WIDTH_TO_TEXT_COLS(f, (int)pixel_width);
+  *char_height = FRAME_PIXEL_HEIGHT_TO_TEXT_LINES(f, (int)pixel_height);
 }
 
 static void
-pixel_to_text_size (EmacsFrame ew, Dimension pixel_width, Dimension pixel_height, int *text_width, int *text_height)
+pixel_to_text_size(EmacsFrame ew, Dimension pixel_width, Dimension pixel_height, int *text_width, int *text_height)
 {
   struct frame* f = ew->emacs_frame.frame;
-  *text_width = FRAME_PIXEL_TO_TEXT_WIDTH (f, (int) pixel_width);
-  *text_height = FRAME_PIXEL_TO_TEXT_HEIGHT (f, (int) pixel_height);
+  *text_width = FRAME_PIXEL_TO_TEXT_WIDTH(f, (int)pixel_width);
+  *text_height = FRAME_PIXEL_TO_TEXT_HEIGHT(f, (int)pixel_height);
 }
 
 static void
-char_to_pixel_size (EmacsFrame ew, int char_width, int char_height, Dimension *pixel_width, Dimension *pixel_height)
+char_to_pixel_size(EmacsFrame ew, int char_width, int char_height, Dimension *pixel_width, Dimension *pixel_height)
 {
   struct frame* f = ew->emacs_frame.frame;
-  *pixel_width = FRAME_TEXT_COLS_TO_PIXEL_WIDTH (f, char_width);
-  *pixel_height = FRAME_TEXT_LINES_TO_PIXEL_HEIGHT (f, char_height);
+  *pixel_width = (Dimension)FRAME_TEXT_COLS_TO_PIXEL_WIDTH(f, char_width);
+  *pixel_height = (Dimension)FRAME_TEXT_LINES_TO_PIXEL_HEIGHT(f, char_height);
 }
 
 static void
-round_size_to_char (EmacsFrame ew, Dimension in_width, Dimension in_height, Dimension *out_width, Dimension *out_height)
+round_size_to_char(EmacsFrame ew, Dimension in_width, Dimension in_height, Dimension *out_width, Dimension *out_height)
 {
   int char_width;
   int char_height;
-  pixel_to_char_size (ew, in_width, in_height, &char_width, &char_height);
-  char_to_pixel_size (ew, char_width, char_height, out_width, out_height);
+  pixel_to_char_size(ew, in_width, in_height, &char_width, &char_height);
+  char_to_pixel_size(ew, char_width, char_height, out_width, out_height);
 }
 
 static Widget
-get_wm_shell (Widget w)
+get_wm_shell(Widget w)
 {
   Widget wmshell;
 
-  for (wmshell = XtParent (w);
-       wmshell && !XtIsWMShell (wmshell);
-       wmshell = XtParent (wmshell));
+  for (wmshell = XtParent(w);
+       wmshell && !XtIsWMShell(wmshell);
+       wmshell = XtParent(wmshell));
 
   return wmshell;
 }
 
-#if 0 /* Currently not used.  */
-
+#if defined(ALLOW_UNUSED_FUNCTIONS) /* Currently not used.  */
 static void
 mark_shell_size_user_specified (Widget wmshell)
 {
-  if (! XtIsWMShell (wmshell)) emacs_abort ();
+  if (! XtIsWMShell(wmshell)) emacs_abort();
   /* This is kind of sleazy, but I can't see how else to tell it to make it
      mark the WM_SIZE_HINTS size as user specified when appropriate. */
-  ((WMShellWidget) wmshell)->wm.size_hints.flags |= USSize;
+  ((WMShellWidget)wmshell)->wm.size_hints.flags |= USSize;
 }
-
-#endif
+#endif /* ALLOW_UNUSED_FUNCTIONS */
 
 
 /* Can't have static frame locals because of some broken compilers.
@@ -248,10 +246,10 @@ mark_shell_size_user_specified (Widget wmshell)
  */
 #if 0
 static Boolean first_frame_p = True;
-#endif
+#endif /* 0 */
 
 static void
-set_frame_size (EmacsFrame ew)
+set_frame_size(EmacsFrame ew)
 {
   /* The widget hierarchy is
 
@@ -285,21 +283,21 @@ set_frame_size (EmacsFrame ew)
      of always creating its own.  It is not actually emacs specific, and
      should possibly have class "Shell" instead of "EmacsShell" to simplify
      the resources.
-
    */
 
   /* Hairily merged geometry */
-  unsigned int w = FRAME_COLS (ew->emacs_frame.frame);
-  unsigned int h = FRAME_LINES (ew->emacs_frame.frame);
+  unsigned int w = (unsigned int)FRAME_COLS(ew->emacs_frame.frame);
+  unsigned int h = (unsigned int)FRAME_LINES(ew->emacs_frame.frame);
 
-  Widget wmshell = get_wm_shell ((Widget) ew);
+  Widget wmshell = get_wm_shell((Widget)ew);
   /* Each Emacs shell is now independent and top-level.  */
 
-  if (! XtIsSubclass (wmshell, shellWidgetClass)) emacs_abort ();
+  if (! XtIsSubclass(wmshell, shellWidgetClass)) emacs_abort();
 
   /* We don't need this for the moment. The geometry is computed in
      xfns.c.  */
-#if 0
+#if defined(IT_IS_NO_LONGER_THE_MOMENT) || \
+    defined(GEOMETRY_IS_NO_LONGER_COMPUTED_IN_XFNS_C)
   /* If the EmacsFrame doesn't have a geometry but the shell does,
      treat that as the geometry of the frame.  (Is this bogus?
      I'm not sure.) */
@@ -320,9 +318,9 @@ set_frame_size (EmacsFrame ew)
   }
 
   if (ew->emacs_frame.geometry)
-    frame_flags = XParseGeometry (ew->emacs_frame.geometry,
-				   &frame_x, &frame_y,
-				   &frame_w, &frame_h);
+    frame_flags = XParseGeometry(ew->emacs_frame.geometry,
+                                 &frame_x, &frame_y,
+                                 &frame_w, &frame_h);
 
   if (first_frame_p)
     {
@@ -402,7 +400,7 @@ set_frame_size (EmacsFrame ew)
 	  flags |= (app_flags & (WidthValue | HeightValue));
 	}
     }
-#endif /* 0 */
+#endif /* IT_IS_NO_LONGER_THE_MOMENT || GEOMETRY_IS_NO_LONGER_COMPUTED_IN_XFNS_C */
   {
     struct frame *f = ew->emacs_frame.frame;
     Dimension pixel_width, pixel_height;
@@ -413,14 +411,14 @@ set_frame_size (EmacsFrame ew)
        frame's character width which is bad for vertically split
        windows.  */
 
-    compute_fringe_widths (f, 0);
+    compute_fringe_widths(f, 0);
 
 #if 0 /* This can run Lisp code, and it is dangerous to give
 	 out the frame to Lisp code before it officially exists.
 	 This is handled in Fx_create_frame so not needed here.  */
-    change_frame_size (f, w, h, 1, 0, 0, 0);
-#endif
-    char_to_pixel_size (ew, w, h, &pixel_width, &pixel_height);
+    change_frame_size(f, w, h, 1, 0, 0, 0);
+#endif /* 0 */
+    char_to_pixel_size(ew, (int)w, (int)h, &pixel_width, &pixel_height);
     ew->core.width = pixel_width;
     ew->core.height = pixel_height;
 
@@ -469,18 +467,18 @@ update_wm_hints (EmacsFrame ew)
   int base_height;
   int min_rows = 0, min_cols = 0;
 
-  /* This happens when the frame is just created.  */
+  /* This happens when the frame is just created: */
   if (! wmshell) return;
 
 #if 0
-  check_frame_size (ew->emacs_frame.frame, &min_cols, &min_rows, 0);
-#endif
+  check_frame_size(ew->emacs_frame.frame, &min_cols, &min_rows, 0);
+#endif /* 0 */
 
-  pixel_to_char_size (ew, ew->core.width, ew->core.height,
-		      &char_width, &char_height);
-  char_to_pixel_size (ew, char_width, char_height,
-		      &rounded_width, &rounded_height);
-  get_default_char_pixel_size (ew, &cw, &ch);
+  pixel_to_char_size(ew, ew->core.width, ew->core.height,
+		     &char_width, &char_height);
+  char_to_pixel_size(ew, char_width, char_height,
+		     &rounded_width, &rounded_height);
+  get_default_char_pixel_size(ew, &cw, &ch);
 
   base_width = (wmshell->core.width - ew->core.width
 		+ (rounded_width - (char_width * cw)));
@@ -605,24 +603,24 @@ update_various_frame_slots (EmacsFrame ew)
   if (false)
     {
       struct x_output *x = f->output_data.x;
-      FRAME_PIXEL_HEIGHT (f) = ew->core.height + x->menubar_height;
-      FRAME_PIXEL_WIDTH (f) = ew->core.width;
+      FRAME_PIXEL_HEIGHT(f) = (ew->core.height + x->menubar_height);
+      FRAME_PIXEL_WIDTH(f) = ew->core.width;
     }
 
   f->internal_border_width = ew->emacs_frame.internal_border_width;
 }
 
 static void
-update_from_various_frame_slots (EmacsFrame ew)
+update_from_various_frame_slots(EmacsFrame ew)
 {
   struct frame *f = ew->emacs_frame.frame;
   struct x_output *x = f->output_data.x;
-  ew->core.height = FRAME_PIXEL_HEIGHT (f) - x->menubar_height;
-  ew->core.width = FRAME_PIXEL_WIDTH (f);
-  ew->core.background_pixel = FRAME_BACKGROUND_PIXEL (f);
+  ew->core.height = (Dimension)(FRAME_PIXEL_HEIGHT(f) - x->menubar_height);
+  ew->core.width = (Dimension)FRAME_PIXEL_WIDTH(f);
+  ew->core.background_pixel = FRAME_BACKGROUND_PIXEL(f);
   ew->emacs_frame.internal_border_width = f->internal_border_width;
   ew->emacs_frame.font = x->font;
-  ew->emacs_frame.foreground_pixel = FRAME_FOREGROUND_PIXEL (f);
+  ew->emacs_frame.foreground_pixel = FRAME_FOREGROUND_PIXEL(f);
   ew->emacs_frame.cursor_color = x->cursor_pixel;
   ew->core.border_pixel = x->border_pixel;
 }
@@ -674,13 +672,13 @@ EmacsFrameRealize (Widget widget, XtValueMask *mask, XSetWindowAttributes *attrs
 }
 
 static void
-EmacsFrameDestroy (Widget widget)
+EmacsFrameDestroy(Widget widget)
 {
-  /* All GCs are now freed in x_free_frame_resources.  */
+  return; /* All GCs are now freed in x_free_frame_resources.  */
 }
 
 static void
-EmacsFrameResize (Widget widget)
+EmacsFrameResize(Widget widget)
 {
   EmacsFrame ew = (EmacsFrame)widget;
   struct frame *f = ew->emacs_frame.frame;
@@ -691,36 +689,36 @@ EmacsFrameResize (Widget widget)
     {
       int width, height;
 
-      pixel_to_text_size (ew, ew->core.width, ew->core.height, &width, &height);
-      change_frame_size (f, width, height, 0, 1, 0, 1);
+      pixel_to_text_size(ew, ew->core.width, ew->core.height, &width, &height);
+      change_frame_size(f, width, height, 0, 1, 0, 1);
 
-      update_wm_hints (ew);
-      update_various_frame_slots (ew);
+      update_wm_hints(ew);
+      update_various_frame_slots(ew);
 
-      cancel_mouse_face (f);
+      cancel_mouse_face(f);
     }
   else
     {
       struct x_output *x = f->output_data.x;
       int columns, rows;
 
-      pixel_to_char_size (ew, ew->core.width, ew->core.height, &columns, &rows);
-      if (columns != FRAME_COLS (f)
-	  || rows != FRAME_LINES (f)
-	  || ew->core.width != FRAME_PIXEL_WIDTH (f)
-	  || ew->core.height + x->menubar_height != FRAME_PIXEL_HEIGHT (f))
+      pixel_to_char_size(ew, ew->core.width, ew->core.height, &columns, &rows);
+      if (columns != FRAME_COLS(f)
+	  || rows != FRAME_LINES(f)
+	  || ew->core.width != FRAME_PIXEL_WIDTH(f)
+	  || ew->core.height + x->menubar_height != FRAME_PIXEL_HEIGHT(f))
 	{
-	  change_frame_size (f, columns, rows, 0, 1, 0, 0);
-	  update_wm_hints (ew);
-	  update_various_frame_slots (ew);
+	  change_frame_size(f, columns, rows, 0, 1, 0, 0);
+	  update_wm_hints(ew);
+	  update_various_frame_slots(ew);
 
-	  cancel_mouse_face (f);
+	  cancel_mouse_face(f);
 	}
     }
 }
 
 static Boolean
-EmacsFrameSetValues (Widget cur_widget, Widget req_widget, Widget new_widget, ArgList dum1, Cardinal *dum2)
+EmacsFrameSetValues(Widget cur_widget, Widget req_widget, Widget new_widget, ArgList dum1, Cardinal *dum2)
 {
   EmacsFrame cur = (EmacsFrame)cur_widget;
   EmacsFrame new = (EmacsFrame)new_widget;
@@ -750,31 +748,31 @@ EmacsFrameSetValues (Widget cur_widget, Widget req_widget, Widget new_widget, Ar
 
   if (has_to_recompute_gcs)
     {
-      setup_frame_gcs (new);
+      setup_frame_gcs(new);
       needs_a_refresh = True;
     }
 
   if (has_to_recompute_size)
     {
-      /* Don't do this pixelwise, hopefully.  */
+      /* Do NOT do this pixelwise, hopefully: */
       pixel_width = new->core.width;
       pixel_height = new->core.height;
-      pixel_to_char_size (new, pixel_width, pixel_height, &char_width,
-			  &char_height);
-      char_to_pixel_size (new, char_width, char_height, &pixel_width,
-			  &pixel_height);
+      pixel_to_char_size(new, pixel_width, pixel_height, &char_width,
+			 &char_height);
+      char_to_pixel_size(new, char_width, char_height, &pixel_width,
+			 &pixel_height);
       new->core.width = pixel_width;
       new->core.height = pixel_height;
 
-      change_frame_size (new->emacs_frame.frame, char_width, char_height,
-			 1, 0, 0, 0);
+      change_frame_size(new->emacs_frame.frame, char_width, char_height,
+                        (bool)1, (bool)0, (bool)0, (bool)0);
       needs_a_refresh = True;
     }
 
   if (has_to_update_hints)
-    update_wm_hints (new);
+    update_wm_hints(new);
 
-  update_various_frame_slots (new);
+  update_various_frame_slots(new);
 
   /* #### This doesn't work, I haven't been able to find ANY kludge that
      will let (x-create-frame '((iconic . t))) work.  It seems that changes
@@ -785,29 +783,30 @@ EmacsFrameSetValues (Widget cur_widget, Widget req_widget, Widget new_widget, Ar
    */
   if (cur->emacs_frame.iconic != new->emacs_frame.iconic)
     {
-      Widget wmshell = get_wm_shell ((Widget) cur);
-      XtVaSetValues (wmshell, XtNiconic,
-		     (XtArgVal) new->emacs_frame.iconic, NULL);
+      Widget wmshell = get_wm_shell((Widget)cur);
+      XtVaSetValues(wmshell, XtNiconic,
+		    (XtArgVal)new->emacs_frame.iconic, NULL);
     }
 
   return needs_a_refresh;
 }
 
 static XtGeometryResult
-EmacsFrameQueryGeometry (Widget widget, XtWidgetGeometry *request, XtWidgetGeometry *result)
+EmacsFrameQueryGeometry(Widget widget, XtWidgetGeometry *request, XtWidgetGeometry *result)
 {
   EmacsFrame ew = (EmacsFrame)widget;
 
-  int mask = request->request_mode;
+  int mask = (int)request->request_mode;
   Dimension ok_width, ok_height;
 
   if (mask & (CWWidth | CWHeight))
     {
-      round_size_to_char (ew,
-			  (mask & CWWidth) ? request->width : ew->core.width,
-			  ((mask & CWHeight) ? request->height
-			   : ew->core.height),
-			  &ok_width, &ok_height);
+      round_size_to_char(ew,
+                         (Dimension)((mask & CWWidth)
+                                     ? request->width : ew->core.width),
+                         (Dimension)((mask & CWHeight)
+                                     ? request->height : ew->core.height),
+                         &ok_width, &ok_height);
       if ((mask & CWWidth) && (ok_width != request->width))
 	{
 	  result->request_mode |= CWWidth;
@@ -824,12 +823,12 @@ EmacsFrameQueryGeometry (Widget widget, XtWidgetGeometry *request, XtWidgetGeome
 
 /* Special entry points */
 void
-EmacsFrameSetCharSize (Widget widget, int columns, int rows)
+EmacsFrameSetCharSize(Widget widget, int columns, int rows)
 {
-  EmacsFrame ew = (EmacsFrame) widget;
+  EmacsFrame ew = (EmacsFrame)widget;
   struct frame *f = ew->emacs_frame.frame;
 
-  x_set_window_size (f, 0, columns, rows, 0);
+  x_set_window_size(f, 0, columns, rows, (bool)0);
 }
 
 
