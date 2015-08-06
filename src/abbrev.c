@@ -89,8 +89,9 @@ DEFUN ("make-abbrev-table", Fmake_abbrev_table, Smake_abbrev_table, 0, 0, 0,
        doc: /* Create a new, empty abbrev table object.  */)
      (void)
 {
-  /* The value 59 is an arbitrarily-chosen prime number.  */
-  return Fmake_vector (make_number (59), make_number (0));
+  /* The value 59 is an arbitrarily-chosen prime number: */
+  return Fmake_vector(make_number((EMACS_INT)59),
+                      make_number((EMACS_INT)0));
 }
 
 DEFUN ("clear-abbrev-table", Fclear_abbrev_table, Sclear_abbrev_table, 1, 1, 0,
@@ -99,11 +100,11 @@ DEFUN ("clear-abbrev-table", Fclear_abbrev_table, Sclear_abbrev_table, 1, 1, 0,
 {
   int i, size;
 
-  CHECK_VECTOR (table);
-  size = XVECTOR (table)->size;
+  CHECK_VECTOR(table);
+  size = (int)XVECTOR(table)->size;
   abbrevs_changed = 1;
   for (i = 0; i < size; i++)
-    XVECTOR (table)->contents[i] = make_number (0);
+    XVECTOR(table)->contents[i] = make_number((EMACS_INT)0);
   return Qnil;
 }
 
@@ -143,7 +144,7 @@ overwrite a non-system abbreviation of the same name.  */)
     }
 
   if (NILP(count))
-    count = make_number(0);
+    count = make_number((EMACS_INT)0);
   else
     CHECK_NUMBER(count);
 
@@ -177,7 +178,7 @@ DEFUN("define-global-abbrev", Fdefine_global_abbrev, Sdefine_global_abbrev, 2, 2
      (Lisp_Object abbrev, Lisp_Object expansion)
 {
   Fdefine_abbrev(Vglobal_abbrev_table, Fdowncase(abbrev),
-		 expansion, Qnil, make_number(0), Qnil);
+		 expansion, Qnil, make_number((EMACS_INT)0), Qnil);
   return abbrev;
 }
 
@@ -190,7 +191,8 @@ DEFUN("define-mode-abbrev", Fdefine_mode_abbrev, Sdefine_mode_abbrev, 2, 2,
     error("Major mode has no abbrev table");
 
   Fdefine_abbrev(current_buffer->INTERNAL_FIELD(abbrev_table),
-                 Fdowncase(abbrev), expansion, Qnil, make_number(0), Qnil);
+                 Fdowncase(abbrev), expansion, Qnil,
+                 make_number((EMACS_INT)0), Qnil);
   return abbrev;
 }
 
@@ -258,7 +260,7 @@ Returns the abbrev symbol, if expansion took place.  */)
 
   value = Qnil;
 
-  Frun_hooks(1, &Qpre_abbrev_expand_hook);
+  Frun_hooks((ptrdiff_t)1, &Qpre_abbrev_expand_hook);
 
   wordstart = 0;
   if (!(BUFFERP(Vabbrev_start_location_buffer)
@@ -268,37 +270,37 @@ Returns the abbrev symbol, if expansion took place.  */)
     {
       tem = Vabbrev_start_location;
       CHECK_NUMBER_COERCE_MARKER(tem);
-      wordstart = XINT(tem);
+      wordstart = (int)XINT(tem);
       Vabbrev_start_location = Qnil;
-      if (wordstart < BEGV || wordstart > ZV)
+      if ((wordstart < BEGV) || (wordstart > ZV))
 	wordstart = 0;
-      if (wordstart && wordstart != ZV)
+      if (wordstart && (wordstart != ZV))
 	{
-	  wordstart_byte = CHAR_TO_BYTE(wordstart);
+	  wordstart_byte = (int)CHAR_TO_BYTE(wordstart);
 	  if (FETCH_BYTE(wordstart_byte) == '-')
-	    del_range(wordstart, wordstart + 1);
+	    del_range((ptrdiff_t)wordstart, (ptrdiff_t)(wordstart + 1));
 	}
     }
   if (!wordstart)
-    wordstart = scan_words(PT, -1);
+    wordstart = (int)scan_words(PT, (EMACS_INT)(-1));
 
   if (!wordstart)
     return value;
 
-  wordstart_byte = CHAR_TO_BYTE(wordstart);
-  wordend = scan_words(wordstart, 1);
+  wordstart_byte = (int)CHAR_TO_BYTE(wordstart);
+  wordend = (int)scan_words((ptrdiff_t)wordstart, (EMACS_INT)1);
   if (!wordend)
     return value;
 
   if (wordend > PT)
-    wordend = PT;
+    wordend = (int)PT;
 
-  wordend_byte = CHAR_TO_BYTE(wordend);
-  whitecnt = PT - wordend;
+  wordend_byte = (int)CHAR_TO_BYTE(wordend);
+  whitecnt = (int)(PT - wordend);
   if (wordend <= wordstart)
     return value;
 
-  p = buffer = (char *)alloca(wordend_byte - wordstart_byte);
+  p = buffer = (char *)alloca((size_t)(wordend_byte - wordstart_byte));
 
   for (idx = wordstart, idx_byte = wordstart_byte; idx < wordend; )
     {
@@ -315,24 +317,24 @@ Returns the abbrev symbol, if expansion took place.  */)
 	}
 
       if (UPPERCASEP(c))
-	c = DOWNCASE(c), uccount++;
+	c = (int)DOWNCASE(c), uccount++;
       else if (! NOCASEP(c))
 	lccount++;
       if (multibyte)
 	p += CHAR_STRING(c, (unsigned char *)p);
       else
-	*p++ = c;
+	*p++ = (char)c;
     }
 
   if (VECTORP(current_buffer->INTERNAL_FIELD(abbrev_table)))
     sym = oblookup(current_buffer->INTERNAL_FIELD(abbrev_table),
-                   buffer, (wordend - wordstart), (p - buffer));
+                   buffer, (ptrdiff_t)(wordend - wordstart), (p - buffer));
   else
     XSETFASTINT(sym, 0);
 
   if (INTEGERP(sym) || NILP(SYMBOL_VALUE(sym)))
     sym = oblookup(Vglobal_abbrev_table, buffer,
-		   wordend - wordstart, p - buffer);
+		   (ptrdiff_t)(wordend - wordstart), (p - buffer));
   if (INTEGERP(sym) || NILP(SYMBOL_VALUE(sym)))
     return value;
 
@@ -345,7 +347,8 @@ Returns the abbrev symbol, if expansion took place.  */)
     }
 
   Vlast_abbrev_text =
-    Fbuffer_substring(make_number(wordstart), make_number(wordend));
+    Fbuffer_substring(make_number((EMACS_INT)wordstart),
+                      make_number((EMACS_INT)wordend));
 
   /* Now sym is the abbrev symbol.  */
   Vlast_abbrev = sym;
@@ -353,25 +356,25 @@ Returns the abbrev symbol, if expansion took place.  */)
   last_abbrev_point = wordstart;
 
   /* Increment use count.  */
-  if (INTEGERP (XSYMBOL (sym)->plist))
-    XSETINT (XSYMBOL (sym)->plist,
-	     XINT (XSYMBOL (sym)->plist) + 1);
-  else if (INTEGERP (tem = Fget (sym, Qcount)))
-    Fput (sym, Qcount, make_number (XINT (tem) + 1));
+  if (INTEGERP(XSYMBOL(sym)->plist))
+    XSETINT(XSYMBOL(sym)->plist,
+	    XINT(XSYMBOL(sym)->plist) + 1);
+  else if (INTEGERP(tem = Fget(sym, Qcount)))
+    Fput(sym, Qcount, make_number(XINT(tem) + 1));
 
   /* If this abbrev has an expansion, delete the abbrev
      and insert the expansion.  */
-  expansion = SYMBOL_VALUE (sym);
-  if (STRINGP (expansion))
+  expansion = SYMBOL_VALUE(sym);
+  if (STRINGP(expansion))
     {
       SET_PT(wordstart);
 
-      insert_from_string(expansion, 0, 0, SCHARS(expansion),
-			 SBYTES(expansion), 1);
+      insert_from_string(expansion, (ptrdiff_t)0, (ptrdiff_t)0,
+                         SCHARS(expansion), SBYTES(expansion), (bool)1);
       del_range_both(PT, PT_BYTE,
 		     (wordend + (PT - wordstart)),
 		     (wordend_byte + (PT_BYTE - wordstart_byte)),
-		     1);
+		     (bool)1);
 
       SET_PT(PT + whitecnt);
 
@@ -382,14 +385,16 @@ Returns the abbrev symbol, if expansion took place.  */)
 	  /* This used to be if (!... && ... >= ...) Fcapitalize; else Fupcase
 	     but Megatest 68000 compiler can't handle that */
 	  if (!abbrev_all_caps)
-	    if (scan_words(PT, -1) > scan_words(wordstart, 1))
+	    if (scan_words(PT, (EMACS_INT)(-1))
+                > scan_words((ptrdiff_t)wordstart, (EMACS_INT)1))
 	      {
-		Fupcase_initials_region(make_number(wordstart),
+		Fupcase_initials_region(make_number((EMACS_INT)wordstart),
                                         make_number(PT));
 		goto caped;
 	      }
 	  /* If expansion is 1 word, or if user says so, upcase it all: */
-	  Fupcase_region(make_number(wordstart), make_number(PT));
+	  Fupcase_region(make_number((EMACS_INT)wordstart),
+                         make_number(PT));
 	caped: ;
 	}
       else if (uccount)
@@ -404,7 +409,8 @@ Returns the abbrev symbol, if expansion took place.  */)
 
 	  /* Change just that: */
 	  pos = (int)BYTE_TO_CHAR(pos);
-	  Fupcase_initials_region(make_number(pos), make_number(pos + 1));
+	  Fupcase_initials_region(make_number((EMACS_INT)pos),
+                                  make_number((EMACS_INT)(pos + 1)));
 	}
     }
 

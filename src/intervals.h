@@ -229,55 +229,55 @@ set_interval_plist (INTERVAL i, Lisp_Object plist)
    and 2 if it is invisible but with an ellipsis.  */
 
 #define TEXT_PROP_MEANS_INVISIBLE(prop)					\
-  (EQ (BVAR (current_buffer, invisibility_spec), Qt)			\
-   ? !NILP (prop)							\
-   : invisible_p (prop, BVAR (current_buffer, invisibility_spec)))
+  (EQ(BVAR(current_buffer, invisibility_spec), Qt)			\
+   ? !NILP(prop)							\
+   : invisible_p(prop, BVAR(current_buffer, invisibility_spec)))
+
+typedef void (*interval_func)(INTERVAL, Lisp_Object);
 
 /* Declared in alloc.c.  */
 
-extern INTERVAL make_interval (void);
+extern INTERVAL make_interval(void);
 
 /* Declared in intervals.c.  */
 
-extern INTERVAL create_root_interval (Lisp_Object);
-extern void copy_properties (INTERVAL, INTERVAL);
-extern bool intervals_equal (INTERVAL, INTERVAL);
-extern void traverse_intervals (INTERVAL, ptrdiff_t,
-                                void (*) (INTERVAL, Lisp_Object),
-                                Lisp_Object);
-extern void traverse_intervals_noorder (INTERVAL,
-                                        void (*) (INTERVAL, Lisp_Object),
-                                        Lisp_Object);
-extern INTERVAL split_interval_right (INTERVAL, ptrdiff_t);
-extern INTERVAL split_interval_left (INTERVAL, ptrdiff_t);
-extern INTERVAL find_interval (INTERVAL, ptrdiff_t);
-extern INTERVAL next_interval (INTERVAL);
-extern INTERVAL previous_interval (INTERVAL);
-extern INTERVAL merge_interval_left (INTERVAL);
-extern void offset_intervals (struct buffer *, ptrdiff_t, ptrdiff_t);
-extern void graft_intervals_into_buffer (INTERVAL, ptrdiff_t, ptrdiff_t,
-                                         struct buffer *, bool);
-extern void verify_interval_modification (struct buffer *,
-					  ptrdiff_t, ptrdiff_t);
-extern INTERVAL balance_intervals (INTERVAL);
-extern void copy_intervals_to_string (Lisp_Object, struct buffer *,
-                                             ptrdiff_t, ptrdiff_t);
-extern INTERVAL copy_intervals (INTERVAL, ptrdiff_t, ptrdiff_t);
-extern bool compare_string_intervals (Lisp_Object, Lisp_Object);
-extern Lisp_Object textget (Lisp_Object, Lisp_Object);
-extern Lisp_Object lookup_char_property (Lisp_Object, Lisp_Object, bool);
-extern void move_if_not_intangible (ptrdiff_t);
-extern bool get_property_and_range (ptrdiff_t, Lisp_Object, Lisp_Object *,
-				    ptrdiff_t *, ptrdiff_t *, Lisp_Object);
-extern Lisp_Object get_local_map (ptrdiff_t, struct buffer *, Lisp_Object);
-extern INTERVAL update_interval (INTERVAL, ptrdiff_t);
-extern void set_intervals_multibyte (bool);
-extern INTERVAL validate_interval_range (Lisp_Object, Lisp_Object *,
-                                         Lisp_Object *, bool);
-extern INTERVAL interval_of (ptrdiff_t, Lisp_Object);
+extern INTERVAL create_root_interval(Lisp_Object);
+extern void copy_properties(INTERVAL, INTERVAL);
+extern bool intervals_equal(INTERVAL, INTERVAL);
+extern void traverse_intervals(INTERVAL, ptrdiff_t, interval_func,
+                               Lisp_Object);
+extern void traverse_intervals_noorder(INTERVAL, interval_func,
+                                       Lisp_Object);
+extern INTERVAL split_interval_right(INTERVAL, ptrdiff_t);
+extern INTERVAL split_interval_left(INTERVAL, ptrdiff_t);
+extern INTERVAL find_interval(INTERVAL, ptrdiff_t);
+extern INTERVAL next_interval(INTERVAL);
+extern INTERVAL previous_interval(INTERVAL);
+extern INTERVAL merge_interval_left(INTERVAL);
+extern void offset_intervals(struct buffer *, ptrdiff_t, ptrdiff_t);
+extern void graft_intervals_into_buffer(INTERVAL, ptrdiff_t, ptrdiff_t,
+                                        struct buffer *, bool);
+extern void verify_interval_modification(struct buffer *,
+					 ptrdiff_t, ptrdiff_t);
+extern INTERVAL balance_intervals(INTERVAL);
+extern void copy_intervals_to_string(Lisp_Object, struct buffer *,
+                                     ptrdiff_t, ptrdiff_t);
+extern INTERVAL copy_intervals(INTERVAL, ptrdiff_t, ptrdiff_t);
+extern bool compare_string_intervals(Lisp_Object, Lisp_Object);
+extern Lisp_Object textget(Lisp_Object, Lisp_Object);
+extern Lisp_Object lookup_char_property(Lisp_Object, Lisp_Object, bool);
+extern void move_if_not_intangible(ptrdiff_t);
+extern bool get_property_and_range(ptrdiff_t, Lisp_Object, Lisp_Object *,
+				   ptrdiff_t *, ptrdiff_t *, Lisp_Object);
+extern Lisp_Object get_local_map(ptrdiff_t, struct buffer *, Lisp_Object);
+extern INTERVAL update_interval(INTERVAL, ptrdiff_t);
+extern void set_intervals_multibyte(bool);
+extern INTERVAL validate_interval_range(Lisp_Object, Lisp_Object *,
+                                        Lisp_Object *, bool);
+extern INTERVAL interval_of(ptrdiff_t, Lisp_Object);
 
 /* Defined in xdisp.c.  */
-extern int invisible_p (Lisp_Object, Lisp_Object);
+extern int invisible_p(Lisp_Object, Lisp_Object);
 
 /* Declared in textprop.c.  */
 
@@ -296,25 +296,25 @@ extern Lisp_Object Qinvisible, Qintangible;
 /* Sticky properties.  */
 extern Lisp_Object Qfront_sticky, Qrear_nonsticky;
 
-extern Lisp_Object copy_text_properties (Lisp_Object, Lisp_Object,
-                                         Lisp_Object, Lisp_Object,
-                                         Lisp_Object, Lisp_Object);
-extern Lisp_Object set_text_properties (Lisp_Object, Lisp_Object,
+extern Lisp_Object copy_text_properties(Lisp_Object, Lisp_Object,
                                         Lisp_Object, Lisp_Object,
-                                        Lisp_Object);
-extern void set_text_properties_1 (Lisp_Object, Lisp_Object,
-                                   Lisp_Object, Lisp_Object, INTERVAL);
+                                        Lisp_Object, Lisp_Object);
+extern Lisp_Object set_text_properties(Lisp_Object, Lisp_Object,
+                                       Lisp_Object, Lisp_Object,
+                                       Lisp_Object);
+extern void set_text_properties_1(Lisp_Object, Lisp_Object,
+                                  Lisp_Object, Lisp_Object, INTERVAL);
 
-Lisp_Object text_property_list (Lisp_Object, Lisp_Object, Lisp_Object,
-                                Lisp_Object);
-void add_text_properties_from_list (Lisp_Object, Lisp_Object, Lisp_Object);
-Lisp_Object extend_property_ranges (Lisp_Object, Lisp_Object);
-Lisp_Object get_char_property_and_overlay (Lisp_Object, Lisp_Object,
-                                           Lisp_Object, Lisp_Object*);
-extern int text_property_stickiness (Lisp_Object prop, Lisp_Object pos,
-                                     Lisp_Object buffer);
+Lisp_Object text_property_list(Lisp_Object, Lisp_Object, Lisp_Object,
+                               Lisp_Object);
+void add_text_properties_from_list(Lisp_Object, Lisp_Object, Lisp_Object);
+Lisp_Object extend_property_ranges(Lisp_Object, Lisp_Object);
+Lisp_Object get_char_property_and_overlay(Lisp_Object, Lisp_Object,
+                                          Lisp_Object, Lisp_Object *);
+extern int text_property_stickiness(Lisp_Object prop, Lisp_Object pos,
+                                    Lisp_Object buffer);
 
-extern void syms_of_textprop (void);
+extern void syms_of_textprop(void);
 
 #include "composite.h"
 

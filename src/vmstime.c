@@ -1,4 +1,4 @@
-/* Time support for VMS.
+/* vmstime.c: Time support for VMS.
    Copyright (C) 1993 Free Software Foundation.
 
 This file is part of GNU Emacs.
@@ -112,7 +112,7 @@ static void find_dst_time(int m, int n, long d,
 
       status = LIB$CVT_FROM_INTERNAL_TIME(&tmp_operation, &day_of_year,
 					  vms_internal_time);
-      
+
       vms_vectime.month = 2;
       vms_vectime.day = 29;
       status = LIB$CVT_VECTIM(&vms_vectime, tmp_vms_internal_time[0]);
@@ -292,7 +292,7 @@ void sys_tzset()
 	  }
 	}
     }
-}  
+}
 
 #ifdef localtime
 #undef localtime
@@ -321,7 +321,7 @@ struct tm *sys_gmtime(time_t *clock)
   char tmp_o_sign;
 
   sys_tzset();
-  
+
   if (daylight)
     tmp_offset = internal_daylight;
   else
@@ -375,3 +375,4 @@ struct tm *sys_gmtime(time_t *clock)
   return &gmt;
 }
 
+/* EOF */

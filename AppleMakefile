@@ -93,11 +93,11 @@ $(OBJROOT)/bo.h: $(OBJROOT)/src/buildobj.lst
 
 $(OBJROOT)/isemacsvalid.o: $(SRCROOT)/isemacsvalid.c
 	if test ! -d $(OBJROOT); then mkdir -pv $(OBJROOT); fi
-	$(CC) -c $(CFLAGS) -o $@ $^ 
+	$(CC) -c $(CFLAGS) -o $@ $^
 
 $(OBJROOT)/runit.o: $(SRCROOT)/runit.c
 	if test ! -d $(OBJROOT); then mkdir -pv $(OBJROOT); fi
-	$(CC) -c $(CFLAGS) -o $@ $^ 
+	$(CC) -c $(CFLAGS) -o $@ $^
 
 $(OBJROOT)/dumpemacs.o: $(OBJROOT)/bo.h $(OBJROOT)/src/version.h
 	$(CC) -I $(OBJROOT) -DkEmacsVersion=$(patsubst %,'"%"', $(GNUVersion)) $(CFLAGS) -o $@ -g -c $(SRCROOT)/dumpemacs.c
@@ -109,7 +109,7 @@ $(SYMROOT)/dumpemacs: $(OBJROOT)/dumpemacs.o $(OBJROOT)/runit.o
 
 $(OBJROOT)/emacswrapper.o: $(SRCROOT)/emacswrapper.c
 	if test ! -d $(OBJROOT); then mkdir -pv $(OBJROOT); fi
-	$(CC) -c $(CFLAGS) -o $@ $^ 
+	$(CC) -c $(CFLAGS) -o $@ $^
 
 $(SYMROOT)/emacswrapper: $(OBJROOT)/emacswrapper.o $(OBJROOT)/isemacsvalid.o $(OBJROOT)/runit.o
 	if test ! -d $(OBJROOT); then mkdir -pv $(OBJROOT); fi
@@ -183,3 +183,4 @@ install-dsyms:
 		$(DSYMUTIL) $(SYMROOT)/$$f; \
 	done
 
+# EOF

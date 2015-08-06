@@ -365,7 +365,13 @@ enum Lisp_Bits
 #ifdef USE_LSB_TAG
 # undef USE_LSB_TAG
 enum enum_USE_LSB_TAG { USE_LSB_TAG = true };
-# define USE_LSB_TAG true
+# if defined(_STDBOOL_H_) && defined(__bool_true_false_are_defined)
+/* "true" does not work as a valid preprocessor expression when it is a
+ * macro whose expansion contains a cast: */
+#  define USE_LSB_TAG 1
+# else
+#  define USE_LSB_TAG true
+# endif /* _STDBOOL_H_ && __bool_true_false_are_defined */
 #else
 enum enum_USE_LSB_TAG { USE_LSB_TAG = false };
 # define USE_LSB_TAG false
@@ -1075,7 +1081,7 @@ make_lisp_proc(struct Lisp_Process *p)
 }
 
 #define XSETINT(a, b) ((a) = make_number(b))
-#define XSETFASTINT(a, b) ((a) = make_natnum(b))
+#define XSETFASTINT(a, b) ((a) = make_natnum((EMACS_INT)(b)))
 #define XSETCONS(a, b) ((a) = make_lisp_ptr(b, Lisp_Cons))
 #define XSETVECTOR(a, b) ((a) = make_lisp_ptr(b, Lisp_Vectorlike))
 #define XSETSTRING(a, b) ((a) = make_lisp_ptr(b, Lisp_String))
@@ -3111,9 +3117,9 @@ struct handler
 
   /* Most global vars are reset to their value via the specpdl mechanism,
      but a few others are handled by storing their value here.  */
-#if true /* GC_MARK_STACK == GC_MAKE_GCPROS_NOOPS, but defined later.  */
+#if 1 /* GC_MARK_STACK == GC_MAKE_GCPROS_NOOPS, but defined later.  */
   struct gcpro *gcpro;
-#endif
+#endif /* 1 */
   sys_jmp_buf jmp;
   EMACS_INT lisp_eval_depth;
   ptrdiff_t pdlcount;
@@ -4533,9 +4539,13 @@ extern void seed_random (void *, ptrdiff_t);
 extern void init_random (void);
 extern void emacs_backtrace (int);
 extern _Noreturn void emacs_abort (void) NO_INLINE;
-extern int emacs_open (const char *, int, int);
-extern int emacs_pipe (int[2]);
-extern int emacs_close (int);
+#ifndef emacs_open
+extern int emacs_open(const char *, int, int);
+#endif /* !emacs_open */
+extern int emacs_pipe(int[2]);
+#ifndef emacs_close
+extern int emacs_close(int);
+#endif /* !emacs_close */
 extern ptrdiff_t emacs_read (int, void *, ptrdiff_t);
 extern ptrdiff_t emacs_write (int, void const *, ptrdiff_t);
 extern ptrdiff_t emacs_write_sig (int, void const *, ptrdiff_t);

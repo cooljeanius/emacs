@@ -87,3 +87,4 @@ XMenuDeletePane(register Display *display, register XMenu *menu, register int p_
     return(p_num);
 }
 
+/* EOF */

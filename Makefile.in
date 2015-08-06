@@ -1338,6 +1338,7 @@ gnulib_headers: lib/Makefile
 ### Targets for in case we convert to automake:
 clean-local:
 	rm -f bo.h $(APPLE_AUX_EXES) *.o
+	rm -rf *.dSYM || rmdir *.dSYM
 .PHONY: clean-local
 
 distclean-local: clean-local

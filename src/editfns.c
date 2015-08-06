@@ -1669,6 +1669,8 @@ or (if you need time as a string) `format-time-string'.  */)
   return make_float (t);
 }
 
+static timezone_t const local_editfns_tz = (timezone_t)1;
+
 /* Write information into buffer S of size MAXSIZE, according to the
    FORMAT of length FORMAT_LEN, using time information taken from *TP.
    Default to Universal Time if UT, local time otherwise.
@@ -1695,11 +1697,18 @@ emacs_nmemftime (char *s, size_t maxsize, const char *format,
     {
       size_t len;
       size_t result;
+      timezone_t ut_tz;
 
       if (s)
 	s[0] = '\1';
 
-      result = nstrftime (s, maxsize, format, tp, ut, ns);
+      if (ut != 0) {
+        ut_tz = NULL; /* NULL is the same as UTC */
+      } else {
+        ut_tz = local_editfns_tz;
+      }
+
+      result = nstrftime(s, maxsize, format, tp, ut_tz, ns);
 
       if (s)
 	{

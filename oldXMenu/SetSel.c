@@ -49,3 +49,4 @@ XMenuSetSelection(register XMenu *menu, register int p_num, register int s_num, 
     return(s_num);
 }
 
+/* EOF */

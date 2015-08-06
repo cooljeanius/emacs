@@ -801,23 +801,23 @@ mac_create_bitmap_from_bitmap_data(BitMap *bitmap, char *bits,
   int i, j, w1;
   char *p;
 
-  w1 = (w + 7) / 8;         /* nb of 8bits elt in X bitmap */
+  w1 = ((w + 7) / 8);         /* nb of 8bits elt in X bitmap */
   bitmap->rowBytes = ((w + 15) / 16) * 2; /* nb of 16bits elt in Mac bitmap */
-  bitmap->baseAddr = xmalloc (bitmap->rowBytes * h);
-  bzero (bitmap->baseAddr, bitmap->rowBytes * h);
+  bitmap->baseAddr = xmalloc(bitmap->rowBytes * h);
+  bzero(bitmap->baseAddr, bitmap->rowBytes * h);
   for (i = 0; i < h; i++)
     {
-      p = bitmap->baseAddr + i * bitmap->rowBytes;
+      p = (bitmap->baseAddr + (i * bitmap->rowBytes));
       for (j = 0; j < w1; j++)
 	{
-	  /* Bitswap XBM bytes to match how Mac does things.  */
+	  /* Bitswap XBM bytes to match how Mac does things: */
 	  unsigned char c = *bits++;
 	  *p++ = (unsigned char)((swap_nibble[c & 0xf] << 4)
-				 | (swap_nibble[(c>>4) & 0xf]));;
+				 | (swap_nibble[(c >> 4) & 0xf]));
 	}
     }
 
-  SetRect (&(bitmap->bounds), 0, 0, w, h);
+  SetRect(&(bitmap->bounds), 0, 0, w, h);
 }
 
 
@@ -7406,7 +7406,7 @@ static void init_font_name_table(void)
 	make_hash_table(Qequal, make_number(DEFAULT_HASH_SIZE),
                         make_float(DEFAULT_REHASH_SIZE),
                         make_float(DEFAULT_REHASH_THRESHOLD),
-                        Qnil, Qnil, Qnil);;
+                        Qnil, Qnil, Qnil);
       h = XHASH_TABLE(asu_font_id_hash);
 
       err = ATSUFontCount(&nfonts);

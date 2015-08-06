@@ -1,6 +1,6 @@
 /* VMS mapping of data and alloc arena for GNU Emacs.
    Copyright (C) 1986, 1987 Free Software Foundation, Inc.
-   
+
    This file is part of GNU Emacs.
 
 GNU Emacs is free software; you can redistribute it and/or modify
@@ -75,7 +75,7 @@ mapin_data (name)
   int status, size;
   int inadr[2];
   struct map_data map_data;
-  
+
   /* Open map file. */
   fab = cc$rms_fab;
   fab.fab$b_fac = FAB$M_BIO|FAB$M_GET;
@@ -138,7 +138,7 @@ mapout_data (into)
   int status;
   struct map_data map_data;
   int datasize, msize;
- 
+
   if (vms_out_initial)
     {
       error ("Out of initial allocation. Must rebuild emacs with more memory (VMS_ALLOCATION_SIZE).");
@@ -202,7 +202,7 @@ write_data (rab, firstblock, data, length)
      char * data;
 {
   int status;
-  
+
   rab->rab$l_bkt = firstblock;
   while (length > 0)
     {
@@ -223,3 +223,4 @@ write_data (rab, firstblock, data, length)
 
 #endif /* VMS */
 
+/* EOF */

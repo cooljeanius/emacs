@@ -366,12 +366,12 @@ extern void enlarge_buffer_text (struct buffer *, ptrdiff_t);
 /* Convert a character position to a byte position.  */
 
 #define CHAR_TO_BYTE(charpos)			\
-  (buf_charpos_to_bytepos (current_buffer, charpos))
+  (buf_charpos_to_bytepos(current_buffer, (ptrdiff_t)(charpos)))
 
 /* Convert a byte position to a character position.  */
 
 #define BYTE_TO_CHAR(bytepos)			\
-  (buf_bytepos_to_charpos (current_buffer, bytepos))
+  (buf_bytepos_to_charpos(current_buffer, (ptrdiff_t)(bytepos)))
 
 /* Convert PTR, the address of a byte in the buffer, into a byte position.  */
 

@@ -77,3 +77,4 @@ XMenuLocate(register Display *display, register XMenu *menu, int p_num, int s_nu
     return(XM_SUCCESS);
 }
 
+/* EOF */

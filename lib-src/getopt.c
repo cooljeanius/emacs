@@ -172,7 +172,7 @@ extern char *__getopt_nonoption_flags;
    the new indices of the non-options in ARGV after they are moved.  */
 
 static void
-exchange (char **argv, struct _getopt_data *d)
+exchange(char **argv, struct _getopt_data *d)
 {
   int bottom = d->__first_nonopt;
   int middle = d->__last_nonopt;

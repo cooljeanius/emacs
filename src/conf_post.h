@@ -55,23 +55,36 @@ typedef bool bool_bf;
 
 /* When not using Clang, assume its attributes and features are absent.  */
 #ifndef __has_attribute
-# define __has_attribute(a) false
+# if defined(_STDBOOL_H_) && defined(__bool_true_false_are_defined)
+/* "false" does not work as a valid preprocessor expression when it is a
+ * macro whose expansion contains a cast: */
+#  define __has_attribute(a) 0
+# else
+#  define __has_attribute(a) false
+# endif /* _STDBOOL_H_ */
 #endif /* !__has_attribute */
 #ifndef __has_feature
-# define __has_feature(a) false
+# if defined(_STDBOOL_H_) && defined(__bool_true_false_are_defined)
+/* "false" does not work as a valid preprocessor expression when it is a
+ * macro whose expansion contains a cast: */
+#  define __has_feature(a) 0
+# else
+#  define __has_feature(a) false
+# endif /* _STDBOOL_H_ */
 #endif /* !__has_feature */
 
 /* True if addresses are being sanitized: */
 #ifndef ADDRESS_SANITIZER
-# if defined __SANITIZE_ADDRESS__ || __has_feature (address_sanitizer)
+# if defined __SANITIZE_ADDRESS__ || __has_feature(address_sanitizer)
 #  define ADDRESS_SANITIZER true
 # else
-#  if defined(_STDBOOL_H_) && defined(__clang__)
-/* "false" does not work as a valid preprocessor expression for clang: */
+#  if defined(_STDBOOL_H_) && defined(__bool_true_false_are_defined)
+/* "false" does not work as a valid preprocessor expression when it is a
+ * macro whose expansion contains a cast: */
 #   define ADDRESS_SANITIZER 0
 #  else
 #   define ADDRESS_SANITIZER false
-#  endif /* _STDBOOL_H_ && __clang__ */
+#  endif /* _STDBOOL_H_ && __bool_true_false_are_defined */
 # endif /* ASAN */
 #endif /* !ADDRESS_SANITIZER */
 
@@ -248,6 +261,14 @@ extern void _DebPrint (const char *fmt, ...);
 #  define ATTRIBUTE_NONNULL(m)
 # endif /* GNUC >= 3.3 */
 #endif /* ATTRIBUTE_NONNULL */
+
+#ifndef ATTRIBUTE_USED
+# if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4)
+#  define ATTRIBUTE_USED __attribute__((__used__))
+# else
+#  define ATTRIBUTE_USED
+# endif /* GNUC >= 3.3 */
+#endif /* ATTRIBUTE_USED */
 
 #define ATTRIBUTE_CONST _GL_ATTRIBUTE_CONST
 

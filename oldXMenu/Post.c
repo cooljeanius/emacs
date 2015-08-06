@@ -84,3 +84,4 @@ XMenuPost(register Display *display, register XMenu *menu, register int *p_num, 
     }
 }
 
+/* EOF */

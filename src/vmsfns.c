@@ -1,4 +1,4 @@
-/* VMS subprocess and command interface.
+/* vmsfns.c: VMS subprocess and command interface.
    Copyright (C) 1987, 1988 Free Software Foundation, Inc.
 
 This file is part of GNU Emacs.
@@ -262,7 +262,7 @@ static struct vms_objlist vms_object [] = {
     { "DCL-SYMBOL",	vms_symbol },	/* Translates DCL symbol */
     { "PROCLIST",	vms_proclist },	/* Returns list of all PIDs on system */
     };
-   
+
 Lisp_Object Qdefault_subproc_input_handler;
 
 extern int process_ef;		/* Event flag for subprocess operations */
@@ -301,7 +301,7 @@ DEFUN ("spawn-subprocess", Fspawn_subprocess, Sspawn_subprocess, 1, 3, 0,
   while (ptr)
     {
       struct process_list *next = ptr->next;
-      if (ptr->name == XFASTINT (name)) 
+      if (ptr->name == XFASTINT (name))
 	{
 	  if (ptr->process_active)
 	    return Qt;
@@ -960,3 +960,4 @@ syms_of_vmsfns ()
 }
 #endif /* VMS */
 
+/* EOF */

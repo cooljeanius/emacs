@@ -6,3 +6,4 @@ end
 project = ARGV[0]
 puts %Q(const char __#{project}_version[] = "@(#) #{project}-#{ENV['RC_ProjectSourceVersion']}";)
 
+# EOF

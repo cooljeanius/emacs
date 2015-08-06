@@ -42,3 +42,4 @@ XMenuSetPane(register XMenu *menu, register int p_num, register int active)
     return(p_num);
 }
 
+/* EOF */

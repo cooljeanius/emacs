@@ -17,7 +17,7 @@
 
 int
 XMenuRecompute(Display *display, register XMenu *menu)
-                     
+
                          	/* Menu object to be recomputed. */
 {
     register XMPane *p_ptr;	/* Pane pointer. */
@@ -103,3 +103,4 @@ XMenuRecompute(Display *display, register XMenu *menu)
     return(XM_SUCCESS);
 }
 
+/* EOF */

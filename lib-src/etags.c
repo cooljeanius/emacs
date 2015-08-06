@@ -447,7 +447,7 @@ static bool parsing_stdin;	/* --parse-stdin used */
 static regexp *p_head;		/* list of all regexps */
 static bool need_filebuf;	/* some regexes are multi-line */
 
-static struct option longopts[] =
+static const struct option longopts[] =
 {
   { "append",             no_argument,       NULL,               'a'   },
   { "packages-only",      no_argument,       &packages_only,     1     },

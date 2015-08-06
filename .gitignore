@@ -57,5 +57,7 @@ confdefs.h
 conftest*
 clang_static_analysis/*.plist
 tmpwrk*/gettext-*.*.*/*
+# syntax check artifacts:
+.sc-start-sc_*
 
 # (most of the subdirectories have their own gitignore files in this fork)

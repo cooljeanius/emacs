@@ -6899,7 +6899,7 @@ a ShowWindow flag:
   (Lisp_Object operation, Lisp_Object document, Lisp_Object parameters, Lisp_Object show_flag)
 {
   char *errstr;
-  Lisp_Object current_dir = BVAR (current_buffer, directory);;
+  Lisp_Object current_dir = BVAR(current_buffer, directory);
   wchar_t *doc_w = NULL, *params_w = NULL, *ops_w = NULL;
   intptr_t result;
 #ifndef CYGWIN

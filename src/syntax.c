@@ -1197,78 +1197,78 @@ DEFUN ("internal-describe-syntax-value", Finternal_describe_syntax_value,
   char str[2];
   Lisp_Object first, match_lisp, value = syntax;
 
-  if (NILP (value))
+  if (NILP(value))
     {
-      insert_string ("default");
+      insert_string("default");
       return syntax;
     }
 
-  if (CHAR_TABLE_P (value))
+  if (CHAR_TABLE_P(value))
     {
-      insert_string ("deeper char-table ...");
+      insert_string("deeper char-table ...");
       return syntax;
     }
 
-  if (!CONSP (value))
+  if (!CONSP(value))
     {
-      insert_string ("invalid");
+      insert_string("invalid");
       return syntax;
     }
 
-  first = XCAR (value);
-  match_lisp = XCDR (value);
+  first = XCAR(value);
+  match_lisp = XCDR(value);
 
-  if (!INTEGERP (first) || !(NILP (match_lisp) || CHARACTERP (match_lisp)))
+  if (!INTEGERP(first) || !(NILP(match_lisp) || CHARACTERP(match_lisp)))
     {
-      insert_string ("invalid");
+      insert_string("invalid");
       return syntax;
     }
 
-  syntax_code = XINT (first) & INT_MAX;
-  code = syntax_code & 0377;
-  start1 = SYNTAX_FLAGS_COMSTART_FIRST (syntax_code);
-  start2 = SYNTAX_FLAGS_COMSTART_SECOND (syntax_code);;
-  end1 = SYNTAX_FLAGS_COMEND_FIRST (syntax_code);
-  end2 = SYNTAX_FLAGS_COMEND_SECOND (syntax_code);
-  prefix = SYNTAX_FLAGS_PREFIX (syntax_code);
-  comstyleb = SYNTAX_FLAGS_COMMENT_STYLEB (syntax_code);
-  comstylec = SYNTAX_FLAGS_COMMENT_STYLEC (syntax_code);
-  comnested = SYNTAX_FLAGS_COMMENT_NESTED (syntax_code);
+  syntax_code = (XINT(first) & INT_MAX);
+  code = (syntax_code & 0377);
+  start1 = SYNTAX_FLAGS_COMSTART_FIRST(syntax_code);
+  start2 = SYNTAX_FLAGS_COMSTART_SECOND(syntax_code);
+  end1 = SYNTAX_FLAGS_COMEND_FIRST(syntax_code);
+  end2 = SYNTAX_FLAGS_COMEND_SECOND(syntax_code);
+  prefix = SYNTAX_FLAGS_PREFIX(syntax_code);
+  comstyleb = SYNTAX_FLAGS_COMMENT_STYLEB(syntax_code);
+  comstylec = SYNTAX_FLAGS_COMMENT_STYLEC(syntax_code);
+  comnested = SYNTAX_FLAGS_COMMENT_NESTED(syntax_code);
 
   if (Smax <= code)
     {
-      insert_string ("invalid");
+      insert_string("invalid");
       return syntax;
     }
 
   str[0] = syntax_code_spec[code], str[1] = 0;
-  insert (str, 1);
+  insert(str, 1);
 
-  if (NILP (match_lisp))
-    insert (" ", 1);
+  if (NILP(match_lisp))
+    insert(" ", 1);
   else
-    insert_char (XINT (match_lisp));
+    insert_char(XINT(match_lisp));
 
   if (start1)
-    insert ("1", 1);
+    insert("1", 1);
   if (start2)
-    insert ("2", 1);
+    insert("2", 1);
 
   if (end1)
-    insert ("3", 1);
+    insert("3", 1);
   if (end2)
-    insert ("4", 1);
+    insert("4", 1);
 
   if (prefix)
-    insert ("p", 1);
+    insert("p", 1);
   if (comstyleb)
-    insert ("b", 1);
+    insert("b", 1);
   if (comstylec)
-    insert ("c", 1);
+    insert("c", 1);
   if (comnested)
-    insert ("n", 1);
+    insert("n", 1);
 
-  insert_string ("\twhich means: ");
+  insert_string("\twhich means: ");
 
   switch (code)
     {
@@ -1342,11 +1342,11 @@ DEFUN ("internal-describe-syntax-value", Finternal_describe_syntax_value,
    COUNT negative means scan backward and stop at word beginning.  */
 
 ptrdiff_t
-scan_words (register ptrdiff_t from, register EMACS_INT count)
+scan_words(register ptrdiff_t from, register EMACS_INT count)
 {
   register ptrdiff_t beg = BEGV;
   register ptrdiff_t end = ZV;
-  register ptrdiff_t from_byte = CHAR_TO_BYTE (from);
+  register ptrdiff_t from_byte = CHAR_TO_BYTE(from);
   register enum syntaxcode code;
   int ch0, ch1;
   Lisp_Object func, pos;

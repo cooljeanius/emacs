@@ -71,3 +71,4 @@ XMenuDeleteSelection(register Display *display, register XMenu *menu, register i
     return(s_num);
 }
 
+/* EOF */

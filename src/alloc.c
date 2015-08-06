@@ -489,9 +489,9 @@ buffer_memory_full (ptrdiff_t nbytes)
    through these functions, as some low-level libc functions may
    bypass the malloc hooks.  */
 
-#define XMALLOC_OVERRUN_CHECK_SIZE 16
+#define XMALLOC_OVERRUN_CHECK_SIZE 16UL
 #define XMALLOC_OVERRUN_CHECK_OVERHEAD \
-  (2 * XMALLOC_OVERRUN_CHECK_SIZE + XMALLOC_OVERRUN_SIZE_SIZE)
+  (2UL * XMALLOC_OVERRUN_CHECK_SIZE + XMALLOC_OVERRUN_SIZE_SIZE)
 
 /* Define XMALLOC_OVERRUN_SIZE_SIZE so that (1) it's large enough to
    hold a size_t value and (2) the header size is a multiple of the
@@ -506,8 +506,8 @@ buffer_memory_full (ptrdiff_t nbytes)
 # define XMALLOC_HEADER_ALIGNMENT XMALLOC_BASE_ALIGNMENT
 #endif
 #define XMALLOC_OVERRUN_SIZE_SIZE				\
-   (((XMALLOC_OVERRUN_CHECK_SIZE + sizeof (size_t)		\
-      + XMALLOC_HEADER_ALIGNMENT - 1)				\
+   (((XMALLOC_OVERRUN_CHECK_SIZE + sizeof(size_t)		\
+      + XMALLOC_HEADER_ALIGNMENT - 1UL)				\
      / XMALLOC_HEADER_ALIGNMENT * XMALLOC_HEADER_ALIGNMENT)	\
     - XMALLOC_OVERRUN_CHECK_SIZE)
 
@@ -1605,7 +1605,7 @@ check_sblock (struct sblock *b)
    recently allocated strings.  Used for hunting a bug.  */
 
 static void
-check_string_bytes (bool all_p)
+check_string_bytes(bool all_p)
 {
   if (all_p)
     {
@@ -1615,19 +1615,19 @@ check_string_bytes (bool all_p)
 	{
 	  struct Lisp_String *s = b->data[0].string;
 	  if (s)
-	    string_bytes (s);
+	    string_bytes(s);
 	}
 
       for (b = oldest_sblock; b; b = b->next)
-	check_sblock (b);
+	check_sblock(b);
     }
   else if (current_sblock)
-    check_sblock (current_sblock);
+    check_sblock(current_sblock);
 }
 
 #else /* not GC_CHECK_STRING_BYTES */
 
-#define check_string_bytes(all) ((void) 0)
+#define check_string_bytes(all) ((void)0)
 
 #endif /* GC_CHECK_STRING_BYTES */
 
@@ -6360,17 +6360,16 @@ survives_gc_p (Lisp_Object obj)
 
 
 
-/* Sweep: find all structures not marked, and free them.  */
-
+/* Sweep: find all structures not marked, and free them: */
 static void
-gc_sweep (void)
+gc_sweep(void)
 {
   /* Remove or mark entries in weak hash tables.
      This must be done before any object is unmarked.  */
-  sweep_weak_hash_tables ();
+  sweep_weak_hash_tables();
 
-  sweep_strings ();
-  check_string_bytes (!noninteractive);
+  sweep_strings();
+  check_string_bytes(!noninteractive);
 
   /* Put all unmarked conses on free list.  */
   {
@@ -6463,7 +6462,7 @@ gc_sweep (void)
 	register int i;
 	int this_free = 0;
 	for (i = 0; i < lim; i++)
-	  if (!FLOAT_MARKED_P (&fblk->floats[i]))
+	  if (!FLOAT_MARKED_P(&fblk->floats[i]))
 	    {
 	      this_free++;
 	      fblk->floats[i].u.chain = float_free_list;
@@ -6472,7 +6471,7 @@ gc_sweep (void)
 	  else
 	    {
 	      num_used++;
-	      FLOAT_UNMARK (&fblk->floats[i]);
+	      FLOAT_UNMARK(&fblk->floats[i]);
 	    }
 	lim = FLOAT_BLOCK_SIZE;
 	/* If this block contains only free floats and we have already
@@ -6569,19 +6568,19 @@ gc_sweep (void)
 	    if (!sym->s.gcmarkbit && !pure_p)
 	      {
 		if (sym->s.redirect == SYMBOL_LOCALIZED)
-		  xfree (SYMBOL_BLV (&sym->s));
+		  xfree(SYMBOL_BLV(&sym->s));
 		sym->s.next = symbol_free_list;
 		symbol_free_list = &sym->s;
 #if GC_MARK_STACK
 		symbol_free_list->function = Vdead;
-#endif
+#endif /* GC_MARK_STACK */
 		++this_free;
 	      }
 	    else
 	      {
 		++num_used;
 		if (!pure_p)
-		  eassert (!STRING_MARKED_P (XSTRING (sym->s.name)));
+		  eassert(!STRING_MARKED_P(XSTRING(sym->s.name)));
 		sym->s.gcmarkbit = 0;
 	      }
 	  }
@@ -6664,35 +6663,37 @@ gc_sweep (void)
     total_free_markers = num_free;
   }
 
-  /* Free all unmarked buffers */
+  /* Free all unmarked buffers: */
   {
     register struct buffer *buffer, **bprev = &all_buffers;
 
     total_buffers = 0;
     for (buffer = all_buffers; buffer; buffer = *bprev)
-      if (!VECTOR_MARKED_P (buffer))
+      if (!VECTOR_MARKED_P(buffer))
 	{
 	  *bprev = buffer->next;
-	  lisp_free (buffer);
+	  lisp_free(buffer);
 	}
       else
 	{
-	  VECTOR_UNMARK (buffer);
-	  /* Do not use buffer_(set|get)_intervals here.  */
-	  buffer->text->intervals = balance_intervals (buffer->text->intervals);
+	  VECTOR_UNMARK(buffer);
+	  /* Do not use buffer_(set|get)_intervals here: */
+	  buffer->text->intervals = balance_intervals(buffer->text->intervals);
 	  total_buffers++;
 	  bprev = &buffer->next;
 	}
   }
 
-  sweep_vectors ();
-  check_string_bytes (!noninteractive);
+  sweep_vectors();
+  check_string_bytes(!noninteractive);
 }
-
-
 
 
 /* Debugging aids.  */
+
+#ifdef HAVE_NS
+static const int fake_sbrk_result = 0;
+#endif /* HAVE_NS */
 
 DEFUN("memory-limit", Fmemory_limit, Smemory_limit, 0, 0, 0,
       doc: /* Return the address of the last byte Emacs has allocated, divided by 1024.
@@ -6704,7 +6705,7 @@ We divide the value by 1024 to make sure it fits in a Lisp integer.  */)
 
 #ifdef HAVE_NS
   /* Avoid warning; sbrk() has no relation to memory allocated anyway: */
-  XSETINT(end, (0 / 1024));
+  XSETINT(end, (fake_sbrk_result / 1024));
 #else
   XSETINT(end, ((intptr_t)(char *)sbrk(0) / 1024));
 #endif /* HAVE_NS */
@@ -6727,7 +6728,7 @@ Frames, windows, buffers, and subprocesses count as vectors
   (but the contents of a buffer's text do not count here).  */)
   (void)
 {
-  return listn(CONSTYPE_HEAP, 8,
+  return listn(CONSTYPE_HEAP, (ptrdiff_t)8,
                bounded_number(cons_cells_consed),
                bounded_number(floats_consed),
                bounded_number(vector_cells_consed),
@@ -6770,10 +6771,12 @@ which_symbols(Lisp_Object obj, EMACS_INT find_max)
 		   || EQ(sym->function, obj)
 		   || (!NILP(sym->function)
 		       && COMPILEDP(sym->function)
-		       && EQ(AREF(sym->function, COMPILED_BYTECODE), obj))
+		       && EQ(AREF(sym->function,
+                                  (ptrdiff_t)COMPILED_BYTECODE), obj))
 		   || (!NILP(val)
 		       && COMPILEDP(val)
-		       && EQ(AREF(val, COMPILED_BYTECODE), obj)))
+		       && EQ(AREF(val, (ptrdiff_t)COMPILED_BYTECODE),
+                             obj)))
 		 {
 		   found = Fcons(tem, found);
 		   if (--find_max == 0)
@@ -6811,7 +6814,7 @@ init_alloc_once(void)
 
 #if GC_MARK_STACK || defined GC_MALLOC_CHECK
   mem_init();
-  Vdead = make_pure_string("DEAD", 4, 4, 0);
+  Vdead = make_pure_string("DEAD", (ptrdiff_t)4, (ptrdiff_t)4, (bool)0);
 #endif /* GC_MARK_STACK || GC_MALLOC_CHECK */
 
 #ifdef DOUG_LEA_MALLOC
@@ -6914,7 +6917,7 @@ do hash-consing of the objects allocated to pure space.  */);
   /* We build this in advance because if we wait until we need it, we might
      not be able to allocate the memory to hold it.  */
   Vmemory_signal_data =
-    listn(CONSTYPE_PURE, 2, Qerror,
+    listn(CONSTYPE_PURE, (ptrdiff_t)2, Qerror,
           build_pure_c_string("Memory exhausted--use M-x save-some-buffers then exit and restart Emacs"));
 
   DEFVAR_LISP("memory-full", Vmemory_full,

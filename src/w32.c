@@ -4224,7 +4224,7 @@ int
 sys_rename_replace (const char *oldname, const char *newname, BOOL force)
 {
   BOOL result;
-  char temp[MAX_UTF8_PATH], temp_a[MAX_PATH];;
+  char temp[MAX_UTF8_PATH], temp_a[MAX_PATH];
   int newname_dev;
   int oldname_dev;
   bool have_temp_a = false;

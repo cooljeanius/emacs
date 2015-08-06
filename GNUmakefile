@@ -32,11 +32,85 @@
 # run "configure" by hand.  But run autogen.sh first, if the source
 # was checked out directly from the repository.
 
+_gl-Makefile := $(wildcard [M]akefile)
+
 # If a Makefile already exists, just use it.
 
 ifeq ($(wildcard Makefile),Makefile)
+
+# Make tar archive easier to reproduce.
+export TAR_OPTIONS = --owner=0 --group=0 --numeric-owner
+
+# Allow the user to add to this in the Makefile.
+ALL_RECURSIVE_TARGETS =
+
 include Makefile
+
+# Some projects override e.g., _autoreconf here.
+-include $(srcdir)/cfg.mk
+
+# Allow cfg.mk to override these.
+_build-aux ?= build-aux
+_autoreconf ?= autoreconf -v
+
+include $(srcdir)/maint.mk
+
+
+# Ensure that $(VERSION) is up to date for dist-related targets, but not
+# for others: rerunning autoreconf and recompiling everything isn't cheap.
+_have-git-version-gen := \
+  $(shell test -f $(srcdir)/$(_build-aux)/git-version-gen && echo yes)
+ifeq ($(_have-git-version-gen)0,yes$(MAKELEVEL))
+  _is-dist-target ?= $(filter-out %clean, \
+    $(filter maintainer-% dist% alpha beta stable,$(MAKECMDGOALS)))
+  _is-install-target ?= $(filter-out %check, $(filter install%,$(MAKECMDGOALS)))
+  ifneq (,$(_is-dist-target)$(_is-install-target))
+    _curr-ver := $(shell cd $(srcdir)				\
+                   && $(_build-aux)/git-version-gen		\
+                         .tarball-version			\
+                         $(git-version-gen-tag-sed-script))
+    ifneq ($(_curr-ver),$(VERSION))
+      ifeq ($(_curr-ver),UNKNOWN)
+        $(info WARNING: unable to verify if $(VERSION) is the correct version)
+      else
+        ifneq (,$(_is-install-target))
+          # GNU Coding Standards state that 'make install' should not cause
+          # recompilation after 'make all'.  But as long as changing the version
+          # string alters config.h, the cost of having 'make all' always have an
+          # up-to-date version is prohibitive.  So, as a compromise, we merely
+          # warn when installing a version string that is out of date; the user
+          # should run 'autoreconf' (or something like 'make distcheck') to
+          # fix the version, 'make all' to propagate it, then 'make install'.
+          $(info WARNING: version string $(VERSION) is out of date;)
+          $(info run '$(MAKE) _version' to fix it)
+        else
+          $(info INFO: running autoreconf for new version string: $(_curr-ver))
+GNUmakefile: _version
+	touch GNUmakefile
+        endif
+      endif
+    endif
+  endif
+endif
+
+.PHONY: _version
+_version:
+	cd $(srcdir) && rm -rf autom4te.cache .version && $(_autoreconf)
+	$(MAKE) $(AM_MAKEFLAGS) Makefile
+
 else
+
+.DEFAULT_GOAL := default
+srcdir = .
+
+# The package can override .DEFAULT_GOAL to run actions like autoreconf.
+-include ./cfg.mk
+
+# Allow cfg.mk to override these.
+_build-aux ?= build-aux
+_autoreconf ?= autoreconf -v
+
+include ./maint.mk
 
 # If cleaning and Makefile does not exist, do NOT bother creating it.
 # The source tree is already clean, or is in a weird state that
@@ -46,6 +120,9 @@ ifeq ($(filter-out %clean,$(or $(MAKECMDGOALS),default)),)
 
 $(MAKECMDGOALS):
 	@echo >&2 'No Makefile; skipping $@.'
+
+default:
+	@echo '$@'
 
 else
 
@@ -80,5 +157,22 @@ bootstrap: Makefile
 
 .PHONY: bootstrap default $(ORDINARY_GOALS)
 
+endif
+endif
+
+# Tell version 3.79 and up of GNU make to not build goals in this
+# directory in parallel, in case someone tries to build multiple
+# targets, and one of them can cause a recursive target to be invoked.
+
+# Only set this if Automake doesn't provide it.
+AM_RECURSIVE_TARGETS ?= $(RECURSIVE_TARGETS:-recursive=) \
+  $(RECURSIVE_CLEAN_TARGETS:-recursive=) \
+  dist distcheck tags ctags
+
+ALL_RECURSIVE_TARGETS += $(AM_RECURSIVE_TARGETS)
+
+ifneq ($(word 2, $(MAKECMDGOALS)), )
+ifneq ($(filter $(ALL_RECURSIVE_TARGETS), $(MAKECMDGOALS)), )
+.NOTPARALLEL:
 endif
 endif

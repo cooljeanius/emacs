@@ -41,6 +41,8 @@ WARN_LDFLAGS = @WARN_LDFLAGS@
 WERROR_CFLAGS = @WERROR_CFLAGS@
 UPDATE_MANIFEST = @UPDATE_MANIFEST@
 
+LIBRARY_PATH = @LIBRARY_PATH@
+
 # Program name transformation.
 TRANSFORM = @program_transform_name@
 # kinda similar:
@@ -437,12 +439,14 @@ GETOPTDEPS = $(GETOPTOBJS) $(GETOPT_H)
 getopt.o: ${srcdir}/getopt.c $(GETOPT_H) ${srcdir}/gettext.h
 	$(AM_V_CC)${CC} -c ${CPP_CFLAGS} ${srcdir}/getopt.c
 getopt_test${EXEEXT}: ${srcdir}/getopt.c $(GETOPT_H) ${srcdir}/gettext.h
-	$(AM_V_CCLD)${CC} -DTEST ${CPP_CFLAGS} ${srcdir}/getopt.c \
+	$(AM_V_CCLD)export LIBRARY_PATH=$(LIBRARY_PATH) && \
+	  ${CC} -DTEST ${CPP_CFLAGS} ${srcdir}/getopt.c \
 	  $(LOADLIBES) $(LIBINTL) -o $@
 getopt1.o: ${srcdir}/getopt1.c $(GETOPT_H)
 	$(AM_V_CC)${CC} -c ${CPP_CFLAGS} ${srcdir}/getopt1.c
 getopt_long_test${EXEEXT}: ${srcdir}/getopt1.c $(GETOPT_H) getopt.o
-	$(AM_V_CCLD)${CC} -DTEST ${CPP_CFLAGS} ${srcdir}/getopt1.c \
+	$(AM_V_CCLD)export LIBRARY_PATH=$(LIBRARY_PATH) && \
+	  ${CC} -DTEST ${CPP_CFLAGS} ${srcdir}/getopt1.c \
 	  getopt.o $(LOADLIBES) $(LIBINTL) -o $@
 alloca.o: ${srcdir}/alloca.c
 	$(AM_V_CC)${CC} -Demacs -c ${BASE_CFLAGS} ${srcdir}/alloca.c

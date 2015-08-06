@@ -1,5 +1,9 @@
 /* runit.c -*- C -*- */
 
+#ifdef HAVE_CONFIG_H
+# include "src/config.h"
+#endif /* HAVE_CONFIG_H */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -7,9 +11,7 @@
 #include <sys/stat.h>
 #include <pwd.h>
 
-#ifdef HAVE_CONFIG_H
-# include "src/config.h"
-#endif /* HAVE_CONFIG_H */
+/* "config.h" needs to go first */
 
 #include <unistd.h>
 #include <err.h>
@@ -17,6 +19,10 @@
 #include <sys/param.h>
 
 #include "dumpemacs.h"
+
+#if defined(malloc) || defined(realloc) || defined(temacs)
+# include "src/unexec.h"
+#endif /* malloc || realloc || temacs */
 
 int decreasepriv(int debugflag);
 

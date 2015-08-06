@@ -15,7 +15,7 @@ mkdir -p "$DUMPDIR/lib-src"
 mkdir -p "$DUMPDIR/src"
 
 UNDUMPED="$PREFIX/bin/emacs-undumped"
-if [ `lipo -info "$UNDUMPED" | awk '{print $1}'` == "Non-fat" ]
+if [ `lipo -info "$UNDUMPED" | awk '{print $1}'` = "Non-fat" ]
 then
 	# Thin file, do not lipo
 	cp "$UNDUMPED" "$DUMPDIR/src/temacs"

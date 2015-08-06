@@ -112,6 +112,12 @@ if test "x${automake_min}" = "x"; then
   echo "falling back to default set in $0 for automake (i.e. '${automake_min}')"
 fi
 
+## prevent perl version from polluting automake version:
+if test "x${VERSIONER_DEBUG}" != "x"; then
+  test -n "${VERSIONER_DEBUG}" && unset VERSIONER_DEBUG
+  test -z "${WE_HAD_SET_VERSIONER_DEBUG_PREVIOUSLY}" && export WE_HAD_SET_VERSIONER_DEBUG_PREVIOUSLY=1
+fi
+
 
 ## $1 = program, e.g. "autoconf".
 ## Echo the version string, e.g. "2.59".
@@ -209,6 +215,7 @@ for prog in ${progs}; do
     if [ ${retval} -ne 0 ]; then
         missing="${missing} ${prog}"
         eval ${sprog}_why=\""${stat}"\"
+        # stray, unescaped quote to fix the syntax highlighting: "
     fi
 
 done
@@ -277,6 +284,11 @@ Please report any problems with this script to bug-gnu-emacs@gnu.org .
 EOF
 
     exit 1
+fi
+
+if test "x${WE_HAD_SET_VERSIONER_DEBUG_PREVIOUSLY}" = "x1"; then
+  test -n "${WE_HAD_SET_VERSIONER_DEBUG_PREVIOUSLY}"
+  test -z "${VERSIONER_DEBUG}" && export VERSIONER_DEBUG=1
 fi
 
 echo 'Your system has the required tools.'

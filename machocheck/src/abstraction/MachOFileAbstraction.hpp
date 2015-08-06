@@ -1717,7 +1717,6 @@ private:
 	linker_option_command	fields;
 };
 
-
 #endif	// __MACH_O_FILE_ABSTRACTION__
 
-
+/* EOF */

@@ -574,24 +574,35 @@ wset_next_buffers (struct window *w, Lisp_Object val)
   (FRAME_INTERNAL_BORDER_WIDTH (WINDOW_XFRAME (W)) \
    + WINDOW_RIGHT_PIXEL_EDGE (W))
 
-/* True if W is a menu bar window.  */
-
-#if defined (HAVE_X_WINDOWS) && ! defined (USE_X_TOOLKIT) && ! defined (USE_GTK)
-#define WINDOW_MENU_BAR_P(W) \
-  (WINDOWP (WINDOW_XFRAME (W)->menu_bar_window) \
-   && (W) == XWINDOW (WINDOW_XFRAME (W)->menu_bar_window))
-#else
-/* No menu bar windows if X toolkit is in use.  */
-#define WINDOW_MENU_BAR_P(W) false
+/* True if W is a menu bar window: */
+#if defined(HAVE_X_WINDOWS) && !defined(USE_X_TOOLKIT) && !defined(USE_GTK)
+# define WINDOW_MENU_BAR_P(W) \
+   (WINDOWP(WINDOW_XFRAME(W)->menu_bar_window) \
+    && (W) == XWINDOW(WINDOW_XFRAME(W)->menu_bar_window))
+# else
+/* No menu bar windows if X toolkit is in use: */
+# if defined(_STDBOOL_H_) && defined(__bool_true_false_are_defined)
+/* "false" does not work as a valid preprocessor expression when it is a
+ * macro whose expansion contains a cast: */
+#  define WINDOW_MENU_BAR_P(W) 0
+# else
+#  define WINDOW_MENU_BAR_P(W) false
+# endif /* _STDBOOL_H_ && __bool_true_false_are_defined */
 #endif
 
-/* True if W is a tool bar window.  */
-#if defined (HAVE_WINDOW_SYSTEM) && ! defined (USE_GTK) && ! defined (HAVE_NS)
-#define WINDOW_TOOL_BAR_P(W) \
-  (WINDOWP (WINDOW_XFRAME (W)->tool_bar_window) \
-   && (W) == XWINDOW (WINDOW_XFRAME (W)->tool_bar_window))
+/* True if W is a tool bar window: */
+#if defined(HAVE_WINDOW_SYSTEM) && !defined(USE_GTK) && !defined(HAVE_NS)
+# define WINDOW_TOOL_BAR_P(W) \
+   (WINDOWP(WINDOW_XFRAME(W)->tool_bar_window) \
+    && (W) == XWINDOW(WINDOW_XFRAME(W)->tool_bar_window))
 #else
-#define WINDOW_TOOL_BAR_P(W) false
+# if defined(_STDBOOL_H_) && defined(__bool_true_false_are_defined)
+/* "false" does not work as a valid preprocessor expression when it is a
+ * macro whose expansion contains a cast: */
+#  define WINDOW_TOOL_BAR_P(W) 0
+# else
+#  define WINDOW_TOOL_BAR_P(W) false
+# endif /* _STDBOOL_H_ && __bool_true_false_are_defined */
 #endif
 
 /* Return the frame y-position at which window W starts.

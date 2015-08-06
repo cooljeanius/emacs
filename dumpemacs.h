@@ -8,18 +8,20 @@
 #define kEmacsLibExecDir "/usr/libexec"
 #define kEmacsShareDir "/usr/share/emacs"
 
-#ifdef __ppc__
-# define kEmacsArch "ppc"
-#endif /* __ppc__ */
-#ifdef __ppc64__
-# define kEmacsArch  "ppc64"
-#endif /* __ppc64__ */
-#ifdef __i386__
-# define kEmacsArch "i386"
-#endif /* __i386__ */
-#ifdef __x86_64__
-# define kEmacsArch "x86_64"
-#endif /* __x86_64__ */
+#ifndef kEmacsArch
+# ifdef __ppc__
+#  define kEmacsArch "ppc"
+# endif /* __ppc__ */
+# ifdef __ppc64__
+#  define kEmacsArch  "ppc64"
+# endif /* __ppc64__ */
+# ifdef __i386__
+#  define kEmacsArch "i386"
+# endif /* __i386__ */
+# if defined(__x86_64__) && !defined(kEmacsArch)
+#  define kEmacsArch "x86_64"
+# endif /* __x86_64__ && !kEmacsArch */
+#endif /* !kEmacsArch */
 
 #ifndef kEmacsArch
 # error "Unsupported architecture"

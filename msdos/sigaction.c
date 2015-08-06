@@ -53,5 +53,4 @@ sigaction(int _sig, const struct sigaction *_act, struct sigaction *_oact)
   return 0;
 }
 
-
-
+/* EOF */

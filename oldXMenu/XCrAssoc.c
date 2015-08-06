@@ -54,3 +54,4 @@ XAssocTable *XCreateAssocTable(register int size)
 	return(table);
 }
 
+/* EOF */

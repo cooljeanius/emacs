@@ -99,6 +99,9 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #undef free
 
 #include "unexec.h"
+#if defined(HAVE_STDALIGN_H) && defined(BUILDING_FROM_XCODE)
+# undef HAVE_STDALIGN_H
+#endif /* HAVE_STDALIGN_H && BUILDING_FROM_XCODE */
 #include "lisp.h"
 
 #if defined(emacs) || defined(temacs)
@@ -337,7 +340,7 @@ static int unexec_copy(off_t dest, off_t src, ssize_t count)
 
   while (count > 0L)
     {
-      bytes_to_read = ((count > UNEXEC_COPY_BUFSZ)
+      bytes_to_read = ((count > (ssize_t)UNEXEC_COPY_BUFSZ)
                        ? (ssize_t)UNEXEC_COPY_BUFSZ : count);
       bytes_read = read(infd, buf, (size_t)bytes_to_read);
       if (bytes_read <= 0)
@@ -350,67 +353,42 @@ static int unexec_copy(off_t dest, off_t src, ssize_t count)
   return 1;
 }
 
-/* Debugging and informational messages routines: */
-#if !defined(_STDIO_H_) && !defined(EMACS_SYSSTDIO_H) && \
-    !defined(_GL_STDIO_H) && !defined(_GL_ALREADY_INCLUDING_STDIO_H)
-/* try to silence a warning by copying from the gnulib "stdio.h": */
-# ifndef _GL_ATTRIBUTE_FORMAT
-#  if (defined(__GNUC__) && defined(__GNUC_MINOR__)) && \
-      ((__GNUC__ > 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 7)))
-#   define _GL_ATTRIBUTE_FORMAT(spec) __attribute__ ((__format__ spec))
-#  else
-#   define _GL_ATTRIBUTE_FORMAT(spec) /* empty */
-#  endif /* gcc 2.7+ */
-# endif /* !_GL_ATTRIBUTE_FORMAT */
+/* in case gnulib re-defined these on us: */
+#ifdef BUILDING_FROM_XCODE
+# ifdef strstr
+#  undef strstr
+# endif /* strstr */
+# ifdef strerror
+#  undef strerror
+# endif /* strerror */
+#endif /* BUILDING_FROM_XCODE */
 
-# ifndef _GL_ATTRIBUTE_FORMAT_PRINTF
+/* Debugging and informational messages routines: */
+#ifndef _GL_ATTRIBUTE_FORMAT
+# if (defined(__GNUC__) && defined(__GNUC_MINOR__)) && \
+     ((__GNUC__ > 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 7)))
+#  define _GL_ATTRIBUTE_FORMAT(spec) __attribute__((__format__ spec))
+# else
+#  define _GL_ATTRIBUTE_FORMAT(spec) /* empty */
+# endif /* gcc 2.7+ */
+#endif /* !_GL_ATTRIBUTE_FORMAT */
+
+#ifndef _GL_ATTRIBUTE_FORMAT_PRINTF
 /* _GL_ATTRIBUTE_FORMAT_PRINTF
  * indicates to GCC that the function takes a format string and arguments,
  * where the format string directives are the ones standardized by ISO C99
  * and POSIX.  */
-#  if (defined(__GNUC__) && defined(__GNUC_MINOR__)) && \
-      ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 4)))
-#   define _GL_ATTRIBUTE_FORMAT_PRINTF(formatstring_parameter, first_argument) \
-     _GL_ATTRIBUTE_FORMAT ((__gnu_printf__, formatstring_parameter, first_argument))
-#  else
-#   define _GL_ATTRIBUTE_FORMAT_PRINTF(formatstring_parameter, first_argument) \
-     _GL_ATTRIBUTE_FORMAT ((__printf__, formatstring_parameter, first_argument))
-#  endif /* gcc 4.4+ */
-# endif /* !_GL_ATTRIBUTE_FORMAT_PRINTF */
-
-# if !defined(vfprintf) || !defined(HAVE_VFPRINTF)
-/* warn if we are messing up by declaring this here: */
-#  if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
-      ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
-#   pragma GCC diagnostic push
-#   pragma GCC diagnostic warning "-Wredundant-decls"
-#  endif /* gcc 4.6+ */
-/* see if this will work: */
-int vfprintf(FILE *fp, const char *format, va_list args)
-            _GL_ATTRIBUTE_FORMAT_PRINTF(2, 0);
-/* keep condition the same as when we push on the redundancy warning: */
-#  if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
-      ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
-#   pragma GCC diagnostic pop
-#  endif /* gcc 4.6+ */
+# if (defined(__GNUC__) && defined(__GNUC_MINOR__)) && \
+     ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 4)))
+#  define _GL_ATTRIBUTE_FORMAT_PRINTF(formatstring_parameter, first_argument) \
+    _GL_ATTRIBUTE_FORMAT((__gnu_printf__, formatstring_parameter, first_argument))
 # else
-#  if defined(__GNUC__) && !defined(__STRICT_ANSI__)
-#   warning "We should already have a vfprintf prototype...(?)"
-#  endif /* __GNUC__ && !__STRICT_ANSI__ */
-# endif /* !vfprintf || !HAVE_VFPRINTF */
-#else
-# if defined(__GNUC__) && !defined(__STRICT_ANSI__) && 0
-#  warning "We should already have included <stdio.h>...(?)"
-# endif /* __GNUC__ && !__STRICT_ANSI__ && 0 */
-/* just ignore the warning if there is no way to re-declare vfprintf:  */
-# if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
-     ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 7)))
-#  pragma GCC diagnostic push
-#  pragma GCC diagnostic ignored "-Wsuggest-attribute=format"
-# endif /* gcc 4.7+ */
-#endif /* !_STDIO_H_ && !EMACS_SYSSTDIO_H && !_GL_STDIO_H && !_GL_ALREADY_INCLUDING_STDIO_H */
+#  define _GL_ATTRIBUTE_FORMAT_PRINTF(formatstring_parameter, first_argument) \
+    _GL_ATTRIBUTE_FORMAT((__printf__, formatstring_parameter, first_argument))
+# endif /* gcc 4.4+ */
+#endif /* !_GL_ATTRIBUTE_FORMAT_PRINTF */
 
-static _Noreturn void
+static _Noreturn void _GL_ATTRIBUTE_FORMAT_PRINTF(1, 2)
 unexec_error(const char *format, ...)
 {
   va_list ap;
@@ -437,14 +415,6 @@ unexec_error(const char *format, ...)
   va_end(ap);
   exit(1);
 }
-#if defined(_STDIO_H_) || defined(EMACS_SYSSTDIO_H) || \
-    defined(_GL_STDIO_H) || defined(_GL_ALREADY_INCLUDING_STDIO_H)
-/* keep condition the same as when we push away the format warning: */
-# if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
-     ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 7)))
-#  pragma GCC diagnostic pop
-# endif /* gcc 4.7+ */
-#endif /* _STDIO_H_ || EMACS_SYSSTDIO_H || _GL_STDIO_H || _GL_ALREADY_INCLUDING_STDIO_H */
 
 static void
 print_prot(vm_prot_t prot)
@@ -557,8 +527,8 @@ build_region_list(void)
       if (address >= VM_DATA_TOP) {
 #if defined(VERBOSE) && VERBOSE
         printf("0x%lx is above 0x%lx; we must %s be into the shared libraries.\n",
-               address, VM_DATA_TOP, ((regions_printed <= 1)
-                                      ? "already" : "now"));
+               (unsigned long)address, VM_DATA_TOP, ((regions_printed <= 1)
+                                                     ? "already" : "now"));
 #endif /* VERBOSE */
 	break;
       }
@@ -765,11 +735,11 @@ static void unexec_regions_merge(void)
       }
       if (r.filesize != r.range.size) {
         printf("Removed %lx zerod bytes from filesize\n",
-               (r.range.size - r.filesize));
+               (unsigned long)(r.range.size - r.filesize));
       }
       unexec_regions[n++] = r;
       r = unexec_regions[i];
-      padsize = r.range.address & (pagesize - 1);
+      padsize = (r.range.address & (pagesize - 1UL));
       if (padsize) { /* Align beginning of unmerged region */
         if ((unexec_regions[n - 1].range.address
              + unexec_regions[n - 1].range.size) == r.range.address) {
@@ -804,7 +774,7 @@ static void unexec_regions_merge(void)
   free(zeropage);
   if (r.filesize != r.range.size) {
     printf("Removed %lx zerod bytes from filesize\n",
-           (r.range.size - r.filesize));
+           (unsigned long)(r.range.size - r.filesize));
   }
   unexec_regions[n++] = r;
   num_unexec_regions = n;
@@ -1718,7 +1688,7 @@ failure_spot:
 
       if (!unexec_write((off_t)sc.fileoff, (void *)sc.vmaddr, sc.filesize))
         unexec_error("cannot write new __DATA segment %#8lx (sz: %#8lx)",
-                     sc.vmaddr, sc.filesize);
+                     (unsigned long)sc.vmaddr, (unsigned long)sc.filesize);
       curr_file_offset += ROUNDUP_TO_PAGE_BOUNDARY(sc.filesize);
 
       if (!unexec_write((off_t)curr_header_offset, &sc,

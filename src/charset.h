@@ -421,10 +421,10 @@ extern Lisp_Object Vcharset_table;
   (CHARSET_ATTR_DEUNIFIER (CHARSET_ATTRIBUTES (charset)))
 
 INLINE void
-set_charset_attr (struct charset *charset, enum charset_attr_index idx,
-		  Lisp_Object val)
+set_charset_attr(struct charset *charset, enum charset_attr_index idx,
+		 Lisp_Object val)
 {
-  ASET (CHARSET_ATTRIBUTES (charset), idx, val);
+  ASET(CHARSET_ATTRIBUTES(charset), (ptrdiff_t)idx, val);
 }
 
 

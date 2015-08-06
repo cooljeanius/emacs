@@ -635,20 +635,21 @@ static void write_globals(void)
 	case FUNCTION:
 	  if (!seen_defun)
 	    {
-	      close_emacs_globals ();
-	      fprintf (outfile, "\n");
+	      close_emacs_globals();
+	      fprintf(outfile, "\n");
 	      seen_defun = 1;
 	    }
 	  break;
+	case INVALID: /* fall through to: */
 	default:
-	  fatal ("not a recognized DEFVAR_", 0);
+	  fatal("not a recognized DEFVAR_", 0);
 	}
 
       if (type)
 	{
-	  fprintf (outfile, "  %s f_%s;\n", type, globals[i].name);
-	  fprintf (outfile, "#define %s globals.f_%s\n",
-		   globals[i].name, globals[i].name);
+	  fprintf(outfile, "  %s f_%s;\n", type, globals[i].name);
+	  fprintf(outfile, "#define %s globals.f_%s\n",
+		  globals[i].name, globals[i].name);
 	}
       else
 	{
@@ -1121,7 +1122,7 @@ static int scan_lisp_file(const char *filename, const char *mode)
 {
   FILE *infile;
   register int c;
-  char *saved_string = 0;
+  char *saved_string = (char *)0;
   /* These are the only files that are loaded uncompiled, and must
      follow the conventions of the doc strings expected by this
      function.  These conventions are automatically followed by the
@@ -1130,39 +1131,41 @@ static int scan_lisp_file(const char *filename, const char *mode)
     const char *fn;
     size_t fl;
   } const uncompiled[] = {
-    DEF_ELISP_FILE (loaddefs.el),
-    DEF_ELISP_FILE (loadup.el),
-    DEF_ELISP_FILE (charprop.el),
-    DEF_ELISP_FILE (cp51932.el),
-    DEF_ELISP_FILE (eucjp-ms.el)
+    DEF_ELISP_FILE(loaddefs.el),
+    DEF_ELISP_FILE(loadup.el),
+    DEF_ELISP_FILE(charprop.el),
+    DEF_ELISP_FILE(cp51932.el),
+    DEF_ELISP_FILE(eucjp-ms.el)
   };
   int i, match;
-  size_t flen = strlen (filename);
+  size_t flen = strlen(filename);
 
   if (generate_globals)
-    fatal ("scanning lisp file when -g specified", 0);
-  if (flen > 3 && !strcmp (filename + flen - 3, ".el"))
+    fatal("scanning lisp file when -g specified", 0);
+  if ((flen > 3) && !strcmp((filename + flen - 3), ".el"))
     {
-      for (i = 0, match = 0; i < sizeof (uncompiled) / sizeof (uncompiled[0]);
+      for (i = 0, match = 0;
+           (size_t)i < (sizeof(uncompiled) / sizeof(uncompiled[0]));
 	   i++)
 	{
-	  if (uncompiled[i].fl <= flen
-	      && !strcmp (filename + flen - uncompiled[i].fl, uncompiled[i].fn)
-	      && (flen == uncompiled[i].fl
-		  || IS_SLASH (filename[flen - uncompiled[i].fl - 1])))
+	  if ((uncompiled[i].fl <= flen)
+	      && !strcmp((filename + flen - uncompiled[i].fl),
+	                 uncompiled[i].fn)
+	      && ((flen == uncompiled[i].fl)
+		  || IS_SLASH(filename[flen - uncompiled[i].fl - 1])))
 	    {
 	      match = 1;
 	      break;
 	    }
 	}
       if (!match)
-	fatal ("uncompiled lisp file %s is not supported", filename);
+	fatal("uncompiled lisp file %s is not supported", filename);
     }
 
-  infile = fopen (filename, mode);
+  infile = fopen(filename, mode);
   if (infile == NULL)
     {
-      perror (filename);
+      perror(filename);
       return 0;				/* No error.  */
     }
 

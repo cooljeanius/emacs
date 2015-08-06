@@ -3138,7 +3138,9 @@ else
   # I am leaving "-Wunsafe-loop-optimizations" on; the warning is not so
   # much about the unsafe optimizations being stopped, as it is about the
   # loops possibly going infinite unintentionally.
-  nw="${nw} -Wbad-function-cast"    # These casts are no worse than others.
+  if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" != "xyes"; then
+    nw="${nw} -Wbad-function-cast"  # These casts are no worse than others.
+  fi
   nw="${nw} -Wignored-qualifiers"                        # invalid for ObjC
   nw="${nw} -Wopenmp-simd"                               # invalid for ObjC
   nw="${nw} -Wcomments" # redundant synonym for the un-pluralized -Wcomment
@@ -3161,9 +3163,12 @@ else
   # This part is merely for shortening the command line,
   # since -Wno-FOO needs to be added below regardless.
   nw="${nw} -Wmissing-field-initializers"
-  nw="${nw} -Wsign-compare"
-  nw="${nw} -Wswitch"
-  nw="${nw} -Wtype-limits"
+  ## keep this condition the same as below:
+  if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" != "xyes"; then
+    nw="${nw} -Wsign-compare"
+    nw="${nw} -Wswitch"
+    nw="${nw} -Wtype-limits"
+  fi  ##end check for undocumented environment variable
   nw="${nw} -Wunused-parameter"
   # (-Wformat-nonliteral is already added to nw above)
   ]
@@ -3219,9 +3224,14 @@ else
     test -n "${gl_cv_warn_c__Wno_missing_field_initializers}"
     ## (we should be good here)
   fi  ##end check cache value
-  gl_WARN_ADD([-Wno-sign-compare])     # Too many warnings for now
-  gl_WARN_ADD([-Wno-type-limits])      # Too many warnings for now
-  gl_WARN_ADD([-Wno-switch])           # Too many warnings for now
+  ## keep this condition the same as above:
+  if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" != "xyes"; then
+    gl_WARN_ADD([-Wno-sign-compare])     # Too many warnings for now
+    gl_WARN_ADD([-Wno-type-limits])      # Too many warnings for now
+    gl_WARN_ADD([-Wno-switch])           # Too many warnings for now
+  elif test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes" || test "x${PRINT_CONVERSION_WARNINGS}" = "xyes"; then
+    gl_WARN_ADD([-Wsign-compare])
+  fi  ##end check for undocumented environment variable
   gl_WARN_ADD([-Wno-unused-parameter]) # Too many warnings for now
   gl_WARN_ADD([-Wno-format-nonliteral])dnl
 
@@ -3324,7 +3334,10 @@ else
       dnl# "obsolescent", so guard it with an undocument envvar:
       if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
         test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
-        gl_WARN_ADD([-Waggregate-return])
+        dnl# it also prints a lot when whe check the lisp object type:
+        if test "x${enable_check_lisp_object_type}" != "xyes"; then
+          gl_WARN_ADD([-Waggregate-return])
+        fi
       else
         test -z "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
         nw="${nw} -Waggregate-return"
@@ -3544,6 +3557,8 @@ else
       gl_WARN_ADD([-Woverride-init-side-effects])
       gl_WARN_ADD([-Wshift-negative-value])
       gl_WARN_ADD([-Wshift-overflow])
+      gl_WARN_ADD([-Wtautological-compare])
+      gl_WARN_ADD([-Wframe-address])
       ## this got stricter, I think?
       nw="${nw} -Wbool-compare"
       ## but anyways...
@@ -4614,7 +4629,10 @@ if test "x${enable_acl}" != "xno"; then
 fi
 
 dnl# ...anyways:
-AC_HEADER_SYS_WAIT
+if test "x${ac_cv_header_sys_wait_h}" = "x"; then
+  test -z "${ac_cv_header_sys_wait_h}"
+  AC_HEADER_SYS_WAIT
+fi
 
 dnl# adding "_ONCE" causes tests to be done at wrong location, so just call
 dnl# the macros regularly, and in a conditional if necessary:
@@ -10128,7 +10146,7 @@ fi
 
 dnl# Obviously there is duplication here wrt ${SUBDIR_MAKEFILES}.
 dnl# You _can_ use that variable in AC_CONFIG_FILES, so long as any
-dnl# directory using automake (ie lib/) is explicitly listed and not
+dnl# directory using automake (i.e. lib/) is explicitly listed and not
 dnl# "hidden" in a variable (else you get "no `Makefile.am' found for any
 dnl# configure output"). This will work, but you get a config.status that
 dnl# is not quite right (see:

@@ -1,5 +1,4 @@
 /*
-
 Copyright 1985, 1986, 1987 by the Massachusetts Institute of Technology
 
 Permission to use, copy, modify, and distribute this
@@ -13,6 +12,4 @@ software without specific, written prior permission.
 M.I.T. makes no representations about the suitability of
 this software for any purpose.  It is provided "as is"
 without express or implied warranty.
-
 */
-

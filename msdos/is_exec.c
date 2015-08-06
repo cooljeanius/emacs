@@ -236,3 +236,4 @@ _is_executable(const char *filename, int fhandle, const char *extension)
   return 0;
 }
 
+/* EOF */

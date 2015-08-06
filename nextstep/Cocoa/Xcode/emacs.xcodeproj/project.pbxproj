@@ -30,6 +30,8 @@
 		A540EEB81A0C33DF0008DA29 /* runit.c in Sources */ = {isa = PBXBuildFile; fileRef = A540E9D31A0C1FF60008DA29 /* runit.c */; };
 		A540F1951A0EBC5D0008DA29 /* emacs-ppc.c in Sources */ = {isa = PBXBuildFile; fileRef = A540E9BC1A0C1F270008DA29 /* emacs-ppc.c */; };
 		A56E5A211B213597005E1D43 /* machochecker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A56E5A1E1B21336C005E1D43 /* machochecker.cpp */; settings = {COMPILER_FLAGS = "-Wno-unused -Wno-missing-prototypes -Wno-long-long -Wabi -Wctor-dtor-privacy -Wstrict-null-sentinel -Wsign-promo"; }; };
+		A584B0F11B6940CF005A6951 /* unexmacosx.c in Sources */ = {isa = PBXBuildFile; fileRef = A540EDB61A0C29D50008DA29 /* unexmacosx.c */; settings = {COMPILER_FLAGS = "-fno-tree-vectorize -fno-strict-aliasing -Demacs_open=open -Demacs_close=close"; }; };
+		A584B1671B694BF8005A6951 /* lastfile.c in Sources */ = {isa = PBXBuildFile; fileRef = A540EC6E1A0C29D50008DA29 /* lastfile.c */; };
 		A5B3C7181A2C2FA300D553ED /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5B3C7171A2C2FA200D553ED /* ApplicationServices.framework */; };
 		A5B3C7EA1A2C32D900D553ED /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5B3C7E91A2C32D900D553ED /* Cocoa.framework */; };
 		A5B3C8A81A2C333700D553ED /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5B3C8A71A2C333700D553ED /* CoreData.framework */; };
@@ -286,7 +288,7 @@
 		A540EAE71A0C28170008DA29 /* gettext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gettext.h; sourceTree = "<group>"; };
 		A540EAE91A0C28170008DA29 /* hexl.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = hexl.c; sourceTree = "<group>"; tabWidth = 8; };
 		A540EAEA1A0C28170008DA29 /* leditcfns.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = leditcfns.c; sourceTree = "<group>"; };
-		A540EAEB1A0C28170008DA29 /* make-docfile.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = "make-docfile.c"; sourceTree = "<group>"; tabWidth = 8; };
+		A540EAEB1A0C28170008DA29 /* make-docfile.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = "make-docfile.c"; sourceTree = "<group>"; tabWidth = 8; usesTabs = 1; };
 		A540EAEF1A0C28170008DA29 /* movemail.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = movemail.c; sourceTree = "<group>"; tabWidth = 8; };
 		A540EAF01A0C28170008DA29 /* ntlib.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = ntlib.c; sourceTree = "<group>"; tabWidth = 8; };
 		A540EAF11A0C28170008DA29 /* ntlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ntlib.h; sourceTree = "<group>"; };
@@ -424,7 +426,7 @@
 		A540EC201A0C29D40008DA29 /* character.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = character.c; sourceTree = "<group>"; tabWidth = 8; };
 		A540EC211A0C29D40008DA29 /* character.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = character.h; sourceTree = "<group>"; tabWidth = 8; };
 		A540EC221A0C29D40008DA29 /* charset.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = charset.c; sourceTree = "<group>"; tabWidth = 8; usesTabs = 0; };
-		A540EC231A0C29D40008DA29 /* charset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = charset.h; sourceTree = "<group>"; };
+		A540EC231A0C29D40008DA29 /* charset.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = charset.h; sourceTree = "<group>"; tabWidth = 8; };
 		A540EC241A0C29D40008DA29 /* chartab.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = chartab.c; sourceTree = "<group>"; };
 		A540EC251A0C29D40008DA29 /* chpdef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = chpdef.h; sourceTree = "<group>"; };
 		A540EC261A0C29D40008DA29 /* cm.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = cm.c; sourceTree = "<group>"; tabWidth = 8; };
@@ -441,7 +443,7 @@
 		A540EC331A0C29D40008DA29 /* cygw32.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cygw32.h; sourceTree = "<group>"; };
 		A540EC341A0C29D40008DA29 /* data.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = data.c; sourceTree = "<group>"; tabWidth = 8; };
 		A540EC351A0C29D40008DA29 /* dbusbind.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = dbusbind.c; sourceTree = "<group>"; tabWidth = 8; };
-		A540EC361A0C29D40008DA29 /* decompress.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = decompress.c; sourceTree = "<group>"; };
+		A540EC361A0C29D40008DA29 /* decompress.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = decompress.c; sourceTree = "<group>"; tabWidth = 8; usesTabs = 1; };
 		A540EC371A0C29D50008DA29 /* deps.mk */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; fileEncoding = 4; path = deps.mk; sourceTree = "<group>"; };
 		A540EC381A0C29D50008DA29 /* dired.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dired.c; sourceTree = "<group>"; };
 		A540EC391A0C29D50008DA29 /* dispextern.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = dispextern.h; sourceTree = "<group>"; tabWidth = 8; };
@@ -903,6 +905,13 @@
 		A56E5A1C1B21336C005E1D43 /* Architectures.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Architectures.hpp; sourceTree = "<group>"; };
 		A56E5A1E1B21336C005E1D43 /* machochecker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = machochecker.cpp; sourceTree = "<group>"; };
 		A56E5A201B213412005E1D43 /* machochecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = machochecker.h; sourceTree = "<group>"; };
+		A584B1A81B696685005A6951 /* autogen.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = autogen.sh; path = ../../../autogen.sh; sourceTree = SOURCE_ROOT; };
+		A584B1DF1B712E9E005A6951 /* setenv.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = setenv.c; sourceTree = "<group>"; };
+		A584B1E01B712EC0005A6951 /* time_rz.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = time_rz.c; sourceTree = "<group>"; };
+		A584B1E11B712ECD005A6951 /* time-internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "time-internal.h"; sourceTree = "<group>"; };
+		A584B1E21B712EDA005A6951 /* timegm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = timegm.c; sourceTree = "<group>"; };
+		A584B1E31B712EF7005A6951 /* unlink.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = unlink.c; sourceTree = "<group>"; };
+		A584B2261B714ABB005A6951 /* Special_Versions */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Special_Versions; path = ../../../Special_Versions; sourceTree = SOURCE_ROOT; };
 		A5B3C7021A2A191F00D553ED /* wincompat_test.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = wincompat_test.c; sourceTree = "<group>"; };
 		A5B3C7031A2A191F00D553ED /* wincompat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wincompat.h; sourceTree = "<group>"; };
 		A5B3C7171A2C2FA200D553ED /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = /System/Library/Frameworks/ApplicationServices.framework; sourceTree = "<absolute>"; };
@@ -1017,6 +1026,7 @@
 			isa = PBXGroup;
 			children = (
 				A540E9CF1A0C1F8E0008DA29 /* AppleMakefile */,
+				A584B1A81B696685005A6951 /* autogen.sh */,
 				A540E9B81A0C1F270008DA29 /* dumpemacs.8 */,
 				A540E9B91A0C1F270008DA29 /* dumpemacs.c */,
 				A540E9BA1A0C1F270008DA29 /* dumpemacs.h */,
@@ -1033,6 +1043,7 @@
 				A540E9D11A0C1FD60008DA29 /* make-dist */,
 				A540E9D21A0C1FEA0008DA29 /* pipefail.sh */,
 				A540E9D31A0C1FF60008DA29 /* runit.c */,
+				A584B2261B714ABB005A6951 /* Special_Versions */,
 				A5017CF31B41CB19004F7B48 /* test_mach_o_binary.c */,
 				A540E9E01A0C25920008DA29 /* unexmacosx.c */,
 				A540E9E11A0C25B70008DA29 /* update-subdirs.sh */,
@@ -1181,6 +1192,7 @@
 				A540EA8C1A0C27C00008DA29 /* secure_getenv.c */,
 				A56E55841B17AFE3005E1D43 /* set-acl.c */,
 				A56E55851B17AFE8005E1D43 /* set-permissions.c */,
+				A584B1DF1B712E9E005A6951 /* setenv.c */,
 				A540EA8D1A0C27C00008DA29 /* sha1.c */,
 				A540EA8E1A0C27C00008DA29 /* sha1.h */,
 				A540EA8F1A0C27C00008DA29 /* sha256.c */,
@@ -1229,6 +1241,9 @@
 				A540EABA1A0C27C00008DA29 /* tempname.h */,
 				A540EABB1A0C27C00008DA29 /* time.in.h */,
 				A540EABC1A0C27C00008DA29 /* time_r.c */,
+				A584B1E01B712EC0005A6951 /* time_rz.c */,
+				A584B1E11B712ECD005A6951 /* time-internal.h */,
+				A584B1E21B712EDA005A6951 /* timegm.c */,
 				A540EABD1A0C27C00008DA29 /* timespec-add.c */,
 				A540EABE1A0C27C00008DA29 /* timespec-sub.c */,
 				A540EABF1A0C27C00008DA29 /* timespec.c */,
@@ -1237,6 +1252,7 @@
 				A540EAC21A0C27C00008DA29 /* u64.h */,
 				A540EAC31A0C27C00008DA29 /* unistd.c */,
 				A540EAC41A0C27C00008DA29 /* unistd.in.h */,
+				A584B1E31B712EF7005A6951 /* unlink.c */,
 				A540EAC51A0C27C00008DA29 /* unsetenv.c */,
 				A540EAC61A0C27C00008DA29 /* utimens.c */,
 				A540EAC71A0C27C00008DA29 /* utimens.h */,
@@ -2255,6 +2271,8 @@
 			files = (
 				A540E9EE1A0C26410008DA29 /* runit.c in Sources */,
 				A540E9ED1A0C263D0008DA29 /* dumpemacs.c in Sources */,
+				A584B0F11B6940CF005A6951 /* unexmacosx.c in Sources */,
+				A584B1671B694BF8005A6951 /* lastfile.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2715,16 +2733,35 @@
 		A540E9EA1A0C262F0008DA29 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = YES;
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"XASSERTS=1",
+					_REENTRANT,
+					HAVE_CONFIG_H,
+					BUILDING_FROM_XCODE,
+					__STRICT_ANSI__,
+					temacs,
+				);
 				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = emacs;
 				GCC_WARN_PROTOTYPE_CONVERSION = NO;
+				HEADER_SEARCH_PATHS = (
+					"$(TOP_SRCROOT)/src",
+					"$(TOP_SRCROOT)/lib",
+				);
 				INSTALL_PATH = /usr/local/bin;
 				MACH_O_TYPE = mh_execute;
+				OTHER_CFLAGS = (
+					"-gfull",
+					"-ggdb3",
+					"-fno-pie",
+					"-fblocks",
+					"-fgnu89-inline",
+				);
 				PREBINDING = NO;
 				PRODUCT_NAME = dumpemacs;
 				USER_HEADER_SEARCH_PATHS = .;
@@ -2737,13 +2774,27 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_DEBUGGING_SYMBOLS = used;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_MODEL_TUNING = G5;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					NDEBUG,
+					_REENTRANT,
+					HAVE_CONFIG_H,
+					BUILDING_FROM_XCODE,
+					__STRICT_ANSI__,
+					temacs,
+				);
 				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = emacs;
+				HEADER_SEARCH_PATHS = (
+					"$(TOP_SRCROOT)/src",
+					"$(TOP_SRCROOT)/lib",
+				);
 				INSTALL_PATH = /usr/local/bin;
 				MACH_O_TYPE = mh_execute;
 				PREBINDING = NO;
 				PRODUCT_NAME = dumpemacs;
+				USER_HEADER_SEARCH_PATHS = .;
 				ZERO_LINK = NO;
 			};
 			name = Release;

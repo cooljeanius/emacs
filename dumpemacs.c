@@ -1,5 +1,9 @@
 /* dumpemacs.c -*- C -*- */
 
+#ifdef HAVE_CONFIG_H
+# include "src/config.h"
+#endif /* HAVE_CONFIG_H */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -133,12 +137,9 @@ int main(int argc, char *argv[])
       }
       dumpit = 0;
     }
-    if (dumpedVersion) {
-      free(dumpedVersion);
-    }
-    if (undumpedVersion) {
-      free(undumpedVersion);
-    }
+    /* avoid_if_before_free: */
+    free(dumpedVersion);
+    free(undumpedVersion);
     if (!dumpit) {
       if (debugopt) {
         printf("No need to dump after all.\n");
@@ -186,6 +187,14 @@ _Noreturn void usage(void)
   exit(EX_USAGE);
 }
 
+
+/* in case gnulib redefined these on us: */
+#ifdef setenv
+# undef setenv
+#endif /* setenv */
+#ifdef symlink
+# undef symlink
+#endif /* symlink */
 
 /* the actual dumping function: */
 int dumpemacs(int debugflag, char *output)

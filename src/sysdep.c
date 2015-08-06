@@ -31,6 +31,9 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <c-ctype.h>
 #include <utimens.h>
 
+#if defined(HAVE_STDALIGN_H) && defined(BUILDING_FROM_XCODE)
+# undef HAVE_STDALIGN_H
+#endif /* HAVE_STDALIGN_H && BUILDING_FROM_XCODE */
 #include "lisp.h"
 #include "sysselect.h"
 #include "blockinput.h"
@@ -236,7 +239,7 @@ stuff_char (char c)
 #endif /* SIGTSTP */
 
 void
-init_baud_rate (int fd)
+init_baud_rate(int fd)
 {
   int emacs_ospeed;
 
@@ -250,12 +253,13 @@ init_baud_rate (int fd)
       struct termios sg;
 
       sg.c_cflag = B9600;
-      tcgetattr (fd, &sg);
-      emacs_ospeed = cfgetospeed (&sg);
+      tcgetattr(fd, &sg);
+      emacs_ospeed = cfgetospeed(&sg);
 #endif /* not DOS_NT */
     }
 
-  baud_rate = (emacs_ospeed < sizeof baud_convert / sizeof baud_convert[0]
+  baud_rate = (((size_t)emacs_ospeed
+                < (sizeof(baud_convert) / sizeof(baud_convert[0])))
 	       ? baud_convert[emacs_ospeed] : 9600);
   if (baud_rate == 0)
     baud_rate = 1200;
@@ -1360,7 +1364,7 @@ init_system_name (void)
 #else /* HAVE_GETHOSTNAME */
   char *hostname_alloc = NULL;
   char hostname_buf[256];
-  ptrdiff_t hostname_size = sizeof hostname_buf;
+  ptrdiff_t hostname_size = (ptrdiff_t)sizeof(hostname_buf);
   char *hostname = hostname_buf;
 
   /* Try to get the host name; if the buffer is too short, try
@@ -1369,15 +1373,16 @@ init_system_name (void)
      of a '\0' in the string.  Eech.  */
   for (;;)
     {
-      gethostname (hostname, hostname_size - 1);
+      gethostname(hostname, (hostname_size - 1L));
       hostname[hostname_size - 1] = '\0';
 
       /* Was the buffer large enough for the '\0'?  */
-      if (strlen (hostname) < hostname_size - 1)
+      if (strlen(hostname) < (size_t)(hostname_size - 1L))
 	break;
 
-      hostname = hostname_alloc = xpalloc (hostname_alloc, &hostname_size, 1,
-					   min (PTRDIFF_MAX, SIZE_MAX), 1);
+      hostname = hostname_alloc = xpalloc(hostname_alloc, &hostname_size,
+                                          1L, min(PTRDIFF_MAX, SIZE_MAX),
+                                          (ptrdiff_t)1L);
     }
 # ifdef HAVE_SOCKETS
   /* Turn the hostname into the official, fully-qualified hostname.
@@ -2032,11 +2037,11 @@ seed_random (void *seed, ptrdiff_t seed_size)
 }
 
 void
-init_random (void)
+init_random(void)
 {
-  struct timespec t = current_timespec ();
-  uintmax_t v = getpid () ^ t.tv_sec ^ t.tv_nsec;
-  seed_random (&v, sizeof v);
+  struct timespec t = current_timespec();
+  uintmax_t v = (getpid() ^ t.tv_sec ^ t.tv_nsec);
+  seed_random(&v, sizeof(v));
 }
 
 /*
@@ -2045,15 +2050,19 @@ init_random (void)
  * This suffices even for a 64-bit architecture with a 15-bit rand.
  */
 EMACS_INT
-get_random (void)
+get_random(void)
 {
-  EMACS_UINT val = 0;
+  EMACS_UINT val = 0U;
   int i;
-  for (i = 0; i < (FIXNUM_BITS + RAND_BITS - 1) / RAND_BITS; i++)
-    val = (random () ^ (val << RAND_BITS)
+  for (i = 0; i < (((FIXNUM_BITS + RAND_BITS - 1) / RAND_BITS) + 1); i++) {
+    /* ???: since this is supposed to generate random numbers, that means
+     * that it should be okay to modify this in ways that change its
+     * output, as long as it still stays random, right? */
+    val = (random() ^ (val << RAND_BITS)
 	   ^ (val >> (BITS_PER_EMACS_INT - RAND_BITS)));
-  val ^= val >> (BITS_PER_EMACS_INT - FIXNUM_BITS);
-  return val & INTMASK;
+  }
+  val ^= (val >> (BITS_PER_EMACS_INT - FIXNUM_BITS));
+  return (val & INTMASK);
 }
 
 #ifndef HAVE_SNPRINTF
@@ -2341,27 +2350,27 @@ emacs_write_sig (int fildes, void const *buf, ptrdiff_t nbyte)
    string derived from errno.  Preserve errno.  Do not buffer stderr.
    Do not process pending signals if interrupted.  */
 void
-emacs_perror (char const *message)
+emacs_perror(char const *pmessage)
 {
   int err = errno;
-  char const *error_string = strerror (err);
-  char const *command = (initial_argv && initial_argv[0]
+  char const *error_string = strerror(err);
+  char const *command = ((initial_argv && initial_argv[0])
 			 ? initial_argv[0] : "emacs");
   /* Write it out all at once, if it's short; this is less likely to
      be interleaved with other output.  */
   char buf[BUFSIZ];
-  int nbytes = snprintf (buf, sizeof buf, "%s: %s: %s\n",
-			 command, message, error_string);
-  if (0 <= nbytes && nbytes < BUFSIZ)
-    emacs_write (STDERR_FILENO, buf, nbytes);
+  int nbytes = snprintf(buf, sizeof(buf), "%s: %s: %s\n",
+                        command, pmessage, error_string);
+  if ((0 <= nbytes) && (nbytes < BUFSIZ))
+    emacs_write(STDERR_FILENO, buf, nbytes);
   else
     {
-      emacs_write (STDERR_FILENO, command, strlen (command));
-      emacs_write (STDERR_FILENO, ": ", 2);
-      emacs_write (STDERR_FILENO, message, strlen (message));
-      emacs_write (STDERR_FILENO, ": ", 2);
-      emacs_write (STDERR_FILENO, error_string, strlen (error_string));
-      emacs_write (STDERR_FILENO, "\n", 1);
+      emacs_write(STDERR_FILENO, command, strlen(command));
+      emacs_write(STDERR_FILENO, ": ", 2);
+      emacs_write(STDERR_FILENO, pmessage, strlen(pmessage));
+      emacs_write(STDERR_FILENO, ": ", 2);
+      emacs_write(STDERR_FILENO, error_string, strlen(error_string));
+      emacs_write(STDERR_FILENO, "\n", 1);
     }
   errno = err;
 }
@@ -2461,163 +2470,165 @@ cfsetspeed (struct termios *termios_p, speed_t vitesse)
 
 /* For serial-process-configure  */
 void
-serial_configure (struct Lisp_Process *p,
-		  Lisp_Object contact)
+serial_configure(struct Lisp_Process *p,
+		 Lisp_Object contact)
 {
-  Lisp_Object childp2 = Qnil;
-  Lisp_Object tem = Qnil;
+  Lisp_Object childp2 = LISP_INITIALLY_ZERO;
+  Lisp_Object tem = childp2;
   struct termios attr;
   int err;
   char summary[4] = "???"; /* This usually becomes "8N1".  */
 
-  childp2 = Fcopy_sequence (p->childp);
+  childp2 = Fcopy_sequence(p->childp);
 
-  /* Read port attributes and prepare default configuration.  */
-  err = tcgetattr (p->outfd, &attr);
+  /* Read port attributes and prepare default configuration: */
+  err = tcgetattr(p->outfd, &attr);
   if (err != 0)
-    report_file_error ("Failed tcgetattr", Qnil);
-  cfmakeraw (&attr);
-#if defined (CLOCAL)
+    report_file_error("Failed tcgetattr", Qnil);
+  cfmakeraw(&attr);
+#if defined(CLOCAL)
   attr.c_cflag |= CLOCAL;
-#endif
-#if defined (CREAD)
+#endif /* CLOCAL */
+#if defined(CREAD)
   attr.c_cflag |= CREAD;
-#endif
+#endif /* CREAD */
 
-  /* Configure speed.  */
-  if (!NILP (Fplist_member (contact, QCspeed)))
-    tem = Fplist_get (contact, QCspeed);
+  IF_LINT((void)tem);
+
+  /* Configure speed: */
+  if (!NILP(Fplist_member(contact, QCspeed)))
+    tem = Fplist_get(contact, QCspeed);
   else
-    tem = Fplist_get (p->childp, QCspeed);
-  CHECK_NUMBER (tem);
-  err = cfsetspeed (&attr, XINT (tem));
+    tem = Fplist_get(p->childp, QCspeed);
+  CHECK_NUMBER(tem);
+  err = cfsetspeed(&attr, XINT(tem));
   if (err != 0)
-    report_file_error ("Failed cfsetspeed", tem);
-  childp2 = Fplist_put (childp2, QCspeed, tem);
+    report_file_error("Failed cfsetspeed", tem);
+  childp2 = Fplist_put(childp2, QCspeed, tem);
 
-  /* Configure bytesize.  */
-  if (!NILP (Fplist_member (contact, QCbytesize)))
-    tem = Fplist_get (contact, QCbytesize);
+  /* Configure bytesize: */
+  if (!NILP(Fplist_member(contact, QCbytesize)))
+    tem = Fplist_get(contact, QCbytesize);
   else
-    tem = Fplist_get (p->childp, QCbytesize);
-  if (NILP (tem))
-    tem = make_number (8);
-  CHECK_NUMBER (tem);
-  if (XINT (tem) != 7 && XINT (tem) != 8)
-    error (":bytesize must be nil (8), 7, or 8");
-  summary[0] = XINT (tem) + '0';
-#if defined (CSIZE) && defined (CS7) && defined (CS8)
+    tem = Fplist_get(p->childp, QCbytesize);
+  if (NILP(tem))
+    tem = make_number(8);
+  CHECK_NUMBER(tem);
+  if ((XINT(tem) != 7) && (XINT(tem) != 8))
+    error(":bytesize must be nil (8), 7, or 8");
+  summary[0] = (XINT(tem) + '0');
+#if defined(CSIZE) && defined(CS7) && defined(CS8)
   attr.c_cflag &= ~CSIZE;
-  attr.c_cflag |= ((XINT (tem) == 7) ? CS7 : CS8);
+  attr.c_cflag |= ((XINT(tem) == 7) ? CS7 : CS8);
 #else
-  /* Don't error on bytesize 8, which should be set by cfmakeraw.  */
-  if (XINT (tem) != 8)
-    error ("Bytesize cannot be changed");
-#endif
-  childp2 = Fplist_put (childp2, QCbytesize, tem);
+  /* Do NOT error on bytesize 8, which should be set by cfmakeraw: */
+  if (XINT(tem) != 8)
+    error("Bytesize cannot be changed");
+#endif /* CSIZE && CS7 && CS8 */
+  childp2 = Fplist_put(childp2, QCbytesize, tem);
 
-  /* Configure parity.  */
-  if (!NILP (Fplist_member (contact, QCparity)))
-    tem = Fplist_get (contact, QCparity);
+  /* Configure parity: */
+  if (!NILP(Fplist_member(contact, QCparity)))
+    tem = Fplist_get(contact, QCparity);
   else
-    tem = Fplist_get (p->childp, QCparity);
-  if (!NILP (tem) && !EQ (tem, Qeven) && !EQ (tem, Qodd))
-    error (":parity must be nil (no parity), `even', or `odd'");
-#if defined (PARENB) && defined (PARODD) && defined (IGNPAR) && defined (INPCK)
+    tem = Fplist_get(p->childp, QCparity);
+  if (!NILP(tem) && !EQ(tem, Qeven) && !EQ(tem, Qodd))
+    error(":parity must be nil (no parity), `even', or `odd'");
+#if defined(PARENB) && defined(PARODD) && defined(IGNPAR) && defined(INPCK)
   attr.c_cflag &= ~(PARENB | PARODD);
   attr.c_iflag &= ~(IGNPAR | INPCK);
-  if (NILP (tem))
+  if (NILP(tem))
     {
       summary[1] = 'N';
     }
-  else if (EQ (tem, Qeven))
+  else if (EQ(tem, Qeven))
     {
       summary[1] = 'E';
       attr.c_cflag |= PARENB;
       attr.c_iflag |= (IGNPAR | INPCK);
     }
-  else if (EQ (tem, Qodd))
+  else if (EQ(tem, Qodd))
     {
       summary[1] = 'O';
       attr.c_cflag |= (PARENB | PARODD);
       attr.c_iflag |= (IGNPAR | INPCK);
     }
 #else
-  /* Don't error on no parity, which should be set by cfmakeraw.  */
-  if (!NILP (tem))
-    error ("Parity cannot be configured");
-#endif
-  childp2 = Fplist_put (childp2, QCparity, tem);
+  /* Do NOT error on no parity, which should be set by cfmakeraw: */
+  if (!NILP(tem))
+    error("Parity cannot be configured");
+#endif /* PARENB && PARODD && IGNPAR && INPCK */
+  childp2 = Fplist_put(childp2, QCparity, tem);
 
-  /* Configure stopbits.  */
-  if (!NILP (Fplist_member (contact, QCstopbits)))
-    tem = Fplist_get (contact, QCstopbits);
+  /* Configure stopbits: */
+  if (!NILP (Fplist_member(contact, QCstopbits)))
+    tem = Fplist_get(contact, QCstopbits);
   else
-    tem = Fplist_get (p->childp, QCstopbits);
-  if (NILP (tem))
-    tem = make_number (1);
-  CHECK_NUMBER (tem);
-  if (XINT (tem) != 1 && XINT (tem) != 2)
-    error (":stopbits must be nil (1 stopbit), 1, or 2");
-  summary[2] = XINT (tem) + '0';
-#if defined (CSTOPB)
+    tem = Fplist_get(p->childp, QCstopbits);
+  if (NILP(tem))
+    tem = make_number(1);
+  CHECK_NUMBER(tem);
+  if (XINT(tem) != 1 && XINT(tem) != 2)
+    error(":stopbits must be nil (1 stopbit), 1, or 2");
+  summary[2] = (XINT(tem) + '0');
+#if defined(CSTOPB)
   attr.c_cflag &= ~CSTOPB;
-  if (XINT (tem) == 2)
+  if (XINT(tem) == 2)
     attr.c_cflag |= CSTOPB;
 #else
-  /* Don't error on 1 stopbit, which should be set by cfmakeraw.  */
-  if (XINT (tem) != 1)
-    error ("Stopbits cannot be configured");
-#endif
-  childp2 = Fplist_put (childp2, QCstopbits, tem);
+  /* Do NOT error on 1 stopbit, which should be set by cfmakeraw: */
+  if (XINT(tem) != 1)
+    error("Stopbits cannot be configured");
+#endif /* CSTOPB */
+  childp2 = Fplist_put(childp2, QCstopbits, tem);
 
-  /* Configure flowcontrol.  */
-  if (!NILP (Fplist_member (contact, QCflowcontrol)))
-    tem = Fplist_get (contact, QCflowcontrol);
+  /* Configure flowcontrol: */
+  if (!NILP(Fplist_member(contact, QCflowcontrol)))
+    tem = Fplist_get(contact, QCflowcontrol);
   else
-    tem = Fplist_get (p->childp, QCflowcontrol);
-  if (!NILP (tem) && !EQ (tem, Qhw) && !EQ (tem, Qsw))
-    error (":flowcontrol must be nil (no flowcontrol), `hw', or `sw'");
-#if defined (CRTSCTS)
+    tem = Fplist_get(p->childp, QCflowcontrol);
+  if (!NILP(tem) && !EQ(tem, Qhw) && !EQ(tem, Qsw))
+    error(":flowcontrol must be nil (no flowcontrol), `hw', or `sw'");
+#if defined(CRTSCTS)
   attr.c_cflag &= ~CRTSCTS;
-#endif
-#if defined (CNEW_RTSCTS)
+#endif /* CRTSCTS */
+#if defined(CNEW_RTSCTS)
   attr.c_cflag &= ~CNEW_RTSCTS;
-#endif
-#if defined (IXON) && defined (IXOFF)
+#endif /* CNEW_RTSCTS */
+#if defined(IXON) && defined(IXOFF)
   attr.c_iflag &= ~(IXON | IXOFF);
-#endif
-  if (NILP (tem))
+#endif /* IXON && IXOFF */
+  if (NILP(tem))
     {
-      /* Already configured.  */
+      ; /* Already configured.  */
     }
-  else if (EQ (tem, Qhw))
+  else if (EQ(tem, Qhw))
     {
-#if defined (CRTSCTS)
+#if defined(CRTSCTS)
       attr.c_cflag |= CRTSCTS;
-#elif defined (CNEW_RTSCTS)
+#elif defined(CNEW_RTSCTS)
       attr.c_cflag |= CNEW_RTSCTS;
 #else
-      error ("Hardware flowcontrol (RTS/CTS) not supported");
-#endif
+      error("Hardware flowcontrol (RTS/CTS) not supported");
+#endif /* CRTSCTS || CNEW_RTSCTS */
     }
-  else if (EQ (tem, Qsw))
+  else if (EQ(tem, Qsw))
     {
-#if defined (IXON) && defined (IXOFF)
+#if defined(IXON) && defined(IXOFF)
       attr.c_iflag |= (IXON | IXOFF);
 #else
-      error ("Software flowcontrol (XON/XOFF) not supported");
-#endif
+      error("Software flowcontrol (XON/XOFF) not supported");
+#endif /* IXON && IXOFF */
     }
-  childp2 = Fplist_put (childp2, QCflowcontrol, tem);
+  childp2 = Fplist_put(childp2, QCflowcontrol, tem);
 
-  /* Activate configuration.  */
-  err = tcsetattr (p->outfd, TCSANOW, &attr);
+  /* Activate configuration: */
+  err = tcsetattr(p->outfd, TCSANOW, &attr);
   if (err != 0)
-    report_file_error ("Failed tcsetattr", Qnil);
+    report_file_error("Failed tcsetattr", Qnil);
 
-  childp2 = Fplist_put (childp2, QCsummary, build_string (summary));
-  pset_childp (p, childp2);
+  childp2 = Fplist_put(childp2, QCsummary, build_string(summary));
+  pset_childp(p, childp2);
 }
 #endif /* not DOS_NT  */
 

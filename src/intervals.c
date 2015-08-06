@@ -39,7 +39,9 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #include <config.h>
 
-#include <intprops.h>
+#ifndef _GL_INTPROPS_H
+# include <intprops.h>
+#endif /* !_GL_INTPROPS_H */
 #include "lisp.h"
 #include "intervals.h"
 #include "character.h"
@@ -53,22 +55,22 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #define TMEM(sym, set) (CONSP(set) ? ! NILP(Fmemq(sym, set)) : ! NILP(set))
 
-static Lisp_Object merge_properties_sticky (Lisp_Object, Lisp_Object);
-static INTERVAL merge_interval_right (INTERVAL);
-static INTERVAL reproduce_tree (INTERVAL, INTERVAL);
+static Lisp_Object merge_properties_sticky(Lisp_Object, Lisp_Object);
+static INTERVAL merge_interval_right(INTERVAL);
+static INTERVAL reproduce_tree(INTERVAL, INTERVAL);
 
 /* Utility functions for intervals.  */
 
 /* Use these functions to set pointer slots of struct interval.  */
 
 static void
-set_interval_left (INTERVAL i, INTERVAL left)
+set_interval_left(INTERVAL i, INTERVAL left)
 {
   i->left = left;
 }
 
 static void
-set_interval_right (INTERVAL i, INTERVAL right)
+set_interval_right(INTERVAL i, INTERVAL right)
 {
   i->right = right;
 }
@@ -77,7 +79,7 @@ set_interval_right (INTERVAL i, INTERVAL right)
    of the type.  This is used when balancing an interval tree.  */
 
 static void
-copy_interval_parent (INTERVAL d, INTERVAL s)
+copy_interval_parent(INTERVAL d, INTERVAL s)
 {
   d->up = s->up;
   d->up_obj = s->up_obj;
@@ -134,87 +136,87 @@ merge_properties(register INTERVAL source, register INTERVAL target)
 {
   register Lisp_Object o, sym, val;
 
-  if (DEFAULT_INTERVAL_P (source) && DEFAULT_INTERVAL_P (target))
+  if (DEFAULT_INTERVAL_P(source) && DEFAULT_INTERVAL_P(target))
     return;
 
-  MERGE_INTERVAL_CACHE (source, target);
+  MERGE_INTERVAL_CACHE(source, target);
 
   o = source->plist;
-  while (CONSP (o))
+  while (CONSP(o))
     {
-      sym = XCAR (o);
-      o = XCDR (o);
-      CHECK_CONS (o);
+      sym = XCAR(o);
+      o = XCDR(o);
+      CHECK_CONS(o);
 
       val = target->plist;
-      while (CONSP (val) && !EQ (XCAR (val), sym))
+      while (CONSP(val) && !EQ(XCAR(val), sym))
 	{
-	  val = XCDR (val);
-	  if (!CONSP (val))
+	  val = XCDR(val);
+	  if (!CONSP(val))
 	    break;
-	  val = XCDR (val);
+	  val = XCDR(val);
 	}
 
-      if (NILP (val))
+      if (NILP(val))
 	{
-	  val = XCAR (o);
-	  set_interval_plist (target, Fcons (sym, Fcons (val, target->plist)));
+	  val = XCAR(o);
+	  set_interval_plist(target, Fcons(sym, Fcons(val,
+                                                      target->plist)));
 	}
-      o = XCDR (o);
+      o = XCDR(o);
     }
 }
 
-/* Return true if the two intervals have the same properties.  */
-
+/* Return true if the two intervals have the same properties: */
 bool
-intervals_equal (INTERVAL i0, INTERVAL i1)
+intervals_equal(INTERVAL i0, INTERVAL i1)
 {
   Lisp_Object i0_cdr, i0_sym;
   Lisp_Object i1_cdr, i1_val;
 
-  if (DEFAULT_INTERVAL_P (i0) && DEFAULT_INTERVAL_P (i1))
+  if (DEFAULT_INTERVAL_P(i0) && DEFAULT_INTERVAL_P(i1))
     return 1;
 
-  if (DEFAULT_INTERVAL_P (i0) || DEFAULT_INTERVAL_P (i1))
+  if (DEFAULT_INTERVAL_P(i0) || DEFAULT_INTERVAL_P(i1))
     return 0;
 
   i0_cdr = i0->plist;
   i1_cdr = i1->plist;
-  while (CONSP (i0_cdr) && CONSP (i1_cdr))
+  while (CONSP(i0_cdr) && CONSP(i1_cdr))
     {
-      i0_sym = XCAR (i0_cdr);
-      i0_cdr = XCDR (i0_cdr);
-      if (!CONSP (i0_cdr))
+      i0_sym = XCAR(i0_cdr);
+      i0_cdr = XCDR(i0_cdr);
+      if (!CONSP(i0_cdr))
 	return 0;
       i1_val = i1->plist;
-      while (CONSP (i1_val) && !EQ (XCAR (i1_val), i0_sym))
+      while (CONSP(i1_val) && !EQ(XCAR(i1_val), i0_sym))
 	{
-	  i1_val = XCDR (i1_val);
-	  if (!CONSP (i1_val))
+	  i1_val = XCDR(i1_val);
+	  if (!CONSP(i1_val))
 	    return 0;
-	  i1_val = XCDR (i1_val);
+	  i1_val = XCDR(i1_val);
 	}
 
-      /* i0 has something i1 doesn't.  */
-      if (EQ (i1_val, Qnil))
+      /* i0 has something i1 does NOT: */
+      if (EQ(i1_val, Qnil))
 	return 0;
 
-      /* i0 and i1 both have sym, but it has different values in each.  */
-      if (!CONSP (i1_val)
-	  || (i1_val = XCDR (i1_val), !CONSP (i1_val))
-	  || !EQ (XCAR (i1_val), XCAR (i0_cdr)))
+      /* i0 and i1 both have sym, but it has different values in each: */
+      if (!CONSP(i1_val)
+	  || (i1_val = XCDR(i1_val), !CONSP(i1_val))
+	  || !EQ(XCAR(i1_val), XCAR(i0_cdr)))
 	return 0;
 
-      i0_cdr = XCDR (i0_cdr);
+      i0_cdr = XCDR(i0_cdr);
 
-      i1_cdr = XCDR (i1_cdr);
-      if (!CONSP (i1_cdr))
+      i1_cdr = XCDR(i1_cdr);
+      if (!CONSP(i1_cdr))
 	return 0;
-      i1_cdr = XCDR (i1_cdr);
+      i1_cdr = XCDR(i1_cdr);
     }
 
-  /* Lengths of the two plists were equal.  */
-  return (NILP (i0_cdr) && NILP (i1_cdr));
+  /* Lengths of the two plists were equal: */
+  return (NILP(i0_cdr) && NILP(i1_cdr));
 }
 
 
@@ -223,17 +225,18 @@ intervals_equal (INTERVAL i0, INTERVAL i1)
    Pass FUNCTION two args: an interval, and ARG.  */
 
 void
-traverse_intervals_noorder (INTERVAL tree, void (*function) (INTERVAL, Lisp_Object), Lisp_Object arg)
+traverse_intervals_noorder(INTERVAL tree, interval_func function,
+                           Lisp_Object arg)
 {
-  /* Minimize stack usage.  */
+  /* Minimize stack usage: */
   while (tree)
     {
-      (*function) (tree, arg);
+      (*function)(tree, arg);
       if (!tree->right)
 	tree = tree->left;
       else
 	{
-	  traverse_intervals_noorder (tree->left, function, arg);
+	  traverse_intervals_noorder(tree->left, function, arg);
 	  tree = tree->right;
 	}
     }
@@ -243,31 +246,35 @@ traverse_intervals_noorder (INTERVAL tree, void (*function) (INTERVAL, Lisp_Obje
    Pass FUNCTION two args: an interval, and ARG.  */
 
 void
-traverse_intervals (INTERVAL tree, ptrdiff_t position,
-		    void (*function) (INTERVAL, Lisp_Object), Lisp_Object arg)
+traverse_intervals(INTERVAL tree, ptrdiff_t position,
+                   interval_func function, Lisp_Object arg)
 {
   while (tree)
     {
-      traverse_intervals (tree->left, position, function, arg);
-      position += LEFT_TOTAL_LENGTH (tree);
+      traverse_intervals(tree->left, position, function, arg);
+      position += LEFT_TOTAL_LENGTH(tree);
       tree->position = position;
-      (*function) (tree, arg);
-      position += LENGTH (tree); tree = tree->right;
+      (*function)(tree, arg);
+      position += LENGTH(tree); tree = tree->right;
     }
 }
 
-#if 0
+#if 1
 
 static int icount;
 static int idepth;
 static int zero_length;
 
-/* These functions are temporary, for debugging purposes only.  */
+/* These functions are temporary, for debugging purposes only: */
+extern void check_for_interval(INTERVAL, Lisp_Object);
+extern INTERVAL search_for_interval(INTERVAL, INTERVAL);
+extern int count_intervals(INTERVAL i);
+static INTERVAL root_interval(INTERVAL) ATTRIBUTE_USED;
 
 INTERVAL search_interval, found_interval;
 
 void
-check_for_interval (INTERVAL i)
+check_for_interval(INTERVAL i, Lisp_Object unused)
 {
   if (i == search_interval)
     {
@@ -277,47 +284,49 @@ check_for_interval (INTERVAL i)
 }
 
 INTERVAL
-search_for_interval (INTERVAL i, INTERVAL tree)
+search_for_interval(INTERVAL i, INTERVAL tree)
 {
   icount = 0;
   search_interval = i;
   found_interval = NULL;
-  traverse_intervals_noorder (tree, &check_for_interval, Qnil);
+  traverse_intervals_noorder(tree, &check_for_interval, Qnil);
   return found_interval;
 }
 
 static void
-inc_interval_count (INTERVAL i)
+inc_interval_count(INTERVAL i)
 {
   icount++;
-  if (LENGTH (i) == 0)
+  if (LENGTH(i) == 0)
     zero_length++;
+# ifdef depth
   if (depth > idepth)
     idepth = depth;
+# endif /* depth */
 }
 
 int
-count_intervals (INTERVAL i)
+count_intervals(INTERVAL i)
 {
   icount = 0;
   idepth = 0;
   zero_length = 0;
-  traverse_intervals_noorder (i, &inc_interval_count, Qnil);
+  traverse_intervals_noorder(i, (interval_func)&inc_interval_count, Qnil);
 
   return icount;
 }
 
 static INTERVAL
-root_interval (INTERVAL interval)
+root_interval(INTERVAL interval)
 {
   register INTERVAL i = interval;
 
-  while (! ROOT_INTERVAL_P (i))
-    i = INTERVAL_PARENT (i);
+  while (! ROOT_INTERVAL_P(i))
+    i = INTERVAL_PARENT(i);
 
   return i;
 }
-#endif
+#endif /* 1 */
 
 /* Assuming that a left child exists, perform the following operation:
 
@@ -1666,14 +1675,14 @@ graft_intervals_into_buffer (INTERVAL source, ptrdiff_t position,
       /* This call may have some effect because previous_interval may
          update `position' fields of intervals.  Thus, don't ignore it
          for the moment.  Someone please tell me the truth (K.Handa).  */
-      INTERVAL prev = previous_interval (under);
-      (void) prev;
-#if 0
+      INTERVAL prev = previous_interval(under);
+      (void)prev;
+#if defined(END_NONSTICKY_P)
       /* But, this code surely has no effect.  And, anyway,
          END_NONSTICKY_P is unreliable now.  */
-      if (prev && !END_NONSTICKY_P (prev))
+      if (prev && !END_NONSTICKY_P(prev))
 	prev = 0;
-#endif /* 0 */
+#endif /* END_NONSTICKY_P */
     }
 
   /* Insertion is now at beginning of UNDER.  */

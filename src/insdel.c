@@ -20,7 +20,9 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #include <config.h>
 
-#include <intprops.h>
+#if !defined(_GL_INTPROPS_H) && (defined(MARKER_DEBUG) || defined(BYTE_COMBINING_DEBUG))
+# include <intprops.h>
+#endif /* !_GL_INTPROPS_H && (MARKER_DEBUG || BYTE_COMBINING_DEBUG) */
 
 #include "lisp.h"
 #include "intervals.h"

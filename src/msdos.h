@@ -118,3 +118,4 @@ void XMenuDestroy (Display *, XMenu *);
 
 #endif /* not EMACS_MSDOS_H */
 
+/* EOF */
