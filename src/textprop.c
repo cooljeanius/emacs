@@ -2282,7 +2282,7 @@ verify_interval_modification (struct buffer *buf,
       i = find_interval(intervals, start);
       do
 	{
-	  if (! INTERVAL_WRITABLE_P(i))
+	  if ((i != NULL) && !INTERVAL_WRITABLE_P(i))
 	    text_read_only(textget(i->plist, Qread_only));
 
 	  if (!inhibit_modification_hooks)

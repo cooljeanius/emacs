@@ -1102,8 +1102,8 @@ widget_value*
 lw_get_all_values (LWLIB_ID id)
 {
   widget_info* info = get_widget_info (id, False);
-  widget_value* val = info->val;
-  if (lw_get_some_values (id, val))
+  widget_value* val = ((info != NULL) ? info->val : (widget_value*)NULL);
+  if (lw_get_some_values(id, val))
     return val;
   else
     return NULL;
@@ -1112,12 +1112,12 @@ lw_get_all_values (LWLIB_ID id)
 /* internal function used by the library dependent implementation to get the
    widget_value for a given widget in an instance */
 widget_value*
-lw_get_widget_value_for_widget (widget_instance *instance, Widget w)
+lw_get_widget_value_for_widget(widget_instance *instance, Widget w)
 {
-  char* name = XtName (w);
+  char* name = XtName(w);
   widget_value* cur;
   for (cur = instance->info->val; cur; cur = cur->next)
-    if (!strcmp (cur->name, name))
+    if (!strcmp(cur->name, name))
       return cur;
   return NULL;
 }

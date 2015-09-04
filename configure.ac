@@ -3556,9 +3556,12 @@ else
       gl_WARN_ADD([-Wmisleading-indentation])
       gl_WARN_ADD([-Woverride-init-side-effects])
       gl_WARN_ADD([-Wshift-negative-value])
-      gl_WARN_ADD([-Wshift-overflow])
+      gl_COMPILER_OPTION_IF([-Wshift-overflow=2],
+                        [WARN_CFLAGS="${WARN_CFLAGS} -Wshift-overflow=2"],
+                            [gl_WARN_ADD([-Wshift-overflow])])
       gl_WARN_ADD([-Wtautological-compare])
       gl_WARN_ADD([-Wframe-address])
+      gl_WARN_ADD([-Wnull-dereference])
       ## this got stricter, I think?
       nw="${nw} -Wbool-compare"
       ## but anyways...
@@ -4531,8 +4534,10 @@ fi
 dnl# Keep autoscan happy with a dummy condition that is never reached:
 if test "x" = "Y0"; then
   test -x "`which autoscan`"
-  AC_CHECK_HEADERS([stdio_ext.h sys/ioctl.h sys/mman.h sys/param.h \
-                    sys/time.h utime.h wchar.h])
+  AC_CHECK_HEADERS([inttypes.h memory.h stdint.h stdio_ext.h string.h \
+                    strings.h sys/ioctl.h sys/mman.h sys/param.h \
+                    sys/time.h unistd.h utime.h wchar.h])
+  ## ...just in case.
 fi
 if test "x${ac_cv_header_wctype_h}" = "xyes" && test "x${ac_cv_func_wctype}" = "x"; then
   test -n "${ac_cv_header_wctype_h}" && test -z "${ac_cv_func_wctype}"
@@ -4616,11 +4621,15 @@ if test "x${ac_cv_have_decl___MACH__}" = "xyes" || test -d /usr/include/mach-o; 
   ## this is referred to as "documentation" by unexmacosx.c:
   AC_CHECK_HEADERS([mach-o/loader.h])
   ## other possibly useful headers from that directory:
-  AC_CHECK_HEADERS([mach-o/arch.h mach-o/dyld.h mach-o/getsect.h \
-                    mach-o/nlist.h mach-o/ldsyms.h mach-o/reloc.h])
+  AC_CHECK_HEADERS([mach-o/arch.h mach-o/compact_unwind_encoding.h \
+                    mach-o/dyld.h mach-o/getsect.h mach-o/nlist.h \
+                    mach-o/ldsyms.h mach-o/reloc.h])
   if test "x${machine}" = "xmacppc" || test "x${machine}" = "xpowermac"; then
     test -n "${machine}"
     AC_CHECK_HEADERS([mach-o/ppc/reloc.h])
+  elif test "x${machine}" = "xarm" || test "x${machine}" = "xacorn"; then
+    test -n "${machine}"
+    AC_CHECK_HEADERS([mach-o/arm/reloc.h])
   fi
 fi
 if test "x${enable_acl}" != "xno"; then
@@ -7222,6 +7231,7 @@ elif test "x${opsys}" = "xmingw32"; then
     AC_DEFINE([HAVE_PNG],[1],
               [Define to 1 if you have the png library (-lpng).])dnl
 
+    AC_CHECK_FUNCS([png_set_longjmp_fn png_longjmp])
     AC_CHECK_DECL([png_longjmp],[],
       [AC_DEFINE([PNG_DEPSTRUCT],[],
 	 [Define to empty to suppress deprecation warnings when building
@@ -7294,6 +7304,7 @@ elif test "x${HAVE_X11}" = "xyes" || test "x${HAVE_W32}" = "xyes"; then
 
     SAVE_CFLAGS="${CFLAGS}"
     CFLAGS="${CFLAGS} ${PNG_CFLAGS}"
+    AC_CHECK_FUNCS([png_set_longjmp_fn png_longjmp])
     AC_CHECK_DECL([png_longjmp],[],
       [AC_DEFINE([PNG_DEPSTRUCT],[],
 	 [Define to empty to suppress deprecation warnings when building
@@ -7867,8 +7878,8 @@ AC_FUNC_SETVBUF_REVERSED
 AC_FUNC_STAT
 if test "x${ac_cv_func_strerror_r_char_p}" = "x"; then
   test -z "${ac_cv_func_strerror_r_char_p}"
-  unset ac_cv_have_decl_strerror_r
-  unset ac_cv_func_strerror_r
+  test -n "${ac_cv_have_decl_strerror_r}"
+  test -n "${ac_cv_func_strerror_r}"
   AC_FUNC_STRERROR_R
 fi
 AC_FUNC_STRFTIME
@@ -9750,6 +9761,7 @@ case "${opsys}" in
      ## Apple uses this in their Makefile, and other platforms use
      ## analogous flags:
      LD_SWITCH_SYSTEM_TEMACS="${LD_SWITCH_SYSTEM_TEMACS} -Wl,-no_pie"
+     ##FIXME: older Apple linkers fail to understand it though...
    fi
 
    ## check the version to see if this is ld64; the argument to `tr` should

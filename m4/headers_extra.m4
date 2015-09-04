@@ -5,7 +5,10 @@ dnl# Header checks that might be called elsewhere:
 AC_DEFUN([AC_REQUIRE_VARIOUS_HEADER_CHECKS],[
   dnl# first just some normal autoconf ones:
   AC_REQUIRE([AC_HEADER_STAT])dnl
-  AC_REQUIRE([AC_HEADER_STDC])dnl
+  dnl# deprecated in 2.70:
+  m4_ifdef([AC_HEADER_STDC],[
+    AC_REQUIRE([AC_HEADER_STDC])dnl
+  ])dnl
   dnl# now gnulib ones, in alphabetical-ish order:
   m4_ifdef([gl_WARN_ON_USE_PREPARE],[
     m4_ifdef([gl_DIRENT_H],[

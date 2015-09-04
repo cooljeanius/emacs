@@ -356,8 +356,8 @@ static void invalidate_nodes (fdesc *, node **);
 static void put_entries (node *);
 
 static char *concat (const char *, const char *, const char *);
-static char *skip_spaces (char *);
-static char *skip_non_spaces (char *);
+static char *skip_spaces (char *) ATTRIBUTE_NONNULL(1);
+static char *skip_non_spaces (char *) ATTRIBUTE_NONNULL(1);
 static char *skip_name (char *);
 static char *savenstr (const char *, int);
 static char *savestr (const char *);
@@ -1719,30 +1719,32 @@ find_entries (FILE *inf)
 	}
     }
 
-  /* Else look for sharp-bang as the first two characters. */
-  if (parser == NULL
-      && readline_internal (&lb, inf) > 0
-      && lb.len >= 2
-      && lb.buffer[0] == '#'
-      && lb.buffer[1] == '!')
+  /* Else look for sharp-bang as the first two character: */
+  if ((parser == NULL)
+      && (readline_internal(&lb, inf) > 0)
+      && (lb.len >= 2)
+      && (lb.buffer[0] == '#')
+      && (lb.buffer[1] == '!'))
     {
       char *lp;
 
       /* Set lp to point at the first char after the last slash in the
          line or, if no slashes, at the first nonblank.  Then set cp to
 	 the first successive blank and terminate the string. */
-      lp = etags_strrchr (lb.buffer+2, '/');
+      lp = etags_strrchr((lb.buffer + 2), '/');
       if (lp != NULL)
 	lp += 1;
       else
-	lp = skip_spaces (lb.buffer + 2);
-      cp = skip_non_spaces (lp);
-      *cp = '\0';
+	lp = skip_spaces(lb.buffer + 2);
+      cp = skip_non_spaces(lp);
+      if (cp != NULL) {
+	*cp = '\0';
+      }
 
-      if (strlen (lp) > 0)
+      if (strlen(lp) > 0)
 	{
-	  lang = get_language_from_interpreter (lp);
-	  if (lang != NULL && lang->function != NULL)
+	  lang = get_language_from_interpreter(lp);
+	  if ((lang != NULL) && (lang->function != NULL))
 	    {
 	      curfdp->lang = lang;
 	      parser = lang->function;
@@ -1753,13 +1755,13 @@ find_entries (FILE *inf)
   /* We rewind here, even if inf may be a pipe.  We fail if the
      length of the first line is longer than the pipe block size,
      which is unlikely. */
-  rewind (inf);
+  rewind(inf);
 
   /* Else try to guess the language given the case insensitive file name. */
   if (parser == NULL)
     {
-      lang = get_language_from_filename (curfdp->infname, false);
-      if (lang != NULL && lang->function != NULL)
+      lang = get_language_from_filename(curfdp->infname, false);
+      if ((lang != NULL) && (lang->function != NULL))
 	{
 	  curfdp->lang = lang;
 	  parser = lang->function;
@@ -3931,13 +3933,13 @@ just_read_file (FILE *inf)
 
 /* Fortran parsing */
 
-static void F_takeprec (void);
-static void F_getit (FILE *);
+static void F_takeprec(void);
+static void F_getit(FILE *);
 
 static void
-F_takeprec (void)
+F_takeprec(void)
 {
-  dbp = skip_spaces (dbp);
+  dbp = skip_spaces(dbp);
   if (*dbp != '*')
     return;
   dbp++;
@@ -4895,20 +4897,20 @@ Forth_words (FILE *inf)
  * Original code by Ken Haase (1985?)
  */
 static void
-Scheme_functions (FILE *inf)
+Scheme_functions(FILE *inf)
 {
   register char *bp;
 
-  LOOP_ON_INPUT_LINES (inf, lb, bp)
+  LOOP_ON_INPUT_LINES(inf, lb, bp)
     {
-      if (strneq (bp, "(def", 4) || strneq (bp, "(DEF", 4))
+      if (strneq(bp, "(def", 4) || strneq(bp, "(DEF", 4))
 	{
-	  bp = skip_non_spaces (bp+4);
+	  bp = skip_non_spaces(bp + 4);
 	  /* Skip over open parens and white space.  Don't continue past
 	     '\0'. */
-	  while (*bp && notinname (*bp))
+	  while ((bp != NULL) && *bp && notinname(*bp))
 	    bp++;
-	  get_tag (bp, NULL);
+	  get_tag(bp, NULL);
 	}
       if (LOOKING_AT (bp, "(SET!") || LOOKING_AT (bp, "(set!"))
 	get_tag (bp, NULL);
@@ -6292,30 +6294,31 @@ etags_strrchr (register const char *sp, register int c)
  * Identical to POSIX strchr, included for portability.
  */
 static char *
-etags_strchr (register const char *sp, register int c)
+etags_strchr(register const char *sp, register int c)
 {
-  do
-    {
-      if (*sp == c)
-	return (char *)sp;
-    } while (*sp++);
+  do {
+    if (*sp == c)
+      return (char *)sp;
+  } while (*sp++);
   return NULL;
 }
 
 /* Skip spaces (end of string is not space), return new pointer. */
-static char *
-skip_spaces (char *cp)
+static char * ATTRIBUTE_NONNULL(1)
+skip_spaces(char *cp)
 {
-  while (iswhite (*cp))
+  while (iswhite(*cp))
     cp++;
   return cp;
 }
 
-/* Skip non spaces, except end of string, return new pointer. */
-static char *
-skip_non_spaces (char *cp)
+/* Skip non spaces, except end of string, return new pointer: */
+static char * ATTRIBUTE_NONNULL(1)
+skip_non_spaces(char *cp)
 {
-  while (*cp != '\0' && !iswhite (*cp))
+  assert(cp != NULL);
+  
+  while ((*cp != '\0') && !iswhite(*cp))
     cp++;
   return cp;
 }

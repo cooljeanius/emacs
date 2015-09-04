@@ -3898,7 +3898,7 @@ x_get_monitor_attributes_xinerama (struct x_display_info *dpyinfo)
 
 #ifdef HAVE_XRANDR
 static Lisp_Object
-x_get_monitor_attributes_xrandr (struct x_display_info *dpyinfo)
+x_get_monitor_attributes_xrandr(struct x_display_info *dpyinfo)
 {
   Lisp_Object attributes_list = Qnil;
   XRRScreenResources *resources;
@@ -3907,23 +3907,23 @@ x_get_monitor_attributes_xrandr (struct x_display_info *dpyinfo)
   RROutput pxid = None;
   struct MonitorInfo *monitors;
 
-#ifdef HAVE_XRRGETSCREENRESOURCESCURRENT
-  resources = XRRGetScreenResourcesCurrent (dpy, dpyinfo->root_window);
-#else
-  resources = XRRGetScreenResources (dpy, dpyinfo->root_window);
-#endif
+# ifdef HAVE_XRRGETSCREENRESOURCESCURRENT
+  resources = XRRGetScreenResourcesCurrent(dpy, dpyinfo->root_window);
+# else
+  resources = XRRGetScreenResources(dpy, dpyinfo->root_window);
+# endif /* HAVE_XRRGETSCREENRESOURCESCURRENT */
   if (! resources || resources->noutput == 0)
     {
       if (resources)
-	XRRFreeScreenResources (resources);
+	XRRFreeScreenResources(resources);
       return Qnil;
     }
   n_monitors = resources->noutput;
-  monitors = xzalloc (n_monitors * sizeof *monitors);
+  monitors = xzalloc(n_monitors * sizeof(*monitors));
 
-#ifdef HAVE_XRRGETOUTPUTPRIMARY
-  pxid = XRRGetOutputPrimary (dpy, dpyinfo->root_window);
-#endif
+# ifdef HAVE_XRRGETOUTPUTPRIMARY
+  pxid = XRRGetOutputPrimary(dpy, dpyinfo->root_window);
+# endif /* HAVE_XRRGETOUTPUTPRIMARY */
 
   for (i = 0; i < n_monitors; ++i)
     {
@@ -3932,7 +3932,7 @@ x_get_monitor_attributes_xrandr (struct x_display_info *dpyinfo)
       Connection conn = (info ? info->connection : RR_Disconnected);
       RRCrtc id = (info ? info->crtc : None);
 
-      if (strcmp(info->name, "default") == 0)
+      if ((info != NULL) && (strcmp(info->name, "default") == 0))
         {
           /* Non XRandr 1.2 driver, does not give useful data: */
 	  XRRFreeOutputInfo(info);
@@ -3943,13 +3943,13 @@ x_get_monitor_attributes_xrandr (struct x_display_info *dpyinfo)
 
       if (conn != RR_Disconnected && id != None)
         {
-          XRRCrtcInfo *crtc = XRRGetCrtcInfo (dpy, resources, id);
+          XRRCrtcInfo *crtc = XRRGetCrtcInfo(dpy, resources, id);
           struct MonitorInfo *mi = &monitors[i];
           XRectangle workarea_r;
 
           if (! crtc)
 	    {
-	      XRRFreeOutputInfo (info);
+	      XRRFreeOutputInfo(info);
 	      continue;
 	    }
 
@@ -3959,34 +3959,31 @@ x_get_monitor_attributes_xrandr (struct x_display_info *dpyinfo)
           mi->geom.height = crtc->height;
           mi->mm_width = info->mm_width;
           mi->mm_height = info->mm_height;
-          mi->name = xstrdup (info->name);
+          mi->name = xstrdup(info->name);
 
           if (pxid != None && pxid == resources->outputs[i])
             primary = i;
-          else if (primary == -1 && strcmp (info->name, "LVDS") == 0)
+          else if (primary == -1 && strcmp(info->name, "LVDS") == 0)
             primary = i;
 
-          if (i == primary && x_get_net_workarea (dpyinfo, &workarea_r))
+          if (i == primary && x_get_net_workarea(dpyinfo, &workarea_r))
             {
               mi->work= workarea_r;
-              if (! x_intersect_rectangles (&mi->geom, &mi->work, &mi->work))
+              if (! x_intersect_rectangles(&mi->geom, &mi->work, &mi->work))
                 mi->work = mi->geom;
             }
           else
             mi->work = mi->geom;
 
-          XRRFreeCrtcInfo (crtc);
+          XRRFreeCrtcInfo(crtc);
         }
-      XRRFreeOutputInfo (info);
+      XRRFreeOutputInfo(info);
     }
-  XRRFreeScreenResources (resources);
+  XRRFreeScreenResources(resources);
 
-  attributes_list = x_make_monitor_attribute_list (monitors,
-                                                   n_monitors,
-                                                   primary,
-                                                   dpyinfo,
-                                                   "XRandr");
-  free_monitors (monitors, n_monitors);
+  attributes_list = x_make_monitor_attribute_list(monitors, n_monitors,
+						  primary, dpyinfo, "XRandr");
+  free_monitors(monitors, n_monitors);
   return attributes_list;
 }
 #endif /* HAVE_XRANDR */

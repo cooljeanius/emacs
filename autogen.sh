@@ -291,8 +291,14 @@ if test "x${WE_HAD_SET_VERSIONER_DEBUG_PREVIOUSLY}" = "x1"; then
   test -z "${VERSIONER_DEBUG}" && export VERSIONER_DEBUG=1
 fi
 
+if test "x${AUTORECONF}" = "x"; then
+  test -z "${AUTORECONF}" && export AUTORECONF=autoreconf
+else
+  test -n "${AUTORECONF}" && echo "Using ${AUTORECONF} to autoreconf."
+fi
+
 echo 'Your system has the required tools.'
-echo "Running 'autoreconf -fvi -Wall -Wno-cross -I m4' ..."
+echo "Running '${AUTORECONF} -fvi -Wall -Wno-cross -I m4' ..."
 
 # No longer need to override autopoint; in fact, doing so would be harmful
 # because gnulib would have us use an older version of gettext if we kept
@@ -300,7 +306,7 @@ echo "Running 'autoreconf -fvi -Wall -Wno-cross -I m4' ..."
 
 ## Let autoreconf figure out what, if anything, needs doing.
 ## Use autoreconf's -f option in case autoreconf itself has changed.
-autoreconf -fvi -Wall -Wno-cross -I m4 || exit $?
+${AUTORECONF} -fvi -Wall -Wno-cross -I m4 || exit $?
 ## ('-Wno-cross' is because gnulib-tool overwrites our patched macros with ones
 ## that produce warnings...)
 

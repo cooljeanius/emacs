@@ -3268,14 +3268,16 @@ font_open_for_lface (struct frame *f, Lisp_Object entity, Lisp_Object *attrs, Li
 	    pt = XINT (attrs[LFACE_HEIGHT_INDEX]);
 	  else
 	    {
-	      struct face *def = FACE_FROM_ID (f, DEFAULT_FACE_ID);
-	      Lisp_Object height = def->lface[LFACE_HEIGHT_INDEX];
-	      eassert (INTEGERP (height));
-	      pt = XINT (height);
+	      struct face *def = FACE_FROM_ID(f, DEFAULT_FACE_ID);
+	      Lisp_Object height = ((def != NULL)
+				    ? def->lface[LFACE_HEIGHT_INDEX]
+				    : Qnil);
+	      eassert(INTEGERP(height));
+	      pt = XINT(height);
 	    }
 
 	  pt /= 10;
-	  size = POINT_TO_PIXEL (pt, FRAME_RES_Y (f));
+	  size = POINT_TO_PIXEL(pt, FRAME_RES_Y(f));
 #ifdef HAVE_NS
 	  if (size == 0)
 	    {
@@ -3709,7 +3711,7 @@ font_at(int c, ptrdiff_t pos, struct face *face, struct window *w,
       int face_id = FACE_FOR_CHAR(f, face, c, pos, string);
       face = FACE_FROM_ID(f, face_id);
     }
-  if (! face->font)
+  if ((face == NULL) || !face->font)
     return Qnil;
 
   XSETFONT(font_object, face->font);

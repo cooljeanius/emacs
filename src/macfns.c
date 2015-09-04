@@ -5197,7 +5197,7 @@ Chinese, Japanese, and Korean.  */);
 
     err = Gestalt(gestaltCarbonVersion, (SInt32 *)&response);
     if (err == noErr) {
-      sprintf(carbon_version, "%u.%u.%u",
+      sprintf(carbon_version, "%lu.%lu.%lu",
               ((response >> 8) & 0xf), ((response >> 4) & 0xf),
               (response & 0xf));
     }

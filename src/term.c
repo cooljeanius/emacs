@@ -1882,9 +1882,9 @@ static void
 turn_on_face(struct frame *f, int face_id)
 {
   struct face *face = FACE_FROM_ID(f, face_id);
-  unsigned long fg = face->foreground;
-  unsigned long bg = face->background;
-  struct tty_display_info *tty = FRAME_TTY (f);
+  unsigned long fg = ((face != NULL) ? face->foreground : 0UL);
+  unsigned long bg = ((face != NULL) ? face->background : 0UL);
+  struct tty_display_info *tty = FRAME_TTY(f);
 
   /* Use reverse video if the face specifies that.
      Do this first because TS_end_standout_mode may be the same

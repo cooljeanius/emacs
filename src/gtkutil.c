@@ -1,4 +1,4 @@
-/* Functions for creating and updating GTK widgets.
+/* gtkutil.c: Functions for creating and updating GTK widgets.
 
 Copyright (C) 2003-2014 Free Software Foundation, Inc.
 
@@ -4839,32 +4839,32 @@ update_frame_tool_bar (struct frame *f)
                        ? TOOL_BAR_IMAGE_DISABLED_SELECTED
                        : TOOL_BAR_IMAGE_DISABLED_DESELECTED);
 
-              eassert (ASIZE (image) >= idx);
-              image = AREF (image, idx);
+              eassert(ASIZE(image) >= idx);
+              image = AREF(image, idx);
             }
           else
             idx = -1;
 
-          img_id = lookup_image (f, image);
-          img = IMAGE_FROM_ID (f, img_id);
-          prepare_image_for_display (f, img);
+          img_id = lookup_image(f, image);
+          img = IMAGE_FROM_ID(f, img_id);
+          prepare_image_for_display(f, img);
 
-          if (img->load_failed_p || img->pixmap == None)
+          if ((img != NULL) && (img->load_failed_p || img->pixmap == None))
             {
               if (ti)
-		gtk_container_remove (GTK_CONTAINER (wtoolbar),
-				      GTK_WIDGET (ti));
+		gtk_container_remove(GTK_CONTAINER(wtoolbar),
+				     GTK_WIDGET(ti));
               continue;
             }
         }
 
       /* If there is an existing widget, check if it's stale; if so,
 	 remove it and make a new tool item from scratch.  */
-      if (ti && xg_tool_item_stale_p (wbutton, stock_name, icon_name,
-				      img, label, horiz))
+      if (ti && xg_tool_item_stale_p(wbutton, stock_name, icon_name,
+				     img, label, horiz))
 	{
-	  gtk_container_remove (GTK_CONTAINER (wtoolbar),
-				GTK_WIDGET (ti));
+	  gtk_container_remove(GTK_CONTAINER(wtoolbar),
+			       GTK_WIDGET(ti));
 	  ti = NULL;
 	}
 

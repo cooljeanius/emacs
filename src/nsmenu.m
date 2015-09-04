@@ -1514,7 +1514,7 @@ pop_down_menu (void *arg)
 
 
 Lisp_Object
-ns_popup_dialog (Lisp_Object position, Lisp_Object header, Lisp_Object contents)
+ns_popup_dialog(Lisp_Object position, Lisp_Object header, Lisp_Object contents)
 {
   id dialog;
   Lisp_Object window, tem, title;
@@ -1523,38 +1523,38 @@ ns_popup_dialog (Lisp_Object position, Lisp_Object header, Lisp_Object contents)
   BOOL isQ;
   NSAutoreleasePool *pool;
 
-  NSTRACE (x-popup-dialog);
+  NSTRACE(x-popup-dialog);
 
-  isQ = NILP (header);
+  isQ = NILP(header);
 
-  if (EQ (position, Qt)
-      || (CONSP (position) && (EQ (XCAR (position), Qmenu_bar)
-                               || EQ (XCAR (position), Qtool_bar))))
+  if (EQ(position, Qt)
+      || (CONSP(position) && (EQ(XCAR(position), Qmenu_bar)
+			      || EQ(XCAR(position), Qtool_bar))))
     {
       window = selected_window;
     }
-  else if (CONSP (position))
+  else if (CONSP(position))
     {
       Lisp_Object tem;
-      tem = Fcar (position);
-      if (XTYPE (tem) == Lisp_Cons)
-        window = Fcar (Fcdr (position));
+      tem = Fcar(position);
+      if (XTYPE(tem) == Lisp_Cons)
+        window = Fcar(Fcdr(position));
       else
         {
-          tem = Fcar (Fcdr (position));  /* EVENT_START (position) */
-          window = Fcar (tem);	     /* POSN_WINDOW (tem) */
+          tem = Fcar(Fcdr(position));  /* EVENT_START (position) */
+          window = Fcar(tem);	     /* POSN_WINDOW (tem) */
         }
     }
-  else if (WINDOWP (position) || FRAMEP (position))
+  else if (WINDOWP(position) || FRAMEP(position))
     {
       window = position;
     }
   else
     window = Qnil;
 
-  if (FRAMEP (window))
-    f = XFRAME (window);
-  else if (WINDOWP (window))
+  if (FRAMEP(window))
+    f = XFRAME(window);
+  else if (WINDOWP(window))
     {
       CHECK_LIVE_WINDOW(window);
       f = XFRAME(WINDOW_FRAME(XWINDOW(window)));
@@ -1563,38 +1563,41 @@ ns_popup_dialog (Lisp_Object position, Lisp_Object header, Lisp_Object contents)
     CHECK_WINDOW(window);
 
   check_window_system(f);
+  
+  eassert(f != NULL);
+  xassert(f != NULL);
 
   p.x = ((int)f->left_pos
          + (((int)FRAME_COLUMN_WIDTH(f) * f->text_cols) / 2));
   p.y = ((int)f->top_pos + ((FRAME_LINE_HEIGHT(f) * f->text_lines) / 2));
 
-  title = Fcar (contents);
-  CHECK_STRING (title);
+  title = Fcar(contents);
+  CHECK_STRING(title);
 
-  if (NILP (Fcar (Fcdr (contents))))
+  if (NILP(Fcar(Fcdr(contents))))
     /* No buttons specified, add an "Ok" button so users can pop down
        the dialog.  */
-    contents = list2 (title, Fcons (build_string ("Ok"), Qt));
+    contents = list2(title, Fcons(build_string("Ok"), Qt));
 
-  block_input ();
+  block_input();
   pool = [[NSAutoreleasePool alloc] init];
   dialog = [[EmacsDialogPanel alloc] initFromContents: contents
                                            isQuestion: isQ];
 
   {
-    ptrdiff_t specpdl_count = SPECPDL_INDEX ();
-    struct Popdown_data *unwind_data = xmalloc (sizeof (*unwind_data));
+    ptrdiff_t specpdl_count = SPECPDL_INDEX();
+    struct Popdown_data *unwind_data = xmalloc(sizeof(*unwind_data));
 
     unwind_data->pool = pool;
     unwind_data->dialog = dialog;
 
-    record_unwind_protect_ptr (pop_down_menu, unwind_data);
+    record_unwind_protect_ptr(pop_down_menu, unwind_data);
     popup_activated_flag = 1;
     tem = [dialog runDialogAt: p];
-    unbind_to (specpdl_count, Qnil);  /* calls pop_down_menu */
+    unbind_to(specpdl_count, Qnil);  /* calls pop_down_menu */
   }
 
-  unblock_input ();
+  unblock_input();
 
   return tem;
 }
@@ -1620,10 +1623,10 @@ ns_popup_dialog (Lisp_Object position, Lisp_Object header, Lisp_Object contents)
 
 @implementation EmacsDialogPanel
 
-#define SPACER		8.0
-#define ICONSIZE	64.0
-#define TEXTHEIGHT	20.0
-#define MINCELLWIDTH	90.0
+#define SPACER		(CGFloat)8.0f
+#define ICONSIZE	(CGFloat)64.0f
+#define TEXTHEIGHT	(CGFloat)20.0f
+#define MINCELLWIDTH	(CGFloat)90.0f
 
 - (id)initWithContentRect:(NSRect)contentRect styleMask:(NSUInteger)aStyle
                   backing:(NSBackingStoreType)backingType defer:(BOOL)flag
@@ -1849,10 +1852,10 @@ ns_popup_dialog (Lisp_Object position, Lisp_Object header, Lisp_Object contents)
   Lisp_Object head;
   self = [super init];
 
-  if (XTYPE (contents) == Lisp_Cons)
+  if (XTYPE(contents) == Lisp_Cons)
     {
-      head = Fcar (contents);
-      [self process_dialog: Fcdr (contents)];
+      head = Fcar(contents);
+      [self process_dialog: Fcdr(contents)];
     }
   else
     head = contents;
@@ -1872,11 +1875,11 @@ ns_popup_dialog (Lisp_Object position, Lisp_Object header, Lisp_Object contents)
     if (cols == 1 && rows > 1)	/* Never told where to split */
       {
         [matrix addColumn];
-        for (i = 0; i < rows/2; i++)
+        for (i = 0; i < (rows / 2); i++)
           {
-            [matrix putCell: [matrix cellAtRow: (rows+1)/2 column: 0]
+            [matrix putCell: [matrix cellAtRow: ((rows + 1) / 2) column: 0]
                       atRow: i column: 1];
-            [matrix removeRow: (rows+1)/2];
+            [matrix removeRow: ((rows + 1) / 2)];
           }
       }
 
@@ -1896,22 +1899,22 @@ ns_popup_dialog (Lisp_Object position, Lisp_Object header, Lisp_Object contents)
 
     t = [matrix frame];
     r = [title frame];
-    if (r.size.width+r.origin.x > t.size.width+t.origin.x)
+    if ((r.size.width + r.origin.x) > (t.size.width + t.origin.x))
       {
-        t.origin.x   = r.origin.x;
+        t.origin.x = r.origin.x;
         t.size.width = r.size.width;
       }
     r = [command frame];
-    if (r.size.width+r.origin.x > t.size.width+t.origin.x)
+    if ((r.size.width + r.origin.x) > (t.size.width + t.origin.x))
       {
-        t.origin.x   = r.origin.x;
+        t.origin.x = r.origin.x;
         t.size.width = r.size.width;
       }
 
     r = [self frame];
     s = [(NSView *)[self contentView] frame];
-    r.size.width  += t.origin.x+t.size.width +2*SPACER-s.size.width;
-    r.size.height += t.origin.y+t.size.height+SPACER-s.size.height;
+    r.size.width += (t.origin.x + t.size.width + (2 * SPACER) - s.size.width);
+    r.size.height += (t.origin.y + t.size.height + SPACER - s.size.height);
     [self setFrame: r display: NO];
   }
 

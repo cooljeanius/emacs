@@ -1499,56 +1499,55 @@ for instance using the window manager, then this produces a quit and
   Lisp_Object window;
 
   /* Decode the first argument: find the window or frame to use.  */
-  if (EQ (position, Qt)
-      || (CONSP (position) && (EQ (XCAR (position), Qmenu_bar)
-			       || EQ (XCAR (position), Qtool_bar))))
+  if (EQ(position, Qt)
+      || (CONSP(position) && (EQ(XCAR(position), Qmenu_bar)
+			      || EQ(XCAR(position), Qtool_bar))))
     {
 #if 0 /* Using the frame the mouse is on may not be right.  */
       /* Use the mouse's current position.  */
-      struct frame *new_f = SELECTED_FRAME ();
+      struct frame *new_f = SELECTED_FRAME();
       Lisp_Object bar_window;
       enum scroll_bar_part part;
       Time time;
       Lisp_Object x, y;
 
-      (*mouse_position_hook) (&new_f, 1, &bar_window, &part, &x, &y, &time);
+      (*mouse_position_hook)(&new_f, 1, &bar_window, &part, &x, &y, &time);
 
       if (new_f != 0)
-	XSETFRAME (window, new_f);
+	XSETFRAME(window, new_f);
       else
 	window = selected_window;
-#endif
+#endif /* 0 */
       window = selected_window;
     }
   else if (CONSP (position))
     {
-      Lisp_Object tem = XCAR (position);
-      if (CONSP (tem))
-	window = Fcar (XCDR (position));
+      Lisp_Object tem = XCAR(position);
+      if (CONSP(tem))
+	window = Fcar(XCDR(position));
       else
 	{
-	  tem = Fcar (XCDR (position));  /* EVENT_START (position) */
-	  window = Fcar (tem);	     /* POSN_WINDOW (tem) */
+	  tem = Fcar(XCDR(position));  /* EVENT_START (position) */
+	  window = Fcar(tem);	     /* POSN_WINDOW (tem) */
 	}
     }
-  else if (WINDOWP (position) || FRAMEP (position))
+  else if (WINDOWP(position) || FRAMEP(position))
     window = position;
   else
     window = Qnil;
 
-  /* Decode where to put the menu.  */
-
-  if (FRAMEP (window))
-    f = XFRAME (window);
-  else if (WINDOWP (window))
+  /* Decode where to put the menu: */
+  if (FRAMEP(window))
+    f = XFRAME(window);
+  else if (WINDOWP(window))
     {
-      CHECK_LIVE_WINDOW (window);
-      f = XFRAME (WINDOW_FRAME (XWINDOW (window)));
+      CHECK_LIVE_WINDOW(window);
+      f = XFRAME(WINDOW_FRAME(XWINDOW(window)));
     }
   else
     /* ??? Not really clean; should be CHECK_WINDOW_OR_FRAME,
        but I don't want to make one now.  */
-    CHECK_WINDOW (window);
+    CHECK_WINDOW(window);
 
   /* Force a redisplay before showing the dialog.  If a frame is created
      just before showing the dialog, its contents may not have been fully
@@ -1559,25 +1558,25 @@ for instance using the window manager, then this produces a quit and
 
      Do this before creating the widget value that points to Lisp
      string contents, because Fredisplay may GC and relocate them.  */
-  Fredisplay (Qt);
+  Fredisplay(Qt);
 
 #if defined USE_X_TOOLKIT || defined USE_GTK
-  if (FRAME_WINDOW_P (f))
-    return xw_popup_dialog (f, header, contents);
-#endif
+  if ((f != NULL) && FRAME_WINDOW_P(f))
+    return xw_popup_dialog(f, header, contents);
+#endif /* USE_X_TOOLKIT || USE_GTK */
 #ifdef HAVE_NTGUI
-  if (FRAME_W32_P (f))
+  if (FRAME_W32_P(f))
     {
-      Lisp_Object selection = w32_popup_dialog (f, header, contents);
+      Lisp_Object selection = w32_popup_dialog(f, header, contents);
 
-      if (!EQ (selection, Qunsupported__w32_dialog))
+      if (!EQ(selection, Qunsupported__w32_dialog))
 	return selection;
     }
-#endif
+#endif /* HAVE_NTGUI */
 #ifdef HAVE_NS
-  if (FRAME_NS_P (f))
-    return ns_popup_dialog (position, header, contents);
-#endif
+  if ((f != NULL) && FRAME_NS_P(f))
+    return ns_popup_dialog(position, header, contents);
+#endif /* HAVE_NS */
   /* Display a menu with these alternatives
      in the middle of frame F.  */
   {
@@ -1585,37 +1584,39 @@ for instance using the window manager, then this produces a quit and
     int x_coord, y_coord;
 
     prompt = Fcar(contents);
-    if (FRAME_WINDOW_P(f))
+    if ((f != NULL) && FRAME_WINDOW_P(f))
       {
 	x_coord = FRAME_PIXEL_WIDTH(f);
 	y_coord = FRAME_PIXEL_HEIGHT(f);
       }
     else
       {
-	x_coord = FRAME_COLS(f);
+	x_coord = ((f != NULL) ? FRAME_COLS(f) : 0);
 	/* Center the title at frame middle.  (TTY menus have their
 	   upper-left corner at the given position.)  */
 	if (STRINGP(prompt))
 	  x_coord -= SCHARS(prompt);
-	y_coord = FRAME_LINES(f);
+	y_coord = ((f != NULL) ? FRAME_LINES(f) : 0);
       }
-    XSETFRAME (frame, f);
-    XSETINT (x, x_coord / 2);
-    XSETINT (y, y_coord / 2);
-    newpos = list2 (list2 (x, y), frame);
+    XSETFRAME(frame, f);
+    XSETINT(x, (x_coord / 2));
+    XSETINT(y, (y_coord / 2));
+    newpos = list2(list2(x, y), frame);
 
-    return Fx_popup_menu (newpos, list2 (prompt, contents));
+    return Fx_popup_menu(newpos, list2(prompt, contents));
   }
 }
 
 void
-syms_of_menu (void)
+syms_of_menu(void)
 {
-  staticpro (&menu_items);
+  staticpro(&menu_items);
   menu_items = Qnil;
   menu_items_inuse = Qnil;
 
-  defsubr (&Sx_popup_menu);
-  defsubr (&Sx_popup_dialog);
-  defsubr (&Smenu_bar_menu_at_x_y);
+  defsubr(&Sx_popup_menu);
+  defsubr(&Sx_popup_dialog);
+  defsubr(&Smenu_bar_menu_at_x_y);
 }
+
+/* EOF */

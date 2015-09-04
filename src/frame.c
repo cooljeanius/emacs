@@ -376,24 +376,26 @@ make_frame (bool mini_p)
       /* FIXME: do better at this; NULL is just as bad as uninitialized: */
       mw = (struct window *)NULL; /* still have to initialize */
       wset_next(rw, Qnil);
-      mw->mini = 0;
+      if (mw != NULL) {
+	mw->mini = 0;
+      }
       fset_minibuffer_window(f, Qnil);
     }
 
-  wset_frame (rw, frame);
+  wset_frame(rw, frame);
 
   /* 10 is arbitrary,
      just so that there is "something there."
      Correct size will be set up later with change_frame_size.  */
-  SET_FRAME_COLS (f, 10);
-  FRAME_LINES (f) = 10;
-  SET_FRAME_WIDTH (f, FRAME_COLS (f) * FRAME_COLUMN_WIDTH (f));
-  SET_FRAME_HEIGHT (f, FRAME_LINES (f) * FRAME_LINE_HEIGHT (f));
+  SET_FRAME_COLS(f, 10);
+  FRAME_LINES(f) = 10;
+  SET_FRAME_WIDTH(f, (FRAME_COLS(f) * FRAME_COLUMN_WIDTH(f)));
+  SET_FRAME_HEIGHT(f, (FRAME_LINES(f) * FRAME_LINE_HEIGHT(f)));
 
   rw->total_cols = 10;
-  rw->pixel_width = rw->total_cols * FRAME_COLUMN_WIDTH (f);
+  rw->pixel_width = (rw->total_cols * FRAME_COLUMN_WIDTH(f));
   rw->total_lines = (mini_p ? 9 : 10);
-  rw->pixel_height = rw->total_lines * FRAME_LINE_HEIGHT (f);
+  rw->pixel_height = (rw->total_lines * FRAME_LINE_HEIGHT(f));
 
   if (mini_p)
     {

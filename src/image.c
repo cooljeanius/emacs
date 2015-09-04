@@ -1168,8 +1168,12 @@ or omitted means use the selected frame.  */)
       struct frame *f = decode_window_system_frame(frame);
       ptrdiff_t id = lookup_image(f, spec);
       struct image *img = IMAGE_FROM_ID(f, id);
-      int width = (img->width + (2 * img->hmargin));
-      int height = (img->height + (2 * img->vmargin));
+      int width;
+      int height;
+      eassert(img != NULL);
+      xassert(img != NULL);
+      width = (img->width + (2 * img->hmargin));
+      height = (img->height + (2 * img->vmargin));
 
       if (NILP (pixels))
 	size = Fcons(make_float((double)width / FRAME_COLUMN_WIDTH(f)),
@@ -1198,16 +1202,16 @@ or omitted means use the selected frame.  */)
   Lisp_Object mask;
 
   mask = Qnil;
-  if (valid_image_p (spec))
+  if (valid_image_p(spec))
     {
-      struct frame *f = decode_window_system_frame (frame);
-      ptrdiff_t id = lookup_image (f, spec);
-      struct image *img = IMAGE_FROM_ID (f, id);
-      if (img->mask)
+      struct frame *f = decode_window_system_frame(frame);
+      ptrdiff_t id = lookup_image(f, spec);
+      struct image *img = IMAGE_FROM_ID(f, id);
+      if ((img != NULL) && img->mask)
 	mask = Qt;
     }
   else
-    error ("Invalid image specification");
+    error("Invalid image specification");
 
   return mask;
 }
@@ -1221,12 +1225,13 @@ or omitted means use the selected frame.  */)
   Lisp_Object ext;
 
   ext = Qnil;
-  if (valid_image_p (spec))
+  if (valid_image_p(spec))
     {
-      struct frame *f = decode_window_system_frame (frame);
-      ptrdiff_t id = lookup_image (f, spec);
-      struct image *img = IMAGE_FROM_ID (f, id);
-      ext = img->lisp_data;
+      struct frame *f = decode_window_system_frame(frame);
+      ptrdiff_t id = lookup_image(f, spec);
+      struct image *img = IMAGE_FROM_ID(f, id);
+      if (img != NULL)
+	ext = img->lisp_data;
     }
 
   return ext;

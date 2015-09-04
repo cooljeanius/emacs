@@ -2594,67 +2594,55 @@ safe_call2 (Lisp_Object fn, Lisp_Object arg1, Lisp_Object arg2)
  ***********************************************************************/
 
 #if 0
-
 /* Define CHECK_IT to perform sanity checks on iterators.
    This is for debugging.  It is too slow to do unconditionally.  */
-
 static void
-check_it (struct it *it)
+check_it(struct it *it)
 {
   if (it->method == GET_FROM_STRING)
     {
-      eassert (STRINGP (it->string));
-      eassert (IT_STRING_CHARPOS (*it) >= 0);
+      eassert(STRINGP(it->string));
+      eassert(IT_STRING_CHARPOS(*it) >= 0);
     }
   else
     {
-      eassert (IT_STRING_CHARPOS (*it) < 0);
+      eassert(IT_STRING_CHARPOS(*it) < 0);
       if (it->method == GET_FROM_BUFFER)
 	{
-	  /* Check that character and byte positions agree.  */
-	  eassert (IT_CHARPOS (*it) == BYTE_TO_CHAR (IT_BYTEPOS (*it)));
+	  /* Check that character and byte positions agree: */
+	  eassert(IT_CHARPOS(*it) == BYTE_TO_CHAR(IT_BYTEPOS(*it)));
 	}
     }
 
   if (it->dpvec)
-    eassert (it->current.dpvec_index >= 0);
+    eassert(it->current.dpvec_index >= 0);
   else
-    eassert (it->current.dpvec_index < 0);
+    eassert(it->current.dpvec_index < 0);
 }
-
-#define CHECK_IT(IT)	check_it ((IT))
-
+# define CHECK_IT(IT)	check_it((IT))
 #else /* not 0 */
-
-#define CHECK_IT(IT)	(void) 0
-
+# define CHECK_IT(IT)	(void)0
 #endif /* not 0 */
 
 
 #if defined GLYPH_DEBUG && defined ENABLE_CHECKING
-
 /* Check that the window end of window W is what we expect it
    to be---the last row in the current matrix displaying text.  */
-
 static void
-check_window_end (struct window *w)
+check_window_end(struct window *w)
 {
-  if (!MINI_WINDOW_P (w) && w->window_end_valid)
+  if (!MINI_WINDOW_P(w) && w->window_end_valid)
     {
       struct glyph_row *row;
-      eassert ((row = MATRIX_ROW (w->current_matrix, w->window_end_vpos),
-		!row->enabled_p
-		|| MATRIX_ROW_DISPLAYS_TEXT_P (row)
-		|| MATRIX_ROW_VPOS (row, w->current_matrix) == 0));
+      eassert((row = MATRIX_ROW(w->current_matrix, w->window_end_vpos),
+	       !row->enabled_p
+	       || MATRIX_ROW_DISPLAYS_TEXT_P(row)
+	       || MATRIX_ROW_VPOS(row, w->current_matrix) == 0));
     }
 }
-
-#define CHECK_WINDOW_END(W)	check_window_end ((W))
-
+# define CHECK_WINDOW_END(W)	check_window_end((W))
 #else
-
-#define CHECK_WINDOW_END(W)	(void) 0
-
+# define CHECK_WINDOW_END(W)	(void)0
 #endif /* GLYPH_DEBUG and ENABLE_CHECKING */
 
 /***********************************************************************
@@ -4690,10 +4678,10 @@ display_prop_end (struct it *it, Lisp_Object object, struct text_pos start_pos)
    of buffer or string text.  */
 
 static int
-handle_single_display_spec (struct it *it, Lisp_Object spec, Lisp_Object object,
-			    Lisp_Object overlay, struct text_pos *position,
-			    ptrdiff_t bufpos, int display_replaced_p,
-			    int frame_window_p)
+handle_single_display_spec(struct it *it, Lisp_Object spec, Lisp_Object object,
+			   Lisp_Object overlay, struct text_pos *position,
+			   ptrdiff_t bufpos, int display_replaced_p,
+			   int frame_window_p)
 {
   Lisp_Object form;
   Lisp_Object location, value;
@@ -4703,18 +4691,18 @@ handle_single_display_spec (struct it *it, Lisp_Object spec, Lisp_Object object,
   /* If SPEC is a list of the form `(when FORM . VALUE)', evaluate FORM.
      If the result is non-nil, use VALUE instead of SPEC.  */
   form = Qt;
-  if (CONSP (spec) && EQ (XCAR (spec), Qwhen))
+  if (CONSP(spec) && EQ(XCAR(spec), Qwhen))
     {
-      spec = XCDR (spec);
-      if (!CONSP (spec))
+      spec = XCDR(spec);
+      if (!CONSP(spec))
 	return 0;
-      form = XCAR (spec);
-      spec = XCDR (spec);
+      form = XCAR(spec);
+      spec = XCDR(spec);
     }
 
-  if (!NILP (form) && !EQ (form, Qt))
+  if (!NILP(form) && !EQ(form, Qt))
     {
-      ptrdiff_t count = SPECPDL_INDEX ();
+      ptrdiff_t count = SPECPDL_INDEX();
       struct gcpro gcpro1;
 
       /* Bind `object' to the object having the `display' property, a
@@ -4722,130 +4710,137 @@ handle_single_display_spec (struct it *it, Lisp_Object spec, Lisp_Object object,
 	 object where the property was found, and `buffer-position'
 	 to the current position in the buffer.  */
 
-      if (NILP (object))
-	XSETBUFFER (object, current_buffer);
-      specbind (Qobject, object);
-      specbind (Qposition, make_number (CHARPOS (*position)));
-      specbind (Qbuffer_position, make_number (bufpos));
-      GCPRO1 (form);
-      form = safe_eval (form);
+      if (NILP(object))
+	XSETBUFFER(object, current_buffer);
+      specbind(Qobject, object);
+      specbind(Qposition, make_number(CHARPOS(*position)));
+      specbind(Qbuffer_position, make_number(bufpos));
+      GCPRO1(form);
+      form = safe_eval(form);
       UNGCPRO;
-      unbind_to (count, Qnil);
+      unbind_to(count, Qnil);
     }
 
-  if (NILP (form))
+  if (NILP(form))
     return 0;
 
-  /* Handle `(height HEIGHT)' specifications.  */
-  if (CONSP (spec)
-      && EQ (XCAR (spec), Qheight)
-      && CONSP (XCDR (spec)))
+  /* Handle `(height HEIGHT)' specifications: */
+  if (CONSP(spec)
+      && EQ(XCAR(spec), Qheight)
+      && CONSP(XCDR(spec)))
     {
       if (it)
 	{
-	  if (!FRAME_WINDOW_P (it->f))
+	  if (!FRAME_WINDOW_P(it->f))
 	    return 0;
 
-	  it->font_height = XCAR (XCDR (spec));
-	  if (!NILP (it->font_height))
+	  it->font_height = XCAR(XCDR(spec));
+	  if (!NILP(it->font_height))
 	    {
-	      struct face *face = FACE_FROM_ID (it->f, it->face_id);
+	      struct face *face = FACE_FROM_ID(it->f, it->face_id);
 	      int new_height = -1;
 
-	      if (CONSP (it->font_height)
-		  && (EQ (XCAR (it->font_height), Qplus)
-		      || EQ (XCAR (it->font_height), Qminus))
-		  && CONSP (XCDR (it->font_height))
-		  && RANGED_INTEGERP (0, XCAR (XCDR (it->font_height)), INT_MAX))
+	      if (CONSP(it->font_height)
+		  && (EQ(XCAR(it->font_height), Qplus)
+		      || EQ(XCAR(it->font_height), Qminus))
+		  && CONSP(XCDR(it->font_height))
+		  && RANGED_INTEGERP(0, XCAR(XCDR(it->font_height)), INT_MAX))
 		{
-		  /* `(+ N)' or `(- N)' where N is an integer.  */
-		  int steps = XINT (XCAR (XCDR (it->font_height)));
-		  if (EQ (XCAR (it->font_height), Qplus))
-		    steps = - steps;
-		  it->face_id = smaller_face (it->f, it->face_id, steps);
+		  /* `(+ N)' or `(- N)' where N is an integer: */
+		  int steps = XINT(XCAR(XCDR(it->font_height)));
+		  if (EQ(XCAR(it->font_height), Qplus))
+		    steps = (0 - steps);
+		  it->face_id = smaller_face(it->f, it->face_id, steps);
 		}
-	      else if (FUNCTIONP (it->font_height))
+	      else if (FUNCTIONP(it->font_height))
 		{
 		  /* Call function with current height as argument.
 		     Value is the new height.  */
 		  Lisp_Object height;
-		  height = safe_call1 (it->font_height,
-				       face->lface[LFACE_HEIGHT_INDEX]);
-		  if (NUMBERP (height))
-		    new_height = XFLOATINT (height);
+		  height = safe_call1(it->font_height,
+				      face->lface[LFACE_HEIGHT_INDEX]);
+		  if (NUMBERP(height))
+		    new_height = XFLOATINT(height);
 		}
-	      else if (NUMBERP (it->font_height))
+	      else if ((it != NULL) && NUMBERP(it->font_height)
+		       && (it->f != NULL) && (FRAME_FACE_CACHE(it->f) != NULL))
 		{
-		  /* Value is a multiple of the canonical char height.  */
+		  /* Value is a multiple of the canonical char height: */
 		  struct face *f;
 
-		  f = FACE_FROM_ID (it->f,
-				    lookup_basic_face (it->f, DEFAULT_FACE_ID));
-		  new_height = (XFLOATINT (it->font_height)
-				* XINT (f->lface[LFACE_HEIGHT_INDEX]));
+#ifdef I_HAVE_FIGURED_OUT_THE_NULL_POINTER_DEREFERENCE_ISSUE_HERE
+		  f = FACE_FROM_ID(it->f,
+				   lookup_basic_face(it->f, DEFAULT_FACE_ID));
+		  new_height = (XFLOATINT(it->font_height)
+				* XINT(f->lface[LFACE_HEIGHT_INDEX]));
+#else
+		  f = (struct face *)NULL;
+		  IF_LINT((void)f);
+		  new_height = ((int)XFLOATINT(it->font_height) * 0);
+#endif /* I_HAVE_FIGURED_OUT_THE_NULL_POINTER_DEREFERENCE_ISSUE_HERE */
 		}
 	      else
 		{
 		  /* Evaluate IT->font_height with `height' bound to the
 		     current specified height to get the new height.  */
-		  ptrdiff_t count = SPECPDL_INDEX ();
+		  ptrdiff_t count = SPECPDL_INDEX();
 
-		  specbind (Qheight, face->lface[LFACE_HEIGHT_INDEX]);
-		  value = safe_eval (it->font_height);
-		  unbind_to (count, Qnil);
+		  specbind(Qheight, face->lface[LFACE_HEIGHT_INDEX]);
+		  value = safe_eval(it->font_height);
+		  unbind_to(count, Qnil);
 
-		  if (NUMBERP (value))
-		    new_height = XFLOATINT (value);
+		  if (NUMBERP(value))
+		    new_height = XFLOATINT(value);
 		}
 
 	      if (new_height > 0)
-		it->face_id = face_with_height (it->f, it->face_id, new_height);
+		it->face_id = face_with_height(it->f, it->face_id, new_height);
 	    }
 	}
 
       return 0;
     }
 
-  /* Handle `(space-width WIDTH)'.  */
-  if (CONSP (spec)
-      && EQ (XCAR (spec), Qspace_width)
-      && CONSP (XCDR (spec)))
+  /* Handle `(space-width WIDTH)': */
+  if (CONSP(spec)
+      && EQ(XCAR(spec), Qspace_width)
+      && CONSP(XCDR(spec)))
     {
       if (it)
 	{
-	  if (!FRAME_WINDOW_P (it->f))
+	  if (!FRAME_WINDOW_P(it->f))
 	    return 0;
 
-	  value = XCAR (XCDR (spec));
-	  if (NUMBERP (value) && XFLOATINT (value) > 0)
+	  value = XCAR(XCDR(spec));
+	  if (NUMBERP(value) && (XFLOATINT(value) > 0))
 	    it->space_width = value;
 	}
 
       return 0;
     }
 
-  /* Handle `(slice X Y WIDTH HEIGHT)'.  */
-  if (CONSP (spec)
-      && EQ (XCAR (spec), Qslice))
+  /* Handle `(slice X Y WIDTH HEIGHT)': */
+  if (CONSP(spec)
+      && EQ(XCAR(spec), Qslice))
     {
       Lisp_Object tem;
 
       if (it)
 	{
-	  if (!FRAME_WINDOW_P (it->f))
+	  if (!FRAME_WINDOW_P(it->f))
 	    return 0;
 
-	  if (tem = XCDR (spec), CONSP (tem))
+	  if (tem = XCDR(spec), CONSP(tem))
 	    {
-	      it->slice.x = XCAR (tem);
-	      if (tem = XCDR (tem), CONSP (tem))
+	      it->slice.x = XCAR(tem);
+	      if (tem = XCDR(tem), CONSP(tem))
 		{
-		  it->slice.y = XCAR (tem);
-		  if (tem = XCDR (tem), CONSP (tem))
+		  it->slice.y = XCAR(tem);
+		  if (tem = XCDR(tem), CONSP(tem))
 		    {
-		      it->slice.width = XCAR (tem);
-		      if (tem = XCDR (tem), CONSP (tem))
-			it->slice.height = XCAR (tem);
+		      it->slice.width = XCAR(tem);
+		      if (tem = XCDR(tem), CONSP(tem))
+			it->slice.height = XCAR(tem);
 		    }
 		}
 	    }
@@ -4854,23 +4849,24 @@ handle_single_display_spec (struct it *it, Lisp_Object spec, Lisp_Object object,
       return 0;
     }
 
-  /* Handle `(raise FACTOR)'.  */
-  if (CONSP (spec)
-      && EQ (XCAR (spec), Qraise)
-      && CONSP (XCDR (spec)))
+  /* Handle `(raise FACTOR)': */
+  if (CONSP(spec)
+      && EQ(XCAR(spec), Qraise)
+      && CONSP(XCDR(spec)))
     {
       if (it)
 	{
-	  if (!FRAME_WINDOW_P (it->f))
+	  if (!FRAME_WINDOW_P(it->f))
 	    return 0;
 
 #ifdef HAVE_WINDOW_SYSTEM
-	  value = XCAR (XCDR (spec));
-	  if (NUMBERP (value))
+	  value = XCAR(XCDR(spec));
+	  if (NUMBERP(value))
 	    {
-	      struct face *face = FACE_FROM_ID (it->f, it->face_id);
-	      it->voffset = - (XFLOATINT (value)
-			       * (FONT_HEIGHT (face->font)));
+	      struct face *face = FACE_FROM_ID(it->f, it->face_id);
+	      xassert(face != NULL);
+	      it->voffset = (0 - (XFLOATINT(value)
+				  * (FONT_HEIGHT(face->font))));
 	    }
 #endif /* HAVE_WINDOW_SYSTEM */
 	}
@@ -4888,7 +4884,7 @@ handle_single_display_spec (struct it *it, Lisp_Object spec, Lisp_Object object,
   if (it)
     {
       start_pos = *position;
-      *position = display_prop_end (it, object, start_pos);
+      *position = display_prop_end(it, object, start_pos);
     }
   value = Qnil;
 
@@ -4899,16 +4895,16 @@ handle_single_display_spec (struct it *it, Lisp_Object spec, Lisp_Object object,
 
   /* Handle `(left-fringe BITMAP [FACE])'
      and `(right-fringe BITMAP [FACE])'.  */
-  if (CONSP (spec)
-      && (EQ (XCAR (spec), Qleft_fringe)
-	  || EQ (XCAR (spec), Qright_fringe))
-      && CONSP (XCDR (spec)))
+  if (CONSP(spec)
+      && (EQ(XCAR(spec), Qleft_fringe)
+	  || EQ(XCAR(spec), Qright_fringe))
+      && CONSP(XCDR(spec)))
     {
       int fringe_bitmap;
 
       if (it)
 	{
-	  if (!FRAME_WINDOW_P (it->f))
+	  if (!FRAME_WINDOW_P(it->f))
 	    /* If we return here, POSITION has been advanced
 	       across the text with this property.  */
 	    {
@@ -4919,7 +4915,7 @@ handle_single_display_spec (struct it *it, Lisp_Object spec, Lisp_Object object,
 	      if (it->bidi_p)
 		{
 		  it->position = *position;
-		  iterate_out_of_display_property (it);
+		  iterate_out_of_display_property(it);
 		  *position = it->position;
 		}
 	      return 1;
@@ -4929,16 +4925,16 @@ handle_single_display_spec (struct it *it, Lisp_Object spec, Lisp_Object object,
 	return 1;
 
 #ifdef HAVE_WINDOW_SYSTEM
-      value = XCAR (XCDR (spec));
-      if (!SYMBOLP (value)
-	  || !(fringe_bitmap = lookup_fringe_bitmap (value)))
+      value = XCAR(XCDR(spec));
+      if (!SYMBOLP(value)
+	  || !(fringe_bitmap = lookup_fringe_bitmap(value)))
 	/* If we return here, POSITION has been advanced
 	   across the text with this property.  */
 	{
 	  if (it && it->bidi_p)
 	    {
 	      it->position = *position;
-	      iterate_out_of_display_property (it);
+	      iterate_out_of_display_property(it);
 	      *position = it->position;
 	    }
 	  return 1;
@@ -4948,24 +4944,24 @@ handle_single_display_spec (struct it *it, Lisp_Object spec, Lisp_Object object,
 	{
 	  int face_id = lookup_basic_face(it->f, DEFAULT_FACE_ID);
 
-	  if (CONSP (XCDR (XCDR (spec))))
+	  if (CONSP(XCDR(XCDR(spec))))
 	    {
-	      Lisp_Object face_name = XCAR (XCDR (XCDR (spec)));
-	      int face_id2 = lookup_derived_face (it->f, face_name,
-						  FRINGE_FACE_ID, 0);
+	      Lisp_Object face_name = XCAR(XCDR(XCDR(spec)));
+	      int face_id2 = lookup_derived_face(it->f, face_name,
+						 FRINGE_FACE_ID, 0);
 	      if (face_id2 >= 0)
 		face_id = face_id2;
 	    }
 
 	  /* Save current settings of IT so that we can restore them
 	     when we are finished with the glyph property value.  */
-	  push_it (it, position);
+	  push_it(it, position);
 
 	  it->area = TEXT_AREA;
 	  it->what = IT_IMAGE;
 	  it->image_id = -1; /* no image */
 	  it->position = start_pos;
-	  it->object = NILP (object) ? it->w->contents : object;
+	  it->object = (NILP(object) ? it->w->contents : object);
 	  it->method = GET_FROM_IMAGE;
 	  it->from_overlay = Qnil;
 	  it->face_id = face_id;
@@ -4976,7 +4972,7 @@ handle_single_display_spec (struct it *it, Lisp_Object spec, Lisp_Object object,
 	     set_iterator_to_next will clean this up.  */
 	  *position = start_pos;
 
-	  if (EQ (XCAR (spec), Qleft_fringe))
+	  if (EQ(XCAR(spec), Qleft_fringe))
 	    {
 	      it->left_user_fringe_bitmap = fringe_bitmap;
 	      it->left_user_fringe_face_id = face_id;
@@ -4995,25 +4991,25 @@ handle_single_display_spec (struct it *it, Lisp_Object spec, Lisp_Object object,
      `((margin right-margin) ...)' and `((margin nil) ...)'
      prefixes for display specifications.  */
   location = Qunbound;
-  if (CONSP (spec) && CONSP (XCAR (spec)))
+  if (CONSP(spec) && CONSP(XCAR(spec)))
     {
       Lisp_Object tem;
 
-      value = XCDR (spec);
-      if (CONSP (value))
-	value = XCAR (value);
+      value = XCDR(spec);
+      if (CONSP(value))
+	value = XCAR(value);
 
-      tem = XCAR (spec);
-      if (EQ (XCAR (tem), Qmargin)
-	  && (tem = XCDR (tem),
-	      tem = CONSP (tem) ? XCAR (tem) : Qnil,
-	      (NILP (tem)
-	       || EQ (tem, Qleft_margin)
-	       || EQ (tem, Qright_margin))))
+      tem = XCAR(spec);
+      if (EQ(XCAR(tem), Qmargin)
+	  && (tem = XCDR(tem),
+	      tem = (CONSP(tem) ? XCAR (tem) : Qnil),
+	      (NILP(tem)
+	       || EQ(tem, Qleft_margin)
+	       || EQ(tem, Qright_margin))))
 	location = tem;
     }
 
-  if (EQ (location, Qunbound))
+  if (EQ(location, Qunbound))
     {
       location = Qnil;
       value = spec;
@@ -5026,12 +5022,12 @@ handle_single_display_spec (struct it *it, Lisp_Object spec, Lisp_Object object,
      LOCATION specifies where to display: `left-margin',
      `right-margin' or nil.  */
 
-  valid_p = (STRINGP (value)
+  valid_p = (STRINGP(value)
 #ifdef HAVE_WINDOW_SYSTEM
-             || ((it ? FRAME_WINDOW_P (it->f) : frame_window_p)
-		 && valid_image_p (value))
+             || ((it ? FRAME_WINDOW_P(it->f) : frame_window_p)
+		 && valid_image_p(value))
 #endif /* not HAVE_WINDOW_SYSTEM */
-             || (CONSP (value) && EQ (XCAR (value), Qspace)));
+             || (CONSP(value) && EQ(XCAR(value), Qspace)));
 
   if (valid_p && !display_replaced_p)
     {
@@ -5042,31 +5038,31 @@ handle_single_display_spec (struct it *it, Lisp_Object spec, Lisp_Object object,
 	  /* Callers need to know whether the display spec is any kind
 	     of `(space ...)' spec that is about to affect text-area
 	     display.  */
-	  if (CONSP (value) && EQ (XCAR (value), Qspace) && NILP (location))
+	  if (CONSP(value) && EQ(XCAR(value), Qspace) && NILP(location))
 	    retval = 2;
 	  return retval;
 	}
 
       /* Save current settings of IT so that we can restore them
 	 when we are finished with the glyph property value.  */
-      push_it (it, position);
+      push_it(it, position);
       it->from_overlay = overlay;
       it->from_disp_prop_p = true;
 
-      if (NILP (location))
+      if (NILP(location))
 	it->area = TEXT_AREA;
-      else if (EQ (location, Qleft_margin))
+      else if (EQ(location, Qleft_margin))
 	it->area = LEFT_MARGIN_AREA;
       else
 	it->area = RIGHT_MARGIN_AREA;
 
-      if (STRINGP (value))
+      if (STRINGP(value))
 	{
 	  it->string = value;
-	  it->multibyte_p = STRING_MULTIBYTE (it->string);
+	  it->multibyte_p = STRING_MULTIBYTE(it->string);
 	  it->current.overlay_string_index = -1;
-	  IT_STRING_CHARPOS (*it) = IT_STRING_BYTEPOS (*it) = 0;
-	  it->end_charpos = it->string_nchars = SCHARS (it->string);
+	  IT_STRING_CHARPOS(*it) = IT_STRING_BYTEPOS(*it) = 0;
+	  it->end_charpos = it->string_nchars = SCHARS(it->string);
 	  it->method = GET_FROM_STRING;
 	  it->stop_charpos = 0;
 	  it->prev_stop = 0;
@@ -5075,7 +5071,7 @@ handle_single_display_spec (struct it *it, Lisp_Object spec, Lisp_Object object,
 	  /* Say that we haven't consumed the characters with
 	     `display' property yet.  The call to pop_it in
 	     set_iterator_to_next will clean this up.  */
-	  if (BUFFERP (object))
+	  if (BUFFERP(object))
 	    *position = start_pos;
 
 	  /* Force paragraph direction to be that of the parent
@@ -5086,7 +5082,7 @@ handle_single_display_spec (struct it *it, Lisp_Object spec, Lisp_Object object,
 	  else
 	    it->paragraph_embedding = L2R;
 
-	  /* Set up the bidi iterator for this display string.  */
+	  /* Set up the bidi iterator for this display string: */
 	  if (it->bidi_p)
 	    {
 	      it->bidi_it.string.lstring = it->string;
@@ -5096,23 +5092,23 @@ handle_single_display_spec (struct it *it, Lisp_Object spec, Lisp_Object object,
 	      it->bidi_it.string.from_disp_str = 1;
 	      it->bidi_it.string.unibyte = !it->multibyte_p;
 	      it->bidi_it.w = it->w;
-	      bidi_init_it (0, 0, FRAME_WINDOW_P (it->f), &it->bidi_it);
+	      bidi_init_it(0, 0, FRAME_WINDOW_P(it->f), &it->bidi_it);
 	    }
 	}
-      else if (CONSP (value) && EQ (XCAR (value), Qspace))
+      else if (CONSP(value) && EQ(XCAR(value), Qspace))
 	{
 	  it->method = GET_FROM_STRETCH;
 	  it->object = value;
 	  *position = it->position = start_pos;
-	  retval = 1 + (it->area == TEXT_AREA);
+	  retval = (1 + (it->area == TEXT_AREA));
 	}
 #ifdef HAVE_WINDOW_SYSTEM
       else
 	{
 	  it->what = IT_IMAGE;
-	  it->image_id = lookup_image (it->f, value);
+	  it->image_id = lookup_image(it->f, value);
 	  it->position = start_pos;
-	  it->object = NILP (object) ? it->w->contents : object;
+	  it->object = (NILP(object) ? it->w->contents : object);
 	  it->method = GET_FROM_IMAGE;
 
 	  /* Say that we haven't consumed the characters with
@@ -7031,15 +7027,16 @@ get_next_display_element (struct it *it)
 		{
 		  /* If the box comes from face properties in a
 		     display string, check faces in that string.  */
-		  int string_face_id = face_after_it_pos (it);
-		  it->end_of_box_run_p
-		    = (FACE_FROM_ID (it->f, string_face_id)->box
-		       == FACE_NO_BOX);
+		  int string_face_id = face_after_it_pos(it);
+		  it->end_of_box_run_p =
+		    ((FACE_FROM_ID(it->f, string_face_id) != NULL)
+		     && (FACE_FROM_ID(it->f, string_face_id)->box
+			 == FACE_NO_BOX));
 		}
 	      /* Otherwise, the box comes from the underlying face.
 		 If this is the last string character displayed, check
 		 the next buffer location.  */
-	      else if ((IT_STRING_CHARPOS (*it) >= SCHARS (it->string) - 1)
+	      else if ((IT_STRING_CHARPOS(*it) >= (SCHARS(it->string) - 1))
 		       /* n_overlay_strings is unreliable unless
 			  overlay_string_index is non-negative.  */
 		       && ((it->current.overlay_string_index >= 0
@@ -7065,18 +7062,21 @@ get_next_display_element (struct it *it)
 		  if (it->from_disp_prop_p)
 		    pos = (it->stack + it->sp - 1)->position;
 		  else
-		    INC_TEXT_POS (pos, it->multibyte_p);
+		    INC_TEXT_POS(pos, it->multibyte_p);
 
-		  if (CHARPOS (pos) >= ZV)
+		  if (CHARPOS(pos) >= ZV)
 		    it->end_of_box_run_p = true;
 		  else
 		    {
-		      next_face_id = face_at_buffer_position
-			(it->w, CHARPOS (pos), &ignore,
-			 CHARPOS (pos) + TEXT_PROP_DISTANCE_LIMIT, 0, -1);
-		      it->end_of_box_run_p
-			= (FACE_FROM_ID (it->f, next_face_id)->box
-			   == FACE_NO_BOX);
+		      next_face_id =
+			face_at_buffer_position(it->w, CHARPOS(pos), &ignore,
+						(CHARPOS(pos)
+						 + TEXT_PROP_DISTANCE_LIMIT),
+						0, -1);
+		      it->end_of_box_run_p =
+			((FACE_FROM_ID(it->f, next_face_id) != NULL)
+			 && (FACE_FROM_ID(it->f, next_face_id)->box
+			     == FACE_NO_BOX));
 		    }
 		}
 	    }
@@ -7085,10 +7085,11 @@ get_next_display_element (struct it *it)
 	 faces of the display vector glyphs, see there.  */
       else if (it->method != GET_FROM_DISPLAY_VECTOR)
 	{
-	  int face_id = face_after_it_pos (it);
-	  it->end_of_box_run_p
-	    = (face_id != it->face_id
-	       && FACE_FROM_ID (it->f, face_id)->box == FACE_NO_BOX);
+	  int face_id = face_after_it_pos(it);
+	  it->end_of_box_run_p =
+	    ((face_id != it->face_id)
+	     && (FACE_FROM_ID(it->f, face_id) != NULL)
+	     && (FACE_FROM_ID(it->f, face_id)->box == FACE_NO_BOX));
 	}
     }
   /* If we reached the end of the object we've been iterating (e.g., a
@@ -21335,10 +21336,10 @@ display_mode_line (struct window *w, enum face_id face_id, Lisp_Object format)
   it.glyph_row->truncated_on_left_p = 0;
   it.glyph_row->truncated_on_right_p = 0;
 
-  /* Make a 3D mode-line have a shadow at its right end.  */
-  face = FACE_FROM_ID (it.f, face_id);
-  extend_face_to_end_of_line (&it);
-  if (face->box != FACE_NO_BOX)
+  /* Make a 3D mode-line have a shadow at its right end: */
+  face = FACE_FROM_ID(it.f, face_id);
+  extend_face_to_end_of_line(&it);
+  if ((face != NULL) && (face->box != FACE_NO_BOX))
     {
       struct glyph *last = (it.glyph_row->glyphs[TEXT_AREA]
 			    + it.glyph_row->used[TEXT_AREA] - 1);
@@ -22882,11 +22883,11 @@ display_string (const char *string, Lisp_Object lisp_string, Lisp_Object face_st
       ptrdiff_t endptr;
       struct face *face;
 
-      it->face_id
-	= face_at_string_position (it->w, face_string, face_string_pos,
-				   0, &endptr, it->base_face_id, 0);
-      face = FACE_FROM_ID (it->f, it->face_id);
-      it->face_box_p = face->box != FACE_NO_BOX;
+      it->face_id =
+	face_at_string_position(it->w, face_string, face_string_pos,
+				0, &endptr, it->base_face_id, 0);
+      face = FACE_FROM_ID(it->f, it->face_id);
+      it->face_box_p = ((face != NULL) && (face->box != FACE_NO_BOX));
     }
 
   /* Set max_x to the maximum allowed X position.  Don't let it go
@@ -23500,25 +23501,26 @@ static struct face *
 get_char_face_and_encoding (struct frame *f, int c, int face_id,
 			    XChar2b *char2b, int display_p)
 {
-  struct face *face = FACE_FROM_ID (f, face_id);
-  unsigned code = 0;
+  struct face *face = FACE_FROM_ID(f, face_id);
+  unsigned int code = 0U;
 
-  if (face->font)
+  if ((face != NULL) && face->font)
     {
-      code = face->font->driver->encode_char (face->font, c);
+      code = face->font->driver->encode_char(face->font, c);
 
       if (code == FONT_INVALID_CODE)
 	code = 0;
     }
-  STORE_XCHAR2B (char2b, (code >> 8), (code & 0xFF));
+  STORE_XCHAR2B(char2b, (code >> 8), (code & 0xFF));
 
-  /* Make sure X resources of the face are allocated.  */
+  /* Make sure X resources of the face are allocated: */
 #ifdef HAVE_X_WINDOWS
   if (display_p)
-#endif
+#endif /* HAVE_X_WINDOWS */
     {
-      eassert (face != NULL);
-      PREPARE_FACE_FOR_DISPLAY (f, face);
+      eassert(face != NULL);
+      xassert(face != NULL);
+      PREPARE_FACE_FOR_DISPLAY(f, face);
     }
 
   return face;
@@ -23534,14 +23536,15 @@ get_glyph_face_and_encoding (struct frame *f, struct glyph *glyph,
 			     XChar2b *char2b, int *two_byte_p)
 {
   struct face *face;
-  unsigned code = 0;
+  unsigned int code = 0U;
 
-  eassert (glyph->type == CHAR_GLYPH);
-  face = FACE_FROM_ID (f, glyph->face_id);
+  eassert(glyph->type == CHAR_GLYPH);
+  face = FACE_FROM_ID(f, glyph->face_id);
 
-  /* Make sure X resources of the face are allocated.  */
-  eassert (face != NULL);
-  PREPARE_FACE_FOR_DISPLAY (f, face);
+  /* Make sure X resources of the face are allocated: */
+  eassert(face != NULL);
+  xassert(face != NULL);
+  PREPARE_FACE_FOR_DISPLAY(f, face);
 
   if (two_byte_p)
     *two_byte_p = 0;
@@ -23719,7 +23722,8 @@ fill_glyphless_glyph_string (struct glyph_string *s, int face_id,
   last = (s->row->glyphs[s->area] + end);
   voffset = glyph->voffset;
   s->face = FACE_FROM_ID(s->f, face_id);
-  s->font = (s->face->font ? s->face->font : (struct font *)FRAME_FONT(s->f));
+  s->font = (((s->face != NULL) && s->face->font)
+	     ? s->face->font : (struct font *)FRAME_FONT(s->f));
   s->nchars = 1;
   s->width = glyph->pixel_width;
   glyph++;
@@ -23811,15 +23815,17 @@ fill_glyph_string (struct glyph_string *s, int face_id,
 /* Fill glyph string S from image glyph S->first_glyph: */
 static void fill_image_glyph_string(struct glyph_string *s)
 {
-  eassert (s->first_glyph->type == IMAGE_GLYPH);
-  s->img = IMAGE_FROM_ID (s->f, s->first_glyph->u.img_id);
-  eassert (s->img);
+  eassert(s->first_glyph->type == IMAGE_GLYPH);
+  s->img = IMAGE_FROM_ID(s->f, s->first_glyph->u.img_id);
+  eassert(s->img);
   s->slice = s->first_glyph->slice.img;
-  s->face = FACE_FROM_ID (s->f, s->first_glyph->face_id);
+  s->face = FACE_FROM_ID(s->f, s->first_glyph->face_id);
+  eassert(s->face != NULL);
+  xassert(s->face != NULL);
   s->font = s->face->font;
   s->width = s->first_glyph->pixel_width;
 
-  /* Adjust base line for subscript/superscript text.  */
+  /* Adjust base line for subscript/superscript text: */
   s->ybase += s->first_glyph->voffset;
 }
 
@@ -23837,12 +23843,14 @@ fill_stretch_glyph_string (struct glyph_string *s, int start, int end)
   struct glyph *glyph, *last;
   int voffset, face_id;
 
-  eassert (s->first_glyph->type == STRETCH_GLYPH);
+  eassert(s->first_glyph->type == STRETCH_GLYPH);
 
   glyph = s->row->glyphs[s->area] + start;
   last = s->row->glyphs[s->area] + end;
   face_id = glyph->face_id;
-  s->face = FACE_FROM_ID (s->f, face_id);
+  s->face = FACE_FROM_ID(s->f, face_id);
+  eassert(s->face != NULL);
+  xassert(s->face != NULL);
   s->font = s->face->font;
   s->width = glyph->pixel_width;
   s->nchars = 1;
@@ -24789,12 +24797,13 @@ static void produce_image_glyph(struct it *it)
   int glyph_ascent, crop;
   struct glyph_slice slice;
 
-  eassert (it->what == IT_IMAGE);
+  eassert(it->what == IT_IMAGE);
 
-  face = FACE_FROM_ID (it->f, it->face_id);
-  eassert (face);
-  /* Make sure X resources of the face is loaded.  */
-  PREPARE_FACE_FOR_DISPLAY (it->f, face);
+  face = FACE_FROM_ID(it->f, it->face_id);
+  eassert(face);
+  /* Make sure X resources of the face is loaded: */
+  xassert(face != NULL);
+  PREPARE_FACE_FOR_DISPLAY(it->f, face);
 
   if (it->image_id < 0)
     {
@@ -24806,19 +24815,20 @@ static void produce_image_glyph(struct it *it)
       return;
     }
 
-  img = IMAGE_FROM_ID (it->f, it->image_id);
-  eassert (img);
-  /* Make sure X resources of the image is loaded.  */
-  prepare_image_for_display (it->f, img);
+  img = IMAGE_FROM_ID(it->f, it->image_id);
+  eassert(img);
+  /* Make sure X resources of the image is loaded: */
+  xassert(img != NULL);
+  prepare_image_for_display(it->f, img);
 
   slice.x = slice.y = 0;
   slice.width = img->width;
   slice.height = img->height;
 
-  if (INTEGERP (it->slice.x))
-    slice.x = XINT (it->slice.x);
-  else if (FLOATP (it->slice.x))
-    slice.x = XFLOAT_DATA (it->slice.x) * img->width;
+  if (INTEGERP(it->slice.x))
+    slice.x = XINT(it->slice.x);
+  else if (FLOATP(it->slice.x))
+    slice.x = (XFLOAT_DATA(it->slice.x) * img->width);
 
   if (INTEGERP (it->slice.y))
     slice.y = XINT (it->slice.y);
@@ -25067,7 +25077,8 @@ void produce_stretch_glyph(struct it *it)
   if (FRAME_WINDOW_P(it->f))
     {
       struct face *face = FACE_FROM_ID(it->f, it->face_id);
-      font = (face->font ? face->font : (struct font *)FRAME_FONT(it->f));
+      font = (((face != NULL) && face->font)
+	      ? face->font : (struct font *)FRAME_FONT(it->f));
       PREPARE_FACE_FOR_DISPLAY(it->f, face);
     }
 #endif /* HAVE_WINDOW_SYSTEM */
@@ -25284,7 +25295,8 @@ produce_special_glyphs (struct it *it, enum display_element_type what)
 	{
 	  struct face *face = FACE_FROM_ID(temp_it.f, temp_it.face_id);
 	  struct font *font =
-	    (face->font ? face->font : (struct font *)FRAME_FONT(temp_it.f));
+	    (((face != NULL) && face->font)
+	     ? face->font : (struct font *)FRAME_FONT(temp_it.f));
 	  int stretch_ascent =
 	    (((temp_it.ascent + temp_it.descent)
 	      * FONT_BASE(font)) / FONT_HEIGHT(font));
@@ -25358,13 +25370,14 @@ calc_line_height_property(struct it *it, Lisp_Object val, struct font *font,
       if (face_id < 0)
 	return make_number(-1);
 
-      face = FACE_FROM_ID (it->f, face_id);
+      face = FACE_FROM_ID(it->f, face_id);
+      xassert(face != NULL);
       font = face->font;
       if (font == NULL)
-	return make_number (-1);
+	return make_number(-1);
       boff = font->baseline_offset;
       if (font->vertical_centering)
-	boff = VCENTER_BASELINE_OFFSET (font, it->f) - boff;
+	boff = (VCENTER_BASELINE_OFFSET(font, it->f) - boff);
     }
 
   ascent = FONT_BASE (font) + boff;
@@ -25481,7 +25494,7 @@ append_glyphless_glyph(struct it *it, int face_id, int for_no_font,
    for the character.  */
 
 static void
-produce_glyphless_glyph (struct it *it, int for_no_font, Lisp_Object acronym)
+produce_glyphless_glyph(struct it *it, int for_no_font, Lisp_Object acronym)
 {
   int face_id;
   struct face *face;
@@ -25490,10 +25503,12 @@ produce_glyphless_glyph (struct it *it, int for_no_font, Lisp_Object acronym)
   short upper_xoff, upper_yoff, lower_xoff, lower_yoff;
   int len;
 
+  xassert(FACE_FROM_ID(it->f, it->face_id) != NULL);
   /* Get the metrics of the base font.  We always refer to the current
    * ASCII face: */
   face = FACE_FROM_ID(it->f, it->face_id)->ascii_face;
-  font = (face->font ? face->font : (struct font *)FRAME_FONT(it->f));
+  font = (((face != NULL) && face->font)
+	  ? face->font : (struct font *)FRAME_FONT(it->f));
   it->ascent = (FONT_BASE(font) + font->baseline_offset);
   it->descent = (FONT_DESCENT(font) - font->baseline_offset);
   base_height = (it->ascent + it->descent);
@@ -25528,7 +25543,8 @@ produce_glyphless_glyph (struct it *it, int for_no_font, Lisp_Object acronym)
       struct font_metrics metrics_upper, metrics_lower;
 
       face = FACE_FROM_ID(it->f, face_id);
-      font = (face->font ? face->font : (struct font *)FRAME_FONT(it->f));
+      font = (((face != NULL) && face->font)
+	      ? face->font : (struct font *)FRAME_FONT(it->f));
       PREPARE_FACE_FOR_DISPLAY(it->f, face);
 
       if (it->glyphless_method == GLYPHLESS_DISPLAY_ACRONYM)
@@ -25627,10 +25643,12 @@ void x_produce_glyphs(struct it *it)
   if (it->what == IT_CHARACTER)
     {
       XChar2b char2b;
-      struct face *face = FACE_FROM_ID (it->f, it->face_id);
-      struct font *font = face->font;
-      struct font_metrics *pcm = NULL;
+      struct face *face = FACE_FROM_ID(it->f, it->face_id);
+      struct font *font;
+      struct font_metrics *pcm = (struct font_metrics *)NULL;
       int boff;			/* Baseline offset.  */
+      xassert(face != NULL);
+      font = face->font;
 
       if (font == NULL)
 	{
@@ -25901,11 +25919,13 @@ void x_produce_glyphs(struct it *it)
 	 Important note: pixel_width, ascent, and descent are the
 	 values of what is drawn by draw_glyphs (i.e. the values of
 	 the overall glyphs composed).  */
-      struct face *face = FACE_FROM_ID (it->f, it->face_id);
+      struct face *face = FACE_FROM_ID(it->f, it->face_id);
       int boff;			/* baseline offset */
       struct composition *cmp = composition_table[it->cmp_it.id];
       int glyph_len = cmp->glyph_len;
-      struct font *font = face->font;
+      struct font *font;
+      xassert(face != NULL);
+      font = face->font;
 
       it->nglyphs = 1;
 
@@ -26022,8 +26042,9 @@ void x_produce_glyphs(struct it *it)
 
 	      if (ch == '\t')
 		ch = ' ';
-	      face_id = FACE_FOR_CHAR (it->f, face, ch, pos, it->string);
-	      this_face = FACE_FROM_ID (it->f, face_id);
+	      face_id = FACE_FOR_CHAR(it->f, face, ch, pos, it->string);
+	      this_face = FACE_FROM_ID(it->f, face_id);
+	      xassert(this_face != NULL);
 	      font = this_face->font;
 
 	      if (font == NULL)

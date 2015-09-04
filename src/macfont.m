@@ -2028,10 +2028,10 @@ macfont_create_attributes_with_spec (Lisp_Object spec)
 	  floatval = (point - 1)->x + ((floatval - (point - 1)->y)
 				       * ((point->x - (point - 1)->x)
 					  / (point->y - (point - 1)->y)));
-	  if (floatval > 1.0)
-	    floatval = 1.0;
-	  else if (floatval < -1.0)
-	    floatval = -1.0;
+	  if (floatval > (CGFloat)1.0f)
+	    floatval = (CGFloat)1.0f;
+	  else if (floatval < (CGFloat)(-1.0f))
+	    floatval = (CGFloat)(-1.0f);
 	  num = CFNumberCreate (NULL, kCFNumberCGFloatType, &floatval);
 	  if (! num)
 	    goto err;
@@ -3959,9 +3959,10 @@ mac_ctfont_shape(CTFontRef font, CFStringRef string,
 	      CTRunGetPositions(ctrun, range, &position);
 	      gl->advance_delta = (position.x - total_advance);
 	      gl->baseline_delta = position.y;
-	      gl->advance = (gl->advance_delta
-			     + CTRunGetTypographicBounds(ctrun, range,
-							 NULL, NULL, NULL));
+	      gl->advance =
+		(gl->advance_delta
+		 + (CGFloat)CTRunGetTypographicBounds(ctrun, range,
+						      NULL, NULL, NULL));
 	      total_advance += gl->advance;
 	    }
 
@@ -4077,7 +4078,10 @@ mac_font_family_group(CFStringRef family)
     }
 }
 
-static CFComparisonResult
+#if !(defined(EMACS_MACFONT_H) && !defined(HAVE_NS))
+static
+#endif /* !(EMACS_MACFONT_H && !HAVE_NS) */
+CFComparisonResult
 mac_font_family_compare(const void *val1, const void *val2, void *context)
 {
   CFStringRef family1 = (CFStringRef)val1, family2 = (CFStringRef)val2;

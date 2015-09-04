@@ -1511,11 +1511,12 @@ static void mac_update_accessibility_display_options(void);
 	  else
 	    /* XXXX: 0100 (...) */
 	    message = @"NSApplicationPresentationAutoHideMenuBar specified without either NSApplicationPresentationHideDock or NSApplicationPresentationAutoHideDock";
+	  mode = kUIModeNormal;
 	  break;
 	}
 
       if ((newOptions & NSApplicationPresentationDisableMenuBarTransparency)
-	  && !(floor (NSAppKitVersionNumber) <= NSAppKitVersionNumber10_4)
+	  && !(floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_4)
 	  && (mode == kUIModeContentSuppressed || mode == kUIModeContentHidden))
 	/* kUIOptionDisableMenuBarTransparency, but this constant was
 	   changed between 10.5 (1 << 7) and 10.6 (1 << 9).  */
@@ -1535,12 +1536,12 @@ static void mac_update_accessibility_display_options(void);
       /* If SetSystemUIMode is called unconditionally, then the menu
 	 bar does not get updated after Command-H -> Dock icon click
 	 on Mac OS X 10.5.  */
-      GetSystemUIMode (&current_mode, &current_options);
-      if (mode != current_mode || options != current_options)
-	SetSystemUIMode (mode, options);
+      GetSystemUIMode(&current_mode, &current_options);
+      if ((mode != current_mode) || (options != current_options))
+	SetSystemUIMode(mode, options);
     }
 }
-#endif
+#endif /* pre-10.6 */
 
 #if MAC_OS_X_VERSION_MIN_REQUIRED < 101000
 /* Workarounds for memory leaks on OS X 10.9.  */
@@ -6568,33 +6569,33 @@ static BOOL NonmodalScrollerPagingBehavior;
 	{
 	  NSRect knobSlotRect = [self rectForPart:NSScrollerKnobSlot];
 
-	  if (NSHeight (bounds) >= NSWidth (bounds))
+	  if (NSHeight(bounds) >= NSWidth(bounds))
 	    {
-	      knobRect.origin.y = point.y - round (NSHeight (knobRect) / 2);
-	      if (NSMinY (knobRect) < NSMinY (knobSlotRect))
+	      knobRect.origin.y = (point.y - (CGFloat)round(NSHeight(knobRect) / 2));
+	      if (NSMinY(knobRect) < NSMinY(knobSlotRect))
 		knobRect.origin.y = knobSlotRect.origin.y;
 #if 0		      /* This might be better if no overscrolling.  */
-	      else if (NSMaxY (knobRect) > NSMaxY (knobSlotRect))
-	      	knobRect.origin.y = NSMaxY (knobSlotRect) - NSHeight (knobRect);
-#endif
+	      else if (NSMaxY(knobRect) > NSMaxY(knobSlotRect))
+	      	knobRect.origin.y = (NSMaxY(knobSlotRect) - NSHeight(knobRect));
+#endif /* 0 */
 	    }
 	  else
 	    {
-	      knobRect.origin.x = point.x - round (NSWidth (knobRect) / 2);
-	      if (NSMinX (knobRect) < NSMinX (knobSlotRect))
+	      knobRect.origin.x = (point.x - (CGFloat)round(NSWidth(knobRect) / 2));
+	      if (NSMinX(knobRect) < NSMinX(knobSlotRect))
 		knobRect.origin.x = knobSlotRect.origin.x;
 #if 0
-	      else if (NSMaxX (knobRect) > NSMaxX (knobSlotRect))
-		knobRect.origin.x = NSMaxX (knobSlotRect) - NSWidth (knobRect);
-#endif
+	      else if (NSMaxX(knobRect) > NSMaxX(knobSlotRect))
+		knobRect.origin.x = (NSMaxX(knobSlotRect) - NSWidth(knobRect));
+#endif /* 0 */
 	    }
 	  hitPart = NSScrollerKnob;
 	}
 
-      if (NSHeight (bounds) >= NSWidth (bounds))
-	knobGrabOffset = - (point.y - NSMinY (knobRect)) - 1;
+      if (NSHeight(bounds) >= NSWidth(bounds))
+	knobGrabOffset = (0 - (point.y - NSMinY (knobRect)) - 1);
       else
-	knobGrabOffset = - (point.x - NSMinX (knobRect)) - 1;
+	knobGrabOffset = (0 - (point.x - NSMinX (knobRect)) - 1);
 
       if (jumpsToClickedSpot)
 	[self mouseDragged:theEvent];
@@ -11447,7 +11448,7 @@ mac_osa_script(Lisp_Object code_or_file, Lisp_Object compiled_p_or_language,
 
       if (![self isOpaque])
 	{
-	  if (color && [color alphaComponent] == 1.0)
+	  if (color && ([color alphaComponent] == (CGFloat)1.0f))
 	    [window setBackgroundColor:color];
 	  else
 	    {
@@ -11897,10 +11898,10 @@ static NSDate *documentRasterizerCacheOldestTimestamp;
 	marginValues[i] = [docAttributes objectForKey:marginAttributes[i]];
       for (i = 0; i < 2; i++)
 	if (marginValues[i])
-	  pageSize.width -= [marginValues[i] doubleValue];
+	  pageSize.width -= (CGFloat)[marginValues[i] doubleValue];
       for (; i < 4; i++)
 	if (marginValues[i])
-	  pageSize.height -= [marginValues[i] doubleValue];
+	  pageSize.height -= (CGFloat)[marginValues[i] doubleValue];
 
       pageSize.width = ceil(pageSize.width);
       pageSize.height = ceil(pageSize.height);

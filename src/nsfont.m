@@ -248,7 +248,7 @@ ns_fallback_entity (void)
 
 /* Utility: get width of a char c in screen font SFONT */
 static CGFloat
-ns_char_width (NSFont *sfont, int c)
+ns_char_width(NSFont *sfont, int c)
 {
   CGFloat w = -1.0;
   NSString *cstr = [NSString stringWithFormat: @"%c", c];
@@ -259,14 +259,14 @@ ns_char_width (NSFont *sfont, int c)
     w = [sfont advancementForGlyph: glyph].width;
 #endif /* NS_IMPL_COCOA */
 
-  if (w < 0.0)
+  if (w < (CGFloat)0.0f)
     {
       NSDictionary *attrsDictionary =
         [NSDictionary dictionaryWithObject: sfont forKey: NSFontAttributeName];
       w = [cstr sizeWithAttributes: attrsDictionary].width;
     }
 
-  return max (w, 1.0);
+  return max(w, (CGFloat)1.0f);
 }
 
 /* Return average width over ASCII printable characters for SFONT.  */
@@ -862,7 +862,7 @@ nsfont_open (struct frame *f, Lisp_Object font_entity, int pixel_size)
      * adjustment, the code below would round the descender to -3,
      * resulting in a font that would be one pixel higher than
      * intended. */
-    CGFloat adjusted_descender = [sfont descender] + 0.0001;
+    CGFloat adjusted_descender = ([sfont descender] + (CGFloat)0.0001f);
 
 #ifdef NS_IMPL_GNUSTEP
     font_info->nsfont = sfont;
@@ -1299,18 +1299,19 @@ nsfont_draw (struct glyph_string *s, int from, int to, int x, int y,
 
     [col set];
 
-    CGContextSetTextPosition (gcontext, r.origin.x, r.origin.y);
-    CGContextShowGlyphsWithAdvances (gcontext, (s->char2b + s->cmp_from),
-                                     advances, len);
+    CGContextSetTextPosition(gcontext, r.origin.x, r.origin.y);
+    CGContextShowGlyphsWithAdvances(gcontext, (s->char2b + s->cmp_from),
+                                    advances, len);
 
     if (face->overstrike)
       {
-        CGContextSetTextPosition(gcontext, (r.origin.x + 0.5), r.origin.y);
-        CGContextShowGlyphsWithAdvances (gcontext, s->char2b + s->cmp_from,
-                                         advances, len);
+        CGContextSetTextPosition(gcontext, (r.origin.x + (CGFloat)0.5f),
+				 r.origin.y);
+        CGContextShowGlyphsWithAdvances(gcontext, (s->char2b + s->cmp_from),
+                                        advances, len);
       }
 
-    CGContextRestoreGState (gcontext);
+    CGContextRestoreGState(gcontext);
   }
 #endif  /* NS_IMPL_COCOA */
 
@@ -1445,7 +1446,7 @@ ns_glyph_metrics (struct nsfont_info *font_info, unsigned char block)
       CGFloat w, lb, rb;
       NSRect r = [sfont boundingRectForGlyph: g];
 
-      w = max ([sfont advancementForGlyph: g].width, 2.0);
+      w = max([sfont advancementForGlyph: g].width, (CGFloat)2.0f);
       metrics->width = lrint (w);
 
       lb = r.origin.x;

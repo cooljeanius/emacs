@@ -257,7 +257,10 @@ static NSRect uRect;
 static BOOL gsaved = NO;
 static BOOL ns_fake_keydown = NO;
 #ifdef NS_IMPL_COCOA
+/* same condition as where it is used: */
+# if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6
 static BOOL ns_menu_bar_is_hidden = NO;
+# endif /* 10.6+ */
 #endif /* NS_IMPL_COCOA */
 #if defined(DEBUG) && defined(_DEBUG) && !defined(debug_lock) && !defined(lint)
 static int debug_lock = 0;
@@ -681,8 +684,9 @@ ns_constrain_all_frames(void)
 static BOOL
 ns_menu_bar_should_be_hidden(void)
 {
-  return !NILP(ns_auto_hide_menu_bar)
-    && [NSApp respondsToSelector:@selector(setPresentationOptions:)];
+  /* FIXME: conditionalize on OS version? */
+  return (!NILP(ns_auto_hide_menu_bar)
+	  && [NSApp respondsToSelector:@selector(setPresentationOptions:)]);
 }
 
 
@@ -1975,7 +1979,7 @@ ns_mouse_position (struct frame **fp, int insist, Lisp_Object *bar_window,
                                &dpyinfo->last_mouse_glyph);
 #ifdef DEBUG
           fprintf(stderr, "ns_mouse_position: %.0f, %.0f\n",
-                  position.x, position.y);
+                  (double)position.x, (double)position.y);
 #endif /* DEBUG */
 
           if (bar_window) *bar_window = Qnil;
@@ -2125,6 +2129,8 @@ ns_clear_frame(struct frame *f)
 
   block_input();
   ns_focus(f, &r, 1);
+  eassert(f != NULL);
+  xassert((f != NULL) && (FRAME_DEFAULT_FACE(f) != NULL));
   [ns_lookup_indexed_color(NS_FACE_BACKGROUND(FRAME_DEFAULT_FACE(f)), f) set];
   NSRectFill(r);
   ns_unfocus(f);
@@ -2232,10 +2238,10 @@ ns_after_update_window_line (struct window *w, struct glyph_row *desired_row)
   struct frame *f;
   int width, height;
 
-  NSTRACE (ns_after_update_window_line);
+  NSTRACE(ns_after_update_window_line);
 
-  /* begin copy from other terms */
-  eassert (w);
+  /* begin copy from other terms: */
+  eassert(w);
 
   if (!desired_row->mode_line_p && !w->pseudo_window_p)
     desired_row->redraw_fringe_bitmaps_p = 1;
@@ -5445,12 +5451,12 @@ not_in_argv (NSString *arg)
   /* if we get here we should send the key for input manager processing */
   /* Disable warning, there is nothing a user can do about it anyway, and
      it does not seem to matter.  */
-# if 0
+# if defined(lint) && defined(__GNUC__) && (defined(DEBUG) || defined(_DEBUG))
   if (firstTime && [[NSInputManager currentInputManager]
                      wantsToDelayTextChangeNotifications] == NO)
     fprintf(stderr,
             "Emacs: WARNING: TextInput mgr wants marked text to be permanent!\n");
-# endif /* 0 */
+# endif /* lint && __GNUC__ && (DEBUG || _DEBUG) */
   firstTime = NO;
 #endif /* !NS_IMPL_COCOA || pre-10.6 */
   if (NS_KEYLOG && !processingCompose)
@@ -5966,7 +5972,7 @@ not_in_argv (NSString *arg)
   NSTRACE_SIZE("Original size", frameSize);
 #ifdef DEBUG
   fprintf(stderr, "Window will resize: %.0f x %.0f\n",
-          frameSize.width, frameSize.height);
+          (double)frameSize.width, (double)frameSize.height);
 #endif /* DEBUG */
 
   if (fs_state == FULLSCREEN_MAXIMIZED
@@ -6030,7 +6036,7 @@ not_in_argv (NSString *arg)
 #endif /* NS_IMPL_COCOA */
 #ifdef DEBUG
   fprintf(stderr, "    ...size became %.0f x %.0f  (%d x %d)\n",
-          frameSize.width, frameSize.height, cols, rows);
+          (double)frameSize.width, (double)frameSize.height, cols, rows);
 #endif /* DEBUG */
 
   return frameSize;
@@ -7535,7 +7541,7 @@ typedef id NSNotification_or_id;
   NSRect sr, kr;
   /* hitPart is only updated AFTER event is passed on */
   NSScrollerPart part = [self testPart: [e locationInWindow]];
-  CGFloat inc = 0.0, loc, kloc, pos;
+  CGFloat inc = (CGFloat)0.0f, loc, kloc, pos;
   int edge = 0;
 
   NSTRACE (EmacsScroller_mouseDown);
@@ -7543,13 +7549,13 @@ typedef id NSNotification_or_id;
   switch (part)
     {
     case NSScrollerDecrementPage:
-        last_hit_part = scroll_bar_above_handle; inc = -1.0; break;
+      last_hit_part = scroll_bar_above_handle; inc = -1.0f; break;
     case NSScrollerIncrementPage:
-        last_hit_part = scroll_bar_below_handle; inc = 1.0; break;
+      last_hit_part = scroll_bar_below_handle; inc = 1.0f; break;
     case NSScrollerDecrementLine:
-      last_hit_part = scroll_bar_up_arrow; inc = -0.1; break;
+      last_hit_part = scroll_bar_up_arrow; inc = -0.1f; break;
     case NSScrollerIncrementLine:
-      last_hit_part = scroll_bar_down_arrow; inc = 0.1; break;
+      last_hit_part = scroll_bar_down_arrow; inc = 0.1f; break;
     case NSScrollerKnob:
       last_hit_part = scroll_bar_handle; break;
     case NSScrollerKnobSlot:  /* GNUstep-only */
@@ -7560,11 +7566,11 @@ typedef id NSNotification_or_id;
       return;
     }
 
-  if (inc != 0.0)
+  if (inc != 0.0f)
     {
       pos = 0;      /* ignored */
 
-      /* set a timer to repeat, as we cannot let superclass do this modally */
+      /* set a timer to repeat, as we cannot let superclass do this modally: */
       scroll_repeat_entry
 	= [[NSTimer scheduledTimerWithTimeInterval: SCROLL_BAR_FIRST_DELAY
                                             target: self
@@ -7575,16 +7581,16 @@ typedef id NSNotification_or_id;
     }
   else
     {
-      /* handle, or on GNUstep possibly slot */
+      /* handle, or on GNUstep possibly slot: */
       NSEvent *fake_event;
 
-      /* compute float loc in slot and mouse offset on knob */
+      /* compute float loc in slot and mouse offset on knob: */
       sr = [self convertRect: [self rectForPart: NSScrollerKnobSlot]
                       toView: nil];
-      loc = NSHeight (sr) - ([e locationInWindow].y - NSMinY (sr));
-      if (loc <= 0.0)
+      loc = (NSHeight(sr) - ([e locationInWindow].y - NSMinY(sr)));
+      if (loc <= 0.0f)
         {
-          loc = 0.0;
+          loc = 0.0f;
           edge = -1;
         }
       else if (loc >= NSHeight (sr))
@@ -7594,22 +7600,22 @@ typedef id NSNotification_or_id;
         }
 
       if (edge)
-        kloc = 0.5 * edge;
+        kloc = (0.5f * edge);
       else
         {
           kr = [self convertRect: [self rectForPart: NSScrollerKnob]
                           toView: nil];
-          kloc = NSHeight (kr) - ([e locationInWindow].y - NSMinY (kr));
+          kloc = NSHeight(kr) - ([e locationInWindow].y - NSMinY(kr));
         }
       last_mouse_offset = kloc;
 
       /* if knob, tell emacs a location offset by knob pos
          (to indicate top of handle) */
       if (part == NSScrollerKnob)
-          pos = (loc - last_mouse_offset) / NSHeight (sr);
+	pos = ((loc - last_mouse_offset) / NSHeight(sr));
       else
         /* else this is a slot click on GNUstep: go straight there */
-        pos = loc / NSHeight (sr);
+        pos = (loc / NSHeight(sr));
 
       /* send a fake mouse-up to super to preempt modal -trackKnob: mode */
       fake_event = [NSEvent mouseEventWithType: NSLeftMouseUp
@@ -7629,29 +7635,29 @@ typedef id NSNotification_or_id;
 }
 
 
-/* Called as we manually track scroller drags, rather than superclass. */
+/* Called as we manually track scroller drags, rather than superclass: */
 - (void)mouseDragged: (NSEvent *)e
 {
     NSRect sr;
     double loc, pos;
 
-    NSTRACE (EmacsScroller_mouseDragged);
+    NSTRACE(EmacsScroller_mouseDragged);
 
-      sr = [self convertRect: [self rectForPart: NSScrollerKnobSlot]
-                      toView: nil];
-      loc = NSHeight(sr) - ([e locationInWindow].y - NSMinY(sr));
+    sr = [self convertRect: [self rectForPart: NSScrollerKnobSlot]
+                    toView: nil];
+    loc = (NSHeight(sr) - ([e locationInWindow].y - NSMinY(sr)));
 
-      if (loc <= 0.0)
-        {
-          loc = 0.0;
-        }
-      else if (loc >= NSHeight(sr) + last_mouse_offset)
-        {
-          loc = NSHeight(sr) + last_mouse_offset;
-        }
+    if (loc <= (double)0.0f)
+      {
+        loc = (double)0.0f;
+      }
+    else if (loc >= (double)(NSHeight(sr) + last_mouse_offset))
+      {
+        loc = (NSHeight(sr) + last_mouse_offset);
+      }
 
-      pos = (loc - last_mouse_offset) / NSHeight(sr);
-      [self sendScrollEventAtLoc: pos fromEvent: e];
+    pos = (((CGFloat)loc - last_mouse_offset) / NSHeight(sr));
+    [self sendScrollEventAtLoc: pos fromEvent: e];
 }
 
 

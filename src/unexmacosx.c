@@ -920,20 +920,24 @@ static void print_load_command_name(long lc)
              (unsigned int)LC_DYLD_INFO_ONLY);
       break;
 #endif /* LC_DYLD_INFO */
+#ifdef LC_LOAD_UPWARD_DYLIB
     case LC_LOAD_UPWARD_DYLIB:
       printf("LC_LOAD_UPWARD_DYLIB (0x%08x)   ",
              (unsigned int)LC_LOAD_UPWARD_DYLIB);
       break;
+#endif /* LC_LOAD_UPWARD_DYLIB */
 #ifdef LC_VERSION_MIN_MACOSX
     case LC_VERSION_MIN_MACOSX:
       printf("LC_VERSION_MIN_MACOSX (0x%08x)",
              (unsigned int)LC_VERSION_MIN_MACOSX);
       break;
 #endif /* LC_VERSION_MIN_MACOSX */
+#ifdef LC_VERSION_MIN_IPHONEOS
     case LC_VERSION_MIN_IPHONEOS:
       printf("LC_VERSION_MIN_IPHONEOS (0x%08x)",
              (unsigned int)LC_VERSION_MIN_IPHONEOS);
       break;
+#endif /* LC_VERSION_MIN_IPHONEOS */
 #ifdef LC_FUNCTION_STARTS
     case LC_FUNCTION_STARTS:
       printf("LC_FUNCTION_STARTS (0x%08x)",
@@ -989,13 +993,22 @@ print_load_command(struct load_command *lc)
 
   /* FIXME: dirty hack; instead of hardcoding this, we should be adjusting
    * it dynamically: */
-  if (lc->cmd == LC_VERSION_MIN_MACOSX) {
-    printf("%4u", lc->cmdsize);
-  } else if (lc->cmd == LC_FUNCTION_STARTS) {
-    printf("%7u", lc->cmdsize);
-  } else {
-    printf("%8u", lc->cmdsize);
-  }
+#ifdef LC_VERSION_MIN_MACOSX
+  if (lc->cmd == LC_VERSION_MIN_MACOSX)
+    {
+      printf("%4u", lc->cmdsize);
+    }
+# ifdef LC_FUNCTION_STARTS
+  else if (lc->cmd == LC_FUNCTION_STARTS)
+    {
+      printf("%7u", lc->cmdsize);
+    }
+# endif /* LC_FUNCTION_STARTS */
+  else
+#endif /* LC_VERSION_MIN_MACOSX */
+    {
+      printf("%8u", lc->cmdsize);
+    }
 
   if ((lc->cmd == LC_SEGMENT) || (lc->cmd == LC_SEGMENT_64))
     {
@@ -1035,8 +1048,10 @@ enum mach_header_filetype_constants_e
   MH_DYLINKER_e = MH_DYLINKER,
   MH_BUNDLE_e = MH_BUNDLE,
   MH_DYLIB_STUB_e = MH_DYLIB_STUB,
-  MH_DSYM_e = MH_DSYM,
-  MH_KEXT_BUNDLE_e = MH_KEXT_BUNDLE
+  MH_DSYM_e = MH_DSYM
+#ifdef MH_KEXT_BUNDLE
+  , MH_KEXT_BUNDLE_e = MH_KEXT_BUNDLE
+#endif /* MH_KEXT_BUNDLE */
 };
 
 /* Like strerror(), but for mach filetype flags: */
@@ -1065,8 +1080,10 @@ static const char *strmachfiletype(uint32_t inflags)
       return "shared library stub for static linking only, no section contents";
     case MH_DSYM_e:
       return "companion debug symbols file with only debug sections";
+#ifdef MH_KEXT_BUNDLE
     case MH_KEXT_BUNDLE_e:
       return "x86_64 kext";
+#endif /* MH_KEXT_BUNDLE */
     default:
       return "unknown";
   }
@@ -1252,12 +1269,22 @@ enum secttype_flags_e
   S_INTERPOSING_e = S_INTERPOSING,
   S_16BYTE_LITERALS_e = S_16BYTE_LITERALS,
   S_DTRACE_DOF_e = S_DTRACE_DOF,
-  S_LAZY_DYLIB_SYMBOL_POINTERS_e = S_LAZY_DYLIB_SYMBOL_POINTERS,
-  S_THREAD_LOCAL_REGULAR_e = S_THREAD_LOCAL_REGULAR,
-  S_THREAD_LOCAL_ZEROFILL_e = S_THREAD_LOCAL_ZEROFILL,
-  S_THREAD_LOCAL_VARIABLES_e = S_THREAD_LOCAL_VARIABLES,
-  S_THREAD_LOCAL_VARIABLE_POINTERS_e = S_THREAD_LOCAL_VARIABLE_POINTERS,
-  S_THREAD_LOCAL_INIT_FUNCTION_POINTERS_e = S_THREAD_LOCAL_INIT_FUNCTION_POINTERS
+  S_LAZY_DYLIB_SYMBOL_POINTERS_e = S_LAZY_DYLIB_SYMBOL_POINTERS
+#ifdef S_THREAD_LOCAL_REGULAR
+  , S_THREAD_LOCAL_REGULAR_e = S_THREAD_LOCAL_REGULAR
+#endif /* S_THREAD_LOCAL_REGULAR */
+#ifdef S_THREAD_LOCAL_ZEROFILL
+  , S_THREAD_LOCAL_ZEROFILL_e = S_THREAD_LOCAL_ZEROFILL
+#endif /* S_THREAD_LOCAL_ZEROFILL */
+#ifdef S_THREAD_LOCAL_VARIABLES 
+  , S_THREAD_LOCAL_VARIABLES_e = S_THREAD_LOCAL_VARIABLES
+#endif /* S_THREAD_LOCAL_VARIABLES */
+#ifdef S_THREAD_LOCAL_VARIABLE_POINTERS
+  , S_THREAD_LOCAL_VARIABLE_POINTERS_e = S_THREAD_LOCAL_VARIABLE_POINTERS
+#endif /* S_THREAD_LOCAL_VARIABLE_POINTERS */
+#ifdef S_THREAD_LOCAL_INIT_FUNCTION_POINTERS
+  , S_THREAD_LOCAL_INIT_FUNCTION_POINTERS_e = S_THREAD_LOCAL_INIT_FUNCTION_POINTERS
+#endif /* S_THREAD_LOCAL_INIT_FUNCTION_POINTERS */
 };
 
 /* Like strerror(), but for section type flags: */
@@ -1299,16 +1326,26 @@ static const char *strsecttype(int inflags)
       return "DTrace Object Format";
     case S_LAZY_DYLIB_SYMBOL_POINTERS_e:
       return "lazy symbol pointers to lazily loaded dylibs";
+#ifdef S_THREAD_LOCAL_REGULAR
     case S_THREAD_LOCAL_REGULAR_e:
       return "regular Thread-Local Variable values";
+#endif /* S_THREAD_LOCAL_REGULAR */
+#ifdef S_THREAD_LOCAL_ZEROFILL
     case S_THREAD_LOCAL_ZEROFILL_e:
       return "zerofill Thread-Local Variable values";
+#endif /* S_THREAD_LOCAL_ZEROFILL */
+#ifdef S_THREAD_LOCAL_VARIABLES
     case S_THREAD_LOCAL_VARIABLES_e:
       return "Thread-Local Variable descriptors";
+#endif /* S_THREAD_LOCAL_VARIABLES */
+#ifdef S_THREAD_LOCAL_VARIABLE_POINTERS
     case S_THREAD_LOCAL_VARIABLE_POINTERS_e:
       return "pointers to Thread-Local Variable descriptors";
+#endif /* S_THREAD_LOCAL_VARIABLE_POINTERS */
+#ifdef S_THREAD_LOCAL_INIT_FUNCTION_POINTERS
     case S_THREAD_LOCAL_INIT_FUNCTION_POINTERS_e:
       return "functions to call to intialize Thread-Local Variable values";
+#endif /* S_THREAD_LOCAL_INIT_FUNCTION_POINTERS */
     default:
       return "unknown";
   }
@@ -1727,9 +1764,10 @@ copy_symtab(struct load_command *lc, long delta)
 
 /* Copy a LC_DYLD_INFO_ONLY load command from the input file to the output
    file, adjusting the file offset fields.  */
-static void
+static void ATTRIBUTE_USED
 copy_dyld_info_only(struct load_command *lc, long delta)
 {
+#ifdef LC_DYLD_INFO_ONLY
   struct dyld_info_command *dyld = (struct dyld_info_command *)lc;
 
   if (dyld->rebase_size)
@@ -1755,6 +1793,9 @@ copy_dyld_info_only(struct load_command *lc, long delta)
 
   if (!unexec_write((off_t)curr_header_offset, lc, (size_t)lc->cmdsize))
     unexec_error("cannot write LC_DYLD_INFO_ONLY command to header");
+#else
+  unexec_error("How did we get passed this LC_DYLD_INFO_ONLY command?");
+#endif /* LC_DYLD_INFO_ONLY */
 
   curr_header_offset += lc->cmdsize;
 }
@@ -2045,11 +2086,16 @@ copy_other(struct load_command *lc)
   printf("Writing ");
   print_load_command_name((long)lc->cmd);
   /* FIXME: hackish; see note about hardcoding print widths above: */
-  if (lc->cmd == LC_VERSION_MIN_MACOSX) {
-    printf(" \tcommand (%2d)\n", ++nlc_written);
-  } else {
-    printf(" \t\tcommand (%2d)\n", ++nlc_written);
-  }
+#ifdef LC_VERSION_MIN_MACOSX
+  if (lc->cmd == LC_VERSION_MIN_MACOSX)
+    {
+      printf(" \tcommand (%2d)\n", ++nlc_written);
+    }
+  else
+#endif /* LC_VERSION_MIN_MACOSX */
+    {
+      printf(" \t\tcommand (%2d)\n", ++nlc_written);
+    }
 
   if (lc->cmd == LC_CODE_SIGNATURE)
     lc->cmd = 0x0;		/* Do NOT propagate signature */

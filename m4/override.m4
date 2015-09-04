@@ -445,4 +445,23 @@ AC_DEFUN([AC_TYPE_SIZE_T],[:])dnl
 dnl# Likewise for obsolescent test for uid_t, gid_t; Emacs assumes them:
 AC_DEFUN([AC_TYPE_UID_T],[:])dnl
 # 35
+dnl# Obsolete in Autoconf 2.70; copied here from 2.69 to un-obsolete it:
+AC_DEFUN([AC_HEADER_TIME],
+[AC_CACHE_CHECK([whether time.h and sys/time.h may both be included],
+  [ac_cv_header_time],
+[AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/types.h>
+#include <sys/time.h>
+#include <time.h>
+]],
+[[if ((struct tm *)0)
+return 0;]])],
+		   [ac_cv_header_time=yes],
+		   [ac_cv_header_time=no])])
+if test "x${ac_cv_header_time}" = "xyes"; then
+  AC_DEFINE([TIME_WITH_SYS_TIME],[1],
+	    [Define to 1 if you can safely include both <sys/time.h>
+	     and <time.h>.])
+fi
+])dnl# end check for time header
+# 36
 #### override.m4 ends here

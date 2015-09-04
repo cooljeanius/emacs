@@ -312,7 +312,7 @@
 		A540EB0D1A0C28680008DA29 /* lwlib-Xlw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "lwlib-Xlw.h"; sourceTree = "<group>"; };
 		A540EB0E1A0C28680008DA29 /* lwlib-Xm.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = "lwlib-Xm.c"; sourceTree = "<group>"; tabWidth = 8; };
 		A540EB0F1A0C28680008DA29 /* lwlib-Xm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "lwlib-Xm.h"; sourceTree = "<group>"; };
-		A540EB101A0C28680008DA29 /* lwlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lwlib.c; sourceTree = "<group>"; };
+		A540EB101A0C28680008DA29 /* lwlib.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = lwlib.c; sourceTree = "<group>"; tabWidth = 8; };
 		A540EB111A0C28680008DA29 /* lwlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lwlib.h; sourceTree = "<group>"; };
 		A540EB141A0C28680008DA29 /* xlwmenu.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xlwmenu.c; sourceTree = "<group>"; };
 		A540EB151A0C28680008DA29 /* xlwmenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xlwmenu.h; sourceTree = "<group>"; };
@@ -2187,7 +2187,6 @@
 			isa = PBXProject;
 			buildConfigurationList = 1DEB919308733D9F0010E9CD /* Build configuration list for PBXProject "emacs" */;
 			compatibilityVersion = "Xcode 3.1";
-			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				English,

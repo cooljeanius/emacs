@@ -5914,6 +5914,7 @@ re_match_2_internal(struct re_pattern_buffer *bufp, const_re_char *string1,
 	     * to start failing on me, and I am clueless as to what: */
 #if defined(NDEBUG) || defined(assert)
 	    assert((p2 + mcnt) == p); /* off by 0x100? */
+	    /* TODO: XXX: ???: FIXME!!! */
 #endif /* NDEBUG || assert */
 	    DEBUG_STATEMENT(debug += 2);
 	    if (mutually_exclusive_p(bufp, p1, p2))

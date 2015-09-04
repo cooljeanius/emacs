@@ -31,7 +31,14 @@
 #include <mach-o/stab.h>
 #include <mach-o/reloc.h>
 #include <mach-o/x86_64/reloc.h>
-#include <mach-o/compact_unwind_encoding.h>
+#ifdef HAVE_MACH_O_COMPACT_UNWIND_ENCODING_H
+# include <mach-o/compact_unwind_encoding.h>
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(__APPLE__)
+#  error "MachOFileAbstraction.hpp needs <mach-o/compact_unwind_encoding.h>"
+#  include <does/not/exist/terminate_compilation.h>
+# endif /* __GNUC__ && !__STRICT_ANSI__ && __APPLE__ */
+#endif /* HAVE_MACH_O_COMPACT_UNWIND_ENCODING_H */
 #include <mach/machine.h>
 #include <stddef.h>
 
@@ -515,8 +522,14 @@ static const ArchInfo archInfoArray[] = {
 
 // weird, but this include must wait until after SUPPORT_ARCH_arm_any is set up
 #if SUPPORT_ARCH_arm_any
-#include <mach-o/arm/reloc.h>
-#endif
+# ifdef HAVE_MACH_O_ARM_RELOC_H
+#  include <mach-o/arm/reloc.h>
+# else
+#  if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(__APPLE__)
+#   warning "MachOFileAbstraction.hpp needs <mach-o/arm/reloc.h> for arm"
+#  endif /* __GNUC__ && !__STRICT_ANSI__ && __APPLE__ */
+# endif /* HAVE_MACH_O_ARM_RELOC_H */
+#endif /* SUPPORT_ARCH_arm_any */
 
 // hack until newer <mach-o/arm/reloc.h> everywhere
 #define ARM_RELOC_HALF 8

@@ -441,9 +441,10 @@ static EmacsImage *ImageList = nil;
       NSColor *color = [bmRep colorAtX: x y: y];
       EmacsCGFloat r, g, b, a;
       [color getRed: &r green: &g blue: &b alpha: &a];
-      return ((int)(a * 255.0) << 24)
-        | ((int)(r * 255.0) << 16) | ((int)(g * 255.0) << 8)
-        | ((int)(b * 255.0));
+      return (((int)(a * (EmacsCGFloat)255.0f) << 24)
+              | ((int)(r * (EmacsCGFloat)255.0f) << 16)
+              | ((int)(g * (EmacsCGFloat)255.0f) << 8)
+              | ((int)(b * (EmacsCGFloat)255.0f)));
 
     }
 }

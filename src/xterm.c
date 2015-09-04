@@ -891,6 +891,8 @@ x_set_mouse_face_gc (struct glyph_string *s)
   else
     face_id = FACE_FOR_CHAR(s->f, face, 0, -1, Qnil);
   s->face = FACE_FROM_ID(s->f, face_id);
+  eassert(s != NULL);
+  xassert(s->face != NULL);
   PREPARE_FACE_FOR_DISPLAY(s->f, s->face);
 
   if (s->font == s->face->font)
@@ -1527,18 +1529,20 @@ cvt_pixel_dtor (XtAppContext app, XrmValuePtr to, XtPointer closure, XrmValuePtr
    say a 24-bit TrueColor map.  */
 
 static const XColor *
-x_color_cells (Display *dpy, int *ncells)
+x_color_cells(Display *dpy, int *ncells)
 {
-  struct x_display_info *dpyinfo = x_display_info_for_display (dpy);
+  struct x_display_info *dpyinfo = x_display_info_for_display(dpy);
 
+  xassert(dpyinfo != NULL);
+  
   if (dpyinfo->color_cells == NULL)
     {
       Screen *screen = dpyinfo->screen;
-      int ncolor_cells = XDisplayCells (dpy, XScreenNumberOfScreen (screen));
+      int ncolor_cells = XDisplayCells(dpy, XScreenNumberOfScreen(screen));
       int i;
 
-      dpyinfo->color_cells = xnmalloc (ncolor_cells,
-				       sizeof *dpyinfo->color_cells);
+      dpyinfo->color_cells = xnmalloc(ncolor_cells,
+				      sizeof(*dpyinfo->color_cells));
       dpyinfo->ncolor_cells = ncolor_cells;
 
       for (i = 0; i < ncolor_cells; ++i)
@@ -1635,16 +1639,16 @@ x_alloc_nearest_color_1 (Display *dpy, Colormap cmap, XColor *color)
       /* If allocation succeeded, and the allocated pixel color is not
          equal to a cached pixel color recorded earlier, there was a
          change in the colormap, so clear the color cache.  */
-      struct x_display_info *dpyinfo = x_display_info_for_display (dpy);
+      struct x_display_info *dpyinfo = x_display_info_for_display(dpy);
       XColor *cached_color;
 
-      if (dpyinfo->color_cells
+      if ((dpyinfo != NULL) && dpyinfo->color_cells
 	  && (cached_color = &dpyinfo->color_cells[color->pixel],
 	      (cached_color->red != color->red
 	       || cached_color->blue != color->blue
 	       || cached_color->green != color->green)))
 	{
-	  xfree (dpyinfo->color_cells);
+	  xfree(dpyinfo->color_cells);
 	  dpyinfo->color_cells = NULL;
 	  dpyinfo->ncolor_cells = 0;
 	}
@@ -1652,7 +1656,7 @@ x_alloc_nearest_color_1 (Display *dpy, Colormap cmap, XColor *color)
 
 #ifdef DEBUG_X_COLORS
   if (rc)
-    register_color (color->pixel);
+    register_color(color->pixel);
 #endif /* DEBUG_X_COLORS */
 
   return rc;
@@ -7175,7 +7179,7 @@ x_draw_bar_cursor (struct window *w, struct glyph_row *row, int width, enum text
 	 invisible.  Use the glyph's foreground color instead in this
 	 case, on the assumption that the glyph's colors are chosen so
 	 that the glyph is legible.  */
-      if (face->background == f->output_data.x->cursor_pixel)
+      if ((face != NULL) && face->background == f->output_data.x->cursor_pixel)
 	xgcv.background = xgcv.foreground = face->foreground;
       else
 	xgcv.background = xgcv.foreground = f->output_data.x->cursor_pixel;

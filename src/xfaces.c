@@ -3875,28 +3875,27 @@ return the font name used for CHARACTER.  */)
     }
   else
     {
-      struct frame *f = decode_live_frame (frame);
-      int face_id = lookup_named_face (f, face, 1);
-      struct face *fface = FACE_FROM_ID (f, face_id);
+      struct frame *f = decode_live_frame(frame);
+      int face_id = lookup_named_face(f, face, 1);
+      struct face *fface = FACE_FROM_ID(f, face_id);
 
       if (! fface)
 	return Qnil;
 #ifdef HAVE_WINDOW_SYSTEM
-      if (FRAME_WINDOW_P (f) && !NILP (character))
+      if (FRAME_WINDOW_P(f) && !NILP(character))
 	{
-	  CHECK_CHARACTER (character);
-	  face_id = FACE_FOR_CHAR (f, fface, XINT (character), -1, Qnil);
-	  fface = FACE_FROM_ID (f, face_id);
+	  CHECK_CHARACTER(character);
+	  face_id = FACE_FOR_CHAR(f, fface, XINT(character), -1, Qnil);
+	  fface = FACE_FROM_ID(f, face_id);
 	}
-      return (fface->font
+      return (((fface != NULL) && fface->font)
 	      ? fface->font->props[FONT_NAME_INDEX]
 	      : Qnil);
-#else  /* !HAVE_WINDOW_SYSTEM */
-      return build_string (FRAME_MSDOS_P (f)
-			   ? "ms-dos"
-			   : FRAME_W32_P (f) ? "w32term"
-			   :"tty");
-#endif
+#else  /* !HAVE_WINDOW_SYSTEM: */
+      return build_string(FRAME_MSDOS_P(f)
+			  ? "ms-dos" : (FRAME_W32_P(f)
+					? "w32term" : "tty"));
+#endif /* HAVE_WINDOW_SYSTEM */
     }
 }
 
@@ -4610,24 +4609,24 @@ smaller_face (struct frame *f, int face_id, int steps)
   int new_face_id;
   struct face *new_face;
 
-  /* If not called for an X frame, just return the original face.  */
-  if (FRAME_TERMCAP_P (f))
+  /* If not called for an X frame, then just return the original face: */
+  if (FRAME_TERMCAP_P(f))
     return face_id;
 
-  /* Try in increments of 1/2 pt.  */
-  delta = steps < 0 ? 5 : -5;
-  steps = eabs (steps);
+  /* Try in increments of 1/2 pt.: */
+  delta = ((steps < 0) ? 5 : -5);
+  steps = eabs(steps);
 
-  face = FACE_FROM_ID (f, face_id);
-  memcpy (attrs, face->lface, sizeof attrs);
-  pt = last_pt = XFASTINT (attrs[LFACE_HEIGHT_INDEX]);
+  face = FACE_FROM_ID(f, face_id);
+  memcpy(attrs, face->lface, sizeof(attrs));
+  pt = last_pt = XFASTINT(attrs[LFACE_HEIGHT_INDEX]);
   new_face_id = face_id;
-  last_height = FONT_HEIGHT (face->font);
+  last_height = ((face != NULL) ? FONT_HEIGHT(face->font) : 0);
 
   while (steps
-	 && pt + delta > 0
-	 /* Give up if we cannot find a font within 10pt.  */
-	 && eabs (last_pt - pt) < 100)
+	 && ((pt + delta) > 0)
+	 /* Give up if we cannot find a font within 10pt.: */
+	 && (eabs(last_pt - pt) < 100))
     {
       /* Look up a face for a slightly smaller/larger font.  */
       pt += delta;
