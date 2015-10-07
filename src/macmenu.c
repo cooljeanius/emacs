@@ -294,12 +294,15 @@ static const int min_menu_id[] = {0, 1, 234, 235, 236, 256, 16384, 32768};
 
 typedef void * XtPointer;
 
+#ifndef ENUM_BUTTON_TYPE_DEFINED
+# define ENUM_BUTTON_TYPE_DEFINED 1
 enum button_type
 {
   BUTTON_TYPE_NONE,
   BUTTON_TYPE_TOGGLE,
   BUTTON_TYPE_RADIO
 };
+#endif /* !ENUM_BUTTON_TYPE_DEFINED */
 
 /* This structure is based on the one in ../lwlib/lwlib.h, modified
    for Mac OS.  */

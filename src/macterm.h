@@ -969,6 +969,7 @@ extern int mac_quit_char_key_p P_((UInt32, UInt32));
 Lisp_Object x_new_font P_((struct frame *, register const char *));
 #endif /* !EMACS_FRAME_H || COMING_FROM_MACTERM_C */
 Lisp_Object x_new_fontset P_((struct frame *, const char *));
+extern void mac_get_window_bounds P_((struct frame *, Rect *, Rect *));
 extern void mac_initialize P_((void));
 extern void syms_of_macterm P_((void));
 

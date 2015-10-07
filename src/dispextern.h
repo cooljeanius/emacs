@@ -1393,6 +1393,11 @@ struct glyph_string
 
   /* Font in which this string is to be drawn: */
   struct font *font;
+  
+#ifdef COMING_FROM_MACTERM_C
+  /* Font info for this string: */
+  struct font_info *font_info;
+#endif /* COMING_FROM_MACTERM_C */
 
   /* Non-null means this string describes (part of) a static
      composition.  */
@@ -3119,9 +3124,23 @@ struct image
   /* True means that loading the image failed.  Do NOT try again: */
   bool load_failed_p;
 
+#if defined(COMING_FROM_MACTERM_C) && \
+    (defined(HAVE_CARBON) || defined(_USE_OLD_LISP_DATA_STRUCTURES))
+  /* A place for image types to store additional data.  The member
+   * data.lisp_val is marked during GC, so it is safe to store Lisp data
+   * there.  Image types should free this data when their `free'
+   * function is called: */
+  struct
+  {
+    int int_val;
+    void *ptr_val;
+    Lisp_Object lisp_val;
+  } data;
+#else
   /* A place for image types to store additional data.  It is marked
      during GC.  */
   Lisp_Object lisp_data;
+#endif /* COMING_FROM_MACTERM_C && (HAVE_CARBON || _USE_OLD_LISP_DATA_STRUCTURES) */
 
 #if defined(HAVE_CARBON) && defined(MAC_APPKIT_M)
   /* A place for image types to store Core Graphics image data: */
@@ -3467,14 +3486,14 @@ ptrdiff_t lookup_image (struct frame *, Lisp_Object);
 #  define RGB_PIXEL_COLOR COLORREF
 # endif /* HAVE_NTGUI */
 
-# if defined(HAVE_X_WINDOWS) || defined(XImagePtr_or_DC)
-RGB_PIXEL_COLOR image_background (struct image *, struct frame *,
-                                  XImagePtr_or_DC ximg);
-int image_background_transparent (struct image *, struct frame *,
-                                  XImagePtr_or_DC mask);
-# endif /* HAVE_X_WINDOWS || XImagePtr_or_DC */
+# if defined(HAVE_X_WINDOWS) || defined(XImagePtr_or_DC) || 1
+RGB_PIXEL_COLOR image_background(struct image *, struct frame *,
+                                 XImagePtr_or_DC ximg);
+int image_background_transparent(struct image *, struct frame *,
+                                 XImagePtr_or_DC mask);
+# endif /* HAVE_X_WINDOWS || XImagePtr_or_DC || 1 */
 
-int image_ascent (struct image *, struct face *, struct glyph_slice *);
+int image_ascent(struct image *, struct face *, struct glyph_slice *);
 
 #endif /* HAVE_WINDOW_SYSTEM */
 
@@ -3545,9 +3564,9 @@ void gamma_correct (struct frame *, unsigned long *);
 void x_implicitly_set_name (struct frame *, Lisp_Object, Lisp_Object);
 
 extern Lisp_Object tip_frame;
-#if defined(Window) || defined(HAVE_X_WINDOWS)
+# if defined(Window) || defined(HAVE_X_WINDOWS)
 extern Window tip_window;
-#endif /* Window || HAVE_X_WINDOWS */
+# endif /* Window || HAVE_X_WINDOWS */
 extern frame_parm_handler x_frame_parm_handlers[];
 
 extern void start_hourglass (void);
@@ -3564,18 +3583,18 @@ extern void hide_hourglass (void);
 /* Returns the background color of IMG, calculating one heuristically if
    necessary.  If non-zero, XIMG is an existing XImage object to use for
    the heuristic.  */
-#define IMAGE_BACKGROUND(img, f, ximg)					  \
-   ((img)->background_valid						  \
-    ? (img)->background							  \
-    : image_background (img, f, ximg))
+# define IMAGE_BACKGROUND(img, f, ximg)					  \
+    ((img)->background_valid						  \
+     ? (img)->background						  \
+     : image_background(img, f, ximg))
 
 /* Returns true if IMG has a `transparent' background, using heuristics
    to decide if necessary.  If non-zero, MASK is an existing XImage
    object to use for the heuristic.  */
-#define IMAGE_BACKGROUND_TRANSPARENT(img, f, mask)			  \
-   ((img)->background_transparent_valid					  \
-    ? (img)->background_transparent					  \
-    : image_background_transparent (img, f, mask))
+# define IMAGE_BACKGROUND_TRANSPARENT(img, f, mask)			  \
+    ((img)->background_transparent_valid				  \
+     ? (img)->background_transparent					  \
+     : image_background_transparent(img, f, mask))
 
 #endif /* HAVE_WINDOW_SYSTEM */
 

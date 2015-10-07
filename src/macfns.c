@@ -504,9 +504,8 @@ void x_set_menu_bar_lines P_ ((struct frame *, Lisp_Object, Lisp_Object));
 void x_set_title P_ ((struct frame *, Lisp_Object, Lisp_Object));
 void x_set_tool_bar_lines P_ ((struct frame *, Lisp_Object, Lisp_Object));
 
-extern void mac_get_window_bounds P_ ((struct frame *, Rect *, Rect *));
+/* prototype for mac_get_window_bounds() moved to "macterm.h" */
 
-
 
 /* Store the screen positions of frame F into XPTR and YPTR.
    These are the positions of the containing window manager window,
@@ -3926,8 +3925,18 @@ hourglass_started(void)
 }
 
 
+#if defined(__GNUC__) && defined(__GNUC_MINOR__)
+# if (__GNUC__ >= 4)
+#  define ATTRIBUTE_OPTIMIZE(foo) __attribute__((optimize(#foo)))
+# else
+#  define ATTRIBUTE_OPTIMIZE(foo) /* nothing */
+# endif /* gcc 4+ */
+#else
+# define ATTRIBUTE_OPTIMIZE /* (nothing) */
+#endif /* any gcc */
+
 /* Cancel a currently active hourglass timer, and start a new one: */
-void
+void ATTRIBUTE_OPTIMIZE(no-strict-aliasing)
 start_hourglass(void)
 {
 #ifdef MAC_OSX
@@ -3958,6 +3967,8 @@ start_hourglass(void)
   /* oh no, my first time breaking strict aliasing rules on purpose! */
   hourglass_atimer = start_atimer(ATIMER_RELATIVE, *(struct timespec *)&delay,
                                   show_hourglass, NULL);
+#else
+  return;
 #endif /* MAC_OSX */
 }
 

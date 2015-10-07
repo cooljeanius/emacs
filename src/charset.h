@@ -482,14 +482,47 @@ extern Lisp_Object Vchar_charset_set;
 
 /* Charset-bag of character C.  */
 #define CHAR_CHARSET_SET(c) \
-  CHAR_TABLE_REF (Vchar_charset_set, c)
+  CHAR_TABLE_REF(Vchar_charset_set, c)
 
-/* Check if two characters C1 and C2 belong to the same charset.  */
+/* Check if two characters C1 and C2 belong to the same charset: */
 #define SAME_CHARSET_P(c1, c2)	\
-  intersection_p (CHAR_CHARSET_SET (c1), CHAR_CHARSET_SET (c2))
+  intersection_p(CHAR_CHARSET_SET(c1), CHAR_CHARSET_SET(c2))
 
-#endif
+#endif /* false */
 
+#ifndef CHARSET_DEFINED_P
+/* 1 if CHARSET is already defined, else 0: */
+# define CHARSET_DEFINED_P(charset)			\
+   (((charset) >= 0) && ((charset) <= MAX_CHARSET)	\
+    && !NILP(CHARSET_TABLE_ENTRY(charset)))
+#endif /* !CHARSET_DEFINED_P */
+
+#ifndef MAKE_CHAR
+# ifndef LEADING_CODE_EXT_21
+#  define LEADING_CODE_EXT_21 0xF0 /* follows LEADING_CODE_PRIVATE_21 */
+# endif /* !LEADING_CODE_EXT_21 */
+# ifndef MIN_CHARSET_PRIVATE_DIMENSION2
+#  define MIN_CHARSET_PRIVATE_DIMENSION2 LEADING_CODE_EXT_21
+# endif /* !MIN_CHARSET_PRIVATE_DIMENSION2 */
+
+/* Return a character of which charset is CHARSET and position-codes
+ * are C1 and C2.  DIMENSION1 character ignores C2.  */
+# define MAKE_CHAR(charset, c1, c2)					    \
+   ((charset) == CHARSET_ASCII						    \
+    ? (c1) & 0x7F							    \
+    : (((charset) == CHARSET_8_BIT_CONTROL				    \
+        || (charset) == CHARSET_8_BIT_GRAPHIC)				    \
+       ? ((c1) & 0x7F) | 0x80						    \
+       : ((CHARSET_DEFINED_P(charset)					    \
+	   ? CHARSET_DIMENSION(CHAR_CHARSET(charset)) == 1		    \
+	   : (charset) < MIN_CHARSET_PRIVATE_DIMENSION2)		    \
+	  ? (((charset) - 0x70) << 7) | ((c1) <= 0 ? 0 : ((c1) & 0x7F))	    \
+	  : ((((charset)						    \
+	       - ((charset) < MIN_CHARSET_PRIVATE_DIMENSION2 ? 0x8F : 0xE0)) \
+	      << 14)							    \
+	     | ((c2) <= 0 ? 0 : ((c2) & 0x7F))				    \
+	     | ((c1) <= 0 ? 0 : (((c1) & 0x7F) << 7))))))
+#endif /* !MAKE_CHAR */
 
 /* Return a character corresponding to the code-point CODE of CHARSET.
    Try some optimization before calling decode_char.  */

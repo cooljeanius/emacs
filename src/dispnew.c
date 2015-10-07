@@ -3877,8 +3877,7 @@ set_window_cursor_after_update (struct window *w)
     {
       cx = cy = vpos = hpos = 0;
 
-      /* '-Wbool-compare' says this is always true: */
-      if (cursor_in_echo_area >= 0)
+      if (cursor_in_echo_area > 0)
 	{
 	  /* If the mini-buffer is several lines high, find the last
 	     line that has any text on it.  Note: either all lines
@@ -4531,8 +4530,7 @@ update_frame_1 (struct frame *f, bool force_p, bool inhibit_id_p)
 	  int top = WINDOW_TOP_EDGE_LINE (XWINDOW (FRAME_MINIBUF_WINDOW (f)));
 	  int row, col;
 
-	  /* '-Wbool-compare' says this is always false: */
-	  if (cursor_in_echo_area < 0)
+	  if (cursor_in_echo_area <= 0)
 	    {
 	      /* Negative value of cursor_in_echo_area means put
                  cursor at beginning of line.  */

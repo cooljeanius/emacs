@@ -494,12 +494,12 @@ struct frame
      set this directly, use SET_FRAME_ICONIFIED instead.  */
   bool_bf iconified : 1; /* used to be a 'char' on the same line as
                           * 'visible' above */
-#if 0
+#ifdef COMING_FROM_MACTERM_C
   /* Asynchronous input handlers change these, and
      FRAME_SAMPLE_VISIBILITY copies them into visible and iconified.
      See FRAME_SAMPLE_VISIBILITY, below.  */
   volatile char async_visible, async_iconified;
-#endif /* 0 */
+#endif /* COMING_FROM_MACTERM_C */
 
   /* True if this frame should be redrawn.  */
   bool_bf garbaged : 1; /* used to be: 'volatile char garbaged;' */
@@ -584,11 +584,11 @@ struct frame
   int config_scroll_bar_width;
   int config_scroll_bar_cols;
 
-#if 0
+#ifdef COMING_FROM_MACTERM_C
   /* The size of the extra width currently allotted for vertical
      scroll bars in this frame, in pixels.  */
   int scroll_bar_actual_width;
-#endif /* 0 */
+#endif /* COMING_FROM_MACTERM_C */
 
   /* The baud rate that was used to calculate costs for this frame.  */
   int cost_calculation_baud_rate;

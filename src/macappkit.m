@@ -7552,6 +7552,9 @@ update_frame_tool_bar(struct frame *f)
 	      [frameController updateBackingScaleFactor];
 	      img = IMAGE_FROM_ID(f, img_id);
 	      prepare_image_for_display(f, img);
+	      
+	      eassert(img != NULL);
+	      xassert(img != NULL);
 
 	      /* It is OK for img->cg_image to become NULL here: */
 	      cgImages = [NSArray arrayWithObjects:((__bridge id)cg_image),

@@ -307,65 +307,74 @@ static Lisp_Object Qalt, Qhyper, Qsuper, Qcontrol, Qmeta, Qmodifier_value;
 extern int inhibit_window_system;
 #endif /* !EMACS_LISP_H */
 
+#ifndef XTERM_H
+extern void x_mouse_leave(struct x_display_info *);
+#endif /* !XTERM_H */
+
 #if __MRC__ && !TARGET_API_MAC_CARBON
 QDGlobals qd;  /* QuickDraw global information structure.  */
 #endif /* __MRC__ && !TARGET_API_MAC_CARBON */
 
 #define mac_window_to_frame(wp) (((mac_output *)GetWRefCon(wp))->mFP)
 
-struct mac_display_info *mac_display_info_for_display (Display *);
-static void x_update_window_end P_ ((struct window *, int, int));
-int x_catch_errors P_ ((Display *));
-void x_uncatch_errors P_ ((Display *, int));
-void x_lower_frame P_ ((struct frame *));
-void x_scroll_bar_clear P_ ((struct frame *));
-int x_had_errors_p P_ ((Display *));
-void x_wm_set_size_hint P_ ((struct frame *, long, bool));
-void x_raise_frame P_ ((struct frame *));
-void x_set_window_size P_ ((struct frame *, int, int, int, bool));
-void x_wm_set_window_state P_ ((struct frame *, int));
-void x_wm_set_icon_pixmap P_ ((struct frame *, int));
-void mac_initialize P_ ((void));
-static void x_font_min_bounds P_ ((XFontStruct *, int *, int *));
-static int x_compute_min_glyph_bounds P_ ((struct frame *));
-static void x_update_end P_ ((struct frame *));
-static void XTframe_up_to_date P_ ((struct frame *));
-static void XTset_terminal_modes P_ ((void));
-static void XTreset_terminal_modes P_ ((void));
-static void x_clear_frame P_ ((void));
-static void frame_highlight P_ ((struct frame *));
-static void frame_unhighlight P_ ((struct frame *));
-static void x_new_focus_frame P_ ((struct x_display_info *, struct frame *));
-#ifndef _EMACS_MACTERM_H
-static
-#endif /* !_EMACS_MACTERM_H */
-void mac_focus_changed P_((int, struct mac_display_info *,
-                           struct frame *, struct input_event *));
-static void x_detect_focus_change P_ ((struct mac_display_info *,
-				       const EventRecord *,
-				       struct input_event *));
-static void XTframe_rehighlight P_ ((struct frame *));
-static void x_frame_rehighlight P_ ((struct x_display_info *));
-static void x_draw_hollow_cursor P_ ((struct window *, struct glyph_row *));
-static void x_draw_bar_cursor P_ ((struct window *, struct glyph_row *, int,
-				   enum text_cursor_kinds));
+#ifndef STATIC_WITHOUT_MACTERM_H
+# ifndef _EMACS_MACTERM_H
+#  define STATIC_WITHOUT_MACTERM_H static
+# else
+#  define STATIC_WITHOUT_MACTERM_H /* (nothing) */
+# endif /* !_EMACS_MACTERM_H */
+#endif /* !STATIC_WITHOUT_MACTERM_H */
 
-static void x_clip_to_row P_ ((struct window *, struct glyph_row *, int, GC));
-#ifndef _EMACS_MACTERM_H
-static
-#endif /* !_EMACS_MACTERM_H */
-void x_flush P_((struct frame *f));
-static void x_update_begin P_ ((struct frame *));
-static void x_update_window_begin P_ ((struct window *));
-static void x_after_update_window_line P_ ((struct glyph_row *));
-static void x_scroll_bar_report_motion P_ ((struct frame **, Lisp_Object *,
-					    enum scroll_bar_part *,
-					    Lisp_Object *, Lisp_Object *,
-					    unsigned long *));
+struct mac_display_info *mac_display_info_for_display(Display *);
+static void x_update_window_end P_((struct window *, bool, bool));
+int x_catch_errors P_((Display *));
+void x_uncatch_errors P_((Display *, int));
+void x_lower_frame P_((struct frame *));
+void x_scroll_bar_clear P_((struct frame *));
+int x_had_errors_p P_((Display *));
+void x_wm_set_size_hint P_((struct frame *, long, bool));
+void x_raise_frame P_((struct frame *));
+void x_set_window_size P_((struct frame *, int, int, int, bool));
+void x_wm_set_window_state P_((struct frame *, int));
+void x_wm_set_icon_pixmap P_((struct frame *, int));
+void mac_initialize P_((void));
+static void x_font_min_bounds P_((XFontStruct *, int *, int *));
+static int x_compute_min_glyph_bounds P_((struct frame *));
+static void x_update_end P_((struct frame *));
+static void XTframe_up_to_date P_((struct frame *));
+static void XTset_terminal_modes P_((struct terminal *));
+static void XTreset_terminal_modes P_((struct terminal *));
+static void x_clear_frame P_((struct frame *));
+static void frame_highlight P_((struct frame *));
+static void frame_unhighlight P_((struct frame *));
+static void x_new_focus_frame P_((struct x_display_info *, struct frame *));
+STATIC_WITHOUT_MACTERM_H void mac_focus_changed(int, struct mac_display_info *,
+						struct frame *,
+						struct input_event *);
+static void x_detect_focus_change P_((struct mac_display_info *,
+				      const EventRecord *,
+				      struct input_event *));
+static void XTframe_rehighlight P_((struct frame *));
+static void x_frame_rehighlight P_((struct x_display_info *));
+static void x_draw_hollow_cursor P_((struct window *, struct glyph_row *));
+static void x_draw_bar_cursor P_((struct window *, struct glyph_row *, int,
+				  enum text_cursor_kinds));
 
-static int is_emacs_window P_ ((WindowPtr));
-static XCharStruct *mac_per_char_metric P_ ((XFontStruct *, XChar2b *, int));
-static void XSetFont P_ ((Display *, GC, XFontStruct *));
+static void x_clip_to_row P_((struct window *, struct glyph_row *, int, GC));
+STATIC_WITHOUT_MACTERM_H void x_flush P_((struct frame *f));
+static void x_update_begin P_((struct frame *));
+static void x_update_window_begin P_((struct window *));
+static void x_after_update_window_line(struct window *, struct glyph_row *);
+static void x_scroll_bar_report_motion P_((struct frame **, Lisp_Object *,
+					   enum scroll_bar_part *,
+					   Lisp_Object *, Lisp_Object *,
+					   unsigned long *));
+
+static int is_emacs_window P_((WindowPtr));
+static XCharStruct *mac_per_char_metric P_((XFontStruct *, XChar2b *, int));
+static void XSetFont P_((Display *, GC, XFontStruct *));
+
+extern int XTread_socket(int, int, struct input_event *);
 
 #define GC_FORE_COLOR(gc)	(&(gc)->fore_color)
 #define GC_BACK_COLOR(gc)	(&(gc)->back_color)
@@ -435,10 +444,7 @@ static void XSetFont P_ ((Display *, GC, XFontStruct *));
 static int max_fringe_bmp = 0;
 static CGImageRef *fringe_bmp = 0;
 
-# ifndef _EMACS_MACTERM_H
-static
-# endif /* !_EMACS_MACTERM_H */
-CGColorSpaceRef mac_cg_color_space_rgb;
+STATIC_WITHOUT_MACTERM_H CGColorSpaceRef mac_cg_color_space_rgb;
 # if MAC_OS_X_VERSION_MAX_ALLOWED >= 1030
 static CGColorRef mac_cg_color_black;
 # endif /* 10.3+ */
@@ -461,10 +467,7 @@ static void init_cg_color(void)
 # endif /* 10.3+ */
 }
 
-# ifndef _EMACS_MACTERM_H
-static
-# endif /* !_EMACS_MACTERM_H */
-CGContextRef mac_begin_cg_clip(struct frame *f, GC gc)
+STATIC_WITHOUT_MACTERM_H CGContextRef mac_begin_cg_clip(struct frame *f, GC gc)
 {
   CGContextRef context = FRAME_CG_CONTEXT(f);
 
@@ -483,10 +486,7 @@ CGContextRef mac_begin_cg_clip(struct frame *f, GC gc)
   return context;
 }
 
-# ifndef _EMACS_MACTERM_H
-static
-# endif /* !_EMACS_MACTERM_H */
-void
+STATIC_WITHOUT_MACTERM_H void
 mac_end_cg_clip(struct frame *f)
 {
   CGContextRestoreGState(FRAME_CG_CONTEXT(f));
@@ -1284,7 +1284,7 @@ mac_query_char_extents(atsu_style_t style, int c, int *font_ascent_return,
                        XCharStruct *overall_return, CGGlyphPtr cg_glyph)
 {
   OSStatus err = noErr;
-  int width;
+  int width = 0;
   Rect char_bounds;
 
 #if USE_ATSUI
@@ -1633,10 +1633,7 @@ mac_copy_area_with_mask(Pixmap src, Pixmap mask, struct frame *f, GC gc,
 #endif /* !UNSIGNED_WITHOUT_HEADER */
 
 /* Mac replacement for XCopyArea: used only for scrolling: */
-#ifndef _EMACS_MACTERM_H
-static
-#endif /* !_EMACS_MACTERM_H */
-void
+STATIC_WITHOUT_MACTERM_H void
 mac_scroll_area(struct frame *f, GC gc, int src_x, int src_y,
                 UNSIGNED_WITHOUT_HEADER int width,
                 UNSIGNED_WITHOUT_HEADER int height,
@@ -1912,10 +1909,7 @@ XSetWindowBackground(Display *display, WindowPtr w, unsigned long color)
 }
 
 /* Flush display of frame F, or of all frames if F is null: */
-#ifndef _EMACS_MACTERM_H
-static
-#endif /* !_EMACS_MACTERM_H */
-void x_flush(struct frame *f)
+STATIC_WITHOUT_MACTERM_H void x_flush(struct frame *f)
 {
 #if TARGET_API_MAC_CARBON
   BLOCK_INPUT;
@@ -1976,6 +1970,15 @@ static void x_update_begin(struct frame *f)
 #endif /* TARGET_API_MAC_CARBON */
 }
 
+/* Set the global variable output_cursor to CURSOR.  All cursor
+ * positions are relative to updated_window.  */
+static void set_output_cursor(struct cursor_pos *cursor)
+{
+  output_cursor.hpos = cursor->hpos;
+  output_cursor.vpos = cursor->vpos;
+  output_cursor.x = cursor->x;
+  output_cursor.y = cursor->y;
+}
 
 /* Start update of window W.  Set the global variable updated_window
  * to the window being updated and set output_cursor to the cursor
@@ -2058,8 +2061,8 @@ mac_draw_vertical_window_border(struct window *w, int x, int y0, int y1)
    W may be a menu bar pseudo-window in case we do NOT have X toolkit
    support.  Such windows do NOT have a cursor, so do NOT display it
    here.  */
-static void x_update_window_end(struct window *w, int cursor_on_p,
-                                int mouse_face_overwritten_p)
+static void x_update_window_end(struct window *w, bool cursor_on_p,
+                                bool mouse_face_overwritten_p)
 {
   struct mac_display_info *dpyinfo = FRAME_MAC_DISPLAY_INFO(XFRAME(w->frame));
 
@@ -2137,13 +2140,17 @@ static void XTframe_up_to_date(struct frame *f)
    found in updated_window.  This function is called from
    update_window_line only if it is known that there are differences
    between bitmaps to be drawn between current row and DESIRED_ROW.  */
-static void x_after_update_window_line(struct glyph_row *desired_row)
+static void x_after_update_window_line(struct window *wunused,
+				       struct glyph_row *desired_row)
 {
+#ifdef __APPLE_CC__
+# pragma unused (wunused)
+#endif /* __APPLE_CC__ */
   struct window *w = updated_window;
   struct frame *f;
   int width, height;
 
-  xassert (w);
+  xassert(w);
 
   if (!desired_row->mode_line_p && !w->pseudo_window_p)
     desired_row->redraw_fringe_bitmaps_p = 1;
@@ -2228,11 +2235,11 @@ x_draw_fringe_bitmap(struct window *w, struct glyph_row *row,
 #endif /* 0 */
     }
 
-  if (p->which
+  if ((p->which)
 #if USE_CG_DRAWING
       && (p->which < max_fringe_bmp)
 #endif /* USE_CG_DRAWING */
-      )
+      && (p != NULL))
     {
       XGCValues gcv;
 
@@ -2266,7 +2273,8 @@ mac_define_fringe_bitmap(int which, unsigned short *bits, int h, int wd)
     {
       i = max_fringe_bmp;
       max_fringe_bmp = which + 20;
-      fringe_bmp = (CGImageRef *)xrealloc(fringe_bmp, max_fringe_bmp * sizeof (CGImageRef));
+      fringe_bmp = (CGImageRef *)xrealloc(fringe_bmp,
+					  max_fringe_bmp * sizeof(CGImageRef));
       while (i < max_fringe_bmp)
 	fringe_bmp[i++] = 0;
     }
@@ -2300,15 +2308,21 @@ static void mac_destroy_fringe_bitmap(int which)
    suspend.  When starting Emacs, no window is mapped.  And nothing
    must be done to Emacs's own window if it is suspended (though that
    rarely happens).  */
-static void XTset_terminal_modes(void)
+static void XTset_terminal_modes(struct terminal *t)
 {
+#ifdef __APPLE_CC__
+# pragma unused (t)
+#endif /* __APPLE_CC__ */
   return;
 }
 
 /* This is called when exiting or suspending Emacs.  Exiting will make
    the windows go away, and suspending requires no action.  */
-static void XTreset_terminal_modes(void)
+static void XTreset_terminal_modes(struct terminal *t)
 {
+#ifdef __APPLE_CC__
+# pragma unused (t)
+#endif /* __APPLE_CC__ */
   return;
 }
 
@@ -2689,7 +2703,7 @@ static void x_check_font P_((struct frame *, XFontStruct *));
    face.  */
 static void x_set_cursor_gc(struct glyph_string *s)
 {
-  if ((s->font == FRAME_FONT(s->f))
+  if ((s->font == (__typeof__(s->font))FRAME_FONT(s->f))
       && (s->face->background == FRAME_BACKGROUND_PIXEL(s->f))
       && (s->face->foreground == FRAME_FOREGROUND_PIXEL(s->f))
       && !s->cmp)
@@ -2720,7 +2734,7 @@ static void x_set_cursor_gc(struct glyph_string *s)
 	}
 
       IF_DEBUG(x_check_font(s->f, (XFontStruct *)s->font));
-      xgcv.font = s->font;
+      xgcv.font = (XFontStruct *)s->font;
       mask = (GCForeground | GCBackground | GCFont);
 
       if (FRAME_MAC_DISPLAY_INFO(s->f)->scratch_cursor_gc)
@@ -2768,7 +2782,7 @@ static void x_set_mouse_face_gc(struct glyph_string *s)
       xgcv.background = s->face->background;
       xgcv.foreground = s->face->foreground;
       IF_DEBUG(x_check_font(s->f, (XFontStruct *)s->font));
-      xgcv.font = s->font;
+      xgcv.font = (XFontStruct *)s->font;
       mask = (GCForeground | GCBackground | GCFont);
 
       if (FRAME_MAC_DISPLAY_INFO(s->f)->scratch_cursor_gc)
@@ -2865,7 +2879,7 @@ static void mac_compute_glyph_string_overhangs(struct glyph_string *s)
        * this to work: */
       || s->font->mac_style
 #endif /* EMACS_MACGUI_H && USE_ATSUI && 0 */
-      )
+      && (s != NULL))
     {
       XCharStruct cs;
 
@@ -2878,7 +2892,7 @@ static void mac_compute_glyph_string_overhangs(struct glyph_string *s)
   else
     {
       Rect r;
-      MacFontStruct *font = s->font;
+      MacFontStruct *font = (MacFontStruct *)s->font;
 
 #if USE_CG_DRAWING
       mac_prepare_for_quickdraw(s->f);
@@ -2985,7 +2999,7 @@ static void x_draw_glyph_string_foreground(struct glyph_string *s)
 #if USE_ATSUI
 	  && (GC_FONT(s->gc)->mac_style == NULL)
 #endif /* USE_ATSUI */
-	  )
+	  && (s != NULL))
 	for (i = 0; i < s->nchars; ++i)
 	  char1b[i] = s->char2b[i].byte2;
 
@@ -3000,11 +3014,11 @@ static void x_draw_glyph_string_foreground(struct glyph_string *s)
       else
 	bg_width = s->background_width; /* Corresponds to XDrawImageString.  */
 
-      if (s->two_byte_p
+      if ((s->two_byte_p)
 #if USE_ATSUI
-	  || GC_FONT(s->gc)->mac_style
+	  || (GC_FONT(s->gc)->mac_style)
 #endif /* USE_ATSUI */
-	  )
+	  || ((s != NULL) && s->two_byte_p))
 #if USE_CG_TEXT_DRAWING
 	if (!s->two_byte_p
 	    && mac_draw_image_string_cg(s->f, s->gc, x, (s->ybase - boff),
@@ -3063,9 +3077,12 @@ x_draw_composite_glyph_string_foreground(struct glyph_string *s)
     }
 }
 
+#ifndef GC_CONSP
+# define GC_CONSP CONSP
+#endif /* !GC_CONSP */
 
 #ifdef USE_X_TOOLKIT
-static struct frame *x_frame_of_widget P_ ((Widget));
+static struct frame *x_frame_of_widget P_((Widget));
 
 /* Return the frame on which widget WIDGET is used... Abort if frame
    cannot be determined.  */
@@ -3517,7 +3534,7 @@ static void x_draw_glyph_string_box(struct glyph_string *s)
 static void x_draw_image_foreground(struct glyph_string *s)
 {
   int x = s->x;
-  int y = s->ybase - image_ascent (s->img, s->face, &s->slice);
+  int y = s->ybase - image_ascent(s->img, s->face, &s->slice);
 
   /* If first glyph of S has a left box line, start drawing it to the
      right of that line.  */
@@ -3889,7 +3906,7 @@ static void x_draw_glyph_string(struct glyph_string *s)
               IF_LINT((void)tem);
 #endif /* 0 */
 	      if (s->face->font)
-                y = s->ybase + (s->face->font->max_bounds.descent + 1) / 2;
+                y = (s->ybase + (s->face->font->descent + 1) / 2);
             }
 
 	  if (s->face->underline_defaulted_p)
@@ -3947,25 +3964,25 @@ static void x_draw_glyph_string(struct glyph_string *s)
 
       /* Draw relief if not yet drawn.  */
       if (!relief_drawn_p && s->face->box != FACE_NO_BOX)
-	x_draw_glyph_string_box (s);
+	x_draw_glyph_string_box(s);
     }
 
   /* Reset clipping.  */
-  mac_reset_clip_rectangles (s->display, s->gc);
+  mac_reset_clip_rectangles(s->display, s->gc);
 }
 
 /* Shift display to make room for inserted glyphs: */
-void mac_shift_glyphs_for_insert(struct frame *f, int x, int y,
-                                 int width, int height, int shift_by)
+static void mac_shift_glyphs_for_insert(struct frame *f, int x, int y,
+					int width, int height, int shift_by)
 {
-  mac_scroll_area (f, f->output_data.mac->normal_gc,
-		   x, y, width, height,
-		   x + shift_by, y);
+  mac_scroll_area(f, f->output_data.mac->normal_gc,
+		  x, y, width, height,
+		  (x + shift_by), y);
 }
 
 /* Delete N glyphs at the nominal cursor position.  Not implemented
    for X frames.  */
-static void x_delete_glyphs(register int n)
+static void x_delete_glyphs(struct frame *f, register int n)
 {
 #ifdef __APPLE_CC__
 # pragma unused (n)
@@ -3976,14 +3993,17 @@ static void x_delete_glyphs(register int n)
 
 /* Clear entire frame.  If updating_frame is non-null, clear that
    frame.  Otherwise clear the selected frame.  */
-static void x_clear_frame(void)
+static void x_clear_frame(struct frame *funused)
 {
+#ifdef __APPLE_CC__
+# pragma unused (funused)
+#endif /* __APPLE_CC__ */
   struct frame *f;
 
   if (updating_frame)
     f = updating_frame;
   else
-    f = SELECTED_FRAME ();
+    f = SELECTED_FRAME();
 
   /* Clearing the frame will erase any cursor, so mark them all as no
      longer visible.  */
@@ -4042,7 +4062,7 @@ static int timeval_subtract(struct timeval *result,
   return (x.tv_sec < y.tv_sec);
 }
 
-void XTflash(struct frame *f)
+static void XTflash(struct frame *f)
 {
   /* Get the height not including a menu bar widget.  */
   int height = FRAME_TEXT_LINES_TO_PIXEL_HEIGHT (f, FRAME_LINES (f));
@@ -4151,8 +4171,11 @@ void XTflash(struct frame *f)
 
 
 /* Make audible bell: */
-void XTring_bell(void)
+static void XTring_bell(struct frame *funused)
 {
+#ifdef __APPLE_CC__
+# pragma unused (funused)
+#endif /* __APPLE_CC__ */
   struct frame *f = SELECTED_FRAME();
 
 #if defined(HAVE_TIMEVAL) && defined(HAVE_SELECT)
@@ -4173,10 +4196,10 @@ void XTring_bell(void)
    should be affected by insert-lines and delete-lines operations.
    This, and those operations, are used only within an update
    that is bounded by calls to x_update_begin and x_update_end.  */
-static void XTset_terminal_window(register int n)
+static void XTset_terminal_window(struct frame * f, register int n)
 {
 #ifdef __APPLE_CC__
-# pragma unused (n)
+# pragma unused (f, n)
 #endif /* __APPLE_CC__ */
   /* This function intentionally left blank-ish.  */
   return;
@@ -4191,10 +4214,10 @@ static void XTset_terminal_window(register int n)
 /* Perform an insert-lines or delete-lines operation, inserting N
    lines or deleting -N lines at vertical position VPOS.  */
 
-static void x_ins_del_lines (int vpos, int n)
+static void x_ins_del_lines(struct frame *f, int vpos, int n)
 {
 #if defined(__APPLE__) && defined(__APPLE_CC__) && (__APPLE_CC__ > 1)
-# pragma unused (vpos, n)
+# pragma unused (f, vpos, n)
 #endif /* Apple compiler */
   abort();
 }
@@ -4203,7 +4226,7 @@ static void x_ins_del_lines (int vpos, int n)
 /* Scroll part of the display as described by RUN: */
 static void x_scroll_run(struct window *w, struct run *run)
 {
-  struct frame *f = XFRAME (w->frame);
+  struct frame *f = XFRAME(w->frame);
   int x, y, width, height, from_y, to_y, bottom_y;
 
   /* Get frame-relative bounding box of the text display area of W,
@@ -4323,13 +4346,14 @@ x_new_focus_frame(struct x_display_info *dpyinfo, struct frame *frame)
   x_frame_rehighlight (dpyinfo);
 }
 
+#ifndef GC_NILP
+# define GC_NILP NILP
+#endif /* !GC_NILP */
+
 /* Handle FocusIn and FocusOut state changes for FRAME.
    If FRAME has focus and there exists more than one frame, puts
    a FOCUS_IN_EVENT into *BUFP.  */
-#ifndef _EMACS_MACTERM_H
-static
-#endif /* !_EMACS_MACTERM_H */
-void
+STATIC_WITHOUT_MACTERM_H void
 mac_focus_changed(int type, struct mac_display_info *dpyinfo,
                   struct frame *frame, struct input_event *bufp)
 {
@@ -4371,20 +4395,19 @@ x_detect_focus_change(struct mac_display_info *dpyinfo,
 {
   struct frame *frame;
 
-  frame = mac_window_to_frame ((WindowPtr) event->message);
+  frame = mac_window_to_frame((WindowPtr) event->message);
   if (! frame)
     return;
 
   /* On Mac, this is only called from focus events, so no switch needed.  */
-  mac_focus_changed ((event->modifiers & activeFlag),
-		     dpyinfo, frame, bufp);
+  mac_focus_changed((event->modifiers & activeFlag),
+		    dpyinfo, frame, bufp);
 }
-
 
 /* Handle an event saying the mouse has moved out of an Emacs frame: */
 void x_mouse_leave(struct x_display_info *dpyinfo)
 {
-  x_new_focus_frame (dpyinfo, dpyinfo->x_focus_event_frame);
+  x_new_focus_frame(dpyinfo, dpyinfo->x_focus_event_frame);
 }
 
 /* The focus has changed, or we have redirected a frame's focus to
@@ -4399,6 +4422,10 @@ static void XTframe_rehighlight(struct frame *frame)
   x_frame_rehighlight(FRAME_X_DISPLAY_INFO(frame));
 }
 
+#ifndef GC_FRAMEP
+# define GC_FRAMEP FRAMEP
+#endif /* !GC_FRAMEP */
+
 static void x_frame_rehighlight(struct x_display_info *dpyinfo)
 {
   struct frame *old_highlight = dpyinfo->x_highlight_frame;
@@ -4406,12 +4433,12 @@ static void x_frame_rehighlight(struct x_display_info *dpyinfo)
   if (dpyinfo->x_focus_frame)
     {
       dpyinfo->x_highlight_frame
-	= ((GC_FRAMEP (FRAME_FOCUS_FRAME (dpyinfo->x_focus_frame)))
-	   ? XFRAME (FRAME_FOCUS_FRAME (dpyinfo->x_focus_frame))
+	= ((GC_FRAMEP(FRAME_FOCUS_FRAME(dpyinfo->x_focus_frame)))
+	   ? XFRAME(FRAME_FOCUS_FRAME(dpyinfo->x_focus_frame))
 	   : dpyinfo->x_focus_frame);
-      if (! FRAME_LIVE_P (dpyinfo->x_highlight_frame))
+      if (! FRAME_LIVE_P(dpyinfo->x_highlight_frame))
 	{
-	  FRAME_FOCUS_FRAME (dpyinfo->x_focus_frame) = Qnil;
+	  FRAME_FOCUS_FRAME(dpyinfo->x_focus_frame) = Qnil;
 	  dpyinfo->x_highlight_frame = dpyinfo->x_focus_frame;
 	}
     }
@@ -4477,7 +4504,7 @@ static int note_mouse_movement(FRAME_PTR frame, Point *pos)
 #else
       && !PtInRect(*pos, &FRAME_MAC_WINDOW(frame)->portRect)
 #endif /* TARGET_API_MAC_CARBON */
-      )
+      && (dpyinfo != NULL))
     {
       /* This case corresponds to LeaveNotify in X11.  If we move
 	 outside the frame, then we're certainly no longer on any text
@@ -4485,8 +4512,8 @@ static int note_mouse_movement(FRAME_PTR frame, Point *pos)
       clear_mouse_face((Mouse_HLInfo *)dpyinfo);
       dpyinfo->mouse_face_mouse_frame = 0;
       if (!dpyinfo->grabbed)
-	rif->define_frame_cursor(frame,
-				 frame->output_data.mac->nontext_cursor);
+	FRAME_RIF(frame)->define_frame_cursor(frame,
+					      frame->output_data.mac->nontext_cursor);
     }
 
   /* Has the mouse moved off the glyph it was on at the last sighting?  */
@@ -4523,10 +4550,8 @@ static void redo_mouse_highlight(void)
   return;
 }
 
-#ifndef _EMACS_MACTERM_H
-static
-#endif /* !_EMACS_MACTERM_H */
-struct frame *mac_focus_frame(struct mac_display_info *dpyinfo)
+STATIC_WITHOUT_MACTERM_H struct frame *
+mac_focus_frame(struct mac_display_info *dpyinfo)
 {
   if (dpyinfo->x_focus_frame) {
     return dpyinfo->x_focus_frame;
@@ -5197,7 +5222,7 @@ XTset_vertical_scroll_bar(struct window *w, int portion, int whole,
 # ifdef MAC_OSX
 	  || (sb_width < MAC_AQUA_SMALL_VERTICAL_SCROLL_BAR_WIDTH)
 # endif /* MAC_OSX */
-	  )
+	  && (bar != NULL))
 	{
 	  XSETINT(bar->track_top, 0);
 	  XSETINT(bar->track_height, 0);
@@ -5354,6 +5379,9 @@ static void XTjudge_scroll_bars(FRAME_PTR f)
      and they should get garbage-collected.  */
 }
 
+#ifndef GC_WINDOWP
+# define GC_WINDOWP WINDOWP
+#endif /* !GC_WINDOWP */
 
 /* Handle a mouse click on the scroll bar BAR.  If *EMACS_EVENT's kind
    is set to something other than NO_EVENT, it is enqueued.
@@ -5694,8 +5722,8 @@ mac_clear_frame_area(struct frame *f, int x, int y, int width, int height)
 /* RIF: Draw cursor on window W: */
 static void
 mac_draw_window_cursor(struct window *w, struct glyph_row *glyph_row,
-                       int x, int y, int cursor_type, int cursor_width,
-                       int on_p, int active_p)
+                       int x, int y, enum text_cursor_kinds cursor_type,
+		       int cursor_width, bool on_p, bool active_p)
 {
   if (on_p)
     {
@@ -5937,18 +5965,12 @@ void mac_get_window_bounds(struct frame *f, Rect *inner, Rect *outer)
 #endif /* not TARGET_API_MAC_CARBON */
 }
 
-#ifndef _EMACS_MACTERM_H
-static
-#endif /* !_EMACS_MACTERM_H */
-void mac_handle_origin_change(struct frame *f)
+STATIC_WITHOUT_MACTERM_H void mac_handle_origin_change(struct frame *f)
 {
   x_real_positions(f, &f->left_pos, &f->top_pos);
 }
 
-#ifndef _EMACS_MACTERM_H
-static
-#endif /* !_EMACS_MACTERM_H */
-void
+STATIC_WITHOUT_MACTERM_H void
 mac_handle_size_change(struct frame *f, int pixelwidth, int pixelheight)
 {
   int cols, rows;
@@ -5994,7 +6016,7 @@ mac_handle_size_change(struct frame *f, int pixelwidth, int pixelheight)
 
 /* Calculate the absolute position in frame F
    from its current recorded position values and gravity.  */
-void x_calc_absolute_position(struct frame *f)
+static void x_calc_absolute_position(struct frame *f)
 {
   int width_diff = 0, height_diff = 0;
   int flags = f->size_hint_flags;
@@ -6159,7 +6181,9 @@ x_set_window_size(struct frame *f, int change_gravity, int cols, int rows,
 }
 
 /* Mouse warping functions:  */
-void x_set_mouse_pixel_position(struct frame *f, int pix_x, int pix_y);
+extern void x_set_mouse_pixel_position(struct frame *f, int pix_x, int pix_y);
+extern void x_focus_on_frame(struct frame *f);
+extern void x_unfocus_frame(struct frame *f);
 
 void x_set_mouse_position(struct frame *f, int x, int y)
 {
@@ -6204,21 +6228,22 @@ void x_set_mouse_pixel_position(struct frame *f, int pix_x, int pix_y)
 }
 
 /* focus shifting, raising and lowering: */
-void x_focus_on_frame(struct frame *f)
+void ATTRIBUTE_CONST x_focus_on_frame(struct frame *f)
 {
-#if 0  /* This proves to be unpleasant.  */
+#ifdef ALLOW_UNPLEASANTNESS  /* This proves to be unpleasant.  */
   x_raise_frame(f);
-#endif /* 0 */
+#endif /* ALLOW_UNPLEASANTNESS */
 #if 0
   /* I do NOT think that the ICCCM allows programs to do things like this
      without the interaction of the window manager.  Whatever you end up
      doing with this code, do it to x_unfocus_frame too.  */
-  XSetInputFocus (FRAME_X_DISPLAY (f), FRAME_X_WINDOW (f),
-		  RevertToPointerRoot, CurrentTime);
+  XSetInputFocus(FRAME_X_DISPLAY(f), FRAME_X_WINDOW(f),
+		 RevertToPointerRoot, CurrentTime);
 #endif /* 0 */
+  return;
 }
 
-void x_unfocus_frame(struct frame *f)
+void ATTRIBUTE_CONST x_unfocus_frame(struct frame *f)
 {
 #if defined(__APPLE__) && defined(__APPLE_CC__) && (__APPLE_CC__ > 1)
 # pragma unused (f)
@@ -6257,10 +6282,7 @@ static void XTframe_raise_lower(FRAME_PTR f, int raise_flag)
 }
 
 /* Change of visibility: */
-#ifndef _EMACS_MACTERM_H
-static
-#endif /* !_EMACS_MACTERM_H */
-void mac_handle_visibility_change(struct frame *f)
+STATIC_WITHOUT_MACTERM_H void mac_handle_visibility_change(struct frame *f)
 {
   WindowPtr wp = FRAME_MAC_WINDOW(f);
   int visible = 0, iconified = 0;
@@ -6308,6 +6330,10 @@ void mac_handle_visibility_change(struct frame *f)
   f->async_visible = visible;
   f->async_iconified = iconified;
 }
+
+#ifndef FRAME_SAMPLE_VISIBILITY
+# define FRAME_SAMPLE_VISIBILITY(f) eassert(f != NULL)
+#endif /* !FRAME_SAMPLE_VISIBILITY */
 
 /* This tries to wait until the frame is really visible.
    However, if the window manager asks the user where to position
@@ -6394,15 +6420,15 @@ void x_make_frame_visible(struct frame *f)
 	    /* It could be confusing if a real alarm arrives while
 	       processing the fake one.  Turn it off and let the
 	       handler reset it.  */
-	    extern void poll_for_input_1 P_ ((void));
+	    extern void poll_for_input_1 P_((void));
 	    int old_poll_suppress_count = poll_suppress_count;
 	    poll_suppress_count = 1;
-	    poll_for_input_1 ();
+	    poll_for_input_1();
 	    poll_suppress_count = old_poll_suppress_count;
 	  }
 
-	/* See if a MapNotify event has been processed.  */
-	FRAME_SAMPLE_VISIBILITY (f);
+	/* See if a MapNotify event has been processed: */
+	FRAME_SAMPLE_VISIBILITY(f);
       }
   }
 }
@@ -6663,7 +6689,8 @@ void x_wm_set_icon_pixmap(struct frame *f, int pixmap_id)
 
 #endif /* 0 (MAC_TODO) */
 
-void x_wm_set_icon_position(struct frame *f, int icon_x, int icon_y)
+void ATTRIBUTE_CONST
+x_wm_set_icon_position(struct frame *f, int icon_x, int icon_y)
 {
 #if 0 /* MAC_TODO: no icons on Mac */
 # ifdef USE_X_TOOLKIT
@@ -6676,7 +6703,7 @@ void x_wm_set_icon_position(struct frame *f, int icon_x, int icon_y)
   f->output_data.x->wm_hints.icon_x = icon_x;
   f->output_data.x->wm_hints.icon_y = icon_y;
 
-  XSetWMHints (FRAME_X_DISPLAY (f), window, &f->output_data.x->wm_hints);
+  XSetWMHints(FRAME_X_DISPLAY(f), window, &f->output_data.x->wm_hints);
 #else
   return;
 #endif /* MAC_TODO */
@@ -7084,7 +7111,11 @@ decode_mac_font_name(char *name, int size, Lisp_Object coding_system)
 #endif /* COMPOSITION_DISABLED */
 	  buf = (char *)alloca(size);
 
+#ifndef decode_coding_c_string
+	  /* FIXME: I am unsure how to adapt this to the new interfaces found
+	   * in "coding.h": */
 	  decode_coding(&coding, name, buf, strlen(name), (size - 1));
+#endif /* !decode_coding_c_string */
 	  bcopy(buf, name, coding.produced);
 	  name[coding.produced] = '\0';
 	}
@@ -7256,6 +7287,14 @@ static void add_mac_font_name(const char *name, int size, Style style,
 }
 
 #if USE_ATSUI
+extern Lisp_Object mac_atsu_font_face_attributes P_((ATSUFontID));
+
+# if defined(__GNUC__) && defined(__GNUC_MINOR__)
+#  if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6))
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wmultichar"
+#  endif /* gcc 4.6+ */
+# endif /* any gcc */
 static FMFontStyle fm_get_style_from_font(FMFont font)
 {
   OSStatus err;
@@ -7263,12 +7302,12 @@ static FMFontStyle fm_get_style_from_font(FMFont font)
   ByteCount len;
   UInt16 mac_style;
   FMFontFamily font_family;
-#define FONT_HEADER_MAC_STYLE_OFFSET ((4 * 4) + (2 * 2) + (8 * 2) + (2*4))
+# define FONT_HEADER_MAC_STYLE_OFFSET ((4 * 4) + (2 * 2) + (8 * 2) + (2 * 4))
 
   /* FMGetFontFamilyInstanceFromFont returns `normal' as the style of
      some font (e.g., Optima) even if it is `bold'.  */
-  err = FMGetFontTable (font, 'head', FONT_HEADER_MAC_STYLE_OFFSET,
-			sizeof (mac_style), &mac_style, &len);
+  err = FMGetFontTable(font, 'head', FONT_HEADER_MAC_STYLE_OFFSET,
+		       sizeof(mac_style), &mac_style, &len);
   if ((err == noErr)
       && (len >= (FONT_HEADER_MAC_STYLE_OFFSET + sizeof(mac_style))))
     style = EndianU16_BtoN(mac_style);
@@ -7277,6 +7316,12 @@ static FMFontStyle fm_get_style_from_font(FMFont font)
 
   return style;
 }
+/* keep condition same as where we push: */
+# if defined(__GNUC__) && defined(__GNUC_MINOR__)
+#  if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6))
+#   pragma GCC diagnostic pop
+#  endif /* gcc 4.6+ */
+# endif /* any gcc */
 
 static ATSUFontID atsu_find_font_from_family_name(const char *family)
 {
@@ -7313,9 +7358,9 @@ static ATSUFontID atsu_find_font_from_family_name(const char *family)
       rest = XCDR(rest);
     } while (!NILP(rest));
 
-#ifdef HASH_VALUE
+# ifdef HASH_VALUE
   HASH_VALUE(h, i) = best;
-#endif /* HASH_VALUE */
+# endif /* HASH_VALUE */
   return cons_to_long(best);
 }
 
@@ -7396,24 +7441,28 @@ static void init_font_name_table(void)
     {
       OSStatus err;
       struct Lisp_Hash_Table *h;
-      unsigned hash_code;
+      unsigned int hash_code;
       ItemCount nfonts, i;
       ATSUFontID *font_ids = NULL;
       Lisp_Object prev_family = Qnil;
-      int j;
+      int j = 0;
 
       atsu_font_id_hash =
+#if 0
 	make_hash_table(Qequal, make_number(DEFAULT_HASH_SIZE),
                         make_float(DEFAULT_REHASH_SIZE),
                         make_float(DEFAULT_REHASH_THRESHOLD),
                         Qnil, Qnil, Qnil);
-      h = XHASH_TABLE(asu_font_id_hash);
+#else
+	Qnil;
+#endif /* 0 */
+      h = XHASH_TABLE(atsu_font_id_hash);
 
       err = ATSUFontCount(&nfonts);
       if (err == noErr)
 	{
-	  font_ids = xmalloc (sizeof (ATSUFontID) * nfonts);
-	  err = ATSUGetFontIDs (font_ids, nfonts, NULL);
+	  font_ids = xmalloc(sizeof(ATSUFontID) * nfonts);
+	  err = ATSUGetFontIDs(font_ids, nfonts, NULL);
 	}
       if (err == noErr)
 	for (i = 0; i < nfonts; i++)
@@ -8182,6 +8231,7 @@ static MacFontStruct *mac_load_query_font(struct frame *f, char *fontname)
 	      char_width = StringWidth((ConstStr255Param)"\p\xa1\xa1");
 	      break;
             default:
+	      char_width = 0;
               break;
 	    }
 
@@ -8556,7 +8606,7 @@ void x_find_ccl_program(struct font_info *fontp)
       struct ccl_program *ccl
 	= (struct ccl_program *)xmalloc(sizeof(struct ccl_program));
 
-      if (setup_ccl_program(ccl, XCDR(elt)) < 0)
+      if (setup_ccl_program(ccl, XCDR(elt)) <= 0)
 	xfree(ccl);
       else
 	fontp->font_encoder = ccl;
@@ -8596,13 +8646,14 @@ mac_set_font_info_for_selection(struct frame *f, int face_id, int c)
     {
       target = GetWindowEventTarget(FRAME_MAC_WINDOW(f));
 
-      if (FRAME_FACE_CACHE(f) && CHAR_VALID_P(c, 0))
+      if (FRAME_FACE_CACHE(f) && CHAR_VALID_P(c))
 	{
 	  struct face *face;
 
-	  face_id = FACE_FOR_CHAR(f, FACE_FROM_ID(f, face_id), c);
+	  face_id = FACE_FOR_CHAR(f, FACE_FROM_ID(f, face_id), c, 0L, Qnil);
 	  face = FACE_FROM_ID(f, face_id);
-	  font = face->font;
+	  xassert(face != NULL);
+	  font = (XFontStruct *)face->font;
 	}
     }
 
@@ -8747,10 +8798,7 @@ int mac_pass_control_to_system;
 static struct input_event *read_socket_inev = NULL;
 
 /* Whether or not the screen configuration has changed: */
-#ifndef _EMACS_MACTERM_H
-static
-#endif /* !_EMACS_MACTERM_H */
-bool mac_screen_config_changed = 0;
+STATIC_WITHOUT_MACTERM_H bool mac_screen_config_changed = 0;
 
 Point saved_menu_event_location;
 
@@ -8763,17 +8811,11 @@ static Lisp_Object Qtoolbar_switch_mode;
 # endif /* MAC_OSX */
 # if USE_MAC_FONT_PANEL
 extern Lisp_Object Qfont;
-#  ifndef _EMACS_MACTERM_H
-static
-#  endif /* !_EMACS_MACTERM_H */
-Lisp_Object Qpanel_closed, Qselection;
+STATIC_WITHOUT_MACTERM_H Lisp_Object Qpanel_closed, Qselection;
 # endif /* USE_MAC_FONT_PANEL */
 # if USE_MAC_TSM
 static TSMDocumentID tsm_document_id;
-#  ifndef _EMACS_MACTERM_H
-static
-#  endif /* !_EMACS_MACTERM_H */
-Lisp_Object Qtext_input;
+STATIC_WITHOUT_MACTERM_H Lisp_Object Qtext_input;
 static Lisp_Object Qupdate_active_input_area, Qunicode_for_key_event;
 #  ifndef Vmac_ts_active_input_overlay
 static Lisp_Object Vmac_ts_active_input_overlay;
@@ -8806,10 +8848,7 @@ extern OSStatus install_menu_target_item_handler P_((WindowPtr));
 #if USE_CARBON_EVENTS
 # ifdef MAC_OSX
 extern void init_service_handler P_((void));
-#  ifndef _EMACS_MACTERM_H
-static
-#  endif /* !_EMACS_MACTERM_H */
-Lisp_Object Qservice, Qpaste, Qperform;
+STATIC_WITHOUT_MACTERM_H Lisp_Object Qservice, Qpaste, Qperform;
 # endif /* MAC_OSX */
 
 /* Window Event Handler: */
@@ -8985,23 +9024,23 @@ int mac_quit_char_key_p(UInt32 modifiers, UInt32 key_code)
   UInt32 char_code;
   unsigned long some_state = 0;
   Ptr kchr_ptr = (Ptr)GetScriptManagerVariable(smKCHRCache);
-  int c, emacs_modifiers;
+  int c = 0, emacs_modifiers;
 
-  /* Mask off modifier keys that are mapped to some Emacs modifiers.  */
-  key_code |= (modifiers & ~(mac_mapped_modifiers (modifiers)));
-  char_code = KeyTranslate (kchr_ptr, key_code, &some_state);
+  /* Mask off modifier keys that are mapped to some Emacs modifiers: */
+  key_code |= (modifiers & ~(mac_mapped_modifiers(modifiers)));
+  char_code = KeyTranslate(kchr_ptr, key_code, &some_state);
   if (char_code & ~0xff)
     return 0;
 
-  emacs_modifiers = mac_to_emacs_modifiers (modifiers);
+  emacs_modifiers = mac_to_emacs_modifiers(modifiers);
   if (emacs_modifiers & ctrl_modifier)
-    c = make_ctrl_char (char_code);
+    c = make_ctrl_char(char_code);
 
   c |= (emacs_modifiers
 	& (meta_modifier | alt_modifier
 	   | hyper_modifier | super_modifier));
 
-  return c == quit_char;
+  return (c == quit_char);
 }
 #endif /* TARGET_API_MAC_CARBON */
 
@@ -9553,10 +9592,7 @@ void mac_store_apple_event(Lisp_Object class, Lisp_Object id,
 }
 
 #if TARGET_API_MAC_CARBON
-# ifndef _EMACS_MACTERM_H
-static
-# endif /* !_EMACS_MACTERM_H */
-OSStatus
+STATIC_WITHOUT_MACTERM_H OSStatus
 mac_store_event_ref_as_apple_event(AEEventClass class, AEEventID id,
                                    Lisp_Object class_key,
                                    Lisp_Object id_key,
@@ -9589,6 +9625,9 @@ mac_store_event_ref_as_apple_event(AEEventClass class, AEEventID id,
 
   return err;
 }
+
+extern void mac_store_drag_event P_((WindowRef, Point, SInt16,
+				     const AEDesc *));
 
 void
 mac_store_drag_event(WindowRef window, Point mouse_pos, SInt16 modifiers,
@@ -9887,7 +9926,8 @@ mac_handle_mouse_event(EventHandlerCallRef next_handler,
 	SetPortWindowPort(wp);
 	GlobalToLocal(&point);
 	if ((point.h < 0) || (point.v < 0)
-	    || EQ(window_from_coordinates(f, point.h, point.v, 0, 0, 0, 1),
+	    || EQ(window_from_coordinates(f, point.h, point.v,
+					  (enum window_part *)NULL, 1),
                   f->tool_bar_window))
 	  break;
 
@@ -9959,6 +9999,9 @@ mac_handle_font_event(EventHandlerCallRef next_handler,
       break;
 
     default:
+      num_params = 0;
+      names = NULL;
+      types = NULL;
       break;
     }
 
@@ -10154,6 +10197,8 @@ mac_handle_text_input_event(EventHandlerCallRef next_handler,
 #endif /* USE_MAC_TSM */
 
 # ifdef MAC_OSX
+extern OSStatus mac_store_service_event P_((EventRef));
+
 OSStatus mac_store_service_event(EventRef event)
 {
   OSStatus err;
@@ -10306,10 +10351,8 @@ static OSErr init_dm_notification_handler(void)
   return err;
 }
 
-#ifndef _EMACS_MACTERM_H
-static
-#endif /* !_EMACS_MACTERM_H */
-void mac_get_screen_info(struct mac_display_info *dpyinfo)
+STATIC_WITHOUT_MACTERM_H void
+mac_get_screen_info(struct mac_display_info *dpyinfo)
 {
 #ifdef MAC_OSX
   /* HasDepth returns true if it is possible to have a 32 bit display,
@@ -10504,10 +10547,11 @@ OSStatus mac_post_mouse_moved_event(void)
   return err;
 }
 
+
 static void
 mac_set_unicode_keystroke_event(UniChar code, struct input_event *buf)
 {
-  int charset_id, c1, c2;
+  int charset_id = CHARSET_ASCII, c1, c2;
 
   if (code < 0x80)
     {
@@ -10724,7 +10768,7 @@ int XTread_socket(int sd, int expected, struct input_event *hold_quit)
 			    && (control_kind.kind == kControlKindScrollBar)
 # endif	/* MAC_OSX */
 #endif	/* USE_TOOLKIT_SCROLL_BARS */
-			    ))
+			    && (dpyinfo != NULL)))
 		      {
 			struct scroll_bar *bar;
 
@@ -10764,7 +10808,9 @@ int XTread_socket(int sd, int expected, struct input_event *hold_quit)
 			int x = mouse_loc.h;
 			int y = mouse_loc.v;
 
-			window = window_from_coordinates(f, x, y, 0, 0, 0, 1);
+			window =
+			  window_from_coordinates(f, x, y,
+						  (enum window_part *)NULL, 1);
 			if (EQ(window, f->tool_bar_window))
 			  {
 			    if (er.what == mouseDown)
@@ -10953,9 +10999,9 @@ int XTread_socket(int sd, int expected, struct input_event *hold_quit)
 			{
 			  Lisp_Object window;
 
-			  window = window_from_coordinates(f, mouse_pos.h,
-                                                           mouse_pos.v,
-                                                           0, 0, 0, 0);
+			  window =
+			    window_from_coordinates(f, mouse_pos.h, mouse_pos.v,
+						    (enum window_part*)NULL, 0);
 
 			  /* Window will be selected only when it is
 			     not selected now and last mouse movement
@@ -10998,7 +11044,7 @@ int XTread_socket(int sd, int expected, struct input_event *hold_quit)
 #endif /* USE_CARBON_EVENTS */
 	    if (window_ptr == tip_window)
 	      {
-		HideWindow(tip_window);
+		HideWindow((WindowRef)tip_window);
 		break;
 	      }
 
@@ -11680,13 +11726,17 @@ static struct redisplay_interface x_redisplay_interface =
   x_after_update_window_line,
   x_update_window_begin,
   x_update_window_end,
+#if 0
   x_cursor_to,
+#endif /* 0 */
   x_flush,
-#if USE_CG_DRAWING
+#if 0
+# if USE_CG_DRAWING
   mac_flush_display_optional,
-#else
+# else
   0, /* flush_display_optional */
-#endif /* USE_CG_DRAWING */
+# endif /* USE_CG_DRAWING */
+#endif /* 0 */
   x_clear_window_mouse_face,
   x_get_glyph_overhangs,
   x_fix_overlapping_area,
@@ -11698,14 +11748,17 @@ static struct redisplay_interface x_redisplay_interface =
   0, /* define_fringe_bitmap */
   0, /* destroy_fringe_bitmap */
 #endif /* USE_CG_DRAWING */
+#if 0
   mac_per_char_metric,
   mac_encode_char,
+#endif /* 0 */
   mac_compute_glyph_string_overhangs,
   x_draw_glyph_string,
   mac_define_frame_cursor,
   mac_clear_frame_area,
   mac_draw_window_cursor,
   mac_draw_vertical_window_border,
+  NULL, /* draw_window_divider */
   mac_shift_glyphs_for_insert
 };
 
@@ -11714,8 +11767,10 @@ void mac_initialize(void)
 #ifndef _USE_OLD_LISP_DATA_STRUCTURES
   struct redisplay_interface *rif;
   bool_bf fast_clear_end_of_line;
-  struct terminal *theMacTerm;
-  struct tty_display_info *ti;
+  struct terminal *theMacTerm =
+    (struct terminal *)xmalloc(sizeof(struct terminal));
+  struct tty_display_info *ti =
+    (struct tty_display_info *)xmalloc(sizeof(struct tty_display_info));
 #endif /* !_USE_OLD_LISP_DATA_STRUCTURES */
   rif = &x_redisplay_interface;
 
@@ -11730,7 +11785,8 @@ void mac_initialize(void)
   theMacTerm->update_begin_hook = x_update_begin;
   theMacTerm->update_end_hook = x_update_end;
   theMacTerm->set_terminal_window_hook = XTset_terminal_window;
-  theMacTerm->read_socket_hook = XTread_socket;
+  theMacTerm->read_socket_hook =
+    (int (*)(struct terminal *, struct input_event *))XTread_socket;
   theMacTerm->frame_up_to_date_hook = XTframe_up_to_date;
   theMacTerm->mouse_position_hook = XTmouse_position;
   theMacTerm->frame_rehighlight_hook = XTframe_rehighlight;
@@ -11823,6 +11879,8 @@ void mac_initialize(void)
   redo_mouse_highlight();
   IF_LINT((void)rif);
   IF_LINT((void)fast_clear_end_of_line);
+  IF_LINT((void)mac_encode_char);
+  IF_LINT((void)mac_flush_display_optional);
 #endif /* lint */
 
   UNBLOCK_INPUT;
@@ -11849,9 +11907,11 @@ void syms_of_macterm(void)
   Qmodifier_value = intern("modifier-value");
   staticpro(&Qmodifier_value);
 
+#if defined(DEFSYM) && defined(EMACS_GLOBALS_H) && 0
   DEFSYM(QCordinary, ":ordinary");
   DEFSYM(QCfunction, ":function");
   DEFSYM(QCmouse, ":mouse");
+#endif /* DEFSYM && EMACS_GLOBALS_H && 0 */
 
   Fput(Qcontrol, Qmodifier_value, make_number(ctrl_modifier));
   Fput(Qmeta, Qmodifier_value, make_number(meta_modifier));
@@ -11864,7 +11924,7 @@ void syms_of_macterm(void)
   staticpro(&Qhi_command);
 # ifdef MAC_OSX
   Qtoolbar_switch_mode = intern("toolbar-switch-mode");
-  staticpro (&Qtoolbar_switch_mode);
+  staticpro(&Qtoolbar_switch_mode);
 #  if USE_MAC_FONT_PANEL
   Qpanel_closed = intern("panel-closed");
   staticpro(&Qpanel_closed);
@@ -11891,7 +11951,9 @@ void syms_of_macterm(void)
 # endif /* USE_MAC_TSM */
 #endif /* USE_CARBON_EVENTS */
 
+#if defined(DEFSYM) && defined(EMACS_GLOBALS_H) && 0
   DEFSYM(Qnotification, "notification");
+#endif /* DEFSYM && EMACS_GLOBALS_H && 0 */
 
   DEFSYM(Qaction, "action");
 
@@ -11905,7 +11967,9 @@ void syms_of_macterm(void)
   staticpro(&Qreverse);
   Qreverse = intern("reverse");
 
+#if defined(DEFSYM) && defined(EMACS_GLOBALS_H) && 0
   DEFSYM(Qkeyboard_modifiers, "keyboard-modifiers");
+#endif /* DEFSYM && EMACS_GLOBALS_H && 0 */
 
   staticpro(&x_display_name_list);
   x_display_name_list = Qnil;
@@ -11931,8 +11995,8 @@ void syms_of_macterm(void)
 
   /* We do NOT yet support this, but defining this here avoids whining
      from cus-start.el and other places, like "M-x set-variable".  */
-  DEFVAR_BOOL ("x-use-underline-position-properties",
-	        x_use_underline_position_properties,
+  DEFVAR_BOOL("x-use-underline-position-properties",
+	      x_use_underline_position_properties,
      doc: /* *Non-nil means make use of UNDERLINE_POSITION font properties.
 A value of nil means ignore them.  If you encounter fonts with bogus
 UNDERLINE_POSITION font properties, for example 7x13 on XFree prior
@@ -11941,15 +12005,15 @@ to 4.1, set this to nil.
 NOTE: Not supported on Mac yet.  */);
   x_use_underline_position_properties = 0;
 
-  DEFVAR_BOOL ("x-underline-at-descent-line",
-	        x_underline_at_descent_line,
+  DEFVAR_BOOL("x-underline-at-descent-line",
+	      x_underline_at_descent_line,
      doc: /* *Non-nil means to draw the underline at the same place as the descent line.
 A value of nil means to draw the underline according to the value of the
 variable `x-use-underline-position-properties', which is usually at the
 baseline level.  The default value is nil.  */);
   x_underline_at_descent_line = 0;
 
-  DEFVAR_LISP ("x-toolkit-scroll-bars", Vx_toolkit_scroll_bars,
+  DEFVAR_LISP("x-toolkit-scroll-bars", Vx_toolkit_scroll_bars,
     doc: /* If not nil, Emacs uses toolkit scroll bars.  */);
 #ifdef USE_TOOLKIT_SCROLL_BARS
   Vx_toolkit_scroll_bars = Qt;
@@ -11962,13 +12026,13 @@ baseline level.  The default value is nil.  */);
 
 /* Variables to configure modifier key assignment.  */
 
-  DEFVAR_LISP ("mac-control-modifier", Vmac_control_modifier,
+  DEFVAR_LISP("mac-control-modifier", Vmac_control_modifier,
     doc: /* *Modifier key assumed when the Mac control key is pressed.
 The value can be `control', `meta', `alt', `hyper', or `super' for the
 respective modifier.  The default is `control'.  */);
   Vmac_control_modifier = Qcontrol;
 
-  DEFVAR_LISP ("mac-option-modifier", Vmac_option_modifier,
+  DEFVAR_LISP("mac-option-modifier", Vmac_option_modifier,
     doc: /* *Modifier key assumed when the Mac alt/option key is pressed.
 The value can be `control', `meta', `alt', `hyper', or `super' for the
 respective modifier.  If the value is nil then the key will act as the
@@ -11976,21 +12040,21 @@ normal Mac control modifier, and the option key can be used to compose
 characters depending on the chosen Mac keyboard setting.  */);
   Vmac_option_modifier = Qnil;
 
-  DEFVAR_LISP ("mac-command-modifier", Vmac_command_modifier,
+  DEFVAR_LISP("mac-command-modifier", Vmac_command_modifier,
     doc: /* *Modifier key assumed when the Mac command key is pressed.
 The value can be `control', `meta', `alt', `hyper', or `super' for the
 respective modifier.  The default is `meta'.  */);
   Vmac_command_modifier = Qmeta;
 
-  DEFVAR_LISP ("mac-function-modifier", Vmac_function_modifier,
+  DEFVAR_LISP("mac-function-modifier", Vmac_function_modifier,
     doc: /* *Modifier key assumed when the Mac function key is pressed.
 The value can be `control', `meta', `alt', `hyper', or `super' for the
 respective modifier.  Note that remapping the function key may lead to
 unexpected results for some keys on non-US/GB keyboards.  */);
   Vmac_function_modifier = Qnil;
 
-  DEFVAR_LISP ("mac-emulate-three-button-mouse",
-	        Vmac_emulate_three_button_mouse,
+  DEFVAR_LISP("mac-emulate-three-button-mouse",
+	      Vmac_emulate_three_button_mouse,
     doc: /* *Specify a way of three button mouse emulation.
 The value can be nil, t, or the symbol `reverse'.
 A value of nil means that no emulation should be done and the modifiers
@@ -12003,23 +12067,23 @@ mouse-3 and the command-key will register for mouse-2.  */);
   Vmac_emulate_three_button_mouse = Qnil;
 
 #if USE_CARBON_EVENTS
-  DEFVAR_BOOL ("mac-wheel-button-is-mouse-2", mac_wheel_button_is_mouse_2,
+  DEFVAR_BOOL("mac-wheel-button-is-mouse-2", mac_wheel_button_is_mouse_2,
     doc: /* *Non-nil if the wheel button is mouse-2 and the right click mouse-3.
 Otherwise, the right click will be treated as mouse-2 and the wheel
 button will be mouse-3.  */);
   mac_wheel_button_is_mouse_2 = 1;
 
-  DEFVAR_BOOL ("mac-pass-command-to-system", mac_pass_command_to_system,
+  DEFVAR_BOOL("mac-pass-command-to-system", mac_pass_command_to_system,
     doc: /* *Non-nil if command key presses are passed on to the Mac Toolbox.  */);
   mac_pass_command_to_system = 1;
 
-  DEFVAR_BOOL ("mac-pass-control-to-system", mac_pass_control_to_system,
+  DEFVAR_BOOL("mac-pass-control-to-system", mac_pass_control_to_system,
     doc: /* *Non-nil if control key presses are passed on to the Mac Toolbox.  */);
   mac_pass_control_to_system = 1;
 
 #endif /* USE_CARBON_EVENTS */
 
-  DEFVAR_BOOL ("mac-allow-anti-aliasing", mac_use_core_graphics,
+  DEFVAR_BOOL("mac-allow-anti-aliasing", mac_use_core_graphics,
     doc: /* *If non-nil, allow anti-aliasing.
 The text will be rendered using Core Graphics text rendering which
 may anti-alias the text.  */);
@@ -12032,7 +12096,7 @@ may anti-alias the text.  */);
   /* Register an entry for `mac-roman' so that it can be used when
      creating the terminal frame on Mac OS 9 before loading
      term/mac-win.elc.  */
-  DEFVAR_LISP ("mac-charset-info-alist", Vmac_charset_info_alist,
+  DEFVAR_LISP("mac-charset-info-alist", Vmac_charset_info_alist,
     doc: /* Alist of Emacs character sets vs text encodings and coding systems.
 Each entry should be of the form:
 
@@ -12046,11 +12110,11 @@ CODING_SYSTEM is a coding system corresponding to TEXT-ENCODING.  */);
                 make_number(smRoman), Qnil), Qnil);
 
 #if USE_MAC_TSM
-  DEFVAR_LISP ("mac-ts-active-input-overlay", Vmac_ts_active_input_overlay,
+  DEFVAR_LISP("mac-ts-active-input-overlay", Vmac_ts_active_input_overlay,
     doc: /* Overlay used to display Mac TSM active input area.  */);
   Vmac_ts_active_input_overlay = Qnil;
 
-  DEFVAR_LISP ("mac-ts-script-language-on-focus", Vmac_ts_script_language_on_focus,
+  DEFVAR_LISP("mac-ts-script-language-on-focus", Vmac_ts_script_language_on_focus,
     doc: /* *How to change Mac TSM script/language when a frame gets focus.
 If the value is t, the input script and language are restored to those
 used in the last focus frame.  If the value is a pair of integers, the
@@ -12060,7 +12124,7 @@ Emacs does NOT set them and thus follows the system default behavior.  */);
   Vmac_ts_script_language_on_focus = Qnil;
 #endif /* USE_MAC_TSM */
 
-  DEFVAR_BOOL ("mac-drawing-use-gcd", mac_drawing_use_gcd,
+  DEFVAR_BOOL("mac-drawing-use-gcd", mac_drawing_use_gcd,
     doc: /* Non-nil means graphical drawing uses GCD (Grand Central Dispatch).
 It allows us to perform graphical drawing operations in a non-main
 thread in some situations.  This variable has no effect on Mac OS X

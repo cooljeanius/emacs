@@ -1838,9 +1838,8 @@ POS, ROWH is the visible height of that row, and VPOS is the row number
       && (CHARPOS(top) >= BUF_BEGV(buf))
       && (CHARPOS(top) <= BUF_ZV(buf))
       && pos_visible_p(w, posint, &x, &y, &rtop, &rbot, &rowh, &vpos)
-      && ((fully_p = !rtop) && !rbot, (!NILP(partially) || fully_p)))
+      && ((fully_p = (!rtop && !rbot)), (!NILP(partially) || fully_p)))
     in_window = Qt;
-  /* FIXME: '-Wunused-value' */
 
   if (!NILP(in_window) && !NILP(partially))
     {
