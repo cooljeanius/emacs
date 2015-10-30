@@ -528,7 +528,7 @@ lost after dumping")))
       ;; under the name `xemacs'), and it's inconsistent with every
       ;; other GNU program's build process.
       (dump-emacs "emacs" "temacs")
-      (message "%d pure bytes used" pure-bytes-used)
+      (message "returning to loadup.el; %d pure bytes used while dumping" pure-bytes-used)
       ;; Recompute NAME now, so that it isn't set when we dump.
       (if (not (or (eq system-type 'ms-dos)
                    ;; Don't bother adding another name if we're just

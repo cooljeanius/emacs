@@ -1,4 +1,4 @@
-/* Caching facts about regions of the buffer, for optimization.
+/* region-cache.c: Caching facts about regions of the buffer, for optimization.
 
 Copyright (C) 1985-1989, 1993, 1995, 2001-2014 Free Software Foundation,
 Inc.
@@ -205,7 +205,7 @@ find_cache_boundary (struct region_cache *c, ptrdiff_t pos)
 /* Move the gap of cache C to index POS, and make sure it has space
    for at least MIN_SIZE boundaries.  */
 static void
-move_cache_gap (struct region_cache *c, ptrdiff_t pos, ptrdiff_t min_size)
+move_cache_gap(struct region_cache *c, ptrdiff_t pos, ptrdiff_t min_size)
 {
   /* Copy these out of the cache and into registers.  */
   ptrdiff_t gap_start = c->gap_start;
@@ -215,7 +215,7 @@ move_cache_gap (struct region_cache *c, ptrdiff_t pos, ptrdiff_t min_size)
 
   /* We mustn't ever try to put the gap before the dummy start
      boundary.  That must always be start-relative.  */
-  eassert (0 < pos && pos <= c->cache_len);
+  eassert(0 < pos && pos <= c->cache_len);
 
   /* Need we move the gap right?  */
   while (gap_start < pos)
@@ -241,16 +241,16 @@ move_cache_gap (struct region_cache *c, ptrdiff_t pos, ptrdiff_t min_size)
       ptrdiff_t i, nboundaries = c->cache_len;
 
       c->boundaries =
-	xpalloc (c->boundaries, &nboundaries, min_size - gap_len, -1,
-		 sizeof *c->boundaries);
+	xpalloc(c->boundaries, &nboundaries, (min_size - gap_len), -1,
+		sizeof(*c->boundaries));
 
       /* Some systems don't provide a version of the copy routine that
          can be trusted to shift memory upward into an overlapping
          region.  memmove isn't widely available.  */
-      min_size = nboundaries - c->cache_len - gap_len;
-      for (i = c->cache_len - 1; i >= gap_start; i--)
+      min_size = (nboundaries - c->cache_len - gap_len);
+      for (i = (c->cache_len - 1); (i >= gap_start) && (i > PTRDIFF_MIN); i--)
         {
-          c->boundaries[i + min_size].pos   = c->boundaries[i + gap_len].pos;
+          c->boundaries[i + min_size].pos = c->boundaries[i + gap_len].pos;
           c->boundaries[i + min_size].value = c->boundaries[i + gap_len].value;
         }
 
@@ -786,3 +786,5 @@ pp_cache (struct region_cache *c)
 }
 
 #endif /* ENABLE_CHECKING */
+
+/* EOF */

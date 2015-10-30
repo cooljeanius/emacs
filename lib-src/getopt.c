@@ -907,12 +907,13 @@ _getopt_internal_r (int argc, char **argv, const char *optstring,
 
 	/* Test all long options for either exact match
 	   or abbreviated matches.  */
-	for (p = longopts, option_index = 0; p->name; p++, option_index++)
-	  if (!strncmp (p->name, d->__nextchar, nameend - d->__nextchar))
+	for (p = longopts, option_index = 0; (p != NULL) && p->name;
+	     p++, option_index++)
+	  if (!strncmp(p->name, d->__nextchar, nameend - d->__nextchar))
 	    {
-	      if ((unsigned int) (nameend - d->__nextchar) == strlen (p->name))
+	      if ((size_t)(nameend - d->__nextchar) == strlen(p->name))
 		{
-		  /* Exact match found.  */
+		  /* Exact match found: */
 		  pfound = p;
 		  indfound = option_index;
 		  exact = 1;
@@ -920,12 +921,12 @@ _getopt_internal_r (int argc, char **argv, const char *optstring,
 		}
 	      else if (pfound == NULL)
 		{
-		  /* First nonexact match found.  */
+		  /* First nonexact match found: */
 		  pfound = p;
 		  indfound = option_index;
 		}
 	      else
-		/* Second or later nonexact match found.  */
+		/* Second or later nonexact match found: */
 		ambig = 1;
 	    }
 	if (ambig && !exact)

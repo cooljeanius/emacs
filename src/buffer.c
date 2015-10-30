@@ -4543,7 +4543,7 @@ report_overlay_modification (Lisp_Object start, Lisp_Object end, bool after,
     gcpro1.var = copy;
     gcpro1.nvars = size;
 
-    for (i = 0; i < size;)
+    for (i = 0; (i < size) && (i < PTRDIFF_MAX) && (i > PTRDIFF_MIN);)
       {
 	Lisp_Object prop_i, overlay_i;
 	prop_i = copy[i++];

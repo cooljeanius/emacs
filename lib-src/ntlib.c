@@ -576,4 +576,9 @@ sys_rename(const char *from, const char *to)
   return retval;
 }
 
+/* '-Wunused-macros': */
+#ifdef _POSIX_PATH_MAX
+# undef _POSIX_PATH_MAX
+#endif /* _POSIX_PATH_MAX */
+
 /* EOF */

@@ -863,7 +863,7 @@ store_in_keymap (Lisp_Object keymap, register Lisp_Object idx, Lisp_Object def)
 
 		if (to >= ASIZE (elt))
 		  to = ASIZE (elt) - 1;
-		for (; from <= to; from++)
+		for (; (from <= to) && (from < INT_MAX); from++)
 		  ASET (elt, from, def);
 		if (to == XFASTINT (XCDR (idx)))
 		  /* We have defined all keys in IDX.  */

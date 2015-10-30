@@ -291,7 +291,7 @@ ns_update_menubar(struct frame *f, bool deep_p, EmacsMenu *submenu)
       wv->help = Qnil;
       first_wv = wv;
 
-      for (i = 0; i < (4 * n); i += 4)
+      for (i = 0; (i < (4 * n)) && (i < INT_MAX) && (i > INT_MIN); i += 4)
 	{
 	  menu_items_n_panes = submenu_n_panes[i];
 	  wv = digest_single_submenu (submenu_start[i], submenu_end[i],

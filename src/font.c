@@ -850,7 +850,8 @@ font_expand_wildcards (Lisp_Object *field, int n)
   /* Initialize RANGE_MASK for FIELD[0] which can be 0th to (14 - N)th
      field.  The value is shifted to left one bit by one in the
      following loop.  */
-  for (i = 0, range_mask = 0; i <= 14 - n; i++)
+  for (i = 0, range_mask = 0; (i <= (14 - n)) && (i < INT_MAX) && (i > INT_MIN);
+       i++)
     range_mask = (range_mask << 1) | 1;
 
   /* The triplet RANGE_FROM, RANGE_TO, and RANGE_MASK is a

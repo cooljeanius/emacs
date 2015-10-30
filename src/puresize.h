@@ -35,12 +35,18 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
    amount of storage.  This is a lot more update-robust that defining
    BASE_PURESIZE or even PURESIZE directly.  */
 #ifndef SYSTEM_PURESIZE_EXTRA
-#define SYSTEM_PURESIZE_EXTRA 0
-#endif
+# define SYSTEM_PURESIZE_EXTRA 0
+#endif /* !SYSTEM_PURESIZE_EXTRA */
 
 #ifndef SITELOAD_PURESIZE_EXTRA
-#define SITELOAD_PURESIZE_EXTRA 0
-#endif
+# ifdef __APPLE__
+/* Internals documentation says:
+ * "Try adding increments of 20000 until it is big enough." */
+#  define SITELOAD_PURESIZE_EXTRA 20000
+# else
+#  define SITELOAD_PURESIZE_EXTRA 0
+# endif /* __APPLE__ */
+#endif /* !SITELOAD_PURESIZE_EXTRA */
 
 #ifndef BASE_PURESIZE
 #define BASE_PURESIZE (1700000 + SYSTEM_PURESIZE_EXTRA + SITELOAD_PURESIZE_EXTRA)

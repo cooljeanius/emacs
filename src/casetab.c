@@ -236,7 +236,7 @@ shuffle(Lisp_Object table, Lisp_Object c, Lisp_Object elt)
 	from = to = XINT(c);
 
       to++;
-      for (; (from < to) && (from < INT_MAX); from++)
+      for (; (from < to) && (from < INT_MAX) && (from > INT_MIN); from++)
 	{
 	  Lisp_Object tem = Faref(table, elt);
 	  Faset(table, elt, make_number(from));

@@ -2894,15 +2894,16 @@ Both should not be used to define a buffer-local dictionary."
 ;;; eval: expression
 ;;; local-variable: value
 
-;;; The following sets the buffer local dictionary to `american' English
-;;; and spell checks only comments.
+;;; The following spell checks only comments.
 
 ;;; Local Variables:
 ;;; mode: emacs-lisp
 ;;; comment-column: 40
 ;;; ispell-check-comments: exclusive
-;;; Local IspellDict: "american"
 ;;; End:
+
+;;; Setting Local IspellDict to "american" leads to an error saying it is
+;;; a malformed local variable line.
 
 
 ;;; MORE EXAMPLES OF ISPELL BUFFER-LOCAL VALUES

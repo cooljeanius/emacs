@@ -3166,8 +3166,9 @@ usage: (make-network-process &rest ARGS)  */)
       /* Parse network options in the arg list.
 	 We simply ignore anything which isn't a known option (including other keywords).
 	 An error is signaled if setting a known option fails.  */
-      for (optn = optbits = 0; optn < nargs-1; optn += 2)
-	optbits |= set_socket_option (s, args[optn], args[optn+1]);
+      for (optn = optbits = 0; (optn < (nargs - 1)) && (optn < PTRDIFF_MAX);
+	   optn += 2)
+	optbits |= set_socket_option(s, args[optn], args[optn + 1]);
 
       if (is_server)
 	{

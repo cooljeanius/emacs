@@ -1835,7 +1835,8 @@ skip_chars (bool forwardp, Lisp_Object string, Lisp_Object lim,
       if (! multibyte && n_char_ranges > 0)
 	{
 	  memset (fastmap + 0200, 0, 0200);
-	  for (i = 0; i < n_char_ranges; i += 2)
+	  for (i = 0; ((i < n_char_ranges) && (i < PTRDIFF_MAX)
+		       && (i > PTRDIFF_MIN)); i += 2)
 	    {
 	      int c1 = char_ranges[i];
 	      int lim2 = char_ranges[i + 1] + 1;

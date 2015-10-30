@@ -1,4 +1,4 @@
-/* Calculate what line insertion or deletion to do, and do it
+/* scroll.c: Calculate what line insertion or deletion to do, and do it.
 
 Copyright (C) 1985-1986, 1990, 1993-1994, 2001-2014 Free Software
 Foundation, Inc.
@@ -129,7 +129,7 @@ calculate_scrolling (struct frame *frame,
 
   /* initialize the left edge of the matrix */
   cost = first_insert_cost[1] - next_insert_cost[1];
-  for (i = 1; i <= window_size; i++)
+  for (i = 1; (i <= window_size) && (i < INT_MAX); i++)
     {
       p = matrix + i * (window_size + 1);
       cost += draw_cost[i] + next_insert_cost[i] + extra_cost;
@@ -142,7 +142,7 @@ calculate_scrolling (struct frame *frame,
 
   /* initialize the top edge of the matrix */
   cost = first_delete_cost[1] - next_delete_cost[1];
-  for (j = 1; j <= window_size; j++)
+  for (j = 1; (j <= window_size) && (j < INT_MAX); j++)
     {
       cost += next_delete_cost[j];
       matrix[j].deletecost = cost;
@@ -472,7 +472,7 @@ calculate_direct_scrolling (struct frame *frame,
 
   /* initialize the left edge of the matrix */
   cost = 0;
-  for (i = 1; i <= window_size; i++)
+  for (i = 1; (i <= window_size) && (i < INT_MAX); i++)
     {
       p = matrix + i * (window_size + 1);
       cost += draw_cost[i];
@@ -485,7 +485,7 @@ calculate_direct_scrolling (struct frame *frame,
     }
 
   /* initialize the top edge of the matrix */
-  for (j = 1; j <= window_size; j++)
+  for (j = 1; (j <= window_size) && (j < INT_MAX); j++)
     {
       matrix[j].deletecost = 0;
       matrix[j].writecost = INFINITY;
@@ -499,8 +499,8 @@ calculate_direct_scrolling (struct frame *frame,
      `j' represents the vpos among the old frame contents.  */
   p = matrix + window_size + 2;	/* matrix [1, 1] */
 
-  for (i = 1; i <= window_size; i++, p++)
-    for (j = 1; j <= window_size; j++, p++)
+  for (i = 1; (i <= window_size) && (i < INT_MAX); i++, p++)
+    for (j = 1; (j <= window_size) && (j < INT_MAX); j++, p++)
       {
 	/* p contains the address of matrix [i, j] */
 
@@ -984,3 +984,5 @@ do_line_insertion_deletion_costs (struct frame *frame,
 		 FRAME_DELETE_COST (frame), FRAME_DELETEN_COST (frame),
 		 coefficient);
 }
+
+/* EOF */

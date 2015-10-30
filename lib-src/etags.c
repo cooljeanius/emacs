@@ -5947,22 +5947,25 @@ nocase_tail (const char *cp)
   return false;
 }
 
+
 static void
-get_tag (register char *bp, char **namepp)
+get_tag(register char *bp, char **namepp)
 {
   register char *cp = bp;
 
+  assert(bp != NULL);
+  
   if (*bp != '\0')
     {
       /* Go till you get to white space or a syntactic break */
-      for (cp = bp + 1; !notinname (*cp); cp++)
+      for (cp = (bp + 1); !notinname(*cp); cp++)
 	continue;
-      make_tag (bp, cp - bp, true,
-		lb.buffer, cp - lb.buffer + 1, lineno, linecharno);
+      make_tag(bp, (cp - bp), true,
+	       lb.buffer, (cp - lb.buffer + 1), lineno, linecharno);
     }
 
   if (namepp != NULL)
-    *namepp = savenstr (bp, cp - bp);
+    *namepp = savenstr(bp, (cp - bp));
 }
 
 /*
@@ -6313,59 +6316,66 @@ skip_spaces(char *cp)
 }
 
 /* Skip non spaces, except end of string, return new pointer: */
-static char * ATTRIBUTE_NONNULL(1)
+static NO_INLINE char * ATTRIBUTE_NONNULL(1)
 skip_non_spaces(char *cp)
 {
+#if defined(assert) && !defined(ATTRIBUTE_NONNULL)
   assert(cp != NULL);
+#endif /* assert && !ATTRIBUTE_NONNULL */
   
   while ((*cp != '\0') && !iswhite(*cp))
-    cp++;
+    {
+      cp++;
+#if defined(assert) && !defined(ATTRIBUTE_NONNULL)
+      assert(cp != NULL);
+#endif /* assert && !ATTRIBUTE_NONNULL */
+    }
   return cp;
 }
 
 /* Skip any chars in the "name" class.*/
 static char *
-skip_name (char *cp)
+skip_name(char *cp)
 {
   /* '\0' is a notinname() so loop stops there too */
-  while (! notinname (*cp))
+  while (!notinname(*cp))
     cp++;
   return cp;
 }
 
-/* Print error message and exit.  */
+/* Print error message and exit: */
 void
-fatal (const char *s1, const char *s2)
+fatal(const char *s1, const char *s2)
 {
-  error (s1, s2);
-  exit (EXIT_FAILURE);
+  error(s1, s2);
+  exit(EXIT_FAILURE);
 }
 
 static void
-pfatal (const char *s1)
+pfatal(const char *s1)
 {
-  perror (s1);
-  exit (EXIT_FAILURE);
+  perror(s1);
+  exit(EXIT_FAILURE);
 }
 
 static void
-suggest_asking_for_help (void)
+suggest_asking_for_help(void)
 {
-  fprintf (stderr, "\tTry `%s --help' for a complete list of options.\n",
-	   progname);
-  exit (EXIT_FAILURE);
+  fprintf(stderr, "\tTry `%s --help' for a complete list of options.\n",
+	  progname);
+  exit(EXIT_FAILURE);
 }
 
 /* Output a diagnostic with printf-style FORMAT and args.  */
 static void
-error (const char *format, ...)
+error(const char *format, ...)
 {
   va_list ap;
-  va_start (ap, format);
-  fprintf (stderr, "%s: ", progname);
-  vfprintf (stderr, format, ap);
-  fprintf (stderr, "\n");
-  va_end (ap);
+  va_start(ap, format);
+  fprintf(stderr, "%s: ", progname);
+  vfprintf(stderr, format, ap);
+  fprintf(stderr, "\n");
+  va_end(ap);
 }
 
 /* Return a newly-allocated string whose contents

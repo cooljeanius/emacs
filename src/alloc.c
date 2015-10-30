@@ -2121,7 +2121,7 @@ bool_vector_fill(Lisp_Object a, Lisp_Object init)
       int pattern = (NILP(init)
                      ? 0 : ((1 << BOOL_VECTOR_BITS_PER_CHAR) - 1));
       ptrdiff_t nbytes = bool_vector_bytes(nbits);
-      int last_mask = ~(~0 << (((nbits - 1) % BOOL_VECTOR_BITS_PER_CHAR) + 1));
+      int last_mask = ~(~0U << (((nbits - 1) % BOOL_VECTOR_BITS_PER_CHAR) + 1));
       memset(data, pattern, (nbytes - 1L));
       data[nbytes - 1L] = pattern & last_mask;
     }
@@ -6706,6 +6706,7 @@ We divide the value by 1024 to make sure it fits in a Lisp integer.  */)
 #ifdef HAVE_NS
   /* Avoid warning; sbrk() has no relation to memory allocated anyway: */
   XSETINT(end, (fake_sbrk_result / 1024));
+  asm("");
 #else
   XSETINT(end, ((intptr_t)(char *)sbrk(0) / 1024));
 #endif /* HAVE_NS */

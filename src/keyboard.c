@@ -1995,21 +1995,21 @@ start_polling (void)
     {
       /* Turn alarm handling on unconditionally.  It might have
 	 been turned off in process.c.  */
-      turn_on_atimers (1);
+      turn_on_atimers(1);
 
       /* If poll timer doesn't exist, or we need one with
 	 a different interval, start a new one.  */
       if (poll_timer == NULL
 	  || poll_timer->interval.tv_sec != polling_period)
 	{
-	  time_t period = max (1, min (polling_period, TYPE_MAXIMUM (time_t)));
-	  struct timespec interval = make_timespec (period, 0);
+	  time_t period = max(1, min(polling_period, TYPE_MAXIMUM(time_t)));
+	  volatile struct timespec interval = make_timespec(period, 0);
 
 	  if (poll_timer)
-	    cancel_atimer (poll_timer);
+	    cancel_atimer(poll_timer);
 
-	  poll_timer = start_atimer (ATIMER_CONTINUOUS, interval,
-				     poll_for_input, NULL);
+	  poll_timer = start_atimer(ATIMER_CONTINUOUS, interval,
+				    poll_for_input, NULL);
 	}
 
       /* Let the timer's callback function poll for input
@@ -8008,19 +8008,19 @@ tool_bar_items (Lisp_Object reuse, int *nitems)
 }
 
 
-/* Process the definition of KEY which is DEF.  */
-
+/* Process the definition of KEY which is DEF: */
 static void
-process_tool_bar_item (Lisp_Object key, Lisp_Object def, Lisp_Object data, void *args)
+process_tool_bar_item(Lisp_Object key, Lisp_Object def, Lisp_Object data,
+		      void *args)
 {
   int i;
   struct gcpro gcpro1, gcpro2;
 
   /* Protect KEY and DEF from GC because parse_tool_bar_item may call
      eval.  */
-  GCPRO2 (key, def);
+  GCPRO2(key, def);
 
-  if (EQ (def, Qundefined))
+  if (EQ(def, Qundefined))
     {
       /* If a map has an explicit `undefined' as definition,
 	 discard any previously made item.  */

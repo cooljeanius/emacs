@@ -2443,17 +2443,17 @@ macfont_list(struct frame *f, Lisp_Object spec)
 
 	  for (mmask = (mask_min & MAC_FONT_TRAIT_MONO_SPACE);
 	       (mmask <= (mask_max & MAC_FONT_TRAIT_MONO_SPACE))
-               && (mmask <= UINT32_MAX);
+               && (mmask <= UINT32_MAX) && (mmask > 0U);
 	       mmask += MAC_FONT_TRAIT_MONO_SPACE)
             {
               for (bmask = (mask_min & MAC_FONT_TRAIT_BOLD);
                    (bmask <= (mask_max & MAC_FONT_TRAIT_BOLD))
-                   && (bmask < UINT32_MAX);
+                   && (bmask < UINT32_MAX) && (bmask > 0U);
                    bmask += MAC_FONT_TRAIT_BOLD)
                 {
                   for (imask = (mask_min & MAC_FONT_TRAIT_ITALIC);
                        (imask <= (mask_max & MAC_FONT_TRAIT_ITALIC))
-                       && (imask < UINT32_MAX);
+                       && (imask < UINT32_MAX) && (imask > 0U);
                        imask += MAC_FONT_TRAIT_ITALIC)
                     {
                       FontSymbolicTraits synth = (imask | bmask | mmask);

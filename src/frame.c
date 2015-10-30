@@ -4126,16 +4126,16 @@ or a list (- N) meaning -N pixels relative to bottom/right corner.
 On Nextstep, this just calls `ns-parse-geometry'.  */)
   (Lisp_Object string)
 {
-  int geometry, x, y;
+  int geometry, x IF_LINT(= 0), y IF_LINT(= 0);
   unsigned int width = 0U;
   unsigned int height = 0U;
   Lisp_Object result;
 
-  CHECK_STRING (string);
+  CHECK_STRING(string);
 
 # ifdef HAVE_NS
-  if (strchr (SSDATA (string), ' ') != NULL)
-    return call1 (Qns_parse_geometry, string);
+  if (strchr(SSDATA(string), ' ') != NULL)
+    return call1(Qns_parse_geometry, string);
 # endif /* HAVE_NS */
   geometry = XParseGeometry (SSDATA (string),
 			     &x, &y, &width, &height);

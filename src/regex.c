@@ -1578,6 +1578,16 @@ do {									\
 /* How many items can still be added to the stack without overflowing it.  */
 #define REMAINING_AVAIL_SLOTS ((fail_stack).size - (fail_stack).avail)
 
+#if defined(HAVE_LIMITS_H) && !defined(_LIMITS_H_)
+# include <limits.h>
+#endif /* HAVE_LIMITS_H && !_LIMITS_H_ */
+
+/* Needed for the macro that follows it, in case it was never defined: */
+#ifndef SIZE_T_MAX
+# ifdef ULONG_MAX
+#  define SIZE_T_MAX	ULONG_MAX	/* max value for a size_t */
+# endif /* ULONG_MAX */
+#endif /* !SIZE_T_MAX */
 
 /* Pops what PUSH_FAIL_STACK pushes.
 
@@ -1599,8 +1609,9 @@ do {									\
   DEBUG_PRINT("		     size: %zd\n", (ssize_t)fail_stack.size);	\
 									\
   /* Pop the saved registers.  */					\
-  while (fail_stack.frame < fail_stack.avail)				\
-    POP_FAILURE_REG_OR_COUNT ();					\
+  while ((fail_stack.frame < fail_stack.avail)				\
+	 && (fail_stack.frame < SIZE_T_MAX))				\
+    POP_FAILURE_REG_OR_COUNT(); 					\
 									\
   pat = POP_FAILURE_POINTER ();						\
   DEBUG_PRINT ("  Popping pattern %p: ", pat);				\
@@ -3016,8 +3027,10 @@ regex_compile (const_re_char *pattern, size_t size, reg_syntax_t syntax,
 			  {
 			    c = CHAR_TO_BYTE8 (c);
 			    c1 = CHAR_TO_BYTE8 (c1);
-			    for (; c <= c1; c++)
-			      SET_LIST_BIT (c);
+			    for (; (c <= c1)
+				 && (c < max(max(INT_MAX, __WCHAR_MAX__),
+					     CHAR_CLASS_MAX_LENGTH)); c++)
+			      SET_LIST_BIT(c);
 			  }
 			else if (multibyte)
 			  {
@@ -4004,7 +4017,7 @@ analyse_first (const_re_char *p, const_re_char *pend, char *fastmap,
 		  p += 3;
 		  EXTRACT_CHARACTER (c, p);
 		  lc2 = CHAR_LEADING_CODE (c);
-		  for (j = lc1; j <= lc2; j++)
+		  for (j = lc1; (j <= lc2) && (j < INT_MAX); j++)
 		    fastmap[j] = 1;
 		}
 	    }

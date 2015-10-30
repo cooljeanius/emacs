@@ -259,10 +259,11 @@ struct charset_map_entries
 */
 
 static void
-load_charset_map (struct charset *charset, struct charset_map_entries *entries, int n_entries, int control_flag)
+load_charset_map(struct charset *charset, struct charset_map_entries *entries,
+                 int n_entries, int control_flag)
 {
-  Lisp_Object vec IF_LINT (= Qnil), table IF_LINT (= Qnil);
-  unsigned max_code = CHARSET_MAX_CODE (charset);
+  Lisp_Object vec IF_LINT(= Qnil), table IF_LINT(= Qnil);
+  unsigned int max_code = CHARSET_MAX_CODE(charset);
   bool ascii_compatible_p = charset->ascii_compatible_p;
   int min_char, max_char, nonascii_min_char;
   int i;
@@ -407,8 +408,8 @@ load_charset_map (struct charset *charset, struct charset_map_entries *entries, 
 		}
 	    }
 
-	  for (; from_c <= to_c; from_c++)
-	    CHARSET_FAST_MAP_SET (from_c, fast_map);
+	  for (; (from_c <= to_c) && (from_c < INT_MAX); from_c++)
+	    CHARSET_FAST_MAP_SET(from_c, fast_map);
 	}
     }
 
@@ -1041,8 +1042,9 @@ usage: (define-charset-internal ...)  */)
       for (; i < 0x10000 && i <= charset.max_char; i += 128)
 	CHARSET_FAST_MAP_SET (i, charset.fast_map);
       i = (i >> 12) << 12;
-      for (; i <= charset.max_char; i += 0x1000)
-	CHARSET_FAST_MAP_SET (i, charset.fast_map);
+      for (; (i <= charset.max_char) && (i < INT_MAX) && (i > INT_MIN);
+           i += 0x1000)
+	CHARSET_FAST_MAP_SET(i, charset.fast_map);
       if (charset.code_offset == 0 && charset.max_char >= 0x80)
 	charset.ascii_compatible_p = 1;
     }

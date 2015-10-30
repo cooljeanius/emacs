@@ -209,14 +209,21 @@ typedef EMACS_UINT uprintmax_t;
    PTRDIFF_MAX bytes, as they cause problems with pointer subtraction.
    In C99, pD can always be "t"; configure it here for the sake of
    pre-C99 libraries such as glibc 2.0 and Solaris 8.  */
+/* Since sometimes these macros can be used to print unsigned values,
+ * add corresponding typedefs, since there is no standard uptrdiff_t,
+ * and size_t is not always equivalent.  */
 #if PTRDIFF_MAX == INT_MAX
 # define pD ""
+typedef unsigned int uptrdiff_t;
 #elif PTRDIFF_MAX == LONG_MAX
 # define pD "l"
+typedef unsigned long uptrdiff_t;
 #elif PTRDIFF_MAX == LLONG_MAX
 # define pD "ll"
+typedef unsigned long long uptrdiff_t;
 #else
 # define pD "t"
+typedef size_t uptrdiff_t;
 #endif
 
 /* Extra internal type checking?  */
@@ -465,11 +472,11 @@ enum enum_USE_LSB_TAG { USE_LSB_TAG = false };
 # define lisp_h_check_cons_list() ((void) 0)
 #endif /* !GC_CHECK_CONS_LIST */
 #if USE_LSB_TAG
-# define lisp_h_make_number(n) XIL ((EMACS_INT) (n) << INTTYPEBITS)
-# define lisp_h_XFASTINT(a) XINT (a)
-# define lisp_h_XINT(a) (XLI (a) >> INTTYPEBITS)
-# define lisp_h_XTYPE(a) ((enum Lisp_Type) (XLI (a) & ~VALMASK))
-# define lisp_h_XUNTAG(a, type) ((void *) (XLI (a) - (type)))
+# define lisp_h_make_number(n) XIL((EMACS_INT)(n) << INTTYPEBITS)
+# define lisp_h_XFASTINT(a) XINT(a)
+# define lisp_h_XINT(a) (XLI(a) >> INTTYPEBITS)
+# define lisp_h_XTYPE(a) ((enum Lisp_Type)(XLI(a) & ~VALMASK))
+# define lisp_h_XUNTAG(a, type) ((void *)(XLI(a) - (type)))
 #endif /* USE_LSB_TAG */
 
 /* When compiling via gcc -O0, define the key operations as macros, as
@@ -2021,11 +2028,10 @@ enum DEFAULT_HASH_SIZE { DEFAULT_HASH_SIZE = 65 };
    value gives the ratio of current entries in the hash table and the
    size of the hash table.  */
 
-static double const DEFAULT_REHASH_THRESHOLD = 0.8;
+static double const DEFAULT_REHASH_THRESHOLD ATTRIBUTE_USED = 0.8;
 
-/* Default factor by which to increase the size of a hash table.  */
-
-static double const DEFAULT_REHASH_SIZE = 1.5;
+/* Default factor by which to increase the size of a hash table: */
+static double const DEFAULT_REHASH_SIZE ATTRIBUTE_USED = 1.5;
 
 /* Combine two integers X and Y for hashing.  The result might not fit
    into a Lisp integer.  */

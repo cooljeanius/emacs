@@ -356,11 +356,16 @@ compile-clean:
 	cd $(lisp) && $(setwins); \
 	elcs=`echo "$${wins} " | $(SED) -e 's|/\./|/|g' -e 's|/\. | |g' -e 's| |/*.elc |g'`; \
 	for el in `echo $${elcs} | $(SED) -e 's/\.elc/\.el/g'`; do \
-	  if test -f "$$el" -o \! -f "$${el}c"; then echo "OK"; else \
+	  if test -f "$$el" -o \! -f "$${el}c"; then \
+	    echo "$${el} is OK"; \
+	  else \
 	    echo rm "$${el}c"; \
 	    rm "$${el}c"; \
 	  fi \
 	done
+
+.PHONY: clean mostlyclean
+clean mostlyclean: compile-clean
 
 .PHONY: leim semantic
 leim:

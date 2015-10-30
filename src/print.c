@@ -815,8 +815,7 @@ safe_debug_print(Lisp_Object arg)
     debug_print(arg);
   else
     fprintf(stderr, "#<%s_LISP_OBJECT 0x%08"pI"x>\r\n",
-	    (!valid ? "INVALID" : "SOME"),
-	    (unsigned long)XLI(arg));
+	    (!valid ? "INVALID" : "SOME"), (EMACS_UINT)XLI(arg));
 }
 
 
@@ -1331,11 +1330,11 @@ print_prune_string_charset (Lisp_Object string)
 }
 
 static void
-print_object (Lisp_Object obj, Lisp_Object printcharfun, bool escapeflag)
+print_object(Lisp_Object obj, Lisp_Object printcharfun, bool escapeflag)
 {
-  char buf[max (sizeof "from..to..in " + 2 * INT_STRLEN_BOUND (EMACS_INT),
-		max (sizeof " . #" + INT_STRLEN_BOUND (printmax_t),
-		     40))];
+  char buf[max((sizeof("from..to..in ") + 2 * INT_STRLEN_BOUND(EMACS_INT)),
+	       max((sizeof(" . #") + INT_STRLEN_BOUND(printmax_t)),
+		   40))];
 
   QUIT;
 
@@ -2157,8 +2156,8 @@ print_object (Lisp_Object obj, Lisp_Object printcharfun, bool escapeflag)
 	  len = sprintf(buf, "(MISC 0x%04x)",
                         (unsigned int)XMISCTYPE(obj));
 	} else if (VECTORLIKEP(obj)) {
-	  len = sprintf(buf, "(PVEC 0x%08"pD"x)",
-                        (unsigned long)ASIZE(obj));
+	  len = snprintf(buf, sizeof(buf), "(PVEC 0x%08"pD"x)",
+			 (uptrdiff_t)ASIZE(obj));
 	} else {
 	  len = sprintf(buf, "(0x%02x)", (unsigned int)XTYPE(obj));
         }

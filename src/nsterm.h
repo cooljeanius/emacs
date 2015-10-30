@@ -59,10 +59,11 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 /* _Noreturn breaks in objc with gcc, so ignore warnings about it:  */
 #if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
-    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 7)))
+    (((__GNUC__ > 4) && (__GNUC__ < 6)) || \
+     ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 7)))
 # pragma GCC diagnostic push
 # pragma GCC diagnostic ignored "-Wmissing-noreturn"
-#endif /* gcc 4.7+ */
+#endif /* gcc from 4.7 to 6.0 */
 
 /* CGFloat on GNUstep may be 4 or 8 byte, but functions expect float* for
  * some versions.
@@ -143,9 +144,10 @@ typedef float EmacsCGFloat;
 
 /* keep this condition the same as when we push: */
 #if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
-    ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 7)))
+    (((__GNUC__ > 4) && (__GNUC__ < 6)) || \
+     ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 7)))
 # pragma GCC diagnostic pop
-#endif /* gcc 4.7+ */
+#endif /* gcc 4.7 to 6.0 */
 
 /* ========================================================================
  *

@@ -10275,10 +10275,10 @@ usage: (define-coding-system-internal ...)  */)
 				     XCAR (val), make_number (255));
 	      to = XINT (XCDR (val));
 	    }
-	  for (i = from; i <= to; i++)
-	    SSET (valids, i, 1);
+	  for (i = from; (i <= to) && (i < INT_MAX) && (i > INT_MIN); i++)
+	    SSET(valids, i, 1);
 	}
-      ASET (attrs, coding_attr_ccl_valids, valids);
+      ASET(attrs, coding_attr_ccl_valids, valids);
 
       category = coding_category_ccl;
     }
