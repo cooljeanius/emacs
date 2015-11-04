@@ -86,53 +86,53 @@ static void do_scrolling (struct frame *,
    new contents appears.  */
 
 static void
-calculate_scrolling (struct frame *frame,
-		     /* matrix is of size window_size + 1 on each side.  */
-		     struct matrix_elt *matrix,
-		     int window_size, int lines_below,
-		     int *draw_cost, int *old_hash, int *new_hash,
-		     int free_at_end)
+calculate_scrolling(struct frame *frame,
+		    /* matrix is of size window_size + 1 on each side.  */
+		    struct matrix_elt *matrix,
+		    int window_size, int lines_below,
+		    int *draw_cost, int *old_hash, int *new_hash,
+		    int free_at_end)
 {
   register int i, j;
-  int frame_lines = FRAME_LINES (frame);
+  int frame_lines = FRAME_LINES(frame);
   register struct matrix_elt *p, *p1;
   register int cost, cost1;
 
-  int lines_moved = window_size
-    + (FRAME_SCROLL_REGION_OK (frame) ? 0 : lines_below);
+  int lines_moved = (window_size
+		     + (FRAME_SCROLL_REGION_OK(frame) ? 0 : lines_below));
   /* first_insert_cost[I] is the cost of doing the first insert-line
      at the i'th line of the lines we are considering,
      where I is origin 1 (as it is below).  */
   int *first_insert_cost
-    = &FRAME_INSERT_COST (frame)[frame_lines - 1 - lines_moved];
+    = &FRAME_INSERT_COST(frame)[frame_lines - 1 - lines_moved];
   int *first_delete_cost
-    = &FRAME_DELETE_COST (frame)[frame_lines - 1 - lines_moved];
+    = &FRAME_DELETE_COST(frame)[frame_lines - 1 - lines_moved];
   int *next_insert_cost
-    = &FRAME_INSERTN_COST (frame)[frame_lines - 1 - lines_moved];
+    = &FRAME_INSERTN_COST(frame)[frame_lines - 1 - lines_moved];
   int *next_delete_cost
-    = &FRAME_DELETEN_COST (frame)[frame_lines - 1 - lines_moved];
+    = &FRAME_DELETEN_COST(frame)[frame_lines - 1 - lines_moved];
 
   /* Discourage long scrolls on fast lines.
      Don't scroll nearly a full frame height unless it saves
      at least 1/4 second.  */
-  int extra_cost = (int) (baud_rate / (10 * 4 * FRAME_LINES (frame)));
+  int extra_cost = (int)(baud_rate / (10 * 4 * FRAME_LINES(frame)));
 
   if (baud_rate <= 0)
     extra_cost = 1;
 
-  /* initialize the top left corner of the matrix */
+  /* initialize the top left corner of the matrix: */
   matrix->writecost = 0;
   matrix->insertcost = INFINITY;
   matrix->deletecost = INFINITY;
   matrix->insertcount = 0;
   matrix->deletecount = 0;
 
-  /* initialize the left edge of the matrix */
-  cost = first_insert_cost[1] - next_insert_cost[1];
+  /* initialize the left edge of the matrix: */
+  cost = (first_insert_cost[1] - next_insert_cost[1]);
   for (i = 1; (i <= window_size) && (i < INT_MAX); i++)
     {
-      p = matrix + i * (window_size + 1);
-      cost += draw_cost[i] + next_insert_cost[i] + extra_cost;
+      p = (matrix + i * (window_size + 1));
+      cost += (draw_cost[i] + next_insert_cost[i] + extra_cost);
       p->insertcost = cost;
       p->writecost = INFINITY;
       p->deletecost = INFINITY;
@@ -140,8 +140,8 @@ calculate_scrolling (struct frame *frame,
       p->deletecount = 0;
     }
 
-  /* initialize the top edge of the matrix */
-  cost = first_delete_cost[1] - next_delete_cost[1];
+  /* initialize the top edge of the matrix: */
+  cost = (first_delete_cost[1] - next_delete_cost[1]);
   for (j = 1; (j <= window_size) && (j < INT_MAX); j++)
     {
       cost += next_delete_cost[j];
@@ -154,7 +154,7 @@ calculate_scrolling (struct frame *frame,
 
   /* `i' represents the vpos among new frame contents.
      `j' represents the vpos among the old frame contents.  */
-  p = matrix + window_size + 2;	/* matrix [1, 1] */
+  p = (matrix + window_size + 2);	/* matrix [1, 1] */
   for (i = 1; i <= window_size; i++, p++)
     for (j = 1; j <= window_size; j++, p++)
       {
@@ -165,7 +165,7 @@ calculate_scrolling (struct frame *frame,
 	   That is, if we update through line i-1
 	   based on old lines through j-1,
 	   and then just change old line j to new line i.  */
-	p1 = p - window_size - 2; /* matrix [i-1, j-1] */
+	p1 = (p - window_size - 2); /* matrix [i-1, j-1] */
 	cost = p1->writecost;
 	if (cost > p1->insertcost)
 	  cost = p1->insertcost;
@@ -182,7 +182,7 @@ calculate_scrolling (struct frame *frame,
 	   do an insert-line on line i,
 	   and then output line i from scratch,
 	   leaving old lines starting from j for reuse below.  */
-	p1 = p - window_size - 1; /* matrix [i-1, j] */
+	p1 = (p - window_size - 1); /* matrix [i-1, j] */
 	/* No need to think about doing a delete followed
 	   immediately by an insert.  It cannot be as good
 	   as not doing either of them.  */
@@ -193,22 +193,22 @@ calculate_scrolling (struct frame *frame,
 	  }
 	else
 	  {
-	    cost = p1->writecost + first_insert_cost[i];
-	    if ((int) p1->insertcount > i)
-	      emacs_abort ();
-	    cost1 = p1->insertcost + next_insert_cost[i - p1->insertcount];
+	    cost = (p1->writecost + first_insert_cost[i]);
+	    if ((int)p1->insertcount > i)
+	      emacs_abort();
+	    cost1 = (p1->insertcost + next_insert_cost[i - p1->insertcount]);
 	  }
-	p->insertcost = min (cost, cost1) + draw_cost[i] + extra_cost;
-	p->insertcount = (cost < cost1) ? 1 : p1->insertcount + 1;
-	if ((int) p->insertcount > i)
-	  emacs_abort ();
+	p->insertcost = (min(cost, cost1) + draw_cost[i] + extra_cost);
+	p->insertcount = ((cost < cost1) ? 1 : (p1->insertcount + 1));
+	if ((int)p->insertcount > i)
+	  emacs_abort();
 
 	/* Calculate the cost if we do a delete line after
 	   outputting this line.
 	   That is, we update through line i
 	   based on old lines through j-1,
 	   and throw away old line j.  */
-	p1 = p - 1;		/* matrix [i, j-1] */
+	p1 = (p - 1);		/* matrix [i, j-1] */
 	/* No need to think about doing an insert followed
 	   immediately by a delete.  */
 	if (free_at_end == i)
@@ -218,11 +218,11 @@ calculate_scrolling (struct frame *frame,
 	  }
 	else
 	  {
-	    cost = p1->writecost + first_delete_cost[i];
-	    cost1 = p1->deletecost + next_delete_cost[i];
+	    cost = (p1->writecost + first_delete_cost[i]);
+	    cost1 = (p1->deletecost + next_delete_cost[i]);
 	  }
-	p->deletecost = min (cost, cost1);
-	p->deletecount = (cost < cost1) ? 1 : p1->deletecount + 1;
+	p->deletecost = min(cost, cost1);
+	p->deletecount = ((cost < cost1) ? 1 : (p1->deletecount + 1));
       }
 }
 

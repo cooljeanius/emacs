@@ -1793,6 +1793,8 @@ void x_set_cursor_color(struct frame *f, Lisp_Object arg,
    F has a window.  */
 static void x_set_border_pixel(struct frame *f, int pix)
 {
+  eassert(f != NULL);
+  xassert(f != NULL);
   f->output_data.mac->border_pixel = pix;
 
   if ((FRAME_MAC_WINDOW(f) != 0) && (f->border_width > 0))
@@ -3964,7 +3966,8 @@ start_hourglass(void)
     secs = DEFAULT_HOURGLASS_DELAY;
 
   EMACS_SET_SECS_USECS(delay, secs, usecs);
-  /* oh no, my first time breaking strict aliasing rules on purpose! */
+  /* Oh no, my first time breaking strict aliasing rules on purpose! 
+   * FIXME: do it the "right" way instead, with a union or whatever: */
   hourglass_atimer = start_atimer(ATIMER_RELATIVE, *(struct timespec *)&delay,
                                   show_hourglass, NULL);
 #else
@@ -4441,8 +4444,8 @@ compute_tip_xy(struct frame *f, Lisp_Object parms,
   Lisp_Object left, top;
 
   /* User-specified position?  */
-  left = Fcdr (Fassq (Qleft, parms));
-  top  = Fcdr (Fassq (Qtop, parms));
+  left = Fcdr(Fassq(Qleft, parms));
+  top = Fcdr(Fassq(Qtop, parms));
 
   /* Move the tooltip window where the mouse pointer is.  Resize and
    * show it: */
@@ -4458,32 +4461,32 @@ compute_tip_xy(struct frame *f, Lisp_Object parms,
       UNBLOCK_INPUT;
     }
 
-  if (INTEGERP (top))
-    *root_y = XINT (top);
-  else if (*root_y + XINT (dy) <= 0)
+  if (INTEGERP(top))
+    *root_y = XINT(top);
+  else if ((*root_y + XINT(dy)) <= 0)
     *root_y = 0; /* Can happen for negative dy */
-  else if (*root_y + XINT (dy) + height <= FRAME_MAC_DISPLAY_INFO (f)->height)
-    /* It fits below the pointer */
-    *root_y += XINT (dy);
-  else if (height + XINT (dy) <= *root_y)
-    /* It fits above the pointer.  */
-    *root_y -= height + XINT (dy);
+  else if ((*root_y + XINT(dy) + height) <= FRAME_MAC_DISPLAY_INFO(f)->height)
+    /* It fits below the pointer: */
+    *root_y += XINT(dy);
+  else if ((height + XINT(dy)) <= *root_y)
+    /* It fits above the pointer: */
+    *root_y -= (height + XINT(dy));
   else
-    /* Put it on the top.  */
+    /* Put it on the top: */
     *root_y = 0;
 
-  if (INTEGERP (left))
-    *root_x = XINT (left);
-  else if (*root_x + XINT (dx) <= 0)
+  if (INTEGERP(left))
+    *root_x = XINT(left);
+  else if ((*root_x + XINT(dx)) <= 0)
     *root_x = 0; /* Can happen for negative dx */
-  else if (*root_x + XINT (dx) + width <= FRAME_MAC_DISPLAY_INFO (f)->width)
-    /* It fits to the right of the pointer.  */
-    *root_x += XINT (dx);
-  else if (width + XINT (dx) <= *root_x)
-    /* It fits to the left of the pointer.  */
-    *root_x -= width + XINT (dx);
+  else if ((*root_x + XINT(dx) + width) <= FRAME_MAC_DISPLAY_INFO(f)->width)
+    /* It fits to the right of the pointer: */
+    *root_x += XINT(dx);
+  else if ((width + XINT(dx)) <= *root_x)
+    /* It fits to the left of the pointer: */
+    *root_x -= (width + XINT(dx));
   else
-    /* Put it left-justified on the screen -- it ought to fit that way.  */
+    /* Put it left-justified on the screen -- it ought to fit that way: */
     *root_x = 0;
 }
 

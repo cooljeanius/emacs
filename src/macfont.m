@@ -1395,10 +1395,12 @@ macfont_get_cf_charset (struct font *font)
 }
 
 static CFCharacterSetRef
-macfont_get_cf_charset_for_name (CFStringRef name)
+macfont_get_cf_charset_for_name(CFStringRef name)
 {
-  struct macfont_cache *cache = macfont_lookup_cache (name);
+  struct macfont_cache *cache = macfont_lookup_cache(name);
 
+  eassert(cache != NULL);
+  xassert(cache != NULL);
   return cache->cf_charset;
 }
 
@@ -2904,6 +2906,10 @@ macfont_draw(struct glyph_string *s, int from, int to, int x, int y,
       if (face != NULL) {
         CG_SET_FILL_COLOR_WITH_FACE_BACKGROUND(context, face, f);
       }
+#else
+# if defined(HAVE_CARBON) && defined(__clang_analyzer__)
+      IF_LINT((void)face);
+# endif /* HAVE_CARBON && __clang_analyzer__ */
 #endif /* CG_SET_FILL_COLOR_WITH_FACE_BACKGROUND || HAVE_NS */
       CGContextFillRect(context,
                         CGRectMake(x, y,

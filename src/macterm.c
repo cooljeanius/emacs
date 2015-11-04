@@ -382,60 +382,60 @@ extern int XTread_socket(int, int, struct input_event *);
 #define FRAME_NORMAL_GC(f)	((f)->output_data.mac->normal_gc)
 
 #define CG_SET_FILL_COLOR(context, color)				\
-  CGContextSetRGBFillColor (context,					\
-			    RED_FROM_ULONG (color) / 255.0f,		\
-			    GREEN_FROM_ULONG (color) / 255.0f,		\
-			    BLUE_FROM_ULONG (color) / 255.0f, 1.0f)
-#if USE_CG_DRAWING && MAC_OS_X_VERSION_MAX_ALLOWED >= 1030
-#if MAC_OS_X_VERSION_MIN_REQUIRED == 1020
-#define CG_SET_FILL_COLOR_MAYBE_WITH_CGCOLOR(context, color, cg_color) \
-  do {								       \
-    if (CGColorGetTypeID != NULL)				       \
-      CGContextSetFillColorWithColor (context, cg_color);	       \
-    else							       \
-      CG_SET_FILL_COLOR (context, color);			       \
-  } while (0)
+  CGContextSetRGBFillColor(context,					\
+			   (RED_FROM_ULONG(color) / 255.0f),		\
+			   (GREEN_FROM_ULONG(color) / 255.0f),		\
+			   (BLUE_FROM_ULONG(color) / 255.0f), 1.0f)
+#if USE_CG_DRAWING && (MAC_OS_X_VERSION_MAX_ALLOWED >= 1030)
+# if MAC_OS_X_VERSION_MIN_REQUIRED == 1020
+#  define CG_SET_FILL_COLOR_MAYBE_WITH_CGCOLOR(context, color, cg_color) \
+    do {							       \
+      if (CGColorGetTypeID != NULL)				       \
+        CGContextSetFillColorWithColor(context, cg_color);	       \
+      else							       \
+        CG_SET_FILL_COLOR(context, color);			       \
+    } while (0)
+# else
+#  define CG_SET_FILL_COLOR_MAYBE_WITH_CGCOLOR(context, color, cg_color) \
+    CGContextSetFillColorWithColor(context, cg_color)
+# endif /* 10.2 */
 #else
-#define CG_SET_FILL_COLOR_MAYBE_WITH_CGCOLOR(context, color, cg_color)	\
-  CGContextSetFillColorWithColor (context, cg_color)
-#endif
-#else
-#define CG_SET_FILL_COLOR_MAYBE_WITH_CGCOLOR(context, color, cg_color)	\
-  CG_SET_FILL_COLOR (context, color)
-#endif
+# define CG_SET_FILL_COLOR_MAYBE_WITH_CGCOLOR(context, color, cg_color)	\
+   CG_SET_FILL_COLOR(context, color)
+#endif /* USE_CG_DRAWING && 10.3+ */
 #define CG_SET_FILL_COLOR_WITH_GC_FOREGROUND(context, gc)		\
-  CG_SET_FILL_COLOR_MAYBE_WITH_CGCOLOR (context, (gc)->xgcv.foreground,	\
-					(gc)->cg_fore_color)
+  CG_SET_FILL_COLOR_MAYBE_WITH_CGCOLOR(context, (gc)->xgcv.foreground,	\
+				       (gc)->cg_fore_color)
 #define CG_SET_FILL_COLOR_WITH_GC_BACKGROUND(context, gc)		\
-  CG_SET_FILL_COLOR_MAYBE_WITH_CGCOLOR (context, (gc)->xgcv.background,	\
-					(gc)->cg_back_color)
+  CG_SET_FILL_COLOR_MAYBE_WITH_CGCOLOR(context, (gc)->xgcv.background,	\
+				       (gc)->cg_back_color)
 
 
 #define CG_SET_STROKE_COLOR(context, color)				\
-  CGContextSetRGBStrokeColor (context,					\
-			      (RED_FROM_ULONG(color) / 255.0f),		\
-			      (GREEN_FROM_ULONG(color) / 255.0f),	\
-			      (BLUE_FROM_ULONG(color) / 255.0f), 1.0f)
+  CGContextSetRGBStrokeColor(context,					\
+			     (RED_FROM_ULONG(color) / 255.0f),		\
+			     (GREEN_FROM_ULONG(color) / 255.0f),	\
+			     (BLUE_FROM_ULONG(color) / 255.0f), 1.0f)
 #if USE_CG_DRAWING && (MAC_OS_X_VERSION_MAX_ALLOWED >= 1030)
 # if MAC_OS_X_VERSION_MIN_REQUIRED == 1020
 # define CG_SET_STROKE_COLOR_MAYBE_WITH_CGCOLOR(context, color, cg_color) \
    do {								       \
      if (CGColorGetTypeID != NULL)				       \
-       CGContextSetStrokeColorWithColor (context, cg_color);	       \
+       CGContextSetStrokeColorWithColor(context, cg_color);	       \
      else							       \
-       CG_SET_STROKE_COLOR (context, color);			       \
+       CG_SET_STROKE_COLOR(context, color);			       \
    } while (0)
 # else
 # define CG_SET_STROKE_COLOR_MAYBE_WITH_CGCOLOR(context, color, cg_color) \
-   CGContextSetStrokeColorWithColor (context, cg_color)
+   CGContextSetStrokeColorWithColor(context, cg_color)
 # endif /* 10.2 */
 #else
 # define CG_SET_STROKE_COLOR_MAYBE_WITH_CGCOLOR(context, color, cg_color) \
-   CG_SET_STROKE_COLOR (context, color)
+   CG_SET_STROKE_COLOR(context, color)
 #endif /* USE_CG_DRAWING && 10.3+ */
 #define CG_SET_STROKE_COLOR_WITH_GC_FOREGROUND(context, gc) \
-  CG_SET_STROKE_COLOR_MAYBE_WITH_CGCOLOR (context, (gc)->xgcv.foreground, \
-					  (gc)->cg_fore_color)
+  CG_SET_STROKE_COLOR_MAYBE_WITH_CGCOLOR(context, (gc)->xgcv.foreground, \
+					 (gc)->cg_fore_color)
 
 #if USE_CG_DRAWING
 # define FRAME_CG_CONTEXT(f)	((f)->output_data.mac->cg_context)
@@ -652,6 +652,8 @@ mac_erase_rectangle(struct frame *f, GC gc, int x, int y,
   CGContextRef context;
 
   context = mac_begin_cg_clip(f, gc);
+  eassert(gc != NULL);
+  xassert(gc != NULL);
   CG_SET_FILL_COLOR_WITH_GC_BACKGROUND(context, gc);
   CGContextFillRect(context, CGRectMake(x, y, width, height));
   mac_end_cg_clip(f);
@@ -940,6 +942,8 @@ mac_draw_rectangle(struct frame *f, GC gc, int x, int y,
   CGContextRef context;
 
   context = mac_begin_cg_clip(f, gc);
+  eassert(gc != NULL);
+  xassert(gc != NULL);
   CG_SET_STROKE_COLOR_WITH_GC_FOREGROUND(context, gc);
   CGContextStrokeRect(context,
                       CGRectMake((x + 0.5f), (y + 0.5f), width, height));
@@ -1175,7 +1179,7 @@ mac_draw_string_common(struct frame *f, GC gc, int x, int y, char *buf,
 #endif	/* USE_ATSUI */
     {
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= 1020
-      UInt32 savedFlags;
+      UInt32 savedFlags = 0U;
 
       if (mac_use_core_graphics) {
 	savedFlags = SwapQDTextFlags(kQDUseCGTextRendering);
@@ -1461,6 +1465,9 @@ mac_draw_image_string_cg(struct frame *f, GC gc, int x, int y,
   for (i = 0; i < nchars; i++)
     {
       XCharStruct *pcm = mac_per_char_metric(GC_FONT(gc), buf, 0);
+      
+      eassert(pcm != NULL);
+      xassert(pcm != NULL);
 
       advances[i].width = pcm->width;
       advances[i].height = 0;
@@ -2767,6 +2774,8 @@ static void x_set_mouse_face_gc(struct glyph_string *s)
   else
     face_id = FACE_FOR_CHAR(s->f, face, 0, 0, fontobj);
   s->face = FACE_FROM_ID(s->f, face_id);
+  eassert(s->face != NULL);
+  xassert(s->face != NULL);
   PREPARE_FACE_FOR_DISPLAY(s->f, s->face);
 
   /* If font in this face is same as S->font, use it.  */
@@ -5123,21 +5132,21 @@ XTset_vertical_scroll_bar(struct window *w, int portion, int whole,
   width = (WINDOW_CONFIG_SCROLL_BAR_COLS(w) * FRAME_COLUMN_WIDTH(f));
   height = window_height;
 
-  /* Compute the left edge of the scroll bar area.  */
-  left = WINDOW_SCROLL_BAR_AREA_X (w);
+  /* Compute the left edge of the scroll bar area: */
+  left = WINDOW_SCROLL_BAR_AREA_X(w);
 
   /* Compute the width of the scroll bar which might be less than
      the width of the area reserved for the scroll bar.  */
-  if (WINDOW_CONFIG_SCROLL_BAR_WIDTH (w) > 0)
-    sb_width = WINDOW_CONFIG_SCROLL_BAR_WIDTH (w);
+  if (WINDOW_CONFIG_SCROLL_BAR_WIDTH(w) > 0)
+    sb_width = WINDOW_CONFIG_SCROLL_BAR_WIDTH(w);
   else
     sb_width = width;
 
-  /* Compute the left edge of the scroll bar.  */
-  if (WINDOW_HAS_VERTICAL_SCROLL_BAR_ON_RIGHT (w))
+  /* Compute the left edge of the scroll bar: */
+  if (WINDOW_HAS_VERTICAL_SCROLL_BAR_ON_RIGHT(w))
     sb_left = left;
   else
-    sb_left = left + width - sb_width;
+    sb_left = (left + width - sb_width);
 
   /* Adjustments according to Inside Macintosh to make it look nice */
   disp_top = top;
@@ -5148,18 +5157,18 @@ XTset_vertical_scroll_bar(struct window *w, int portion, int whole,
       disp_top = -1;
       disp_height++;
     }
-  else if (disp_top == FRAME_PIXEL_HEIGHT (f) - 16)
+  else if (disp_top == (FRAME_PIXEL_HEIGHT(f) - 16))
     {
       disp_top++;
       disp_height--;
     }
 
-  if (sb_left + sb_width == FRAME_PIXEL_WIDTH (f))
+  if ((sb_left + sb_width) == FRAME_PIXEL_WIDTH(f))
     sb_left++;
 #endif /* MAC_OS8 */
 
   /* Does the scroll bar exist yet?  */
-  if (NILP (w->vertical_scroll_bar))
+  if (NILP(w->vertical_scroll_bar))
     {
       BLOCK_INPUT;
       mac_clear_area (f, left, top, width, height);
@@ -5173,8 +5182,10 @@ XTset_vertical_scroll_bar(struct window *w, int portion, int whole,
       /* It may just need to be moved and resized.  */
       ControlHandle ch;
 
-      bar = XSCROLL_BAR (w->vertical_scroll_bar);
-      ch = SCROLL_BAR_CONTROL_HANDLE (bar);
+      bar = XSCROLL_BAR(w->vertical_scroll_bar);
+      eassert(bar != NULL);
+      xassert(bar != NULL);
+      ch = SCROLL_BAR_CONTROL_HANDLE(bar);
 
       BLOCK_INPUT;
 
@@ -5322,6 +5333,9 @@ static void XTredeem_scroll_bar(struct window *window)
     abort();
 
   bar = XSCROLL_BAR(window->vertical_scroll_bar);
+  
+  eassert(bar != NULL);
+  xassert(bar != NULL);
 
   /* Unlink it from the condemned list: */
   f = XFRAME(WINDOW_FRAME(window));
@@ -5490,22 +5504,31 @@ x_scroll_bar_report_motion(FRAME_PTR *fp, Lisp_Object *bar_window,
                            unsigned long *time)
 {
   struct scroll_bar *bar = XSCROLL_BAR(last_mouse_scroll_bar);
-  ControlHandle ch = SCROLL_BAR_CONTROL_HANDLE(bar);
-#if TARGET_API_MAC_CARBON
-  WindowPtr wp = GetControlOwner(ch);
-#else
-  WindowPtr wp = (*ch)->contrlOwner;
-#endif /* TARGET_API_MAC_CARBON */
+  ControlHandle ch;
+  WindowPtr wp;
   Point mouse_pos;
-  struct frame *f = mac_window_to_frame (wp);
+  struct frame *f;
   int win_y, top_range;
+  
+  eassert(bar != NULL);
+  xassert(bar != NULL);
+  
+  ch = SCROLL_BAR_CONTROL_HANDLE(bar);
+  
+#if TARGET_API_MAC_CARBON
+  wp = GetControlOwner(ch);
+#else
+  wp = (*ch)->contrlOwner;
+#endif /* TARGET_API_MAC_CARBON */
+  
+  f = mac_window_to_frame(wp);
 
-  SetPortWindowPort (wp);
+  SetPortWindowPort(wp);
 
-  GetMouse (&mouse_pos);
+  GetMouse(&mouse_pos);
 
-  win_y = mouse_pos.v - XINT (bar->top);
-  top_range = VERTICAL_SCROLL_BAR_TOP_RANGE (f, XINT (bar->height));
+  win_y = (mouse_pos.v - XINT(bar->top));
+  top_range = VERTICAL_SCROLL_BAR_TOP_RANGE(f, XINT(bar->height));
 
   win_y -= VERTICAL_SCROLL_BAR_TOP_BORDER;
 
@@ -5651,12 +5674,15 @@ x_draw_bar_cursor(struct window *w, struct glyph_row *row, int width,
     }
   else
     {
-      Display *dpy = FRAME_MAC_DISPLAY (f);
-      Window window = FRAME_MAC_WINDOW (f);
-      GC gc = FRAME_MAC_DISPLAY_INFO (f)->scratch_cursor_gc;
+      Display *dpy = FRAME_MAC_DISPLAY(f);
+      Window window = FRAME_MAC_WINDOW(f);
+      GC gc = FRAME_MAC_DISPLAY_INFO(f)->scratch_cursor_gc;
       unsigned long mask = GCForeground | GCBackground;
-      struct face *face = FACE_FROM_ID (f, cursor_glyph->face_id);
+      struct face *face = FACE_FROM_ID(f, cursor_glyph->face_id);
       XGCValues xgcv;
+      
+      eassert(face != NULL);
+      xassert(face != NULL);
 
       /* If the glyph's background equals the color we normally draw
 	 the bar cursor in, the bar cursor in its normal color is
@@ -8123,7 +8149,8 @@ static MacFontStruct *mac_load_query_font(struct frame *f, char *fontname)
 # endif /* USE_CG_TEXT_DRAWING */
                                    );
       if ((err != noErr)
-	  || (space_bounds->width <= 0) || (FONT_HEIGHT(font) <= 0))
+	  || ((space_bounds != NULL) && (space_bounds->width <= 0))
+	  || (FONT_HEIGHT(font) <= 0))
 	{
 	  mac_unload_font(&one_mac_display_info, font);
 	  return NULL;
@@ -8180,9 +8207,12 @@ static MacFontStruct *mac_load_query_font(struct frame *f, char *fontname)
       FontInfo the_fontinfo;
       int is_two_byte_font;
 
+      eassert(f != NULL);
+      xassert(f != NULL);
 #if USE_CG_DRAWING
       mac_prepare_for_quickdraw(f);
 #endif /* USE_CG_DRAWING */
+      xassert(f->output_data.mac != NULL);
       SetPortWindowPort(FRAME_MAC_WINDOW(f));
 
       TextFont(fontnum);
@@ -9821,7 +9851,11 @@ mac_handle_window_event(EventHandlerCallRef next_handler, EventRef event,
     case kEventWindowCollapsed:
       result = CallNextEventHandler(next_handler, event);
       mac_handle_visibility_change(f);
-      return noErr;
+      if (result == noErr) {
+	return result;
+      } else {
+	return noErr;
+      }
       break;
 
     case kEventWindowClose:
@@ -9835,7 +9869,11 @@ mac_handle_window_event(EventHandlerCallRef next_handler, EventRef event,
 	buf.arg = Qnil;
 	kbd_buffer_store_event(&buf);
       }
-      return noErr;
+      if (result == noErr) {
+	return result;
+      } else {
+	return noErr;
+      }
 
 # ifdef MAC_OSX
     case kEventWindowToolbarSwitchMode:
@@ -10023,9 +10061,9 @@ mac_handle_text_input_event(EventHandlerCallRef next_handler,
 {
   OSStatus result, err = noErr;
   Lisp_Object id_key = Qnil;
-  int num_params;
-  const EventParamName *names;
-  const EventParamType *types;
+  int num_params = 0;
+  const EventParamName *names = (const EventParamName *)NULL;
+  const EventParamType *types = (const EventParamType *)NULL;
   static UInt32 seqno_uaia = 0;
   static const EventParamName names_uaia[] =
     {kEventParamTextInputSendComponentInstance,
@@ -10187,7 +10225,7 @@ mac_handle_text_input_event(EventHandlerCallRef next_handler,
       abort();
     }
 
-  if (!NILP (id_key))
+  if (!NILP(id_key))
     err = mac_store_event_ref_as_apple_event(0, 0, Qtext_input, id_key,
                                              event, num_params,
                                              names, types);

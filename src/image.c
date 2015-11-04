@@ -223,7 +223,7 @@ static Lisp_Object QCmax_width, QCmax_height;
    data more than once will not be caught.  */
 #if defined(MAC_OS) || \
     (defined(HAVE_CARBON) && !defined(HAVE_NS) && (!defined(__LP64__) || !__LP64__))
-static XImagePtr
+static XImagePtr ATTRIBUTE_USED
 XGetImage(Display *display, Pixmap pixmap, int x, int y,
           unsigned int width, unsigned int height,
           unsigned long plane_mask, int format)
@@ -320,13 +320,15 @@ static unsigned long XGetPixel(XImagePtr ximage, int x, int y)
     }
 }
 
-static void XDestroyImage(XImagePtr ximg)
+/* */
+static void ATTRIBUTE_USED
+XDestroyImage(XImagePtr ximg)
 {
   UnlockPixels(GetGWorldPixMap(ximg));
 }
 
 # if USE_CG_DRAWING
-static CGImageRef
+static CGImageRef ATTRIBUTE_USED
 mac_create_cg_image_from_image(struct frame *f, struct image *img)
 {
   Pixmap mask;
@@ -2801,7 +2803,7 @@ error:
 
 /* Load an image using the QuickTime Graphics Importer.
  * Note: The alpha channel does not work for PNG images. */
-static int
+static int ATTRIBUTE_USED
 image_load_quicktime(struct frame *f, struct image *img, OSType type)
 {
   Lisp_Object specified_file;
@@ -2860,7 +2862,8 @@ static CGImageCreateWithPNGDataProviderProcType MyCGImageCreateWithPNGDataProvid
 #   endif /* HAVE_DLFCN_H */
 #  endif /* HAVE_MACH_O_DYLD_H || __MACH__ */
 
-static void init_image_func_pointer(void)
+static void ATTRIBUTE_USED
+init_image_func_pointer(void)
 {
   if (NSIsSymbolNameDefined("_CGImageCreateWithPNGDataProvider")) {
     MyCGImageCreateWithPNGDataProvider =
@@ -2870,8 +2873,8 @@ static void init_image_func_pointer(void)
     MyCGImageCreateWithPNGDataProvider = NULL;
 }
 
-
-static int
+/* */
+static int ATTRIBUTE_USED
 image_load_quartz2d(struct frame *f, struct image *img, int png_p)
 {
   Lisp_Object file, specified_file;

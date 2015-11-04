@@ -1,4 +1,4 @@
-/* Functions for GUI implemented with Cocoa AppKit on the Mac OS.
+/* macappkit.m: Functions for GUI implemented with Cocoa AppKit on the Mac OS.
    Copyright (C) 2008-2015  YAMAMOTO Mitsuharu
 
 This file is part of GNU Emacs Mac port.
@@ -4559,7 +4559,7 @@ mac_cursor_create(ThemeCursor shape, const XColor *fore_color,
       [image addRepresentation:rep];
     }
   cursor = [[NSCursor alloc] initWithImage:image hotSpot:[cursor hotSpot]];
-  MRC_RELEASE (image);
+  MRC_RELEASE(image);
 
   return (Cursor)(intptr_t)CF_BRIDGING_RETAIN(MRC_AUTORELEASE(cursor));
 }
@@ -9197,7 +9197,7 @@ restore_show_help_function (Lisp_Object old_show_help_function)
    Return the selection.  */
 
 int
-mac_activate_menubar (struct frame *f)
+mac_activate_menubar(struct frame *f)
 {
   struct mac_display_info *dpyinfo = FRAME_DISPLAY_INFO (f);
   EventRef menu_event;
@@ -9284,7 +9284,6 @@ init_menu_bar(void)
 /* Fill menu bar with the items defined by WV.  If DEEP_P, then consider
  * the entire menu trees that we supply, rather than just the menu bar
  * item names.  */
-/* FIXME: un-prototyped, but making it static makes it unused: */
 void
 mac_fill_menubar(widget_value *wv, bool deep_p)
 {
@@ -9416,7 +9415,6 @@ mac_fake_menu_bar_click(EventPriority priority)
 
 /* Pop up the menu for frame F defined by FIRST_WV at X/Y and loop until
  * the menu pops down.  Return the selection.  */
-/* FIXME: un-prototyped, but making it static makes it unused: */
 int
 create_and_show_popup_menu(struct frame *f, widget_value *first_wv,
                            int x, int y, bool for_click)
@@ -9697,7 +9695,6 @@ pop_down_dialog(Lisp_Object arg)
 
 /* Pop up the dialog for frame F defined by FIRST_WV and loop until the
  * dialog pops down.  Return the selection.  */
-/* FIXME: un-prototyped, but making it static makes it unused: */
 int
 create_and_show_dialog(struct frame *f, widget_value *first_wv)
 {
@@ -11686,7 +11683,7 @@ mac_webkit_supports_svg_p(void)
   return result;
 }
 
-/* FIXME: un-prototyped, but making it static makes it unused: */
+/* */
 bool
 mac_svg_load_image(struct frame *f, struct image *img,
                    unsigned char *contents, ptrdiff_t size, XColor *color,
@@ -14472,14 +14469,15 @@ mac_font_shape (FontRef font, CFStringRef string,
 #endif	/* MAC_OS_X_VERSION_MIN_REQUIRED < 1050 */
 
 #if MAC_OS_X_VERSION_MIN_REQUIRED < 1050 || !USE_CT_GLYPH_INFO
+/* FIXME: also in "macfont.m": */
 CGGlyph
-mac_font_get_glyph_for_cid (FontRef font, CharacterCollection collection,
-			    CGFontIndex cid)
+mac_font_get_glyph_for_cid(FontRef font, CharacterCollection collection,
+			   CGFontIndex cid)
 {
 #if USE_CORE_TEXT && USE_CT_GLYPH_INFO
-  if (EQ (macfont_driver_type, Qmac_ct))
-    return mac_ctfont_get_glyph_for_cid ((CTFontRef) font, collection, cid);
-#endif
+  if (EQ(macfont_driver_type, Qmac_ct))
+    return mac_ctfont_get_glyph_for_cid((CTFontRef)font, collection, cid);
+#endif /* USE_CORE_TEXT && USE_CT_GLYPH_INFO */
   {
     CGGlyph result = kCGFontIndexInvalid;
     NSFont *nsFont = (__bridge NSFont *) font;
@@ -14898,25 +14896,25 @@ mac_font_shape_1(NSFont *font, NSString *string,
 @end
 
 CFTypeRef
-mac_sound_create (Lisp_Object file, Lisp_Object data)
+mac_sound_create(Lisp_Object file, Lisp_Object data)
 {
   NSSound *sound;
 
-  if (STRINGP (file))
+  if (STRINGP(file))
     {
-      file = ENCODE_FILE (file);
+      file = ENCODE_FILE(file);
       sound = [[NSSound alloc]
 		initWithContentsOfFile:[NSString stringWithUTF8LispString:file]
 			   byReference:YES];
     }
-  else if (STRINGP (data))
+  else if (STRINGP(data))
     sound = [[NSSound alloc]
 	      initWithData:[NSData dataWithBytes:(SDATA (data))
 					  length:(SBYTES (data))]];
   else
     sound = nil;
 
-  return CF_BRIDGING_RETAIN (MRC_AUTORELEASE (sound));
+  return CF_BRIDGING_RETAIN(MRC_AUTORELEASE(sound));
 }
 
 void

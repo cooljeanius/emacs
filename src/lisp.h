@@ -453,21 +453,21 @@ enum enum_USE_LSB_TAG { USE_LSB_TAG = false };
 #define lisp_h_MISCP(x) (XTYPE(x) == Lisp_Misc)
 #define lisp_h_NILP(x) EQ(x, Qnil)
 #define lisp_h_SET_SYMBOL_VAL(sym, v) \
-   (eassert ((sym)->redirect == SYMBOL_PLAINVAL), (sym)->val.value = (v))
-#define lisp_h_SYMBOL_CONSTANT_P(sym) (XSYMBOL (sym)->constant)
+   (eassert((sym)->redirect == SYMBOL_PLAINVAL), (sym)->val.value = (v))
+#define lisp_h_SYMBOL_CONSTANT_P(sym) (XSYMBOL(sym)->constant)
 #define lisp_h_SYMBOL_VAL(sym) \
-   (eassert ((sym)->redirect == SYMBOL_PLAINVAL), (sym)->val.value)
-#define lisp_h_SYMBOLP(x) (XTYPE (x) == Lisp_Symbol)
-#define lisp_h_VECTORLIKEP(x) (XTYPE (x) == Lisp_Vectorlike)
-#define lisp_h_XCAR(c) XCONS (c)->car
-#define lisp_h_XCDR(c) XCONS (c)->u.cdr
+   (eassert((sym)->redirect == SYMBOL_PLAINVAL), (sym)->val.value)
+#define lisp_h_SYMBOLP(x) (XTYPE(x) == Lisp_Symbol)
+#define lisp_h_VECTORLIKEP(x) (XTYPE(x) == Lisp_Vectorlike)
+#define lisp_h_XCAR(c) (eassert(XCONS(c) != NULL), XCONS(c)->car)
+#define lisp_h_XCDR(c) (eassert(XCONS(c) != NULL), XCONS(c)->u.cdr)
 #define lisp_h_XCONS(a) \
-   (eassert (CONSP (a)), (struct Lisp_Cons *) XUNTAG (a, Lisp_Cons))
+   (eassert(CONSP(a)), (struct Lisp_Cons *)XUNTAG(a, Lisp_Cons))
 #define lisp_h_XHASH(a) XUINT(a)
 #define lisp_h_XPNTR(a) \
-   ((void *) (intptr_t) ((XLI (a) & VALMASK) | DATA_SEG_BITS))
+   ((void *)(intptr_t)((XLI(a) & VALMASK) | DATA_SEG_BITS))
 #define lisp_h_XSYMBOL(a) \
-   (eassert (SYMBOLP (a)), (struct Lisp_Symbol *) XUNTAG (a, Lisp_Symbol))
+   (eassert(SYMBOLP(a)), (struct Lisp_Symbol *)XUNTAG(a, Lisp_Symbol))
 #ifndef GC_CHECK_CONS_LIST
 # define lisp_h_check_cons_list() ((void) 0)
 #endif /* !GC_CHECK_CONS_LIST */
@@ -1185,9 +1185,9 @@ INLINE Lisp_Object *xcdr_addr(Lisp_Object c)
   return &XCONS(c)->u.cdr;
 }
 
-/* Use these from normal code.  */
-LISP_MACRO_DEFUN (XCAR, Lisp_Object, (Lisp_Object c), (c))
-LISP_MACRO_DEFUN (XCDR, Lisp_Object, (Lisp_Object c), (c))
+/* Use these from normal code: */
+LISP_MACRO_DEFUN(XCAR, Lisp_Object, (Lisp_Object c), (c))
+LISP_MACRO_DEFUN(XCDR, Lisp_Object, (Lisp_Object c), (c))
 
 /* Use these to set the fields of a cons cell.
 
@@ -1261,11 +1261,13 @@ struct Lisp_String
 # endif /* offsetof */
 #endif /* !OFFSETOF */
 
-/* True if STR is a multibyte string.  */
+/* True if STR is a multibyte string: */
 INLINE bool
-STRING_MULTIBYTE (Lisp_Object str)
+STRING_MULTIBYTE(Lisp_Object str)
 {
-  return 0 <= XSTRING (str)->size_byte;
+  struct Lisp_String *lstr = XSTRING(str);
+  eassert(lstr != NULL);
+  return (0 <= lstr->size_byte);
 }
 
 /* An upper bound on the number of bytes in a Lisp string, not
@@ -1297,17 +1299,19 @@ STRING_MULTIBYTE (Lisp_Object str)
    ASCII characters in advance.  */
 #define STRING_SET_MULTIBYTE(STR)			\
   do {							\
-    if (EQ (STR, empty_unibyte_string))			\
+    if (EQ(STR, empty_unibyte_string))			\
       (STR) = empty_multibyte_string;			\
     else						\
-      XSTRING (STR)->size_byte = XSTRING (STR)->size;	\
+      XSTRING(STR)->size_byte = XSTRING(STR)->size;	\
   } while (false)
 
 /* Convenience functions for dealing with Lisp strings: */
 INLINE unsigned char *SDATA(Lisp_Object string)
 {
+  struct Lisp_String *lstr = XSTRING(string);
+  eassert(lstr != NULL);
   /* Avoid "differ in sign" warnings: */
-  return (unsigned char *)XSTRING(string)->data;
+  return (unsigned char *)lstr->data;
 }
 INLINE char *SSDATA(Lisp_Object string)
 {
@@ -1396,7 +1400,10 @@ struct Lisp_Vector
     Lisp_Object contents[FLEXIBLE_ARRAY_MEMBER];
   };
 
-#if defined(HAVE_STDALIGN_H) && !defined(BUILDING_FROM_XCODE)
+#if defined(HAVE_STDALIGN_H) && !defined(BUILDING_FROM_XCODE) && \
+    !(defined(__clang_major__) && defined(__clang_minor__) && \
+      (((__clang_major__ < 3) && defined(__clang_analyzer__)) || \
+       ((__clang_major__ == 3) && (__clang_minor__ <= 1))))
 /* C11 prohibits alignof (struct Lisp_Vector), so compute it manually: */
 enum
   {
@@ -1408,7 +1415,7 @@ enum
      !defined(ALIGNOF_STRUCT_LISP_VECTOR)
 #  warning "ALIGNOF_STRUCT_LISP_VECTOR will be unavailable."
 # endif /* __GNUC__ && !__STRICT_ANSI__ && lint && !ALIGNOF_STRUCT_LISP_VECTOR */
-#endif /* HAVE_STDALIGN_H && !BUILDING_FROM_XCODE */
+#endif /* HAVE_STDALIGN_H && !BUILDING_FROM_XCODE && !(clang pre-3.2) */
 
 /* A boolvector is a kind of vectorlike, with contents like a string: */
 struct Lisp_Bool_Vector
@@ -1499,59 +1506,61 @@ bool_vector_set(Lisp_Object a, EMACS_INT i, bool b)
 
 enum
   {
-    header_size = offsetof (struct Lisp_Vector, contents),
-    bool_header_size = offsetof (struct Lisp_Bool_Vector, data),
-    word_size = sizeof (Lisp_Object)
+    header_size = offsetof(struct Lisp_Vector, contents),
+    bool_header_size = offsetof(struct Lisp_Bool_Vector, data),
+    word_size = sizeof(Lisp_Object)
   };
 
 /* Conveniences for dealing with Lisp arrays.  */
 
 INLINE Lisp_Object
-AREF (Lisp_Object array, ptrdiff_t idx)
+AREF(Lisp_Object array, ptrdiff_t idx)
 {
-  return XVECTOR (array)->contents[idx];
+  return XVECTOR(array)->contents[idx];
 }
 
 INLINE Lisp_Object *
-aref_addr (Lisp_Object array, ptrdiff_t idx)
+aref_addr(Lisp_Object array, ptrdiff_t idx)
 {
-  return & XVECTOR (array)->contents[idx];
+  return &XVECTOR(array)->contents[idx];
 }
 
 INLINE ptrdiff_t
-ASIZE (Lisp_Object array)
+ASIZE(Lisp_Object array)
 {
-  return XVECTOR (array)->header.size;
+  struct Lisp_Vector *lvec = XVECTOR(array);
+  eassert(lvec != NULL);
+  return lvec->header.size;
 }
 
 INLINE void
-ASET (Lisp_Object array, ptrdiff_t idx, Lisp_Object val)
+ASET(Lisp_Object array, ptrdiff_t idx, Lisp_Object val)
 {
-  eassert (0 <= idx && idx < ASIZE (array));
-  XVECTOR (array)->contents[idx] = val;
+  eassert((0 <= idx) && (idx < ASIZE(array)));
+  XVECTOR(array)->contents[idx] = val;
 }
 
 INLINE void
-gc_aset (Lisp_Object array, ptrdiff_t idx, Lisp_Object val)
+gc_aset(Lisp_Object array, ptrdiff_t idx, Lisp_Object val)
 {
   /* Like ASET, but also can be used in the garbage collector:
      sweep_weak_table calls set_hash_key etc. while the table is marked.  */
-  eassert (0 <= idx && idx < (ASIZE (array) & ~ARRAY_MARK_FLAG));
-  XVECTOR (array)->contents[idx] = val;
+  eassert((0 <= idx) && (idx < (ASIZE(array) & ~ARRAY_MARK_FLAG)));
+  XVECTOR(array)->contents[idx] = val;
 }
 
 /* If a struct is made to look like a vector, this macro returns the length
    of the shortest vector that would hold that struct.  */
 
 #define VECSIZE(type)						\
-  ((sizeof (type) - header_size + word_size - 1) / word_size)
+  ((sizeof(type) - header_size + word_size - 1) / word_size)
 
 /* Like VECSIZE, but used when the pseudo-vector has non-Lisp_Object fields
    at the end and we need to compute the number of Lisp_Object fields (the
    ones that the GC needs to trace).  */
 
 #define PSEUDOVECSIZE(type, nonlispfield)			\
-  ((offsetof (type, nonlispfield) - header_size) / word_size)
+  ((offsetof(type, nonlispfield) - header_size) / word_size)
 
 /* Compute A OP B, using the unsigned comparison operator OP.  A and B
    should be integer expressions.  This is not the same as
@@ -2458,9 +2467,11 @@ struct Lisp_Float
   };
 
 INLINE double
-XFLOAT_DATA (Lisp_Object f)
+XFLOAT_DATA(Lisp_Object f)
 {
-  return XFLOAT (f)->u.data;
+  struct Lisp_Float *lf = XFLOAT(f);
+  eassert(lf != NULL);
+  return lf->u.data;
 }
 
 /* Most hosts nowadays use IEEE floating point, so they use IEC 60559
@@ -2585,8 +2596,9 @@ BUFFER_OBJFWDP (union Lisp_Fwd *a)
 }
 
 INLINE bool
-PSEUDOVECTOR_TYPEP (struct vectorlike_header *a, int code)
+PSEUDOVECTOR_TYPEP(struct vectorlike_header *a, int code)
 {
+  eassert(a != NULL);
   return ((a->size & (PSEUDOVECTOR_FLAG | PVEC_TYPE_MASK))
 	  == (PSEUDOVECTOR_FLAG | (code << PSEUDOVECTOR_AREA_BITS)));
 }

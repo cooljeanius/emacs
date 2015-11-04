@@ -28,6 +28,10 @@ Boston, MA 02110-1301, USA.  */
 #include "frame.h"
 #include "fontset.h"
 
+#ifndef EMACS_KEYBOARD_H
+# include "keyboard.h" /* widget_value */
+#endif /* !EMACS_KEYBOARD_H */
+
 #if defined(HAVE_AVAILABILITYMACROS_H) && !defined(__AVAILABILITYMACROS__)
 # include <AvailabilityMacros.h>
 #endif /* HAVE_AVAILABILITYMACROS_H && !__AVAILABILITYMACROS__ */
@@ -1175,24 +1179,28 @@ extern OSStatus mac_show_hide_font_panel (void);
 extern void mac_get_screen_info (struct mac_display_info *);
 extern EventTimeout mac_run_loop_run_once (EventTimeout);
 extern int mac_read_socket (struct terminal *, struct input_event *);
-extern void update_frame_tool_bar (struct frame *f);
-extern void free_frame_tool_bar (struct frame *f);
-extern void mac_show_hourglass (struct frame *);
-extern void mac_hide_hourglass (struct frame *);
-extern Lisp_Object mac_file_dialog (Lisp_Object, Lisp_Object, Lisp_Object,
-				    Lisp_Object, Lisp_Object);
-extern Lisp_Object mac_font_dialog (struct frame *f);
-extern int mac_activate_menubar (struct frame *);
-extern OSStatus mac_get_selection_from_symbol (Lisp_Object, bool, Selection *);
-extern bool mac_valid_selection_target_p (Lisp_Object);
-extern OSStatus mac_clear_selection (Selection *);
-extern Lisp_Object mac_get_selection_ownership_info (Selection);
-extern bool mac_valid_selection_value_p (Lisp_Object, Lisp_Object);
-extern OSStatus mac_put_selection_value (Selection, Lisp_Object, Lisp_Object);
-extern bool mac_selection_has_target_p (Selection, Lisp_Object);
-extern Lisp_Object mac_get_selection_value (Selection, Lisp_Object);
-extern Lisp_Object mac_get_selection_target_list (Selection);
-extern Lisp_Object mac_dnd_default_known_types (void);
+extern void update_frame_tool_bar(struct frame *f);
+extern void free_frame_tool_bar(struct frame *f);
+extern void mac_show_hourglass(struct frame *);
+extern void mac_hide_hourglass(struct frame *);
+extern Lisp_Object mac_file_dialog(Lisp_Object, Lisp_Object, Lisp_Object,
+				   Lisp_Object, Lisp_Object);
+extern Lisp_Object mac_font_dialog(struct frame *f);
+extern int mac_activate_menubar(struct frame *);
+extern void mac_fill_menubar(widget_value *, bool);
+extern int create_and_show_popup_menu(struct frame *, widget_value *, int, int,
+				      bool);
+extern int create_and_show_dialog(struct frame *, widget_value *);
+extern OSStatus mac_get_selection_from_symbol(Lisp_Object, bool, Selection *);
+extern bool mac_valid_selection_target_p(Lisp_Object);
+extern OSStatus mac_clear_selection(Selection *);
+extern Lisp_Object mac_get_selection_ownership_info(Selection);
+extern bool mac_valid_selection_value_p(Lisp_Object, Lisp_Object);
+extern OSStatus mac_put_selection_value(Selection, Lisp_Object, Lisp_Object);
+extern bool mac_selection_has_target_p(Selection, Lisp_Object);
+extern Lisp_Object mac_get_selection_value(Selection, Lisp_Object);
+extern Lisp_Object mac_get_selection_target_list(Selection);
+extern Lisp_Object mac_dnd_default_known_types(void);
 
 #if defined(__clang__) && (MAC_OS_X_VERSION_MIN_REQUIRED >= 1060) && \
     defined(HAVE_CBLOCKS_LANGUAGE_FEATURE)
@@ -1216,15 +1224,20 @@ extern Lisp_Object mac_osa_compile (Lisp_Object, Lisp_Object, bool,
 extern Lisp_Object mac_osa_script (Lisp_Object, Lisp_Object, bool, Lisp_Object,
 				   Lisp_Object, ptrdiff_t, Lisp_Object *,
 				   Lisp_Object *);
-extern bool mac_webkit_supports_svg_p (void);
-extern CFArrayRef mac_document_copy_type_identifiers (void);
-extern EmacsDocumentRef mac_document_create_with_url (CFURLRef,
+extern bool mac_webkit_supports_svg_p(void);
+extern bool mac_svg_load_image(struct frame *, struct image *, unsigned char *,
+			       ptrdiff_t, XColor *,
+			       bool (*)(struct frame *, int, int),
+			       void (*)(const char *, Lisp_Object,
+					Lisp_Object));
+extern CFArrayRef mac_document_copy_type_identifiers(void);
+extern EmacsDocumentRef mac_document_create_with_url(CFURLRef,
+						     CFDictionaryRef);
+extern EmacsDocumentRef mac_document_create_with_data(CFDataRef,
 						      CFDictionaryRef);
-extern EmacsDocumentRef mac_document_create_with_data (CFDataRef,
-						       CFDictionaryRef);
-extern size_t mac_document_get_page_count (EmacsDocumentRef);
-extern void mac_document_copy_page_info (EmacsDocumentRef, size_t, CGSize *,
-					 CGColorRef *, CFDictionaryRef *);
+extern size_t mac_document_get_page_count(EmacsDocumentRef);
+extern void mac_document_copy_page_info(EmacsDocumentRef, size_t, CGSize *,
+					CGColorRef *, CFDictionaryRef *);
 extern void mac_document_draw_page P_((CGContextRef, CGRect,
                                        EmacsDocumentRef, size_t));
 extern void mac_update_accessibility_status P_((struct frame *));

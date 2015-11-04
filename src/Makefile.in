@@ -460,7 +460,7 @@ SUFFIXES = .c .o .m .plist
 .c.plist:
 	@if test ! -d $(analysisdir); then $(MKDIR_P) $(analysisdir); fi
 	$(RUN_CLANG_ANALYZER) $(PRE_WARNING_TESTING_CFLAGS) \
-	  -o $(analysisdir)/$@ $< 
+	  $(CLANG_CPPFLAGS) -o $(analysisdir)/$@ $< 
 
 .m.plist:
 	@if test ! -d $(analysisdir); then $(MKDIR_P) $(analysisdir); fi

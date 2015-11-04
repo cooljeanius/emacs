@@ -412,9 +412,14 @@ typedef struct _widget_value
   unsigned char selected;
   /* The type of a button.  */
   enum button_type button_type;
-# if defined (HAVE_NTGUI)
+# if defined(HAVE_NTGUI)
   /* true if menu title */
   unsigned char title;
+# else
+#  if defined(HAVE_CARBON)
+  /* true if menu title */
+  Boolean title;
+#  endif /* HAVE_CARBON */
 # endif /* HAVE_NTGUI */
   /* Contents of the sub-widgets, also selected slot for checkbox */
   struct _widget_value*	contents;

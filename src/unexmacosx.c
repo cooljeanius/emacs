@@ -1157,7 +1157,7 @@ read_load_commands(void)
 #ifdef __cplusplus
       lca[i] = (struct load_command *)malloc(lc.cmdsize);
 #else
-      lca[i] = malloc((size_t)lc.cmdsize);
+      lca[i] = malloc(max(1UL, (size_t)lc.cmdsize));
 #endif /* __cplusplus */
       memcpy(lca[i], &lc, sizeof(struct load_command));
       if (!unexec_read((lca[i] + 1),

@@ -616,7 +616,7 @@
 		A540ECE41A0C29D50008DA29 /* macfont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = macfont.h; sourceTree = "<group>"; };
 		A540ECE51A0C29D50008DA29 /* macfont.m */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.objc; path = macfont.m; sourceTree = "<group>"; tabWidth = 8; };
 		A540ECE61A0C29D50008DA29 /* macgui.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = macgui.h; sourceTree = "<group>"; tabWidth = 8; };
-		A540ECE71A0C29D50008DA29 /* macmenu.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = macmenu.c; sourceTree = "<group>"; tabWidth = 8; };
+		A540ECE71A0C29D50008DA29 /* macmenu.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = macmenu.c; sourceTree = "<group>"; tabWidth = 8; usesTabs = 0; };
 		A540ECE81A0C29D50008DA29 /* macros.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = macros.c; sourceTree = "<group>"; };
 		A540ECE91A0C29D50008DA29 /* macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = macros.h; sourceTree = "<group>"; };
 		A540ECEA1A0C29D50008DA29 /* macselect.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = macselect.c; sourceTree = "<group>"; tabWidth = 8; };

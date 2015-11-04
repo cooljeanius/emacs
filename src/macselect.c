@@ -1081,15 +1081,18 @@ static void
 find_event_binding(Lisp_Object keymap,
                    struct apple_event_binding *event_binding, int class_p)
 {
+  eassert(event_binding != NULL);
+  xassert(event_binding != NULL);
+  
   if (event_binding->code == 0)
     event_binding->binding =
-      access_keymap (keymap, event_binding->key, 0, 1, 0);
+      access_keymap(keymap, event_binding->key, 0, 1, 0);
   else
     {
       event_binding->binding = Qnil;
-      map_keymap (keymap, find_event_binding_fun,
-		  class_p ? Qmac_apple_event_class : Qmac_apple_event_id,
-		  event_binding, 0);
+      map_keymap(keymap, find_event_binding_fun,
+		 (class_p ? Qmac_apple_event_class : Qmac_apple_event_id),
+		 event_binding, 0);
     }
 }
 

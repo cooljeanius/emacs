@@ -362,12 +362,12 @@ posix_to_mac_pathname(const char *ufn, char *mfn, int mfnbuflen)
   /* expand to emacs dir found by init_emacs_passwd_dir */
   if (strncmp (p, "~emacs/", 7) == 0)
     {
-      struct passwd *pw = getpwnam ("emacs");
+      struct passwd *pw = getpwnam("emacs");
       p += 7;
-      if (strlen (pw->pw_dir) + strlen (p) > MAXPATHLEN)
+      if ((strlen(pw->pw_dir) + strlen(p)) > MAXPATHLEN)
 	return 0;
-      strcpy (expanded_pathname, pw->pw_dir);
-      strcat (expanded_pathname, p);
+      strcpy(expanded_pathname, pw->pw_dir);
+      strcat(expanded_pathname, p);
       p = expanded_pathname;
         /* now p points to the pathname with emacs dir prefix */
     }
@@ -375,15 +375,17 @@ posix_to_mac_pathname(const char *ufn, char *mfn, int mfnbuflen)
     {
       char *t = get_temp_dir_name();
       p += 5;
-      if (strlen (t) + strlen (p) > MAXPATHLEN)
+      eassert(t != NULL);
+      xassert(t != NULL);
+      if ((strlen(t) + strlen(p)) > MAXPATHLEN)
 	return 0;
-      strcpy (expanded_pathname, t);
-      strcat (expanded_pathname, p);
+      strcpy(expanded_pathname, t);
+      strcat(expanded_pathname, p);
       p = expanded_pathname;
         /* now p points to the pathname with emacs dir prefix */
     }
   else if (*p != '/')  /* relative pathname */
-    strcat (mfn, ":");
+    strcat(mfn, ":");
 
   if (*p == '/')
     p++;
