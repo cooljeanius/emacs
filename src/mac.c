@@ -242,8 +242,8 @@ static int wakeup_from_rne_enabled_p = 0;
 #endif /* TARGET_API_MAC_CARBON */
 
 #ifndef MAC_OSX
-static OSErr posix_pathname_to_fsspec P_ ((const char *, FSSpec *));
-static OSErr fsspec_to_posix_pathname P_ ((const FSSpec *, char *, int));
+static OSErr posix_pathname_to_fsspec P_((const char *, FSSpec *));
+static OSErr fsspec_to_posix_pathname P_((const FSSpec *, char *, int));
 #endif /* !MAC_OSX */
 
 /* When converting from Mac to Unix pathnames, /'s in folder names are
@@ -4168,14 +4168,86 @@ mac_get_code_from_arg(Lisp_Object arg, OSType defCode)
 Lisp_Object
 mac_get_object_from_code(OSType defCode)
 {
-  UInt32 code = EndianU32_NtoB (defCode);
+  UInt32 code = EndianU32_NtoB(defCode);
 
-  return make_unibyte_string ((char *)&code, 4);
+  return make_unibyte_string((char *)&code, 4);
 }
 
+/* Some attempts to solve aliasing violations: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__)
+# if (__GNUC__ >= 4)
+#  define ATTRIBUTE_OPTIMIZE(foo) __attribute__((optimize(#foo)))
+# else
+#  define ATTRIBUTE_OPTIMIZE(foo) /* nothing */
+# endif /* gcc 4+ */
+#else
+# define ATTRIBUTE_OPTIMIZE /* (nothing) */
+#endif /* any gcc */
+/* FIXME: the "DEFUN" macro makes it hard to attach attributes like
+ * ATTRIBUTE_OPTIMIZE(no-strict-aliasing) to functions defined with it... */
 
-DEFUN ("mac-get-file-creator", Fmac_get_file_creator, Smac_get_file_creator, 1, 1, 0,
-       doc: /* Get the creator code of FILENAME as a four character string. */)
+typedef union u {
+  FileInfo *fi;
+  FSCatalogInfo fsci;
+  UInt8 finderInfo[16];
+} fi_or_fsci;
+
+DEFUN("mac-get-file-creator", Fmac_get_file_creator, Smac_get_file_creator, 1, 1, 0,
+      doc: /* Get the creator code of FILENAME as a four character string. */)
+     (Lisp_Object filename)
+{
+  OSStatus status;
+#ifdef MAC_OSX
+  FSRef fref;
+#else
+  FSSpec fss;
+#endif /* MAC_OSX */
+  Lisp_Object result = Qnil;
+  CHECK_STRING(filename);
+
+  if (NILP(Ffile_exists_p(filename)) || !NILP(Ffile_directory_p(filename))) {
+    return Qnil;
+  }
+  filename = Fexpand_file_name(filename, Qnil);
+
+  BLOCK_INPUT;
+#ifdef MAC_OSX
+  status = FSPathMakeRef(SDATA(ENCODE_FILE(filename)), &fref, NULL);
+#else
+  status = posix_pathname_to_fsspec(SDATA(ENCODE_FILE(filename)), &fss);
+#endif /* MAC_OSX */
+
+  if (status == noErr)
+    {
+#ifdef MAC_OSX
+      FSCatalogInfo catalogInfo;
+
+      status = FSGetCatalogInfo(&fref, kFSCatInfoFinderInfo,
+				&catalogInfo, NULL, NULL, NULL);
+#else
+      FInfo finder_info;
+
+      status = FSpGetFInfo(&fss, &finder_info);
+#endif /* MAC_OSX */
+      if (status == noErr)
+	{
+#ifdef MAC_OSX
+	  result = mac_get_object_from_code((((fi_or_fsci*)&catalogInfo.finderInfo)->fi)->fileCreator);
+#else
+	  result = mac_get_object_from_code(finder_info.fdCreator);
+#endif /* MAC_OSX */
+	}
+    }
+  UNBLOCK_INPUT;
+  if (status != noErr) {
+    error("Error while getting file information.");
+  }
+  return result;
+}
+
+/* */
+DEFUN("mac-get-file-type", Fmac_get_file_type, Smac_get_file_type, 1, 1, 0,
+      doc: /* Get the type code of FILENAME as a four character string. */)
      (Lisp_Object filename)
 {
   OSStatus status;
@@ -4209,79 +4281,27 @@ DEFUN ("mac-get-file-creator", Fmac_get_file_creator, Smac_get_file_creator, 1, 
 #else
       FInfo finder_info;
 
-      status = FSpGetFInfo (&fss, &finder_info);
+      status = FSpGetFInfo(&fss, &finder_info);
 #endif /* MAC_OSX */
       if (status == noErr)
 	{
 #ifdef MAC_OSX
-	  result = mac_get_object_from_code(((FileInfo*)&catalogInfo.finderInfo)->fileCreator);
+	  result = mac_get_object_from_code((((fi_or_fsci*)&catalogInfo.finderInfo)->fi)->fileType);
 #else
-	  result = mac_get_object_from_code (finder_info.fdCreator);
+	  result = mac_get_object_from_code(finder_info.fdType);
 #endif /* MAC_OSX */
 	}
     }
   UNBLOCK_INPUT;
   if (status != noErr) {
-    error ("Error while getting file information.");
+    error("Error while getting file information.");
   }
   return result;
 }
 
-DEFUN ("mac-get-file-type", Fmac_get_file_type, Smac_get_file_type, 1, 1, 0,
-       doc: /* Get the type code of FILENAME as a four character string. */)
-     (Lisp_Object filename)
-{
-  OSStatus status;
-#ifdef MAC_OSX
-  FSRef fref;
-#else
-  FSSpec fss;
-#endif /* MAC_OSX */
-  Lisp_Object result = Qnil;
-  CHECK_STRING (filename);
-
-  if (NILP(Ffile_exists_p(filename)) || !NILP(Ffile_directory_p(filename))) {
-    return Qnil;
-  }
-  filename = Fexpand_file_name (filename, Qnil);
-
-  BLOCK_INPUT;
-#ifdef MAC_OSX
-  status = FSPathMakeRef(SDATA(ENCODE_FILE(filename)), &fref, NULL);
-#else
-  status = posix_pathname_to_fsspec (SDATA (ENCODE_FILE (filename)), &fss);
-#endif /* MAC_OSX */
-
-  if (status == noErr)
-    {
-#ifdef MAC_OSX
-      FSCatalogInfo catalogInfo;
-
-      status = FSGetCatalogInfo(&fref, kFSCatInfoFinderInfo,
-				&catalogInfo, NULL, NULL, NULL);
-#else
-      FInfo finder_info;
-
-      status = FSpGetFInfo (&fss, &finder_info);
-#endif /* MAC_OSX */
-      if (status == noErr)
-	{
-#ifdef MAC_OSX
-	  result = mac_get_object_from_code(((FileInfo*)&catalogInfo.finderInfo)->fileType);
-#else
-	  result = mac_get_object_from_code (finder_info.fdType);
-#endif /* MAC_OSX */
-	}
-    }
-  UNBLOCK_INPUT;
-  if (status != noErr) {
-    error ("Error while getting file information.");
-  }
-  return result;
-}
-
-DEFUN ("mac-set-file-creator", Fmac_set_file_creator, Smac_set_file_creator, 1, 2, 0,
-       doc: /* Set creator code of file FILENAME to CODE.
+/* */
+DEFUN("mac-set-file-creator", Fmac_set_file_creator, Smac_set_file_creator, 1, 2, 0,
+      doc: /* Set creator code of file FILENAME to CODE.
 If non-nil, CODE must be a 4-character string.  Otherwise, 'EMAx' is
 assumed. Return non-nil if successful.  */)
      (Lisp_Object filename, Lisp_Object code)
@@ -4293,20 +4313,20 @@ assumed. Return non-nil if successful.  */)
   FSSpec fss;
 #endif /* MAC_OSX */
   OSType cCode;
-  CHECK_STRING (filename);
+  CHECK_STRING(filename);
 
   cCode = mac_get_code_from_arg(code, MAC_EMACS_CREATOR_CODE);
 
   if (NILP(Ffile_exists_p(filename)) || !NILP(Ffile_directory_p(filename))) {
     return Qnil;
   }
-  filename = Fexpand_file_name (filename, Qnil);
+  filename = Fexpand_file_name(filename, Qnil);
 
   BLOCK_INPUT;
 #ifdef MAC_OSX
   status = FSPathMakeRef(SDATA(ENCODE_FILE(filename)), &fref, NULL);
 #else
-  status = posix_pathname_to_fsspec (SDATA (ENCODE_FILE (filename)), &fss);
+  status = posix_pathname_to_fsspec(SDATA(ENCODE_FILE(filename)), &fss);
 #endif /* MAC_OSX */
 
   if (status == noErr)
@@ -4319,29 +4339,30 @@ assumed. Return non-nil if successful.  */)
 #else
       FInfo finder_info;
 
-      status = FSpGetFInfo (&fss, &finder_info);
+      status = FSpGetFInfo(&fss, &finder_info);
 #endif /* MAC_OSX */
       if (status == noErr)
 	{
 #ifdef MAC_OSX
-	((FileInfo*)&catalogInfo.finderInfo)->fileCreator = cCode;
+	(((fi_or_fsci*)&catalogInfo.finderInfo)->fi)->fileCreator = cCode;
 	status = FSSetCatalogInfo(&fref, kFSCatInfoFinderInfo, &catalogInfo);
 	/* TODO: on Mac OS 10.2, we need to touch the parent dir, FNNotify? */
 #else
 	finder_info.fdCreator = cCode;
-	status = FSpSetFInfo (&fss, &finder_info);
+	status = FSpSetFInfo(&fss, &finder_info);
 #endif /* MAC_OSX */
 	}
     }
   UNBLOCK_INPUT;
   if (status != noErr) {
-    error ("Error while setting creator information.");
+    error("Error while setting creator information.");
   }
   return Qt;
 }
 
-DEFUN ("mac-set-file-type", Fmac_set_file_type, Smac_set_file_type, 2, 2, 0,
-       doc: /* Set file code of file FILENAME to CODE.
+/* */
+DEFUN("mac-set-file-type", Fmac_set_file_type, Smac_set_file_type, 2, 2, 0,
+      doc: /* Set file code of file FILENAME to CODE.
 CODE must be a 4-character string.  Return non-nil if successful.  */)
      (Lisp_Object filename, Lisp_Object code)
 {
@@ -4378,23 +4399,23 @@ CODE must be a 4-character string.  Return non-nil if successful.  */)
 #else
       FInfo finder_info;
 
-      status = FSpGetFInfo (&fss, &finder_info);
+      status = FSpGetFInfo(&fss, &finder_info);
 #endif /* MAC_OSX */
       if (status == noErr)
 	{
 #ifdef MAC_OSX
-	((FileInfo*)&catalogInfo.finderInfo)->fileType = cCode;
+	(((fi_or_fsci*)&catalogInfo.finderInfo)->fi)->fileType = cCode;
 	status = FSSetCatalogInfo(&fref, kFSCatInfoFinderInfo, &catalogInfo);
 	/* TODO: on Mac OS 10.2, we need to touch the parent dir, FNNotify? */
 #else
 	finder_info.fdType = cCode;
-	status = FSpSetFInfo (&fss, &finder_info);
+	status = FSpSetFInfo(&fss, &finder_info);
 #endif /* MAC_OSX */
 	}
     }
   UNBLOCK_INPUT;
   if (status != noErr) {
-    error ("Error while setting creator information.");
+    error("Error while setting creator information.");
   }
   return Qt;
 }
@@ -4408,7 +4429,8 @@ CODE must be a 4-character string.  Return non-nil if successful.  */)
    For documentation on the MacOS scripting architecture, see Inside
    Macintosh - Interapplication Communications: Scripting
    Components.  */
-static long do_applescript(Lisp_Object script, Lisp_Object *result)
+static long ATTRIBUTE_OPTIMIZE(no-strict-aliasing)
+do_applescript(Lisp_Object script, Lisp_Object *result)
 {
   AEDesc script_desc, result_desc, error_desc, *desc = NULL;
   OSErr error;
@@ -4419,41 +4441,41 @@ static long do_applescript(Lisp_Object script, Lisp_Object *result)
   if (!as_scripting_component)
     initialize_applescript();
 
-  error = AECreateDesc (typeChar, SDATA (script), SBYTES (script),
-			&script_desc);
+  error = AECreateDesc(typeChar, SDATA(script), SBYTES(script),
+		       &script_desc);
   if (error)
     return error;
 
-  osaerror = OSADoScript (as_scripting_component, &script_desc, kOSANullScript,
-			  typeChar, kOSAModeNull, &result_desc);
+  osaerror = OSADoScript(as_scripting_component, &script_desc, kOSANullScript,
+			 typeChar, kOSAModeNull, &result_desc);
 
   if (osaerror == noErr)
     /* success: retrieve resulting script value */
     desc = &result_desc;
   else if (osaerror == errOSAScriptError)
     /* error executing AppleScript: retrieve error message */
-    if (!OSAScriptError (as_scripting_component, kOSAErrorMessage, typeChar,
-			 &error_desc))
+    if (!OSAScriptError(as_scripting_component, kOSAErrorMessage, typeChar,
+			&error_desc))
       desc = &error_desc;
 
   if (desc)
     {
 #if TARGET_API_MAC_CARBON
-      *result = make_uninit_string (AEGetDescDataSize (desc));
-      AEGetDescData (desc, SDATA (*result), SBYTES (*result));
+      *result = make_uninit_string(AEGetDescDataSize(desc));
+      AEGetDescData(desc, SDATA(*result), SBYTES(*result));
 #else /* not TARGET_API_MAC_CARBON: */
-      *result = make_uninit_string (GetHandleSize (desc->dataHandle));
-      memcpy (SDATA (*result), *(desc->dataHandle), SBYTES (*result));
+      *result = make_uninit_string(GetHandleSize(desc->dataHandle));
+      memcpy(SDATA(*result), *(desc->dataHandle), SBYTES(*result));
 #endif /* not TARGET_API_MAC_CARBON */
-      AEDisposeDesc (desc);
+      AEDisposeDesc(desc);
     }
 
-  AEDisposeDesc (&script_desc);
+  AEDisposeDesc(&script_desc);
 
   return osaerror;
 }
 
-
+/* */
 DEFUN ("do-applescript", Fdo_applescript, Sdo_applescript, 1, 1, 0,
        doc: /* Compile and execute AppleScript SCRIPT and return the result.
 If compilation and execution are successful, the resulting script

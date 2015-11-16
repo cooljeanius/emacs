@@ -2083,7 +2083,8 @@ DEFUN ("ns-list-services", Fns_list_services, Sns_list_services, 0, 0, 0,
   [svcs update]; /* on OS X, converts from '/' structure */
 # endif /* NS_IMPL_COCOA */
 
-  ret = interpret_services_menu (svcs, Qnil, ret);
+  ret = interpret_services_menu(svcs, Qnil, ret);
+  [svcs release];
   return ret;
 #endif /* 10.6+ || earlier */
 }

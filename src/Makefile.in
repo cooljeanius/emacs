@@ -912,7 +912,7 @@ $(lispsource)/loaddefs.el: $(BOOTSTRAPEMACS) @MAINT@ $(VCSWITNESS)
 
 ## Dump an Emacs executable named bootstrap-emacs containing the
 ## files from loadup.el in source form.
-bootstrap-emacs$(EXEEXT): temacs$(EXEEXT)
+bootstrap-emacs$(EXEEXT): ../lisp/Makefile temacs$(EXEEXT)
 	cd ../lisp; $(MAKE) $(MFLAGS) update-subdirs
 	if test "x$(CANNOT_DUMP)" = "xyes"; then \
 	  echo "Skipping dumping"; \

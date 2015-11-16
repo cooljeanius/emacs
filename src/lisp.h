@@ -1329,7 +1329,9 @@ INLINE void SSET(Lisp_Object string, ptrdiff_t array_index,
 }
 INLINE ptrdiff_t SCHARS(Lisp_Object string)
 {
-  return XSTRING(string)->size;
+  struct Lisp_String *lstr = XSTRING(string);
+  eassert(lstr != NULL);
+  return lstr->size;
 }
 
 #ifdef GC_CHECK_STRING_BYTES
@@ -1859,9 +1861,11 @@ SET_SYMBOL_FWD (struct Lisp_Symbol *sym, union Lisp_Fwd *v)
 }
 
 INLINE Lisp_Object
-SYMBOL_NAME (Lisp_Object sym)
+SYMBOL_NAME(Lisp_Object sym)
 {
-  return XSYMBOL (sym)->name;
+  struct Lisp_Symbol *lsym = XSYMBOL(sym);
+  eassert(lsym != NULL);
+  return lsym->name;
 }
 
 /* Value is true if SYM is an interned symbol.  */
@@ -2297,43 +2301,43 @@ union Lisp_Misc
   };
 
 INLINE union Lisp_Misc *
-XMISC (Lisp_Object a)
+XMISC(Lisp_Object a)
 {
-  return XUNTAG (a, Lisp_Misc);
+  return XUNTAG(a, Lisp_Misc);
 }
 
 INLINE struct Lisp_Misc_Any *
-XMISCANY (Lisp_Object a)
+XMISCANY(Lisp_Object a)
 {
-  eassert (MISCP (a));
-  return & XMISC (a)->u_any;
+  eassert(MISCP(a));
+  return &XMISC(a)->u_any;
 }
 
 INLINE enum Lisp_Misc_Type
-XMISCTYPE (Lisp_Object a)
+XMISCTYPE(Lisp_Object a)
 {
-  return XMISCANY (a)->type;
+  return XMISCANY(a)->type;
 }
 
 INLINE struct Lisp_Marker *
-XMARKER (Lisp_Object a)
+XMARKER(Lisp_Object a)
 {
-  eassert (MARKERP (a));
-  return & XMISC (a)->u_marker;
+  eassert(MARKERP(a));
+  return &XMISC(a)->u_marker;
 }
 
 INLINE struct Lisp_Overlay *
-XOVERLAY (Lisp_Object a)
+XOVERLAY(Lisp_Object a)
 {
-  eassert (OVERLAYP (a));
-  return & XMISC (a)->u_overlay;
+  eassert(OVERLAYP(a));
+  return &XMISC(a)->u_overlay;
 }
 
 INLINE struct Lisp_Save_Value *
-XSAVE_VALUE (Lisp_Object a)
+XSAVE_VALUE(Lisp_Object a)
 {
-  eassert (SAVE_VALUEP (a));
-  return & XMISC (a)->u_save_value;
+  eassert(SAVE_VALUEP(a));
+  return &XMISC(a)->u_save_value;
 }
 
 /* Forwarding pointer to an int variable.
@@ -3906,21 +3910,22 @@ extern bool survives_gc_p (Lisp_Object);
 extern void mark_object (Lisp_Object);
 #if defined REL_ALLOC && !defined SYSTEM_MALLOC
 extern void refill_memory_reserve (void);
-#endif
+#endif /* REL_ALLOC && !SYSTEM_MALLOC */
 extern const char *pending_malloc_warning;
 extern Lisp_Object zero_vector;
 extern Lisp_Object *stack_base;
 extern EMACS_INT consing_since_gc;
 extern EMACS_INT gc_relative_threshold;
 extern EMACS_INT memory_full_cons_threshold;
-extern Lisp_Object list1 (Lisp_Object);
-extern Lisp_Object list2 (Lisp_Object, Lisp_Object);
-extern Lisp_Object list3 (Lisp_Object, Lisp_Object, Lisp_Object);
-extern Lisp_Object list4 (Lisp_Object, Lisp_Object, Lisp_Object, Lisp_Object);
-extern Lisp_Object list5 (Lisp_Object, Lisp_Object, Lisp_Object, Lisp_Object,
-			  Lisp_Object);
-enum constype {CONSTYPE_HEAP, CONSTYPE_PURE};
-extern Lisp_Object listn (enum constype, ptrdiff_t, Lisp_Object, ...);
+extern Lisp_Object list1(Lisp_Object);
+extern Lisp_Object list2(Lisp_Object, Lisp_Object);
+extern Lisp_Object list3(Lisp_Object, Lisp_Object, Lisp_Object);
+extern Lisp_Object list4(Lisp_Object, Lisp_Object, Lisp_Object, Lisp_Object);
+extern Lisp_Object list5(Lisp_Object, Lisp_Object, Lisp_Object, Lisp_Object,
+			 Lisp_Object);
+enum constype { CONSTYPE_HEAP, CONSTYPE_PURE };
+extern Lisp_Object listn(enum constype, ptrdiff_t, Lisp_Object, ...);
+extern Lisp_Object make_save_value(void *, int);
 
 /* Build a frequently used 2/3/4-integer lists.  */
 

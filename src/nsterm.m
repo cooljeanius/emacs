@@ -2845,7 +2845,7 @@ ns_draw_text_decoration(struct glyph_string *s, struct face *face,
     }
   /* Do overline. We follow other terms in using a thickness of 1
      and ignoring overline_margin. */
-  if (face->overline_p)
+  if ((face != NULL) && face->overline_p)
     {
       NSRect r;
       r = NSMakeRect(x, s->y, width, 1);
@@ -2859,7 +2859,7 @@ ns_draw_text_decoration(struct glyph_string *s, struct face *face,
 
   /* Do strike-through.  We follow other terms for thickness and
      vertical position.*/
-  if (face->strike_through_p)
+  if ((face != NULL) && face->strike_through_p)
     {
       NSRect r;
       unsigned long dy;
@@ -2925,7 +2925,7 @@ ns_draw_relief(NSRect r, int thickness, char raised_p,
   NSTRACE(ns_draw_relief);
 
   /* set up colors: */
-  if (s->face->use_box_color_for_shadows_p)
+  if ((s->face != NULL) && s->face->use_box_color_for_shadows_p)
     {
       newBaseCol = ns_lookup_indexed_color(s->face->box_color, s->f);
     }
@@ -2936,9 +2936,13 @@ ns_draw_relief(NSRect r, int thickness, char raised_p,
       newBaseCol = IMAGE_BACKGROUND(s->img, s->f, 0);
     }
 #endif /* 0 */
-  else
+  else if (s->face != NULL)
     {
       newBaseCol = ns_lookup_indexed_color(s->face->background, s->f);
+    }
+  else
+    {
+      ; /* ??? */
     }
 
   if (newBaseCol == nil)
@@ -3261,7 +3265,10 @@ ns_dumpglyphs_image (struct glyph_string *s, NSRect r)
 static void
 ns_dumpglyphs_stretch(struct glyph_string *s)
 {
-  NSRect r[2];
+  NSRect r[2] = {
+    { { (CGFloat)0.0f, (CGFloat)0.0f }, { (CGFloat)0.0f, (CGFloat)0.0f } },
+    { { (CGFloat)0.0f, (CGFloat)0.0f }, { (CGFloat)0.0f, (CGFloat)0.0f } }
+  };
   int n, i;
   struct face *face;
   NSColor *fgCol, *bgCol;
@@ -3292,7 +3299,8 @@ ns_dumpglyphs_stretch(struct glyph_string *s)
         fgCol = [NSColor whiteColor];
       }
 
-      for (i = 0; i < n; ++i)
+      /* FIXME: array indexing issues with this loop: */
+      for (i = 0; (i < n) && (i <= 2); ++i)
         {
           if (!s->row->full_width_p)
             {
@@ -3335,7 +3343,7 @@ ns_dumpglyphs_stretch(struct glyph_string *s)
               r[i].size.width -= width;
               r[i].origin.x += width;
 
-              NSRectFill (r[i]);
+              NSRectFill(r[i]);
 
               /* Draw overlining, etc. on the cursor. */
               if (s->w->phys_cursor_type == FILLED_BOX_CURSOR)
@@ -4417,6 +4425,7 @@ ns_term_init (Lisp_Object display_name)
                   forKey: [NSString stringWithUTF8String: name]];
           }
         [cl writeToFile: nil];
+	[cl release];
       }
   }
 
@@ -4505,6 +4514,8 @@ ns_term_init (Lisp_Object display_name)
       addObserver: mainMenu
          selector: @selector (trackingNotification:)
              name: NSMenuDidEndTrackingNotification object: mainMenu];
+    
+    [appMenu release];
   }
 #endif /* MAC OS X menu setup */
 
@@ -4534,7 +4545,7 @@ ns_term_init (Lisp_Object display_name)
   return dpyinfo;
 }
 
-
+/* */
 void
 ns_term_shutdown(int sig)
 {

@@ -1688,6 +1688,14 @@ Using an Emacs configured with --with-x-toolkit=lucid does not have this problem
   /* Enter editor command loop.  This never returns.  */
   Frecursive_edit();
   /* NOTREACHED */
+#ifdef __clang_analyzer__
+  if (stack_bottom != NULL) {
+    stack_bottom = NULL;
+  }
+  if (stack_base != (Lisp_Object *)NULL) {
+    stack_base = (Lisp_Object *)NULL;
+  }
+#endif /* __clang_analyzer__ */
   return 0;
 }
 

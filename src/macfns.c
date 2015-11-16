@@ -3942,6 +3942,7 @@ void ATTRIBUTE_OPTIMIZE(no-strict-aliasing)
 start_hourglass(void)
 {
 #ifdef MAC_OSX
+  union u { struct timespec sts; EMACS_TIME et; };
   EMACS_TIME delay;
   int secs, usecs = 0;
 
@@ -3966,9 +3967,8 @@ start_hourglass(void)
     secs = DEFAULT_HOURGLASS_DELAY;
 
   EMACS_SET_SECS_USECS(delay, secs, usecs);
-  /* Oh no, my first time breaking strict aliasing rules on purpose! 
-   * FIXME: do it the "right" way instead, with a union or whatever: */
-  hourglass_atimer = start_atimer(ATIMER_RELATIVE, *(struct timespec *)&delay,
+  /* Hopefully I fixed the strict aliasing violation correctly here: */
+  hourglass_atimer = start_atimer(ATIMER_RELATIVE, ((union u *)&delay)->sts,
                                   show_hourglass, NULL);
 #else
   return;
@@ -4520,7 +4520,7 @@ Text larger than the specified size is clipped.  */)
 {
   struct frame *f;
   struct window *w;
-  int root_x, root_y;
+  int root_x = 0, root_y = 0;
   struct buffer *old_buffer;
   struct text_pos pos;
   int i, width, height;

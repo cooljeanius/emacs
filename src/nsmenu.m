@@ -902,6 +902,7 @@ ns_menu_show(struct frame *f, int x, int y, bool for_click, bool keymaps,
       else if (EQ(AREF(menu_items, i), Qlambda))
 	{
 	  prev_wv = save_wv;
+	  /* FIXME: check array index: */
 	  save_wv = submenu_stack[--submenu_depth];
 	  first_pane = 0;
 	  i++;
@@ -994,10 +995,11 @@ ns_menu_show(struct frame *f, int x, int y, bool for_click, bool keymaps,
 	  if (prev_wv)
 	    prev_wv->next = wv;
 	  else
-	    save_wv->contents = wv;
-	  wv->name = SSDATA (item_name);
-	  if (!NILP (descrip))
-	    wv->key = SSDATA (descrip);
+	    if (save_wv != NULL)
+	      save_wv->contents = wv;
+	  wv->name = SSDATA(item_name);
+	  if (!NILP(descrip))
+	    wv->key = SSDATA(descrip);
 	  wv->value = 0;
 	  /* If this item has a null value,
 	     make the call_data null so that it won't display a box
@@ -1054,17 +1056,18 @@ ns_menu_show(struct frame *f, int x, int y, bool for_click, bool keymaps,
     }
 
   pmenu = [[EmacsMenu alloc] initWithTitle:
-                               [NSString stringWithUTF8String: SSDATA (title)]];
+                               [NSString stringWithUTF8String: SSDATA(title)]];
   [pmenu fillWithWidgetValue: first_wv->contents];
-  free_menubar_widget_value_tree (first_wv);
-  unbind_to (specpdl_count, Qnil);
+  free_menubar_widget_value_tree(first_wv);
+  unbind_to(specpdl_count, Qnil);
 
   popup_activated_flag = 1;
   tem = [pmenu runMenuAt: p forFrame: f keymaps: keymaps];
   popup_activated_flag = 0;
-  [[FRAME_NS_VIEW (SELECTED_FRAME ()) window] makeKeyWindow];
+  [[FRAME_NS_VIEW(SELECTED_FRAME()) window] makeKeyWindow];
 
-  unblock_input ();
+  unblock_input();
+  [pmenu release];
   return tem;
 }
 

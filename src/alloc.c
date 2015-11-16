@@ -3491,6 +3491,29 @@ free_misc (Lisp_Object misc)
   total_free_markers++;
 }
 
+/* Return a Lisp_Misc_Save_Value object containing POINTER and
+ * INTEGER.  This is used to package C values to call record_unwind_protect.
+ * The unwind function can get the C values back using XSAVE_VALUE.  */
+Lisp_Object
+make_save_value(void *pointer, int integer)
+{
+  register Lisp_Object val;
+  register struct Lisp_Save_Value *p;
+  
+  val = allocate_misc(Lisp_Misc_Save_Value);
+  XMISCANY(val)->type = Lisp_Misc_Save_Value;
+  p = XSAVE_VALUE(val);
+  /* FIXME: I wanted to add a conditional here so that this assignment follows
+   * the rules from the comment in "lisp.h" inside its definition of
+   * struct Lisp_Save_Value, but I failed to get that to work: */
+  p->data[0].pointer = pointer;
+  p->data[1].integer = integer;
+#if 0
+  p->dogc = 0;
+#endif /* 0 */
+  return val;
+}
+
 /* Verify properties of Lisp_Save_Value's representation
    that are assumed here and elsewhere.  */
 

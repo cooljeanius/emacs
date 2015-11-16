@@ -2524,7 +2524,7 @@ mac_menu_show(FRAME_PTR f, int x, int y, int for_click, int keymaps,
   menu_item_selection = 0;
 
   record_unwind_protect((void (*)(Lisp_Object))pop_down_menu,
-			XIL(make_save_value(f, 0)));
+			make_save_value(f, 0));
 
   /* Add event handler so we can detect C-g. */
   install_menu_quit_handler(MAC_MENU_POPUP, menu);

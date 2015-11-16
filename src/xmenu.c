@@ -1432,7 +1432,7 @@ create_and_show_popup_menu(struct frame *f, widget_value *first_wv,
     ptrdiff_t specpdl_count = SPECPDL_INDEX();
     record_unwind_protect(pop_down_menu,
                           Fcons(make_number(menu_id >> (fact)),
-                                make_number(menu_id & ~(-1 << (fact)))));
+                                make_number(menu_id & ~(-1U << (fact)))));
 
     /* Process events that apply to the menu: */
     popup_get_selection(0, FRAME_DISPLAY_INFO(f), menu_id, 1);
@@ -1824,7 +1824,7 @@ create_and_show_dialog(struct frame *f, widget_value *first_wv)
     /* xdialog_show_unwind is responsible for popping the dialog box down: */
     record_unwind_protect(pop_down_menu,
                           Fcons(make_number(dialog_id >> (fact)),
-                                make_number(dialog_id & ~(-1 << (fact)))));
+                                make_number(dialog_id & ~(-1U << (fact)))));
 
     popup_get_selection(0, FRAME_DISPLAY_INFO(f), dialog_id, 1);
 
