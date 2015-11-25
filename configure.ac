@@ -3562,12 +3562,15 @@ else
       gl_WARN_ADD([-Wtautological-compare])
       gl_WARN_ADD([-Wframe-address])
       gl_WARN_ADD([-Wnull-dereference])
+      gl_WARN_ADD([-Wduplicated-cond])
       ## this got stricter, I think?
       nw="${nw} -Wbool-compare"
       ## but anyways...
       if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
         AC_LANG_PUSH([C++])dnl
         gl_WARN_ADD([-Wterminate],[WARN_CXXFLAGS])
+        gl_WARN_ADD([-Wmultiple-inheritance],[WARN_CXXFLAGS])
+        gl_WARN_ADD([-Wvirtual-inheritance],[WARN_CXXFLAGS])
         AC_LANG_POP
       else
         AC_MSG_NOTICE([-Wterminate is only relevant for C++, skipping it])
@@ -4591,6 +4594,10 @@ AC_HEADER_RESOLV
 dnl# definition of this next macro has been moved to the included file:
 m4_include([m4/headers_extra.m4])dnl
 AC_REQUIRE_VARIOUS_HEADER_CHECKS
+if test "x${ac_cv_header_stdbool_h}" = "x"; then
+  test -z "${ac_cv_header_stdbool_h}"
+  AC_HEADER_STDBOOL
+fi
 AC_HEADER_TIME
 dnl# not sure why these decls go in the headers section, but whatever:
 AC_CHECK_DECLS([sys_siglist, sys_signame],[],[],[[#include <signal.h>

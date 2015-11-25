@@ -34,10 +34,77 @@
 #ifdef HAVE_MACH_O_COMPACT_UNWIND_ENCODING_H
 # include <mach-o/compact_unwind_encoding.h>
 #else
-# if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(__APPLE__)
-#  error "MachOFileAbstraction.hpp needs <mach-o/compact_unwind_encoding.h>"
-#  include <does/not/exist/terminate_compilation.h>
-# endif /* __GNUC__ && !__STRICT_ANSI__ && __APPLE__ */
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(__APPLE__) && \
+     defined(lint) && !defined(__COMPACT_UNWIND_ENCODING__) 
+#  warning "MachOFileAbstraction.hpp needs <mach-o/compact_unwind_encoding.h>"
+# endif /* __GNUC__ && !__STRICT_ANSI__ && __APPLE__ && lint && !__COMPACT_UNWIND_ENCODING__ */
+/* copy-and-paste the definitions we need from it inline here: */
+# ifndef UNWIND_SECTION_VERSION
+#  define UNWIND_SECTION_VERSION 1
+# endif /* !UNWIND_SECTION_VERSION */
+struct unwind_info_section_header
+{
+    uint32_t    version;            // UNWIND_SECTION_VERSION
+    uint32_t    commonEncodingsArraySectionOffset;
+    uint32_t    commonEncodingsArrayCount;
+    uint32_t    personalityArraySectionOffset;
+    uint32_t    personalityArrayCount;
+    uint32_t    indexSectionOffset;
+    uint32_t    indexCount;
+    // compact_unwind_encoding_t[]
+    // uintptr_t personalities[]
+    // unwind_info_section_header_index_entry[]
+    // unwind_info_section_header_lsda_index_entry[]
+};
+struct unwind_info_section_header_index_entry 
+{
+    uint32_t functionOffset;
+    uint32_t secondLevelPagesSectionOffset; // section offset to start of regular or compress page
+    uint32_t lsdaIndexArraySectionOffset; // section offset to start of lsda_index array for this range
+};
+struct unwind_info_section_header_lsda_index_entry 
+{
+    uint32_t functionOffset;
+    uint32_t lsdaOffset;
+};
+
+// The compact unwind encoding is a 32-bit value which encoded in an
+// architecture-specific way, which registers to restore from where, and how
+// to unwind out of the function:
+typedef uint32_t compact_unwind_encoding_t;
+
+// There are two kinds of second level index pages: regular and compressed.
+// A compressed page can hold up to 1021 entries, but it cannot be used
+// if too many different encoding types are used.  The regular page holds
+// 511 entries.
+struct unwind_info_regular_second_level_entry 
+{
+    uint32_t                    functionOffset;
+    compact_unwind_encoding_t   encoding;
+};
+# ifndef UNWIND_SECOND_LEVEL_REGULAR
+#  define UNWIND_SECOND_LEVEL_REGULAR 2
+# endif /* !UNWIND_SECOND_LEVEL_REGULAR */
+struct unwind_info_regular_second_level_page_header
+{
+    uint32_t    kind;    // UNWIND_SECOND_LEVEL_REGULAR
+    uint16_t    entryPageOffset;
+    uint16_t    entryCount;
+    // entry array
+};
+# ifndef UNWIND_SECOND_LEVEL_COMPRESSED
+#  define UNWIND_SECOND_LEVEL_COMPRESSED 3
+# endif /* !UNWIND_SECOND_LEVEL_COMPRESSED */
+struct unwind_info_compressed_second_level_page_header
+{
+    uint32_t    kind;    // UNWIND_SECOND_LEVEL_COMPRESSED
+    uint16_t    entryPageOffset;
+    uint16_t    entryCount;
+    uint16_t    encodingsPageOffset;
+    uint16_t    encodingsCount;
+    // 32-bit entry array    
+    // encodings array
+};
 #endif /* HAVE_MACH_O_COMPACT_UNWIND_ENCODING_H */
 #include <mach/machine.h>
 #include <stddef.h>
@@ -525,9 +592,23 @@ static const ArchInfo archInfoArray[] = {
 # ifdef HAVE_MACH_O_ARM_RELOC_H
 #  include <mach-o/arm/reloc.h>
 # else
-#  if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(__APPLE__)
+#  if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(__APPLE__) && \
+      defined(lint) && !defined(ARM_RELOC_VANILLA) && !defined(ARM_RELOC_PB_LA_PTR)
 #   warning "MachOFileAbstraction.hpp needs <mach-o/arm/reloc.h> for arm"
-#  endif /* __GNUC__ && !__STRICT_ANSI__ && __APPLE__ */
+#  endif /* __GNUC__ && !__STRICT_ANSI__ && __APPLE__ && lint && !ARM_RELOC_VANILLA && !ARM_RELOC_PB_LA_PTR */
+/* copy-and-paste the definition(s) we need from it inline here: */
+enum reloc_type_arm
+{
+    ARM_RELOC_VANILLA,	/* generic relocation as discribed above */
+    ARM_RELOC_PAIR,	/* the second relocation entry of a pair */
+    ARM_RELOC_SECTDIFF,	/* a PAIR follows with subtract symbol value */
+    ARM_RELOC_LOCAL_SECTDIFF, /* like ARM_RELOC_SECTDIFF, but the symbol
+							   * referenced was local.  */
+    ARM_RELOC_PB_LA_PTR, /* prebound lazy pointer */
+    ARM_RELOC_BR24,	/* 24 bit branch displacement (to a word address) */
+    ARM_THUMB_RELOC_BR22  /* 22 bit branch displacement (to a half-word
+						   * address) */
+};
 # endif /* HAVE_MACH_O_ARM_RELOC_H */
 #endif /* SUPPORT_ARCH_arm_any */
 

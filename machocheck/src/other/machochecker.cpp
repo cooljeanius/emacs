@@ -104,6 +104,7 @@ static int64_t read_sleb128(const uint8_t*& p, const uint8_t* end)
 	// sign extend negative numbers:
 	if ((byte & 0x40) != 0)
 		result |= ((-1LL) << bit);
+	//FIXME: disable -Wshift-negative-value here
 	return result;
 }
 
@@ -164,8 +165,8 @@ private:
 	void										checkInitTerms();
 	void										checkIndirectSymbolTable();
 	void										checkRelocations();
-	void										checkExternalReloation(const macho_relocation_info<P>* reloc);
-	void										checkLocalReloation(const macho_relocation_info<P>* reloc);
+	void										checkExternalRelocation(const macho_relocation_info<P>* reloc);
+	void										checkLocalRelocation(const macho_relocation_info<P>* reloc);
 	pint_t										relocBase();
 	bool										addressInWritableSegment(pint_t address);
 	bool										hasTextRelocInRange(pint_t start, pint_t end);
@@ -501,6 +502,9 @@ void MachOChecker<A>::checkMachHeader()
 		throw "sizeofcmds in mach_header is larger than file";
 
 	uint32_t flags = fHeader->flags();
+#ifdef DEBUG
+	printf("Header flags are 0x%x.\n", flags);
+#endif /* DEBUG */
 	const uint32_t invalidBits = (MH_INCRLINK | MH_LAZY_INIT | 0xFE000000);
 	if (flags & invalidBits)
 		throw "invalid bits in mach_header flags";
@@ -995,7 +999,7 @@ template <typename A>
 void MachOChecker<A>::checkIndirectSymbolTable()
 {
 #ifdef DEBUG
-    printf("Checking indirect symbol table....\n");
+    printf("Checking indirect symbol table...\n");
 #endif /* DEBUG */
 
 	// static executables do NOT have indirect symbol table:
@@ -1004,6 +1008,9 @@ void MachOChecker<A>::checkIndirectSymbolTable()
 	const macho_load_command<P>* const cmds = (macho_load_command<P>*)((uint8_t*)fHeader + sizeof(macho_header<P>));
 	const uint32_t cmd_count = fHeader->ncmds();
 	const macho_load_command<P>* cmd = cmds;
+#ifdef DEBUG
+	printf("There are %u commands to process here.\n", cmd_count);
+#endif /* DEBUG */
 	for (uint32_t i = 0U; i < cmd_count; ++i) {
 		if (cmd->cmd() == macho_segment_command<P>::CMD) {
 			const macho_segment_command<P>* segCmd = (const macho_segment_command<P>*)cmd;
@@ -1037,7 +1044,7 @@ void MachOChecker<A>::checkIndirectSymbolTable()
 				}
 			}
 		}
-		cmd = (const macho_load_command<P>*)(((uint8_t*)cmd)+cmd->cmdsize());
+		cmd = (const macho_load_command<P>*)(((uint8_t*)cmd) + cmd->cmdsize());
 	}
 
 #ifdef DEBUG
@@ -1060,7 +1067,8 @@ void MachOChecker<A>::checkSymbolTable()
 		const macho_nlist<P>* const exportedEnd = &exportedStart[fDynamicSymbolTable->nextdefsym()];
 		int i = (int)fDynamicSymbolTable->iextdefsym();
 #ifdef DEBUG
-        fprintf(stderr, "External symbols start at %d.\n", i);
+        fprintf(stderr, "External symbols start at %d (a.k.a. 0x%x).\n", i,
+				fDynamicSymbolTable->iextdefsym());
 #endif /* DEBUG */
 		for (const macho_nlist<P>* p = exportedStart; p < exportedEnd; ++p, ++i) {
 			const char* symName = &fStrings[p->n_strx()];
@@ -1115,6 +1123,7 @@ void MachOChecker<A>::checkInitTerms()
 	const macho_load_command<P>* const cmds = (macho_load_command<P>*)((uint8_t*)fHeader + sizeof(macho_header<P>));
 	const uint32_t cmd_count = fHeader->ncmds();
 	const macho_load_command<P>* cmd = cmds;
+	int inits_and_terms_checked = 0;
 	for (uint32_t i = 0U; i < cmd_count; ++i) {
 		if (cmd->cmd() == macho_segment_command<P>::CMD) {
 			const macho_segment_command<P>* segCmd = (const macho_segment_command<P>*)cmd;
@@ -1126,9 +1135,11 @@ void MachOChecker<A>::checkInitTerms()
 				pint_t* arrayStart;
 				pint_t* arrayEnd;
 				const char* kind = "initializer";
-				switch (sect->flags() & SECTION_TYPE) {
+				uint32_t sect_type_flags = (sect->flags() & SECTION_TYPE);
+				switch (sect_type_flags) {
 					case S_MOD_TERM_FUNC_POINTERS:
 						kind = "terminator";
+						inits_and_terms_checked++;
 						// fall through
 					case S_MOD_INIT_FUNC_POINTERS:
 						count = (uint32_t)(sect->size() / sizeof(pint_t));
@@ -1155,17 +1166,26 @@ void MachOChecker<A>::checkInitTerms()
 									throwf("%s at 0x%0llX is not rebased", kind, (long long)addr);
 							}
 						}
+						inits_and_terms_checked++;
 						break;
                     default:
-                        ; //???
+#if defined(DEBUG) && defined(S_LAZY_DYLIB_SYMBOL_POINTERS) && defined(stderr)
+						if (sect_type_flags > S_LAZY_DYLIB_SYMBOL_POINTERS) {
+							fprintf(stderr, "Unhandled section type: 0x%x.\n",
+									sect_type_flags);
+						}
+#else
+						break;
+#endif /* DEBUG && S_LAZY_DYLIB_SYMBOL_POINTERS && stderr */
 				}
 			}
 		}
-		cmd = (const macho_load_command<P>*)(((uint8_t*)cmd)+cmd->cmdsize());
+		cmd = (const macho_load_command<P>*)(((uint8_t*)cmd) + cmd->cmdsize());
 	}
 
 #ifdef DEBUG
-    printf("Done checking inits and terms.\n");
+    printf("Done checking inits and terms; checked %d total.\n",
+		   inits_and_terms_checked);
 #endif /* DEBUG */
 }
 
@@ -1251,9 +1271,11 @@ bool MachOChecker<A>::addressInWritableSegment(pint_t address)
 	return false;
 }
 
+int last_external_reloc_num = 0;
+
 //...
 template <>
-void MachOChecker<ppc>::checkExternalReloation(const macho_relocation_info<P>* reloc)
+void MachOChecker<ppc>::checkExternalRelocation(const macho_relocation_info<P>* reloc)
 {
 	if (reloc->r_length() != 2)
 		throw "bad external relocation length";
@@ -1266,13 +1288,14 @@ void MachOChecker<ppc>::checkExternalReloation(const macho_relocation_info<P>* r
 	if (! this->addressInWritableSegment(reloc->r_address() + this->relocBase()))
 		throw "external relocation address not in writable segment";
 #ifdef DEBUG
-    printf("r_symbolnum is %d.\n", reloc->r_symbolnum());
+    printf("r_symbolnum for ppc (32-bit) external reloc is %d.\n",
+		   reloc->r_symbolnum());
 #endif /* DEBUG */
 	// FIXME: check r_symbol (huh?)
 }
 
 template <>
-void MachOChecker<ppc64>::checkExternalReloation(const macho_relocation_info<P>* reloc)
+void MachOChecker<ppc64>::checkExternalRelocation(const macho_relocation_info<P>* reloc)
 {
 	if (reloc->r_length() != 3)
 		throw "bad external relocation length";
@@ -1285,13 +1308,14 @@ void MachOChecker<ppc64>::checkExternalReloation(const macho_relocation_info<P>*
 	if (! this->addressInWritableSegment(reloc->r_address() + this->relocBase()))
 		throw "external relocation address not in writable segment";
 #ifdef DEBUG
-    printf("r_symbolnum is %d.\n", reloc->r_symbolnum());
+    printf("r_symbolnum for ppc64 external reloc is %d.\n",
+		   reloc->r_symbolnum());
 #endif /* DEBUG */
 	// FIXME: check r_symbol (huh?)
 }
 
 template <>
-void MachOChecker<x86>::checkExternalReloation(const macho_relocation_info<P>* reloc)
+void MachOChecker<x86>::checkExternalRelocation(const macho_relocation_info<P>* reloc)
 {
 	if (reloc->r_length() != 2)
 		throw "bad external relocation length";
@@ -1304,14 +1328,19 @@ void MachOChecker<x86>::checkExternalReloation(const macho_relocation_info<P>* r
 	if (! this->addressInWritableSegment(reloc->r_address() + this->relocBase()))
 		throw "external relocation address not in writable segment";
 #ifdef DEBUG
-    printf("r_symbolnum is %d.\n", reloc->r_symbolnum());
+	int reloc_num = reloc->r_symbolnum();
+	if (reloc_num != last_external_reloc_num) {
+		last_external_reloc_num = reloc_num;
+		printf("r_symbolnum for x86 (32-bit) external reloc is %d.\n",
+			   reloc_num);
+	}
 #endif /* DEBUG */
 	// FIXME: check r_symbol (huh?)
 }
 
 //...
 template <>
-void MachOChecker<x86_64>::checkExternalReloation(const macho_relocation_info<P>* reloc)
+void MachOChecker<x86_64>::checkExternalRelocation(const macho_relocation_info<P>* reloc)
 {
 	if (reloc->r_length() != 3)
 		throw "bad external relocation length";
@@ -1324,14 +1353,15 @@ void MachOChecker<x86_64>::checkExternalReloation(const macho_relocation_info<P>
 	if (! this->addressInWritableSegment(reloc->r_address() + this->relocBase()))
 		throw "exernal relocation address not in writable segment";
 #ifdef DEBUG
-    printf("r_symbolnum is %d.\n", reloc->r_symbolnum());
+    printf("r_symbolnum for x86_64 external reloc is %d.\n",
+		   reloc->r_symbolnum());
 #endif /* DEBUG */
 	// FIXME: check r_symbol (huh?)
 }
 
 #if defined(SUPPORT_ARCH_arm_any) && SUPPORT_ARCH_arm_any
 template <>
-void MachOChecker<arm>::checkExternalReloation(const macho_relocation_info<P>* reloc)
+void MachOChecker<arm>::checkExternalRelocation(const macho_relocation_info<P>* reloc)
 {
 	if (reloc->r_length() != 2)
 		throw "bad external relocation length";
@@ -1344,7 +1374,8 @@ void MachOChecker<arm>::checkExternalReloation(const macho_relocation_info<P>* r
 	if (! this->addressInWritableSegment(reloc->r_address() + this->relocBase()))
 		throw "external relocation address not in writable segment";
 # ifdef DEBUG
-    printf("r_symbolnum is %d.\n", reloc->r_symbolnum());
+    printf("r_symbolnum for arm (32-bit) external reloc is %d.\n",
+		   reloc->r_symbolnum());
 # endif /* DEBUG */
 	// FIXME: check r_symbol (huh?)
 }
@@ -1352,7 +1383,7 @@ void MachOChecker<arm>::checkExternalReloation(const macho_relocation_info<P>* r
 
 #if defined(SUPPORT_ARCH_arm64) && SUPPORT_ARCH_arm64
 template <> __attribute__((noreturn))
-void MachOChecker<arm64>::checkExternalReloation(const macho_relocation_info<P>* reloc)
+void MachOChecker<arm64>::checkExternalRelocation(const macho_relocation_info<P>* reloc)
 {
 # if (defined(__APPLE__) && defined(__APPLE_CC__)) || defined(__MWERKS__)
 #  pragma unused (reloc)
@@ -1363,7 +1394,7 @@ void MachOChecker<arm64>::checkExternalReloation(const macho_relocation_info<P>*
 
 //...
 template <>
-void MachOChecker<ppc>::checkLocalReloation(const macho_relocation_info<P>* reloc)
+void MachOChecker<ppc>::checkLocalRelocation(const macho_relocation_info<P>* reloc)
 {
 	if (reloc->r_address() & R_SCATTERED) {
 		// scattered:
@@ -1380,7 +1411,7 @@ void MachOChecker<ppc>::checkLocalReloation(const macho_relocation_info<P>* relo
 
 
 template <>
-void MachOChecker<ppc64>::checkLocalReloation(const macho_relocation_info<P>* reloc)
+void MachOChecker<ppc64>::checkLocalRelocation(const macho_relocation_info<P>* reloc)
 {
 	if (reloc->r_length() != 3)
 		throw "bad local relocation length";
@@ -1394,17 +1425,20 @@ void MachOChecker<ppc64>::checkLocalReloation(const macho_relocation_info<P>* re
 		throw "local relocation address not in writable segment";
 }
 
-template <> __attribute__((const))
-void MachOChecker<x86>::checkLocalReloation(const macho_relocation_info<P>* reloc)
+template <>
+void MachOChecker<x86>::checkLocalRelocation(const macho_relocation_info<P>* reloc)
 {
 #if (defined(__APPLE__) && defined(__APPLE_CC__)) || defined(__MWERKS__)
 # pragma unused (reloc)
 #endif /* (__APPLE__ && __APPLE_CC__) || __MWERKS__ */
-    return; // FIXME: ???
+#ifdef DEBUG
+	fprintf(stderr, "Checking local relocs for x86 is unimplemented.\n");
+#endif /* DEBUG */
+	return; // FIXME: ???
 }
 
 template <>
-void MachOChecker<x86_64>::checkLocalReloation(const macho_relocation_info<P>* reloc)
+void MachOChecker<x86_64>::checkLocalRelocation(const macho_relocation_info<P>* reloc)
 {
 	if (reloc->r_length() != 3)
 		throw "bad local relocation length";
@@ -1420,7 +1454,7 @@ void MachOChecker<x86_64>::checkLocalReloation(const macho_relocation_info<P>* r
 
 #if defined(SUPPORT_ARCH_arm_any) && SUPPORT_ARCH_arm_any
 template <>
-void MachOChecker<arm>::checkLocalReloation(const macho_relocation_info<P>* reloc)
+void MachOChecker<arm>::checkLocalRelocation(const macho_relocation_info<P>* reloc)
 {
 	if (reloc->r_address() & R_SCATTERED) {
 		// scattered:
@@ -1442,7 +1476,7 @@ void MachOChecker<arm>::checkLocalReloation(const macho_relocation_info<P>* relo
 
 #if defined(SUPPORT_ARCH_arm64) && SUPPORT_ARCH_arm64
 template <> __attribute__((noreturn))
-void MachOChecker<arm64>::checkLocalReloation(const macho_relocation_info<P>* reloc)
+void MachOChecker<arm64>::checkLocalRelocation(const macho_relocation_info<P>* reloc)
 {
 # if (defined(__APPLE__) && defined(__APPLE_CC__)) || defined(__MWERKS__)
 #  pragma unused (reloc)
@@ -1464,7 +1498,7 @@ void MachOChecker<A>::checkRelocations()
 	uint32_t lastSymbolIndex = 0xFFFFFFFF;
 	const macho_relocation_info<P>* const externRelocsEnd = &fExternalRelocations[fExternalRelocationsCount];
 	for (const macho_relocation_info<P>* reloc = fExternalRelocations; reloc < externRelocsEnd; ++reloc) {
-		this->checkExternalReloation(reloc);
+		this->checkExternalRelocation(reloc);
 		if (reloc->r_symbolnum() != lastSymbolIndex) {
 			if (previouslySeenSymbolIndexes.count(reloc->r_symbolnum()) != 0)
 				throw "external relocations not sorted";
@@ -1475,7 +1509,7 @@ void MachOChecker<A>::checkRelocations()
 
 	const macho_relocation_info<P>* const localRelocsEnd = &fLocalRelocations[fLocalRelocationsCount];
 	for (const macho_relocation_info<P>* reloc = fLocalRelocations; reloc < localRelocsEnd; ++reloc) {
-		this->checkLocalReloation(reloc);
+		this->checkLocalRelocation(reloc);
 	}
 
 	// verify any section with S_ATTR_LOC_RELOC bits set actually has text relocs:
@@ -2011,7 +2045,7 @@ int machocheck_main(int argc, const char* argv[])
         fprintf(stderr, "Error: %s requires at least 1 additional argument to be passed to it.\n",
                 _PROGNAME);
         print_machocheck_usage();
-        return 0;
+        return 0; /* FIXME: this return value implies success... */
     }
 	for (int i = 1; (i <= argc) && (argv[i] != NULL); i++) {
 #ifdef DEBUG

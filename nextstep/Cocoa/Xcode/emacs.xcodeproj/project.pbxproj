@@ -29,7 +29,7 @@
 		A540EEB51A0C33390008DA29 /* isemacsvalid.c in Sources */ = {isa = PBXBuildFile; fileRef = A540EEB41A0C33390008DA29 /* isemacsvalid.c */; };
 		A540EEB81A0C33DF0008DA29 /* runit.c in Sources */ = {isa = PBXBuildFile; fileRef = A540E9D31A0C1FF60008DA29 /* runit.c */; };
 		A540F1951A0EBC5D0008DA29 /* emacs-ppc.c in Sources */ = {isa = PBXBuildFile; fileRef = A540E9BC1A0C1F270008DA29 /* emacs-ppc.c */; };
-		A56E5A211B213597005E1D43 /* machochecker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A56E5A1E1B21336C005E1D43 /* machochecker.cpp */; settings = {COMPILER_FLAGS = "-Wno-unused -Wno-missing-prototypes -Wno-long-long -Wabi -Wctor-dtor-privacy -Wstrict-null-sentinel -Wsign-promo"; }; };
+		A56E5A211B213597005E1D43 /* machochecker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A56E5A1E1B21336C005E1D43 /* machochecker.cpp */; settings = {COMPILER_FLAGS = "-Wno-unused -Wno-long-long -Wabi -Wctor-dtor-privacy -Wstrict-null-sentinel -Wsign-promo"; }; };
 		A584B0F11B6940CF005A6951 /* unexmacosx.c in Sources */ = {isa = PBXBuildFile; fileRef = A540EDB61A0C29D50008DA29 /* unexmacosx.c */; settings = {COMPILER_FLAGS = "-fno-tree-vectorize -fno-strict-aliasing -Demacs_open=open -Demacs_close=close"; }; };
 		A584B1671B694BF8005A6951 /* lastfile.c in Sources */ = {isa = PBXBuildFile; fileRef = A540EC6E1A0C29D50008DA29 /* lastfile.c */; };
 		A5B3C7181A2C2FA300D553ED /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5B3C7171A2C2FA200D553ED /* ApplicationServices.framework */; };
@@ -2692,6 +2692,11 @@
 				GCC_WARN_UNUSED_PARAMETER = YES;
 				HEADER_SEARCH_PATHS = "$(TOP_SRCROOT)/machocheck/src/ld";
 				INSTALL_PATH = /usr/local/bin;
+				OTHER_CFLAGS = (
+					"-gfull",
+					"-ggdb3",
+					"-fno-pie",
+				);
 				PREBINDING = NO;
 				PRODUCT_NAME = isemacsvalid;
 				SDKROOT = "";

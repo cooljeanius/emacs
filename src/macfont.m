@@ -2448,6 +2448,8 @@ macfont_list(struct frame *f, Lisp_Object spec)
                && (mmask <= UINT32_MAX) && (mmask > 0U);
 	       mmask += MAC_FONT_TRAIT_MONO_SPACE)
             {
+	      /* FIXME: why is the warning for the other 2 loops silenced, but
+	       * not this middle one on bmask? */
               for (bmask = (mask_min & MAC_FONT_TRAIT_BOLD);
                    (bmask <= (mask_max & MAC_FONT_TRAIT_BOLD))
                    && (bmask < UINT32_MAX) && (bmask > 0U);
@@ -2478,16 +2480,16 @@ macfont_list(struct frame *f, Lisp_Object spec)
                       if (imask >= (FontSymbolicTraits)INFINITY) {
                         break;
                       }
-                    }
-                }
-              if (bmask >= (FontSymbolicTraits)INFINITY) {
-                break;
-              }
-            }
-          if (mmask >= (FontSymbolicTraits)INFINITY) {
-            break;
-          }
-	}
+                    } /* end loop on 'imask' */
+		  if (bmask >= (FontSymbolicTraits)INFINITY) {
+		    break;
+		  }
+                } /* end loop on 'bmask' */
+	      if (mmask >= (FontSymbolicTraits)INFINITY) {
+		break;
+	      }
+            } /* end loop on 'mmask' */
+	} /* end loop on 'j' */
 
       CFRelease(traits_array);
       CFRelease(descs);

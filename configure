@@ -18780,6 +18780,46 @@ then :
 fi
 
 
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wduplicated-cond" >&5
+printf %s "checking whether C compiler handles -Wduplicated-cond... " >&6; }
+if test ${gl_cv_warn_c__Wduplicated_cond+y}
+then :
+  printf %s "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wduplicated-cond"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_warn_c__Wduplicated_cond=yes
+else
+  gl_cv_warn_c__Wduplicated_cond=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wduplicated_cond" >&5
+printf "%s\n" "$gl_cv_warn_c__Wduplicated_cond" >&6; }
+if test "x$gl_cv_warn_c__Wduplicated_cond" = xyes
+then :
+  as_fn_append WARN_CFLAGS " -Wduplicated-cond"
+fi
+
+
       ## this got stricter, I think?
       nw="${nw} -Wbool-compare"
       ## but anyways...
@@ -18826,6 +18866,86 @@ printf "%s\n" "$gl_cv_warn_cxx__Wterminate" >&6; }
 if test "x$gl_cv_warn_cxx__Wterminate" = xyes
 then :
   as_fn_append WARN_CXXFLAGS " -Wterminate"
+fi
+
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C++ compiler handles -Wmultiple-inheritance" >&5
+printf %s "checking whether C++ compiler handles -Wmultiple-inheritance... " >&6; }
+if test ${gl_cv_warn_cxx__Wmultiple_inheritance+y}
+then :
+  printf %s "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CXXFLAGS"
+  as_fn_append CXXFLAGS " $gl_unknown_warnings_are_errors -Wmultiple-inheritance"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"
+then :
+  gl_cv_warn_cxx__Wmultiple_inheritance=yes
+else
+  gl_cv_warn_cxx__Wmultiple_inheritance=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CXXFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_cxx__Wmultiple_inheritance" >&5
+printf "%s\n" "$gl_cv_warn_cxx__Wmultiple_inheritance" >&6; }
+if test "x$gl_cv_warn_cxx__Wmultiple_inheritance" = xyes
+then :
+  as_fn_append WARN_CXXFLAGS " -Wmultiple-inheritance"
+fi
+
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C++ compiler handles -Wvirtual-inheritance" >&5
+printf %s "checking whether C++ compiler handles -Wvirtual-inheritance... " >&6; }
+if test ${gl_cv_warn_cxx__Wvirtual_inheritance+y}
+then :
+  printf %s "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CXXFLAGS"
+  as_fn_append CXXFLAGS " $gl_unknown_warnings_are_errors -Wvirtual-inheritance"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"
+then :
+  gl_cv_warn_cxx__Wvirtual_inheritance=yes
+else
+  gl_cv_warn_cxx__Wvirtual_inheritance=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CXXFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_cxx__Wvirtual_inheritance" >&5
+printf "%s\n" "$gl_cv_warn_cxx__Wvirtual_inheritance" >&6; }
+if test "x$gl_cv_warn_cxx__Wvirtual_inheritance" = xyes
+then :
+  as_fn_append WARN_CXXFLAGS " -Wvirtual-inheritance"
 fi
 
 
@@ -36174,6 +36294,105 @@ printf "%s\n" "$gl_cv_next_time_h" >&6; }
 
 
 
+if test "x${ac_cv_header_stdbool_h}" = "x"; then
+  test -z "${ac_cv_header_stdbool_h}"
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for stdbool.h that conforms to C99" >&5
+printf %s "checking for stdbool.h that conforms to C99... " >&6; }
+if test ${ac_cv_header_stdbool_h+y}
+then :
+  printf %s "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+             #include <stdbool.h>
+             #ifndef bool
+              "error: bool is not defined"
+             #endif
+             #ifndef false
+              "error: false is not defined"
+             #endif
+             #if false
+              "error: false is not 0"
+             #endif
+             #ifndef true
+              "error: true is not defined"
+             #endif
+             #if true != 1
+              "error: true is not 1"
+             #endif
+             #ifndef __bool_true_false_are_defined
+              "error: __bool_true_false_are_defined is not defined"
+             #endif
+
+             struct s { _Bool s: 1; _Bool t; } s;
+
+             char a[true == 1 ? 1 : -1];
+             char b[false == 0 ? 1 : -1];
+             char c[__bool_true_false_are_defined == 1 ? 1 : -1];
+             char d[(bool) 0.5 == true ? 1 : -1];
+             /* See body of main program for 'e'.  */
+             char f[(_Bool) 0.0 == false ? 1 : -1];
+             char g[true];
+             char h[sizeof (_Bool)];
+             char i[sizeof s.t];
+             enum { j = false, k = true, l = false * true, m = true * 256 };
+             /* The following fails for
+                HP aC++/ANSI C B3910B A.05.55 [Dec 04 2003]. */
+             _Bool n[m];
+             char o[sizeof n == m * sizeof n[0] ? 1 : -1];
+             char p[-1 - (_Bool) 0 < 0 && -1 - (bool) 0 < 0 ? 1 : -1];
+             /* Catch a bug in an HP-UX C compiler.  See
+                http://gcc.gnu.org/ml/gcc-patches/2003-12/msg02303.html
+                http://lists.gnu.org/archive/html/bug-coreutils/2005-11/msg00161.html
+              */
+             _Bool q = true;
+             _Bool *pq = &q;
+
+int
+main (void)
+{
+
+             bool e = &s;
+             *pq |= q;
+             *pq |= ! q;
+             /* Refer to every declared value, to avoid compiler optimizations.  */
+             return (!a + !b + !c + !d + !e + !f + !g + !h + !i + !!j + !k + !!l
+                     + !m + !n + !o + !p + !q + !pq);
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"
+then :
+  ac_cv_header_stdbool_h=yes
+else
+  ac_cv_header_stdbool_h=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_header_stdbool_h" >&5
+printf "%s\n" "$ac_cv_header_stdbool_h" >&6; }
+   ac_fn_c_check_type "$LINENO" "_Bool" "ac_cv_type__Bool" "$ac_includes_default"
+if test "x$ac_cv_type__Bool" = xyes
+then :
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE__BOOL 1
+_ACEOF
+
+
+fi
+
+
+if test $ac_cv_header_stdbool_h = yes; then
+
+printf "%s\n" "#define HAVE_STDBOOL_H 1" >>confdefs.h
+
+fi
+
+fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether time.h and sys/time.h may both be included" >&5
 printf %s "checking whether time.h and sys/time.h may both be included... " >&6; }
 if test ${ac_cv_header_time+y}

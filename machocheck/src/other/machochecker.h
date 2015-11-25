@@ -14,6 +14,8 @@
 extern "C" {
 #endif /* __cplusplus */
 
+extern int last_external_reloc_num;
+
 __attribute__((noreturn)) void throwf(const char* format, ...);
 extern int machocheck_main(int argc, const char* argv[]);
 

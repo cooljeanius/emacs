@@ -97,7 +97,8 @@ int main(int argc, const char* argv[])
   /* FIXME: munge argv to insert proper path to built emacs, if needed: */
   ret = machocheck_main(argc, argv);
 
-  printf("machocheck_main() returned %d.\n", ret);
+  printf("machocheck_main() returned %d: %s.\n", ret,
+	 ((ret == 0) ? "success, should be valid" : "failure, invalid"));
 }
 #endif /* STANDALONE_ISEMACSVALID */
 
