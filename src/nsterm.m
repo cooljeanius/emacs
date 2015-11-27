@@ -70,36 +70,49 @@ GNUstep port and post-20 update by Adrian Robert (arobert@cogsci.ucsd.edu)
 # endif /* 10.5+ */
 #endif /* NS_IMPL_COCOA */
 
+#if (defined(HAVE_CARBON) && HAVE_CARBON) || \
+    (defined(MAC_OS) && MAC_OS && defined(TARGET_OS_MAC) && TARGET_OS_MAC) || \
+    (defined(MAC_OSX) && MAC_OSX && defined(TARGET_API_MAC_CARBON) && \
+     TARGET_API_MAC_CARBON && defined(BREAK_EVERYTHING) && BREAK_EVERYTHING)
+# include "macappkit.h"
+#endif /* HAVE_CARBON */
+
 /* call tracing */
-#if 0
+#if defined(DEBUG) || defined(EMACSDEBUG) || defined(GLYPH_DEBUG)
+# ifndef TERM_TRACE_NUM_DECLARED
+#  define TERM_TRACE_NUM_DECLARED 1
 int term_trace_num = 0;
+# endif /* !TERM_TRACE_NUM_DECLARED */
 # define NSTRACE(x)        fprintf(stderr, "%s:%d: [%d] " #x "\n",        \
                                    __FILE__, __LINE__, ++term_trace_num)
 #else
 # define NSTRACE(x)
-#endif /* 0 */
+#endif /* DEBUG || EMACSDEBUG || GLYPH_DEBUG */
 
 /* Detailed tracing. "S" means "size" and "LL" stands for "lower left". */
-#if 0
+#if defined(DEBUG) || defined(EMACSDEBUG) || defined(GLYPH_DEBUG)
+# ifndef TERM_TRACE_NUM_DECLARED
+#  define TERM_TRACE_NUM_DECLARED 2
 int term_trace_num = 0;
-#define NSTRACE_SIZE(str,size) fprintf(stderr,                         \
-                                   "%s:%d: [%d]   " str                 \
-                                   " (S:%.0f x %.0f)\n", \
+# endif /* !TERM_TRACE_NUM_DECLARED */
+# define NSTRACE_SIZE(str,size) fprintf(stderr,                         \
+                                    "%s:%d: [%d]   " str                 \
+                                    " (S:%.0f x %.0f)\n", \
+                                    __FILE__, __LINE__, ++term_trace_num,\
+                                    (double)size.height,                 \
+                                    (double)size.width)
+# define NSTRACE_RECT(s,r) fprintf(stderr,                              \
+                                   "%s:%d: [%d]   " s                   \
+                                   " (LL:%.0f x %.0f -> S:%.0f x %.0f)\n", \
                                    __FILE__, __LINE__, ++term_trace_num,\
-                                   size.height,                       \
-                                   size.width)
-#define NSTRACE_RECT(s,r) fprintf(stderr,                              \
-                                  "%s:%d: [%d]   " s                   \
-                                  " (LL:%.0f x %.0f -> S:%.0f x %.0f)\n", \
-                                  __FILE__, __LINE__, ++term_trace_num,\
-                                  r.origin.x,                          \
-                                  r.origin.y,                          \
-                                  r.size.height,                       \
-                                  r.size.width)
+                                   (double)r.origin.x,                  \
+                                   (double)r.origin.y,                  \
+                                   (double)r.size.height,               \
+                                   (double)r.size.width)
 #else
 # define NSTRACE_SIZE(str,size)
 # define NSTRACE_RECT(s,r)
-#endif /* 0 */
+#endif /* DEBUG || EMACSDEBUG || GLYPH_DEBUG */
 
 extern NSString *NSMenuDidBeginTrackingNotification;
 
@@ -684,9 +697,18 @@ ns_constrain_all_frames(void)
 static BOOL
 ns_menu_bar_should_be_hidden(void)
 {
-  /* FIXME: conditionalize on OS version? */
+#ifdef NS_IMPL_COCOA
+# if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6) || \
+     (MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6)
   return (!NILP(ns_auto_hide_menu_bar)
 	  && [NSApp respondsToSelector:@selector(setPresentationOptions:)]);
+# else
+  return (!NILP(ns_auto_hide_menu_bar) && FALSE);
+# endif /* 10.6+ || not */
+#else
+  /* FIXME: not sure what to do for GNUstep? */
+  return (!NILP(ns_auto_hide_menu_bar));
+#endif /* NS_IMPL_COCOA */
 }
 
 

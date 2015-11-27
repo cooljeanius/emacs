@@ -52,6 +52,17 @@
 #include "MachOFileAbstraction.hpp"
 #include "Architectures.hpp"
 
+#if defined(HAVE_LIBGEN_H) || (defined(_XOPEN4) && defined(_XOPEN4UX)) || \
+    (defined(_XOPEN_VERSION) && (_XOPEN_VERSION >= 4)) || \
+    (defined(_XOPEN_SOURCE) && defined(_XOPEN_SOURCE_EXTENDED))
+# include <libgen.h> /* for basename() */
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(emacs) && \
+     (defined(DEBUG) || defined(lint))
+#  warning "machochecker.cpp expects <libgen.h> to be included for basename()."
+# endif /* __GNUC__ && !__STRICT_ANSI__ && emacs && (DEBUG || lint) */
+#endif /* HAVE_LIBGEN_H || xpg4.2 */
+
 // Specification for main function in this file, and throwf(), too:
 #include "machochecker.h"
 
@@ -88,7 +99,10 @@ static uint64_t read_uleb128(const uint8_t*& p, const uint8_t* end)
 	return result;
 }
 
-
+#if defined(__GNUC__) && (__GNUC__ >= 6)
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wshift-negative-value"
+#endif /* gcc 6+ */
 static int64_t read_sleb128(const uint8_t*& p, const uint8_t* end)
 {
 	int64_t result = 0;
@@ -104,10 +118,12 @@ static int64_t read_sleb128(const uint8_t*& p, const uint8_t* end)
 	// sign extend negative numbers:
 	if ((byte & 0x40) != 0)
 		result |= ((-1LL) << bit);
-	//FIXME: disable -Wshift-negative-value here
 	return result;
 }
-
+/* keep condition the same as where we push: */
+#if defined(__GNUC__) && (__GNUC__ >= 6)
+# pragma GCC diagnostic pop
+#endif /* gcc 6+ */
 
 template <typename A>
 class MachOChecker
@@ -945,6 +961,11 @@ void MachOChecker<A>::checkLoadCommands()
 #endif /* DEBUG */
 }
 
+#ifdef emacs
+dumpingness related_to_dump_p = UNRELATED_TO_DUMPING;
+#endif /* emacs */
+
+/* */
 template <typename A>
 void MachOChecker<A>::checkSection(const macho_segment_command<P>* segCmd, const macho_section<P>* sect)
 {
@@ -970,13 +991,33 @@ void MachOChecker<A>::checkSection(const macho_segment_command<P>* segCmd, const
      *   (it will create more of them in the output file, bootstrap-emacs, though)
      * - this __DATA segment has sections __data, __bss, __common,
      *   __la_symbol_ptr, __nl_symbol_ptr, and __dyld.
-     * - __bss and __common should contain no data in the input file because
-     *   their flag fields should have the value S_ZEROFILL.
-     * - __bss and __common should have their flag changed to S_REGULAR in
-     *   the output file.
      * - data block for the segment must start at the region boundary.
      * - file offset fields should be adjusted for subsequently dumped load commands.
      */
+	if ((strncmp(sect->sectname(), "__bss", 16UL) == 0)
+		|| (strncmp(sect->sectname(), "__common", 16UL) == 0)
+		|| (strstr(sect->sectname(), "__bss") != NULL)
+		|| (strstr(sect->sectname(), "__pu_bss") != NULL)) {
+		if (related_to_dump_p == INPUT_FILE_TO_BE_DUMPED) {
+			/* TODO: also check that section has no data */
+			if ((sect->flags() & SECTION_TYPE) != S_ZEROFILL) {
+				fprintf(stderr, "section %s is non-zerofill.\n",
+						sect->sectname());
+			}
+		} else if (related_to_dump_p == OUTPUT_FILE_OF_DUMPING) {
+			if ((sect->flags() & SECTION_TYPE) != S_REGULAR) {
+				fprintf(stderr, "section %s is non-regular.\n",
+						sect->sectname());
+			}
+		}
+	} else if (strncmp(sect->sectname(), "__text", 16UL) == 0) {
+		; /* TODO: check for bad symbols */
+	}
+# if defined(EMACSDEBUG)
+	else {
+		printf("No special emacs checks for section %s.\n", sect->sectname());
+	}
+# endif /* EMACSDEBUG */
 #endif /* emacs */
 
 #ifdef DEBUG
@@ -1914,6 +1955,28 @@ bool MachOChecker<A>::addressIsBindingSite(pint_t targetAddr)
 static void check(const char* path)
 {
 	struct stat stat_buf;
+	
+#ifdef emacs
+	char *exe_name = basename((char *)path);
+	if (exe_name == NULL) {
+		/* Just ignore failures (e.g. ENAMETOOLONG) for now: */
+		exe_name = (char *)".";
+	}
+	/* FIXME: be more flexible about possible names here: */
+	if (strncmp(exe_name, "temacs", 16UL) == 0) {
+# ifdef DEBUG
+		printf("Treating '%s' as the input file for an emacs dump.\n",
+			   exe_name);
+# endif /* DEBUG */
+		related_to_dump_p = INPUT_FILE_TO_BE_DUMPED;
+	} else if (strncmp(exe_name, "bootstrap-emacs", 32UL) == 0) {
+# ifdef DEBUG
+		printf("Treating '%s' as the output result of an emacs dump.\n",
+			   exe_name);
+# endif /* DEBUG */
+		related_to_dump_p = OUTPUT_FILE_OF_DUMPING;
+	}
+#endif /* emacs */
 
 	try {
 		int fd = ::open(path, O_RDONLY, 0);

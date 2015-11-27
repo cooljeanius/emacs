@@ -49,17 +49,17 @@ Carbon version by Yamamoto Mitsuharu. */
 # include <sys/types.h>
 #endif /* NSMENUPROFILE */
 
-#if 0
+#if defined(DEBUG) || defined(EMACSDEBUG) || defined(GLYPH_DEBUG)
 int menu_trace_num = 0;
 # define NSTRACE(x)        fprintf(stderr, "%s:%d: [%d] " #x "\n",        \
                                    __FILE__, __LINE__, ++menu_trace_num)
 #else
 # define NSTRACE(x)
-#endif /* 0 */
+#endif /* DEBUG || EMACSDEBUG || GLYPH_DEBUG */
 
 #if 0
 /* Include lisp -> C common menu parsing code */
-# define ENCODE_MENU_STRING(str) ENCODE_UTF_8 (str)
+# define ENCODE_MENU_STRING(str) ENCODE_UTF_8(str)
 # include "nsmenu_common.c"
 #endif /* 0 */
 
@@ -93,7 +93,7 @@ static int trackingMenu;
 #ifndef ATTRIBUTE_CONST
 /* The __const__ attribute was added in gcc 2.95: */
 # if (__GNUC__ > 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 95))
-#  define ATTRIBUTE_CONST __attribute__ ((__const__))
+#  define ATTRIBUTE_CONST __attribute__((__const__))
 # else
 #  define ATTRIBUTE_CONST /* empty */
 # endif /* gcc 2.95+ */

@@ -52,13 +52,13 @@ GNUstep port and post-20 update by Adrian Robert <arobert@cogsci.ucsd.edu>
 # endif /* 10.5+ */
 #endif /* NS_IMPL_COCOA */
 
-#if 0
+#if defined(DEBUG) || defined(EMACSDEBUG) || defined(GLYPH_DEBUG)
 int fns_trace_num = 1;
-#define NSTRACE(x)        fprintf (stderr, "%s:%d: [%d] " #x "\n",        \
-                                  __FILE__, __LINE__, ++fns_trace_num)
+# define NSTRACE(x)        fprintf(stderr, "%s:%d: [%d] " #x "\n",        \
+                                   __FILE__, __LINE__, ++fns_trace_num)
 #else
 # define NSTRACE(x)
-#endif
+#endif /* DEBUG || EMACSDEBUG || GLYPH_DEBUG */
 
 #ifdef HAVE_NS
 
@@ -102,9 +102,9 @@ Lisp_Object Fx_open_connection (Lisp_Object, Lisp_Object, Lisp_Object);
 static Lisp_Object as_script, *as_result;
 static int as_status;
 
-#ifdef GLYPH_DEBUG
+# ifdef GLYPH_DEBUG
 static ptrdiff_t image_cache_refcount;
-#endif /* GLYPH_DEBUG */
+# endif /* GLYPH_DEBUG */
 
 
 /* ========================================================================
@@ -2528,11 +2528,10 @@ ns_screen_name (CGDirectDisplayID did)
 }
 #endif
 
+/* */
 static Lisp_Object
-ns_make_monitor_attribute_list (struct MonitorInfo *monitors,
-                                int n_monitors,
-                                int primary_monitor,
-                                const char *source)
+ns_make_monitor_attribute_list(struct MonitorInfo *monitors, int n_monitors,
+			       int primary_monitor, const char *source)
 {
   Lisp_Object monitor_frames = Fmake_vector (make_number (n_monitors), Qnil);
   Lisp_Object frame, rest;
@@ -2729,14 +2728,10 @@ Lisp_Object tip_frame;
 
 /* TODO: move to xdisp or similar */
 static void
-compute_tip_xy (struct frame *f,
-                Lisp_Object parms,
-                Lisp_Object dx,
-                Lisp_Object dy,
-                int width,
-                int height,
-                int *root_x,
-                int *root_y)
+compute_tip_xy(struct frame *f, Lisp_Object parms,
+	       Lisp_Object dx, Lisp_Object dy,
+               int width, int height,
+               int *root_x, int *root_y)
 {
   Lisp_Object left, top;
   EmacsView *view = FRAME_NS_VIEW (f);

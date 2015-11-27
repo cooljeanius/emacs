@@ -37,13 +37,13 @@ GNUstep port and post-20 update by Adrian Robert <arobert@cogsci.ucsd.edu>
 extern Lisp_Object QCfile, QCdata;
 
 /* call tracing: */
-#if 0
+#if defined(DEBUG) || defined(EMACSDEBUG) || defined(GLYPH_DEBUG)
 int image_trace_num = 0;
 # define NSTRACE(x)        fprintf(stderr, "%s:%d: [%d] " #x "\n",        \
                                    __FILE__, __LINE__, ++image_trace_num)
 #else
 # define NSTRACE(x)
-#endif /* 0 */
+#endif /* DEBUG || EMACSDEBUG || GLYPH_DEBUG */
 
 
 /* ========================================================================
