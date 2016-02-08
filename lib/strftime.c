@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2001, 2003-2007, 2009-2015 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2001, 2003-2007, 2009-2016 Free Software Foundation, Inc.
 
    NOTE: The canonical source of this file is maintained with the GNU C Library.
    Bugs can be reported to bug-glibc@prep.ai.mit.edu.
@@ -641,7 +641,7 @@ strftime_case_ (bool upcase, STREAM_OR_CHAR_T *s,
           break;
         }
 
-      /* As a GNU extension we allow to specify the field width.  */
+      /* As a GNU extension we allow the field width to be specified.  */
       if (ISDIGIT (*f))
         {
           width = 0;

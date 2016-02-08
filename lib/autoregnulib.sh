@@ -2,7 +2,7 @@
 
 # The gnulib commit ID to use for the update.
 # If you know your version is newer, feel free to replace:
-GNULIB_COMMIT_SHA1="5bb169c3be1f80fb22ee63d51b43dfdb1ac22d2a"
+GNULIB_COMMIT_SHA1="54615b95ff238e235e806855efc46a9abad09f2e"
 
 if [ $# -ne 1 ]; then
    echo "Warning: Path to gnulib repository missing."
@@ -90,13 +90,14 @@ else
       sched secure_getenv setenv sig2str signal-h sigpipe sleep \
       snippet/_Noreturn snippet/arg-nonnull snippet/c++defs \
       snippet/link-warning snippet/unused-parameter snippet/warn-on-use \
-      socketlib sockets socklen spawn ssize_t stat stat-time stdalign \
-      stdarg stdbool stddef stdint stdio stdlib stdnoreturn stpcpy streq \
-      strerror strerror-override strftime string strings strstr \
+      socketlib sockets socklen spawn ssize_t stat stat-time std-gnu11 \
+	  stdalign stdarg stdbool stddef stdint stdio stdlib stdnoreturn stpcpy \
+	  streq strerror strerror-override strftime string strings strstr \
       strstr-simple strtoimax strtoumax symlink sys_ioctl sys_resource \
       sys_select sys_socket sys_stat sys_time sys_types sys_uio \
       sys_utsname sys_wait \
-      tempname time time_r timer-time timespec timespec-add timespec-sub \
+      tempname time time_r time_rz timegm timer-time times timespec \
+	  timespec-add timespec-sub \
       u64 uname unistd unlink unsetenv update-copyright \
       useless-if-before-free utimens \
       vararrays va-args vc-list-files verify vla vma-iter \
@@ -127,11 +128,11 @@ else
     --m4-base=m4 --doc-base=doc --tests-base=tests --aux-dir=build-aux \
     --avoid=close --avoid=dup --avoid=fchdir --avoid=fstrcmp \
     --avoid=gnumakefile --avoid=localcharset --avoid=lock --avoid=malloc \
-    --avoid=malloc-posix --avoid=memchr-obsolete --avoid=msvc-nothrow \
-    --avoid=open --avoid=openat-die --avoid=opendir --avoid=raise \
-    --avoid=save-cwd --avoid=select --avoid=sigprocmask --avoid=strdup \
-    --avoid=strdup-posix --avoid=threadlib --avoid=tls --avoid=vasnprintf \
-    --avoid=vasnprintf-posix --makefile-name=gnulib.mk \
+    --avoid=malloc-posix --avoid=memchr-obsolete --avoid=msvc-inval \
+	--avoid=msvc-nothrow --avoid=open --avoid=openat-die --avoid=opendir \
+	--avoid=raise --avoid=save-cwd --avoid=select --avoid=sigprocmask \
+	--avoid=strdup --avoid=strdup-posix --avoid=threadlib --avoid=tls \
+	--avoid=vasnprintf --avoid=vasnprintf-posix --makefile-name=gnulib.mk \
     --conditional-dependencies --no-libtool --macro-prefix=gl \
     --no-vc-files --with-obsolete \
     "${module_list}"

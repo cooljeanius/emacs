@@ -180,39 +180,42 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/00gnulib.m4 \
 	$(top_srcdir)/m4/sockets.m4 $(top_srcdir)/m4/socklen.m4 \
 	$(top_srcdir)/m4/spawn_h.m4 $(top_srcdir)/m4/ssize_t.m4 \
 	$(top_srcdir)/m4/st_dm_mode.m4 $(top_srcdir)/m4/stat-time.m4 \
-	$(top_srcdir)/m4/stat.m4 $(top_srcdir)/m4/stdalign.m4 \
-	$(top_srcdir)/m4/stdarg.m4 $(top_srcdir)/m4/stdbool.m4 \
-	$(top_srcdir)/m4/stddef_h.m4 $(top_srcdir)/m4/stdint.m4 \
-	$(top_srcdir)/m4/stdint_h.m4 $(top_srcdir)/m4/stdio_h.m4 \
-	$(top_srcdir)/m4/stdlib_h.m4 $(top_srcdir)/m4/stdnoreturn.m4 \
-	$(top_srcdir)/m4/stpcpy.m4 $(top_srcdir)/m4/strchrnul.m4 \
-	$(top_srcdir)/m4/strerror.m4 $(top_srcdir)/m4/strerror_r.m4 \
-	$(top_srcdir)/m4/strftime.m4 $(top_srcdir)/m4/string_h.m4 \
-	$(top_srcdir)/m4/strings_h.m4 $(top_srcdir)/m4/strstr.m4 \
-	$(top_srcdir)/m4/strtoimax.m4 $(top_srcdir)/m4/strtoll.m4 \
-	$(top_srcdir)/m4/strtoull.m4 $(top_srcdir)/m4/strtoumax.m4 \
-	$(top_srcdir)/m4/symlink.m4 $(top_srcdir)/m4/sys_ioctl_h.m4 \
+	$(top_srcdir)/m4/stat.m4 $(top_srcdir)/m4/std-gnu11.m4 \
+	$(top_srcdir)/m4/stdalign.m4 $(top_srcdir)/m4/stdarg.m4 \
+	$(top_srcdir)/m4/stdbool.m4 $(top_srcdir)/m4/stddef_h.m4 \
+	$(top_srcdir)/m4/stdint.m4 $(top_srcdir)/m4/stdint_h.m4 \
+	$(top_srcdir)/m4/stdio_h.m4 $(top_srcdir)/m4/stdlib_h.m4 \
+	$(top_srcdir)/m4/stdnoreturn.m4 $(top_srcdir)/m4/stpcpy.m4 \
+	$(top_srcdir)/m4/strchrnul.m4 $(top_srcdir)/m4/strerror.m4 \
+	$(top_srcdir)/m4/strerror_r.m4 $(top_srcdir)/m4/strftime.m4 \
+	$(top_srcdir)/m4/string_h.m4 $(top_srcdir)/m4/strings_h.m4 \
+	$(top_srcdir)/m4/strstr.m4 $(top_srcdir)/m4/strtoimax.m4 \
+	$(top_srcdir)/m4/strtoll.m4 $(top_srcdir)/m4/strtoull.m4 \
+	$(top_srcdir)/m4/strtoumax.m4 $(top_srcdir)/m4/symlink.m4 \
+	$(top_srcdir)/m4/sys_ioctl_h.m4 \
 	$(top_srcdir)/m4/sys_resource_h.m4 \
 	$(top_srcdir)/m4/sys_select_h.m4 \
 	$(top_srcdir)/m4/sys_socket_h.m4 \
 	$(top_srcdir)/m4/sys_stat_h.m4 $(top_srcdir)/m4/sys_time_h.m4 \
+	$(top_srcdir)/m4/sys_times_h.m4 \
 	$(top_srcdir)/m4/sys_types_h.m4 $(top_srcdir)/m4/sys_uio_h.m4 \
 	$(top_srcdir)/m4/sys_utsname_h.m4 \
 	$(top_srcdir)/m4/sys_wait_h.m4 $(top_srcdir)/m4/tempname.m4 \
 	$(top_srcdir)/m4/time_h.m4 $(top_srcdir)/m4/time_r.m4 \
 	$(top_srcdir)/m4/time_rz.m4 $(top_srcdir)/m4/timegm.m4 \
-	$(top_srcdir)/m4/timer_time.m4 $(top_srcdir)/m4/timespec.m4 \
-	$(top_srcdir)/m4/tm_gmtoff.m4 $(top_srcdir)/m4/uname.m4 \
-	$(top_srcdir)/m4/unistd_h.m4 $(top_srcdir)/m4/unlink.m4 \
-	$(top_srcdir)/m4/utimbuf.m4 $(top_srcdir)/m4/utimens.m4 \
-	$(top_srcdir)/m4/utimes.m4 $(top_srcdir)/m4/va-args.m4 \
-	$(top_srcdir)/m4/vararrays.m4 $(top_srcdir)/m4/waitpid.m4 \
-	$(top_srcdir)/m4/warnings.m4 $(top_srcdir)/m4/wchar_h.m4 \
-	$(top_srcdir)/m4/wchar_t.m4 $(top_srcdir)/m4/wctype_h.m4 \
-	$(top_srcdir)/m4/wint_t.m4 $(top_srcdir)/m4/write.m4 \
-	$(top_srcdir)/m4/x11.m4 $(top_srcdir)/m4/xalloc.m4 \
-	$(top_srcdir)/m4/options.m4 $(top_srcdir)/m4/grep.m4 \
-	$(top_srcdir)/m4/override.m4 $(top_srcdir)/m4/gcc-version.m4 \
+	$(top_srcdir)/m4/timer_time.m4 $(top_srcdir)/m4/times.m4 \
+	$(top_srcdir)/m4/timespec.m4 $(top_srcdir)/m4/tm_gmtoff.m4 \
+	$(top_srcdir)/m4/uname.m4 $(top_srcdir)/m4/unistd_h.m4 \
+	$(top_srcdir)/m4/unlink.m4 $(top_srcdir)/m4/utimbuf.m4 \
+	$(top_srcdir)/m4/utimens.m4 $(top_srcdir)/m4/utimes.m4 \
+	$(top_srcdir)/m4/va-args.m4 $(top_srcdir)/m4/vararrays.m4 \
+	$(top_srcdir)/m4/waitpid.m4 $(top_srcdir)/m4/warnings.m4 \
+	$(top_srcdir)/m4/wchar_h.m4 $(top_srcdir)/m4/wchar_t.m4 \
+	$(top_srcdir)/m4/wctype_h.m4 $(top_srcdir)/m4/wint_t.m4 \
+	$(top_srcdir)/m4/write.m4 $(top_srcdir)/m4/x11.m4 \
+	$(top_srcdir)/m4/xalloc.m4 $(top_srcdir)/m4/options.m4 \
+	$(top_srcdir)/m4/grep.m4 $(top_srcdir)/m4/override.m4 \
+	$(top_srcdir)/m4/gcc-version.m4 \
 	$(top_srcdir)/m4/compiler_id.m4 $(top_srcdir)/m4/pkg_extra.m4 \
 	$(top_srcdir)/m4/headers_extra.m4 \
 	$(top_srcdir)/m4/timezone_structs.m4 \
@@ -749,6 +752,7 @@ GNULIB_TANF = @GNULIB_TANF@
 GNULIB_TANHF = @GNULIB_TANHF@
 GNULIB_TANL = @GNULIB_TANL@
 GNULIB_TIMEGM = @GNULIB_TIMEGM@
+GNULIB_TIMES = @GNULIB_TIMES@
 GNULIB_TIME_R = @GNULIB_TIME_R@
 GNULIB_TIME_RZ = @GNULIB_TIME_RZ@
 GNULIB_TMPFILE = @GNULIB_TMPFILE@
@@ -1095,6 +1099,7 @@ HAVE_STRUCT_SIGACTION_SA_SIGACTION = @HAVE_STRUCT_SIGACTION_SA_SIGACTION@
 HAVE_STRUCT_SOCKADDR_STORAGE = @HAVE_STRUCT_SOCKADDR_STORAGE@
 HAVE_STRUCT_SOCKADDR_STORAGE_SS_FAMILY = @HAVE_STRUCT_SOCKADDR_STORAGE_SS_FAMILY@
 HAVE_STRUCT_TIMEVAL = @HAVE_STRUCT_TIMEVAL@
+HAVE_STRUCT_TMS = @HAVE_STRUCT_TMS@
 HAVE_STRUCT_UTSNAME = @HAVE_STRUCT_UTSNAME@
 HAVE_STRVERSCMP = @HAVE_STRVERSCMP@
 HAVE_SYMLINK = @HAVE_SYMLINK@
@@ -1107,6 +1112,7 @@ HAVE_SYS_PARAM_H = @HAVE_SYS_PARAM_H@
 HAVE_SYS_RESOURCE_H = @HAVE_SYS_RESOURCE_H@
 HAVE_SYS_SELECT_H = @HAVE_SYS_SELECT_H@
 HAVE_SYS_SOCKET_H = @HAVE_SYS_SOCKET_H@
+HAVE_SYS_TIMES_H = @HAVE_SYS_TIMES_H@
 HAVE_SYS_TIME_H = @HAVE_SYS_TIME_H@
 HAVE_SYS_TYPES_H = @HAVE_SYS_TYPES_H@
 HAVE_SYS_UIO_H = @HAVE_SYS_UIO_H@
@@ -1115,6 +1121,7 @@ HAVE_TANF = @HAVE_TANF@
 HAVE_TANHF = @HAVE_TANHF@
 HAVE_TANL = @HAVE_TANL@
 HAVE_TIMEGM = @HAVE_TIMEGM@
+HAVE_TIMES = @HAVE_TIMES@
 HAVE_TIMEZONE_T = @HAVE_TIMEZONE_T@
 HAVE_TYPE_VOLATILE_SIG_ATOMIC_T = @HAVE_TYPE_VOLATILE_SIG_ATOMIC_T@
 HAVE_UNAME = @HAVE_UNAME@
@@ -1308,6 +1315,7 @@ NEXT_AS_FIRST_DIRECTIVE_SYS_RESOURCE_H = @NEXT_AS_FIRST_DIRECTIVE_SYS_RESOURCE_H
 NEXT_AS_FIRST_DIRECTIVE_SYS_SELECT_H = @NEXT_AS_FIRST_DIRECTIVE_SYS_SELECT_H@
 NEXT_AS_FIRST_DIRECTIVE_SYS_SOCKET_H = @NEXT_AS_FIRST_DIRECTIVE_SYS_SOCKET_H@
 NEXT_AS_FIRST_DIRECTIVE_SYS_STAT_H = @NEXT_AS_FIRST_DIRECTIVE_SYS_STAT_H@
+NEXT_AS_FIRST_DIRECTIVE_SYS_TIMES_H = @NEXT_AS_FIRST_DIRECTIVE_SYS_TIMES_H@
 NEXT_AS_FIRST_DIRECTIVE_SYS_TIME_H = @NEXT_AS_FIRST_DIRECTIVE_SYS_TIME_H@
 NEXT_AS_FIRST_DIRECTIVE_SYS_TYPES_H = @NEXT_AS_FIRST_DIRECTIVE_SYS_TYPES_H@
 NEXT_AS_FIRST_DIRECTIVE_SYS_UIO_H = @NEXT_AS_FIRST_DIRECTIVE_SYS_UIO_H@
@@ -1339,6 +1347,7 @@ NEXT_SYS_RESOURCE_H = @NEXT_SYS_RESOURCE_H@
 NEXT_SYS_SELECT_H = @NEXT_SYS_SELECT_H@
 NEXT_SYS_SOCKET_H = @NEXT_SYS_SOCKET_H@
 NEXT_SYS_STAT_H = @NEXT_SYS_STAT_H@
+NEXT_SYS_TIMES_H = @NEXT_SYS_TIMES_H@
 NEXT_SYS_TIME_H = @NEXT_SYS_TIME_H@
 NEXT_SYS_TYPES_H = @NEXT_SYS_TYPES_H@
 NEXT_SYS_UIO_H = @NEXT_SYS_UIO_H@

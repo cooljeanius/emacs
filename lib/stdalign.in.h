@@ -1,6 +1,6 @@
 /* A substitute for ISO C11 <stdalign.h>.
 
-   Copyright 2011-2015 Free Software Foundation, Inc.
+   Copyright 2011-2016 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -52,7 +52,10 @@
 #undef _Alignas
 #undef _Alignof
 
-#if !defined __STDC_VERSION__ || __STDC_VERSION__ < 201112
+/* GCC releases before GCC 4.9 had a bug in _Alignof.  See GCC bug 52023
+   <http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52023>.  */
+#if (!defined __STDC_VERSION__ || __STDC_VERSION__ < 201112 \
+     || (defined __GNUC__ && __GNUC__ < 4 + (__GNUC_MINOR__ < 9)))
 # ifdef __cplusplus
 #  if 201103 <= __cplusplus
 #   define _Alignof(type) alignof (type)
@@ -101,7 +104,7 @@
          ? 4 < __GNUC__ + (1 <= __GNUC_MINOR__)                 \
          : __GNUC__)                                            \
         || __HP_cc || __HP_aCC || __IBMC__ || __IBMCPP__        \
-        || __ICC || 0x5110 <= __SUNPRO_C)
+        || __ICC || 0x590 <= __SUNPRO_C)
 #  define _Alignas(a) __attribute__ ((__aligned__ (a)))
 # elif 1300 <= _MSC_VER
 #  define _Alignas(a) __declspec (align (a))
