@@ -91,13 +91,13 @@ else
       snippet/_Noreturn snippet/arg-nonnull snippet/c++defs \
       snippet/link-warning snippet/unused-parameter snippet/warn-on-use \
       socketlib sockets socklen spawn ssize_t stat stat-time std-gnu11 \
-	  stdalign stdarg stdbool stddef stdint stdio stdlib stdnoreturn stpcpy \
-	  streq strerror strerror-override strftime string strings strstr \
-      strstr-simple strtoimax strtoumax symlink sys_ioctl sys_resource \
-      sys_select sys_socket sys_stat sys_time sys_types sys_uio \
-      sys_utsname sys_wait \
+      stdalign stdarg stdbool stddef stdint stdio stdlib stdnoreturn \
+      stpcpy streq strerror strerror-override strftime string strings \
+      strstr strstr-simple strtoimax strtoumax symlink sys_ioctl \
+      sys_resource sys_select sys_socket sys_stat sys_time sys_types \
+      sys_uio sys_utsname sys_wait \
       tempname time time_r time_rz timegm timer-time times timespec \
-	  timespec-add timespec-sub \
+      timespec-add timespec-sub \
       u64 uname unistd unlink unsetenv update-copyright \
       useless-if-before-free utimens \
       vararrays va-args vc-list-files verify vla vma-iter \
@@ -108,7 +108,9 @@ else
    # - getcwd, which depends on strdup-posix, which depends on malloc-posix
    #   (which is avoided)
    # - git-merge-changelog, which depends on... a lot of things
+   # - memcpy, which is obsolete
    # - memmove, which is obsolete
+   # - memset, which is obsolete
    # - obstack-printf, which drags in all the vasnprintf stuff
    # - fprintf-posix and vfprintf-posix also depend on vasnprintf, as does
    #   printf-posix, which gets it indirectly via vfprintf-posix
@@ -129,10 +131,10 @@ else
     --avoid=close --avoid=dup --avoid=fchdir --avoid=fstrcmp \
     --avoid=gnumakefile --avoid=localcharset --avoid=lock --avoid=malloc \
     --avoid=malloc-posix --avoid=memchr-obsolete --avoid=msvc-inval \
-	--avoid=msvc-nothrow --avoid=open --avoid=openat-die --avoid=opendir \
-	--avoid=raise --avoid=save-cwd --avoid=select --avoid=sigprocmask \
-	--avoid=strdup --avoid=strdup-posix --avoid=threadlib --avoid=tls \
-	--avoid=vasnprintf --avoid=vasnprintf-posix --makefile-name=gnulib.mk \
+    --avoid=msvc-nothrow --avoid=open --avoid=openat-die --avoid=opendir \
+    --avoid=raise --avoid=save-cwd --avoid=select --avoid=sigprocmask \
+    --avoid=strdup --avoid=strdup-posix --avoid=threadlib --avoid=tls \
+    --avoid=vasnprintf --avoid=vasnprintf-posix --makefile-name=gnulib.mk \
     --conditional-dependencies --no-libtool --macro-prefix=gl \
     --no-vc-files --with-obsolete \
     "${module_list}"

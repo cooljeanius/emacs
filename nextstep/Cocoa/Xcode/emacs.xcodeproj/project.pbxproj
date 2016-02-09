@@ -39,6 +39,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		6130AF4E1C697379005874AA /* times.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = times.c; sourceTree = "<group>"; };
 		A5017CF31B41CB19004F7B48 /* test_mach_o_binary.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = test_mach_o_binary.c; path = ../../../test_mach_o_binary.c; sourceTree = SOURCE_ROOT; };
 		A5017D1E1B41D5B5004F7B48 /* test_mach_o_binary */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test_mach_o_binary; sourceTree = BUILT_PRODUCTS_DIR; };
 		A52C809D1A1D1D7800897236 /* autodeps.mk */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; fileEncoding = 4; path = autodeps.mk; sourceTree = "<group>"; };
@@ -1244,6 +1245,7 @@
 				A584B1E01B712EC0005A6951 /* time_rz.c */,
 				A584B1E11B712ECD005A6951 /* time-internal.h */,
 				A584B1E21B712EDA005A6951 /* timegm.c */,
+				6130AF4E1C697379005874AA /* times.c */,
 				A540EABD1A0C27C00008DA29 /* timespec-add.c */,
 				A540EABE1A0C27C00008DA29 /* timespec-sub.c */,
 				A540EABF1A0C27C00008DA29 /* timespec.c */,

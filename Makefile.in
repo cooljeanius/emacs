@@ -126,6 +126,19 @@ configuration=@configuration@
 ### The nt/ subdirectory gets built only for MinGW
 NTDIR=@NTDIR@
 
+# 'make' verbosity.
+AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
+
+AM_V_GEN = $(am__v_GEN_@AM_V@)
+am__v_GEN_ = $(am__v_GEN_@AM_DEFAULT_V@)
+am__v_GEN_0 = @echo "  GEN     " $@;
+am__v_GEN_1 =
+
+AM_V_at = $(am__v_at_@AM_V@)
+am__v_at_ = $(am__v_at_@AM_DEFAULT_V@)
+am__v_at_0 = @
+am__v_at_1 =
+
 # ==================== Where To Install Things ====================
 
 # Location to install the Carbon Emacs.app on Mac OS X
@@ -984,6 +997,7 @@ distclean: FRC distclean-local
 	cd doc/misc      && $(MAKE) $(MFLAGS) distclean
 	cd doc/lispref   && $(MAKE) $(MFLAGS) distclean
 	cd doc/lispintro && $(MAKE) $(MFLAGS) distclean
+	cd machocheck    && $(MAKE) $(MFLAGS) distclean
 	cd leim     && $(MAKE) $(MFLAGS) distclean
 	cd lisp     && $(MAKE) $(MFLAGS) distclean
 	cd mac      && $(MAKE) $(MFLAGS) distclean
@@ -1009,6 +1023,7 @@ bootstrap-clean: FRC
 	-cd doc/misc      && $(MAKE) $(MFLAGS) maintainer-clean
 	-cd doc/lispref   && $(MAKE) $(MFLAGS) maintainer-clean
 	-cd doc/lispintro && $(MAKE) $(MFLAGS) maintainer-clean
+	-cd machocheck    && $(MAKE) $(MFLAGS) maintainer-clean
 	cd leim     && $(MAKE) $(MFLAGS) bootstrap-clean
 	cd lisp     && $(MAKE) $(MFLAGS) bootstrap-clean
 	cd mac      && $(MAKE) $(MFLAGS) maintainer-clean
@@ -1039,6 +1054,7 @@ maintainer-clean: bootstrap-clean FRC maintainer-clean-local
 	cd src  && $(MAKE) $(MFLAGS) maintainer-clean
 	cd leim && $(MAKE) $(MFLAGS) maintainer-clean
 	cd lisp && $(MAKE) $(MFLAGS) maintainer-clean
+	cd machocheck && $(MAKE) $(MFLAGS) maintainer-clean
 	for dir in test/automated admin/grammars admin/unidata; do \
 	  [ ! -d $${dir} ] || (cd $${dir} && $(MAKE) $(MFLAGS) maintainer-clean); \
 	done
@@ -1050,6 +1066,7 @@ maintainer-clean: bootstrap-clean FRC maintainer-clean-local
 ### the coding standards seem to come from.  It is like distclean, but
 ### it deletes backup and autosave files too.
 extraclean: extraclean-local
+	-cd machocheck && $(MAKE) $(MFLAGS) extraclean
 	for i in ${SUBDIR}; do (cd $$i; $(MAKE) $(MFLAGS) extraclean); done
 	${top_maintainer_clean}
 	-rm -f config-tmp-*
@@ -1225,6 +1242,56 @@ bootstrap: bootstrap-clean FRC
 	$(MAKE) $(MFLAGS) MAKEFILE_NAME=force-Makefile force-Makefile
 	$(MAKE) $(MFLAGS) info all
 
+.PHONY: ChangeLog change-history change-history-commit change-history-nocommit
+.PHONY: preferred-branch-is-current unchanged-history-files
+
+CHANGELOG = ChangeLog
+emacslog = build-aux/gitlog-to-emacslog
+# The ChangeLog history files are called ChangeLog.1, ChangeLog.2, ...,
+# ChangeLog.$(CHANGELOG_HISTORY_INDEX_MAX).  $(CHANGELOG_N) stands for
+# the newest (highest-numbered) ChangeLog history file.
+CHANGELOG_HISTORY_INDEX_MAX = 2
+CHANGELOG_N = ChangeLog.$(CHANGELOG_HISTORY_INDEX_MAX)
+
+# Convert git commit log to ChangeLog file.  make-dist uses this.
+# I guess this is PHONY so it always updates?
+ChangeLog:
+	$(AM_V_GEN)cd $(srcdir) && \
+	  ./$(emacslog) -o $(CHANGELOG) -n $(CHANGELOG_HISTORY_INDEX_MAX)
+
+# Check that we are in a good state for changing history.
+PREFERRED_BRANCH = master
+preferred-branch-is-current:
+	git branch | grep -q '^\* $(PREFERRED_BRANCH)$$'
+unchanged-history-files:
+	x=$$(git diff-files --name-only $(CHANGELOG_N) $(emacslog)) && \
+	  test -z "$$x"
+
+# Regular expression that matches the newest commit covered by a ChangeLog.
+new_commit_regexp = ^commit [0123456789abcdef]* (inclusive)
+
+# Copy newer commit messages to the start of the ChangeLog history file,
+# and consider them to be older.
+change-history-nocommit: preferred-branch-is-current unchanged-history-files
+	-rm -f ChangeLog.tmp
+	$(MAKE) ChangeLog CHANGELOG=ChangeLog.tmp
+	sed '/^This file records repository revisions/,$$d' \
+	  ChangeLog.tmp >$(CHANGELOG_N).tmp
+	new_commit_line=`grep '$(new_commit_regexp)' ChangeLog.tmp` && \
+	sed 's/$(new_commit_regexp).*/'"$$new_commit_line/" \
+	  $(CHANGELOG_N) >>$(CHANGELOG_N).tmp
+	rm ChangeLog.tmp
+	mv $(CHANGELOG_N).tmp $(CHANGELOG_N)
+
+change-history: change-history-nocommit
+	$(MAKE) $@-commit
+
+# If 'make change-history' fails because the newest ChangeLog history
+# file contains invalid text, fix the file by hand and then run
+# 'make change-history-commit'.
+change-history-commit:
+	git commit -m'; make $@' $(CHANGELOG_N) $(emacslog)
+
 .PHONY: check-declare
 
 check-declare:
@@ -1299,6 +1366,7 @@ emacswrapper: emacswrapper.o isemacsvalid.o runit.o
 
 test_mach_o_binary: test_mach_o_binary.c src/config.h src/lisp.h \
   lib/intprops.h
+	$(MAKE) -C src globals.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) -Ilib -Isrc $(DEFS) $(WARN_CFLAGS) \
 	  -Wformat=2 $(BETTER_DEBUG_CFLAGS) $(LDFLAGS) $(WARN_LDFLAGS) \
 	  -O0 -o $@ -g $<
@@ -1321,6 +1389,7 @@ apple_helper_executables: $(APPLE_AUX_EXES)
 apple_check: isemacsvalid.plist runit.plist dumpemacs.plist \
   emacswrapper.plist test_mach_o_binary.plist @MAINT@ unexmacosx.plist
 	if test -x test_mach_o_binary; then ./test_mach_o_binary; fi
+	cd machocheck && $(MAKE) $(MFLAGS) check
 .PHONY: apple_check
 
 ### To avoid lisp byte-compilation errors, try this:

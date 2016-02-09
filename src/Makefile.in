@@ -799,6 +799,7 @@ mostlyclean:
 	-rm -rf bootstrap-emacs.dSYM
 	rm -f buildobj.h
 	rm -f buildobj.lst
+	rm -f getloadavg_test$(EXEEXT)
 	rm -f globals.h gl-stamp
 	rm -f version.h
 	rm -f *.res *.tmp

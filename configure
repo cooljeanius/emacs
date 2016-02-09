@@ -4121,38 +4121,6 @@ rm -f conftest.val
 
 } # ac_fn_c_compute_int
 
-# ac_fn_c_check_header_preproc LINENO HEADER VAR
-# ----------------------------------------------
-# Tests whether HEADER exists and can be preprocessed (in isolation), setting
-# the cache variable VAR accordingly.
-ac_fn_c_check_header_preproc ()
-{
-  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $2" >&5
-printf %s "checking for $2... " >&6; }
-if eval test \${$3+y}
-then :
-  printf %s "(cached) " >&6
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <$2>
-_ACEOF
-if ac_fn_c_try_cpp "$LINENO"
-then :
-  eval "$3=yes"
-else
-  eval "$3=no"
-fi
-rm -f conftest.err conftest.i conftest.$ac_ext
-fi
-eval ac_res=\$$3
-	       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-printf "%s\n" "$ac_res" >&6; }
-  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
-
-} # ac_fn_c_check_header_preproc
-
 # ac_fn_c_check_member LINENO AGGR MEMBER VAR INCLUDES
 # ----------------------------------------------------
 # Tries to find if the field MEMBER exists in type AGGR, after including
@@ -33803,9 +33771,38 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext    ##end check for 
   fi
 fi
 
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for term.h with the preprocessor" >&5
+printf %s "checking for term.h with the preprocessor... " >&6; }
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <term.h>
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_cpp "$LINENO"
+then :
+  emacs_cv_preproc_term_h=yes
+else
+  emacs_cv_preproc_term_h=no
+fi
+rm -f conftest.err conftest.i conftest.$ac_ext
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: ${emacs_cv_preproc_term_h}" >&5
+printf "%s\n" "${emacs_cv_preproc_term_h}" >&6; }
 for ac_header in term.h
 do :
-  ac_fn_c_check_header_preproc "$LINENO" "term.h" "ac_cv_header_term_h"
+  ac_fn_c_check_header_compile "$LINENO" "term.h" "ac_cv_header_term_h" "
+#ifdef HAVE_STDBOOL_H
+# include <stdbool.h>
+#endif /* HAVE_STDBOOL_H */
+
+"
 if test "x$ac_cv_header_term_h" = xyes
 then :
   cat >>confdefs.h <<_ACEOF
@@ -44649,7 +44646,8 @@ fi
 HAVE_XAW3D=no
 if test "x${HAVE_X11}" = "xyes"; then
   if test "x${USE_X_TOOLKIT}" != "xnone" && test "x${with_toolkit_scroll_bars}" != "xno"; then
-            ac_fn_c_check_header_preproc "$LINENO" "X11/Xaw3d/Scrollbar.h" "ac_cv_header_X11_Xaw3d_Scrollbar_h"
+            ac_fn_c_check_header_compile "$LINENO" "X11/Xaw3d/Scrollbar.h" "ac_cv_header_X11_Xaw3d_Scrollbar_h" "
+"
 if test "x$ac_cv_header_X11_Xaw3d_Scrollbar_h" = xyes
 then :
 
@@ -47401,6 +47399,13 @@ printf "%s\n" "no" >&6; }
   # Built-in libxml2 on OS X 10.8+ lacks libxml-2.0.pc.
   if test "x${HAVE_LIBXML2}" != "xyes" -a "x${opsys}" = "xdarwin"; then
     SAVE_CPPFLAGS="${CPPFLAGS}"
+    if test -z "${xcsdkdir}" -a -n "${XCRUN}" -a ! -d /usr/include; then
+            xcsdkdir=`${XCRUN} --show-sdk-path 2>/dev/null`
+      case ${xcsdkdir} in
+	*[\\\"\#\$\&\'\`$am_lf\ \	]*)
+	xcsdkdir="" ;;
+      esac
+    fi
     CPPFLAGS="${CPPFLAGS} -I${xcsdkdir}/usr/include/libxml2"
     ac_fn_c_check_header_compile "$LINENO" "libxml/HTMLparser.h" "ac_cv_header_libxml_HTMLparser_h" "$ac_includes_default"
 if test "x$ac_cv_header_libxml_HTMLparser_h" = xyes
@@ -54194,11 +54199,11 @@ for ac_func in __fpending _stricmp acl atexit atof atoi btowc bzero \
                 get_edata get_end geteuid getpass getpwuid inet_ntoa \
                 isascii iswprint mbrlen memmove memset mkdir munmap \
                 nl_langinfo pathconf posix_spawnp pow putenv re_comp \
-                reallocf regcomp rmdir setenv socket sqrt strcasecmp \
-                strcasestr strchr strcmp strcspn strdup strerror stricmp \
-                strlcat strlcpy strncasecmp strncat strncmp strnicmp \
-                strnstr strpbrk strrchr strtok strtol strtoul sysctl \
-                system xstricmp utime utmpname vfprintf
+                reallocf regcomp rmdir socket sqrt strcasecmp strcasestr \
+                strchr strcmp strcspn strdup strerror stricmp strlcat \
+                strlcpy strncasecmp strncat strncmp strnicmp strnstr \
+                strpbrk strrchr strtok strtol strtoul sysctl system \
+                xstricmp utime utmpname vfprintf
 do :
   as_ac_var=`printf "%s\n" "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -54266,7 +54271,7 @@ _ACEOF
 fi
 done
     for ac_func in alarm dup2 fchdir ftruncate getcwd gethostbyname \
-                  getpagesize gettimeofday localtime_r strtoumax \
+                  getpagesize gettimeofday localtime_r setenv strtoumax \
                   tzset uname
 do :
   as_ac_var=`printf "%s\n" "ac_cv_func_$ac_func" | $as_tr_sh`
@@ -54298,9 +54303,21 @@ fi
 done
 
 elif test "x${opsys}" = "xdarwin"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: skipping check for aligned_alloc() and posix_memalign() on darwin." >&5
-printf "%s\n" "$as_me: skipping check for aligned_alloc() and posix_memalign() on darwin." >&6;}
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: skipping check for aligned_alloc() and posix_memalign() functions on darwin." >&5
+printf "%s\n" "$as_me: skipping check for aligned_alloc() and posix_memalign() functions on darwin." >&6;}
 fi
+ac_fn_c_check_decl "$LINENO" "aligned_alloc" "ac_cv_have_decl_aligned_alloc" "#include <stdlib.h>
+"
+if test "x$ac_cv_have_decl_aligned_alloc" = xyes
+then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_ALIGNED_ALLOC $ac_have_decl
+_ACEOF
 
 ## Eric Backus <ericb@lsid.hp.com> says, HP-UX 9.x on HP 700 machines
 ## has a broken `rint' in some library versions including math library

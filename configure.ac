@@ -4585,7 +4585,17 @@ fi
 
 dnl# On Solaris 8 there is a compilation warning for term.h because
 dnl# it does NOT define `bool'.
-AC_CHECK_HEADERS([term.h],[],[],[-])
+AC_MSG_CHECKING([for term.h with the preprocessor])
+AC_PREPROC_IFELSE([AC_LANG_PROGRAM([[
+#include <term.h>
+      ]],[[]])],[emacs_cv_preproc_term_h=yes],
+                [emacs_cv_preproc_term_h=no])
+AC_MSG_RESULT([${emacs_cv_preproc_term_h}])
+AC_CHECK_HEADERS([term.h],[],[],[[
+#ifdef HAVE_STDBOOL_H
+# include <stdbool.h>
+#endif /* HAVE_STDBOOL_H */
+]])
 dnl# header checks with specific macros for them:
 AC_HEADER_ASSERT
 AC_HEADER_DIRENT
@@ -6777,7 +6787,7 @@ HAVE_XAW3D=no
 if test "x${HAVE_X11}" = "xyes"; then
   if test "x${USE_X_TOOLKIT}" != "xnone" && test "x${with_toolkit_scroll_bars}" != "xno"; then
     dnl# FIXME: determine what Scrollbar.h needs to avoid compilation
-    dnl# errors from the test without the `-'.
+    dnl# errors from the test now that the `-' has been removed.
     AC_CHECK_HEADER([X11/Xaw3d/Scrollbar.h],[
       if test "x${emacs_cv_xaw3d}" = "x" && test "x${ac_cv_lib_Xaw3d_XawScrollbarSetThumb}" = "x"; then
         test -z "${ac_cv_lib_Xaw3d_XawScrollbarSetThumb}"
@@ -6785,7 +6795,7 @@ if test "x${HAVE_X11}" = "xyes"; then
       elif test "x${emacs_cv_xaw3d}" = "xyes"; then
         HAVE_XAW3D=yes
       fi
-    ],[],[-])
+    ],[],[[]])
     if test "x${HAVE_XAW3D}" = "xyes"; then
 	AC_DEFINE([HAVE_XAW3D],[1],
 		  [Define to 1 if you have the Xaw3d library (-lXaw3d).])
@@ -7683,6 +7693,14 @@ if test "x${with_xml2}" != "xno"; then
   # Built-in libxml2 on OS X 10.8+ lacks libxml-2.0.pc.
   if test "x${HAVE_LIBXML2}" != "xyes" -a "x${opsys}" = "xdarwin"; then
     SAVE_CPPFLAGS="${CPPFLAGS}"
+    if test -z "${xcsdkdir}" -a -n "${XCRUN}" -a ! -d /usr/include; then
+      dnl# /usr/include is not found.  Try Xcode SDK dir if it is sane:
+      xcsdkdir=`${XCRUN} --show-sdk-path 2>/dev/null`
+      case ${xcsdkdir} in
+	*[[\\\"\#\$\&\'\`$am_lf\ \	]]*)
+	xcsdkdir="" ;;
+      esac
+    fi
     CPPFLAGS="${CPPFLAGS} -I${xcsdkdir}/usr/include/libxml2"
     AC_CHECK_HEADER([libxml/HTMLparser.h],
       [AC_CHECK_DECL([HTML_PARSE_RECOVER],[HAVE_LIBXML2=yes],[],
@@ -7949,11 +7967,11 @@ AC_CHECK_FUNCS([__fpending _stricmp acl atexit atof atoi btowc bzero \
                 get_edata get_end geteuid getpass getpwuid inet_ntoa \
                 isascii iswprint mbrlen memmove memset mkdir munmap \
                 nl_langinfo pathconf posix_spawnp pow putenv re_comp \
-                reallocf regcomp rmdir setenv socket sqrt strcasecmp \
-                strcasestr strchr strcmp strcspn strdup strerror stricmp \
-                strlcat strlcpy strncasecmp strncat strncmp strnicmp \
-                strnstr strpbrk strrchr strtok strtol strtoul sysctl \
-                system xstricmp utime utmpname vfprintf])
+                reallocf regcomp rmdir socket sqrt strcasecmp strcasestr \
+                strchr strcmp strcspn strdup strerror stricmp strlcat \
+                strlcpy strncasecmp strncat strncmp strnicmp strnstr \
+                strpbrk strrchr strtok strtol strtoul sysctl system \
+                xstricmp utime utmpname vfprintf])
 dnl# Keep autoscan happy with a dummy condition:
 if test "x" = "Y0"; then
   test -x "`which autoscan`"
@@ -7965,7 +7983,7 @@ if test "x" = "Y0"; then
     AC_CHECK_FUNCS([getdelim])dnl
   ])dnl
   AC_CHECK_FUNCS([alarm dup2 fchdir ftruncate getcwd gethostbyname \
-                  getpagesize gettimeofday localtime_r strtoumax \
+                  getpagesize gettimeofday localtime_r setenv strtoumax \
                   tzset uname])dnl
   ## just in case...
 fi
@@ -7978,8 +7996,9 @@ if (test -z "${GMALLOC_OBJ}" || test "x${hybrid_malloc}" = "xyes") \
   && test "x${opsys}" != "xdarwin"; then
   AC_CHECK_FUNCS([aligned_alloc posix_memalign],[break])
 elif test "x${opsys}" = "xdarwin"; then
-  AC_MSG_NOTICE([skipping check for aligned_alloc() and posix_memalign() on darwin.])
+  AC_MSG_NOTICE([skipping check for aligned_alloc() and posix_memalign() functions on darwin.])
 fi
+AC_CHECK_DECLS([aligned_alloc],[],[],[[#include <stdlib.h>]])dnl
 
 ## Eric Backus <ericb@lsid.hp.com> says, HP-UX 9.x on HP 700 machines
 ## has a broken `rint' in some library versions including math library

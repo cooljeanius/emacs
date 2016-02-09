@@ -54,5 +54,14 @@ clean:
 	rm -f src/other/*.o src/ld/configure.h src/ld/LTO_option.txt
 	rm -f libmachocheck.a
 
+distclean: clean
+	-rm -f .DS_Store
+
+maintainer-clean: distclean
+	rm -f *.plist
+
+extraclean: maintainer-clean
+	test ! -e Makefile || test -e Makefile
+
 check: machochecker.plist
 	ls *.plist

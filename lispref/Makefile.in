@@ -122,10 +122,15 @@ clean:
 	rm -f make.out core
 
 distclean: clean
+	-rm -f .DS_Store
 
 maintainer-clean: clean
 	rm -f elisp.dvi elisp.oaux
-	cd $(infodir); rm -f elisp elisp-[1-9] elisp-[1-9][0-9]
+	if test -d $(infodir); then \
+	  cd $(infodir); rm -f elisp elisp-[1-9] elisp-[1-9][0-9]; \
+	else \
+	  echo "no infodir exists for further cleaning; skipping"; \
+	fi
 
 extraclean: maintainer-clean
 	-rm -f *~ \#*
@@ -134,7 +139,7 @@ dist: $(infodir)/elisp elisp.dvi
 	-rm -rf temp
 	-mkdir temp
 	-mkdir temp/$(manual)
-	-ln $(srcdir)/README $(srcdir)/configure.in $(srcdir)/configure \
+	-ln $(srcdir)/README $(srcdir)/configure.ac $(srcdir)/configure \
  $(srcdir)/Makefile.in $(srcs) \
  $(srcdir)/../man/texinfo.tex \
  elisp.dvi elisp.aux elisp.??s \
