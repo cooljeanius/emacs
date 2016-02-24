@@ -5640,8 +5640,9 @@ x_build_heuristic_mask (struct frame *f, struct image *img, Lisp_Object how)
       if (i == 3 && NILP (how))
 	{
 	  char color_name[30];
-	  sprintf(color_name, "#%04x%04x%04x", (unsigned int)rgb[0],
-                  (unsigned int)rgb[1], (unsigned int)rgb[2]);
+	  snprintf(color_name, sizeof(color_name), "#%04x%04x%04x",
+		   (unsigned int)rgb[0], (unsigned int)rgb[1],
+		   (unsigned int)rgb[2]);
 	  bg = (
 #ifdef HAVE_NTGUI
 		0x00ffffff & /* Filter out palette info.  */

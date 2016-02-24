@@ -1391,10 +1391,10 @@ term_get_fkeys_1 (void)
 	  char *sequence = tgetstr (fcap, address);
 	  if (sequence)
 	    {
-	      sprintf (fkey, "f%d", i);
-	      Fdefine_key (KVAR (kboard, Vinput_decode_map), build_string (sequence),
-			   Fmake_vector (make_number (1),
-					 intern (fkey)));
+	      snprintf(fkey, sizeof(fkey), "f%d", i);
+	      Fdefine_key(KVAR(kboard, Vinput_decode_map),
+			  build_string(sequence),
+			  Fmake_vector(make_number(1), intern(fkey)));
 	    }
 	}
       }
@@ -1808,7 +1808,7 @@ static void
 produce_glyphless_glyph (struct it *it, Lisp_Object acronym)
 {
   int len, face_id = merge_glyphless_glyph_face (it);
-  char buf[sizeof "\\x" + max (6, (sizeof it->c * CHAR_BIT + 3) / 4)];
+  char buf[sizeof("\\x") + max(6, (sizeof(it->c) * CHAR_BIT + 3) / 4)];
   char const *str = "    ";
 
   if (it->glyphless_method == GLYPHLESS_DISPLAY_THIN_SPACE)
@@ -1824,7 +1824,7 @@ produce_glyphless_glyph (struct it *it, Lisp_Object acronym)
 	len = 1;
       else if (len > 4)
 	len = 4;
-      len = sprintf (buf, "[%.*s]", len, str);
+      len = snprintf(buf, sizeof(buf), "[%.*s]", len, str);
       str = buf;
     }
   else
@@ -1846,10 +1846,12 @@ produce_glyphless_glyph (struct it *it, Lisp_Object acronym)
 	{
 	  eassert(it->glyphless_method == GLYPHLESS_DISPLAY_HEX_CODE);
 	  len = ((it->c < 0x10000)
-                 ? sprintf(buf, "\\u%04X", (unsigned int)it->c)
+                 ? snprintf(buf, sizeof(buf), "\\u%04X", (unsigned int)it->c)
 		 : ((it->c <= MAX_UNICODE_CHAR)
-                    ? sprintf(buf, "\\U%06X", (unsigned int)it->c)
-                    : sprintf(buf, "\\x%06X", (unsigned int)it->c)));
+                    ? snprintf(buf, sizeof(buf), "\\U%06X",
+			       (unsigned int)it->c)
+                    : snprintf(buf, sizeof(buf), "\\x%06X",
+			       (unsigned int)it->c)));
 	}
       str = buf;
     }

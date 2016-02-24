@@ -2560,7 +2560,7 @@ Uses a minus sign if negative.
 NUMBER may be an integer or a floating point number.  */)
   (Lisp_Object number)
 {
-  char buffer[max (FLOAT_TO_STRING_BUFSIZE, INT_BUFSIZE_BOUND (EMACS_INT))];
+  char buffer[max(FLOAT_TO_STRING_BUFSIZE, INT_BUFSIZE_BOUND(EMACS_INT))];
   int len;
 
   CHECK_NUMBER_OR_FLOAT (number);
@@ -2568,7 +2568,7 @@ NUMBER may be an integer or a floating point number.  */)
   if (FLOATP (number))
     len = float_to_string (buffer, XFLOAT_DATA (number));
   else
-    len = sprintf (buffer, "%"pI"d", XINT (number));
+    len = snprintf(buffer, sizeof(buffer), "%"pI"d", XINT (number));
 
   return make_unibyte_string (buffer, len);
 }

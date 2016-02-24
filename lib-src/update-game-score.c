@@ -112,10 +112,11 @@ get_user_id (void)
   struct passwd *buf = getpwuid (getuid ());
   if (!buf || strchr (buf->pw_name, ' ') || strchr (buf->pw_name, '\n'))
     {
-      intmax_t uid = getuid ();
-      char *name = malloc (sizeof uid * CHAR_BIT / 3 + 4);
+      intmax_t uid = getuid();
+      size_t namelen = (sizeof(uid) * CHAR_BIT / 3UL + 4UL);
+      char *name = malloc(namelen);
       if (name)
-	sprintf (name, "%"PRIdMAX, uid);
+	snprintf(name, namelen, "%"PRIdMAX, uid);
       return name;
     }
   return buf->pw_name;

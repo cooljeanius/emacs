@@ -1864,9 +1864,9 @@ fontset_from_font (Lisp_Object font_object)
     alias = intern ("fontset-startup");
   else
     {
-      char temp[sizeof "fontset-auto" + INT_STRLEN_BOUND (ptrdiff_t)];
+      char temp[sizeof("fontset-auto") + INT_STRLEN_BOUND(ptrdiff_t)];
 
-      sprintf (temp, "fontset-auto%"pD"d", num_auto_fontsets - 1);
+      snprintf(temp, sizeof(temp), "fontset-auto%"pD"d", num_auto_fontsets - 1);
       alias = intern (temp);
     }
   fontset_spec = copy_font_spec (font_spec);

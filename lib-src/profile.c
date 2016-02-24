@@ -41,15 +41,14 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 static struct timespec TV1;
 static int watch_not_started = 1; /* flag */
-static char time_string[INT_STRLEN_BOUND (uintmax_t) + sizeof "."
+static char time_string[INT_STRLEN_BOUND(uintmax_t) + sizeof(".")
 			+ LOG10_TIMESPEC_RESOLUTION];
 
-/* Reset the stopwatch to zero.  */
-
+/* Reset the stopwatch to zero: */
 static void
-reset_watch (void)
+reset_watch(void)
 {
-  TV1 = current_timespec ();
+  TV1 = current_timespec();
   watch_not_started = 0;
 }
 
@@ -58,41 +57,43 @@ reset_watch (void)
    If reset_watch was not called yet, exit.  */
 
 static char *
-get_time (void)
+get_time(void)
 {
-  struct timespec TV2 = timespec_sub (current_timespec (), TV1);
+  struct timespec TV2 = timespec_sub(current_timespec(), TV1);
   uintmax_t s = TV2.tv_sec;
   int ns = TV2.tv_nsec;
   if (watch_not_started)
-    exit (EXIT_FAILURE);  /* call reset_watch first ! */
-  sprintf (time_string, "%"PRIuMAX".%0*d", s, LOG10_TIMESPEC_RESOLUTION, ns);
+    exit(EXIT_FAILURE);  /* call reset_watch first ! */
+  snprintf(time_string, sizeof(time_string), "%"PRIuMAX".%0*d", s,
+	   LOG10_TIMESPEC_RESOLUTION, ns);
   return time_string;
 }
 
+/* This main() takes no args: */
 int
-main (void)
+main(void)
 {
   int c;
-  while ((c = getchar ()) != EOF)
+  while ((c = getchar()) != EOF)
     {
       switch (c)
 	{
 	case 'z':
-	  reset_watch ();
+	  reset_watch();
 	  break;
 	case 'p':
-	  puts (get_time ());
+	  puts(get_time());
 	  break;
 	case 'q':
-	  exit (EXIT_SUCCESS);
+	  exit(EXIT_SUCCESS);
         default:
           break;
 	}
-      /* Anything remaining on the line is ignored.  */
+      /* Anything remaining on the line is ignored: */
       while ((c != '\n') && (c != EOF))
-	c = getchar ();
+	c = getchar();
     }
-  exit (EXIT_FAILURE);
+  exit(EXIT_FAILURE);
 }
 
 

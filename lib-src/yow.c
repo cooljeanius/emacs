@@ -75,9 +75,9 @@ main(int argc, char *argv[])
     strcpy(file, argv[2]);
   } else {
 #ifdef vms
-    sprintf(file, "%s%s", PATH_DATA, YOW_FILE);
+    snprintf(file, sizeof(file), "%s%s", PATH_DATA, YOW_FILE);
 #else
-    sprintf(file, "%s/%s", PATH_DATA, YOW_FILE);
+    snprintf(file, sizeof(file), "%s/%s", PATH_DATA, YOW_FILE);
 #endif /* vms */
   }
 

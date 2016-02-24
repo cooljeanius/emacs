@@ -20,10 +20,10 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 /*
 Originally by Carl Edman
-Updated by Christian Limpach (chris@nice.ch)
-OpenStep/Rhapsody port by Scott Bender (sbender@harmony-ds.com)
-MacOSX/Aqua port by Christophe de Dinechin (descubes@earthlink.net)
-GNUstep port and post-20 update by Adrian Robert (arobert@cogsci.ucsd.edu)
+Updated by Christian Limpach <chris@nice.ch>
+OpenStep/Rhapsody port by Scott Bender <sbender@harmony-ds.com>
+MacOSX/Aqua port by Christophe de Dinechin <descubes@earthlink.net>
+GNUstep port and post-20 update by Adrian Robert <arobert@cogsci.ucsd.edu>
 */
 
 /* This should be the first include, as it may set up #defines affecting
@@ -1648,8 +1648,8 @@ ns_get_color(const char *name, NSColor **col)
       int i;
       scaling = (strlen(name + start) / 3);
       for (i = 0; i < 3; i++)
-	sprintf (hex + i * (scaling + 1), "%.*s/", scaling,
-		 name + start + i * scaling);
+	snprintf((hex + i * (scaling + 1)), SIZE_T_MAX, "%.*s/", scaling,
+		 (name + start + i * scaling));
       hex[3 * (scaling + 1) - 1] = '\0';
     }
 
@@ -2099,8 +2099,8 @@ x_get_keysym_name (int keysym)
    -------------------------------------------------------------------------- */
 {
   static char value[16];
-  NSTRACE (x_get_keysym_name);
-  sprintf (value, "%d", keysym);
+  NSTRACE(x_get_keysym_name);
+  snprintf(value, sizeof(value), "%d", keysym);
   return value;
 }
 
@@ -6055,7 +6055,7 @@ not_in_argv (NSString *arg)
         NSWindow *window = [self window];
         if (old_title == 0)
           {
-            char *t = strdup([[[self window] title] UTF8String]);
+            char *t = xstrdup([[[self window] title] UTF8String]);
             char *pos = strstr(t, "  —  ");
             if (pos)
               *pos = '\0';

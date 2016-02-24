@@ -4276,6 +4276,11 @@ AC_TYPE_UINT8_T
 AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
 AC_TYPE_UINT64_T
+if test "x${ac_cv_type_max_align_t}" = "x"; then
+  test -z "${ac_cv_type_max_align_t}"
+  AC_CHECK_TYPES([max_align_t])dnl
+  ## gnulib might also check it below...
+fi
 if test "x${enable_acl}" != "xno"; then
   AC_CHECK_TYPES([acl_t])dnl
   ## disable if not present?
@@ -7963,15 +7968,15 @@ if test "x${libm_has_fmod}" = "x" && test "x${ac_cv_func_fmod}" = "x"; then
 fi
 dnl# these ones should be in alphabetical order:
 AC_CHECK_FUNCS([__fpending _stricmp acl atexit atof atoi btowc bzero \
-                cuserid doprnt errc fabs fabsf floor ftime get_etext \
-                get_edata get_end geteuid getpass getpwuid inet_ntoa \
-                isascii iswprint mbrlen memmove memset mkdir munmap \
-                nl_langinfo pathconf posix_spawnp pow putenv re_comp \
-                reallocf regcomp rmdir socket sqrt strcasecmp strcasestr \
-                strchr strcmp strcspn strdup strerror stricmp strlcat \
-                strlcpy strncasecmp strncat strncmp strnicmp strnstr \
-                strpbrk strrchr strtok strtol strtoul sysctl system \
-                xstricmp utime utmpname vfprintf])
+                cuserid doprnt errc fabs fabsf fgets floor ftime \
+                get_etext get_edata get_end geteuid getpass getpwuid \
+                inet_ntoa isascii iswprint mbrlen memmove memset mkdir \
+                munmap nl_langinfo pathconf posix_spawnp pow putenv \
+                re_comp reallocf regcomp rmdir socket sqrt strcasecmp \
+                strcasestr strchr strcmp strcspn strdup strerror stricmp \
+                strlcat strlcpy strncasecmp strncat strncmp strnicmp \
+                strnstr strpbrk strrchr strtok strtok_r strtol strtoul \
+                sysctl system xstricmp utime utmpname vfprintf])
 dnl# Keep autoscan happy with a dummy condition:
 if test "x" = "Y0"; then
   test -x "`which autoscan`"
@@ -9355,7 +9360,11 @@ fi
 if test x"${version}" = x""; then
   if test "x${PACKAGE_VERSION}" != "x"; then
     if test -e ${srcdir}/lisp/version.el; then
-      AC_MSG_WARN([cannot find current emacs version in `${srcdir}/lisp/version.el', using ${PACKAGE_VERSION} instead.])
+      if test -r ${srcdir}/lisp/version.el; then
+        AC_MSG_NOTICE([cannot find current emacs version in `${srcdir}/lisp/version.el', using ${PACKAGE_VERSION} instead.])
+      elif test ! -r ${srcdir}/lisp/version.el; then
+        AC_MSG_WARN([cannot read current emacs version from `${srcdir}/lisp/version.el', using ${PACKAGE_VERSION} instead.])
+      fi
     fi
     test -z "${version}" && test -n "${PACKAGE_VERSION}" && export version="${PACKAGE_VERSION}"
   else

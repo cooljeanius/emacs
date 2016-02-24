@@ -69,11 +69,11 @@ else
       dtoastr dtotimespec dup2 \
       environ errno error execinfo euidaccess extensions extern-inline \
       faccessat fcntl fcntl-h fdatasync fdopendir file-has-acl filemode \
-      flexmember float fopen fpending fpieee fpucw fseek fseeko fstat \
-      fstatat fsync ftell ftello ftoastr ftruncate func \
+      filevercmp flexmember float fopen fpending fpieee fpucw fseek fseeko \
+	  fstat fstatat fsync ftell ftello ftoastr ftruncate func \
       gendocs getdelim getdtablesize getgroups gethostname getline \
       getloadavg getlogin getopt-gnu getopt-posix getpagesize getpass \
-      getpass-gnu  gettext gettext-h gettime gettimeofday \
+      getpass-gnu gettext gettext-h gettime gettimeofday \
       git-version-gen gitlog-to-changelog gnu-make gpl-3.0 group-member \
       havelib host-cpu-c-abi host-os \
       ignore-value include_next inline intprops inttypes-incomplete \

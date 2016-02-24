@@ -2065,7 +2065,7 @@ shut_down_emacs(int sig, Lisp_Object stuff)
 	  {
 	    static char const format[] = "Fatal error %d: ";
 	    char buf[sizeof(format) - 2 + INT_STRLEN_BOUND(int)];
-	    int buflen = sprintf(buf, format, sig);
+	    int buflen = snprintf(buf, sizeof(buf), format, sig);
 	    char const *sig_desc = safe_strsignal(sig);
 	    emacs_write(STDERR_FILENO, buf, buflen);
 	    emacs_write(STDERR_FILENO, sig_desc,

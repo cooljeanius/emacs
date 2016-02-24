@@ -6939,7 +6939,7 @@ get_next_display_element (struct it *it)
 		if (CHAR_BYTE8_P(c))
 		  /* Display \200 instead of \17777600.  */
 		  c = CHAR_TO_BYTE8(c);
-		len = sprintf(str, "%03o", (unsigned int)c);
+		len = snprintf(str, sizeof(str), "%03o", (unsigned int)c);
 
 		XSETINT(it->ctl_chars[0], escape_glyph);
 		for (i = 0; i < len; i++)
@@ -9850,12 +9850,13 @@ message_dolog (const char *m, ptrdiff_t nbytes, bool nlflag, bool multibyte)
 				  this_bol, this_bol_byte, 0);
 		  if (dups > 1)
 		    {
-		      char dupstr[sizeof " [ times]"
-				  + INT_STRLEN_BOUND (printmax_t)];
+		      char dupstr[sizeof(" [ times]")
+				  + INT_STRLEN_BOUND(printmax_t)];
 
 		      /* If you change this format, don't forget to also
 			 change message_log_check_duplicate.  */
-		      int duplen = sprintf (dupstr, " [%"pMd" times]", dups);
+		      int duplen = snprintf(dupstr, sizeof(dupstr),
+					    " [%"pMd" times]", dups);
 		      TEMP_SET_PT_BOTH (Z - 1, Z_BYTE - 1);
 		      insert_1_both (dupstr, duplen, duplen, 1, 0, 1);
 		    }
@@ -22587,7 +22588,7 @@ decode_mode_spec (struct window *w, register int c, int field_width,
 	       so get us a 2-digit number that is close.  */
 	    if (total == 100)
 	      total = 99;
-	    sprintf (decode_mode_spec_buf, "%2"pD"d%%", total);
+	    snprintf(decode_mode_spec_buf, SIZE_T_MAX, "%2"pD"d%%", total);
 	    return decode_mode_spec_buf;
 	  }
       }
@@ -22618,9 +22619,9 @@ decode_mode_spec (struct window *w, register int c, int field_width,
 	    if (total == 100)
 	      total = 99;
 	    if (toppos <= BUF_BEGV (b))
-	      sprintf (decode_mode_spec_buf, "Top%2"pD"d%%", total);
+	      snprintf(decode_mode_spec_buf, SIZE_T_MAX, "Top%2"pD"d%%", total);
 	    else
-	      sprintf (decode_mode_spec_buf, "%2"pD"d%%", total);
+	      snprintf(decode_mode_spec_buf, SIZE_T_MAX, "%2"pD"d%%", total);
 	    return decode_mode_spec_buf;
 	  }
       }
@@ -25558,7 +25559,7 @@ produce_glyphless_glyph(struct it *it, int for_no_font, Lisp_Object acronym)
       else
 	{
 	  eassert(it->glyphless_method == GLYPHLESS_DISPLAY_HEX_CODE);
-	  sprintf(buf, "%0*X", ((it->c < 0x10000) ? 4 : 6),
+	  snprintf(buf, sizeof(buf), "%0*X", ((it->c < 0x10000) ? 4 : 6),
                   (unsigned int)it->c);
 	  str = buf;
 	}

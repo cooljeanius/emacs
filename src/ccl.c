@@ -34,6 +34,16 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "ccl.h"
 #include "coding.h"
 
+#if defined(EMACSDEBUG) || defined(DEBUG) || defined(ENABLE_CHECKING)
+# ifndef CCL_DEBUG
+#  define CCL_DEBUG 1
+# endif /* !CCL_DEBUG */
+#endif /* EMACSDEBUG || DEBUG || ENABLE_CHECKING */
+
+#ifdef CCL_DEBUG
+extern int ccl_debug_hook(int);
+#endif /* CCL_DEBUG */
+
 Lisp_Object Qccl, Qcclp;
 
 /* This symbol is a property which associates with ccl program vector.
@@ -838,17 +848,20 @@ while (0)
    permitted.  */
 
 #ifdef CCL_DEBUG
-#define CCL_DEBUG_BACKTRACE_LEN 256
+# define CCL_DEBUG_BACKTRACE_LEN 256
 int ccl_backtrace_table[CCL_DEBUG_BACKTRACE_LEN];
 int ccl_backtrace_idx;
 
-int
-ccl_debug_hook (int ic)
+int NO_INLINE
+ccl_debug_hook(int ic)
 {
+# if defined(__GNUC__) && defined(lint)
+  asm("");
+# endif /* __GNUC__ && lint */
   return ic;
 }
 
-#endif
+#endif /* CCL_DEBUG */
 
 struct ccl_prog_stack
   {
@@ -861,7 +874,8 @@ struct ccl_prog_stack
 static struct ccl_prog_stack ccl_prog_stack_struct[256];
 
 void
-ccl_driver(struct ccl_program *ccl, int *source, int *destination, int src_size, int dst_size, Lisp_Object charset_list)
+ccl_driver(struct ccl_program *ccl, int *source, int *destination, int src_size,
+	   int dst_size, Lisp_Object charset_list)
 {
   register int *reg = ccl->reg;
   register int ic = ccl->ic;
@@ -1716,14 +1730,15 @@ ccl_driver(struct ccl_program *ccl, int *source, int *destination, int src_size,
       switch (ccl->status)
 	{
 	case CCL_STAT_INVALID_CMD:
-	  msglen = sprintf(msg,
-			   "\nCCL: Invalid command %x (ccl_code = %x) at %d.",
-			   (unsigned int)(code & 0x1F), (unsigned int)code,
-                           this_ic);
+	  msglen = snprintf(msg, sizeof(msg),
+			    "\nCCL: Invalid command %x (ccl_code = %x) at %d.",
+			    (unsigned int)(code & 0x1F), (unsigned int)code,
+			    this_ic);
 #ifdef CCL_DEBUG
 	  {
 	    int i = ccl_backtrace_idx - 1;
 	    int j;
+	    int dst_bytes = 0; /* FIXME: unsure of correct value */
 
 	    if (dst + msglen <= (dst_bytes ? dst_end : src))
 	      {
@@ -1736,7 +1751,8 @@ ccl_driver(struct ccl_program *ccl, int *source, int *destination, int src_size,
 		if (i < 0) i = CCL_DEBUG_BACKTRACE_LEN - 1;
 		if (ccl_backtrace_table[i] == 0)
 		  break;
-		msglen = sprintf (msg, " %d", ccl_backtrace_table[i]);
+		msglen = snprintf(msg, sizeof(msg), " %d",
+				  ccl_backtrace_table[i]);
 		if (dst + msglen > (dst_bytes ? dst_end : src))
 		  break;
 		memcpy (dst, msg, msglen);
@@ -1744,15 +1760,17 @@ ccl_driver(struct ccl_program *ccl, int *source, int *destination, int src_size,
 	      }
 	    goto ccl_finish;
 	  }
-#endif
+#endif /* CCL_DEBUG */
 	  break;
 
 	case CCL_STAT_QUIT:
-	  msglen = ccl->quit_silently ? 0 : sprintf (msg, "\nCCL: Quitted.");
+	  msglen = ccl->quit_silently ? 0 : snprintf(msg, sizeof(msg),
+						     "\nCCL: Quitted.");
 	  break;
 
 	default:
-	  msglen = sprintf (msg, "\nCCL: Unknown error type (%d)", ccl->status);
+	  msglen = snprintf(msg, sizeof(msg), "\nCCL: Unknown error type (%d)",
+			    ccl->status);
 	}
 
       if (msglen <= dst_end - dst)
@@ -2348,3 +2366,5 @@ used by CCL.  */);
   defsubr (&Sregister_ccl_program);
   defsubr (&Sregister_code_conversion_map);
 }
+
+/* EOF */

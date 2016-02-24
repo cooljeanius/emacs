@@ -3848,11 +3848,12 @@ char *x_get_resource_string(const char *attribute, const char *class)
 
   /* Allocate space for the components, the dots which separate them,
      and the final '\0'.  */
-  char *name_key = SAFE_ALLOCA (invocation_namelen + strlen (attribute) + 2);
-  char *class_key = alloca ((sizeof (EMACS_CLASS) - 1) + strlen (class) + 2);
+  char *name_key = SAFE_ALLOCA(invocation_namelen + strlen(attribute) + 2);
+  size_t class_key_len = ((sizeof(EMACS_CLASS) - 1UL) + strlen(class) + 2UL);
+  char *class_key = alloca(class_key_len);
 
-  esprintf (name_key, "%s.%s", SSDATA (Vinvocation_name), attribute);
-  sprintf (class_key, "%s.%s", EMACS_CLASS, class);
+  esprintf(name_key, "%s.%s", SSDATA(Vinvocation_name), attribute);
+  snprintf(class_key, class_key_len, "%s.%s", EMACS_CLASS, class);
 
   result = x_get_string_resource (FRAME_DISPLAY_INFO (sf)->xrdb,
 				  name_key, class_key);

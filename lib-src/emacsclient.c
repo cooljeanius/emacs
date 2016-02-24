@@ -406,8 +406,9 @@ w32_execvp (const char *path, char **argv)
   for (i = 0; argv[i]; i++)
     if (strchr (argv[i], ' '))
       {
-	char *quoted = alloca (strlen (argv[i]) + 3);
-	sprintf (quoted, "\"%s\"", argv[i]);
+	size_t quoted_len = (strlen(argv[i]) + 3UL);
+	char *quoted = alloca(quoted_len);
+	snprintf(quoted, quoted_len, "\"%s\"", argv[i]);
 	argv[i] = quoted;
       }
 
@@ -1205,14 +1206,15 @@ set_local_socket (const char *local_socket_name)
 	/* socket_name is a file name component.  */
 	long uid = geteuid ();
 	ptrdiff_t tmpdirlen;
+	size_t sns_len;
 	use_tmpdir = 1;
 	tmpdir = egetenv ("TMPDIR");
 	if (!tmpdir)
           {
 #ifdef DARWIN_OS
-#ifndef _CS_DARWIN_USER_TEMP_DIR
-#define _CS_DARWIN_USER_TEMP_DIR 65537
-#endif
+# ifndef _CS_DARWIN_USER_TEMP_DIR
+#  define _CS_DARWIN_USER_TEMP_DIR 65537
+# endif /* !_CS_DARWIN_USER_TEMP_DIR */
             size_t n = confstr (_CS_DARWIN_USER_TEMP_DIR, NULL, (size_t) 0);
             if (n > 0)
               {
@@ -1220,15 +1222,16 @@ set_local_socket (const char *local_socket_name)
 		confstr (_CS_DARWIN_USER_TEMP_DIR, tmpdir_storage, n);
               }
             else
-#endif
+#endif /* DARWIN_OS */
               tmpdir = "/tmp";
           }
-	tmpdirlen = strlen (tmpdir);
-	socket_name_storage =
-	  xmalloc (tmpdirlen + strlen (server_name) + EXTRA_SPACE);
-	strcpy (socket_name_storage, tmpdir);
-	sprintf (socket_name_storage + tmpdirlen, "/emacs%ld/", uid);
-	strcat (socket_name_storage + tmpdirlen, server_name);
+	tmpdirlen = strlen(tmpdir);
+	sns_len = (tmpdirlen + strlen(server_name) + EXTRA_SPACE);
+	socket_name_storage = xmalloc(sns_len);
+	strcpy(socket_name_storage, tmpdir);
+	snprintf((socket_name_storage + tmpdirlen), (sns_len + tmpdirlen),
+		 "/emacs%ld/", uid);
+	strcat((socket_name_storage + tmpdirlen), server_name);
 	local_socket_name = socket_name_storage;
       }
 
@@ -1262,14 +1265,15 @@ set_local_socket (const char *local_socket_name)
 
 	    if (pw && (pw->pw_uid != geteuid ()))
 	      {
-		/* We're running under su, apparently. */
+		/* We are running under su, apparently: */
 		long uid = pw->pw_uid;
-		ptrdiff_t tmpdirlen = strlen (tmpdir);
-		char *user_socket_name
-		  = xmalloc (tmpdirlen + strlen (server_name) + EXTRA_SPACE);
-		strcpy (user_socket_name, tmpdir);
-		sprintf (user_socket_name + tmpdirlen, "/emacs%ld/", uid);
-		strcat (user_socket_name + tmpdirlen, server_name);
+		ptrdiff_t tmpdirlen = strlen(tmpdir);
+		size_t usnlen = (tmpdirlen + strlen(server_name) + EXTRA_SPACE);
+		char *user_socket_name = xmalloc(usnlen);
+		strcpy(user_socket_name, tmpdir);
+		snprintf((user_socket_name + tmpdirlen), (usnlen + tmpdirlen),
+			 "/emacs%ld/", uid);
+		strcat((user_socket_name + tmpdirlen), server_name);
 
 		if (strlen (user_socket_name) < sizeof (server.sun_path))
 		  strcpy (server.sun_path, user_socket_name);

@@ -1018,8 +1018,8 @@ static Lisp_Object
 cmd_error (Lisp_Object data)
 {
   Lisp_Object old_level, old_length;
-  char macroerror[sizeof "After..kbd macro iterations: "
-		  + INT_STRLEN_BOUND (EMACS_INT)];
+  char macroerror[sizeof("After..kbd macro iterations: ")
+		  + INT_STRLEN_BOUND(EMACS_INT)];
 
 #ifdef HAVE_WINDOW_SYSTEM
   if (display_hourglass_p)
@@ -1029,9 +1029,11 @@ cmd_error (Lisp_Object data)
   if (!NILP (executing_kbd_macro))
     {
       if (executing_kbd_macro_iterations == 1)
-	sprintf (macroerror, "After 1 kbd macro iteration: ");
+	snprintf(macroerror, sizeof(macroerror),
+		 "After 1 kbd macro iteration: ");
       else
-	sprintf (macroerror, "After %"pI"d kbd macro iterations: ",
+	snprintf(macroerror, sizeof(macroerror),
+		 "After %"pI"d kbd macro iterations: ",
 		 executing_kbd_macro_iterations);
     }
   else
@@ -6556,9 +6558,9 @@ modify_event_symbol (ptrdiff_t symbol_num, int modifiers, Lisp_Object symbol_kin
 
       if (NILP (value))
 	{
-	  char buf[sizeof "key-" + INT_STRLEN_BOUND (EMACS_INT)];
-	  sprintf (buf, "key-%"pD"d", symbol_num);
-	  value = intern (buf);
+	  char buf[sizeof("key-") + INT_STRLEN_BOUND(EMACS_INT)];
+	  snprintf(buf, sizeof(buf), "key-%"pD"d", symbol_num);
+	  value = intern(buf);
 	}
 
       if (CONSP (*symbol_table))

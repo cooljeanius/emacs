@@ -17,6 +17,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
+/* FIXME: remove this define: */
+#ifndef NO_POISON
+# define NO_POISON 1
+#endif /* !NO_POISON */
 
 #include <config.h>
 #include <sys/types.h>
@@ -1961,7 +1965,7 @@ usage: (encode-time SECOND MINUTE HOUR DAY MONTH YEAR &optional ZONE)  */)
   else
     {
       static char const tzbuf_format[] = "XXX%s%"pI"d:%02d:%02d";
-      char tzbuf[sizeof tzbuf_format + INT_STRLEN_BOUND (EMACS_INT)];
+      char tzbuf[sizeof(tzbuf_format) + INT_STRLEN_BOUND(EMACS_INT)];
       char *old_tzstring;
       const char *tzstring;
       USE_SAFE_ALLOCA;
@@ -1972,11 +1976,11 @@ usage: (encode-time SECOND MINUTE HOUR DAY MONTH YEAR &optional ZONE)  */)
 	tzstring = SSDATA (zone);
       else if (INTEGERP (zone))
 	{
-	  EMACS_INT abszone = eabs (XINT (zone));
-	  EMACS_INT zone_hr = abszone / (60*60);
-	  int zone_min = (abszone/60) % 60;
-	  int zone_sec = abszone % 60;
-	  sprintf (tzbuf, tzbuf_format, &"-"[XINT (zone) < 0],
+	  EMACS_INT abszone = eabs(XINT(zone));
+	  EMACS_INT zone_hr = (abszone / (60 * 60));
+	  int zone_min = ((abszone / 60) % 60);
+	  int zone_sec = (abszone % 60);
+	  snprintf(tzbuf, sizeof(tzbuf), tzbuf_format, &"-"[XINT(zone) < 0],
 		   zone_hr, zone_min, zone_sec);
 	  tzstring = tzbuf;
 	}
@@ -2030,7 +2034,7 @@ but this is considered obsolete.  */)
 {
   time_t value = lisp_seconds_argument (specified_time);
   struct tm *tm;
-  char buf[sizeof "Mon Apr 30 12:49:17 " + INT_STRLEN_BOUND (int) + 1];
+  char buf[sizeof("Mon Apr 30 12:49:17 ") + INT_STRLEN_BOUND(int) + 1];
   int len IF_LINT (= 0);
 
   /* Convert to a string in ctime format, except without the trailing
@@ -2048,7 +2052,7 @@ but this is considered obsolete.  */)
 	  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
       printmax_t year_base = TM_YEAR_BASE;
 
-      len = sprintf (buf, "%s %s%3d %02d:%02d:%02d %"pMd,
+      len = snprintf(buf, sizeof(buf), "%s %s%3d %02d:%02d:%02d %"pMd,
 		     wday_name[tm->tm_wday], mon_name[tm->tm_mon], tm->tm_mday,
 		     tm->tm_hour, tm->tm_min, tm->tm_sec,
 		     tm->tm_year + year_base);
@@ -3786,7 +3790,7 @@ usage: (format STRING &rest OBJECTS)  */)
 	      break;
 	    }
 
-	  /* Ignore flags when sprintf ignores them.  */
+	  /* Ignore flags when s[n]printf ignores them.  */
 	  space_flag &= ~ plus_flag;
 	  zero_flag &= ~ minus_flag;
 

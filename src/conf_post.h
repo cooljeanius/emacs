@@ -359,6 +359,35 @@ extern void _DebPrint (const char *fmt, ...);
 # define IF_LINT(Code) /* empty */
 #endif /* lint */
 
+/* poison some unwanted functions: */
+#if (defined(__GNUC__) && defined(__GNUC_MINOR__) && (__GNUC__ >= 3)) && \
+    !defined(NO_POISON) && !defined(FLEX_SCANNER) && !defined(_IN_GNULIB)
+/* Include this first to avoid errors: */
+# if defined(HAVE_STDIO_H) || defined(STDC_HEADERS) || defined(__STDC__)
+#  include <stdio.h>
+# endif /* HAVE_STDIO_H || STDC_HEADERS || __STDC__ */
+/* I also avoid these ones in the gdb sources: */
+# pragma GCC poison strdup sprintf
+/* for similar reasons, such as gnulib also providing replacements: */
+# pragma GCC poison strndup memdup vsprintf vasprintf
+/* also consider poisoining for similar reasons: asprintf atexit exit */
+# ifndef strerror
+#  pragma GCC poison strerror
+# endif /* !strerror */
+# if defined(HAVE_STRLCPY) && defined(PREFER_BSDISMS)
+#  pragma GCC poison strcpy
+# endif /* HAVE_STRLCPY && PREFER_BSDISMS */
+# if defined(HAVE_STRLCAT) && defined(PREFER_BSDISMS)
+#  pragma GCC poison strcat
+# endif /* HAVE_STRLCAT && PREFER_BSDISMS */
+# if defined(HAVE_FGETS)
+#  pragma GCC poison gets
+# endif /* HAVE_FGETS */
+# if defined(HAVE_STRTOK_R) && defined(_REENTRANT)
+#  pragma GCC poison strtok
+# endif /* HAVE_STRTOK_R && _REENTRANT */
+#endif /* gcc3+ && !NO_POISON && !FLEX_SCANNER && !_IN_GNULIB */
+
 #endif /* !EMACS_CONF_POST_H */
 
 /* conf_post.h ends here */

@@ -13074,6 +13074,7 @@ printf "%s\n" "$as_me: autobuild timestamp... $date" >&6;}
   # Code from module fdopendir:
   # Code from module file-has-acl:
   # Code from module filemode:
+  # Code from module filevercmp:
   # Code from module flexmember:
   # Code from module float:
   # Code from module fopen:
@@ -32445,6 +32446,20 @@ _ACEOF
 ;;
   esac
 
+if test "x${ac_cv_type_max_align_t}" = "x"; then
+  test -z "${ac_cv_type_max_align_t}"
+  ac_fn_c_check_type "$LINENO" "max_align_t" "ac_cv_type_max_align_t" "$ac_includes_default"
+if test "x$ac_cv_type_max_align_t" = xyes
+then :
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_MAX_ALIGN_T 1
+_ACEOF
+
+
+fi
+  ## gnulib might also check it below...
+fi
 if test "x${enable_acl}" != "xno"; then
   ac_fn_c_check_type "$LINENO" "acl_t" "ac_cv_type_acl_t" "$ac_includes_default"
 if test "x$ac_cv_type_acl_t" = xyes
@@ -54195,15 +54210,15 @@ done
 
 fi
 for ac_func in __fpending _stricmp acl atexit atof atoi btowc bzero \
-                cuserid doprnt errc fabs fabsf floor ftime get_etext \
-                get_edata get_end geteuid getpass getpwuid inet_ntoa \
-                isascii iswprint mbrlen memmove memset mkdir munmap \
-                nl_langinfo pathconf posix_spawnp pow putenv re_comp \
-                reallocf regcomp rmdir socket sqrt strcasecmp strcasestr \
-                strchr strcmp strcspn strdup strerror stricmp strlcat \
-                strlcpy strncasecmp strncat strncmp strnicmp strnstr \
-                strpbrk strrchr strtok strtol strtoul sysctl system \
-                xstricmp utime utmpname vfprintf
+                cuserid doprnt errc fabs fabsf fgets floor ftime \
+                get_etext get_edata get_end geteuid getpass getpwuid \
+                inet_ntoa isascii iswprint mbrlen memmove memset mkdir \
+                munmap nl_langinfo pathconf posix_spawnp pow putenv \
+                re_comp reallocf regcomp rmdir socket sqrt strcasecmp \
+                strcasestr strchr strcmp strcspn strdup strerror stricmp \
+                strlcat strlcpy strncasecmp strncat strncmp strnicmp \
+                strnstr strpbrk strrchr strtok strtok_r strtol strtoul \
+                sysctl system xstricmp utime utmpname vfprintf
 do :
   as_ac_var=`printf "%s\n" "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -57166,8 +57181,13 @@ fi
 if test x"${version}" = x""; then
   if test "x${PACKAGE_VERSION}" != "x"; then
     if test -e ${srcdir}/lisp/version.el; then
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: cannot find current emacs version in \`${srcdir}/lisp/version.el', using ${PACKAGE_VERSION} instead." >&5
-printf "%s\n" "$as_me: WARNING: cannot find current emacs version in \`${srcdir}/lisp/version.el', using ${PACKAGE_VERSION} instead." >&2;}
+      if test -r ${srcdir}/lisp/version.el; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: cannot find current emacs version in \`${srcdir}/lisp/version.el', using ${PACKAGE_VERSION} instead." >&5
+printf "%s\n" "$as_me: cannot find current emacs version in \`${srcdir}/lisp/version.el', using ${PACKAGE_VERSION} instead." >&6;}
+      elif test ! -r ${srcdir}/lisp/version.el; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: cannot read current emacs version from \`${srcdir}/lisp/version.el', using ${PACKAGE_VERSION} instead." >&5
+printf "%s\n" "$as_me: WARNING: cannot read current emacs version from \`${srcdir}/lisp/version.el', using ${PACKAGE_VERSION} instead." >&2;}
+      fi
     fi
     test -z "${version}" && test -n "${PACKAGE_VERSION}" && export version="${PACKAGE_VERSION}"
   else

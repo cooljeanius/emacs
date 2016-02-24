@@ -908,9 +908,9 @@ ns_appkit_version_str (void)
   char tmp[80];
 
 #ifdef NS_IMPL_GNUSTEP
-  sprintf(tmp, "gnustep-gui-%s", Xstr(GNUSTEP_GUI_VERSION));
+  snprintf(tmp, sizeof(tmp), "gnustep-gui-%s", Xstr(GNUSTEP_GUI_VERSION));
 #elif defined (NS_IMPL_COCOA)
-  sprintf(tmp, "apple-appkit-%.2f", NSAppKitVersionNumber);
+  snprintf(tmp, sizeof(tmp), "apple-appkit-%.2f", NSAppKitVersionNumber);
 #else
   tmp = "ns-unknown";
 #endif /* NS_IMPL_GNUSTEP || NS_IMPL_COCOA */

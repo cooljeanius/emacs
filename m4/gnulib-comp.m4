@@ -100,6 +100,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module fdopendir:
   # Code from module file-has-acl:
   # Code from module filemode:
+  # Code from module filevercmp:
   # Code from module flexmember:
   # Code from module float:
   # Code from module fopen:
@@ -1320,6 +1321,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/file-has-acl.c
   lib/filemode.c
   lib/filemode.h
+  lib/filevercmp.c
+  lib/filevercmp.h
   lib/float.c
   lib/float.in.h
   lib/fopen.c

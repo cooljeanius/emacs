@@ -285,7 +285,7 @@ pop_open (char *host, char *username, char *password, int flags)
 	      "Username too long; recompile pop.c with larger ERROR_MAX");
       return (0);
     }
-  sprintf (pop_error, "USER %s", username);
+  snprintf(pop_error, sizeof(pop_error), "USER %s", username);
 
   if (sendline (server, pop_error) || getok (server))
     {
@@ -299,7 +299,7 @@ pop_open (char *host, char *username, char *password, int flags)
 	      "Password too long; recompile pop.c with larger ERROR_MAX");
       return (0);
     }
-  sprintf (pop_error, "PASS %s", password);
+  snprintf(pop_error, sizeof(pop_error), "PASS %s", password);
 
   if (sendline (server, pop_error) || getok (server))
     {
@@ -425,7 +425,7 @@ pop_list (popserver server, int message, int **IDs, int **sizes)
 
   if (message)
     {
-      sprintf (pop_error, "LIST %d", message);
+      snprintf(pop_error, sizeof(pop_error), "LIST %d", message);
       if (sendline (server, pop_error))
 	{
 	  free ((char *) *IDs);
@@ -612,7 +612,7 @@ pop_retrieve (popserver server, int message, int markfrom, char **msg_buf)
 int
 pop_retrieve_first (popserver server, int message, char **response)
 {
-  sprintf (pop_error, "RETR %d", message);
+  snprintf(pop_error, sizeof(pop_error), "RETR %d", message);
   return (pop_multi_first (server, pop_error, response));
 }
 
@@ -639,7 +639,7 @@ pop_retrieve_flush (popserver server)
 int
 pop_top_first (popserver server, int message, int lines, char **response)
 {
-  sprintf (pop_error, "TOP %d %d", message, lines);
+  snprintf(pop_error, sizeof(pop_error), "TOP %d %d", message, lines);
   return (pop_multi_first (server, pop_error, response));
 }
 
@@ -784,7 +784,7 @@ pop_delete (popserver server, int message)
       return (-1);
     }
 
-  sprintf (pop_error, "DELE %d", message);
+  snprintf(pop_error, sizeof(pop_error), "DELE %d", message);
 
   if (sendline (server, pop_error) || getok (server))
     return (-1);

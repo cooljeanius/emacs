@@ -393,7 +393,7 @@
 		A540EBEF1A0C29D40008DA29 /* abbrev.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = abbrev.c; sourceTree = "<group>"; tabWidth = 8; };
 		A540EBF01A0C29D40008DA29 /* acldef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = acldef.h; sourceTree = "<group>"; };
 		A540EBF11A0C29D40008DA29 /* alloc.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = alloc.c; sourceTree = "<group>"; tabWidth = 8; };
-		A540EBF21A0C29D40008DA29 /* alloca.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = alloca.c; sourceTree = "<group>"; };
+		A540EBF21A0C29D40008DA29 /* alloca.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = alloca.c; sourceTree = "<group>"; tabWidth = 8; };
 		A540EBF31A0C29D40008DA29 /* alloca.s */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = alloca.s; sourceTree = "<group>"; };
 		A540EBF41A0C29D40008DA29 /* atimer.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = atimer.c; sourceTree = "<group>"; tabWidth = 8; };
 		A540EBF51A0C29D40008DA29 /* atimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = atimer.h; sourceTree = "<group>"; };

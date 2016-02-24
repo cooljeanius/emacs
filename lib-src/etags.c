@@ -94,6 +94,11 @@ char pot_etags_version[] = "@(#) pot revision number is 17.38.1.4";
 # define DEBUG  false
 #endif /* DEBUG */
 
+/* FIXME: remove this: */
+#ifndef NO_POISON
+# define NO_POISON 1
+#endif /* !NO_POISON */
+
 #include <config.h>
 
 /* put this part AFTER "config.h", in case that also defines this: */

@@ -100,6 +100,11 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
    specifier says how many decimal places to show; if zero, the decimal point
    itself is omitted.  For %s and %S, the precision specifier is ignored.  */
 
+/* FIXME: remove this define: */
+#ifndef NO_POISON
+# define NO_POISON 1
+#endif /* !NO_POISON */
+
 #include <config.h>
 #include <stdio.h>
 #include <float.h>

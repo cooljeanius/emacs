@@ -3018,7 +3018,7 @@ usage: (make-network-process &rest ARGS)  */)
 	portstring = "0";
       else if (INTEGERP (service))
 	{
-	  sprintf (portbuf, "%"pI"d", XINT (service));
+	  snprintf(portbuf, sizeof(portbuf), "%"pI"d", XINT(service));
 	  portstring = portbuf;
 	}
       else
