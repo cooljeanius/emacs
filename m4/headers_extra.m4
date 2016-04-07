@@ -1,4 +1,4 @@
-# headers_extra.m4 serial 1 file starts here
+# headers_extra.m4 serial 2 file starts here
 dnl# This was originally in the emacs configure.ac file.   -*- Autoconf -*-
 
 dnl# Header checks that might be called elsewhere:
@@ -111,5 +111,63 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_HEADER_CHECKS],[
     ])dnl
   ])dnl# end seventh and final block that requires warn-on-use
 ])dnl# end macro definition
+
+dnl# AC_HEADER_STDC
+dnl# Taken from autoconf 2.69, to un-obsolete
+dnl# --------------
+AC_DEFUN([AC_HEADER_STDC],[
+AC_REQUIRE([AC_PROG_EGREP])dnl
+AC_CACHE_CHECK([for ANSI C header files],[ac_cv_header_stdc],
+[AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <stdlib.h>
+#include <stdarg.h>
+#include <string.h>
+#include <float.h>
+]])],
+		    [ac_cv_header_stdc=yes],
+		    [ac_cv_header_stdc=no])
+
+if test "x${ac_cv_header_stdc}" = "xyes"; then
+  # SunOS 4.x string.h does not declare mem*, contrary to ANSI.
+  AC_EGREP_HEADER([memchr],[string.h],[],[ac_cv_header_stdc=no])
+fi
+
+if test "x${ac_cv_header_stdc}" = "xyes"; then
+  # ISC 2.0.2 stdlib.h does not declare free, contrary to ANSI.
+  AC_EGREP_HEADER([free],[stdlib.h],[],[ac_cv_header_stdc=no])
+fi
+
+if test "x${ac_cv_header_stdc}" = "xyes"; then
+  # /bin/cc in Irix-4.0.5 gets non-ANSI ctype macros unless using -ansi.
+  AC_RUN_IFELSE([AC_LANG_SOURCE(
+[[#include <ctype.h>
+#include <stdlib.h>
+#if ((' ' & 0x0FF) == 0x020)
+# define ISLOWER(c) ('a' <= (c) && (c) <= 'z')
+# define TOUPPER(c) (ISLOWER(c) ? 'A' + ((c) - 'a') : (c))
+#else
+# define ISLOWER(c) \
+		   (('a' <= (c) && (c) <= 'i') \
+		     || ('j' <= (c) && (c) <= 'r') \
+		     || ('s' <= (c) && (c) <= 'z'))
+# define TOUPPER(c) (ISLOWER(c) ? ((c) | 0x40) : (c))
+#endif
+
+#define XOR(e, f) (((e) && !(f)) || (!(e) && (f)))
+int
+main(void)
+{
+  int i;
+  for (i = 0; i < 256; i++)
+    if (XOR(islower(i), ISLOWER(i))
+	|| (toupper(i) != TOUPPER(i)))
+      return 2;
+  return 0;
+}]])],[],[ac_cv_header_stdc=no],[:])
+fi])
+if test "x${ac_cv_header_stdc}" = "xyes"; then
+  AC_DEFINE([STDC_HEADERS],[1],
+	    [Define to 1 if you have the ANSI C header files.])
+fi
+])dnl# end definition of AC_HEADER_STDC
 
 # headers_extra.m4 ends here

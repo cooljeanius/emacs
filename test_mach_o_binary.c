@@ -60,11 +60,11 @@
 #include "src/lisp.h"
 
 /* in case gnulib re-defined this on us: */
-#ifdef strerror
+#if !defined(__clang_analyzer__) && defined(strerror)
 # if defined(_GL_STRING_H) || defined(_GL_ALREADY_INCLUDING_STRING_H)
 #  undef strerror
 # endif /* _GL_STRING_H || _GL_ALREADY_INCLUDING_STRING_H */
-#endif /* strerror */
+#endif /* !__clang_analyzer__ && strerror */
 
 int main(void)
 {

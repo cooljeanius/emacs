@@ -1,4 +1,4 @@
-# override.m4 serial 1 file starts here
+# override.m4 serial 2 file starts here
 dnl# This was originally in the emacs configure.ac file.   -*- Autoconf -*-
 dnl########################################################################
 dnl# shell-level comments with just a number on the line are a substitute
@@ -464,4 +464,20 @@ if test "x${ac_cv_header_time}" = "xyes"; then
 fi
 ])dnl# end check for time header
 # 36
+dnl# Obsolete in Autoconf 2.70; copied here from 2.69 to un-obsolete it:
+AC_DEFUN([AC_PROG_CC_STDC],
+[ AC_REQUIRE([AC_PROG_CC])dnl
+  AS_CASE([$ac_cv_prog_cc_stdc],
+    [no], [ac_cv_prog_cc_c99=no; ac_cv_prog_cc_c89=no],
+	  [_AC_PROG_CC_C99([ac_cv_prog_cc_stdc=$ac_cv_prog_cc_c99],
+	     [_AC_PROG_CC_C89([ac_cv_prog_cc_stdc=$ac_cv_prog_cc_c89],
+			      [ac_cv_prog_cc_stdc=no])])])
+  AC_MSG_CHECKING([for $CC option to accept ISO Standard C])
+  AC_CACHE_VAL([ac_cv_prog_cc_stdc], [])
+  AS_CASE([$ac_cv_prog_cc_stdc],
+    [no], [AC_MSG_RESULT([unsupported])],
+    [''], [AC_MSG_RESULT([none needed])],
+	  [AC_MSG_RESULT([$ac_cv_prog_cc_stdc])])
+])dnl# end check for standard C compiler
+# 37
 #### override.m4 ends here

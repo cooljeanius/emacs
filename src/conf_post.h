@@ -37,7 +37,7 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #include <stdbool.h>
 
-/* The pre-C99 <stdbool.h> emulation does NOY work for bool bitfields.
+/* The pre-C99 <stdbool.h> emulation does NOT work for bool bitfields.
    Nor does compiling Objective-C with standard GCC.  */
 #if (__STDC_VERSION__ < 199901) || (defined(NS_IMPL_GNUSTEP) && NS_IMPL_GNUSTEP)
 typedef unsigned int bool_bf;
@@ -371,9 +371,9 @@ extern void _DebPrint (const char *fmt, ...);
 /* for similar reasons, such as gnulib also providing replacements: */
 # pragma GCC poison strndup memdup vsprintf vasprintf
 /* also consider poisoining for similar reasons: asprintf atexit exit */
-# ifndef strerror
+# if !defined(__clang_analyzer__) && !defined(strerror)
 #  pragma GCC poison strerror
-# endif /* !strerror */
+# endif /* !__clang_analyzer__ && !strerror */
 # if defined(HAVE_STRLCPY) && defined(PREFER_BSDISMS)
 #  pragma GCC poison strcpy
 # endif /* HAVE_STRLCPY && PREFER_BSDISMS */

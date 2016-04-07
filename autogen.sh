@@ -326,6 +326,12 @@ if test -d .git && (git status -s) >/dev/null 2>&1; then
 
     git config 'diff.elisp.xfuncname' \
 		'^\(def[^[:space:]]+[[:space:]]+([^()[:space:]]+)' || exit
+    git config 'diff.m4.xfuncname' \
+		'^((m4_)?define|A._DEFUN(_ONCE)?)\([^),]*' || exit
+    git config 'diff.make.xfuncname' \
+	   '^([$.[:alnum:]_].*:|[[:alnum:]_]+[[:space:]]*([*:+]?[:?]?|!?)=|define .*)' || exit
+    git config 'diff.shell.xfuncname' \
+	   '^([[:space:]]*[[:alpha:]_][[:alnum:]_]*[[:space:]]*\(\)|[[:alpha:]_][[:alnum:]_]*=)' || exit
     git config 'diff.texinfo.xfuncname' \
 		'^@node[[:space:]]+([^,[:space:]][^,]+)' || exit
 
