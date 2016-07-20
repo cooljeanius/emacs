@@ -3563,6 +3563,7 @@ else
       gl_WARN_ADD([-Wframe-address])
       gl_WARN_ADD([-Wnull-dereference])
       gl_WARN_ADD([-Wduplicated-cond])
+      gl_WARN_ADD([-Wnonnull-compare])
       ## this got stricter, I think?
       nw="${nw} -Wbool-compare"
       ## but anyways...
@@ -3588,6 +3589,13 @@ else
   else
     AC_MSG_WARN([WERROR_CFLAGS is set, so we have to skip some warnings])
   fi  ##end check for werror flags
+
+  gl_WARN_ADD([-Wdangling-else])dnl
+  gl_WARN_ADD([-Wduplicate-decl-specifier])dnl
+  gl_WARN_ADD([-Wmemset-elt-size])dnl
+  gl_WARN_ADD([-Wswitch-unreachable])dnl
+  gl_WARN_ADD([-Whsa])dnl
+  gl_WARN_ADD([-Wscalar-storage-order])dnl
 
   AC_DEFINE([lint],[1],[Define to 1 if the compiler is checking for lint.])
   AH_VERBATIM([FORTIFY_SOURCE],

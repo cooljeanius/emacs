@@ -18922,6 +18922,46 @@ then :
 fi
 
 
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wnonnull-compare" >&5
+printf %s "checking whether C compiler handles -Wnonnull-compare... " >&6; }
+if test ${gl_cv_warn_c__Wnonnull_compare+y}
+then :
+  printf %s "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wnonnull-compare"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_warn_c__Wnonnull_compare=yes
+else
+  gl_cv_warn_c__Wnonnull_compare=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wnonnull_compare" >&5
+printf "%s\n" "$gl_cv_warn_c__Wnonnull_compare" >&6; }
+if test "x$gl_cv_warn_c__Wnonnull_compare" = xyes
+then :
+  as_fn_append WARN_CFLAGS " -Wnonnull-compare"
+fi
+
+
       ## this got stricter, I think?
       nw="${nw} -Wbool-compare"
       ## but anyways...
@@ -19119,6 +19159,241 @@ rm -f conftest.err conftest.i conftest.$ac_ext    ##...okay, that should be it.
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: WERROR_CFLAGS is set, so we have to skip some warnings" >&5
 printf "%s\n" "$as_me: WARNING: WERROR_CFLAGS is set, so we have to skip some warnings" >&2;}
   fi  ##end check for werror flags
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wdangling-else" >&5
+printf %s "checking whether C compiler handles -Wdangling-else... " >&6; }
+if test ${gl_cv_warn_c__Wdangling_else+y}
+then :
+  printf %s "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wdangling-else"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_warn_c__Wdangling_else=yes
+else
+  gl_cv_warn_c__Wdangling_else=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wdangling_else" >&5
+printf "%s\n" "$gl_cv_warn_c__Wdangling_else" >&6; }
+if test "x$gl_cv_warn_c__Wdangling_else" = xyes
+then :
+  as_fn_append WARN_CFLAGS " -Wdangling-else"
+fi
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wduplicate-decl-specifier" >&5
+printf %s "checking whether C compiler handles -Wduplicate-decl-specifier... " >&6; }
+if test ${gl_cv_warn_c__Wduplicate_decl_specifier+y}
+then :
+  printf %s "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wduplicate-decl-specifier"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_warn_c__Wduplicate_decl_specifier=yes
+else
+  gl_cv_warn_c__Wduplicate_decl_specifier=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wduplicate_decl_specifier" >&5
+printf "%s\n" "$gl_cv_warn_c__Wduplicate_decl_specifier" >&6; }
+if test "x$gl_cv_warn_c__Wduplicate_decl_specifier" = xyes
+then :
+  as_fn_append WARN_CFLAGS " -Wduplicate-decl-specifier"
+fi
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wmemset-elt-size" >&5
+printf %s "checking whether C compiler handles -Wmemset-elt-size... " >&6; }
+if test ${gl_cv_warn_c__Wmemset_elt_size+y}
+then :
+  printf %s "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wmemset-elt-size"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_warn_c__Wmemset_elt_size=yes
+else
+  gl_cv_warn_c__Wmemset_elt_size=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wmemset_elt_size" >&5
+printf "%s\n" "$gl_cv_warn_c__Wmemset_elt_size" >&6; }
+if test "x$gl_cv_warn_c__Wmemset_elt_size" = xyes
+then :
+  as_fn_append WARN_CFLAGS " -Wmemset-elt-size"
+fi
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wswitch-unreachable" >&5
+printf %s "checking whether C compiler handles -Wswitch-unreachable... " >&6; }
+if test ${gl_cv_warn_c__Wswitch_unreachable+y}
+then :
+  printf %s "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wswitch-unreachable"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_warn_c__Wswitch_unreachable=yes
+else
+  gl_cv_warn_c__Wswitch_unreachable=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wswitch_unreachable" >&5
+printf "%s\n" "$gl_cv_warn_c__Wswitch_unreachable" >&6; }
+if test "x$gl_cv_warn_c__Wswitch_unreachable" = xyes
+then :
+  as_fn_append WARN_CFLAGS " -Wswitch-unreachable"
+fi
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Whsa" >&5
+printf %s "checking whether C compiler handles -Whsa... " >&6; }
+if test ${gl_cv_warn_c__Whsa+y}
+then :
+  printf %s "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Whsa"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_warn_c__Whsa=yes
+else
+  gl_cv_warn_c__Whsa=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Whsa" >&5
+printf "%s\n" "$gl_cv_warn_c__Whsa" >&6; }
+if test "x$gl_cv_warn_c__Whsa" = xyes
+then :
+  as_fn_append WARN_CFLAGS " -Whsa"
+fi
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wscalar-storage-order" >&5
+printf %s "checking whether C compiler handles -Wscalar-storage-order... " >&6; }
+if test ${gl_cv_warn_c__Wscalar_storage_order+y}
+then :
+  printf %s "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wscalar-storage-order"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_warn_c__Wscalar_storage_order=yes
+else
+  gl_cv_warn_c__Wscalar_storage_order=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wscalar_storage_order" >&5
+printf "%s\n" "$gl_cv_warn_c__Wscalar_storage_order" >&6; }
+if test "x$gl_cv_warn_c__Wscalar_storage_order" = xyes
+then :
+  as_fn_append WARN_CFLAGS " -Wscalar-storage-order"
+fi
+
 
 
 printf "%s\n" "#define lint 1" >>confdefs.h
