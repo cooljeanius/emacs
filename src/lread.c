@@ -3151,11 +3151,11 @@ read1 (Lisp_Object readcharfun, int *pch, bool first_in_list)
     case '.':
       {
 	int next_char = READCHAR;
-	UNREAD (next_char);
+	UNREAD(next_char);
 
-	if (next_char <= 040
-	    || (next_char < 0200
-		&& strchr ("\"';([#?`,", next_char) != NULL))
+	if ((next_char <= 040)
+	    || ((next_char < 0200)
+		&& (strchr("\"';([#?`,", next_char) != NULL)))
 	  {
 	    *pch = c;
 	    return Qnil;
@@ -3164,6 +3164,7 @@ read1 (Lisp_Object readcharfun, int *pch, bool first_in_list)
 	/* Otherwise, we fall through!  Note that the atom-reading loop
 	   below will now loop at least once, assuring that we will not
 	   try to UNREAD two characters in a row.  */
+	ATTRIBUTE_FALLTHROUGH;
       }
     default:
     default_label:

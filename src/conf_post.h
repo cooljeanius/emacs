@@ -239,6 +239,15 @@ extern void _DebPrint (const char *fmt, ...);
 # define EXTERNALLY_VISIBLE
 #endif /* __clang__ || gcc 4.1+ */
 
+/* Added in gcc 7: */
+#ifndef ATTRIBUTE_FALLTHROUGH
+# if (__GNUC__ >= 7)
+#  define ATTRIBUTE_FALLTHROUGH __attribute__((fallthrough))
+# else
+#  define ATTRIBUTE_FALLTHROUGH /* FALLTHRU */
+# endif /* gcc 7+ */
+#endif /* !ATTRIBUTE_FALLTHROUGH */
+
 #if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7)
 # define ATTRIBUTE_FORMAT(spec) __attribute__ ((__format__ spec))
 #else

@@ -3596,8 +3596,15 @@ else
   gl_WARN_ADD([-Wswitch-unreachable])dnl
   gl_WARN_ADD([-Whsa])dnl
   gl_WARN_ADD([-Wscalar-storage-order])dnl
+  gl_WARN_ADD([-Wimplicit-fallthrough])dnl
+  gl_COMPILER_OPTION_IF([-Wformat-length=2],
+                        [WARN_CFLAGS="${WARN_CFLAGS} -Wformat-length=2"],
+                        [gl_WARN_ADD([-Wformat-length])])
+  gl_WARN_ADD([-Wexpansion-to-defined])dnl
+  gl_WARN_ADD([-Wrestrict])dnl
 
   AC_DEFINE([lint],[1],[Define to 1 if the compiler is checking for lint.])
+  AC_DEFINE([GCC_LINT],[1],[Define to 1 if --enable-gcc-warnings.])
   AH_VERBATIM([FORTIFY_SOURCE],
   [/* Enable compile-time and run-time bounds-checking, and some warnings,
     * without upsetting glibc 2.15+. */

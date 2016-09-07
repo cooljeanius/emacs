@@ -498,15 +498,10 @@ emacs_gnutls_handle_error (gnutls_session_t session, int err)
       switch (err)
         {
         case GNUTLS_E_AGAIN:
-          GNUTLS_LOG2 (3,
-                       max_log_level,
-                       "retry:",
-                       str);
+          GNUTLS_LOG2(3, max_log_level, "retry:", str);
+	  break; /* -Wimplicit-fallthrough */
         default:
-          GNUTLS_LOG2 (1,
-                       max_log_level,
-                       "non-fatal error:",
-                       str);
+          GNUTLS_LOG2(1, max_log_level, "non-fatal error:", str);
         }
     }
 

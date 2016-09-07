@@ -15,7 +15,7 @@ depcomp
 dumpemacs
 emacswrapper
 isemacsvalid
-install-sh
+# allow install-sh for the configure script
 ldd.sh
 libtool
 missing
