@@ -1020,6 +1020,7 @@ ccl_driver(struct ccl_program *ccl, int *source, int *destination, int src_size,
 	case CCL_ReadBranch:	/* CCCCCCCCCCCCCCCCCCCCrrrXXXXX */
 	  CCL_READ_CHAR (reg[rrr]);
 	  /* fall through ... */
+	  ATTRIBUTE_FALLTHROUGH;
 	case CCL_Branch:	/* CCCCCCCCCCCCCCCCCCCCrrrXXXXX */
 	{
 	  int ioff = 0 <= reg[rrr] && reg[rrr] < field1 ? reg[rrr] : field1;
@@ -1193,6 +1194,7 @@ ccl_driver(struct ccl_program *ccl, int *source, int *destination, int src_size,
 
 	case CCL_ReadJumpCondExprConst: /* A--D--D--R--E--S--S-rrrXXXXX */
 	  CCL_READ_CHAR (reg[rrr]);
+	  ATTRIBUTE_FALLTHROUGH;
 	case CCL_JumpCondExprConst: /* A--D--D--R--E--S--S-rrrXXXXX */
 	  i = reg[rrr];
 	  jump_address = ic + ADDR;
@@ -1203,6 +1205,7 @@ ccl_driver(struct ccl_program *ccl, int *source, int *destination, int src_size,
 
 	case CCL_ReadJumpCondExprReg: /* A--D--D--R--E--S--S-rrrXXXXX */
 	  CCL_READ_CHAR (reg[rrr]);
+	  ATTRIBUTE_FALLTHROUGH;
 	case CCL_JumpCondExprReg:
 	  i = reg[rrr];
 	  jump_address = ic + ADDR;

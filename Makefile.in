@@ -1386,8 +1386,12 @@ apple_helper_executables: $(APPLE_AUX_EXES)
 	@if test ! -d $(analysisdir); then $(MKDIR_P) $(analysisdir); fi
 	$(RUN_CLANG_ANALYZER) -Wall -Wextra -o $(analysisdir)/$@ $< 
 
-apple_check: isemacsvalid.plist runit.plist dumpemacs.plist \
-  emacswrapper.plist test_mach_o_binary.plist @MAINT@ unexmacosx.plist
+apple_check: bo.h src/version.h isemacsvalid.plist runit.plist \
+  dumpemacs.plist emacswrapper.plist \
+  test_mach_o_binary.plist @MAINT@ unexmacosx.plist
+	if test -d src && test ! -e src/version.h; then \
+	  $(MAKE) -C src version.h; \
+	fi
 	if test -x test_mach_o_binary; then ./test_mach_o_binary; fi
 	cd machocheck && $(MAKE) $(MFLAGS) check
 .PHONY: apple_check

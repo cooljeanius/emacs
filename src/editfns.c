@@ -3791,8 +3791,9 @@ usage: (format STRING &rest OBJECTS)  */)
 	    }
 
 	  /* Ignore flags when s[n]printf ignores them.  */
-	  space_flag &= ~ plus_flag;
-	  zero_flag &= ~ minus_flag;
+	  space_flag &= !plus_flag;
+	  zero_flag &= !minus_flag;
+	  /* ('~'s changed to '!'s per -Wbool-operation) */
 
 	  {
 	    uintmax_t w = strtoumax (format, &num_end, 10);
@@ -3983,11 +3984,11 @@ usage: (format STRING &rest OBJECTS)  */)
 		   precision is no more than USEFUL_PRECISION_MAX.
 		   On all practical hosts, %f is the worst case.  */
 		SPRINTF_BUFSIZE =
-		  sizeof "-." + (DBL_MAX_10_EXP + 1) + USEFUL_PRECISION_MAX,
+		  sizeof("-.") + (DBL_MAX_10_EXP + 1) + USEFUL_PRECISION_MAX,
 
 		/* Length of pM (that is, of pMd without the
 		   trailing "d").  */
-		pMlen = sizeof pMd - 2
+		pMlen = sizeof(pMd) - 2
 	      };
 	      verify (USEFUL_PRECISION_MAX > 0);
 
@@ -4000,7 +4001,7 @@ usage: (format STRING &rest OBJECTS)  */)
 
 	      /* Copy of conversion specification, modified somewhat.
 		 At most three flags F can be specified at once.  */
-	      char convspec[sizeof "%FFF.*d" + pMlen];
+	      char convspec[sizeof("%FFF.*d") + pMlen];
 
 	      /* Avoid undefined behavior in underlying sprintf.  */
 	      if (conversion == 'd' || conversion == 'i')
@@ -4025,7 +4026,8 @@ usage: (format STRING &rest OBJECTS)  */)
 		  {
 		    memcpy (f, pMd, pMlen);
 		    f += pMlen;
-		    zero_flag &= ~ precision_given;
+		    /* '~' changed to '!' per -Wbool-operation: */
+		    zero_flag &= !precision_given;
 		  }
 		*f++ = conversion;
 		*f = '\0';

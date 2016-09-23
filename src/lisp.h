@@ -2495,9 +2495,9 @@ enum
 /* A character, declared with the following typedef, is a member
    of some character set associated with the current buffer.  */
 #ifndef _UCHAR_T  /* Protect against something in ctab.h on AIX.  */
-#define _UCHAR_T
+# define _UCHAR_T
 typedef unsigned char UCHAR;
-#endif
+#endif /* !_UCHAR_T */
 
 /* Meanings of slots in a Lisp_Compiled:  */
 
@@ -3289,7 +3289,7 @@ struct gcpro
 
 #ifdef DEBUG_GCPRO
   int level;
-#endif
+#endif /* DEBUG_GCPRO */
 };
 
 /* Values of GC_MARK_STACK during compilation:
@@ -3312,8 +3312,8 @@ struct gcpro
 #define GC_USE_GCPROS_CHECK_ZOMBIES	3
 
 #ifndef GC_MARK_STACK
-#define GC_MARK_STACK GC_MAKE_GCPROS_NOOPS
-#endif
+# define GC_MARK_STACK GC_MAKE_GCPROS_NOOPS
+#endif /* !GC_MARK_STACK */
 
 /* Whether we do the stack marking manually.  */
 #define BYTE_MARK_STACK !(GC_MARK_STACK == GC_MAKE_GCPROS_NOOPS		\
@@ -4369,7 +4369,7 @@ extern Lisp_Object tool_bar_items (Lisp_Object, int *);
 extern void discard_mouse_events (void);
 #ifdef USABLE_SIGIO
 void handle_input_available_signal (int);
-#endif
+#endif /* USABLE_SIGIO */
 extern Lisp_Object pending_funcalls;
 extern bool detect_input_pending (void);
 extern bool detect_input_pending_ignore_squeezables (void);
@@ -4417,7 +4417,7 @@ extern _Noreturn void terminate_due_to_signal (int, int);
 extern Lisp_Object Qkill_emacs;
 #ifdef WINDOWSNT
 extern Lisp_Object Vlibrary_cache;
-#endif
+#endif /* WINDOWSNT */
 #if HAVE_SETLOCALE
 void fixup_locale (void);
 void synchronize_system_messages_locale (void);
@@ -4469,7 +4469,7 @@ extern void delete_keyboard_wait_descriptor (int);
 #ifdef HAVE_GPM
 extern void add_gpm_wait_descriptor (int);
 extern void delete_gpm_wait_descriptor (int);
-#endif
+#endif /* HAVE_GPM */
 extern void init_process_emacs (void);
 extern void syms_of_process (void);
 extern void setup_process_coding_systems (Lisp_Object);
@@ -4477,7 +4477,7 @@ extern void setup_process_coding_systems (Lisp_Object);
 /* Defined in callproc.c.  */
 #ifndef DOS_NT
  _Noreturn
-#endif
+#endif /* !DOS_NT */
 extern int child_setup (int, int, int, char **, bool, Lisp_Object);
 extern void init_callproc_1 (void);
 extern void init_callproc (void);
@@ -4496,7 +4496,7 @@ extern void syms_of_bytecode (void);
 extern struct byte_stack *byte_stack_list;
 #if BYTE_MARK_STACK
 extern void mark_byte_stack (void);
-#endif
+#endif /* BYTE_MARK_STACK */
 extern void unmark_byte_stack (void);
 extern Lisp_Object exec_byte_code (Lisp_Object, Lisp_Object, Lisp_Object,
 				   Lisp_Object, ptrdiff_t, Lisp_Object *);
@@ -4541,7 +4541,7 @@ struct terminal;
 /* Defined in sysdep.c.  */
 #ifndef HAVE_GET_CURRENT_DIR_NAME
 extern char *get_current_dir_name (void);
-#endif
+#endif /* !HAVE_GET_CURRENT_DIR_NAME */
 extern void stuff_char (char c);
 extern void init_foreground_group (void);
 extern void init_sigio (int);
@@ -4616,23 +4616,23 @@ extern void syms_of_fontset (void);
 
 /* Defined in xfns.c, w32fns.c, or macfns.c.  */
 extern Lisp_Object Qfont_param;
-#endif
+#endif /* HAVE_WINDOW_SYSTEM */
 
 /* Defined in gfilenotify.c */
 #ifdef HAVE_GFILENOTIFY
 extern void globals_of_gfilenotify (void);
 extern void syms_of_gfilenotify (void);
-#endif
+#endif /* HAVE_GFILENOTIFY */
 
 /* Defined in inotify.c */
 #ifdef HAVE_INOTIFY
 extern void syms_of_inotify (void);
-#endif
+#endif /* HAVE_INOTIFY */
 
 #ifdef HAVE_W32NOTIFY
 /* Defined on w32notify.c.  */
 extern void syms_of_w32notify (void);
-#endif
+#endif /* HAVE_W32NOTIFY */
 
 /* Defined in xfaces.c.  */
 extern Lisp_Object Qdefault, Qtool_bar, Qfringe;
@@ -4693,17 +4693,17 @@ extern void init_mac_osx_environment (void);
 /* Defined in xml.c.  */
 extern void syms_of_xml (void);
 extern void xml_cleanup_parser (void);
-#endif
+#endif /* HAVE_LIBXML2 */
 
 #ifdef HAVE_ZLIB
 /* Defined in decompress.c.  */
 extern void syms_of_decompress (void);
-#endif
+#endif /* HAVE_ZLIB */
 
 #ifdef HAVE_DBUS
 /* Defined in dbusbind.c.  */
 void syms_of_dbusbind (void);
-#endif
+#endif /* HAVE_DBUS */
 
 
 /* Defined in profiler.c.  */

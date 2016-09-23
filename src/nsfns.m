@@ -2944,6 +2944,7 @@ handlePanelKeys (NSSavePanel *panel, NSEvent *theEvent)
                              to:nil from:panel];
               ret = YES;
             }
+	  ATTRIBUTE_FALLTHROUGH;
         default:
           // Send all control keys, as the text field supports C-a, C-f, C-e
           // C-b and more.

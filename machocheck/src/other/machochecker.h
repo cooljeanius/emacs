@@ -10,6 +10,15 @@
 
 #include <stdarg.h>
 
+/* Added in gcc 7: */
+#ifndef ATTRIBUTE_FALLTHROUGH
+# if defined(__GNUC__) && (__GNUC__ >= 7)
+#  define ATTRIBUTE_FALLTHROUGH __attribute__((fallthrough))
+# else
+#  define ATTRIBUTE_FALLTHROUGH /* FALLTHRU */
+# endif /* gcc 7+ */
+#endif /* !ATTRIBUTE_FALLTHROUGH */
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */

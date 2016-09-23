@@ -3199,8 +3199,9 @@ specbind (Lisp_Object symbol, Lisp_Object value)
 	set_internal (symbol, value, Qnil, 1);
       break;
     case SYMBOL_LOCALIZED:
-      if (SYMBOL_BLV (sym)->frame_local)
-	error ("Frame-local vars cannot be let-bound");
+      if (SYMBOL_BLV(sym)->frame_local)
+	error("Frame-local vars cannot be let-bound");
+      ATTRIBUTE_FALLTHROUGH; /* XXX really fallthru? */
     case SYMBOL_FORWARDED:
       {
 	Lisp_Object ovalue = find_symbol_value (symbol);
@@ -3380,7 +3381,7 @@ unbind_to (ptrdiff_t count, Lisp_Object value)
                 /* FALLTHROUGH!!
 		 * NOTE: we only ever come here if make_local_foo was used
                  * for the first time on this var within this let.  */
-                ;
+                ATTRIBUTE_FALLTHROUGH;
 	      }
 	  }
 	case SPECPDL_LET_DEFAULT:
@@ -3587,7 +3588,7 @@ backtrace_eval_unrewind (int distance)
 	      { /* FALLTHROUGH!!
 		 * NOTE: we only ever come here if make_local_foo was used
                  * for the first time on this var within this let.  */
-                ;
+                ATTRIBUTE_FALLTHROUGH;
 	      }
 	  }
 	case SPECPDL_LET_DEFAULT:
@@ -3739,6 +3740,7 @@ mark_specpdl (void)
 	case SPECPDL_LET_LOCAL:
 	  mark_object (specpdl_where (pdl));
 	  /* Fall through: */
+	  ATTRIBUTE_FALLTHROUGH;
 	case SPECPDL_LET:
 	  mark_object (specpdl_symbol (pdl));
 	  mark_object (specpdl_old_value (pdl));

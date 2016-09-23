@@ -6,19 +6,18 @@ configure*.scan
 autoscan.log
 aclocal.m4
 bo.h
-compile
-config.guess
-config.sub
+# allow compile for the configure script
+# allow config.guess and config.sub for the configure script
 config.log
 conf*/*.awk
-depcomp
+# allow depcomp for the configure script
 dumpemacs
 emacswrapper
 isemacsvalid
 # allow install-sh for the configure script
 ldd.sh
 libtool
-missing
+# allow missing for the configure script
 # allow gnulib's automake-generated Makefile.in, for the same reason
 # as allowing the configure script
 po/Makevars

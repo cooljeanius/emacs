@@ -1181,7 +1181,8 @@ void MachOChecker<A>::checkInitTerms()
 					case S_MOD_TERM_FUNC_POINTERS:
 						kind = "terminator";
 						inits_and_terms_checked++;
-						// fall through
+						// fall through:
+						ATTRIBUTE_FALLTHROUGH;
 					case S_MOD_INIT_FUNC_POINTERS:
 						count = (uint32_t)(sect->size() / sizeof(pint_t));
 						if ((count * sizeof(pint_t)) != sect->size())

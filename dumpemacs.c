@@ -42,6 +42,7 @@ int main(int argc, char *argv[])
   const char *newargs[5];
 
   umask((mode_t)022U);
+  printf("Hello from dumpemacs.c.\n");
   while ((ch = getopt(argc, argv, "Vdfnv")) != -1) {
     switch (ch) {
     case 'd':

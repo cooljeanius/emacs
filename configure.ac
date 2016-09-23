@@ -86,6 +86,11 @@ done
 AC_CONFIG_HEADERS([src/config.h:src/config.in])
 AC_CONFIG_SRCDIR([src/lisp.h])
 AC_CONFIG_AUX_DIR([build-aux])
+m4_ifdef([AC_REQUIRE_AUX_FILE],[
+  AC_REQUIRE_AUX_FILE([compile])dnl
+  AC_REQUIRE_AUX_FILE([depcomp])dnl
+  AC_REQUIRE_AUX_FILE([missing])dnl
+])dnl
 dnl# automake 1.13 and later understand this, making -I m4 unnecessary.
 dnl# With older versions this is a no-op:
 AC_CONFIG_MACRO_DIR([m4])
@@ -3551,7 +3556,7 @@ else
       AC_MSG_NOTICE([skipping checks for warnings for gcc 5.0 or newer])
     ])dnl# end block of code for gcc 5
 
-    dnl# to be added in a future version of gcc:
+    dnl# gcc 6 has been released:
     gl_GCC_VERSION_IFELSE([6],[0],[
       gl_WARN_ADD([-Wmisleading-indentation])
       gl_WARN_ADD([-Woverride-init-side-effects])
@@ -3584,12 +3589,13 @@ else
       fi  ##end check for LTO
     ],[
       AC_MSG_NOTICE([skipping checks for warnings for gcc 6.0 or newer])
-    ])dnl# end block of code for gcc trunk
+    ])dnl# end block of code for gcc 6
     ##...okay, that should be it.
   else
     AC_MSG_WARN([WERROR_CFLAGS is set, so we have to skip some warnings])
   fi  ##end check for werror flags
 
+  dnl# to be added in a future version of gcc:
   gl_WARN_ADD([-Wdangling-else])dnl
   gl_WARN_ADD([-Wduplicate-decl-specifier])dnl
   gl_WARN_ADD([-Wmemset-elt-size])dnl
@@ -3602,6 +3608,20 @@ else
                         [gl_WARN_ADD([-Wformat-length])])
   gl_WARN_ADD([-Wexpansion-to-defined])dnl
   gl_WARN_ADD([-Wrestrict])dnl
+  gl_WARN_ADD([-Wint-in-bool-context])dnl
+  gl_WARN_ADD([-Wpointer-compare])dnl
+  gl_WARN_ADD([-Wbool-operation])dnl
+  ## -faligned-new is checked later:
+  if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
+    AC_LANG_PUSH([C++])dnl
+    gl_COMPILER_OPTION_IF([-Waligned-new=all],
+                      [WARN_CXXFLAGS="${WARN_CXXFLAGS} -Waligned-new=all"],
+                      [gl_WARN_ADD([-Waligned-new],[WARN_CXXFLAGS])])
+    gl_WARN_ADD([-Wbuiltin-function-redefined],[WARN_CXXFLAGS])
+    AC_LANG_POP
+  else
+    AC_MSG_NOTICE([-Waligned-new is only relevant for C++, skipping it])
+  fi  ##end check for C++ compiler
 
   AC_DEFINE([lint],[1],[Define to 1 if the compiler is checking for lint.])
   AC_DEFINE([GCC_LINT],[1],[Define to 1 if --enable-gcc-warnings.])
@@ -4329,6 +4349,11 @@ if test "x${gl_better_debugging}" = "xyes"; then
                 [BETTER_DEBUG_CFLAGS])
     gl_WARN_ADD([-falign-jumps=${ac_cv_alignof_char_p}],
                 [BETTER_DEBUG_CFLAGS])
+    AC_LANG_PUSH([C++])dnl
+    gl_WARN_ADD([-faligned-new=${ac_cv_alignof_char_p}],
+                [BETTER_DEBUG_CXXFLAGS])
+    AC_SUBST([BETTER_DEBUG_CXXFLAGS])
+    AC_LANG_POP
   fi
 fi  
 

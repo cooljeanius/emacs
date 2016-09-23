@@ -2290,7 +2290,8 @@ read_escape (Lisp_Object readcharfun, bool stringp)
     case 'C':
       c = READCHAR;
       if (c != '-')
-	error ("Invalid escape character syntax");
+	error("Invalid escape character syntax");
+      ATTRIBUTE_FALLTHROUGH; /* XXX really fallthru? */
     case '^':
       c = READCHAR;
       if (c == '\\')
@@ -2381,6 +2382,7 @@ read_escape (Lisp_Object readcharfun, bool stringp)
     case 'U':
       /* Post-Unicode-2.0: Up to eight hex chars.  */
       unicode_hex_count = 8;
+      ATTRIBUTE_FALLTHROUGH; /* XXX really fallthru? */
     case 'u':
 
       /* A Unicode escape.  We only permit them in strings and characters,

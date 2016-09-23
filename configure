@@ -1983,6 +1983,7 @@ PKG_CONFIG
 pre_PKG_CONFIG_LIBS
 pre_PKG_CONFIG_CFLAGS
 LIB_MATH
+BETTER_DEBUG_CXXFLAGS
 LIBS_SYSTEM
 LIBRARY_PATH
 C_SWITCH_SYSTEM_TEMACS
@@ -4812,6 +4813,7 @@ fi
 ac_config_guess="$SHELL $ac_aux_dir/config.guess"  # Please don't use this var.
 ac_config_sub="$SHELL $ac_aux_dir/config.sub"  # Please don't use this var.
 ac_configure="$SHELL $ac_aux_dir/configure"  # Please don't use this var.
+
 
 
 
@@ -19591,6 +19593,259 @@ then :
 fi
 
 
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wint-in-bool-context" >&5
+printf %s "checking whether C compiler handles -Wint-in-bool-context... " >&6; }
+if test ${gl_cv_warn_c__Wint_in_bool_context+y}
+then :
+  printf %s "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wint-in-bool-context"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_warn_c__Wint_in_bool_context=yes
+else
+  gl_cv_warn_c__Wint_in_bool_context=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wint_in_bool_context" >&5
+printf "%s\n" "$gl_cv_warn_c__Wint_in_bool_context" >&6; }
+if test "x$gl_cv_warn_c__Wint_in_bool_context" = xyes
+then :
+  as_fn_append WARN_CFLAGS " -Wint-in-bool-context"
+fi
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wpointer-compare" >&5
+printf %s "checking whether C compiler handles -Wpointer-compare... " >&6; }
+if test ${gl_cv_warn_c__Wpointer_compare+y}
+then :
+  printf %s "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wpointer-compare"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_warn_c__Wpointer_compare=yes
+else
+  gl_cv_warn_c__Wpointer_compare=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wpointer_compare" >&5
+printf "%s\n" "$gl_cv_warn_c__Wpointer_compare" >&6; }
+if test "x$gl_cv_warn_c__Wpointer_compare" = xyes
+then :
+  as_fn_append WARN_CFLAGS " -Wpointer-compare"
+fi
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wbool-operation" >&5
+printf %s "checking whether C compiler handles -Wbool-operation... " >&6; }
+if test ${gl_cv_warn_c__Wbool_operation+y}
+then :
+  printf %s "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wbool-operation"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_warn_c__Wbool_operation=yes
+else
+  gl_cv_warn_c__Wbool_operation=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wbool_operation" >&5
+printf "%s\n" "$gl_cv_warn_c__Wbool_operation" >&6; }
+if test "x$gl_cv_warn_c__Wbool_operation" = xyes
+then :
+  as_fn_append WARN_CFLAGS " -Wbool-operation"
+fi
+
+  ## -faligned-new is checked later:
+  if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
+    ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C++ compiler handles -Waligned-new=all" >&5
+printf %s "checking whether C++ compiler handles -Waligned-new=all... " >&6; }
+if test ${gl_cv_warn_cxx__Waligned_new_all+y}
+then :
+  printf %s "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CXXFLAGS"
+  as_fn_append CXXFLAGS " $gl_unknown_warnings_are_errors -Waligned-new=all"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"
+then :
+  gl_cv_warn_cxx__Waligned_new_all=yes
+else
+  gl_cv_warn_cxx__Waligned_new_all=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CXXFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_cxx__Waligned_new_all" >&5
+printf "%s\n" "$gl_cv_warn_cxx__Waligned_new_all" >&6; }
+if test "x$gl_cv_warn_cxx__Waligned_new_all" = xyes
+then :
+  WARN_CXXFLAGS="${WARN_CXXFLAGS} -Waligned-new=all"
+else
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C++ compiler handles -Waligned-new" >&5
+printf %s "checking whether C++ compiler handles -Waligned-new... " >&6; }
+if test ${gl_cv_warn_cxx__Waligned_new+y}
+then :
+  printf %s "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CXXFLAGS"
+  as_fn_append CXXFLAGS " $gl_unknown_warnings_are_errors -Waligned-new"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"
+then :
+  gl_cv_warn_cxx__Waligned_new=yes
+else
+  gl_cv_warn_cxx__Waligned_new=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CXXFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_cxx__Waligned_new" >&5
+printf "%s\n" "$gl_cv_warn_cxx__Waligned_new" >&6; }
+if test "x$gl_cv_warn_cxx__Waligned_new" = xyes
+then :
+  as_fn_append WARN_CXXFLAGS " -Waligned-new"
+fi
+
+
+fi
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C++ compiler handles -Wbuiltin-function-redefined" >&5
+printf %s "checking whether C++ compiler handles -Wbuiltin-function-redefined... " >&6; }
+if test ${gl_cv_warn_cxx__Wbuiltin_function_redefined+y}
+then :
+  printf %s "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CXXFLAGS"
+  as_fn_append CXXFLAGS " $gl_unknown_warnings_are_errors -Wbuiltin-function-redefined"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"
+then :
+  gl_cv_warn_cxx__Wbuiltin_function_redefined=yes
+else
+  gl_cv_warn_cxx__Wbuiltin_function_redefined=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CXXFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_cxx__Wbuiltin_function_redefined" >&5
+printf "%s\n" "$gl_cv_warn_cxx__Wbuiltin_function_redefined" >&6; }
+if test "x$gl_cv_warn_cxx__Wbuiltin_function_redefined" = xyes
+then :
+  as_fn_append WARN_CXXFLAGS " -Wbuiltin-function-redefined"
+fi
+
+
+    ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+  else
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: -Waligned-new is only relevant for C++, skipping it" >&5
+printf "%s\n" "$as_me: -Waligned-new is only relevant for C++, skipping it" >&6;}
+  fi  ##end check for C++ compiler
+
 
 printf "%s\n" "#define lint 1" >>confdefs.h
 
@@ -33501,6 +33756,64 @@ then :
   as_fn_append BETTER_DEBUG_CFLAGS " -falign-jumps=${ac_cv_alignof_char_p}"
 fi
 
+
+    ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+as_gl_Warn=`printf "%s\n" "gl_cv_warn_cxx_-faligned-new=${ac_cv_alignof_char_p}" | $as_tr_sh`
+gl_positive="-faligned-new=${ac_cv_alignof_char_p}"
+case $gl_positive in
+  -Wno-*) gl_positive=-W`expr "X$gl_positive" : 'X-Wno-\(.*\)'` ;;
+esac
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C++ compiler handles -faligned-new=${ac_cv_alignof_char_p}" >&5
+printf %s "checking whether C++ compiler handles -faligned-new=${ac_cv_alignof_char_p}... " >&6; }
+if eval test \${$as_gl_Warn+y}
+then :
+  printf %s "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CXXFLAGS"
+  as_fn_append CXXFLAGS " $gl_unknown_warnings_are_errors $gl_positive"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"
+then :
+  eval "$as_gl_Warn=yes"
+else
+  eval "$as_gl_Warn=no"
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CXXFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+eval ac_res=\$$as_gl_Warn
+	       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+printf "%s\n" "$ac_res" >&6; }
+if eval test \"x\$"$as_gl_Warn"\" = x"yes"
+then :
+  as_fn_append BETTER_DEBUG_CXXFLAGS " -faligned-new=${ac_cv_alignof_char_p}"
+fi
+
+
+
+    ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
   fi
 fi

@@ -3529,6 +3529,7 @@ C_entries (int c_ext, FILE *inf)
 		    make_C_tag (false);	/* forward declaration */
 		  else
 		    token.valid = false;
+		  ATTRIBUTE_FALLTHROUGH;
 		} /* switch (fvdef) */
 	      /* FALLTHRU */
 	    default:

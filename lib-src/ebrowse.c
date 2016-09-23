@@ -3049,7 +3049,7 @@ class_definition (struct sym *containing, int tag, int flags, int nested)
               while (!LOOKING_AT3 (';', YYEOF, '{'))
                 MATCH ();
 	      done = 1;
-
+	      ATTRIBUTE_FALLTHROUGH;
             case '{':
               done = 1;
 	      break;
@@ -3173,6 +3173,7 @@ declaration (int flags)
 	      free (id);
 	      return;
 	    }
+	  break; /* -Wimplicit-fallthrough */
 
         case '=':
           /* Assumed to be the start of an initialization in this
