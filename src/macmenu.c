@@ -1245,7 +1245,7 @@ for instance using the window manager, then this produces a quit and
     {
       OSStatus err = noErr;
       AlertStdCFStringAlertParamRec param;
-      CFStringRef error_string, explanation_string;
+      CFStringRef error_string, explanation_string = CFSTR("_______");
       DialogRef alert;
       DialogItemIndex item_hit;
       Lisp_Object tem;
@@ -2731,10 +2731,11 @@ create_and_show_dialog(FRAME_PTR f, widget_value *first_wv)
   const char *dialog_name, *message;
   int nb_buttons, first_group_count, i, result = 0;
   widget_value *wv;
-  short buttons_height, text_height, inner_width, inner_height;
-  Rect empty_rect, *rects;
+  short buttons_height = 0, text_height = 0, inner_width = 0, inner_height = 0;
+  Rect empty_rect;
+  Rect *rects =  NULL;
   WindowRef window = NULL;
-  ControlRef *buttons, default_button = NULL, text;
+  ControlRef *buttons = NULL, default_button = NULL, text;
 
   dialog_name = first_wv->name;
   nb_buttons = (dialog_name[1] - '0');

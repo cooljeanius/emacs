@@ -1,4 +1,4 @@
-/* Implements a lightweight menubar widget.
+/* xlwmenu.c: Implements a lightweight menubar widget.
 
 Copyright (C) 1992 Lucid, Inc.
 Copyright (C) 1994-1995, 1997, 1999-2014 Free Software Foundation, Inc.
@@ -19,6 +19,11 @@ You should have received a copy of the GNU General Public License
 along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 /* Created by devin@lucid.com */
+
+/* freetype headers out of our control require this: */
+#ifndef NO_POISON
+# define NO_POISON 1
+#endif /* !NO_POISON */
 
 #include <config.h>
 

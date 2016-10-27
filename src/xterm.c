@@ -1287,9 +1287,9 @@ x_draw_glyphless_glyph_string_foreground (struct glyph_string *s)
 	}
       else if (glyph->u.glyphless.method == GLYPHLESS_DISPLAY_HEX_CODE)
 	{
-	  sprintf(buf, "%0*X",
-		  ((glyph->u.glyphless.ch < 0x10000) ? 4 : 6),
-		  (unsigned int)glyph->u.glyphless.ch);
+	  snprintf(buf, sizeof(buf), "%0*X",
+		   ((glyph->u.glyphless.ch < 0x10000) ? 4 : 6),
+		   (unsigned int)glyph->u.glyphless.ch);
 	  str = buf;
 	}
 
@@ -6879,7 +6879,8 @@ handle_one_xevent (struct x_display_info *dpyinfo,
         {
         case MappingModifier:
           x_find_modifier_meanings (dpyinfo);
-          /* This is meant to fall through.  */
+          /* This is meant to fall through: */
+	  ATTRIBUTE_FALLTHROUGH;
         case MappingKeyboard:
           XRefreshKeyboardMapping ((XMappingEvent *) &event->xmapping);
         default:
@@ -7732,7 +7733,7 @@ x_error_quitter (Display *display, XErrorEvent *event)
      original error handler.  */
 
   XGetErrorText (display, event->error_code, buf, sizeof (buf));
-  sprintf (buf1, "X protocol error: %s on protocol request %d",
+  snprintf(buf1, sizeof(buf1), "X protocol error: %s on protocol request %d",
 	   buf, event->request_code);
   x_connection_closed (display, buf1);
 }
@@ -10121,18 +10122,18 @@ x_term_init (Lisp_Object display_name, char *xrm_option, char *resource_name)
     const int atom_count = sizeof (atom_refs) / sizeof (atom_refs[0]);
     /* 1 for _XSETTINGS_SN  */
     const int total_atom_count = 1 + atom_count;
-    Atom *atoms_return = xmalloc (total_atom_count * sizeof *atoms_return);
-    char **atom_names = xmalloc (total_atom_count * sizeof *atom_names);
+    Atom *atoms_return = xmalloc(total_atom_count * sizeof(*atoms_return));
+    char **atom_names = xmalloc(total_atom_count * sizeof(*atom_names));
     static char const xsettings_fmt[] = "_XSETTINGS_S%d";
-    char xsettings_atom_name[sizeof xsettings_fmt - 2
-			     + INT_STRLEN_BOUND (int)];
+    char xsettings_atom_name[(sizeof(xsettings_fmt) - 2UL)
+			     + INT_STRLEN_BOUND(int)];
 
     for (i = 0; i < atom_count; i++)
       atom_names[i] = (char *) atom_refs[i].name;
 
     /* Build _XSETTINGS_SN atom name */
-    sprintf (xsettings_atom_name, xsettings_fmt,
-	     XScreenNumberOfScreen (dpyinfo->screen));
+    snprintf(xsettings_atom_name, sizeof(xsettings_atom_name), xsettings_fmt,
+	     XScreenNumberOfScreen(dpyinfo->screen));
     atom_names[i] = xsettings_atom_name;
 
     XInternAtoms (dpyinfo->display, atom_names, total_atom_count,

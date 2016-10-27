@@ -3583,6 +3583,13 @@ else
       fi  ##end check for C++ compiler
       if test "x${ac_cv_lto_supported}" = "xyes" || test -n "${LTO}"; then
         gl_WARN_ADD([-Wlto-type-mismatch])
+        ## GCC bug 78077:
+        case ${host_vendor} in
+          apple*)
+            gl_WARN_ADD([-D__builtin_unreachable=__builtin_trap])
+            ;;
+        esac
+        gl_WARN_ADD([-fno-strict-aliasing],[WARN_LDFLAGS])
       else
         nw="${nw} -Wlto-type-mismatch"
         AC_MSG_NOTICE([-Wlto-type-mismatch is only relevant when using LTO, skipping it])
@@ -3611,6 +3618,7 @@ else
   gl_WARN_ADD([-Wint-in-bool-context])dnl
   gl_WARN_ADD([-Wpointer-compare])dnl
   gl_WARN_ADD([-Wbool-operation])dnl
+  gl_WARN_ADD([-Wduplicated-branches])dnl
   ## -faligned-new is checked later:
   if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
     AC_LANG_PUSH([C++])dnl
@@ -3703,8 +3711,7 @@ if test "x${gl_better_debugging}" = "xyes"; then
   gl_WARN_ADD([-fno-sched-spec-load-dangerous],[BETTER_DEBUG_CFLAGS])
   dnl# The GCC manual says that this can affect the debugging experience:
   gl_WARN_ADD([-fno-split-wide-types],[BETTER_DEBUG_CFLAGS])
-  dnl# FIXME: investigate if '-fno-zero-initialized-in-bss' affects the
-  dnl# unexec/dumping process at all.  Likewise with '-fno-common'.
+  dnl# FIXME: investigate if '-fno-common' affects dumping at all.
   ##
   dnl# This next one is not supported for C currently, but it is not
   dnl# rejected either, so why not try it, in case one day the C frontend
@@ -9415,6 +9422,15 @@ else
 fi
 
 test -z "${version}" && test -n "${PACKAGE_VERSION}" && export version="${PACKAGE_VERSION}"
+major_vers="`echo ${version} | cut -d. -f1`"
+AC_SUBST([major_vers])dnl
+
+if test "x${gl_better_debugging}" = "xyes"; then
+  ## See release notes for GCC 3.3 and 3.4:
+  if test ${major_vers} -lt 22; then
+    gl_WARN_ADD([-fno-zero-initialized-in-bss],[BETTER_DEBUG_CFLAGS])
+  fi
+fi
 
 copyright="Copyright (C) 2014 Free Software Foundation, Inc."
 copyright_holder="Free Software Foundation, Inc."
@@ -9695,7 +9711,7 @@ dnl# gettext:
 AC_MSG_CHECKING([gettext])
 AC_MSG_RESULT([ ])
 AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION([0.19.4])
+AM_GNU_GETTEXT_VERSION([0.19.7])
 # Solaris requires -lintl if you want strerror (which calls dgettext)
 # to return localized messages.
 if test "x${ac_cv_func_strerror}" = "xyes" || test "x${ac_cv_search_strerror}" != "x"; then

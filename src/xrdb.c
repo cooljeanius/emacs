@@ -1,4 +1,4 @@
-/* Deal with the X Resource Manager.
+/* xrdb.c: Deal with the X Resource Manager.
    Copyright (C) 1990, 1993-1994, 2000-2014 Free Software Foundation,
    Inc.
 
@@ -60,18 +60,19 @@ static char *x_customization_string;
    resource, for later use in search path decoding.  If we find no
    such resource, return zero.  */
 static char *
-x_get_customization_string (XrmDatabase db, const char *name,
-			    const char *class)
+x_get_customization_string(XrmDatabase db, const char *name, const char *class)
 {
-  char *full_name = alloca (strlen (name) + sizeof "customization" + 3);
-  char *full_class = alloca (strlen (class) + sizeof "Customization" + 3);
+  const size_t len_full_name = (strlen(name) + sizeof("customization") + 3UL);
+  char *full_name = alloca(len_full_name);
+  const size_t len_full_class = (strlen(class) + sizeof("Customization") + 3UL);
+  char *full_class = alloca(len_full_class);
   char *result;
 
-  sprintf (full_name,  "%s.%s", name,  "customization");
-  sprintf (full_class, "%s.%s", class, "Customization");
+  snprintf(full_name, len_full_name, "%s.%s", name,  "customization");
+  snprintf(full_class, len_full_class, "%s.%s", class, "Customization");
 
-  result = x_get_string_resource (db, full_name, full_class);
-  return result ? xstrdup (result) : NULL;
+  result = x_get_string_resource(db, full_name, full_class);
+  return (result ? xstrdup(result) : NULL);
 }
 
 /* Expand all the Xt-style %-escapes in STRING, whose length is given
@@ -440,64 +441,64 @@ x_load_resources (Display *display, const char *xrm_string,
      will use some other default font.  */
 #ifdef USE_MOTIF
 
-  sprintf (line, "%s.pane.background: grey75", myclass);
+  snprintf(line, sizeof(line), "%s.pane.background: grey75", myclass);
   XrmPutLineResource (&rdb, line);
-  sprintf (line, "%s*fontList: %s", myclass, helv);
+  snprintf(line, sizeof(line), "%s*fontList: %s", myclass, helv);
   XrmPutLineResource (&rdb, line);
-  sprintf (line, "%s*menu*background: grey75", myclass);
+  snprintf(line, sizeof(line), "%s*menu*background: grey75", myclass);
   XrmPutLineResource (&rdb, line);
-  sprintf (line, "%s*menubar*background: grey75", myclass);
+  snprintf(line, sizeof(line), "%s*menubar*background: grey75", myclass);
   XrmPutLineResource (&rdb, line);
-  sprintf (line, "%s*verticalScrollBar.background: grey75", myclass);
+  snprintf(line, sizeof(line), "%s*verticalScrollBar.background: grey75", myclass);
   XrmPutLineResource (&rdb, line);
-  sprintf (line, "%s*verticalScrollBar.troughColor: grey75", myclass);
+  snprintf(line, sizeof(line), "%s*verticalScrollBar.troughColor: grey75", myclass);
   XrmPutLineResource (&rdb, line);
-  sprintf (line, "%s.dialog*.background: grey75", myclass);
+  snprintf(line, sizeof(line), "%s.dialog*.background: grey75", myclass);
   XrmPutLineResource (&rdb, line);
-  sprintf (line, "%s*fsb.Text.background: white", myclass);
+  snprintf(line, sizeof(line), "%s*fsb.Text.background: white", myclass);
   XrmPutLineResource (&rdb, line);
-  sprintf (line, "%s*fsb.FilterText.background: white", myclass);
+  snprintf(line, sizeof(line), "%s*fsb.FilterText.background: white", myclass);
   XrmPutLineResource (&rdb, line);
-  sprintf (line, "%s*fsb*DirList.background: white", myclass);
+  snprintf(line, sizeof(line), "%s*fsb*DirList.background: white", myclass);
   XrmPutLineResource (&rdb, line);
-  sprintf (line, "%s*fsb*ItemsList.background: white", myclass);
+  snprintf(line, sizeof(line), "%s*fsb*ItemsList.background: white", myclass);
   XrmPutLineResource (&rdb, line);
-  sprintf (line, "%s*fsb*background: grey75", myclass);
+  snprintf(line, sizeof(line), "%s*fsb*background: grey75", myclass);
   XrmPutLineResource (&rdb, line);
-  sprintf (line, "%s*fsb.Text.fontList: %s", myclass, courier);
+  snprintf(line, sizeof(line), "%s*fsb.Text.fontList: %s", myclass, courier);
   XrmPutLineResource (&rdb, line);
-  sprintf (line, "%s*fsb.FilterText.fontList: %s", myclass, courier);
+  snprintf(line, sizeof(line), "%s*fsb.FilterText.fontList: %s", myclass, courier);
   XrmPutLineResource (&rdb, line);
-  sprintf (line, "%s*fsb*ItemsList.fontList: %s", myclass, courier);
+  snprintf(line, sizeof(line), "%s*fsb*ItemsList.fontList: %s", myclass, courier);
   XrmPutLineResource (&rdb, line);
-  sprintf (line, "%s*fsb*DirList.fontList: %s", myclass, courier);
+  snprintf(line, sizeof(line), "%s*fsb*DirList.fontList: %s", myclass, courier);
   XrmPutLineResource (&rdb, line);
 
   /* Set double click time of list boxes in the file selection
      dialog from `double-click-time'.  */
   if (INTEGERP (Vdouble_click_time) && XINT (Vdouble_click_time) > 0)
     {
-      sprintf (line, "%s*fsb*DirList.doubleClickInterval: %"pI"d",
+      snprintf(line, sizeof(line), "%s*fsb*DirList.doubleClickInterval: %"pI"d",
 	       myclass, XFASTINT (Vdouble_click_time));
       XrmPutLineResource (&rdb, line);
-      sprintf (line, "%s*fsb*ItemsList.doubleClickInterval: %"pI"d",
+      snprintf(line, sizeof(line), "%s*fsb*ItemsList.doubleClickInterval: %"pI"d",
 	       myclass, XFASTINT (Vdouble_click_time));
       XrmPutLineResource (&rdb, line);
     }
 
 #else /* not USE_MOTIF */
 
-  sprintf (line, "Emacs.dialog*.background: grey75");
+  snprintf(line, sizeof(line), "Emacs.dialog*.background: grey75");
   XrmPutLineResource (&rdb, line);
 #if !defined (HAVE_XFT) || !defined (USE_LUCID)
-  sprintf (line, "Emacs.dialog*.font: %s", helv);
+  snprintf(line, sizeof(line), "Emacs.dialog*.font: %s", helv);
   XrmPutLineResource (&rdb, line);
-  sprintf (line, "*XlwMenu*font: %s", helv);
+  snprintf(line, sizeof(line), "*XlwMenu*font: %s", helv);
   XrmPutLineResource (&rdb, line);
 #endif
-  sprintf (line, "*XlwMenu*background: grey75");
+  snprintf(line, sizeof(line), "*XlwMenu*background: grey75");
   XrmPutLineResource (&rdb, line);
-  sprintf (line, "Emacs*verticalScrollBar.background: grey75");
+  snprintf(line, sizeof(line), "Emacs*verticalScrollBar.background: grey75");
   XrmPutLineResource (&rdb, line);
 
 #endif /* not USE_MOTIF */
@@ -696,3 +697,5 @@ main (int argc, char **argv)
   return 0;
 }
 #endif /* TESTRM */
+
+/* EOF */

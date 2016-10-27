@@ -18,6 +18,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
+/* freetype headers out of our control require this: */
+#ifndef NO_POISON
+# define NO_POISON 1
+#endif /* !NO_POISON */
+
 #include <config.h>
 
 #include <stdio.h>
@@ -618,7 +623,7 @@ make_dialog (char* name,
           XtSetArg (av [ac], "beNiceToColormap", False); ac++;
         }
 #endif
-      sprintf (button_name, "button%d", ++bc);
+      snprintf(button_name, sizeof(button_name), "button%d", ++bc);
       button = XtCreateManagedWidget (button_name, commandWidgetClass,
 				      dialog, av, ac);
 #ifdef HAVE_XFT
@@ -651,7 +656,7 @@ make_dialog (char* name,
           XtSetArg (av [ac], "beNiceToColormap", False); ac++;
         }
 #endif
-      sprintf (button_name, "button%d", ++bc);
+      snprintf(button_name, sizeof(button_name), "button%d", ++bc);
       button = XtCreateManagedWidget (button_name, commandWidgetClass,
 				      dialog, av, ac);
 #ifdef HAVE_XFT

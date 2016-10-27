@@ -333,10 +333,8 @@ static const CHAR_T zeroes[16] = /* "0000000000000000" */
 # define LOCALE_PARAM_PROTO , __locale_t loc
 # define HELPER_LOCALE_ARG  , current
 #else
-# define LOCALE_PARAM
 # define LOCALE_PARAM_PROTO
 # define LOCALE_ARG
-# define LOCALE_PARAM_DECL
 # ifdef _LIBC
 #  define HELPER_LOCALE_ARG , _NL_CURRENT_DATA (LC_TIME)
 # else
@@ -376,11 +374,7 @@ static CHAR_T *memcpy_lowcase __P((CHAR_T *dest, const CHAR_T *src,
 				   size_t len LOCALE_PARAM_PROTO));
 
 static CHAR_T *
-memcpy_lowcase(dest, src, len LOCALE_PARAM)
-     CHAR_T *dest;
-     const CHAR_T *src;
-     size_t len;
-     LOCALE_PARAM_DECL
+memcpy_lowcase(CHAR_T *dest, const CHAR_T *src, size_t len LOCALE_PARAM_PROTO)
 {
   while (len-- > 0)
     dest[len] = TOLOWER((UCHAR_T)src[len], loc);
@@ -391,11 +385,7 @@ static CHAR_T *memcpy_uppcase __P((CHAR_T *dest, const CHAR_T *src,
 				   size_t len LOCALE_PARAM_PROTO));
 
 static CHAR_T *
-memcpy_uppcase(dest, src, len LOCALE_PARAM)
-     CHAR_T *dest;
-     const CHAR_T *src;
-     size_t len;
-     LOCALE_PARAM_DECL
+memcpy_uppcase(CHAR_T *dest, const CHAR_T *src, size_t len LOCALE_PARAM_PROTO)
 {
   while (len-- > 0)
     dest[len] = TOUPPER ((UCHAR_T) src[len], loc);
@@ -474,7 +464,6 @@ static CHAR_T const month_name[][10] =
    extra arguments UT and NS.  */
 #ifdef my_strftime
 # define extra_args , ut, ns
-# define extra_args_spec int ut; int ns;
 # define extra_args_spec_iso , int ut, int ns
 #else
 # ifdef COMPILE_WIDE
@@ -520,14 +509,11 @@ static CHAR_T const month_name[][10] =
    characters written.  If S is NULL, nothing will be written
    anywhere, so to determine how many characters would be
    written, use NULL for S and (size_t) UINT_MAX for MAXSIZE.  */
+extern size_t my_strftime __P((CHAR_T *, size_t, const CHAR_T *,
+			       const struct tm * extra_args_spec_iso LOCALE_PARAM_PROTO));
 size_t
-my_strftime(s, maxsize, format, tp extra_args LOCALE_PARAM)
-      CHAR_T *s;
-      size_t maxsize;
-      const CHAR_T *format;
-      const struct tm *tp;
-      extra_args_spec
-      LOCALE_PARAM_DECL
+my_strftime(CHAR_T *s, size_t maxsize, const CHAR_T *format,
+	    const struct tm *tp extra_args_spec_iso LOCALE_PARAM_PROTO)
 {
 #if defined _LIBC && defined USE_IN_EXTENDED_LOCALE_MODEL
   struct locale_data *const current = loc->__locales[LC_TIME];

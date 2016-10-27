@@ -1190,6 +1190,7 @@ configuration
 version
 copyright_holder
 copyright
+major_vers
 FAKE_LIBS
 FAKE_LDFLAGS
 FAKE_CPPFLAGS
@@ -19144,6 +19145,91 @@ then :
 fi
 
 
+        ## GCC bug 78077:
+        case ${host_vendor} in
+          apple*)
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -D__builtin_unreachable=__builtin_trap" >&5
+printf %s "checking whether C compiler handles -D__builtin_unreachable=__builtin_trap... " >&6; }
+if test ${gl_cv_warn_c__D__builtin_unreachable___builtin_trap+y}
+then :
+  printf %s "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -D__builtin_unreachable=__builtin_trap"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_warn_c__D__builtin_unreachable___builtin_trap=yes
+else
+  gl_cv_warn_c__D__builtin_unreachable___builtin_trap=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__D__builtin_unreachable___builtin_trap" >&5
+printf "%s\n" "$gl_cv_warn_c__D__builtin_unreachable___builtin_trap" >&6; }
+if test "x$gl_cv_warn_c__D__builtin_unreachable___builtin_trap" = xyes
+then :
+  as_fn_append WARN_CFLAGS " -D__builtin_unreachable=__builtin_trap"
+fi
+
+
+            ;;
+        esac
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -fno-strict-aliasing" >&5
+printf %s "checking whether C compiler handles -fno-strict-aliasing... " >&6; }
+if test ${gl_cv_warn_c__fno_strict_aliasing+y}
+then :
+  printf %s "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -fno-strict-aliasing"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_warn_c__fno_strict_aliasing=yes
+else
+  gl_cv_warn_c__fno_strict_aliasing=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__fno_strict_aliasing" >&5
+printf "%s\n" "$gl_cv_warn_c__fno_strict_aliasing" >&6; }
+if test "x$gl_cv_warn_c__fno_strict_aliasing" = xyes
+then :
+  as_fn_append WARN_LDFLAGS " -fno-strict-aliasing"
+fi
+
+
       else
         nw="${nw} -Wlto-type-mismatch"
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: -Wlto-type-mismatch is only relevant when using LTO, skipping it" >&5
@@ -19707,6 +19793,45 @@ printf "%s\n" "$gl_cv_warn_c__Wbool_operation" >&6; }
 if test "x$gl_cv_warn_c__Wbool_operation" = xyes
 then :
   as_fn_append WARN_CFLAGS " -Wbool-operation"
+fi
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wduplicated-branches" >&5
+printf %s "checking whether C compiler handles -Wduplicated-branches... " >&6; }
+if test ${gl_cv_warn_c__Wduplicated_branches+y}
+then :
+  printf %s "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wduplicated-branches"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_warn_c__Wduplicated_branches=yes
+else
+  gl_cv_warn_c__Wduplicated_branches=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wduplicated_branches" >&5
+printf "%s\n" "$gl_cv_warn_c__Wduplicated_branches" >&6; }
+if test "x$gl_cv_warn_c__Wduplicated_branches" = xyes
+then :
+  as_fn_append WARN_CFLAGS " -Wduplicated-branches"
 fi
 
   ## -faligned-new is checked later:
@@ -20381,7 +20506,7 @@ then :
 fi
 
 
-      ##
+    ##
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -fbounds-check" >&5
 printf %s "checking whether C compiler handles -fbounds-check... " >&6; }
@@ -58103,6 +58228,53 @@ else
 fi
 
 test -z "${version}" && test -n "${PACKAGE_VERSION}" && export version="${PACKAGE_VERSION}"
+major_vers="`echo ${version} | cut -d. -f1`"
+
+if test "x${gl_better_debugging}" = "xyes"; then
+  ## See release notes for GCC 3.3 and 3.4:
+  if test ${major_vers} -lt 22; then
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -fno-zero-initialized-in-bss" >&5
+printf %s "checking whether C compiler handles -fno-zero-initialized-in-bss... " >&6; }
+if test ${gl_cv_warn_c__fno_zero_initialized_in_bss+y}
+then :
+  printf %s "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -fno-zero-initialized-in-bss"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_warn_c__fno_zero_initialized_in_bss=yes
+else
+  gl_cv_warn_c__fno_zero_initialized_in_bss=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__fno_zero_initialized_in_bss" >&5
+printf "%s\n" "$gl_cv_warn_c__fno_zero_initialized_in_bss" >&6; }
+if test "x$gl_cv_warn_c__fno_zero_initialized_in_bss" = xyes
+then :
+  as_fn_append BETTER_DEBUG_CFLAGS " -fno-zero-initialized-in-bss"
+fi
+
+
+  fi
+fi
 
 copyright="Copyright (C) 2014 Free Software Foundation, Inc."
 copyright_holder="Free Software Foundation, Inc."

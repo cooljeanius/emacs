@@ -7170,6 +7170,7 @@ mac_to_x_fontname(const char *name, int size, Style style,
   Str255 family;
   char xf[256], *result;
   unsigned char *p;
+  size_t len_result;
 
   if (sscanf(name, "%31[^-]-%255[^-]-%31s", foundry, family, cs) == 3)
     charset = (const char *)cs;
@@ -7179,15 +7180,15 @@ mac_to_x_fontname(const char *name, int size, Style style,
       strcpy((char *)family, name);
     }
 
-  sprintf(xf, "%s-%c-normal--%d-%d-%d-%d-m-%d-%s",
-          (style & bold ? "bold" : "medium"), (style & italic ? 'i' : 'r'),
-          size, (size * 10), (size ? 72 : 0), (size ? 72 : 0), (size * 10),
-          charset);
+  snprintf(xf, sizeof(xf), "%s-%c-normal--%d-%d-%d-%d-m-%d-%s",
+	   (style & bold ? "bold" : "medium"), (style & italic ? 'i' : 'r'),
+	   size, (size * 10), (size ? 72 : 0), (size ? 72 : 0), (size * 10),
+	   charset);
 
-  result = (char *)xmalloc(strlen((const char *)foundry)
-                           + strlen((const char *)family)
-                           + strlen(xf) + 3UL + 1UL);
-  sprintf(result, "-%s-%s-%s", foundry, family, xf);
+  len_result = (strlen((const char *)foundry) + strlen((const char *)family)
+		+ strlen(xf) + 3UL + 1UL);
+  result = (char *)xmalloc(len_result);
+  snprintf(result, len_result, "-%s-%s-%s", foundry, family, xf);
   for (p = (unsigned char *)result; *p; p++) {
     /* On Mac OS X 10.3, tolower() also converts non-ASCII characters
      * for some locales: */
@@ -7788,16 +7789,17 @@ static Lisp_Object mac_do_list_fonts(const char *pattern, int maxnames)
       else if ((scl_val[XLFD_SCL_PIXEL_SIZE] > 0)
 	       && (ptr = strstr(font_name_table[i], "-0-0-0-0-m-0-")))
 	{
-	  int former_len = (ptr - font_name_table[i]);
+	  ptrdiff_t former_len = (ptr - font_name_table[i]);
+	  const size_t scaled_len = (strlen(font_name_table[i]) + 20UL + 1UL);
 
-	  scaled = xmalloc(strlen(font_name_table[i]) + 20 + 1);
+	  scaled = xmalloc(scaled_len);
 	  memcpy(scaled, font_name_table[i], former_len);
-	  sprintf((scaled + former_len),
-                  "-%d-%d-72-72-m-%d-%s",
-                  scl_val[XLFD_SCL_PIXEL_SIZE],
-                  scl_val[XLFD_SCL_POINT_SIZE],
-                  scl_val[XLFD_SCL_AVGWIDTH],
-                  (ptr + sizeof("-0-0-0-0-m-0-") - 1));
+	  snprintf((scaled + former_len), (scaled_len + former_len),
+		   "-%d-%d-72-72-m-%d-%s",
+		   scl_val[XLFD_SCL_PIXEL_SIZE],
+		   scl_val[XLFD_SCL_POINT_SIZE],
+		   scl_val[XLFD_SCL_AVGWIDTH],
+		   (ptr + sizeof("-0-0-0-0-m-0-") - 1));
 
 	  if (xlfdpat_match(pat, (const unsigned char *)scaled))
 	    {
@@ -10400,7 +10402,7 @@ mac_get_screen_info(struct mac_display_info *dpyinfo)
   {
     CGDisplayErr err;
     CGDisplayCount ndisps;
-    CGDirectDisplayID *displays;
+    CGDirectDisplayID *displays = NULL;
 
     err = CGGetActiveDisplayList(0, NULL, &ndisps);
     if (err == noErr)
@@ -11576,6 +11578,7 @@ mac_term_init(Lisp_Object display_name, char *xrm_option,
               char *resource_name)
 {
   struct mac_display_info *dpyinfo;
+  size_t len_mac_id_name;
 
   BLOCK_INPUT;
 
@@ -11593,12 +11596,13 @@ mac_term_init(Lisp_Object display_name, char *xrm_option,
   bzero(dpyinfo, sizeof(*dpyinfo));
 
 #ifdef MAC_OSX
-  dpyinfo->mac_id_name
-    = (char *)xmalloc(SCHARS(Vinvocation_name) + SCHARS(Vsystem_name) + 2);
-  sprintf(dpyinfo->mac_id_name, "%s@%s",
-          SDATA(Vinvocation_name), SDATA(Vsystem_name));
+  len_mac_id_name = (SCHARS(Vinvocation_name) + SCHARS(Vsystem_name) + 2UL);
+  dpyinfo->mac_id_name = (char *)xmalloc(len_mac_id_name);
+  snprintf(dpyinfo->mac_id_name, len_mac_id_name, "%s@%s",
+	   SDATA(Vinvocation_name), SDATA(Vsystem_name));
 #else
-  dpyinfo->mac_id_name = (char *)xmalloc(strlen("Mac Display") + 1);
+  len_mac_id_name = (strlen("Mac Display") + 1UL);
+  dpyinfo->mac_id_name = (char *)xmalloc(len_mac_id_name);
   strcpy(dpyinfo->mac_id_name, "Mac Display");
 #endif /* MAC_OSX */
 

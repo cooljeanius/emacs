@@ -2208,6 +2208,7 @@ localedir = @localedir@
 locallisppath = @locallisppath@
 localstatedir = @localstatedir@
 machfile = @machfile@
+major_vers = @major_vers@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 no_x = @no_x@

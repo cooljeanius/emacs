@@ -120,14 +120,14 @@ int runit(const char * const argv[], int dropprivs)
         }
       }
       loop_counter++;
-      /* oops, nvm, I think clang was right about that variable... */
+      /* (oops, I think clang was right about that variable; moved above) */
     } while (1);
   }
 
   return 0;
 }
 
-
+/* */
 int decreasepriv(int debugflag)
 {
   struct passwd *nobody = NULL;

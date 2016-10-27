@@ -1,4 +1,4 @@
-/* The lwlib interface to Motif widgets.
+/* lwlib-Xm.c: The lwlib interface to Motif widgets.
 
 Copyright (C) 1994-1997, 1999-2014 Free Software Foundation, Inc.
 Copyright (C) 1992 Lucid, Inc.
@@ -1107,8 +1107,8 @@ make_dialog (char* name,
   n_children = 0;
   for (i = 0; i < left_buttons; i++)
     {
-      char button_name [16];
-      sprintf (button_name, "button%d", i + 1);
+      char button_name[16];
+      snprintf(button_name, sizeof(button_name), "button%d", i + 1);
       ac = 0;
       if (i == 0)
 	{
@@ -1140,8 +1140,9 @@ make_dialog (char* name,
 
   for (i = 0; i < right_buttons; i++)
     {
-      char button_name [16];
-      sprintf (button_name, "button%d", left_buttons + i + 1);
+      char button_name[16];
+      snprintf(button_name, sizeof(button_name), "button%d",
+	       (left_buttons + i + 1));
       ac = 0;
       XtSetArg(al[ac], XmNmarginWidth, 10); ac++;
       XtSetArg(al[ac], XmNnavigationType, XmTAB_GROUP); ac++;

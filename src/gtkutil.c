@@ -17,6 +17,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
+/* freetype headers out of our control require this: */
+#ifndef NO_POISON
+# define NO_POISON 1
+#endif /* !NO_POISON */
+
 #include <config.h>
 
 #ifdef USE_GTK
@@ -556,11 +561,11 @@ get_utf8_string (const char *str)
                                        &bytes_written, &err))
              && err->code == G_CONVERT_ERROR_ILLEGAL_SEQUENCE)
         {
-          memcpy (up, p, bytes_written);
-          sprintf (up + bytes_written, "\\%03o", p[bytes_written]);
-          up += bytes_written+4;
-          p += bytes_written+1;
-          g_error_free (err);
+          memcpy(up, p, bytes_written);
+          snprintf((up + bytes_written), SIZE_MAX, "\\%03o", p[bytes_written]);
+          up += (bytes_written + 4);
+          p += (bytes_written + 1);
+          g_error_free(err);
           err = NULL;
         }
 
@@ -842,7 +847,7 @@ xg_set_geometry (struct frame *f)
       int xneg = f->size_hint_flags & XNegative;
       int top = f->top_pos;
       int yneg = f->size_hint_flags & YNegative;
-      char geom_str[sizeof "=x--" + 4 * INT_STRLEN_BOUND (int)];
+      char geom_str[sizeof("=x--") + 4UL * INT_STRLEN_BOUND(int)];
       guint id;
 
       if (xneg)
@@ -850,11 +855,9 @@ xg_set_geometry (struct frame *f)
       if (yneg)
         top = -top;
 
-      sprintf (geom_str, "=%dx%d%c%d%c%d",
-               FRAME_PIXEL_WIDTH (f),
-               FRAME_PIXEL_HEIGHT (f),
-               (xneg ? '-' : '+'), left,
-               (yneg ? '-' : '+'), top);
+      snprintf(geom_str, sizeof(geom_str), "=%dx%d%c%d%c%d",
+	       FRAME_PIXEL_WIDTH(f), FRAME_PIXEL_HEIGHT(f),
+	       (xneg ? '-' : '+'), left, (yneg ? '-' : '+'), top);
 
       /* Silence warning about visible children.  */
       id = g_log_set_handler ("Gtk", G_LOG_LEVEL_WARNING | G_LOG_FLAG_FATAL

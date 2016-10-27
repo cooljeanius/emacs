@@ -5211,9 +5211,9 @@ Chinese, Japanese, and Korean.  */);
 
     err = Gestalt(gestaltCarbonVersion, (SInt32 *)&response);
     if (err == noErr) {
-      sprintf(carbon_version, "%lu.%lu.%lu",
-              ((response >> 8) & 0xf), ((response >> 4) & 0xf),
-              (response & 0xf));
+      snprintf(carbon_version, sizeof(carbon_version), "%lu.%lu.%lu",
+	       ((response >> 8) & 0xf), ((response >> 4) & 0xf),
+	       (response & 0xf));
     }
     Vmac_carbon_version_string = build_string(carbon_version);
   }

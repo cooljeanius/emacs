@@ -1838,7 +1838,7 @@ xic_create_xfontset (struct frame *f)
       char *def_string;
       const char *xlfd_format = "-*-*-medium-r-normal--%d-*-*-*-*-*";
 
-      sprintf (buf, xlfd_format, pixel_size);
+      snprintf(buf, sizeof(buf), xlfd_format, pixel_size);
       missing_list = NULL;
       xfs = XCreateFontSet (FRAME_X_DISPLAY (f), buf,
 			    &missing_list, &missing_count, &def_string);
@@ -1872,7 +1872,7 @@ xic_create_xfontset (struct frame *f)
 		this_size = *smaller--;
 	      else
 		this_size = *larger++;
-	      sprintf (buf, xlfd_format, this_size);
+	      snprintf(buf, sizeof(buf), xlfd_format, this_size);
 	      missing_list = NULL;
 	      xfs = XCreateFontSet (FRAME_X_DISPLAY (f), buf,
 				    &missing_list, &missing_count, &def_string);
@@ -2208,7 +2208,7 @@ x_window (struct frame *f, long window_prompting, int minibuffer_only)
 
   /* Do some needed geometry management.  */
   {
-    char *tem, shell_position[sizeof "=x++" + 4 * INT_STRLEN_BOUND (int)];
+    char *tem, shell_position[sizeof("=x++") + 4UL * INT_STRLEN_BOUND(int)];
     Arg gal[10];
     int gac = 0;
     int extra_borders = 0;
@@ -2255,16 +2255,16 @@ x_window (struct frame *f, long window_prompting, int minibuffer_only)
 	top = -top;
 
       if (window_prompting & USPosition)
-	sprintf (shell_position, "=%dx%d%c%d%c%d",
-		 FRAME_PIXEL_WIDTH (f) + extra_borders,
-		 FRAME_PIXEL_HEIGHT (f) + menubar_size + extra_borders,
+	snprintf(shell_position, sizeof(shell_position), "=%dx%d%c%d%c%d",
+		 (FRAME_PIXEL_WIDTH(f) + extra_borders),
+		 (FRAME_PIXEL_HEIGHT(f) + menubar_size + extra_borders),
 		 (xneg ? '-' : '+'), left,
 		 (yneg ? '-' : '+'), top);
       else
         {
-          sprintf (shell_position, "=%dx%d",
-                   FRAME_PIXEL_WIDTH (f) + extra_borders,
-                   FRAME_PIXEL_HEIGHT (f) + menubar_size + extra_borders);
+          snprintf(shell_position, sizeof(shell_position), "=%dx%d",
+                   (FRAME_PIXEL_WIDTH(f) + extra_borders),
+                   (FRAME_PIXEL_HEIGHT(f) + menubar_size + extra_borders));
 
           /* Setting x and y when the position is not specified in
              the geometry string will set program position in the WM hints.
@@ -6195,8 +6195,8 @@ When using Gtk+ tooltips, the tooltip face is not used.  */);
   DEFVAR_LISP ("gtk-version-string", Vgtk_version_string,
                doc: /* Version info for GTK+.  */);
   {
-    char gtk_version[sizeof ".." + 3 * INT_STRLEN_BOUND (int)];
-    int len = sprintf (gtk_version, "%d.%d.%d",
+    char gtk_version[sizeof("..") + 3UL * INT_STRLEN_BOUND(int)];
+    int len = snprintf(gtk_version, sizeof(gtk_version), "%d.%d.%d",
 		       GTK_MAJOR_VERSION, GTK_MINOR_VERSION, GTK_MICRO_VERSION);
     Vgtk_version_string = make_pure_string (gtk_version, len, len, 0);
   }
