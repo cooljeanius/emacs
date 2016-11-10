@@ -3002,7 +3002,7 @@ into shorter lines.  */)
      We need 33 1/3% more space, plus a newline every 76
      characters, and then we round up. */
   length = SBYTES (string);
-  allength = length + length/3 + 1;
+  allength = length + (length / 3) + 1;
   allength += allength / MIME_LINE_LENGTH + 1 + 6;
 
   /* We need to allocate enough room for decoding the text. */
@@ -3312,7 +3312,7 @@ base64_decode_1 (const char *from, char *to, ptrdiff_t length,
  *****                                                             *****
  ***********************************************************************/
 
-/* Implemented by gerd@gnu.org.  This hash table implementation was
+/* Implemented by <gerd@gnu.org>.  This hash table implementation was
    inspired by CMUCL hash tables.  */
 
 /* Ideas:
@@ -5019,3 +5019,5 @@ this variable.  */);
   hashtest_equal.cmpfn = cmpfn_equal;
   hashtest_equal.hashfn = hashfn_equal;
 }
+
+/* EOF */

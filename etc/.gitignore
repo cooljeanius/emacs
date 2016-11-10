@@ -5,3 +5,4 @@ images/icons/*
 *.dvi
 *.log
 refcards/emacsver.tex
+refcards/*.pdf

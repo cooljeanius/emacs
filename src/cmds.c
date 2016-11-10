@@ -1,4 +1,4 @@
-/* Simple built-in editing commands.
+/* cmds.c: Simple built-in editing commands.
 
 Copyright (C) 1985, 1993-1998, 2001-2014 Free Software Foundation, Inc.
 
@@ -558,7 +558,7 @@ keys_of_cmds (void)
 #ifdef MSDOS
   for (n = 0200; n < 0240; n++)
     initial_define_key (global_map, n, "self-insert-command");
-#endif
+#endif /* MSDOS */
   for (n = 0240; n < 0400; n++)
     initial_define_key (global_map, n, "self-insert-command");
 
@@ -567,3 +567,5 @@ keys_of_cmds (void)
   initial_define_key (global_map, Ctl ('E'), "end-of-line");
   initial_define_key (global_map, Ctl ('F'), "forward-char");
 }
+
+/* EOF */

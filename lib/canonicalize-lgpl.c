@@ -84,6 +84,17 @@
 #endif
 
 #if !FUNC_REALPATH_WORKS || defined _LIBC
+
+static void
+alloc_failed (void)
+{
+#if (defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__
+  /* Avoid errno problem without using the malloc or realloc modules; see:
+     http://lists.gnu.org/archive/html/bug-gnulib/2016-08/msg00025.html  */
+  errno = ENOMEM;
+#endif
+}
+
 /* Return the canonical absolute name of file NAME.  A canonical name
    does not contain any ".", ".." components nor any repeated path
    separators ('/') or symlinks.  All path components must exist.  If
@@ -135,9 +146,7 @@ __realpath (const char *name, char *resolved)
       rpath = malloc (path_max);
       if (rpath == NULL)
         {
-          /* It's easier to set errno to ENOMEM than to rely on the
-             'malloc-posix' gnulib module.  */
-          errno = ENOMEM;
+          alloc_failed ();
           return NULL;
         }
     }
@@ -185,7 +194,6 @@ __realpath (const char *name, char *resolved)
 #else
       struct stat st;
 #endif
-      int n;
 
       /* Skip sequence of multiple path-separators.  */
       while (ISSLASH (*start))
@@ -238,9 +246,7 @@ __realpath (const char *name, char *resolved)
               new_rpath = (char *) realloc (rpath, new_size);
               if (new_rpath == NULL)
                 {
-                  /* It's easier to set errno to ENOMEM than to rely on the
-                     'realloc-posix' gnulib module.  */
-                  errno = ENOMEM;
+                  alloc_failed ();
                   goto error;
                 }
               rpath = new_rpath;
@@ -268,6 +274,7 @@ __realpath (const char *name, char *resolved)
             {
               char *buf;
               size_t len;
+              ssize_t n;
 
               if (++num_links > MAXSYMLINKS)
                 {
@@ -278,7 +285,7 @@ __realpath (const char *name, char *resolved)
               buf = malloca (path_max);
               if (!buf)
                 {
-                  errno = ENOMEM;
+                  __set_errno (ENOMEM);
                   goto error;
                 }
 
@@ -287,7 +294,7 @@ __realpath (const char *name, char *resolved)
                 {
                   int saved_errno = errno;
                   freea (buf);
-                  errno = saved_errno;
+                  __set_errno (saved_errno);
                   goto error;
                 }
               buf[n] = '\0';
@@ -298,13 +305,14 @@ __realpath (const char *name, char *resolved)
                   if (!extra_buf)
                     {
                       freea (buf);
-                      errno = ENOMEM;
+                      __set_errno (ENOMEM);
                       goto error;
                     }
                 }
 
               len = strlen (end);
-              if ((long int) (n + len) >= path_max)
+              /* Check that n + len + 1 doesn't overflow and is <= path_max. */
+              if (n >= SIZE_MAX - len || n + len >= path_max)
                 {
                   freea (buf);
                   __set_errno (ENAMETOOLONG);
@@ -370,7 +378,7 @@ error:
       freea (extra_buf);
     if (resolved == NULL)
       free (rpath);
-    errno = saved_errno;
+    __set_errno (saved_errno);
   }
   return NULL;
 }

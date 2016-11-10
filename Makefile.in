@@ -1131,7 +1131,7 @@ ${srcdir}/info/dir: ${info_dir_deps}
 	tempfile=info-dir.$$$$; \
 	rm -f $${tempfile}; \
 	thisdir=`pwd`; \
-	(cd ${srcdir} && 
+	(cd ${srcdir} && \
 	 AWK='${AWK}' ./build-aux/make-info-dir $${thisdir}/$${tempfile}); \
 	${srcdir}/build-aux/move-if-change $${tempfile} ${srcdir}/info/dir
 
@@ -1224,6 +1224,10 @@ check-info: info
 	  exit 1 ; \
 	fi ; \
 	echo "info files are OK"
+
+emacsman:
+	if test -d man && test -e man/Makefile; then \
+	  cd man && $(MAKE) emacsman; fi
 
 #### Bootstrapping.
 

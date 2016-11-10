@@ -18,6 +18,7 @@ fcntl.h
 float.h
 getopt.h
 inttypes.h
+limits.h
 math.h
 sched.h
 signal.h

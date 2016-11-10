@@ -203,13 +203,13 @@ x_menu_set_in_use (int in_use)
 {
   menu_items_inuse = in_use ? Qt : Qnil;
   popup_activated_flag = in_use;
-#ifdef USE_X_TOOLKIT
+# ifdef USE_X_TOOLKIT
   if (popup_activated_flag)
     x_activate_timeout_atimer ();
-#endif
+# endif /* USE_X_TOOLKIT */
 }
 
-#endif
+#endif /* USE_MOTIF */
 
 /* Wait for an X event to arrive or for a timer to expire.  */
 
@@ -305,13 +305,13 @@ popup_get_selection (XEvent *initial_event, struct x_display_info *dpyinfo, LWLI
 #ifdef USE_MOTIF /* Pretending that the event came from a
                     Btn1Down seems the only way to convince Motif to
                     activate its callbacks; setting the XmNmenuPost
-                    isn't working. --marcus@sysc.pdx.edu.  */
+                    isn't working. --<marcus@sysc.pdx.edu>.  */
           event.xbutton.button = 1;
           /*  Motif only pops down menus when no Ctrl, Alt or Mod
               key is pressed and the button is released.  So reset key state
               so Motif thinks this is the case.  */
           event.xbutton.state = 0;
-#endif
+#endif /* USE_MOTIF */
         }
       /* Pop down on C-g and Escape.  */
       else if (event.type == KeyPress
@@ -559,7 +559,7 @@ show_help_event (struct frame *f, xt_or_gtk_widget widget, Lisp_Object help)
 		  FRAME_X_P (f) && f->output_data.x->widget == frame_widget))
 	    break;
 	}
-#endif
+#endif /* 0 */
       show_help_echo (help, Qnil, Qnil, Qnil);
     }
 }
@@ -797,7 +797,7 @@ set_frame_menubar (struct frame *f, bool first_time, bool deep_p)
   /* If we have detached menus, we must update deep so detached menus
      also gets updated.  */
   deep_p = deep_p || xg_have_tear_offs (f);
-#endif
+#endif /* USE_GTK */
 
   if (deep_p)
     {
@@ -950,7 +950,6 @@ set_frame_menubar (struct frame *f, bool first_time, bool deep_p)
           update_submenu_strings (wv->contents);
           wv = wv->next;
 	}
-
     }
   else
     {
@@ -1079,7 +1078,7 @@ set_frame_menubar (struct frame *f, bool first_time, bool deep_p)
 	 for -geometry -0-0 without this.  24 Aug 96, rms.
          Maybe so, but the menu bar size is missing the pixels so the
          WM size hints are off by these pixels.  Jan D, oct 2009.  */
-#ifdef USE_LUCID
+# ifdef USE_LUCID
     if (FRAME_EXTERNAL_MENU_BAR (f))
       {
         Dimension ibw = 0;
@@ -1087,7 +1086,7 @@ set_frame_menubar (struct frame *f, bool first_time, bool deep_p)
 		       XtNinternalBorderWidth, &ibw, NULL);
         menubar_size += ibw;
       }
-#endif /* USE_LUCID */
+# endif /* USE_LUCID */
 #endif /* 1 */
 
     f->output_data.x->menubar_height = menubar_size;
@@ -1529,7 +1528,7 @@ xmenu_show (struct frame *f, int x, int y, bool for_click, bool keymaps,
 	      pane_name = ENCODE_MENU_STRING (pane_name);
 	      ASET (menu_items, i + MENU_ITEMS_PANE_NAME, pane_name);
 	    }
-#endif
+#endif /* !HAVE_MULTILINGUAL_MENU */
 	  pane_string = (NILP (pane_name)
 			 ? "" : SSDATA (pane_name));
 	  /* If there is just one top-level pane, put all its items directly
@@ -2346,7 +2345,7 @@ xmenu_show (struct frame *f, int x, int y, bool for_click, bool keymaps,
 
 #ifndef MSDOS
   XMenuActivateSetWaitFunction (x_menu_wait_for_event, FRAME_X_DISPLAY (f));
-#endif
+#endif /* !MSDOS */
 
   record_unwind_protect (pop_down_menu, make_save_ptr_ptr (f, menu));
 

@@ -52,7 +52,9 @@ by Hallvard:
  *
  * define BYTE_CODE_METER to enable generation of a byte-op usage histogram.
  */
-/* #define BYTE_CODE_SAFE */
+#ifndef BYTE_CODE_SAFE
+# define BYTE_CODE_SAFE 1
+#endif /* !BYTE_CODE_SAFE */
 /* #define BYTE_CODE_METER */
 
 /* If BYTE_CODE_THREADED is defined, then the interpreter will be
@@ -291,7 +293,7 @@ enum byte_code_op
 #ifdef BYTE_CODE_SAFE
     Bscan_buffer = 0153, /* No longer generated as of v18.  */
     Bset_mark = 0163, /* this loser is no longer generated as of v18 */
-#endif
+#endif /* BYTE_CODE_SAFE */
 
     B__dummy__ = 0  /* Pacify C89.  */
 };
@@ -312,7 +314,7 @@ struct byte_stack
      allocated with alloca in Fbyte_code.  */
 #if BYTE_MAINTAIN_TOP
   Lisp_Object *top, *bottom;
-#endif
+#endif /* BYTE_MAINTAIN_TOP */
 
   /* The string containing the byte-code, and its current address.
      Storing this here protects it from GC because mark_byte_stack
@@ -324,7 +326,7 @@ struct byte_stack
   /* The vector of constants used during byte-code execution.  Storing
      this here protects it from GC because mark_byte_stack marks it.  */
   Lisp_Object constants;
-#endif
+#endif /* BYTE_MARK_STACK */
 
   /* Next entry in byte_stack_list.  */
   struct byte_stack *next;
@@ -366,7 +368,7 @@ mark_byte_stack (void)
       mark_object (stack->constants);
     }
 }
-#endif
+#endif /* BYTE_MARK_STACK */
 
 /* Unmark objects in the stacks on byte_stack_list.  Relocate program
    counters.  Called when GC has completed.  */
@@ -505,7 +507,7 @@ exec_byte_code (Lisp_Object bytestr, Lisp_Object vector, Lisp_Object maxdepth,
 #ifdef BYTE_CODE_METER
   int volatile this_op = 0;
   int prev_op;
-#endif
+#endif /* BYTE_CODE_METER */
   int op;
   /* Lisp_Object v1, v2; */
   Lisp_Object *vectorp;
@@ -514,14 +516,14 @@ exec_byte_code (Lisp_Object bytestr, Lisp_Object vector, Lisp_Object maxdepth,
   ptrdiff_t volatile const_length;
   Lisp_Object *volatile stacke;
   ptrdiff_t volatile bytestr_length;
-#endif
+#endif /* BYTE_CODE_SAFE */
   struct byte_stack stack;
   struct byte_stack volatile stack_volatile;
   Lisp_Object *top;
   Lisp_Object result;
   enum handlertype type;
 
-#if 0 /* CHECK_FRAME_FONT */
+#if defined(CHECK_FRAME_FONT) && CHECK_FRAME_FONT && defined(SELECTED_FRAME)
  {
    struct frame *f = SELECTED_FRAME ();
    if (FRAME_X_P (f)
@@ -529,7 +531,7 @@ exec_byte_code (Lisp_Object bytestr, Lisp_Object vector, Lisp_Object maxdepth,
        && FRAME_FONT (f)->direction != 1)
      emacs_abort ();
  }
-#endif
+#endif /* CHECK_FRAME_FONT && SELECTED_FRAME */
 
   CHECK_STRING (bytestr);
   CHECK_VECTOR (vector);
@@ -537,7 +539,7 @@ exec_byte_code (Lisp_Object bytestr, Lisp_Object vector, Lisp_Object maxdepth,
 
 #ifdef BYTE_CODE_SAFE
   const_length = ASIZE (vector);
-#endif
+#endif /* BYTE_CODE_SAFE */
 
   if (STRING_MULTIBYTE (bytestr))
     /* BYTESTR must have been produced by Emacs 20.2 or the earlier
@@ -549,27 +551,27 @@ exec_byte_code (Lisp_Object bytestr, Lisp_Object vector, Lisp_Object maxdepth,
 
 #ifdef BYTE_CODE_SAFE
   bytestr_length = SBYTES (bytestr);
-#endif
+#endif /* BYTE_CODE_SAFE */
   vectorp = XVECTOR (vector)->contents;
 
   stack.byte_string = bytestr;
   stack.pc = stack.byte_string_start = SDATA (bytestr);
 #if BYTE_MARK_STACK
   stack.constants = vector;
-#endif
+#endif /* BYTE_MARK_STACK */
   if (MAX_ALLOCA / word_size <= XFASTINT (maxdepth))
     memory_full (SIZE_MAX);
   top = alloca ((XFASTINT (maxdepth) + 1) * sizeof *top);
 #if BYTE_MAINTAIN_TOP
   stack.bottom = top + 1;
   stack.top = NULL;
-#endif
+#endif /* BYTE_MAINTAIN_TOP */
   stack.next = byte_stack_list;
   byte_stack_list = &stack;
 
 #ifdef BYTE_CODE_SAFE
   stacke = stack.bottom - 1 + XFASTINT (maxdepth);
-#endif
+#endif /* BYTE_CODE_SAFE */
 
   if (INTEGERP (args_template))
     {
@@ -2069,3 +2071,5 @@ integer, it is incremented each time that symbol's function is called.  */);
   }
 #endif
 }
+
+/* EOF */

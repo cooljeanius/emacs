@@ -6,6 +6,7 @@ dnl# in the directory containing this script.
 dnl# If you changed any AC_DEFINES, also run autoheader.
 dnl#
 dnl# Copyright (C) 1994-1996, 1999-2014 Free Software Foundation, Inc.
+dnl# Copyright (C) 2014-2016 Eric Gallager
 dnl#
 dnl#  This file is part of GNU Emacs.
 dnl#
@@ -3619,6 +3620,8 @@ else
   gl_WARN_ADD([-Wpointer-compare])dnl
   gl_WARN_ADD([-Wbool-operation])dnl
   gl_WARN_ADD([-Wduplicated-branches])dnl
+  gl_WARN_ADD([-Walloca-larger-than=16384])dnl# MAX_ALLOCA = 16 * 1024
+  gl_WARN_ADD([-Wpsabi])dnl
   ## -faligned-new is checked later:
   if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
     AC_LANG_PUSH([C++])dnl
@@ -3626,6 +3629,7 @@ else
                       [WARN_CXXFLAGS="${WARN_CXXFLAGS} -Waligned-new=all"],
                       [gl_WARN_ADD([-Waligned-new],[WARN_CXXFLAGS])])
     gl_WARN_ADD([-Wbuiltin-function-redefined],[WARN_CXXFLAGS])
+    gl_WARN_ADD([-Wsubobject-linkage],[WARN_CXXFLAGS])
     AC_LANG_POP
   else
     AC_MSG_NOTICE([-Waligned-new is only relevant for C++, skipping it])
@@ -9429,10 +9433,13 @@ if test "x${gl_better_debugging}" = "xyes"; then
   ## See release notes for GCC 3.3 and 3.4:
   if test ${major_vers} -lt 22; then
     gl_WARN_ADD([-fno-zero-initialized-in-bss],[BETTER_DEBUG_CFLAGS])
+  else
+    AC_MSG_NOTICE([Emacs is new enough (${major_vers} >= 22)])
   fi
 fi
 
-copyright="Copyright (C) 2014 Free Software Foundation, Inc."
+copyright_year="2014"
+copyright="Copyright (C) ${copyright_year} Free Software Foundation, Inc."
 copyright_holder="Free Software Foundation, Inc."
 AC_DEFINE_UNQUOTED([COPYRIGHT],["${copyright}"],
   [Short copyright string for this version of Emacs.])
@@ -9440,6 +9447,7 @@ AC_DEFINE_UNQUOTED([COPYRIGHT_HOLDER],["${copyright_holder}"],
   [Alias for the Free Software Foundation])
 AC_SUBST([copyright])dnl
 AC_SUBST([copyright_holder])dnl
+AC_SUBST([copyright_year])dnl
 
 dnl### Specify what sort of things we will be editing into Makefile and
 dnl### into config.h.
@@ -9953,6 +9961,7 @@ AH_TOP([
  *
  * Copyright (C) 1988, 1993-1994, 1999-2002, 2004-2014
  *  Free Software Foundation, Inc.
+ * Copyright (C) 2014-2016 Eric Gallager
  *
  * This file is part of GNU Emacs.
  *

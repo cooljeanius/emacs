@@ -245,8 +245,10 @@ wrong_type_argument (register Lisp_Object predicate, register Lisp_Object value)
      where we can get a backtrace showing where it came from.  We used
      to try and do that by checking the tagbits, but nowadays all
      tagbits are potentially valid.  */
-  /* if ((unsigned int) XTYPE (value) >= Lisp_Type_Limit)
-   *   emacs_abort (); */
+#ifdef SOME_TAGBITS_ARE_POTENTIALLY_INVALID
+  if ((unsigned int)XTYPE(value) >= Lisp_Type_Limit)
+    emacs_abort();
+#endif /* SOME_TAGBITS_ARE_POTENTIALLY_INVALID */
 
   xsignal2 (Qwrong_type_argument, predicate, value);
 }
@@ -1240,8 +1242,10 @@ set_internal (Lisp_Object symbol, Lisp_Object newval, Lisp_Object where,
   Lisp_Object tem1;
 
   /* If restoring in a dead buffer, do nothing.  */
-  /* if (BUFFERP (where) && NILP (XBUFFER (where)->name))
-      return; */
+#ifdef RESTORING_IN_A_DEAD_BUFFER
+  if (BUFFERP(where) && NILP(XBUFFER(where)->name))
+    return;
+#endif /* RESTORING_IN_A_DEAD_BUFFER */
 
   CHECK_SYMBOL (symbol);
   if (SYMBOL_CONSTANT_P (symbol))
@@ -2107,7 +2111,7 @@ selected frame's terminal device).  */)
   pop_kboard ();
   return result;
 }
-#endif
+#endif /* 0 */
 
 /* Find the function at the end of a chain of symbol function indirections.  */
 

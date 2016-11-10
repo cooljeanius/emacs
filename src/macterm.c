@@ -8337,7 +8337,7 @@ static MacFontStruct *mac_load_query_font(struct frame *f, char *fontname)
 	    font->max_bounds.descent = max(font->max_bounds.descent,
                                            pcm->descent);
 	  }
-      if (
+      if ((font != NULL) &&
 #if USE_ATSUI
 	  (font->mac_style == NULL) &&
 #endif /* USE_ATSUI */
@@ -8355,7 +8355,7 @@ static MacFontStruct *mac_load_query_font(struct frame *f, char *fontname)
   /* AppKit and WebKit do some adjustment to the heights of Courier,
      Helvetica, and Times.  This only works on the environments where
      srcCopy text transfer mode is never used.  */
-  if (
+  if ((font != NULL) &&
 # ifdef MAC_OS8			/* implies USE_ATSUI */
       font->mac_style &&
 # endif /* MAC_OS8 */

@@ -2,7 +2,7 @@
 
 # The gnulib commit ID to use for the update.
 # If you know your version is newer, feel free to replace:
-GNULIB_COMMIT_SHA1="54615b95ff238e235e806855efc46a9abad09f2e"
+GNULIB_COMMIT_SHA1="59aa69fd68eb8426b9f67a0023ed54834e84ceb4"
 
 if [ $# -ne 1 ]; then
    echo "Warning: Path to gnulib repository missing."
@@ -73,11 +73,11 @@ else
 	  fstat fstatat fsync ftell ftello ftoastr ftruncate func \
       gendocs getdelim getdtablesize getgroups gethostname getline \
       getloadavg getlogin getopt-gnu getopt-posix getpagesize getpass \
-      getpass-gnu gettext gettext-h gettime gettimeofday \
+      getpass-gnu getprogname gettext gettext-h gettime gettimeofday \
       git-version-gen gitlog-to-changelog gnu-make gpl-3.0 group-member \
       havelib host-cpu-c-abi host-os \
       ignore-value include_next inline intprops inttypes-incomplete \
-      largefile ldd longlong lseek lstat \
+      largefile ldd limits-h longlong lseek lstat \
       maintainer-makefile manywarnings math mbsinit memchr memrchr \
       mkostemp mktime multiarch \
       nextafter no-c++ nocrash \

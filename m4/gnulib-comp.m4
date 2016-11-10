@@ -133,6 +133,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module getpagesize:
   # Code from module getpass:
   # Code from module getpass-gnu:
+  # Code from module getprogname:
   # Code from module gettext:
   # Code from module gettext-h:
   # Code from module gettime:
@@ -142,6 +143,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module gnu-make:
   # Code from module gpl-3.0:
   # Code from module group-member:
+  # Code from module hard-locale:
   # Code from module havelib:
   # Code from module host-cpu-c-abi:
   # Code from module host-os:
@@ -153,6 +155,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module largefile:
   AC_REQUIRE([AC_SYS_LARGEFILE])
   # Code from module ldd:
+  # Code from module limits-h:
   # Code from module longlong:
   # Code from module lseek:
   # Code from module lstat:
@@ -553,6 +556,7 @@ AC_DEFUN([gl_INIT],
     AC_LIBOBJ([getpass])
     gl_PREREQ_GETPASS
   fi
+  gl_FUNC_GETPROGNAME
   dnl you must add AM_GNU_GETTEXT([external]) or similar to configure.ac.
   AM_GNU_GETTEXT_VERSION([0.18.1])
   AC_SUBST([LIBINTL])
@@ -578,6 +582,7 @@ AC_DEFUN([gl_INIT],
   AC_REQUIRE([gl_LARGEFILE])
   gl_LDD
   AC_CONFIG_FILES([ldd.sh:build-aux/ldd.sh.in])
+  gl_LIMITS_H
   AC_REQUIRE([AC_TYPE_LONG_LONG_INT])
   AC_REQUIRE([AC_TYPE_UNSIGNED_LONG_LONG_INT])
   gl_FUNC_LSEEK
@@ -924,6 +929,7 @@ AC_DEFUN([gl_INIT],
   gl_UNISTD_MODULE_INDICATOR([write])
   gl_XALLOC
   gl_gnulib_enabled_260941c0e5dc67ec9e87d1fb321c300b=false
+  gl_gnulib_enabled_30838f5439487421042f2225bed3af76=false
   gl_gnulib_enabled_malloca=false
   gl_gnulib_enabled_memmove=false
   gl_gnulib_enabled_5264294aa0a5557541b53c8c741f7f31=false
@@ -939,6 +945,13 @@ AC_DEFUN([gl_INIT],
     if ! $gl_gnulib_enabled_260941c0e5dc67ec9e87d1fb321c300b; then
       AC_LIBOBJ([openat-proc])
       gl_gnulib_enabled_260941c0e5dc67ec9e87d1fb321c300b=true
+    fi
+  }
+  func_gl_gnulib_m4code_30838f5439487421042f2225bed3af76 ()
+  {
+    if ! $gl_gnulib_enabled_30838f5439487421042f2225bed3af76; then
+      gl_HARD_LOCALE
+      gl_gnulib_enabled_30838f5439487421042f2225bed3af76=true
     fi
   }
   func_gl_gnulib_m4code_malloca ()
@@ -1061,6 +1074,9 @@ AC_DEFUN([gl_INIT],
   if test $HAVE_FSTATAT = 0 || test $REPLACE_FSTATAT = 1; then
     func_gl_gnulib_m4code_260941c0e5dc67ec9e87d1fb321c300b
   fi
+  if test $HAVE_MBRTOWC = 0 || test $REPLACE_MBRTOWC = 1; then
+    func_gl_gnulib_m4code_30838f5439487421042f2225bed3af76
+  fi
   if test $HAVE_OPENAT = 0; then
     func_gl_gnulib_m4code_260941c0e5dc67ec9e87d1fb321c300b
   fi
@@ -1090,6 +1106,7 @@ AC_DEFUN([gl_INIT],
   fi
   m4_pattern_allow([^gl_GNULIB_ENABLED_])
   AM_CONDITIONAL([gl_GNULIB_ENABLED_260941c0e5dc67ec9e87d1fb321c300b], [$gl_gnulib_enabled_260941c0e5dc67ec9e87d1fb321c300b])
+  AM_CONDITIONAL([gl_GNULIB_ENABLED_30838f5439487421042f2225bed3af76], [$gl_gnulib_enabled_30838f5439487421042f2225bed3af76])
   AM_CONDITIONAL([gl_GNULIB_ENABLED_malloca], [$gl_gnulib_enabled_malloca])
   AM_CONDITIONAL([gl_GNULIB_ENABLED_memmove], [$gl_gnulib_enabled_memmove])
   AM_CONDITIONAL([gl_GNULIB_ENABLED_5264294aa0a5557541b53c8c741f7f31], [$gl_gnulib_enabled_5264294aa0a5557541b53c8c741f7f31])
@@ -1323,6 +1340,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/filemode.h
   lib/filevercmp.c
   lib/filevercmp.h
+  lib/flexmember.h
   lib/float.c
   lib/float.in.h
   lib/fopen.c
@@ -1354,15 +1372,20 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/getpagesize.c
   lib/getpass.c
   lib/getpass.h
+  lib/getprogname.c
+  lib/getprogname.h
   lib/gettext.h
   lib/gettime.c
   lib/gettimeofday.c
   lib/gl_openssl.h
   lib/group-member.c
+  lib/hard-locale.c
+  lib/hard-locale.h
   lib/ignore-value.h
   lib/intprops.h
   lib/inttypes.in.h
   lib/itold.c
+  lib/limits.in.h
   lib/lseek.c
   lib/lstat.c
   lib/malloca.c
@@ -1581,6 +1604,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/getopt.m4
   m4/getpagesize.m4
   m4/getpass.m4
+  m4/getprogname.m4
   m4/gettext.m4
   m4/gettime.m4
   m4/gettimeofday.m4
@@ -1590,6 +1614,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/gnu-make.m4
   m4/gnulib-common.m4
   m4/group-member.m4
+  m4/hard-locale.m4
   m4/host-cpu-c-abi.m4
   m4/host-os.m4
   m4/iconv.m4
@@ -1611,6 +1636,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/lib-ld.m4
   m4/lib-link.m4
   m4/lib-prefix.m4
+  m4/limits-h.m4
   m4/locale-fr.m4
   m4/locale-ja.m4
   m4/locale-zh.m4

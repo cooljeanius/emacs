@@ -1144,7 +1144,7 @@ mac_dialog_modal_filter(DialogRef dialog, EventRecord *event,
 
   return result;
 }
-#endif
+#endif /* MAC_OSX */
 
 DEFUN ("x-popup-dialog", Fx_popup_dialog, Sx_popup_dialog, 2, 3, 0,
        doc: /* Pop up a dialog box and return the selection the user made.
@@ -1196,7 +1196,7 @@ for instance using the window manager, then this produces a quit and
 	XSETFRAME (window, new_f);
       else
 	window = selected_window;
-#endif
+#endif /* 0 */
       window = selected_window;
     }
   else if (CONSP (position))
@@ -1299,10 +1299,10 @@ for instance using the window manager, then this produces a quit and
 	    {
 	      param.defaultText = CFSTR("Yes");
 	      param.otherText = CFSTR("No");
-#if 0
+# if 0
 	      param.cancelText = CFSTR("Cancel");
 	      param.cancelButton = kAlertStdAlertCancelButton;
-#endif /* 0 */
+# endif /* 0 */
 	    }
 	  err = CreateStandardAlert(kAlertNoteAlert, error_string,
 				    explanation_string, &param, &alert);
@@ -1324,7 +1324,7 @@ for instance using the window manager, then this produces a quit and
 	    return Qnil;
 	}
     }
-#endif
+#endif /* MAC_OSX */
 #ifndef HAVE_DIALOGS
   /* Display a menu with these alternatives
      in the middle of frame F.  */
@@ -1907,7 +1907,7 @@ install_menu_target_item_handler(WindowPtr window)
   err = InstallWindowEventHandler (window, menu_target_item_handlerUPP,
 				   GetEventTypeCount (specs), specs,
 				   NULL, NULL);
-#endif
+#endif /* TARGET_API_MAC_CARBON */
   return err;
 }
 
@@ -3240,7 +3240,7 @@ mac_dialog_show(FRAME_PTR f, int keymaps, Lisp_Object title,
   menu_item_selection = create_and_show_dialog (f, first_wv);
 #else
   menu_item_selection = mac_dialog (first_wv);
-#endif
+#endif /* TARGET_API_MAC_CARBON */
 
   /* Free the widget_value objects we used to specify the contents.  */
   free_menubar_widget_value_tree (first_wv);
@@ -3432,7 +3432,7 @@ fill_menubar(widget_value *wv, int deep_p)
       dispose_menus (MAC_MENU_MENU_BAR_SUB, 0);
 #if !TARGET_API_MAC_CARBON
       title_changed_p = 1;
-#endif
+#endif /* !TARGET_API_MAC_CARBON */
     }
 
   /* Fill menu bar titles and submenus.  Reuse the existing menu bar

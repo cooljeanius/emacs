@@ -40,6 +40,9 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_HEADER_CHECKS],[
       AC_REQUIRE([gl_INTTYPES_H])dnl
     ])dnl
   ])dnl# end third block that requires warn-on-use
+  m4_ifdef([gl_LIMITS_H],[
+    AC_REQUIRE([gl_LIMITS_H])dnl
+  ])dnl
   m4_ifdef([gl_SCHED_H],[
     AC_REQUIRE([gl_SCHED_H])dnl
   ])dnl#

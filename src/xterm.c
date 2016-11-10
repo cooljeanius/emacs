@@ -3062,15 +3062,15 @@ XTflash (struct frame *f)
 			width, height - 2 * FRAME_INTERNAL_BORDER_WIDTH (f));
 
 #ifdef USE_GTK
-#ifdef HAVE_GTK3
+# ifdef HAVE_GTK3
       cairo_destroy (cr);
-#else
+# else
       g_object_unref (G_OBJECT (gc));
-#endif
-#undef XFillRectangle
+# endif /* HAVE_GTK3 */
+# undef XFillRectangle
 #else
       XFreeGC (FRAME_X_DISPLAY (f), gc);
-#endif
+#endif /* USE_GTK */
       x_flush (f);
     }
   }
@@ -3553,7 +3553,7 @@ x_mouse_leave (struct x_display_info *dpyinfo)
 {
   x_new_focus_frame (dpyinfo, dpyinfo->x_focus_event_frame);
 }
-#endif
+#endif /* !USE_X_TOOLKIT && !USE_GTK */
 
 /* The focus has changed, or we have redirected a frame's focus to
    another frame (this happens when a frame uses a surrogate

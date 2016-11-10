@@ -1,6 +1,6 @@
-/* Composite sequence support.
+/* composite.c: Composite sequence support.
    Copyright (C) 2001-2014 Free Software Foundation, Inc.
-   Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011
+   Copyright (C) 1999-2011
      National Institute of Advanced Industrial Science and Technology (AIST)
      Registration Number H14PRO021
    Copyright (C) 2003, 2006
@@ -130,9 +130,7 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
    range just shorter.  So, we can check the validity of the `composition'
    property by comparing LENGTH information with the actual length of
    the composition.
-
 */
-
 
 Lisp_Object Qcomposition;
 
@@ -2020,3 +2018,5 @@ See also the documentation of `auto-composition-mode'.  */);
   defsubr (&Sfind_composition_internal);
   defsubr (&Scomposition_get_gstring);
 }
+
+/* EOF */
