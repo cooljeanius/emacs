@@ -1581,6 +1581,7 @@ HAVE_REALPATH
 HAVE_RANDOM_R
 HAVE_RANDOM_H
 HAVE_RANDOM
+HAVE_QSORT_R
 HAVE_PTSNAME_R
 HAVE_PTSNAME
 HAVE_POSIX_OPENPT
@@ -1953,6 +1954,7 @@ STDALIGN_H
 GL_GENERATE_SCHED_H_FALSE
 GL_GENERATE_SCHED_H_TRUE
 SCHED_H
+HAVE_SYS_CDEFS_H
 HAVE_STRUCT_SCHED_PARAM
 HAVE_SCHED_H
 NEXT_AS_FIRST_DIRECTIVE_SCHED_H
@@ -14772,6 +14774,7 @@ fi
   if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" != "xyes"; then
     nw="${nw} -Wbad-function-cast"  # These casts are no worse than others.
   fi
+  nw="${nw} -Wignored-attributes"                        # invalid for ObjC
   nw="${nw} -Wignored-qualifiers"                        # invalid for ObjC
   nw="${nw} -Wopenmp-simd"                               # invalid for ObjC
   nw="${nw} -Wcomments" # redundant synonym for the un-pluralized -Wcomment
@@ -14926,10 +14929,11 @@ else
         CFLAGS="$CFLAGS -W -Werror"
         cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-void f (void)
+int f (void)
                {
                  typedef struct { int a; int b; } s_t;
                  s_t s1 = { 0, };
+                 return s1.b;
                }
 
 int
@@ -20672,7 +20676,7 @@ then :
 fi
 
 
-    ##
+      ##
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -fbounds-check" >&5
 printf %s "checking whether C compiler handles -fbounds-check... " >&6; }
@@ -34692,9 +34696,9 @@ done
 
 
   for ac_header in OS.h arpa/inet.h dpmi.h err.h errno.h fcntl.h float.h \
-                  io.h langinfo.h libc.h libintl.h limits.h locale.h \
-                  malloc.h mbstring.h msvcrt/string.h paths.h nl_types.h \
-                  sgtty.h signal.h stddef.h sys/_mbstate_t.h sys/bsdtty.h \
+                  io.h langinfo.h libc.h libintl.h locale.h malloc.h \
+                  mbstring.h msvcrt/string.h paths.h nl_types.h sgtty.h \
+                  signal.h stddef.h sys/_mbstate_t.h sys/bsdtty.h \
                   sys/file.h sys/ptyio.h sys/signal.h sys/sysctl.h \
                   sys/syslimits.h sys/timeb.h sys/vfs.h sysexits.h \
                   termcap.h termio.h timespec.h unixlib.h
@@ -34710,6 +34714,21 @@ _ACEOF
 fi
 done
 
+if test "x${ac_cv_header_limits_h}" = "x"; then
+  test -z "${ac_cv_header_limits_h}"
+  for ac_header in limits.h
+do :
+  ac_fn_c_check_header_compile "$LINENO" "limits.h" "ac_cv_header_limits_h" "$ac_includes_default"
+if test "x$ac_cv_header_limits_h" = xyes
+then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIMITS_H 1
+_ACEOF
+
+fi
+done
+
+fi
 if test "x${ac_cv_header_stdalign_h}" = "x"; then
   test -z "${ac_cv_header_stdalign_h}"
   for ac_header in stdalign.h
@@ -36264,6 +36283,13 @@ else
   HAVE_STRUCT_SCHED_PARAM=0
 fi
 
+     fi
+
+
+     if test "$ac_cv_header_sys_cdefs_h" = yes; then
+       HAVE_SYS_CDEFS_H=1
+     else
+       HAVE_SYS_CDEFS_H=0
      fi
 
 
@@ -49970,6 +49996,7 @@ printf "%s\n" "$gl_cv_func_getgroups_works" >&6; }
   HAVE_POSIX_OPENPT=1;
   HAVE_PTSNAME=1;
   HAVE_PTSNAME_R=1;
+  HAVE_QSORT_R=1;
   HAVE_RANDOM=1;
   HAVE_RANDOM_H=1;
   HAVE_RANDOM_R=1;
@@ -53233,6 +53260,82 @@ _ACEOF
 
 
 
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether strerror_r returns char *" >&5
+printf %s "checking whether strerror_r returns char *... " >&6; }
+if test ${ac_cv_func_strerror_r_char_p+y}
+then :
+  printf %s "(cached) " >&6
+else
+
+    ac_cv_func_strerror_r_char_p=no
+    if test $ac_cv_have_decl_strerror_r = yes; then
+      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+$ac_includes_default
+int
+main (void)
+{
+
+	  char buf[100];
+	  char x = *strerror_r (0, buf, sizeof buf);
+	  char *p = strerror_r (0, buf, sizeof buf);
+	  return !p || x;
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"
+then :
+  ac_cv_func_strerror_r_char_p=yes
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+    else
+      # strerror_r is not declared.  Choose between
+      # systems that have relatively inaccessible declarations for the
+      # function.  BeOS and DEC UNIX 4.0 fall in this category, but the
+      # former has a strerror_r that returns char*, while the latter
+      # has a strerror_r that returns `int'.
+      # This test should segfault on the DEC system.
+      if test "$cross_compiling" = yes
+then :
+  :
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+$ac_includes_default
+	extern char *strerror_r ();
+int
+main (void)
+{
+char buf[100];
+	  char x = *strerror_r (0, buf, sizeof buf);
+	  return ! isalpha (x);
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_run "$LINENO"
+then :
+  ac_cv_func_strerror_r_char_p=yes
+fi
+rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
+  conftest.$ac_objext conftest.beam conftest.$ac_ext
+fi
+
+    fi
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_func_strerror_r_char_p" >&5
+printf "%s\n" "$ac_cv_func_strerror_r_char_p" >&6; }
+if test $ac_cv_func_strerror_r_char_p = yes; then
+
+printf "%s\n" "#define STRERROR_R_CHAR_P 1" >>confdefs.h
+
+fi
+
+
+
 
 
 
@@ -53241,6 +53344,11 @@ _ACEOF
   if test $ac_cv_have_decl_strerror_r = no; then
     HAVE_DECL_STRERROR_R=0
   fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_STRERROR_R_ORIG $HAVE_DECL_STRERROR_R
+_ACEOF
+
 
   if test $ac_cv_func_strerror_r = yes; then
     if test "$ERRNO_H:$REPLACE_STRERROR_0" = :0; then
@@ -53255,6 +53363,13 @@ _ACEOF
                   REPLACE_STRERROR_R=1
     fi
   fi
+
+  # Overwrite the findings of AC_FUNC_STRERROR_R (for code that uses that).
+
+  printf "%s\n" "#define HAVE_DECL_STRERROR_R 1" >>confdefs.h
+
+  printf "%s\n" "#define STRERROR_R_CHAR_P 0" >>confdefs.h
+
 
 
 
@@ -55876,14 +55991,14 @@ done
 fi
 for ac_func in __fpending _stricmp acl atexit atof atoi btowc bzero \
                 cuserid doprnt errc fabs fabsf fgets floor ftime \
-                get_etext get_edata get_end geteuid getpass getpwuid \
-                inet_ntoa isascii iswprint mbrlen memmove memset mkdir \
-                munmap nl_langinfo pathconf posix_spawnp pow putenv \
-                re_comp reallocf regcomp rmdir socket sqrt strcasecmp \
-                strcasestr strchr strcmp strcspn strdup strerror stricmp \
-                strlcat strlcpy strncasecmp strncat strncmp strnicmp \
-                strnstr strpbrk strrchr strtok strtok_r strtol strtoul \
-                sysctl system xstricmp utime utmpname vfprintf
+                get_etext get_edata get_end getpass getpwuid inet_ntoa \
+                isascii iswprint mbrlen memmove memset mkdir munmap \
+                nl_langinfo pathconf posix_spawnp pow putenv re_comp \
+                reallocf regcomp rmdir socket sqrt strcasecmp strcasestr \
+                strchr strcmp strcspn strdup strerror stricmp strlcat \
+                strlcpy strncasecmp strncat strncmp strnicmp strnstr \
+                strpbrk strrchr strtok strtok_r strtol strtoul sysctl \
+                system xstricmp utime utmpname vfprintf
 do :
   as_ac_var=`printf "%s\n" "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -55950,9 +56065,9 @@ _ACEOF
 
 fi
 done
-    for ac_func in alarm dup2 fchdir ftruncate getcwd gethostbyname \
-                  getpagesize gettimeofday localtime_r setenv strtoumax \
-                  tzset uname
+    for ac_func in alarm dup2 fchdir ftruncate getcwd geteuid \
+                  gethostbyname getpagesize gettimeofday localtime_r \
+                  setenv strtoumax tzset uname
 do :
   as_ac_var=`printf "%s\n" "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -76038,6 +76153,13 @@ fi
      fi
 
 
+     if test "$ac_cv_header_sys_cdefs_h" = yes; then
+       HAVE_SYS_CDEFS_H=1
+     else
+       HAVE_SYS_CDEFS_H=0
+     fi
+
+
 
 
 fi
@@ -81359,6 +81481,11 @@ printf "%s\n" "$gl_cv_func_strchrnul_works" >&6; }
     HAVE_DECL_STRERROR_R=0
   fi
 
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_STRERROR_R_ORIG $HAVE_DECL_STRERROR_R
+_ACEOF
+
+
   if test $ac_cv_func_strerror_r = yes; then
     if test "$ERRNO_H:$REPLACE_STRERROR_0" = :0; then
       if test $gl_cv_func_strerror_r_posix_signature = yes; then
@@ -81372,6 +81499,13 @@ printf "%s\n" "$gl_cv_func_strchrnul_works" >&6; }
                   REPLACE_STRERROR_R=1
     fi
   fi
+
+  # Overwrite the findings of AC_FUNC_STRERROR_R (for code that uses that).
+
+  printf "%s\n" "#define HAVE_DECL_STRERROR_R 1" >>confdefs.h
+
+  printf "%s\n" "#define STRERROR_R_CHAR_P 0" >>confdefs.h
+
 
       if test $HAVE_DECL_STRERROR_R = 0 || test $REPLACE_STRERROR_R = 1; then
 

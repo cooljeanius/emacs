@@ -1948,16 +1948,21 @@ exec_byte_code (Lisp_Object bytestr, Lisp_Object vector, Lisp_Object maxdepth,
 	  error ("scan-buffer is an obsolete bytecode");
 	  AFTER_POTENTIAL_GC ();
 	  break;
-#endif
+#endif /* BYTE_CODE_SAFE */
 
 	CASE_ABORT:
 	  /* Actually this is Bstack_ref with offset 0, but we use Bdup
 	     for that instead.  */
-	  /* CASE (Bstack_ref): */
-         call3 (intern ("error"),
-                build_string ("Invalid byte opcode: op=%s, ptr=%d"),
-                make_number (op),
-                make_number ((stack.pc - 1) - stack.byte_string_start));
+#if 0
+	CASE (Bstack_ref):
+#endif /* 0 */
+         call3(intern("error"),
+               build_string("Invalid byte opcode: op=%s, ptr=%d"),
+               make_number(op),
+               make_number((stack.pc - 1) - stack.byte_string_start));
+#if defined(BYTE_CODE_SAFE) && defined(lint) && defined(CASE_ABORT)
+	 emacs_abort();
+#endif /* BYTE_CODE_SAFE && lint && CASE_ABORT */
 
 	  /* Handy byte-codes for lexical binding.  */
 	CASE (Bstack_ref1):

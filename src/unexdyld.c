@@ -66,7 +66,33 @@ typedef struct section_list_t
   struct section section;
 } section_list_t;
 
-static void fatal_unexec(const char *format, ...)
+/* Debugging and informational messages routines: */
+#ifndef _GL_ATTRIBUTE_FORMAT
+# if (defined(__GNUC__) && defined(__GNUC_MINOR__)) && \
+     ((__GNUC__ > 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 7)))
+#  define _GL_ATTRIBUTE_FORMAT(spec) __attribute__((__format__ spec))
+# else
+#  define _GL_ATTRIBUTE_FORMAT(spec) /* empty */
+# endif /* gcc 2.7+ */
+#endif /* !_GL_ATTRIBUTE_FORMAT */
+
+#ifndef _GL_ATTRIBUTE_FORMAT_PRINTF
+/* _GL_ATTRIBUTE_FORMAT_PRINTF
+ * indicates to GCC that the function takes a format string and arguments,
+ * where the format string directives are the ones standardized by ISO C99
+ * and POSIX.  */
+# if (defined(__GNUC__) && defined(__GNUC_MINOR__)) && \
+     ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 4)))
+#  define _GL_ATTRIBUTE_FORMAT_PRINTF(formatstring_parameter, first_argument) \
+    _GL_ATTRIBUTE_FORMAT((__gnu_printf__, formatstring_parameter, first_argument))
+# else
+#  define _GL_ATTRIBUTE_FORMAT_PRINTF(formatstring_parameter, first_argument) \
+    _GL_ATTRIBUTE_FORMAT((__printf__, formatstring_parameter, first_argument))
+# endif /* gcc 4.4+ */
+#endif /* !_GL_ATTRIBUTE_FORMAT_PRINTF */
+
+static _Noreturn void _GL_ATTRIBUTE_FORMAT_PRINTF(1, 2)
+fatal_unexec(const char *format, ...)
 {
   va_list ap;
 

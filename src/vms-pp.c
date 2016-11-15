@@ -49,6 +49,12 @@ Boston, MA 02111-1307, USA.
  *	bomb.
  */
 #include <stdio.h>
+#if defined(HAVE_STDLIB_H) || defined(STDC_HEADERS) || defined(__STDC__)
+# include <stdlib.h>
+#endif /* HAVE_STDLIB_H || STDC_HEADERS || __STDC__ */
+#if defined(HAVE_STRING_H) || defined(STDC_HEADERS) || defined(__STDC__)
+# include <string.h>
+#endif /* HAVE_STRING_H || STDC_HEADERS || __STDC__ */
 
 #define Max_table 100
 #define Table_name "vms_pp.trans"

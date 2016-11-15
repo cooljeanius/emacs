@@ -21,9 +21,9 @@ Boston, MA 02110-1301, USA.  */
 
 /* Written by Leonard N. Zubkoff.  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+#if defined(HAVE_CONFIG_H) || defined(emacs)
+# include <config.h>
+#endif /* HAVE_CONFIG_H || emacs */
 
 #include <fcntl.h>
 

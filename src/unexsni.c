@@ -295,7 +295,10 @@ what you give them.   Help stamp out software-hoarding!  */
  *	0	0	0x4          0
  *
  */
-
+
+#if defined(HAVE_CONFIG_H) || defined(emacs)
+# include <config.h>
+#endif /* HAVE_CONFIG_H || emacs */
 #include <sys/types.h>
 #include <stdio.h>
 #include <sys/stat.h>

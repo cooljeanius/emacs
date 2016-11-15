@@ -73,18 +73,18 @@ bss_sbrk(ptrdiff_t request_size)
     }
   else if ((bss_sbrk_ptr + (int)request_size) < bss_sbrk_buffer)
     {
-      printf("attempt to free too much: avail %d used %ld failed request %d\n",
-             STATIC_HEAP_SIZE, (bss_sbrk_ptr - bss_sbrk_buffer),
-             (int)request_size);
+      const ptrdiff_t used_amt0 = (bss_sbrk_ptr - bss_sbrk_buffer);
+      printf("attempt to free too much: avail %d used %"pD"d failed req. %d\n",
+             STATIC_HEAP_SIZE, used_amt0, (int)request_size);
       exit(-1);
       return 0;
     }
   else if ((bss_sbrk_ptr + (int)request_size)
            > (bss_sbrk_buffer + STATIC_HEAP_SIZE))
     {
-      printf("static heap exhausted: avail %d used %ld failed request %d\n",
-	     STATIC_HEAP_SIZE,
-	     (bss_sbrk_ptr - bss_sbrk_buffer), (int)request_size);
+      const ptrdiff_t used_amt1 = (bss_sbrk_ptr - bss_sbrk_buffer);
+      printf("static heap exhausted: avail %d used %"pD"d failed request %d\n",
+	     STATIC_HEAP_SIZE, used_amt1, (int)request_size);
       exit(-1);
       return 0;
     }
@@ -92,14 +92,14 @@ bss_sbrk(ptrdiff_t request_size)
     {
       bss_sbrk_ptr += (int)request_size;
       if (debug_sheap)
-	printf("freed size %ld\n", request_size);
+	printf("freed size %"pD"d\n", request_size);
       return bss_sbrk_ptr;
     }
   else
     {
       char *ret = bss_sbrk_ptr;
       if (debug_sheap)
-	printf("allocated 0x%08lx size %ld\n", (unsigned long)ret,
+	printf("allocated 0x%08lx size %"pD"d\n", (unsigned long)ret,
                request_size);
       bss_sbrk_ptr += (int)request_size;
       if (bss_sbrk_ptr > max_bss_sbrk_ptr)
@@ -112,8 +112,9 @@ void
 report_sheap_usage(int die_if_pure_storage_exceeded)
 {
   char buf[200];
-  sprintf(buf, "Maximum static heap usage: %ld of %d bytes",
-	  (max_bss_sbrk_ptr - bss_sbrk_buffer), STATIC_HEAP_SIZE);
+  const ptrdiff_t usage_amt = (max_bss_sbrk_ptr - bss_sbrk_buffer);
+  snprintf(buf, sizeof(buf), "Maximum static heap usage: %"pD"d of %d bytes",
+	   usage_amt, STATIC_HEAP_SIZE);
   /* Do NOT log messages, because at this point, we are not allowed
    * to create buffers: */
   message1_nolog(buf);

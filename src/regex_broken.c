@@ -2652,6 +2652,7 @@ regex_compile(const_re_char *pattern, size_t size, reg_syntax_t syntax,
 	  if ((syntax & RE_BK_PLUS_QM)
 	      || (syntax & RE_LIMITED_OPS))
 	    goto normal_char;
+	  ATTRIBUTE_FALLTHROUGH;
 	handle_plus:
 	case '*':
 	  /* If there is no previous pattern...  */
@@ -3167,6 +3168,7 @@ regex_compile(const_re_char *pattern, size_t size, reg_syntax_t syntax,
 				   with non-0. */
 				if (regnum == 0)
 				  FREE_STACK_RETURN(REG_BADPAT);
+				ATTRIBUTE_FALLTHROUGH;
 			      case '1': case '2': case '3': case '4':
 			      case '5': case '6': case '7': case '8': case '9':
 				regnum = (10 * regnum) + (c - '0'); break;

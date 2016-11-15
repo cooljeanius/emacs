@@ -1,4 +1,4 @@
-/* Trivial unexec for Solaris.  */
+/* unexsol.c: Trivial unexec for Solaris.  */
 
 #include <config.h>
 #include "unexec.h"
@@ -28,3 +28,5 @@ unexec (const char *new_name, const char *old_name)
   xsignal (Qfile_error,
 	   Fcons (build_string ("Cannot unexec"), Fcons (errstring, data)));
 }
+
+/* EOF */

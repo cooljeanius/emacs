@@ -3147,6 +3147,7 @@ else
   if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" != "xyes"; then
     nw="${nw} -Wbad-function-cast"  # These casts are no worse than others.
   fi
+  nw="${nw} -Wignored-attributes"                        # invalid for ObjC
   nw="${nw} -Wignored-qualifiers"                        # invalid for ObjC
   nw="${nw} -Wopenmp-simd"                               # invalid for ObjC
   nw="${nw} -Wcomments" # redundant synonym for the un-pluralized -Wcomment
@@ -3715,7 +3716,8 @@ if test "x${gl_better_debugging}" = "xyes"; then
   gl_WARN_ADD([-fno-sched-spec-load-dangerous],[BETTER_DEBUG_CFLAGS])
   dnl# The GCC manual says that this can affect the debugging experience:
   gl_WARN_ADD([-fno-split-wide-types],[BETTER_DEBUG_CFLAGS])
-  dnl# FIXME: investigate if '-fno-common' affects dumping at all.
+  dnl# FIXME: manywarnings.m4 will now automatically add '-fno-common'
+  dnl# for us; investigate if that affects dumping at all.
   ##
   dnl# This next one is not supported for C currently, but it is not
   dnl# rejected either, so why not try it, in case one day the C frontend
@@ -4574,14 +4576,18 @@ dnl# checks for which it is okay if they jump out of order:
 AC_CHECK_HEADERS_ONCE([sys/sysinfo.h])dnl
 dnl# Try to keep this second batch in alphabetical order:
 AC_CHECK_HEADERS([OS.h arpa/inet.h dpmi.h err.h errno.h fcntl.h float.h \
-                  io.h langinfo.h libc.h libintl.h limits.h locale.h \
-                  malloc.h mbstring.h msvcrt/string.h paths.h nl_types.h \
-                  sgtty.h signal.h stddef.h sys/_mbstate_t.h sys/bsdtty.h \
+                  io.h langinfo.h libc.h libintl.h locale.h malloc.h \
+                  mbstring.h msvcrt/string.h paths.h nl_types.h sgtty.h \
+                  signal.h stddef.h sys/_mbstate_t.h sys/bsdtty.h \
                   sys/file.h sys/ptyio.h sys/signal.h sys/sysctl.h \
                   sys/syslimits.h sys/timeb.h sys/vfs.h sysexits.h \
                   termcap.h termio.h timespec.h unixlib.h])
 dnl# (usually I would have checked <malloc/malloc.h> just after <malloc.h>,
 dnl# but we do that elsewhere in this one)
+if test "x${ac_cv_header_limits_h}" = "x"; then
+  test -z "${ac_cv_header_limits_h}"
+  AC_CHECK_HEADERS([limits.h])
+fi
 if test "x${ac_cv_header_stdalign_h}" = "x"; then
   test -z "${ac_cv_header_stdalign_h}"
   AC_CHECK_HEADERS([stdalign.h])
@@ -8020,14 +8026,14 @@ fi
 dnl# these ones should be in alphabetical order:
 AC_CHECK_FUNCS([__fpending _stricmp acl atexit atof atoi btowc bzero \
                 cuserid doprnt errc fabs fabsf fgets floor ftime \
-                get_etext get_edata get_end geteuid getpass getpwuid \
-                inet_ntoa isascii iswprint mbrlen memmove memset mkdir \
-                munmap nl_langinfo pathconf posix_spawnp pow putenv \
-                re_comp reallocf regcomp rmdir socket sqrt strcasecmp \
-                strcasestr strchr strcmp strcspn strdup strerror stricmp \
-                strlcat strlcpy strncasecmp strncat strncmp strnicmp \
-                strnstr strpbrk strrchr strtok strtok_r strtol strtoul \
-                sysctl system xstricmp utime utmpname vfprintf])
+                get_etext get_edata get_end getpass getpwuid inet_ntoa \
+                isascii iswprint mbrlen memmove memset mkdir munmap \
+                nl_langinfo pathconf posix_spawnp pow putenv re_comp \
+                reallocf regcomp rmdir socket sqrt strcasecmp strcasestr \
+                strchr strcmp strcspn strdup strerror stricmp strlcat \
+                strlcpy strncasecmp strncat strncmp strnicmp strnstr \
+                strpbrk strrchr strtok strtok_r strtol strtoul sysctl \
+                system xstricmp utime utmpname vfprintf])
 dnl# Keep autoscan happy with a dummy condition:
 if test "x" = "Y0"; then
   test -x "`which autoscan`"
@@ -8038,9 +8044,9 @@ if test "x" = "Y0"; then
   m4_ifdef([AC_CHECK_FUNCS_ONCE],[
     AC_CHECK_FUNCS([getdelim])dnl
   ])dnl
-  AC_CHECK_FUNCS([alarm dup2 fchdir ftruncate getcwd gethostbyname \
-                  getpagesize gettimeofday localtime_r setenv strtoumax \
-                  tzset uname])dnl
+  AC_CHECK_FUNCS([alarm dup2 fchdir ftruncate getcwd geteuid \
+                  gethostbyname getpagesize gettimeofday localtime_r \
+                  setenv strtoumax tzset uname])dnl
   ## just in case...
 fi
 

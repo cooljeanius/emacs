@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 /*
-   Geoff Voelker (voelker@cs.washington.edu)                         8-12-94
+   Geoff Voelker <voelker@cs.washington.edu>                         8-12-94
 */
 
 #include <config.h>
@@ -811,14 +811,18 @@ unexec (const char *new_name, const char *old_name)
     nt_header = (PIMAGE_NT_HEADERS) ((char *) dos_header + dos_header->e_lfanew);
 
     nt_header->OptionalHeader.CheckSum = 0;
-//    nt_header->FileHeader.TimeDateStamp = time (NULL);
-//    dos_header->e_cp = size / 512;
-//    nt_header->OptionalHeader.SizeOfImage = size;
+#if 0
+    nt_header->FileHeader.TimeDateStamp = time(NULL);
+    dos_header->e_cp = (size / 512);
+    nt_header->OptionalHeader.SizeOfImage = size;
+#endif /* 0 */
 
     pfnCheckSumMappedFile = (void *) GetProcAddress (hImagehelp, "CheckSumMappedFile");
     if (pfnCheckSumMappedFile)
       {
-//	nt_header->FileHeader.TimeDateStamp = time (NULL);
+#if 0
+	nt_header->FileHeader.TimeDateStamp = time(NULL);
+#endif /* 0 */
 	pfnCheckSumMappedFile (out_file.file_base,
 			       out_file.size,
 			       &headersum,

@@ -1,4 +1,4 @@
-/* Block-relocating memory allocator.
+/* ralloc.c: Block-relocating memory allocator.
    Copyright (C) 1993, 1995, 2000-2014 Free Software Foundation, Inc.
 
 This file is part of GNU Emacs.
@@ -97,7 +97,7 @@ static int extra_bytes;
 
 #ifndef SYSTEM_MALLOC
 extern void *(*__morecore) (ptrdiff_t);
-#endif
+#endif /* !SYSTEM_MALLOC */
 
 
 
@@ -939,7 +939,7 @@ r_alloc_free (void **ptr)
 
 #ifdef emacs
   refill_memory_reserve ();
-#endif
+#endif /* emacs */
 }
 
 /* Given a pointer at address PTR to relocatable data, resize it to SIZE.
@@ -1059,7 +1059,7 @@ r_alloc_check (void)
 	 the heap start has any sort of alignment.
 	 Perhaps it should.  */
       assert ((void *) MEM_ROUNDUP (h->start) == h->start);
-#endif
+#endif /* 0 */
       assert ((void *) MEM_ROUNDUP (h->bloc_start) == h->bloc_start);
       assert (h->start <= h->bloc_start && h->bloc_start <= h->end);
 
@@ -1191,14 +1191,14 @@ r_alloc_init (void)
     emacs_abort ();
 
   extra_bytes = PAGE_ROUNDUP (50000);
-#endif
+#endif /* !SYSTEM_MALLOC */
 
 #ifdef DOUG_LEA_MALLOC
   block_input ();
   mallopt (M_TOP_PAD, 64 * 4096);
   unblock_input ();
 #else
-#ifndef SYSTEM_MALLOC
+# ifndef SYSTEM_MALLOC
   /* Give GNU malloc's morecore some hysteresis so that we move all
      the relocatable blocks much less often.  The number used to be
      64, but alloc.c would override that with 32 in code that was
@@ -1208,8 +1208,8 @@ r_alloc_init (void)
      system nowadays that uses DOUG_LEA_MALLOC and also uses
      REL_ALLOC.)  */
   __malloc_extra_blocks = 32;
-#endif
-#endif
+# endif /* !SYSTEM_MALLOC */
+#endif /* DOUG_LEA_MALLOC */
 
 #ifndef SYSTEM_MALLOC
   first_heap->end = (void *) PAGE_ROUNDUP (first_heap->start);
@@ -1229,7 +1229,9 @@ r_alloc_init (void)
   memset (first_heap->start, 0,
 	  (char *) first_heap->end - (char *) first_heap->start);
   virtual_break_value = break_value = first_heap->bloc_start = first_heap->end;
-#endif
+#endif /* !SYSTEM_MALLOC */
 
   use_relocatable_buffers = 1;
 }
+
+/* EOF */

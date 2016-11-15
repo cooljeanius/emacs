@@ -1,4 +1,4 @@
-/* Unexec for Xenix.
+/* unexenix.c: Unexec for Xenix.
    Note that the GNU project considers support for Xenix operation
    a peripheral activity which should not be allowed to divert effort
    from development of the GNU system.  Changes in this code will be
@@ -48,7 +48,17 @@ Boston, MA 02110-1301, USA.  */
 #include <sys/file.h>
 #include <sys/stat.h>
 #include <stdio.h>
-#include <varargs.h>
+#ifdef HAVE_VARARGS_H
+# include <varargs.h>
+#else
+# if defined(HAVE_STDARG_H) || (defined(STDC_HEADERS) && STDC_HEADERS)
+#  include <stdarg.h>
+# else
+#  if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#   warning "unexenix.c expects a header for variadic arguments to be included."
+#  endif /* __GNUC__ && !__STRICT_ANSI__ */
+# endif /* HAVE_STDARG_H || STDC_HEADERS */
+#endif /* HAVE_VARARGS_H */
 #include <a.out.h>
 
 static void fatal_unexec ();

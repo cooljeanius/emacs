@@ -173,7 +173,7 @@ get_adstyle_property (FcPattern *p)
       && xstrcasecmp ((char *) fcstr, "pcf") != 0)
     /* Not a BDF nor PCF font.  */
     return Qnil;
-#endif
+#endif /* FC_FONTFORMAT */
   if (FcPatternGetString (p, FC_STYLE, 0, &fcstr) != FcResultMatch)
     return Qnil;
   str = (char *) fcstr;
@@ -516,8 +516,8 @@ static int ftfont_anchor_point (struct font *, unsigned, int,
 static Lisp_Object ftfont_otf_capability (struct font *);
 # ifdef HAVE_M17N_FLT
 static Lisp_Object ftfont_shape (Lisp_Object);
-# endif
-#endif
+# endif /* HAVE_M17N_FLT */
+#endif /* HAVE_LIBOTF */
 
 #ifdef HAVE_OTF_GET_VARIATION_GLYPHS
 static int ftfont_variation_glyphs (struct font *, int c,
@@ -567,7 +567,7 @@ struct font_driver ftfont_driver =
     ftfont_variation_glyphs,
 #else
     NULL,
-#endif
+#endif /* HAVE_OTF_GET_VARIATION_GLYPHS */
 
     ftfont_filter_properties, /* filter_properties */
   };
@@ -654,7 +654,7 @@ struct OpenTypeSpec
     OTF_TAG_STR (TAG, str);			\
     (SYM) = font_intern_prop (str, 4, 1);	\
   } while (0)
-#endif
+#endif /* HAVE_LIBOTF */
 
 
 static struct OpenTypeSpec *
@@ -950,7 +950,7 @@ ftfont_list (struct frame *f, Lisp_Object spec)
 #endif	/* FC_CAPABILITY */
 #ifdef FC_FONTFORMAT
 			     FC_FONTFORMAT,
-#endif
+#endif /* FC_FONTFORMAT */
 			     NULL);
   if (! objset)
     goto err;
@@ -960,7 +960,7 @@ ftfont_list (struct frame *f, Lisp_Object spec)
   fontset = FcFontList (NULL, pattern, objset);
   if (! fontset || fontset->nfont == 0)
     goto finish;
-#if 0
+#if defined(FIND_ANY_FONTS) && defined(FC_FAMILY) && defined(SYMBOL_FcChar8)
   /* Need fix because this finds any fonts.  */
   if (fontset->nfont == 0 && ! NILP (family))
     {
@@ -986,7 +986,7 @@ ftfont_list (struct frame *f, Lisp_Object spec)
 	    }
 	}
     }
-#endif
+#endif /* FIND_ANY_FONTS && FC_FAMILY && SYMBOL_FcChar8 */
   for (i = 0; i < fontset->nfont; i++)
     {
       Lisp_Object entity;
@@ -1280,7 +1280,7 @@ ftfont_open (struct frame *f, Lisp_Object entity, int pixel_size)
 #ifdef FC_DUAL
       && spacing != FC_DUAL
 #endif	/* FC_DUAL */
-      )
+      && ft_face != NULL)
     font->min_width = font->average_width = font->space_width
       = (scalable ? ft_face->max_advance_width * size / upEM
 	 : ft_face->size->metrics.max_advance >> 6);
@@ -1343,7 +1343,7 @@ ftfont_close (struct font *font)
 #ifdef HAVE_LIBOTF
       if (ftfont_info->otf)
 	OTF_close (ftfont_info->otf);
-#endif
+#endif /* HAVE_LIBOTF */
       cache_data->ft_face = NULL;
     }
   else
@@ -1462,7 +1462,7 @@ ftfont_get_bitmap (struct font *font, unsigned int code, struct font_bitmap *bit
       load_flags |= FT_LOAD_TARGET_MONO;
 #else
       load_flags |= FT_LOAD_MONOCHROME;
-#endif
+#endif /* FT_LOAD_TARGET_MONO */
     }
   else if (bits_per_pixel != 8)
     /* We don't support such a rendering.  */
@@ -2696,9 +2696,9 @@ ftfont_filter_properties (Lisp_Object font, Lisp_Object alist)
   font_filter_properties (font, alist, ftfont_booleans, ftfont_non_booleans);
 }
 
-
+/* prototype is in "font.h" guarded by HAVE_FREETYPE: */
 void
-syms_of_ftfont (void)
+syms_of_ftfont(void)
 {
   DEFSYM (Qfreetype, "freetype");
   DEFSYM (Qmonospace, "monospace");
@@ -2722,3 +2722,5 @@ syms_of_ftfont (void)
   ftfont_driver.type = Qfreetype;
   register_font_driver (&ftfont_driver, NULL);
 }
+
+/* EOF */

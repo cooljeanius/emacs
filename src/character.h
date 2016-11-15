@@ -583,6 +583,11 @@ sanitize_char_width(EMACS_INT width)
   return (int)(((0 <= width) && (width <= 1000)) ? width : 1000);
 }
 
+/* <limits.h> may define: */
+#ifdef CHAR_WIDTH
+# undef CHAR_WIDTH
+#endif /* CHAR_WIDTH */
+
 /* Return the width of character C.  The width is measured by how many
    columns C will occupy on the screen when displayed in the current
    buffer.  */

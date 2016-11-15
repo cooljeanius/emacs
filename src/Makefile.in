@@ -485,8 +485,8 @@ base_obj = dispnew.o frame.o scroll.o xdisp.o menu.o $(XMENU_OBJ) \
 	profiler.o decompress.o \
 	$(MSDOS_OBJ) $(MSDOS_X_OBJ) $(NS_OBJ) $(CYGWIN_OBJ) $(FONT_OBJ) \
 	$(W32_OBJ) $(WINDOW_SYSTEM_OBJ) $(XGSELOBJ)
-old_obj = abbrev.o filemode.o alloca.o ecrt0.o \
-	getloadavg.o @MAINT@ strftime.o md5.o # $(MAC_OBJ)
+old_obj = abbrev.o filemode.o alloca.o \
+	getloadavg.o @MAINT@ strftime.o md5.o # ecrt0.o $(MAC_OBJ)
 obj = $(base_obj) $(MAC_OBJC_OBJ) $(NS_OBJC_OBJ) $(MAC_OBJ_SUBSTED) \
 	$(old_obj)
 
@@ -521,8 +521,8 @@ PRE_ALLOC_OBJ=@PRE_ALLOC_OBJ@
 POST_ALLOC_OBJ=@POST_ALLOC_OBJ@
 
 ## List of object files that make-docfile should not be told about.
-otherobj= $(TERMCAP_OBJ) $(PRE_ALLOC_OBJ) $(GMALLOC_OBJ) $(RALLOC_OBJ) \
-  $(POST_ALLOC_OBJ) $(WIDGET_OBJ) $(LIBOBJS)
+otherobj= $(TERMCAP_OBJ) $(LIBOBJS) $(PRE_ALLOC_OBJ) $(GMALLOC_OBJ) \
+  $(RALLOC_OBJ) $(POST_ALLOC_OBJ) $(WIDGET_OBJ)
 
 ## All object files linked into temacs.  $(VMLIMIT_OBJ) should be first.
 ## (On MinGW, firstfile.o should be before vm-limit.o.)

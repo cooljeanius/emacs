@@ -619,7 +619,7 @@ unexec_regions_recorder(task_t task, void *rr, unsigned int type,
   vm_address_t p;
   vm_size_t filesize;
 
-  while (num && (num_unexec_regions < MAX_UNEXEC_REGIONS))
+  while ((num > 0U) && (num_unexec_regions < MAX_UNEXEC_REGIONS))
     {
       /* Subtract the size of trailing null bytes from filesize.  It
 	 can be smaller than vmsize in segment commands.  In such a
@@ -631,9 +631,9 @@ unexec_regions_recorder(task_t task, void *rr, unsigned int type,
 
       unexec_regions[num_unexec_regions].filesize = filesize;
       unexec_regions[num_unexec_regions++].range = *ranges;
-      printf("%#10lx (sz: %#8lx/%#8lx)\n",
+      printf("%#10lx (sz: %#8lx/%#8lx) (%u to go in this loop)\n",
              (unsigned long)(ranges->address), (unsigned long)filesize,
-             (unsigned long)(ranges->size));
+             (unsigned long)(ranges->size), (num - 1U));
       ranges++; num--;
     }
 }
@@ -734,7 +734,7 @@ static void unexec_regions_merge(void)
         }
       }
       if (r.filesize != r.range.size) {
-        printf("Removed %lx zerod bytes from filesize\n",
+        printf("Region %d: removed %lx zerod bytes from filesize\n", i,
                (unsigned long)(r.range.size - r.filesize));
       }
       unexec_regions[n++] = r;

@@ -30,6 +30,9 @@ Boston, MA 02110-1301, USA.  */
 #include <stdlib.h>
 #include <stdarg.h>
 #include <mach/mach.h>
+#ifdef HAVE_MACH_O_GETSECT_H
+# include <mach-o/getsect.h>
+#endif /* HAVE_MACH_O_GETSECT_H */
 #include <mach-o/loader.h>
 #include <mach-o/reloc.h>
 #include <sys/file.h>
@@ -46,6 +49,24 @@ extern int malloc_freezedry(void);
 #endif /* 1 */
 
 int malloc_cookie;
+
+#ifdef HAVE_AVAILABILITYMACROS_H
+# include <AvailabilityMacros.h>
+# define MACH64 (MAC_OS_X_VERSION_MAX_ALLOWED >= 1040)
+#else
+# if defined(__MACH__) && __MACH__ && defined(__LP64__) && __LP64__
+#  define MACH64 (__MACH__ + __LP64__)
+# endif /* __MACH__ && __LP64__ */
+#endif /* HAVE_AVAILABILITYMACROS_H */
+
+#if defined(MACH64) && MACH64
+# if !defined(port_t) && !defined(HAVE_PORT_T)
+#  define port_t mach_port_t
+# endif /* !port_t && !HAVE_PORT_T */
+# if !defined(task_self)
+#  define task_self mach_task_self
+# endif /* !task_self */
+#endif /* MACH64 */
 
 /*
  * Kludge: we do NOT expect any program data beyond VM_HIGHDATA
@@ -100,7 +121,32 @@ save_command(struct load_command *command,
 	bcopy(command, *tmp, command->cmdsize);
 }
 
-static void
+/* Debugging and informational messages routines: */
+#ifndef _GL_ATTRIBUTE_FORMAT
+# if (defined(__GNUC__) && defined(__GNUC_MINOR__)) && \
+     ((__GNUC__ > 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 7)))
+#  define _GL_ATTRIBUTE_FORMAT(spec) __attribute__((__format__ spec))
+# else
+#  define _GL_ATTRIBUTE_FORMAT(spec) /* empty */
+# endif /* gcc 2.7+ */
+#endif /* !_GL_ATTRIBUTE_FORMAT */
+
+#ifndef _GL_ATTRIBUTE_FORMAT_PRINTF
+/* _GL_ATTRIBUTE_FORMAT_PRINTF
+ * indicates to GCC that the function takes a format string and arguments,
+ * where the format string directives are the ones standardized by ISO C99
+ * and POSIX.  */
+# if (defined(__GNUC__) && defined(__GNUC_MINOR__)) && \
+     ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 4)))
+#  define _GL_ATTRIBUTE_FORMAT_PRINTF(formatstring_parameter, first_argument) \
+    _GL_ATTRIBUTE_FORMAT((__gnu_printf__, formatstring_parameter, first_argument))
+# else
+#  define _GL_ATTRIBUTE_FORMAT_PRINTF(formatstring_parameter, first_argument) \
+    _GL_ATTRIBUTE_FORMAT((__printf__, formatstring_parameter, first_argument))
+# endif /* gcc 4.4+ */
+#endif /* !_GL_ATTRIBUTE_FORMAT_PRINTF */
+
+static void _GL_ATTRIBUTE_FORMAT_PRINTF(1, 2)
 fatal_unexec(const char *format, ...)
 {
 	va_list ap;
@@ -287,6 +333,9 @@ unexec_doit(int infd, int outfd)
 					segment->filesize = data_size;
 					dataseg_vmaddr = segment->vmaddr;
 					dataseg_vmend = segment->vmaddr + segment->vmsize;
+					if (dataseg_vmaddr == dataseg_vmend) {
+						; /* ??? */
+					}
 					vmaddr_growth = segment->vmaddr + segment->vmsize;
 				} else {
 					((struct segment_command *)the_commands[i])->fileoff += fgrowth;

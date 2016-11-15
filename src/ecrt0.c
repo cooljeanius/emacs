@@ -72,9 +72,10 @@ int data_start = 0;
 int errno;
 #endif /* NEED_ERRNO */
 
-#ifndef DONT_NEED_ENVIRON
+/* FIXME: breaks with -fno-common: */
+#if !defined(DONT_NEED_ENVIRON) && !defined(environ)
 char **environ;
-#endif /* !DONT_NEED_ENVIRON */
+#endif /* !DONT_NEED_ENVIRON && !environ */
 
 /* this code is special, so some of its functions may appear to be unused
  * even when they are not: */
