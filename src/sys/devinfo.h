@@ -42,6 +42,25 @@
 
 #include <sys/types.h>
 
+#ifndef _ULONG
+# ifdef _U_LONG
+typedef u_long ulong;
+# else
+typedef unsigned long ulong;
+# endif /* _U_LONG */
+# define _ULONG
+#endif /* !_ULONG */
+
+#ifndef _UCHAR
+# if defined(_SYS_TYPES_H_) && (!defined(_POSIX_C_SOURCE) || defined(_DARWIN_C_SOURCE))
+typedef u_char uchar;
+# else
+typedef unsigned char uchar;
+# endif /* _SYS_TYPES_H_ && (!_POSIX_C_SOURCE || _DARWIN_C_SOURCE) */
+# define _UCHAR
+#endif /* !_UCHAR */
+
+
 /*
  * Device information
  */

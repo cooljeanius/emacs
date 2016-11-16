@@ -93,7 +93,7 @@ struct devinfo;
 #   warning "hftctl.c expects <termio.h> or <term.h> to be included."
 #  endif /* __GNUC__ && !__STRICT_ANSI__ */
 # endif /* HAVE_TERM_H */
-/* copy-and-paste a copy of parts of "../mac/inc/termio.h" here,
+/* copy-and-paste parts of a copy of parts of "../mac/inc/termio.h" here,
  * just in case: */
 # ifndef _SYS_TERMIO_H
 #  define _SYS_TERMIO_H 1
@@ -137,9 +137,6 @@ struct devinfo;
 #   define TAB3 0x4	/* expand tab to spaces */
 #  endif /* !TAB3 */
 /* c_cflag fields: */
-#  ifndef CBAUD
-#   define CBAUD 0x1
-#  endif /* !CBAUD */
 #  ifndef B9600
 #   define B9600 0x2
 #  endif /* !B9600 */
@@ -153,13 +150,6 @@ struct devinfo;
 #  ifndef ECHO
 #   define ECHO 0x3	/* enable echo */
 #  endif /* !ECHO */
-/* 2 extra things: */
-#  ifndef TCSETAW
-#   define TCSETAW 4
-#  endif /* !TCSETAW */
-#  ifndef TCSETAF
-#   define TCSETAF 5
-#  endif /* !TCSETAF */
 # endif /* _SYS_TERMIO_H */
 #endif /* HAVE_TERMIO_H */
 #ifdef HAVE_SYS_HFT_H
@@ -205,12 +195,19 @@ struct hfintro;
 
 #undef ioctl
 static const char     SCCSid[] = "com/gnuemacs/src,3.1,9021-90/05/03-5/3/90";
+extern void print_SCCSid(void);
 
 /*************** LOCAL DEFINES **********************************/
 
-#define QDEV   ((HFQPDEVCH << 8) | HFQPDEVCL)
-#define QLOC   ((HFQLOCCH << 8) | HFQLOCCL)
-#define QPS    ((HFQPRESCH << 8) | HFQPRESCL)
+#ifndef QDEV
+# define QDEV   ((HFQPDEVCH << 8) | HFQPDEVCL)
+#endif /* !QDEV */
+#ifndef QLOC
+# define QLOC   ((HFQLOCCH << 8) | HFQLOCCL)
+#endif /* !QLOC */
+#ifndef QPS
+# define QPS    ((HFQPRESCH << 8) | HFQPRESCL)
+#endif /* !QPS */
 
 /* definition of TCGETA taken from "../mac/inc/sys/ioctl.h"; and TCSETA is
  * just that incremented by 1. */
@@ -285,9 +282,13 @@ static struct hfctlack  ACK =
 
 /*************** LOCAL MACROS ***********************************/
 
-#define HFTYPE(p)   ((p->hf_typehi<<8)|(p->hf_typelo))
+#ifndef HFTYPE
+# define HFTYPE(p)   ((p->hf_typehi<<8)|(p->hf_typelo))
+#endif /* !HFTYPE */
 
-#define BYTE4(p)    ((p)[0]<<24 | (p)[1]<<16 | (p)[2]<<8 | (p)[3])
+#ifndef BYTE4
+# define BYTE4(p)    ((p)[0]<<24 | (p)[1]<<16 | (p)[2]<<8 | (p)[3])
+#endif /* !BYTE4 */
 
 					/* read a buffer:       */
 #define RD_BUF(f,p,l) \
@@ -354,7 +355,10 @@ int hftctl (fd, request, arg)
   if (ioctl (fd, TCGETS, &term_old) == -1) return (-1);
   /* set terminal attr to raw     */
   /* and to delay on read         */
-  pty_new = pty_old | REMOTE;
+  pty_new = (pty_old | REMOTE);
+  if (pty_new == 0) {
+    ; /* ??? */
+  }
   memcpy (&term_new, &term_old, sizeof (term_new));
   term_new.c_iflag = 0;
   term_new.c_oflag = 0;
@@ -372,23 +376,21 @@ int hftctl (fd, request, arg)
 #endif /* !HFSKBD */
   /* call spacific function       */
   if (request == HFSKBD)
-    retcode = hfskbd (fd, request, arg.c);
+    retcode = hfskbd(fd, request, (struct hfbuf *)arg.c);
   else				/* assume HFQUERY */
-    retcode = hfqry (fd, request, arg.c);
+    retcode = hfqry(fd, request, (struct hfquery *)arg.c);
 
   fcntl (fd, F_SETFL, fd_flag); /* reset terminal to original   */
   ioctl (fd, TCSETS, &term_old);
 
+  (void)p;
 
   return (retcode);             /* return error                 */
 }
 
 /*************** HFSKBD  FUNCTION ******************************/
 static int
-hfskbd (fd, request, arg)
-        int     fd;
-        int     request;
-        struct hfbuf *arg;
+hfskbd(int fd, int request, struct hfbuf *arg)
 {
   WR_REQ(fd, request, arg->hf_buflen, arg->hf_bufp, 0);
   return (GT_ACK(fd, request, arg->hf_bufp));
@@ -396,10 +398,7 @@ hfskbd (fd, request, arg)
 
 /*************** HFQUERY FUNCTION ******************************/
 static int
-hfqry (fd, request, arg)
-        int     fd;
-        int     request;
-        struct hfquery *arg;
+hfqry(int fd, int request, struct hfquery *arg)
 {
   WR_REQ(fd, request, arg->hf_cmdlen, arg->hf_cmd, arg->hf_resplen);
   return (GT_ACK(fd, request, arg->hf_resp));
@@ -408,10 +407,7 @@ hfqry (fd, request, arg)
 
 /*************** GT_ACK FUNCTION ******************************/
 static int
-GT_ACK (fd, req, buf)
-        int     fd;
-        int     req;
-        char   *buf;
+GT_ACK(int fd, int req, char *volatile buf)
 {
   struct hfctlack ack;
   int             i = sizeof (ack);
@@ -460,7 +456,8 @@ GT_ACK (fd, req, buf)
   alarm(0);			/* ACK VTD received, reset alrm*/
   signal (SIGALRM, sav_alrm);	/* reset signal                */
 
-  if (i = ack.hf_arg_len)	/* any data following ?        */
+  /* FIXME: Was -Wparentheses right that this was an assignment? */
+  if ((i = ack.hf_arg_len))	/* any data following ?        */
     {				/* yes,                        */
       RD_BUF(fd,buf,i);		/* read until it is received   */
     }
@@ -473,9 +470,8 @@ GT_ACK (fd, req, buf)
 
 /*************** HFT_ALRM FUNCTION ******************************/
 static void
-hft_alrm (sig)                  /* Function hft_alrm - handle */
-     int sig;			/* alarm signal		      */
-{
+hft_alrm(int sig)                  /* Function hft_alrm - handle */
+{		                   /* alarm signal		 */
   signal (SIGALRM, sav_alrm);	/* reset to previous          */
 
   if (is_ack_vtd)		/* has ack vtd arrived ?      */
@@ -496,12 +492,7 @@ hft_alrm (sig)                  /* Function hft_alrm - handle */
 /*********************************************************************/
 
 static int
-WR_REQ (fd, request, cmdlen, cmd, resplen)
-	int             fd;
-	int             request;
-	int             cmdlen;
-	char           *cmd;
-	int             resplen;
+WR_REQ(int fd, int request, int cmdlen, char *cmd, int resplen)
 {
   struct {
     char            *c;
@@ -533,8 +524,32 @@ WR_REQ (fd, request, cmdlen, cmd, resplen)
   if (p.req != &req)		/* free if allocated           */
     xfree (p.c);
   return (0);
-
 }
+
+void
+print_SCCSid(void)
+{
+  printf("%s", SCCSid);
+}
+
+#ifdef _SYS_TERMIO_H
+# undef _SYS_TERMIO_H
+#endif /* _SYS_TERMIO_H */
+#ifdef QDEV
+# undef QDEV
+#endif /* QDEV */
+#ifdef QLOC
+# undef QLOC
+#endif /* QLOC */
+#ifdef QPS
+# undef QPS
+#endif /* QPS */
+#ifdef HFTYPE
+# undef HFTYPE
+#endif /* HFTYPE */
+#ifdef BYTE4
+# undef BYTE4
+#endif /* BYTE4 */
 
 /* arch-tag: cfd4f3bd-fd49-44e6-9f69-c8abdf367650
    (do not change this comment) */
