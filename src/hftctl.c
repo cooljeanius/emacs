@@ -55,13 +55,21 @@
 #ifdef HAVE_SYS_DEVINFO_H
 # include <sys/devinfo.h>
 #else
-# if defined(__GNUC__) && !defined(__STRICT_ANSI__)
-#  warning "hftctl.c expects <sys/devinfo.h> to be included."
-# endif /* __GNUC__ && !__STRICT_ANSI__ */
+# if 1
+/* found one! */
+#  include "sys/devinfo.h"
+# else
+#  if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#   warning "hftctl.c expects <sys/devinfo.h> to be included."
+#  endif /* __GNUC__ && !__STRICT_ANSI__ */
 /* guess: */
 struct devinfo;
+# endif /* 1 */
 #endif /* HAVE_SYS_DEVINFO_H */
 #ifdef HAVE_SYS_TYPES_H
+# ifndef _DARWIN_C_SOURCE
+#  define _DARWIN_C_SOURCE 1
+# endif /* !_DARWIN_C_SOURCE */
 # include <sys/types.h>
 #else
 # ifdef HAVE_MACH_MACH_TYPES_H

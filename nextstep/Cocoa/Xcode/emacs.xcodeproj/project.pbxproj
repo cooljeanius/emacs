@@ -42,6 +42,7 @@
 		6130AF4E1C697379005874AA /* times.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = times.c; sourceTree = "<group>"; };
 		61CD36491DDAB32700CFF599 /* regex_broken.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = regex_broken.c; sourceTree = "<group>"; tabWidth = 8; };
 		61CD39381DDBDE4800CFF599 /* hft.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hft.h; sourceTree = "<group>"; };
+		61CD396C1DDBE26700CFF599 /* devinfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = devinfo.h; sourceTree = "<group>"; };
 		A5017CF31B41CB19004F7B48 /* test_mach_o_binary.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = test_mach_o_binary.c; path = ../../../test_mach_o_binary.c; sourceTree = SOURCE_ROOT; };
 		A5017D1E1B41D5B5004F7B48 /* test_mach_o_binary */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test_mach_o_binary; sourceTree = BUILT_PRODUCTS_DIR; };
 		A52C809D1A1D1D7800897236 /* autodeps.mk */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; fileEncoding = 4; path = autodeps.mk; sourceTree = "<group>"; };
@@ -1008,6 +1009,7 @@
 		61CD39371DDBDE4800CFF599 /* sys */ = {
 			isa = PBXGroup;
 			children = (
+				61CD396C1DDBE26700CFF599 /* devinfo.h */,
 				61CD39381DDBDE4800CFF599 /* hft.h */,
 			);
 			path = sys;
