@@ -24,16 +24,16 @@
    allocating any.  It is a good idea to use alloca(0) in
    your main control loop, etc. to force garbage collection.  */
 
-#ifdef HAVE_CONFIG_H
+#if defined(HAVE_CONFIG_H) || defined(emacs)
 # include <config.h>
-#endif /* HAVE_CONFIG_H */
+#endif /* HAVE_CONFIG_H || emacs */
 
 #ifdef HAVE_STRING_H
 # include <string.h>
 #endif /* HAVE_STRING_H */
-#ifdef HAVE_STDLIB_H
+#if defined(HAVE_STDLIB_H) || (defined(STDC_HEADERS) && STDC_HEADERS)
 # include <stdlib.h>
-#endif /* HAVE_STDLIB_H */
+#endif /* HAVE_STDLIB_H || STDC_HEADERS */
 
 #ifdef DO_BLOCK_INPUT
 # include "blockinput.h"
@@ -511,6 +511,24 @@ i00afunc (long address)
 #  endif /* CRAY */
 
 # endif /* no alloca */
+#else
+# if defined(__GNUC__) && __GNUC__ >= 3
+/* built-in for gcc 3 */
+extern int ensure_alloca_is_builtin(void);
+int
+ensure_alloca_is_builtin(void)
+{
+  void *output_ptr = __builtin_alloca(1UL);
+#  ifdef lint
+  __asm__("");
+#  endif /* lint */
+  if (output_ptr == NULL) {
+    return EXIT_FAILURE;
+  } else {
+    return EXIT_SUCCESS;
+  }
+}
+# endif /* GCC 3 */
 #endif /* not GCC version 2 */
 
 /* arch-tag: 5c9901c8-3cd4-453e-bd66-d9035a175ee3

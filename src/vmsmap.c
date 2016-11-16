@@ -221,6 +221,11 @@ write_data (rab, firstblock, data, length)
   return 1;
 }				/* write_data */
 
+#else
+/* keep file from being empty: */
+typedef int vmsmap_c_dummy_t;
+extern vmsmap_c_dummy_t vmsmap_c_dummy_var;
+vmsmap_c_dummy_t vmsmap_c_dummy_var = 0;
 #endif /* VMS */
 
 /* EOF */

@@ -231,6 +231,10 @@ syms_of_decompress(void)
   defsubr(&Szlib_available_p);
 }
 
+#else
+/* keep file from being empty: */
+typedef int decompress_c_dummy_t;
+extern decompress_c_dummy_t decompress_c_dummy_var;
 #endif /* HAVE_ZLIB */
 
 /* EOF */

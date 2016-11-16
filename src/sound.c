@@ -1431,4 +1431,11 @@ syms_of_sound (void)
   defsubr (&Splay_sound_internal);
 }
 
+#else
+/* keep file from being empty: */
+typedef int sound_c_dummy_t;
+extern sound_c_dummy_t sound_c_dummy_var;
+sound_c_dummy_t sound_c_dummy_var = 0;
 #endif /* HAVE_SOUND */
+
+/* EOF */

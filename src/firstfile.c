@@ -29,4 +29,11 @@ char * my_begbss_static = _my_begbss;
 /* Add a dummy reference to ensure emacs.obj is linked in.  */
 extern int main (int, char **);
 static int (*dummy) (int, char **) = main;
-#endif
+#else
+/* keep file from being empty: */
+typedef int firstfile_c_dummy_t;
+extern firstfile_c_dummy_t firstfile_c_dummy_var;
+firstfile_c_dummy_t firstfile_c_dummy_var = 0;
+#endif /* WINDOWSNT */
+
+/* EOF */

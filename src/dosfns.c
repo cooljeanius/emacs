@@ -769,4 +769,12 @@ decimal point key in the numeric keypad is pressed when Num Lock is on.
 If zero, the decimal point key returns the country code specific value.  */);
   dos_decimal_point = 0;
 }
+
+#else
+/* keep file from being empty: */
+typedef int dosfns_c_dummy_t;
+extern dosfns_c_dummy_t dosfns_c_dummy_var;
+dosfns_c_dummy_t dosfns_c_dummy_var = 0;
 #endif /* MSDOS */
+
+/* EOF */

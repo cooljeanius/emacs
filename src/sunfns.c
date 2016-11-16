@@ -1,4 +1,4 @@
-/* Functions for Sun Windows menus and selection buffer.
+/* sunfns.c: Functions for Sun Windows menus and selection buffer.
    Copyright (C) 1987, 1999, 2001, 2002, 2003, 2004,
                  2005, 2006, 2007 Free Software Foundation, Inc.
 
@@ -6,7 +6,7 @@ This file is probably totally obsolete.  In any case, the FSF is
 unwilling to support it.  We agreed to include it in our distribution
 only on the understanding that we would spend no time at all on it.
 
-If you have complaints about this file, send them to peck@sun.com.
+If you have complaints about this file, send them to <peck@sun.com>.
 If no one at Sun wants to maintain this, then consider it not
 maintained at all.  It would be a bad thing for the GNU project if
 this file took our effort away from higher-priority things.
@@ -500,7 +500,7 @@ as a menu label.  */)
 syms_of_sunfns()
 {
 #ifdef  Menu_Base_Kludge
-  /* i'm just too lazy to re-write this into C code */
+  /* I am just too lazy to re-write this into C code */
   /* so we will call this elisp function from C */
   sm_kludge_string = make_pure_string ("sm::menu-kludge", 15, 15, 0);
 #endif /* Menu_Base_Kludge */

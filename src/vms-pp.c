@@ -57,9 +57,14 @@ Boston, MA 02111-1307, USA.
 #endif /* HAVE_STRING_H || STDC_HEADERS || __STDC__ */
 
 #define Max_table 100
-#define Table_name "vms_pp.trans"
+#define Table_name "vms-pp.trans"
 #define Word_member \
 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$"
+
+extern void init_table(void);
+extern void process_line(char *);
+extern void check_pp(char *);
+extern void replace_word(char *);
 
 static   FILE *in,*out;			/* read from, write to */
 struct item {				/* symbol table entries */
@@ -69,24 +74,36 @@ struct item {				/* symbol table entries */
 static struct item name_table[Max_table]; /* symbol table */
 static int defined_defined = 0;		/* small optimization */
 
-main(argc,argv) int argc; char **argv; {
+int main(int argc, char **argv) {
   char buffer[1024];
 
   if(argc != 3) {			/* check argument count */
-    fprintf(stderr,"usage: vms_pp infile outfile");
+    fprintf(stderr,"usage: vms_pp infile outfile\n");
+#ifdef EXIT_FAILURE
+    exit(EXIT_FAILURE);
+#else
     exit();
+#endif /* EXIT_FAILURE */
   }
   init_table();				/* read in translation table */
 
 /* open input and output files
  */
   if((in = fopen(argv[1],"r")) == NULL) {
-    fprintf(stderr,"vms_pp: unable to open file '%s'",argv[1]);
+    fprintf(stderr,"vms_pp: unable to open file '%s'\n",argv[1]);
+#ifdef EXIT_FAILURE
+    exit(EXIT_FAILURE);
+#else
     exit();
+#endif /* EXIT_FAILURE */
   }
   if((out = fopen(argv[2],"w")) == NULL) {
-    fprintf(stderr,"vms_pp: unable to create file '%s'",argv[2]);
+    fprintf(stderr,"vms_pp: unable to create file '%s'\n",argv[2]);
+#ifdef EXIT_FAILURE
+    exit(EXIT_FAILURE);
+#else
     exit();
+#endif /* EXIT_FAILURE */
   }
 
   while(fgets(buffer,1023,in) != NULL) { /* loop through buffer until end */
@@ -97,12 +114,16 @@ main(argc,argv) int argc; char **argv; {
 
 /* buy - allocate and copy a string
  */
-static char *buy(str) char *str; {
+static char *buy(char *str) {
   char *temp;
 
   if(!(temp = malloc(strlen(str)+1))) {
-    fprintf(stderr,"vms_pp: can't allocate memory");
+    fprintf(stderr,"vms_pp: cannot allocate memory");
+#ifdef EXIT_FAILURE
+    exit(EXIT_FAILURE);
+#else
     exit();
+#endif /* EXIT_FAILURE */
   }
   strcpy(temp,str);
   return temp;
@@ -110,7 +131,7 @@ static char *buy(str) char *str; {
 
 /* gather_word - return a buffer full of the next word
  */
-static char *gather_word(ptr,word) char *ptr, *word;{
+static char *gather_word(char *ptr, char *word) {
   for(; strchr(Word_member,*ptr); ptr++,word++)
     *word = *ptr;
   *word = 0;
@@ -119,7 +140,7 @@ static char *gather_word(ptr,word) char *ptr, *word;{
 
 /* skip_white - skip white space
  */
-static char *skip_white(ptr) char *ptr; {
+static char *skip_white(char *ptr) {
   while(*ptr == ' ' || *ptr == '\t')
     ptr++;
   return ptr;
@@ -127,14 +148,18 @@ static char *skip_white(ptr) char *ptr; {
 
 /* init_table - initialize translation table.
  */
-init_table() {
+void init_table(void) {
   char buf[256],*ptr,word[128];
   FILE *in;
   int i;
 
   if((in = fopen(Table_name,"r")) == NULL) { /* open file */
-    fprintf(stderr,"vms_pp: can't open '%s'",Table_name);
+    fprintf(stderr,"vms_pp: cannot open '%s'\n",Table_name);
+#ifdef EXIT_FAILURE
+    exit(EXIT_FAILURE);
+#else
     exit();
+#endif /* EXIT_FAILURE */
   }
   for(i = 0; fgets(buf,255,in) != NULL;) { /* loop through lines */
     ptr = skip_white(buf);
@@ -161,10 +186,10 @@ init_table() {
 
 /* process_line - do actual line processing
  */
-process_line(buf) char *buf; {
+void process_line(char *buf) {
   char *in_ptr,*out_ptr;
   char word[128],*ptr;
-  int len;
+  const size_t len = 31UL;
 
   check_pp(buf);			/* check for preprocessor lines */
 
@@ -173,7 +198,7 @@ process_line(buf) char *buf; {
       *out_ptr++ = *in_ptr++;
     else {
       in_ptr = gather_word(in_ptr,word); /* get the 'word' */
-      if(strlen(word) > 31)		/* length is too long */
+      if(strlen(word) > len)		/* length is too long */
 	replace_word(word);		/* replace the word */
       for(ptr = word; *ptr; ptr++,out_ptr++) /* copy out the word */
 	  *out_ptr = *ptr;
@@ -184,8 +209,8 @@ process_line(buf) char *buf; {
 
 /* check_pp - check for preprocessor lines
  */
-check_pp(buf) char *buf; {
-  char *ptr,*p;
+void check_pp(char *buf) {
+  char *ptr;
   char word[128];
 
   ptr = skip_white(buf);		/* skip white space */
@@ -237,7 +262,7 @@ check_pp(buf) char *buf; {
 /* replace_word - look the word up in the table, and replace it
  *		  if a match is found.
  */
-replace_word(word) char *word; {
+void replace_word(char *word) {
   int i;
 
   for(i = 0; i < Max_table && name_table[i].name; i++)
@@ -245,5 +270,7 @@ replace_word(word) char *word; {
       strcpy(word,name_table[i].value);
       return;
     }
-  fprintf(stderr,"couldn't find '%s'\n",word);
+  fprintf(stderr,"failed to find '%s'\n",word);
 }
+
+/* EOf */

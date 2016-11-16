@@ -958,6 +958,11 @@ syms_of_vmsfns ()
   Qdefault_subproc_input_handler = intern ("default-subprocess-input-handler");
   staticpro (&Qdefault_subproc_input_handler);
 }
+#else
+/* keep file from being empty: */
+typedef int vmsfns_c_dummy_t;
+extern vmsfns_c_dummy_t vmsfns_c_dummy_var;
+vmsfns_c_dummy_t vmsfns_c_dummy_var = 0;
 #endif /* VMS */
 
 /* EOF */

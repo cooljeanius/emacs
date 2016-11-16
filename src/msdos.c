@@ -1950,11 +1950,11 @@ static struct dos_keyboard_map us_keyboard = {
 static struct dos_keyboard_map fr_keyboard = {
 /* 0         1         2         3         4         5      */
 /* 012 3456789012345678901234567890123456789012345678901234 */
-  "˝&Ç\"'(-ä_ÄÖ)=  azertyuiop^$   qsdfghjklmó*  <wxcvbn,;:!  ",
+  "Àù&√á\"'(-√§_√Ñ√ñ)=  azertyuiop^$   qsdfghjklm√≥*  <wxcvbn,;:!  ",
 /* 0123456789012345678901234567890123456789012345678901234 */
-  " 1234567890¯+  AZERTYUIOP˘ú   QSDFGHJKLM%Ê  >WXCVBN?./ı  ",
+  " 1234567890¬Ø+  AZERTYUIOPÀò√∫   QSDFGHJKLM%√ä  >WXCVBN?./ƒ±  ",
 /* 01234567 89012345678901234567890123456789012345678901234 */
-  "  ~#{[|`\\^@]}             œ                              ",
+  "  ~#{[|`\\^@]}             ≈ì                              ",
   0				/* no translate table */
 };
 
@@ -1974,9 +1974,9 @@ static struct kbd_translate it_kbd_translate_table[] = {
 static struct dos_keyboard_map it_keyboard = {
 /* 0          1         2         3         4         5     */
 /* 0 123456789012345678901234567890123456789012345678901234 */
-  "\\1234567890'ç< qwertyuiopä+>  asdfghjklïÖó  <zxcvbnm,.-  ",
+  "\\1234567890'√ß< qwertyuiop√§+>  asdfghjkl√Ø√ñ√≥  <zxcvbnm,.-  ",
 /* 01 23456789012345678901234567890123456789012345678901234 */
-  "|!\"ú$%&/()=?^> QWERTYUIOPÇ*   ASDFGHJKLá¯ı  >ZXCVBNM;:_  ",
+  "|!\"√∫$%&/()=?^> QWERTYUIOP√á*   ASDFGHJKL√°¬Øƒ±  >ZXCVBNM;:_  ",
 /* 0123456789012345678901234567890123456789012345678901234 */
   "        {}~`             []             @#               ",
   it_kbd_translate_table
@@ -1985,11 +1985,11 @@ static struct dos_keyboard_map it_keyboard = {
 static struct dos_keyboard_map dk_keyboard = {
 /* 0         1         2         3         4         5      */
 /* 0123456789012345678901234567890123456789012345678901234 */
-  "´1234567890+|  qwertyuiopÜ~   asdfghjklëõ'  <zxcvbnm,.-  ",
+  "¬¥1234567890+|  qwertyuiop√ú~   asdfghjkl√´√µ'  <zxcvbnm,.-  ",
 /* 01 23456789012345678901234567890123456789012345678901234 */
-  "ı!\"#$%&/()=?`  QWERTYUIOPè^   ASDFGHJKLíù*  >ZXCVBNM;:_  ",
+  "ƒ±!\"#$%&/()=?`  QWERTYUIOP√®^   ASDFGHJKL√≠√π*  >ZXCVBNM;:_  ",
 /* 0123456789012345678901234567890123456789012345678901234 */
-  "  @ú$  {[]} |                                             ",
+  "  @√∫$  {[]} |                                             ",
   0				/* no translate table */
 };
 
@@ -4203,4 +4203,11 @@ This variable is used only by MS-DOS terminals.  */);
   defsubr (&Smsdos_set_mouse_buttons);
 }
 
+#else
+/* keep file from being empty: */
+typedef int msdos_c_dummy_t;
+extern msdos_c_dummy_t msdos_c_dummy_var;
+msdos_c_dummy_t msdos_c_dummy_var = 0;
 #endif /* MSDOS */
+
+/* EOF */

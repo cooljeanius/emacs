@@ -28,6 +28,9 @@ emacs-[0-9]*
 bootstrap-emacs
 prefix-args
 getloadavg_test
+vms-pp
+vms_pp
+libemacs.a
 
 # static analysis output:
 clang_static_analysis/*

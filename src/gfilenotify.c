@@ -282,4 +282,11 @@ syms_of_gfilenotify (void)
 
 }
 
+#else
+/* keep file from being empty: */
+typedef int gfilenotify_c_dummy_t;
+extern gfilenotify_c_dummy_t gfilenotify_c_dummy_var;
+gfilenotify_c_dummy_t gfilenotify_c_dummy_var = 0;
 #endif /* HAVE_GFILENOTIFY  */
+
+/* EOF */

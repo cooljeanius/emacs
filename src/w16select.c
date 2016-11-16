@@ -1,4 +1,4 @@
-/* 16-bit Windows Selection processing for emacs on MS-Windows
+/* w16select.o: 16-bit Windows Selection processing for emacs on MS-Windows
 
 Copyright (C) 1996-1997, 2001-2014 Free Software Foundation, Inc.
 
@@ -723,4 +723,11 @@ After the communication, this variable is set to nil.  */);
   QCLIPBOARD = intern ("CLIPBOARD");	staticpro (&QCLIPBOARD);
 }
 
+#else
+/* keep file from being empty: */
+typedef int w16select_c_dummy_t;
+extern w16select_c_dummy_t w16select_c_dummy_var;
+w16select_c_dummy_t w16select_c_dummy_var = 0;
 #endif /* MSDOS */
+
+/* EOF */

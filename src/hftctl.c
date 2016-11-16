@@ -63,7 +63,14 @@ struct devinfo;
 #endif /* HAVE_SYS_DEVINFO_H */
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
+#else
+# ifdef HAVE_MACH_MACH_TYPES_H
+#  include <mach/mach_types.h>
+# endif /* HAVE_MACH_MACH_TYPES_H */
 #endif /* HAVE_SYS_TYPES_H */
+#ifdef HAVE_MACHINE_TYPES_H
+# include <machine/types.h>
+#endif /* HAVE_MACHINE_TYPES_H */
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
 #endif /* HAVE_UNISTD_H */
@@ -150,9 +157,13 @@ struct devinfo;
 #ifdef HAVE_SYS_HFT_H
 # include <sys/hft.h>
 #else
-# if defined(__GNUC__) && !defined(__STRICT_ANSI__)
-#  warning "hftctl.c expects <sys/hft.h> to be included."
-# endif /* __GNUC__ && !__STRICT_ANSI__ */
+# if 1
+/* found one! */
+#  include "sys/hft.h"
+# else
+#  if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#   warning "hftctl.c expects <sys/hft.h> to be included."
+#  endif /* __GNUC__ && !__STRICT_ANSI__ */
 /* guess at what these are supposed to be: */
 struct hfbuf {
     int hf_buflen;
@@ -170,6 +181,7 @@ struct hfquery {
 struct hfctlack;
 struct hfctlreq;
 struct hfintro;
+# endif /* 1 */
 #endif /* HAVE_SYS_HFT_H */
 #include <sys/uio.h>
 #include <sys/tty.h>
@@ -184,7 +196,7 @@ struct hfintro;
 #define REMOTE 0x01
 
 #undef ioctl
-static char     SCCSid[] = "com/gnuemacs/src,3.1,9021-90/05/03-5/3/90";
+static const char     SCCSid[] = "com/gnuemacs/src,3.1,9021-90/05/03-5/3/90";
 
 /*************** LOCAL DEFINES **********************************/
 
@@ -225,7 +237,9 @@ static int              hfskbd();
        ptrdiff_t        emacs_write();
 #endif /* PROTOTYPES || __PROTOTYPES */
 
+#ifndef errno
 extern int              errno;
+#endif /* !errno */
 static jmp_buf          hftenv;
 static int              is_ack_vtd;
 
@@ -344,6 +358,10 @@ int hftctl (fd, request, arg)
   ioctl (fd, TCSETS, &term_new);
   if (fcntl (fd, F_SETFL, fd_flag & ~O_NDELAY) == -1)
     return(-1);
+  /* This define is probably wrong: */
+#ifndef HFSKBD
+# define HFSKBD 0
+#endif /* !HFSKBD */
   /* call spacific function       */
   if (request == HFSKBD)
     retcode = hfskbd (fd, request, arg.c);

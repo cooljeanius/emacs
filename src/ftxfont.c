@@ -359,7 +359,7 @@ ftxfont_end_for_frame (struct frame *f)
 }
 
 
-
+/* */
 void
 syms_of_ftxfont (void)
 {

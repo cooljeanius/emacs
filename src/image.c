@@ -2568,7 +2568,7 @@ x_find_image_file (Lisp_Object file)
   Lisp_Object file_found, search_path;
   int fd;
 
-  /* TODO I think this should use something like image-load-path
+  /* TODO: I think this should use something like image-load-path
      instead.  Unfortunately, that can contain non-string elements.  */
   search_path = Fcons (Fexpand_file_name (build_string ("images"),
 					  Vdata_directory),
@@ -10385,7 +10385,7 @@ void init_image(void)
 #  if defined(lint) && lint
   int ret = fprintf(stderr, "init_image()\n");
   if (ret != 0) {
-    ;
+    (void)ret;
   }
 #  endif /* lint */
 # endif /* MAC_OS && MAC_OSX && TARGET_API_MAC_CARBON */

@@ -387,18 +387,18 @@ xd_signature (char *signature, int dtype, int parent_type, Lisp_Object object)
     case DBUS_TYPE_BYTE:
     case DBUS_TYPE_UINT16:
       CHECK_NATNUM (object);
-      sprintf (signature, "%c", dtype);
+      snprintf(signature, DBUS_MAXIMUM_SIGNATURE_LENGTH, "%c", dtype);
       break;
 
     case DBUS_TYPE_BOOLEAN:
       if (!EQ (object, Qt) && !EQ (object, Qnil))
 	wrong_type_argument (intern ("booleanp"), object);
-      sprintf (signature, "%c", dtype);
+      snprintf(signature, DBUS_MAXIMUM_SIGNATURE_LENGTH, "%c", dtype);
       break;
 
     case DBUS_TYPE_INT16:
       CHECK_NUMBER (object);
-      sprintf (signature, "%c", dtype);
+      snprintf(signature, DBUS_MAXIMUM_SIGNATURE_LENGTH, "%c", dtype);
       break;
 
     case DBUS_TYPE_UINT32:
@@ -410,14 +410,14 @@ xd_signature (char *signature, int dtype, int parent_type, Lisp_Object object)
     case DBUS_TYPE_INT64:
     case DBUS_TYPE_DOUBLE:
       CHECK_NUMBER_OR_FLOAT (object);
-      sprintf (signature, "%c", dtype);
+      snprintf(signature, DBUS_MAXIMUM_SIGNATURE_LENGTH, "%c", dtype);
       break;
 
     case DBUS_TYPE_STRING:
     case DBUS_TYPE_OBJECT_PATH:
     case DBUS_TYPE_SIGNATURE:
       CHECK_STRING (object);
-      sprintf (signature, "%c", dtype);
+      snprintf(signature, DBUS_MAXIMUM_SIGNATURE_LENGTH, "%c", dtype);
       break;
 
     case DBUS_TYPE_ARRAY:
@@ -477,7 +477,7 @@ xd_signature (char *signature, int dtype, int parent_type, Lisp_Object object)
 	wrong_type_argument (intern ("D-Bus"),
 			     CAR_SAFE (CDR_SAFE (XD_NEXT_VALUE (elt))));
 
-      sprintf (signature, "%c", dtype);
+      snprintf(signature, DBUS_MAXIMUM_SIGNATURE_LENGTH, "%c", dtype);
       break;
 
     case DBUS_TYPE_STRUCT:
@@ -489,7 +489,8 @@ xd_signature (char *signature, int dtype, int parent_type, Lisp_Object object)
 
       /* Compose the signature from the elements.  It is enclosed by
 	 parentheses.  */
-      sprintf (signature, "%c", DBUS_STRUCT_BEGIN_CHAR );
+      snprintf(signature, DBUS_MAXIMUM_SIGNATURE_LENGTH, "%c",
+	       DBUS_STRUCT_BEGIN_CHAR);
       while (!NILP (elt))
 	{
 	  subtype = XD_OBJECT_TO_DBUS_TYPE (CAR_SAFE (elt));
@@ -512,7 +513,8 @@ xd_signature (char *signature, int dtype, int parent_type, Lisp_Object object)
 
       /* Compose the signature from the elements.  It is enclosed by
 	 curly braces.  */
-      sprintf (signature, "%c", DBUS_DICT_ENTRY_BEGIN_CHAR);
+      snprintf(signature, DBUS_MAXIMUM_SIGNATURE_LENGTH, "%c",
+	       DBUS_DICT_ENTRY_BEGIN_CHAR);
 
       /* First element.  */
       elt = XD_NEXT_VALUE (elt);

@@ -800,6 +800,7 @@ mostlyclean:
 	rm -f buildobj.h
 	rm -f buildobj.lst
 	rm -f getloadavg_test$(EXEEXT)
+	rm -f vms_pp$(EXEEXT) vms-pp$(EXEEXT)
 	rm -f globals.h gl-stamp
 	rm -f version.h
 	rm -f *.res *.tmp
@@ -943,6 +944,10 @@ bootstrap-emacs$(EXEEXT): ../lisp/Makefile temacs$(EXEEXT)
 getloadavg_test$(EXEEXT): $(srcdir)/getloadavg.c $(config_h)
 	$(AM_V_CCLD)$(CC) -o getloadavg_test -DTEST $(ALL_CFLAGS) \
 	  $(LDFLAGS) $(srcdir)/getloadavg.c
+
+vms_pp$(EXEEXT): $(srcdir)/vms-pp.c
+	$(AM_V_CCLD)$(CC) -o vms_pp$(EXEEXT) $(ALL_CFLAGS) \
+	  $(LDFLAGS) $(srcdir)/vms-pp.c
 
 ## Insert either autodeps.mk (if AUTO_DEPEND), else deps.mk.
 @deps_frag@
