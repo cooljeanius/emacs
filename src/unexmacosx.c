@@ -773,7 +773,7 @@ static void unexec_regions_merge(void)
   }
   free(zeropage);
   if (r.filesize != r.range.size) {
-    printf("Removed %lx zerod bytes from filesize\n",
+    printf("Region %d: removed %lx zerod bytes from filesize\n", i,
            (unsigned long)(r.range.size - r.filesize));
   }
   unexec_regions[n++] = r;

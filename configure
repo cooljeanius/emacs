@@ -13380,9 +13380,15 @@ done
 
 ## if gdb is present, use gdb-specific debugging options; otherwise proceed
 ## as this script did previously:
-if test "x${GDB_BIN}" != "x"; then
+if test "x${GDB_BIN}" != "x" && test -x "${GDB_BIN}"; then
   test -n "${GDB_BIN}" && test -x "${GDB_BIN}"
-  gthree='-ggdb3'
+  if test "x${ac_cv_path_CLANG_ANALYZER}" = "x"; then
+    test -z "${ac_cv_path_CLANG_ANALYZER}"
+    gthree='-ggdb3'
+  else
+    test -n "${ac_cv_path_CLANG_ANALYZER}"
+    gthree='-g3'
+  fi
 else
   test -z "${GDB_BIN}"
   gthree='-g3'
@@ -13725,6 +13731,7 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
+PRE_WARNING_TESTING_CFLAGS="${CFLAGS}"
 # Check whether --enable-gcc-warnings was given.
 if test ${enable_gcc_warnings+y}
 then :
@@ -14177,7 +14184,6 @@ rm -f conftest.err conftest.i conftest.$ac_ext
 # need this to properly check clang warning flags, and maybe also those
 # for apple-gcc, and need to do it whether we have enabled gcc warnings
 # or not, because we still test warning flags either way:
-PRE_WARNING_TESTING_CFLAGS="${CFLAGS}"
 if test "x${emacs_cv_clang}" = "xyes" || test "x${emacs_cv_apple}" = "xyes"; then
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Werror -Wunknown-warning-option" >&5
 printf %s "checking whether C compiler handles -Werror -Wunknown-warning-option... " >&6; }
@@ -18619,46 +18625,6 @@ if ac_fn_c_try_cpp "$LINENO"
 then :
 
 
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wmisleading-indentation" >&5
-printf %s "checking whether C compiler handles -Wmisleading-indentation... " >&6; }
-if test ${gl_cv_warn_c__Wmisleading_indentation+y}
-then :
-  printf %s "(cached) " >&6
-else
-
-  gl_save_compiler_FLAGS="$CFLAGS"
-  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wmisleading-indentation"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main (void)
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"
-then :
-  gl_cv_warn_c__Wmisleading_indentation=yes
-else
-  gl_cv_warn_c__Wmisleading_indentation=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  CFLAGS="$gl_save_compiler_FLAGS"
-
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wmisleading_indentation" >&5
-printf "%s\n" "$gl_cv_warn_c__Wmisleading_indentation" >&6; }
-if test "x$gl_cv_warn_c__Wmisleading_indentation" = xyes
-then :
-  as_fn_append WARN_CFLAGS " -Wmisleading-indentation"
-fi
-
-
-
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Woverride-init-side-effects" >&5
 printf %s "checking whether C compiler handles -Woverride-init-side-effects... " >&6; }
 if test ${gl_cv_warn_c__Woverride_init_side_effects+y}
@@ -18695,46 +18661,6 @@ printf "%s\n" "$gl_cv_warn_c__Woverride_init_side_effects" >&6; }
 if test "x$gl_cv_warn_c__Woverride_init_side_effects" = xyes
 then :
   as_fn_append WARN_CFLAGS " -Woverride-init-side-effects"
-fi
-
-
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wshift-negative-value" >&5
-printf %s "checking whether C compiler handles -Wshift-negative-value... " >&6; }
-if test ${gl_cv_warn_c__Wshift_negative_value+y}
-then :
-  printf %s "(cached) " >&6
-else
-
-  gl_save_compiler_FLAGS="$CFLAGS"
-  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wshift-negative-value"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main (void)
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"
-then :
-  gl_cv_warn_c__Wshift_negative_value=yes
-else
-  gl_cv_warn_c__Wshift_negative_value=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  CFLAGS="$gl_save_compiler_FLAGS"
-
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wshift_negative_value" >&5
-printf "%s\n" "$gl_cv_warn_c__Wshift_negative_value" >&6; }
-if test "x$gl_cv_warn_c__Wshift_negative_value" = xyes
-then :
-  as_fn_append WARN_CFLAGS " -Wshift-negative-value"
 fi
 
 
@@ -18816,206 +18742,6 @@ fi
 
 
 fi
-
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wtautological-compare" >&5
-printf %s "checking whether C compiler handles -Wtautological-compare... " >&6; }
-if test ${gl_cv_warn_c__Wtautological_compare+y}
-then :
-  printf %s "(cached) " >&6
-else
-
-  gl_save_compiler_FLAGS="$CFLAGS"
-  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wtautological-compare"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main (void)
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"
-then :
-  gl_cv_warn_c__Wtautological_compare=yes
-else
-  gl_cv_warn_c__Wtautological_compare=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  CFLAGS="$gl_save_compiler_FLAGS"
-
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wtautological_compare" >&5
-printf "%s\n" "$gl_cv_warn_c__Wtautological_compare" >&6; }
-if test "x$gl_cv_warn_c__Wtautological_compare" = xyes
-then :
-  as_fn_append WARN_CFLAGS " -Wtautological-compare"
-fi
-
-
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wframe-address" >&5
-printf %s "checking whether C compiler handles -Wframe-address... " >&6; }
-if test ${gl_cv_warn_c__Wframe_address+y}
-then :
-  printf %s "(cached) " >&6
-else
-
-  gl_save_compiler_FLAGS="$CFLAGS"
-  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wframe-address"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main (void)
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"
-then :
-  gl_cv_warn_c__Wframe_address=yes
-else
-  gl_cv_warn_c__Wframe_address=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  CFLAGS="$gl_save_compiler_FLAGS"
-
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wframe_address" >&5
-printf "%s\n" "$gl_cv_warn_c__Wframe_address" >&6; }
-if test "x$gl_cv_warn_c__Wframe_address" = xyes
-then :
-  as_fn_append WARN_CFLAGS " -Wframe-address"
-fi
-
-
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wnull-dereference" >&5
-printf %s "checking whether C compiler handles -Wnull-dereference... " >&6; }
-if test ${gl_cv_warn_c__Wnull_dereference+y}
-then :
-  printf %s "(cached) " >&6
-else
-
-  gl_save_compiler_FLAGS="$CFLAGS"
-  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wnull-dereference"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main (void)
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"
-then :
-  gl_cv_warn_c__Wnull_dereference=yes
-else
-  gl_cv_warn_c__Wnull_dereference=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  CFLAGS="$gl_save_compiler_FLAGS"
-
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wnull_dereference" >&5
-printf "%s\n" "$gl_cv_warn_c__Wnull_dereference" >&6; }
-if test "x$gl_cv_warn_c__Wnull_dereference" = xyes
-then :
-  as_fn_append WARN_CFLAGS " -Wnull-dereference"
-fi
-
-
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wduplicated-cond" >&5
-printf %s "checking whether C compiler handles -Wduplicated-cond... " >&6; }
-if test ${gl_cv_warn_c__Wduplicated_cond+y}
-then :
-  printf %s "(cached) " >&6
-else
-
-  gl_save_compiler_FLAGS="$CFLAGS"
-  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wduplicated-cond"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main (void)
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"
-then :
-  gl_cv_warn_c__Wduplicated_cond=yes
-else
-  gl_cv_warn_c__Wduplicated_cond=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  CFLAGS="$gl_save_compiler_FLAGS"
-
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wduplicated_cond" >&5
-printf "%s\n" "$gl_cv_warn_c__Wduplicated_cond" >&6; }
-if test "x$gl_cv_warn_c__Wduplicated_cond" = xyes
-then :
-  as_fn_append WARN_CFLAGS " -Wduplicated-cond"
-fi
-
-
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wnonnull-compare" >&5
-printf %s "checking whether C compiler handles -Wnonnull-compare... " >&6; }
-if test ${gl_cv_warn_c__Wnonnull_compare+y}
-then :
-  printf %s "(cached) " >&6
-else
-
-  gl_save_compiler_FLAGS="$CFLAGS"
-  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wnonnull-compare"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main (void)
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"
-then :
-  gl_cv_warn_c__Wnonnull_compare=yes
-else
-  gl_cv_warn_c__Wnonnull_compare=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  CFLAGS="$gl_save_compiler_FLAGS"
-
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wnonnull_compare" >&5
-printf "%s\n" "$gl_cv_warn_c__Wnonnull_compare" >&6; }
-if test "x$gl_cv_warn_c__Wnonnull_compare" = xyes
-then :
-  as_fn_append WARN_CFLAGS " -Wnonnull-compare"
-fi
-
 
       ## this got stricter, I think?
       nw="${nw} -Wbool-compare"
@@ -19294,11 +19020,28 @@ else
 printf "%s\n" "$as_me: skipping checks for warnings for gcc 6.0 or newer" >&6;}
 
 fi
-rm -f conftest.err conftest.i conftest.$ac_ext    ##...okay, that should be it.
-  else
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: WERROR_CFLAGS is set, so we have to skip some warnings" >&5
-printf "%s\n" "$as_me: WARNING: WERROR_CFLAGS is set, so we have to skip some warnings" >&2;}
-  fi  ##end check for werror flags
+rm -f conftest.err conftest.i conftest.$ac_ext
+
+      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#if (7) < __GNUC__ || ((7) == __GNUC__ && (0) <= __GNUC_MINOR__)
+/* ok */
+#else
+# error "your version of gcc is older than 7.0"
+#endif /* GCC version check */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+},
+
+_ACEOF
+if ac_fn_c_try_cpp "$LINENO"
+then :
 
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wdangling-else" >&5
@@ -19457,84 +19200,6 @@ then :
 fi
 
 
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Whsa" >&5
-printf %s "checking whether C compiler handles -Whsa... " >&6; }
-if test ${gl_cv_warn_c__Whsa+y}
-then :
-  printf %s "(cached) " >&6
-else
-
-  gl_save_compiler_FLAGS="$CFLAGS"
-  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Whsa"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main (void)
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"
-then :
-  gl_cv_warn_c__Whsa=yes
-else
-  gl_cv_warn_c__Whsa=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  CFLAGS="$gl_save_compiler_FLAGS"
-
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Whsa" >&5
-printf "%s\n" "$gl_cv_warn_c__Whsa" >&6; }
-if test "x$gl_cv_warn_c__Whsa" = xyes
-then :
-  as_fn_append WARN_CFLAGS " -Whsa"
-fi
-
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wscalar-storage-order" >&5
-printf %s "checking whether C compiler handles -Wscalar-storage-order... " >&6; }
-if test ${gl_cv_warn_c__Wscalar_storage_order+y}
-then :
-  printf %s "(cached) " >&6
-else
-
-  gl_save_compiler_FLAGS="$CFLAGS"
-  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wscalar-storage-order"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main (void)
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"
-then :
-  gl_cv_warn_c__Wscalar_storage_order=yes
-else
-  gl_cv_warn_c__Wscalar_storage_order=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  CFLAGS="$gl_save_compiler_FLAGS"
-
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wscalar_storage_order" >&5
-printf "%s\n" "$gl_cv_warn_c__Wscalar_storage_order" >&6; }
-if test "x$gl_cv_warn_c__Wscalar_storage_order" = xyes
-then :
-  as_fn_append WARN_CFLAGS " -Wscalar-storage-order"
-fi
-
-
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wimplicit-fallthrough" >&5
 printf %s "checking whether C compiler handles -Wimplicit-fallthrough... " >&6; }
 if test ${gl_cv_warn_c__Wimplicit_fallthrough+y}
@@ -19573,7 +19238,7 @@ then :
   as_fn_append WARN_CFLAGS " -Wimplicit-fallthrough"
 fi
 
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wformat-length=2" >&5
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wformat-length=2" >&5
 printf %s "checking whether C compiler handles -Wformat-length=2... " >&6; }
 if test ${gl_cv_warn_c__Wformat_length_2+y}
 then :
@@ -19964,14 +19629,53 @@ then :
   as_fn_append WARN_CFLAGS " -Wpsabi"
 fi
 
-  ## -faligned-new is checked later:
-  if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
-    ac_ext=cpp
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wbuiltin-declaration-mismatch" >&5
+printf %s "checking whether C compiler handles -Wbuiltin-declaration-mismatch... " >&6; }
+if test ${gl_cv_warn_c__Wbuiltin_declaration_mismatch+y}
+then :
+  printf %s "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wbuiltin-declaration-mismatch"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_warn_c__Wbuiltin_declaration_mismatch=yes
+else
+  gl_cv_warn_c__Wbuiltin_declaration_mismatch=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wbuiltin_declaration_mismatch" >&5
+printf "%s\n" "$gl_cv_warn_c__Wbuiltin_declaration_mismatch" >&6; }
+if test "x$gl_cv_warn_c__Wbuiltin_declaration_mismatch" = xyes
+then :
+  as_fn_append WARN_CFLAGS " -Wbuiltin-declaration-mismatch"
+fi
+
+      ## -faligned-new is checked later:
+      if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
+        ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C++ compiler handles -Waligned-new=all" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C++ compiler handles -Waligned-new=all" >&5
 printf %s "checking whether C++ compiler handles -Waligned-new=all... " >&6; }
 if test ${gl_cv_warn_cxx__Waligned_new_all+y}
 then :
@@ -20130,16 +19834,28 @@ then :
 fi
 
 
-    ac_ext=c
+        ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
+      else
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: -Waligned-new only relevant for C++, skipping it" >&5
+printf "%s\n" "$as_me: -Waligned-new only relevant for C++, skipping it" >&6;}
+      fi  ##end check for C++ compiler
+
+else
+
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: skipping checks for warnings for gcc 7.0 or newer" >&5
+printf "%s\n" "$as_me: skipping checks for warnings for gcc 7.0 or newer" >&6;}
+
+fi
+rm -f conftest.err conftest.i conftest.$ac_ext    ##...okay, that should be it.
   else
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: -Waligned-new is only relevant for C++, skipping it" >&5
-printf "%s\n" "$as_me: -Waligned-new is only relevant for C++, skipping it" >&6;}
-  fi  ##end check for C++ compiler
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: WERROR_CFLAGS is set, so we have to skip some warnings" >&5
+printf "%s\n" "$as_me: WARNING: WERROR_CFLAGS is set, so we have to skip some warnings" >&2;}
+  fi  ##end check for werror flags
 
 
 printf "%s\n" "#define lint 1" >>confdefs.h
@@ -81967,6 +81683,7 @@ case "${opsys}" in
    ##  arbitrary, hard-coded ones?)
 
    if test "x${LD_NO_PIE}" != "xNO"; then
+     echo "assuming ld wants -no_pie; set LD_NO_PIE to NO to override"
      ## Apple uses this in their Makefile, and other platforms use
      ## analogous flags:
      LD_SWITCH_SYSTEM_TEMACS="${LD_SWITCH_SYSTEM_TEMACS} -Wl,-no_pie"

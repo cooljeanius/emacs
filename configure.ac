@@ -2721,9 +2721,15 @@ AC_PATH_PROGS([GDB_BIN],[gdb ggdb gdb-apple])dnl
 
 ## if gdb is present, use gdb-specific debugging options; otherwise proceed
 ## as this script did previously:
-if test "x${GDB_BIN}" != "x"; then
+if test "x${GDB_BIN}" != "x" && test -x "${GDB_BIN}"; then
   test -n "${GDB_BIN}" && test -x "${GDB_BIN}"
-  gthree='-ggdb3'
+  if test "x${ac_cv_path_CLANG_ANALYZER}" = "x"; then
+    test -z "${ac_cv_path_CLANG_ANALYZER}"
+    gthree='-ggdb3'
+  else
+    test -n "${ac_cv_path_CLANG_ANALYZER}"
+    gthree='-g3'
+  fi
 else
   test -z "${GDB_BIN}"
   gthree='-g3'
@@ -2906,7 +2912,9 @@ else
 fi
 AC_LANG_POP
 
+dnl########################################################################
 dnl# warnings section begins here:
+PRE_WARNING_TESTING_CFLAGS="${CFLAGS}"
 AC_ARG_ENABLE([gcc-warnings],
   [AS_HELP_STRING([--enable-gcc-warnings],
                   [turn on lots of GCC warnings/errors. This is meant for
@@ -3051,7 +3059,6 @@ dnl# (compiler id checks moved above the lto checks)
 # need this to properly check clang warning flags, and maybe also those
 # for apple-gcc, and need to do it whether we have enabled gcc warnings
 # or not, because we still test warning flags either way:
-PRE_WARNING_TESTING_CFLAGS="${CFLAGS}"
 if test "x${emacs_cv_clang}" = "xyes" || test "x${emacs_cv_apple}" = "xyes"; then
   gl_UNKNOWN_WARNINGS_ARE_ERRORS
   CFLAGS="${CFLAGS} ${gl_unknown_warnings_are_errors}"
@@ -3560,17 +3567,13 @@ else
 
     dnl# gcc 6 has been released:
     gl_GCC_VERSION_IFELSE([6],[0],[
-      gl_WARN_ADD([-Wmisleading-indentation])
+      dnl# as with gcc 5, most of the new warnings for gcc 6 are now
+      dnl# handled by manywarnings.m4, but handle a few here manually
+      dnl# anyways:
       gl_WARN_ADD([-Woverride-init-side-effects])
-      gl_WARN_ADD([-Wshift-negative-value])
       gl_COMPILER_OPTION_IF([-Wshift-overflow=2],
                         [WARN_CFLAGS="${WARN_CFLAGS} -Wshift-overflow=2"],
                             [gl_WARN_ADD([-Wshift-overflow])])
-      gl_WARN_ADD([-Wtautological-compare])
-      gl_WARN_ADD([-Wframe-address])
-      gl_WARN_ADD([-Wnull-dereference])
-      gl_WARN_ADD([-Wduplicated-cond])
-      gl_WARN_ADD([-Wnonnull-compare])
       ## this got stricter, I think?
       nw="${nw} -Wbool-compare"
       ## but anyways...
@@ -3599,42 +3602,45 @@ else
     ],[
       AC_MSG_NOTICE([skipping checks for warnings for gcc 6.0 or newer])
     ])dnl# end block of code for gcc 6
+
+    dnl# to be added in a future version of gcc:
+    gl_GCC_VERSION_IFELSE([7],[0],[
+      gl_WARN_ADD([-Wdangling-else])dnl
+      gl_WARN_ADD([-Wduplicate-decl-specifier])dnl
+      gl_WARN_ADD([-Wmemset-elt-size])dnl
+      gl_WARN_ADD([-Wswitch-unreachable])dnl
+      gl_WARN_ADD([-Wimplicit-fallthrough])dnl
+      gl_COMPILER_OPTION_IF([-Wformat-length=2],
+                          [WARN_CFLAGS="${WARN_CFLAGS} -Wformat-length=2"],
+                          [gl_WARN_ADD([-Wformat-length])])
+      gl_WARN_ADD([-Wexpansion-to-defined])dnl
+      gl_WARN_ADD([-Wrestrict])dnl
+      gl_WARN_ADD([-Wint-in-bool-context])dnl
+      gl_WARN_ADD([-Wpointer-compare])dnl
+      gl_WARN_ADD([-Wbool-operation])dnl
+      gl_WARN_ADD([-Wduplicated-branches])dnl
+      gl_WARN_ADD([-Walloca-larger-than=16384])dnl# MAX_ALLOCA = 16 * 1024
+      gl_WARN_ADD([-Wpsabi])dnl
+      gl_WARN_ADD([-Wbuiltin-declaration-mismatch])dnl
+      ## -faligned-new is checked later:
+      if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
+        AC_LANG_PUSH([C++])dnl
+        gl_COMPILER_OPTION_IF([-Waligned-new=all],
+                      [WARN_CXXFLAGS="${WARN_CXXFLAGS} -Waligned-new=all"],
+                      [gl_WARN_ADD([-Waligned-new],[WARN_CXXFLAGS])])
+        gl_WARN_ADD([-Wbuiltin-function-redefined],[WARN_CXXFLAGS])
+        gl_WARN_ADD([-Wsubobject-linkage],[WARN_CXXFLAGS])
+        AC_LANG_POP
+      else
+        AC_MSG_NOTICE([-Waligned-new only relevant for C++, skipping it])
+      fi  ##end check for C++ compiler
+    ],[
+      AC_MSG_NOTICE([skipping checks for warnings for gcc 7.0 or newer])
+    ])dnl# end block of code for gcc 7
     ##...okay, that should be it.
   else
     AC_MSG_WARN([WERROR_CFLAGS is set, so we have to skip some warnings])
   fi  ##end check for werror flags
-
-  dnl# to be added in a future version of gcc:
-  gl_WARN_ADD([-Wdangling-else])dnl
-  gl_WARN_ADD([-Wduplicate-decl-specifier])dnl
-  gl_WARN_ADD([-Wmemset-elt-size])dnl
-  gl_WARN_ADD([-Wswitch-unreachable])dnl
-  gl_WARN_ADD([-Whsa])dnl
-  gl_WARN_ADD([-Wscalar-storage-order])dnl
-  gl_WARN_ADD([-Wimplicit-fallthrough])dnl
-  gl_COMPILER_OPTION_IF([-Wformat-length=2],
-                        [WARN_CFLAGS="${WARN_CFLAGS} -Wformat-length=2"],
-                        [gl_WARN_ADD([-Wformat-length])])
-  gl_WARN_ADD([-Wexpansion-to-defined])dnl
-  gl_WARN_ADD([-Wrestrict])dnl
-  gl_WARN_ADD([-Wint-in-bool-context])dnl
-  gl_WARN_ADD([-Wpointer-compare])dnl
-  gl_WARN_ADD([-Wbool-operation])dnl
-  gl_WARN_ADD([-Wduplicated-branches])dnl
-  gl_WARN_ADD([-Walloca-larger-than=16384])dnl# MAX_ALLOCA = 16 * 1024
-  gl_WARN_ADD([-Wpsabi])dnl
-  ## -faligned-new is checked later:
-  if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
-    AC_LANG_PUSH([C++])dnl
-    gl_COMPILER_OPTION_IF([-Waligned-new=all],
-                      [WARN_CXXFLAGS="${WARN_CXXFLAGS} -Waligned-new=all"],
-                      [gl_WARN_ADD([-Waligned-new],[WARN_CXXFLAGS])])
-    gl_WARN_ADD([-Wbuiltin-function-redefined],[WARN_CXXFLAGS])
-    gl_WARN_ADD([-Wsubobject-linkage],[WARN_CXXFLAGS])
-    AC_LANG_POP
-  else
-    AC_MSG_NOTICE([-Waligned-new is only relevant for C++, skipping it])
-  fi  ##end check for C++ compiler
 
   AC_DEFINE([lint],[1],[Define to 1 if the compiler is checking for lint.])
   AC_DEFINE([GCC_LINT],[1],[Define to 1 if --enable-gcc-warnings.])
@@ -9863,6 +9869,7 @@ case "${opsys}" in
    ##  arbitrary, hard-coded ones?)
 
    if test "x${LD_NO_PIE}" != "xNO"; then
+     echo "assuming ld wants -no_pie; set LD_NO_PIE to NO to override"
      ## Apple uses this in their Makefile, and other platforms use
      ## analogous flags:
      LD_SWITCH_SYSTEM_TEMACS="${LD_SWITCH_SYSTEM_TEMACS} -Wl,-no_pie"
