@@ -3613,6 +3613,15 @@ else
       gl_COMPILER_OPTION_IF([-Wformat-length=2],
                           [WARN_CFLAGS="${WARN_CFLAGS} -Wformat-length=2"],
                           [gl_WARN_ADD([-Wformat-length])])
+      gl_COMPILER_OPTION_IF([-Wformat-overflow=2],
+                          [WARN_CFLAGS="${WARN_CFLAGS} -Wformat-overflow=2"],
+                          [gl_WARN_ADD([-Wformat-overflow])])
+      gl_COMPILER_OPTION_IF([-Wformat-truncation=2],
+                          [WARN_CFLAGS="${WARN_CFLAGS} -Wformat-truncation=2"],
+                          [gl_WARN_ADD([-Wformat-truncation])])
+      gl_COMPILER_OPTION_IF([-Wstringop-overflow=2],
+                          [WARN_CFLAGS="${WARN_CFLAGS} -Wstringop-overflow=2"],
+                          [gl_WARN_ADD([-Wstringop-overflow])])
       gl_WARN_ADD([-Wexpansion-to-defined])dnl
       gl_WARN_ADD([-Wrestrict])dnl
       gl_WARN_ADD([-Wint-in-bool-context])dnl
@@ -3620,6 +3629,9 @@ else
       gl_WARN_ADD([-Wbool-operation])dnl
       gl_WARN_ADD([-Wduplicated-branches])dnl
       gl_WARN_ADD([-Walloca-larger-than=16384])dnl# MAX_ALLOCA = 16 * 1024
+      gl_WARN_ADD([-Wvla-larger-than=16384])dnl# vlas = allocas
+      gl_WARN_ADD([-Walloc-size-larger-than=32767])dnl# INT16_MAX
+      gl_WARN_ADD([-Walloc-zero])dnl
       gl_WARN_ADD([-Wpsabi])dnl
       gl_WARN_ADD([-Wbuiltin-declaration-mismatch])dnl
       ## -faligned-new is checked later:
@@ -4277,6 +4289,7 @@ case "${opsys}" in
       echo "adding '-lintl' to LIBS_SYSTEM here for darwin"
       LIBS_SYSTEM="-lintl"
     elif test -e /usr/lib/libSystem.dylib; then
+      echo "adding '-lSystem' to LIBS_SYSTEM here for darwin"
       LIBS_SYSTEM="-lSystem"
     fi
     ;;

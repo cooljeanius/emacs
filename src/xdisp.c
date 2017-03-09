@@ -1953,7 +1953,10 @@ x_y_to_hpos_vpos (struct window *w, int x, int y, int *hpos, int *vpos,
   if (dx)
     {
       *dx = x;
-      *dy = y - (row->y + row->ascent - glyph->ascent);
+      if (row != NULL)
+	*dy = y - (row->y + row->ascent - glyph->ascent);
+      else
+	*dy = (y - 0);
     }
 
   *hpos = glyph - row->glyphs[*area];
@@ -3549,12 +3552,12 @@ compute_display_string_pos (struct text_pos *position,
 
   *disp_prop = 1;
 
-  if (charpos >= eob
+  if ((charpos >= eob)
       /* We don't support display properties whose values are strings
 	 that have display string properties.  */
-      || string->from_disp_str
+      || ((string != NULL) && string->from_disp_str)
       /* C strings cannot have display properties.  */
-      || (string->s && !STRINGP (object)))
+      || ((string != NULL) && string->s && !STRINGP(object)))
     {
       *disp_prop = 0;
       return eob;
@@ -3563,7 +3566,7 @@ compute_display_string_pos (struct text_pos *position,
   /* If the character at CHARPOS is where the display string begins,
      return CHARPOS.  */
   pos = make_number (charpos);
-  if (STRINGP (object))
+  if (STRINGP(object) && (string != NULL))
     bufpos = string->bufpos;
   else
     bufpos = charpos;
@@ -3621,9 +3624,10 @@ compute_display_string_end (ptrdiff_t charpos, struct bidi_string_data *string)
     (string && STRINGP (string->lstring)) ? string->lstring : Qnil;
   Lisp_Object pos = make_number (charpos);
   ptrdiff_t eob =
-    (STRINGP (object) || (string && string->s)) ? string->schars : ZV;
+    (((string != NULL) && (STRINGP(object) || string->s))
+     ? string->schars : ZV);
 
-  if (charpos >= eob || (string->s && !STRINGP (object)))
+  if ((charpos >= eob) || ((string != NULL) && string->s && !STRINGP(object)))
     return eob;
 
   /* It could happen that the display property or overlay was removed
@@ -3816,6 +3820,9 @@ handle_face_prop (struct it *it)
 	      old_face = FACE_FROM_ID (it->f, prev_face_id);
 	    }
 
+	  xassert(new_face != NULL);
+	  xassert(old_face != NULL);
+
 	  /* If the new face has a box, but the old face does not,
 	     this is the start of a run of characters with box face,
 	     i.e. this character has a shadow on the left side.  */
@@ -3912,8 +3919,11 @@ handle_face_prop (struct it *it)
 	 is really the end.  */
       if (new_face_id != it->face_id)
 	{
-	  struct face *new_face = FACE_FROM_ID (it->f, new_face_id);
-	  struct face *old_face = FACE_FROM_ID (it->f, it->face_id);
+	  struct face *new_face = FACE_FROM_ID(it->f, new_face_id);
+	  struct face *old_face = FACE_FROM_ID(it->f, it->face_id);
+
+	  xassert(new_face != NULL);
+	  xassert(old_face != NULL);
 
 	  /* If new face has a box but old face hasn't, this is the
 	     start of a run of characters with box, i.e. it has a
@@ -6918,7 +6928,7 @@ get_next_display_element (struct it *it)
 		}
 
 	      {
-		char str[10];
+		char str[12];
 		int len, i;
 
 		if (CHAR_BYTE8_P(c))
@@ -14659,45 +14669,46 @@ set_cursor_from_row (struct window *w, struct glyph_row *row,
       /* Keep the candidate whose buffer position is the closest to
 	 point or has the `cursor' property.  */
       if (/* Previous candidate is a glyph in TEXT_AREA of that row.  */
-	  w->cursor.hpos >= 0
-	  && w->cursor.hpos < MATRIX_ROW_USED (matrix, w->cursor.vpos)
-	  && ((BUFFERP (g1->object)
-	       && (g1->charpos == pt_old /* An exact match always wins.  */
-		   || (BUFFERP (glyph->object)
-		       && eabs (g1->charpos - pt_old)
-		       < eabs (glyph->charpos - pt_old))))
+	  (w->cursor.hpos >= 0)
+	  && (w->cursor.hpos < MATRIX_ROW_USED(matrix, w->cursor.vpos))
+	  && ((BUFFERP(g1->object)
+	       && ((g1->charpos == pt_old) /* An exact match always wins.  */
+		   || ((glyph != NULL) && BUFFERP(glyph->object)
+		       && (eabs(g1->charpos - pt_old)
+			   < eabs(glyph->charpos - pt_old)))))
 	      /* Previous candidate is a glyph from a string that has
 		 a non-nil `cursor' property.  */
-	      || (STRINGP (g1->object)
-		  && (!NILP (Fget_char_property (make_number (g1->charpos),
-						Qcursor, g1->object))
+	      || (STRINGP(g1->object)
+		  && (!NILP(Fget_char_property(make_number(g1->charpos),
+					       Qcursor, g1->object))
 		      /* Previous candidate is from the same display
 			 string as this one, and the display string
 			 came from a text property.  */
-		      || (EQ (g1->object, glyph->object)
+		      || ((glyph != NULL) && EQ(g1->object, glyph->object)
 			  && string_from_text_prop)
 		      /* this candidate is from newline and its
 			 position is not an exact match */
-		      || (INTEGERP (glyph->object)
-			  && glyph->charpos != pt_old)))))
+		      || ((glyph != NULL) && INTEGERP(glyph->object)
+			  && (glyph->charpos != pt_old))))))
 	return 0;
       /* If this candidate gives an exact match, use that.  */
-      if (!((BUFFERP (glyph->object) && glyph->charpos == pt_old)
-	    /* If this candidate is a glyph created for the
-	       terminating newline of a line, and point is on that
-	       newline, it wins because it's an exact match.  */
-	    || (!row->continued_p
-		&& INTEGERP (glyph->object)
-		&& glyph->charpos == 0
-		&& pt_old == MATRIX_ROW_END_CHARPOS (row) - 1))
-	  /* Otherwise, keep the candidate that comes from a row
-	     spanning less buffer positions.  This may win when one or
-	     both candidate positions are on glyphs that came from
-	     display strings, for which we cannot compare buffer
-	     positions.  */
-	  && MATRIX_ROW_END_CHARPOS (MATRIX_ROW (matrix, w->cursor.vpos))
-	     - MATRIX_ROW_START_CHARPOS (MATRIX_ROW (matrix, w->cursor.vpos))
-	     < MATRIX_ROW_END_CHARPOS (row) - MATRIX_ROW_START_CHARPOS (row))
+      if ((glyph != NULL)
+	  && (!((BUFFERP(glyph->object) && (glyph->charpos == pt_old))
+		/* If this candidate is a glyph created for the
+		 * terminating newline of a line, and point is on that
+		 * newline, it wins because it is/was an exact match: */
+		|| (!row->continued_p
+		    && INTEGERP(glyph->object)
+		    && (glyph->charpos == 0)
+		    && (pt_old == (MATRIX_ROW_END_CHARPOS(row) - 1)))))
+	    /* Otherwise, keep the candidate that comes from a row
+	     * spanning less buffer positions.  This may win when one or
+	     * both candidate positions are on glyphs that came from
+	     * display strings, for which we cannot compare buffer
+	     * positions.  */
+	  && ((MATRIX_ROW_END_CHARPOS(MATRIX_ROW(matrix, w->cursor.vpos))
+	       - MATRIX_ROW_START_CHARPOS(MATRIX_ROW(matrix, w->cursor.vpos)))
+	      < (MATRIX_ROW_END_CHARPOS(row) - MATRIX_ROW_START_CHARPOS(row))))
 	return 0;
     }
   w->cursor.hpos = glyph - row->glyphs[TEXT_AREA];
@@ -18883,10 +18894,11 @@ extend_face_to_end_of_line (struct it *it)
   else
     face = FACE_FROM_ID (f, it->face_id);
 
-  if (FRAME_WINDOW_P (f)
-      && MATRIX_ROW_DISPLAYS_TEXT_P (it->glyph_row)
-      && face->box == FACE_NO_BOX
-      && face->background == FRAME_BACKGROUND_PIXEL (f)
+  if (FRAME_WINDOW_P(f)
+      && MATRIX_ROW_DISPLAYS_TEXT_P(it->glyph_row)
+      && (face != NULL)
+      && (face->box == FACE_NO_BOX)
+      && (face->background == FRAME_BACKGROUND_PIXEL(f))
 #ifdef HAVE_WINDOW_SYSTEM
       && !face->stipple
 #endif /* HAVE_WINDOW_SYSTEM */
@@ -18914,7 +18926,8 @@ extend_face_to_end_of_line (struct it *it)
       if (it->glyph_row->used[TEXT_AREA] == 0)
 	{
 	  it->glyph_row->glyphs[TEXT_AREA][0] = space_glyph;
-	  it->glyph_row->glyphs[TEXT_AREA][0].face_id = face->id;
+	  it->glyph_row->glyphs[TEXT_AREA][0].face_id =
+	    ((face != NULL) ? face->id : 0);
 	  it->glyph_row->used[TEXT_AREA] = 1;
 	}
       /* Mode line and the header line don't have margins, and
@@ -18931,7 +18944,7 @@ extend_face_to_end_of_line (struct it *it)
 	    {
 	      it->glyph_row->glyphs[LEFT_MARGIN_AREA][0] = space_glyph;
 	      it->glyph_row->glyphs[LEFT_MARGIN_AREA][0].face_id =
-		default_face->id;
+		((default_face != NULL) ? default_face->id : 0);
 	      it->glyph_row->used[LEFT_MARGIN_AREA] = 1;
 	    }
 	  if (WINDOW_RIGHT_MARGIN_WIDTH (it->w) > 0
@@ -18939,7 +18952,7 @@ extend_face_to_end_of_line (struct it *it)
 	    {
 	      it->glyph_row->glyphs[RIGHT_MARGIN_AREA][0] = space_glyph;
 	      it->glyph_row->glyphs[RIGHT_MARGIN_AREA][0].face_id =
-		default_face->id;
+		((default_face != NULL) ? default_face->id : 0);
 	      it->glyph_row->used[RIGHT_MARGIN_AREA] = 1;
 	    }
 	}
@@ -19017,7 +19030,8 @@ extend_face_to_end_of_line (struct it *it)
 	  && (it->glyph_row->used[LEFT_MARGIN_AREA]
 	      < WINDOW_LEFT_MARGIN_WIDTH (it->w))
 	  && !it->glyph_row->mode_line_p
-	  && default_face->background != FRAME_BACKGROUND_PIXEL (f))
+	  && ((default_face != NULL)
+	      && (default_face->background != FRAME_BACKGROUND_PIXEL(f))))
 	{
 	  struct glyph *g = it->glyph_row->glyphs[LEFT_MARGIN_AREA];
 	  struct glyph *e = g + it->glyph_row->used[LEFT_MARGIN_AREA];
@@ -19043,9 +19057,9 @@ extend_face_to_end_of_line (struct it *it)
       /* The last row's blank glyphs should get the default face, to
 	 avoid painting the rest of the window with the region face,
 	 if the region ends at ZV.  */
-      if (it->glyph_row->ends_at_zv_p)
+      if (it->glyph_row->ends_at_zv_p && (default_face != NULL))
 	it->face_id = default_face->id;
-      else
+      else if (face != NULL)
 	it->face_id = face->id;
       PRODUCE_GLYPHS (it);
 
@@ -19055,8 +19069,9 @@ extend_face_to_end_of_line (struct it *it)
       if (WINDOW_RIGHT_MARGIN_WIDTH (it->w) > 0
 	  && (it->glyph_row->used[RIGHT_MARGIN_AREA]
 	      < WINDOW_RIGHT_MARGIN_WIDTH (it->w))
-	  && !it->glyph_row->mode_line_p
-	  && default_face->background != FRAME_BACKGROUND_PIXEL (f))
+	  && ((it->glyph_row != NULL) && !it->glyph_row->mode_line_p)
+	  && ((default_face != NULL)
+	      && (default_face->background != FRAME_BACKGROUND_PIXEL(f))))
 	{
 	  struct glyph *g = it->glyph_row->glyphs[RIGHT_MARGIN_AREA];
 	  struct glyph *e = g + it->glyph_row->used[RIGHT_MARGIN_AREA];
@@ -22554,7 +22569,8 @@ decode_mode_spec (struct window *w, register int c, int field_width,
 	       so get us a 2-digit number that is close.  */
 	    if (total == 100)
 	      total = 99;
-	    snprintf(decode_mode_spec_buf, SIZE_T_MAX, "%2"pD"d%%", total);
+	    snprintf(decode_mode_spec_buf, BUF_LEN_MAX_FOR_SNPRINTF,
+		     "%2"pD"d%%", total);
 	    return decode_mode_spec_buf;
 	  }
       }
@@ -22585,9 +22601,11 @@ decode_mode_spec (struct window *w, register int c, int field_width,
 	    if (total == 100)
 	      total = 99;
 	    if (toppos <= BUF_BEGV (b))
-	      snprintf(decode_mode_spec_buf, SIZE_T_MAX, "Top%2"pD"d%%", total);
+	      snprintf(decode_mode_spec_buf, BUF_LEN_MAX_FOR_SNPRINTF,
+		       "Top%2"pD"d%%", total);
 	    else
-	      snprintf(decode_mode_spec_buf, SIZE_T_MAX, "%2"pD"d%%", total);
+	      snprintf(decode_mode_spec_buf, BUF_LEN_MAX_FOR_SNPRINTF,
+		       "%2"pD"d%%", total);
 	    return decode_mode_spec_buf;
 	  }
       }
@@ -23284,7 +23302,8 @@ calc_pixel_width_or_height (double *res, struct it *it, Lisp_Object prop,
 	      ptrdiff_t id = lookup_image (it->f, prop);
 	      struct image *img = IMAGE_FROM_ID (it->f, id);
 
-	      return OK_PIXELS (width_p ? img->width : img->height);
+	      xassert(img != NULL);
+	      return OK_PIXELS(width_p ? img->width : img->height);
 	    }
 #endif /* HAVE_WINDOW_SYSTEM */
 	  if (EQ (car, Qplus) || EQ (car, Qminus))
@@ -25106,7 +25125,7 @@ void produce_stretch_glyph(struct it *it)
 
 #ifdef HAVE_WINDOW_SYSTEM
   /* Compute height.  */
-  if (FRAME_WINDOW_P (it->f))
+  if (FRAME_WINDOW_P(it->f) && (font != NULL))
     {
       if ((prop = Fplist_get (plist, QCheight), !NILP (prop))
 	  && calc_pixel_width_or_height (&tem, it, prop, font, 0, 0))
@@ -25116,9 +25135,9 @@ void produce_stretch_glyph(struct it *it)
 	}
       else if (prop = Fplist_get (plist, QCrelative_height),
 	       NUMVAL (prop) > 0)
-	height = FONT_HEIGHT (font) * NUMVAL (prop);
+	height = FONT_HEIGHT(font) * NUMVAL(prop);
       else
-	height = FONT_HEIGHT (font);
+	height = FONT_HEIGHT(font);
 
       if (height <= 0 && (height < 0 || !zero_height_ok_p))
 	height = 1;
@@ -25133,7 +25152,7 @@ void produce_stretch_glyph(struct it *it)
 	       && calc_pixel_width_or_height (&tem, it, prop, font, 0, 0))
 	ascent = min (max (0, (int)tem), height);
       else
-	ascent = (height * FONT_BASE (font)) / FONT_HEIGHT (font);
+	ascent = (height * FONT_BASE(font)) / FONT_HEIGHT(font);
     }
   else
 #endif	/* HAVE_WINDOW_SYSTEM */
@@ -25499,9 +25518,9 @@ produce_glyphless_glyph(struct it *it, int for_no_font, Lisp_Object acronym)
     }
   else
     {
-      char buf[7];
+      char buf[99];
       const char *str;
-      unsigned int code[6];
+      unsigned int code[99];
       int upper_len;
       int ascent, descent;
       struct font_metrics metrics_upper, metrics_lower;
@@ -26209,7 +26228,7 @@ void x_produce_glyphs(struct it *it)
 	it->glyph_row->contains_overlapping_glyphs_p = 1;
       it->ascent = it->phys_ascent = metrics.ascent;
       it->descent = it->phys_descent = metrics.descent;
-      if (face->box != FACE_NO_BOX)
+      if ((face != NULL) && (face->box != FACE_NO_BOX))
 	{
 	  int thick = face->box_line_width;
 
@@ -26228,7 +26247,7 @@ void x_produce_glyphs(struct it *it)
 	}
       /* If face has an overline, add the height of the overline
 	 (1 pixel) and a 1 pixel margin to the character height.  */
-      if (face->overline_p)
+      if ((face != NULL) && face->overline_p)
 	it->ascent += overline_margin;
       take_vertical_position_into_account (it);
       if (it->ascent < 0)

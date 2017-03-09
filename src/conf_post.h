@@ -375,6 +375,12 @@ extern void _DebPrint (const char *fmt, ...);
 # if defined(HAVE_STDIO_H) || defined(STDC_HEADERS) || defined(__STDC__)
 #  include <stdio.h>
 # endif /* HAVE_STDIO_H || STDC_HEADERS || __STDC__ */
+# ifdef sprintf
+#  undef sprintf
+# endif /* sprintf */
+# ifdef vsprintf
+#  undef vsprintf
+# endif /* vsprintf */
 /* I also avoid these ones in the gdb sources: */
 # pragma GCC poison strdup sprintf
 /* for similar reasons, such as gnulib also providing replacements: */

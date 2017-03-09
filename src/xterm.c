@@ -967,12 +967,13 @@ x_set_glyph_string_gc (struct glyph_string *s)
 	   || s->hl == DRAW_IMAGE_SUNKEN)
     {
       s->gc = s->face->gc;
-      s->stippled_p = s->face->stipple != 0;
+      s->stippled_p = (s->face->stipple != 0);
     }
   else
     {
+      eassert(s != NULL);
       s->gc = s->face->gc;
-      s->stippled_p = s->face->stipple != 0;
+      s->stippled_p = (s->face->stipple != 0);
     }
 
   /* GC must have been set.  */
@@ -1266,7 +1267,7 @@ x_draw_glyphless_glyph_string_foreground (struct glyph_string *s)
 
   for (i = 0; i < s->nchars; i++, glyph++)
     {
-      char buf[7], *str = NULL;
+      char buf[9], *str = NULL;
       int len = glyph->u.glyphless.len;
 
       if (glyph->u.glyphless.method == GLYPHLESS_DISPLAY_ACRONYM)
@@ -1534,7 +1535,7 @@ x_color_cells(Display *dpy, int *ncells)
   struct x_display_info *dpyinfo = x_display_info_for_display(dpy);
 
   xassert(dpyinfo != NULL);
-  
+
   if (dpyinfo->color_cells == NULL)
     {
       Screen *screen = dpyinfo->screen;

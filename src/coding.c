@@ -7681,7 +7681,7 @@ consume_chars(struct coding_system *coding, Lisp_Object translation_table,
       LOOKUP_TRANSLATION_TABLE(translation_table, c, trans);
       if (NILP(trans))
 	*buf++ = c;
-      else
+      else if (lookup_buf != NULL)
 	{
 	  ptrdiff_t from_nchars = 1, to_nchars = 1;
 	  int *lookup_buf_end;

@@ -473,7 +473,7 @@ regex.o: $(srcdir)/../src/regex.c $(srcdir)/../src/regex.h $(config_h)
 etags_deps = ${srcdir}/etags.c regex.o $(stddep) chkmalloc.h
 etags_DEFS = -DEMACS_NAME="\"GNU Emacs\"" -DVERSION="\"${version}\""
 etags_cflags = $(etags_DEFS) -o $@
-etags_libs = regex.o $(LOADLIBES) $(NTLIB) $(LIBINTL)
+etags_libs = regex.o $(LOADLIBES) $(NTLIB) $(LIBINTL) $(INTLLIBS)
 
 etags${EXEEXT}: $(etags_deps)
 	$(AM_V_CCLD)$(CC) ${ALL_CFLAGS} $(etags_DEFS) ${srcdir}/etags.c \

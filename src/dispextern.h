@@ -1924,7 +1924,7 @@ struct face_cache
    using X resources of FACE.  */
 #define PREPARE_FACE_FOR_DISPLAY(F, FACE)	\
   do {						\
-     if ((FACE)->gc == 0)			\
+     if (((FACE) != NULL) && ((FACE)->gc == 0))	\
        prepare_face_for_display((F), (FACE));	\
   } while (false)
 

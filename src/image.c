@@ -4701,6 +4701,7 @@ xpm_load_image(struct frame *f, struct image *img,
     {
       char *color;
       char *max_color = (char *)"";
+      char *context_ptr;
       int key, next_key, max_key = 0;
       Lisp_Object symbol_color = Qnil, color_val;
       XColor cdef;
@@ -4711,18 +4712,20 @@ xpm_load_image(struct frame *f, struct image *img,
       memcpy(buffer, (beg + chars_per_pixel), (len - chars_per_pixel));
       buffer[len - chars_per_pixel] = '\0';
 
-      str = (const unsigned char *)strtok((char *)buffer, " \t");
+      str = (const unsigned char *)strtok_r((char *)buffer, " \t",
+					    &context_ptr);
       if (str == NULL)
 	goto failure;
       key = xpm_str_to_color_key((const char *)str);
       if (key < 0)
 	goto failure;
       do {
-        color = strtok(NULL, " \t");
+        color = strtok_r(NULL, " \t", &context_ptr);
         if (color == NULL)
           goto failure;
 
-        while ((str = (const unsigned char *)strtok(NULL, " \t")) != NULL)
+        while ((str = (const unsigned char *)strtok_r(NULL, " \t",
+						      &context_ptr)) != NULL)
           {
             next_key = xpm_str_to_color_key((const char *)str);
             if (next_key >= 0)
@@ -6944,6 +6947,7 @@ my_error_exit (j_common_ptr cinfo)
   struct my_jpeg_error_mgr *mgr = (struct my_jpeg_error_mgr *) cinfo->err;
   mgr->failure_code = MY_JPEG_ERROR_EXIT;
   sys_longjmp (mgr->setjmp_buffer, 1);
+  emacs_abort();
 }
 
 

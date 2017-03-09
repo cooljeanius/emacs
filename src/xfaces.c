@@ -1686,8 +1686,13 @@ the WIDTH times as wide as FACE on FRAME.  */)
       else
 	{
 #if !(defined(MAC_OS) || defined(HAVE_CARBON))
-	  size = FRAME_FONT (f)->pixel_size;
-	  avgwidth = FRAME_FONT (f)->average_width;
+	  if ((f != NULL) && (FRAME_FONT(f) != NULL)) {
+	    size = FRAME_FONT(f)->pixel_size;
+	    avgwidth = FRAME_FONT(f)->average_width;
+	  } else {
+	    size = 0;
+	    avgwidth = 0;
+	  }
 #else
           size = 0;
           avgwidth = 0;
@@ -2599,11 +2604,11 @@ Value is a vector of face attributes.  */)
   CHECK_SYMBOL (face);
   global_lface = lface_from_face_name (NULL, face, 0);
 
-  if (!NILP (frame))
+  if (!NILP(frame) && (XFRAME(frame) != NULL))
     {
-      CHECK_LIVE_FRAME (frame);
-      f = XFRAME (frame);
-      lface = lface_from_face_name (f, face, 0);
+      CHECK_LIVE_FRAME(frame);
+      f = XFRAME(frame);
+      lface = lface_from_face_name(f, face, 0);
     }
   else
     f = NULL, lface = Qnil;
@@ -4523,15 +4528,17 @@ lookup_named_face (struct frame *f, Lisp_Object symbol, int signal_p)
 {
   Lisp_Object attrs[LFACE_VECTOR_SIZE];
   Lisp_Object symbol_attrs[LFACE_VECTOR_SIZE];
-  struct face *default_face = FACE_FROM_ID (f, DEFAULT_FACE_ID);
+  struct face *default_face = ((f != NULL)
+			       ? FACE_FROM_ID(f, DEFAULT_FACE_ID)
+			       : NULL);
 
   if (default_face == NULL)
     {
       if (!realize_basic_faces (f))
 	return -1;
-      default_face = FACE_FROM_ID (f, DEFAULT_FACE_ID);
+      default_face = ((f != NULL) ? FACE_FROM_ID(f, DEFAULT_FACE_ID) : NULL);
       if (default_face == NULL)
-	emacs_abort (); /* realize_basic_faces must have set it up  */
+	emacs_abort(); /* realize_basic_faces must have set it up  */
     }
 
   if (! get_lface_attributes (f, symbol, symbol_attrs, signal_p, 0))
@@ -4635,11 +4642,13 @@ smaller_face (struct frame *f, int face_id, int steps)
       new_face = FACE_FROM_ID (f, new_face_id);
 
       /* If height changes, count that as one step.  */
-      if ((delta < 0 && FONT_HEIGHT (new_face->font) < last_height)
-	  || (delta > 0 && FONT_HEIGHT (new_face->font) > last_height))
+      if (((delta < 0) && (new_face != NULL)
+	   && (FONT_HEIGHT(new_face->font) < last_height))
+	  || ((delta > 0) && (new_face != NULL)
+	      && (FONT_HEIGHT(new_face->font) > last_height)))
 	{
 	  --steps;
-	  last_height = FONT_HEIGHT (new_face->font);
+	  last_height = FONT_HEIGHT(new_face->font);
 	  last_pt = pt;
 	}
     }
@@ -5274,13 +5283,13 @@ realize_basic_faces (struct frame *f)
 			  WINDOW_DIVIDER_LAST_PIXEL_FACE_ID);
 
       /* Reflect changes in the `menu' face in menu bars.  */
-      if (FRAME_FACE_CACHE (f)->menu_face_changed_p)
+      if ((f != NULL) && FRAME_FACE_CACHE(f)->menu_face_changed_p)
 	{
-	  FRAME_FACE_CACHE (f)->menu_face_changed_p = 0;
+	  FRAME_FACE_CACHE(f)->menu_face_changed_p = 0;
 #ifdef USE_X_TOOLKIT
-	  if (FRAME_WINDOW_P (f))
-	    x_update_menu_appearance (f);
-#endif
+	  if (FRAME_WINDOW_P(f))
+	    x_update_menu_appearance(f);
+#endif /* USE_X_TOOLKIT */
 	}
 
       success_p = 1;
@@ -5427,10 +5436,10 @@ realize_default_face (struct frame *f)
    have.  The default face must have been realized already.  */
 
 static void
-realize_named_face (struct frame *f, Lisp_Object symbol, int id)
+realize_named_face(struct frame *f, Lisp_Object symbol, int id)
 {
-  struct face_cache *c = FRAME_FACE_CACHE (f);
-  Lisp_Object lface = lface_from_face_name (f, symbol, 0);
+  struct face_cache *c = ((f != NULL) ? FRAME_FACE_CACHE(f) : NULL);
+  Lisp_Object lface = lface_from_face_name(f, symbol, 0);
   Lisp_Object attrs[LFACE_VECTOR_SIZE];
   Lisp_Object symbol_attrs[LFACE_VECTOR_SIZE];
 
@@ -5467,11 +5476,13 @@ realize_face (struct face_cache *cache, Lisp_Object attrs[LFACE_VECTOR_SIZE],
 {
   struct face *face;
 
-  /* LFACE must be fully specified.  */
-  eassert (cache != NULL);
-  check_lface_attrs (attrs);
+  /* LFACE must be fully specified: */
+  eassert(cache != NULL);
+  xassert(cache != NULL);
+  check_lface_attrs(attrs);
 
-  if (former_face_id >= 0 && cache->used > former_face_id)
+  if ((former_face_id >= 0) && (cache != NULL)
+      && (cache->used > former_face_id))
     {
       /* Remove the former face.  */
       struct face *former_face = cache->faces_by_id[former_face_id];
@@ -6046,8 +6057,8 @@ face_at_buffer_position (struct window *w, ptrdiff_t pos,
   }
 
   /* Optimize common cases where we can use the default face.  */
-  if (noverlays == 0
-      && NILP (prop))
+  if ((noverlays == 0)
+      && NILP(prop) && (default_face != NULL))
     return default_face->id;
 
   /* Begin with attributes from the default face.  */

@@ -1648,8 +1648,8 @@ ns_get_color(const char *name, NSColor **col)
       int i;
       scaling = (strlen(name + start) / 3);
       for (i = 0; i < 3; i++)
-	snprintf((hex + i * (scaling + 1)), SIZE_T_MAX, "%.*s/", scaling,
-		 (name + start + i * scaling));
+	snprintf((hex + i * (scaling + 1)), BUF_LEN_MAX_FOR_SNPRINTF,
+		 "%.*s/", scaling, (name + start + i * scaling));
       hex[3 * (scaling + 1) - 1] = '\0';
     }
 
@@ -4472,6 +4472,7 @@ ns_term_init (Lisp_Object display_name)
 #ifdef NS_IMPL_COCOA
   {
     NSMenu *appMenu;
+    NSMenu *windowsMenu;
     NSMenuItem *item;
     /* set up the application menu */
     svcsMenu = [[EmacsMenu alloc] initWithTitle: @"Services"];
@@ -4526,7 +4527,8 @@ ns_term_init (Lisp_Object display_name)
     [NSApp setAppleMenu: appMenu];
     [NSApp setServicesMenu: svcsMenu];
     /* Needed at least on Cocoa, to get dock menu to show windows */
-    [NSApp setWindowsMenu: [[NSMenu alloc] init]];
+    windowsMenu = [[NSMenu alloc] init];
+    [NSApp setWindowsMenu: windowsMenu];
 
     [[NSNotificationCenter defaultCenter]
       addObserver: mainMenu
@@ -4536,8 +4538,9 @@ ns_term_init (Lisp_Object display_name)
       addObserver: mainMenu
          selector: @selector (trackingNotification:)
              name: NSMenuDidEndTrackingNotification object: mainMenu];
-    
+
     [appMenu release];
+    [windowsMenu release];
   }
 #endif /* MAC OS X menu setup */
 
@@ -7601,7 +7604,7 @@ typedef id NSNotification_or_id;
       return;
     }
 
-  if (inc != 0.0f)
+  if (inc != (CGFloat)0.0f)
     {
       pos = 0;      /* ignored */
 
@@ -7623,7 +7626,7 @@ typedef id NSNotification_or_id;
       sr = [self convertRect: [self rectForPart: NSScrollerKnobSlot]
                       toView: nil];
       loc = (NSHeight(sr) - ([e locationInWindow].y - NSMinY(sr)));
-      if (loc <= 0.0f)
+      if (loc <= (CGFloat)0.0f)
         {
           loc = 0.0f;
           edge = -1;

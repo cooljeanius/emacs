@@ -871,7 +871,8 @@ string_escape_byte8 (Lisp_Object string)
 	  {
 	    c = STRING_CHAR_ADVANCE(src);
 	    c = CHAR_TO_BYTE8(c);
-	    dst += snprintf((char *)dst, SIZE_T_MAX, "\\%03o", (unsigned int)c);
+	    dst += snprintf((char *)dst, BUF_LEN_MAX_FOR_SNPRINTF, "\\%03o",
+			    (unsigned int)c);
 	  }
 	else
 	  while (len--) *dst++ = *src++;
@@ -881,7 +882,8 @@ string_escape_byte8 (Lisp_Object string)
       {
 	c = *src++;
 	if (c >= 0x80)
-	  dst += snprintf((char *)dst, SIZE_T_MAX, "\\%03o", (unsigned int)c);
+	  dst += snprintf((char *)dst, BUF_LEN_MAX_FOR_SNPRINTF, "\\%03o",
+			  (unsigned int)c);
 	else
 	  *dst++ = c;
       }

@@ -123,6 +123,7 @@ copy_properties(register INTERVAL source, register INTERVAL target)
   if (DEFAULT_INTERVAL_P(source) && DEFAULT_INTERVAL_P(target))
     return;
 
+  eassert(target != NULL);
   COPY_INTERVAL_CACHE(source, target);
   set_interval_plist(target, Fcopy_sequence(source->plist));
 }
@@ -430,10 +431,10 @@ balance_an_interval (INTERVAL i)
 {
   register ptrdiff_t old_diff, new_diff;
 
-  while (1)
+  while (i != NULL)
     {
       old_diff = LEFT_TOTAL_LENGTH (i) - RIGHT_TOTAL_LENGTH (i);
-      if (old_diff > 0)
+      if ((old_diff > 0) && (i->left != NULL))
 	{
 	  /* Since the left child is longer, there must be one: */
 	  new_diff = (i->total_length - i->left->total_length
@@ -444,7 +445,7 @@ balance_an_interval (INTERVAL i)
 	  i = rotate_right(i);
 	  balance_an_interval(i->right);
 	}
-      else if (old_diff < 0)
+      else if ((old_diff < 0) && (i->right != NULL))
 	{
 	  /* Since the right child is longer, there must be one: */
 	  new_diff = (i->total_length - i->right->total_length
@@ -590,7 +591,8 @@ split_interval_left(INTERVAL interval, ptrdiff_t offset)
   INTERVAL new = make_interval();
   ptrdiff_t new_length = offset;
 
-  new->position = interval->position;
+  new->position = ((interval != NULL) ? interval->position : 0);
+  eassert(interval != NULL);
   interval->position = (interval->position + offset);
   set_interval_parent(new, interval);
 
@@ -673,7 +675,7 @@ find_interval(register INTERVAL tree, register ptrdiff_t position)
 
   tree = balance_possible_root_interval(tree);
 
-  while (1)
+  while (tree != NULL)
     {
       eassert(tree);
       if (relative_position < LEFT_TOTAL_LENGTH(tree))
@@ -697,6 +699,8 @@ find_interval(register INTERVAL tree, register ptrdiff_t position)
 	  return tree;
 	}
     }
+
+  return NULL;
 }
 
 /* Find the succeeding interval (lexicographically) to INTERVAL.
@@ -767,7 +771,8 @@ previous_interval (register INTERVAL interval)
 	{
 	  i = INTERVAL_PARENT(i);
 
-	  i->position = (interval->position - LENGTH(i));
+	  if (i != NULL)
+	    i->position = (interval->position - LENGTH(i));
 	  return i;
 	}
       i = INTERVAL_PARENT(i);
@@ -792,7 +797,8 @@ update_interval (register INTERVAL i, ptrdiff_t pos)
       if (pos < i->position)
 	{
 	  /* Move left. */
-	  if (pos >= i->position - TOTAL_LENGTH (i->left))
+	  if ((pos >= (i->position - TOTAL_LENGTH(i->left)))
+	      && (i->left != NULL))
 	    {
 	      i->left->position = i->position - TOTAL_LENGTH (i->left)
 		+ LEFT_TOTAL_LENGTH (i->left);
@@ -807,7 +813,8 @@ update_interval (register INTERVAL i, ptrdiff_t pos)
       else if (pos >= INTERVAL_LAST_POS(i))
 	{
 	  /* Move right: */
-	  if (pos < (INTERVAL_LAST_POS(i) + TOTAL_LENGTH(i->right)))
+	  if ((pos < (INTERVAL_LAST_POS(i) + TOTAL_LENGTH(i->right)))
+	      && (i->right != NULL))
 	    {
 	      i->right->position = (INTERVAL_LAST_POS(i)
                                     + LEFT_TOTAL_LENGTH(i->right));
@@ -1423,8 +1430,8 @@ merge_interval_right(register INTERVAL i)
   register INTERVAL successor;
 
   /* Find the succeeding interval: */
-  if (! NULL_RIGHT_CHILD(i))      /* It is below us.  Add absorb
-                                     as we descend.  */
+  if ((i != NULL) && !NULL_RIGHT_CHILD(i)) /* It is below us.  Add absorb
+					      as we descend.  */
     {
       successor = i->right;
       while (! NULL_LEFT_CHILD(successor))
@@ -1440,13 +1447,15 @@ merge_interval_right(register INTERVAL i)
       return successor;
     }
 
-  /* Zero out this interval.  */
-  i->total_length -= absorb;
+  if (i != NULL) {
+    /* Zero out this interval: */
+    i->total_length -= absorb;
+  }
   eassert (TOTAL_LENGTH (i) >= 0);
 
   successor = i;
-  while (! NULL_PARENT (successor))	   /* It's above us.  Subtract as
-					      we ascend.  */
+  /* It is above us.  Subtract as we ascend: */
+  while ((successor != NULL) && !NULL_PARENT(successor))
     {
       if (AM_LEFT_CHILD (successor))
 	{
@@ -1479,8 +1488,8 @@ merge_interval_left(register INTERVAL i)
   register INTERVAL predecessor;
 
   /* Find the preceding interval: */
-  if (! NULL_LEFT_CHILD(i))	/* It's below us. Go down,
-				   adding ABSORB as we go.  */
+  if ((i != NULL) && !NULL_LEFT_CHILD(i))	/* It is below us. Go down,
+						   adding ABSORB as we go.  */
     {
       predecessor = i->left;
       while (! NULL_RIGHT_CHILD(predecessor))
@@ -1496,13 +1505,16 @@ merge_interval_left(register INTERVAL i)
       return predecessor;
     }
 
-  /* Zero out this interval.  */
-  i->total_length -= absorb;
+  if (i != NULL) {
+    /* Zero out this interval: */
+    i->total_length -= absorb;
+  }
   eassert (TOTAL_LENGTH (i) >= 0);
 
   predecessor = i;
-  while (! NULL_PARENT (predecessor))	/* It's above us.  Go up,
-					   subtracting ABSORB.  */
+  /* It is above us.
+   * Go up, subtracting ABSORB.  */
+  while ((predecessor != NULL) && !NULL_PARENT(predecessor))
     {
       if (AM_RIGHT_CHILD (predecessor))
 	{
@@ -2437,7 +2449,8 @@ set_intervals_multibyte_1 (INTERVAL i, bool multi_flag,
   /* Rounding to char boundaries can theoretically ake this interval
      spurious.  If so, delete one child, and copy its property list
      to this interval.  */
-  if ((LEFT_TOTAL_LENGTH(i) + RIGHT_TOTAL_LENGTH(i)) >= TOTAL_LENGTH(i))
+  if (((LEFT_TOTAL_LENGTH(i) + RIGHT_TOTAL_LENGTH(i)) >= TOTAL_LENGTH(i))
+      && (i != NULL))
     {
       if ((i)->left)
 	{
@@ -2445,7 +2458,7 @@ set_intervals_multibyte_1 (INTERVAL i, bool multi_flag,
 	  (i)->left->total_length = 0;
 	  delete_interval((i)->left);
 	}
-      else
+      else if (i->right != NULL)
 	{
 	  set_interval_plist(i, i->right->plist);
 	  (i)->right->total_length = 0;

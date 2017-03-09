@@ -1,4 +1,4 @@
-/* Interface code for dealing with text properties.
+/* textprop.c: Interface code for dealing with text properties.
    Copyright (C) 1993-1995, 1997, 1999-2014 Free Software Foundation,
    Inc.
 
@@ -1223,7 +1223,7 @@ add_text_properties_1 (Lisp_Object start, Lisp_Object end,
   if (BUFFERP (object) && first_time)
     {
       ptrdiff_t prev_total_length = TOTAL_LENGTH (i);
-      ptrdiff_t prev_pos = i->position;
+      ptrdiff_t prev_pos = ((i != NULL) ? i->position : 0);
 
       modify_text_properties (object, start, end);
       /* If someone called us recursively as a side effect of
@@ -1232,8 +1232,8 @@ add_text_properties_1 (Lisp_Object start, Lisp_Object end,
 	 triggers redisplay, and that calls add-text-properties again
 	 in the same buffer), we cannot continue with I, because its
 	 data changed.  So we restart the interval analysis anew.  */
-      if (TOTAL_LENGTH (i) != prev_total_length
-	  || i->position != prev_pos)
+      if ((TOTAL_LENGTH(i) != prev_total_length)
+	  || ((i != NULL) && (i->position != prev_pos)))
 	{
 	  first_time = 0;
 	  goto retry;
@@ -2285,7 +2285,7 @@ verify_interval_modification (struct buffer *buf,
 	  if ((i != NULL) && !INTERVAL_WRITABLE_P(i))
 	    text_read_only(textget(i->plist, Qread_only));
 
-	  if (!inhibit_modification_hooks)
+	  if (!inhibit_modification_hooks && (i != NULL))
 	    {
 	      mod_hooks = textget(i->plist, Qmodification_hooks);
 	      if (! NILP(mod_hooks) && ! EQ(mod_hooks, prev_mod_hooks))
@@ -2421,3 +2421,5 @@ inherits it if NONSTICKINESS is nil.  The `front-sticky' and
   defsubr (&Stext_property_any);
   defsubr (&Stext_property_not_all);
 }
+
+/* EOF */

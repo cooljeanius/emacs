@@ -42,7 +42,7 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 static struct timespec TV1;
 static int watch_not_started = 1; /* flag */
 static char time_string[INT_STRLEN_BOUND(uintmax_t) + sizeof(".")
-			+ LOG10_TIMESPEC_RESOLUTION];
+			+ LOG10_TIMESPEC_RESOLUTION + 2];
 
 /* Reset the stopwatch to zero: */
 static void

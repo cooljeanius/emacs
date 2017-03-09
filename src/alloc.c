@@ -2304,7 +2304,7 @@ make_formatted_string (char *buf, const char *format, ...)
   int length;
 
   va_start (ap, format);
-  length = vsnprintf(buf, SIZE_T_MAX, format, ap);
+  length = vsnprintf(buf, BUF_LEN_MAX_FOR_SNPRINTF, format, ap);
   va_end (ap);
   return make_string (buf, length);
 }

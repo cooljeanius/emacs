@@ -29,3 +29,7 @@ echolisp.tmp
 oo/
 oo-spd/
 *.o
+
+# gcc -save-temps output for reporting compiler bugs:
+pop.i
+pop.s

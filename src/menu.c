@@ -1398,7 +1398,7 @@ no quit occurs and `x-popup-menu' returns nil.  */)
 
 #ifdef HAVE_WINDOW_SYSTEM
   /* Hide a previous tip, if any: */
-  if (!FRAME_TERMCAP_P(f))
+  if ((f != NULL) && !FRAME_TERMCAP_P(f))
     Fx_hide_tip();
 #endif /* HAVE_WINDOW_SYSTEM */
 
@@ -1424,24 +1424,24 @@ no quit occurs and `x-popup-menu' returns nil.  */)
 
   /* FIXME: Use a terminal hook!  */
 #if defined HAVE_NTGUI
-  if (FRAME_W32_P (f))
-    selection = w32_menu_show (f, xpos, ypos, for_click,
-			       keymaps, title, &error_name);
-  else
-#endif
-#if defined HAVE_NS
-  if (FRAME_NS_P (f))
-    selection = ns_menu_show (f, xpos, ypos, for_click,
+  if ((f != NULL) && FRAME_W32_P(f))
+    selection = w32_menu_show(f, xpos, ypos, for_click,
 			      keymaps, title, &error_name);
   else
-#endif
-#if (defined (HAVE_X_WINDOWS) || defined (MSDOS))
-  if (FRAME_X_P (f) || FRAME_MSDOS_P (f))
-    selection = xmenu_show (f, xpos, ypos, for_click,
-			    keymaps, title, &error_name);
+#endif /* HAVE_NTGUI */
+#if defined HAVE_NS
+  if ((f != NULL) && FRAME_NS_P(f))
+    selection = ns_menu_show(f, xpos, ypos, for_click,
+			     keymaps, title, &error_name);
   else
-#endif
-  if (FRAME_TERMCAP_P (f))
+#endif /* HAVE_NS */
+#if (defined(HAVE_X_WINDOWS) || defined(MSDOS))
+  if ((f != NULL) && (FRAME_X_P(f) || FRAME_MSDOS_P(f)))
+    selection = xmenu_show(f, xpos, ypos, for_click,
+			   keymaps, title, &error_name);
+  else
+#endif /* HAVE_X_WINDOWS || MSDOS */
+  if ((f != NULL) && FRAME_TERMCAP_P(f))
     {
       ptrdiff_t count1 = SPECPDL_INDEX ();
 

@@ -6288,10 +6288,9 @@ etags_strrchr (register const char *sp, register int c)
   register const char *r;
 
   r = NULL;
-  do
-    {
-      if (*sp == c)
-	r = sp;
+  do {
+    if (*sp == c)
+      r = sp;
   } while (*sp++);
   return (char *)r;
 }

@@ -905,7 +905,7 @@ x_set_mouse_color (struct frame *f, Lisp_Object arg, Lisp_Object oldval)
 static Lisp_Object
 ns_appkit_version_str (void)
 {
-  char tmp[80];
+  char tmp[99];
 
 #ifdef NS_IMPL_GNUSTEP
   snprintf(tmp, sizeof(tmp), "gnustep-gui-%s", Xstr(GNUSTEP_GUI_VERSION));
@@ -1104,6 +1104,7 @@ This function is an internal primitive--use `make-frame' instead.  */)
   Lisp_Object parent;
   struct kboard *kb;
   static int desc_ctr = 1;
+  void *ptr;
 
   /* x_get_arg modifies parms.  */
   parms = Fcopy_alist (parms);
@@ -1339,7 +1340,7 @@ This function is an internal primitive--use `make-frame' instead.  */)
      = [NSCursor arrowCursor];
   f->output_data.ns->current_pointer = f->output_data.ns->text_cursor;
 
-  [[EmacsView alloc] initFrameFromEmacs: f];
+  ptr = [[EmacsView alloc] initFrameFromEmacs: f];
 
   x_icon (f, parms);
 
@@ -1391,7 +1392,8 @@ This function is an internal primitive--use `make-frame' instead.  */)
 	}
       else
         {
-	  /* Must have been Qnil.  */
+	  /* Must have been Qnil: */
+	  eassert(NILP(visibility));
         }
     }
 
@@ -1415,7 +1417,9 @@ This function is an internal primitive--use `make-frame' instead.  */)
      and similar functions.  */
   Vwindow_list = Qnil;
 
-  return unbind_to (count, frame);
+  [(id)ptr release];
+
+  return unbind_to(count, frame);
 }
 
 void
@@ -1828,19 +1832,23 @@ If omitted or nil, that stands for the selected frame's display.  */)
   check_ns_display_info (terminal);
   depth = [[[NSScreen screens] objectAtIndex:0] depth];
 
-  if ( depth == NSBestDepth (NSCalibratedWhiteColorSpace, 2, 2, YES, NULL))
+  if (depth == NSBestDepth(NSCalibratedWhiteColorSpace, 2, 2, YES, NULL))
     return intern ("static-gray");
-  else if (depth == NSBestDepth (NSCalibratedWhiteColorSpace, 8, 8, YES, NULL))
-    return intern ("gray-scale");
-  else if ( depth == NSBestDepth (NSCalibratedRGBColorSpace, 8, 8, YES, NULL))
-    return intern ("pseudo-color");
-  else if ( depth == NSBestDepth (NSCalibratedRGBColorSpace, 4, 12, NO, NULL))
-    return intern ("true-color");
-  else if ( depth == NSBestDepth (NSCalibratedRGBColorSpace, 8, 24, NO, NULL))
-    return intern ("direct-color");
+  else if (depth == NSBestDepth(NSCalibratedWhiteColorSpace, 8, 8, YES, NULL))
+    return intern("gray-scale");
+  else if (depth == NSBestDepth(NSCalibratedRGBColorSpace, 8, 8, YES, NULL))
+    return intern("pseudo-color");
+  else if (depth == NSBestDepth(NSCalibratedRGBColorSpace, 4, 12, NO, NULL))
+    return intern("true-color");
+  else if (depth == NSBestDepth(NSCalibratedRGBColorSpace, 8, 24, NO, NULL))
+    return intern("direct-color");
   else
-    /* color mgmt as far as we do it is really handled by Nextstep itself anyway */
-    return intern ("direct-color");
+    {
+      fprintf(stderr, "Warning: unhandled window depth.\n");
+      /* color mgmt as far as we do it is really handled by Nextstep itself
+       * anyways: */
+      return intern("direct-color");
+    }
 }
 
 

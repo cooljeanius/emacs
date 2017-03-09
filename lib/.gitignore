@@ -54,3 +54,7 @@ c++defs.h
 link-warning.h
 unused-parameter.h
 warn-on-use.h
+
+# gcc -save-temps output for reporting compiler bugs:
+sha256.i
+sha256.s

@@ -562,7 +562,8 @@ get_utf8_string (const char *str)
              && err->code == G_CONVERT_ERROR_ILLEGAL_SEQUENCE)
         {
           memcpy(up, p, bytes_written);
-          snprintf((up + bytes_written), SIZE_MAX, "\\%03o", p[bytes_written]);
+          snprintf((up + bytes_written), BUF_LEN_MAX_FOR_SNPRINTF, "\\%03o",
+		   p[bytes_written]);
           up += (bytes_written + 4);
           p += (bytes_written + 1);
           g_error_free(err);
@@ -605,17 +606,17 @@ xg_check_special_colors (struct frame *f,
     GtkStyleContext *gsty
       = gtk_widget_get_style_context (FRAME_GTK_OUTER_WIDGET (f));
     GdkRGBA col;
-    char buf[sizeof "rgb://rrrr/gggg/bbbb"];
+    char buf[sizeof("rgb://rrrr/gggg/bbbb") + 10];
     int state = GTK_STATE_FLAG_SELECTED|GTK_STATE_FLAG_FOCUSED;
     if (get_fg)
       gtk_style_context_get_color (gsty, state, &col);
     else
       gtk_style_context_get_background_color (gsty, state, &col);
 
-    sprintf (buf, "rgb:%04x/%04x/%04x",
-             (int)(col.red * 65535),
-             (int)(col.green * 65535),
-             (int)(col.blue * 65535));
+    snprintf(buf, sizeof(buf), "rgb:%04x/%04x/%04x",
+             (unsigned int)(col.red * 65535),
+             (unsigned int)(col.green * 65535),
+             (unsigned int)(col.blue * 65535));
     success_p = (XParseColor (FRAME_X_DISPLAY (f), FRAME_X_COLORMAP (f),
 			      buf, color)
 		 != 0);

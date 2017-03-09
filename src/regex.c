@@ -6356,7 +6356,11 @@ re_compile_pattern (const char *pattern, size_t length,
 
   if (!ret)
     return NULL;
+#ifdef ENABLE_NLS
   return gettext (re_error_msgid[(int) ret]);
+#else
+  return re_error_msgid[(int)ret];
+#endif /* ENABLE_NLS */
 }
 WEAK_ALIAS (__re_compile_pattern, re_compile_pattern)
 
@@ -6628,7 +6632,11 @@ regerror(int err_code, const regex_t *preg, char *errbuf, size_t errbuf_size)
        Dump core so we can fix it.  */
     abort ();
 
+#ifdef ENABLE_NLS
   msg = gettext (re_error_msgid[err_code]);
+#else
+  msg = re_error_msgid[err_code];
+#endif /* ENABLE_NLS */
 
   msg_size = strlen (msg) + 1; /* Includes the null.  */
 

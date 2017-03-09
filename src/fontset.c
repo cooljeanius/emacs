@@ -1,4 +1,4 @@
-/* Fontset handler.
+/* fontset.c: Fontset handler.
 
 Copyright (C) 2001-2014 Free Software Foundation, Inc.
 Copyright (C) 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
@@ -830,6 +830,7 @@ fs_load_font(FRAME_PTR f, int c, char *fontname, int id, struct face *face)
            * that a proper font is already loaded.  */
           int face_id = XINT(elt);
 
+	  xassert(face != NULL);
           xassert(face_id == face->id);
           face = FACE_FROM_ID(f, face_id);
           return (struct font_info *)NULL;
@@ -1048,11 +1049,12 @@ face_for_char(struct frame *f, struct face *face, int c,
 
   eassert(fontset_id_valid_p(face->fontset));
 
-  if (ASCII_CHAR_P(c) || CHAR_BYTE8_P(c))
+  if ((ASCII_CHAR_P(c) || CHAR_BYTE8_P(c)) && (face != NULL)
+      && (face->ascii_face != NULL))
     return face->ascii_face->id;
 
 #ifdef HAVE_NS
-  if (face->font)
+  if ((face != NULL) && face->font)
     {
       /* Fonts often have characters in other scripts, like symbol, even if they
          don't match script: symbol.  So check if the character is present
@@ -1064,7 +1066,7 @@ face_for_char(struct frame *f, struct face *face, int c,
     }
 #endif /* HAVE_NS */
 
-  fontset = FONTSET_FROM_ID(face->fontset);
+  fontset = ((face != NULL) ? FONTSET_FROM_ID(face->fontset) : Qnil);
   eassert(!BASE_FONTSET_P(fontset));
 
   if (pos < 0)
@@ -2384,3 +2386,5 @@ at the vertical center of lines.  */);
   defsubr (&Sfontset_list_all);
 #endif
 }
+
+/* EOF */

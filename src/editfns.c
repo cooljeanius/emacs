@@ -2034,7 +2034,7 @@ but this is considered obsolete.  */)
 {
   time_t value = lisp_seconds_argument (specified_time);
   struct tm *tm;
-  char buf[sizeof("Mon Apr 30 12:49:17 ") + INT_STRLEN_BOUND(int) + 1];
+  char buf[sizeof("Mon Apr 30 12:49:17 ") + INT_STRLEN_BOUND(int) + 4];
   int len IF_LINT (= 0);
 
   /* Convert to a string in ctime format, except without the trailing

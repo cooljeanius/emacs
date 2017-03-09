@@ -1375,7 +1375,7 @@ term_get_fkeys_1 (void)
 
   /* Set up cookies for numbered function keys above f10. */
   {
-    char fcap[3], fkey[4];
+    char fcap[3], fkey[14];
 
     fcap[0] = 'F'; fcap[2] = '\0';
     for (i = 11; i < 64; i++)
@@ -1897,10 +1897,11 @@ turn_on_face(struct frame *f, int face_id)
 	  : fg == FACE_TTY_DEFAULT_BG_COLOR || bg == FACE_TTY_DEFAULT_FG_COLOR))
     tty_toggle_highlight (tty);
 
-  if (face->tty_bold_p && MAY_USE_WITH_COLORS_P (tty, NC_BOLD))
-    OUTPUT1_IF (tty, tty->TS_enter_bold_mode);
+  if ((face != NULL) && face->tty_bold_p && MAY_USE_WITH_COLORS_P(tty, NC_BOLD))
+    OUTPUT1_IF(tty, tty->TS_enter_bold_mode);
 
-  if (face->tty_italic_p && MAY_USE_WITH_COLORS_P (tty, NC_ITALIC))
+  if ((face != NULL) && face->tty_italic_p
+      && MAY_USE_WITH_COLORS_P(tty, NC_ITALIC))
     {
       if (tty->TS_enter_italic_mode)
 	OUTPUT1 (tty, tty->TS_enter_italic_mode);
@@ -1911,8 +1912,9 @@ turn_on_face(struct frame *f, int face_id)
 	OUTPUT1 (tty, tty->TS_enter_dim_mode);
     }
 
-  if (face->tty_underline_p && MAY_USE_WITH_COLORS_P (tty, NC_UNDERLINE))
-    OUTPUT1_IF (tty, tty->TS_enter_underline_mode);
+  if ((face != NULL) && face->tty_underline_p
+      && MAY_USE_WITH_COLORS_P(tty, NC_UNDERLINE))
+    OUTPUT1_IF(tty, tty->TS_enter_underline_mode);
 
   if (tty->TN_max_colors > 0)
     {
@@ -1946,7 +1948,8 @@ turn_off_face (struct frame *f, int face_id)
   struct face *face = FACE_FROM_ID (f, face_id);
   struct tty_display_info *tty = FRAME_TTY (f);
 
-  eassert (face != NULL);
+  eassert(face != NULL);
+  xassert(face != NULL);
 
   if (tty->TS_exit_attribute_mode)
     {
@@ -1967,12 +1970,12 @@ turn_off_face (struct frame *f, int face_id)
     {
       /* If we don't have "me" we can only have those appearances
 	 that have exit sequences defined.  */
-      if (face->tty_underline_p)
+      if ((face != NULL) && face->tty_underline_p)
 	OUTPUT_IF (tty, tty->TS_exit_underline_mode);
     }
 
   /* Switch back to default colors.  */
-  if (tty->TN_max_colors > 0
+  if ((tty->TN_max_colors > 0) && (face != NULL)
       && ((face->foreground != FACE_TTY_DEFAULT_COLOR
 	   && face->foreground != FACE_TTY_DEFAULT_FG_COLOR)
 	  || (face->background != FACE_TTY_DEFAULT_COLOR
@@ -4036,7 +4039,8 @@ init_tty (const char *name, const char *terminal_type, bool must_succeed)
        defined on Hurd.  On other systems, we need to explicitly
        dissociate ourselves from the controlling tty when we want to
        open a frame on the same terminal.  */
-    int flags = O_RDWR | O_NOCTTY | (ctty ? 0 : O_IGNORE_CTTY);
+    int flags = (O_RDWR | O_NOCTTY | ((ctty && (O_IGNORE_CTTY != 0))
+				      ? 0 : O_IGNORE_CTTY));
     int fd = emacs_open (name, flags, 0);
     tty->input = tty->output = fd < 0 || ! isatty (fd) ? 0 : fdopen (fd, "w+");
 

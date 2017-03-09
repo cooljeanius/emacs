@@ -3526,7 +3526,7 @@ font_update_drivers(struct frame *f, Lisp_Object new_drivers)
 	}
       *next = NULL;
 
-      if (! f->font_driver_list->on)
+      if ((f->font_driver_list != NULL) && !f->font_driver_list->on)
 	{ /* None of the drivers is enabled: enable them all.
 	     Happens if you set the list of drivers to (xft x) in your .emacs
 	     and then use it under w32 or ns.  */

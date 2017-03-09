@@ -129,6 +129,25 @@ INLINE_HEADER_BEGIN
 #define max(a, b) ((a) > (b) ? (a) : (b))
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
+#ifndef SIZE_T_MAX
+# ifdef SIZE_MAX
+#  define SIZE_T_MAX SIZE_MAX
+# else
+#  ifdef ULONG_MAX
+#   define SIZE_T_MAX ULONG_MAX	/* max value for a size_t */
+#  else
+#   ifdef UINT_MAX
+#    define SIZE_T_MAX UINT_MAX
+#   endif /* UINT_MAX */
+#  endif /* ULONG_MAX */
+# endif /* SIZE_MAX */
+#endif /* !SIZE_T_MAX */
+
+#ifndef BUF_LEN_MAX_FOR_SNPRINTF
+# define BUF_LEN_MAX_FOR_SNPRINTF \
+           (min((((SIZE_T_MAX - 1UL) / 2UL) - 1UL), ((size_t)INT_MAX - 1UL)))
+#endif /* BUF_LEN_MAX_FOR_SNPRINTF */
+
 /* EMACS_INT - signed integer wide enough to hold an Emacs value
    EMACS_INT_MAX - maximum value of EMACS_INT; can be used in #if
    pI - printf length modifier for EMACS_INT

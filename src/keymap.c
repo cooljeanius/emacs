@@ -2170,7 +2170,7 @@ push_key_description (EMACS_INT ch, char *p)
   if (! CHARACTERP (make_number (c2)))
     {
       /* KEY_DESCRIPTION_SIZE is large enough for this.  */
-      p += snprintf(p, SIZE_T_MAX, "[%d]", c);
+      p += snprintf(p, KEY_DESCRIPTION_SIZE, "[%d]", c);
       return p;
     }
 

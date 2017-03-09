@@ -726,8 +726,6 @@ After the communication, this variable is set to nil.  */);
 #else
 /* keep file from being empty: */
 typedef int w16select_c_dummy_t;
-extern w16select_c_dummy_t w16select_c_dummy_var;
-w16select_c_dummy_t w16select_c_dummy_var = 0;
 #endif /* MSDOS */
 
 /* EOF */

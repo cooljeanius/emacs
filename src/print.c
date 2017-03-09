@@ -1482,7 +1482,7 @@ print_object(Lisp_Object obj, Lisp_Object printcharfun, bool escapeflag)
 		     or when explicitly requested,
 		     print single-byte non-ASCII string chars
 		     using octal escapes.  */
-		  char outbuf[5];
+		  char outbuf[14];
 		  int len = sprintf(outbuf, "\\%03o", (unsigned int)c);
 		  strout(outbuf, len, len, printcharfun);
 		}
