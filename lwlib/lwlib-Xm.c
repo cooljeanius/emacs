@@ -1107,7 +1107,7 @@ make_dialog (char* name,
   n_children = 0;
   for (i = 0; i < left_buttons; i++)
     {
-      char button_name[16];
+      char button_name[18];
       snprintf(button_name, sizeof(button_name), "button%d", i + 1);
       ac = 0;
       if (i == 0)
@@ -1140,7 +1140,7 @@ make_dialog (char* name,
 
   for (i = 0; i < right_buttons; i++)
     {
-      char button_name[16];
+      char button_name[18];
       snprintf(button_name, sizeof(button_name), "button%d",
 	       (left_buttons + i + 1));
       ac = 0;

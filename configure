@@ -17606,6 +17606,43 @@ if test "x$gl_cv_warn_cxx__Wstrict_null_sentinel" = xyes; then :
 fi
 
 
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C++ compiler handles -Wsynth" >&5
+$as_echo_n "checking whether C++ compiler handles -Wsynth... " >&6; }
+if ${gl_cv_warn_cxx__Wsynth+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CXXFLAGS"
+  as_fn_append CXXFLAGS " $gl_unknown_warnings_are_errors -Wsynth"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+  gl_cv_warn_cxx__Wsynth=yes
+else
+  gl_cv_warn_cxx__Wsynth=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CXXFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_cxx__Wsynth" >&5
+$as_echo "$gl_cv_warn_cxx__Wsynth" >&6; }
+if test "x$gl_cv_warn_cxx__Wsynth" = xyes; then :
+  as_fn_append WARN_CXXFLAGS " -Wsynth"
+fi
+
+
         if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
           test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
 
@@ -19423,14 +19460,14 @@ if test "x$gl_cv_warn_c__Wvla_larger_than_16384" = xyes; then :
 fi
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Walloc-size-larger-than=32767" >&5
-$as_echo_n "checking whether C compiler handles -Walloc-size-larger-than=32767... " >&6; }
-if ${gl_cv_warn_c__Walloc_size_larger_than_32767+:} false; then :
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Walloc-size-larger-than=32840" >&5
+$as_echo_n "checking whether C compiler handles -Walloc-size-larger-than=32840... " >&6; }
+if ${gl_cv_warn_c__Walloc_size_larger_than_32840+:} false; then :
   $as_echo_n "(cached) " >&6
 else
 
   gl_save_compiler_FLAGS="$CFLAGS"
-  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Walloc-size-larger-than=32767"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Walloc-size-larger-than=32840"
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -19443,19 +19480,19 @@ main ()
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  gl_cv_warn_c__Walloc_size_larger_than_32767=yes
+  gl_cv_warn_c__Walloc_size_larger_than_32840=yes
 else
-  gl_cv_warn_c__Walloc_size_larger_than_32767=no
+  gl_cv_warn_c__Walloc_size_larger_than_32840=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
   CFLAGS="$gl_save_compiler_FLAGS"
 
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Walloc_size_larger_than_32767" >&5
-$as_echo "$gl_cv_warn_c__Walloc_size_larger_than_32767" >&6; }
-if test "x$gl_cv_warn_c__Walloc_size_larger_than_32767" = xyes; then :
-  as_fn_append WARN_CFLAGS " -Walloc-size-larger-than=32767"
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Walloc_size_larger_than_32840" >&5
+$as_echo "$gl_cv_warn_c__Walloc_size_larger_than_32840" >&6; }
+if test "x$gl_cv_warn_c__Walloc_size_larger_than_32840" = xyes; then :
+  as_fn_append WARN_CFLAGS " -Walloc-size-larger-than=32840"
 fi
 
 
@@ -32461,6 +32498,8 @@ case "${opsys}" in
     elif test -e /usr/lib/libSystem.dylib; then
       echo "adding '-lSystem' to LIBS_SYSTEM here for darwin"
       LIBS_SYSTEM="-lSystem"
+    else
+      echo "some libraries might be missing from LIBS_SYSTEM here for darwin"
     fi
     ;;
 esac

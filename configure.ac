@@ -3457,6 +3457,7 @@ else
           gl_WARN_ADD([-Wsign-promo],[WARN_CXXFLAGS])
         fi  ##end check for other undocumented environment variable.
         gl_WARN_ADD([-Wstrict-null-sentinel],[WARN_CXXFLAGS])
+        gl_WARN_ADD([-Wsynth],[WARN_CXXFLAGS])
         if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
           test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
           gl_WARN_ADD([-Wuseless-cast],[WARN_CXXFLAGS])
@@ -3630,7 +3631,7 @@ else
       gl_WARN_ADD([-Wduplicated-branches])dnl
       gl_WARN_ADD([-Walloca-larger-than=16384])dnl# MAX_ALLOCA = 16 * 1024
       gl_WARN_ADD([-Wvla-larger-than=16384])dnl# vlas = allocas
-      gl_WARN_ADD([-Walloc-size-larger-than=32767])dnl# INT16_MAX
+      gl_WARN_ADD([-Walloc-size-larger-than=32840])dnl# BLOCKSIZE + 72
       gl_WARN_ADD([-Walloc-zero])dnl
       gl_WARN_ADD([-Wpsabi])dnl
       gl_WARN_ADD([-Wbuiltin-declaration-mismatch])dnl
@@ -4291,6 +4292,8 @@ case "${opsys}" in
     elif test -e /usr/lib/libSystem.dylib; then
       echo "adding '-lSystem' to LIBS_SYSTEM here for darwin"
       LIBS_SYSTEM="-lSystem"
+    else
+      echo "some libraries might be missing from LIBS_SYSTEM here for darwin"
     fi
     ;;
 esac
