@@ -33,3 +33,6 @@ oo-spd/
 # gcc -save-temps output for reporting compiler bugs:
 pop.i
 pop.s
+
+# profiling:
+gmon.out

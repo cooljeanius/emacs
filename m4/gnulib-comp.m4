@@ -1,5 +1,5 @@
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# Copyright (C) 2002-2016 Free Software Foundation, Inc.
+# Copyright (C) 2002-2017 Free Software Foundation, Inc.
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -58,10 +58,12 @@ AC_DEFUN([gl_EARLY],
   AB_INIT
   # Code from module bcopy:
   # Code from module binary-io:
+  # Code from module builtin-expect:
   # Code from module byteswap:
   # Code from module c-ctype:
   # Code from module c-strcase:
   # Code from module c-strcaseeq:
+  # Code from module c99:
   # Code from module canonicalize-lgpl:
   # Code from module careadlinkat:
   # Code from module chdir:
@@ -169,6 +171,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module memcmp:
   # Code from module memmove:
   # Code from module memrchr:
+  # Code from module minmax:
   # Code from module mkostemp:
   # Code from module mktime:
   # Code from module mktime-internal:
@@ -327,6 +330,7 @@ AC_DEFUN([gl_INIT],
   gl_FUNC_ATAN
   gl_FUNC_ATAN2
   AC_REPLACE_FUNCS(bcopy)
+  gl___BUILTIN_EXPECT
   gl_BYTESWAP
   gl_CANONICALIZE_LGPL
   if test $HAVE_CANONICALIZE_FILE_NAME = 0 || test $REPLACE_CANONICALIZE_FILE_NAME = 1; then
@@ -432,7 +436,6 @@ AC_DEFUN([gl_INIT],
   gl_FUNC_FPENDING
   if test $gl_cv_func___fpending = no; then
     AC_LIBOBJ([fpending])
-    gl_PREREQ_FPENDING
   fi
   gl_FUNC_FSEEK
   if test $REPLACE_FSEEK = 1; then
@@ -522,6 +525,7 @@ AC_DEFUN([gl_INIT],
     AC_LIBOBJ([getlogin])
   fi
   gl_UNISTD_MODULE_INDICATOR([getlogin])
+  AC_REQUIRE([gl_LIB_GETLOGIN])
   gl_FUNC_GETOPT_GNU
   if test $REPLACE_GETOPT = 1; then
     AC_LIBOBJ([getopt])
@@ -531,7 +535,6 @@ AC_DEFUN([gl_INIT],
     GNULIB_GL_UNISTD_H_GETOPT=1
   fi
   AC_SUBST([GNULIB_GL_UNISTD_H_GETOPT])
-  gl_MODULE_INDICATOR_FOR_TESTS([getopt-gnu])
   gl_FUNC_GETOPT_POSIX
   if test $REPLACE_GETOPT = 1; then
     AC_LIBOBJ([getopt])
@@ -629,6 +632,7 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_MEMRCHR
   fi
   gl_STRING_MODULE_INDICATOR([memrchr])
+  gl_MINMAX
   gl_FUNC_MKOSTEMP
   if test $HAVE_MKOSTEMP = 0; then
     AC_LIBOBJ([mkostemp])
@@ -910,7 +914,7 @@ AC_DEFUN([gl_INIT],
   gl_VA_ARGS
   AC_C_VARARRAYS
   gl_FUNC_MMAP_ANON
-  AC_CHECK_FUNCS_ONCE([mquery])
+  AC_CHECK_FUNCS_ONCE([mquery pstat_getprocvm])
   gl_FUNC_WAITPID
   if test $HAVE_WAITPID = 0; then
     AC_LIBOBJ([waitpid])
@@ -1163,7 +1167,6 @@ changequote([, ])dnl
   AC_SUBST([gltests_WITNESS])
   gl_module_indicator_condition=$gltests_WITNESS
   m4_pushdef([gl_MODULE_INDICATOR_CONDITION], [$gl_module_indicator_condition])
-  AC_REQUIRE([gl_FEATURES_H])
   m4_pattern_allow([^gl_GNULIB_ENABLED_])
   m4_popdef([gl_MODULE_INDICATOR_CONDITION])
   m4_ifval(gltests_LIBSOURCES_LIST, [
@@ -1264,18 +1267,14 @@ AC_DEFUN([gl_FILE_LIST], [
   build-aux/git-version-gen
   build-aux/gitlog-to-changelog
   build-aux/ldd.sh.in
-  build-aux/snippet/_Noreturn.h
-  build-aux/snippet/arg-nonnull.h
-  build-aux/snippet/c++defs.h
   build-aux/snippet/link-warning.h
-  build-aux/snippet/unused-parameter.h
-  build-aux/snippet/warn-on-use.h
   build-aux/update-copyright
   build-aux/useless-if-before-free
   build-aux/vc-list-files
   doc/gendocs_template
   doc/gendocs_template_min
   doc/gpl-3.0.texi
+  lib/_Noreturn.h
   lib/acl-errno-valid.c
   lib/acl-internal.c
   lib/acl-internal.h
@@ -1286,6 +1285,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/alloca.in.h
   lib/allocator.c
   lib/allocator.h
+  lib/arg-nonnull.h
   lib/assert.in.h
   lib/assure.h
   lib/at-func.c
@@ -1294,6 +1294,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/binary-io.c
   lib/binary-io.h
   lib/byteswap.in.h
+  lib/c++defs.h
   lib/c-ctype.c
   lib/c-ctype.h
   lib/c-strcase.h
@@ -1402,6 +1403,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/memcmp.c
   lib/memmove.c
   lib/memrchr.c
+  lib/minmax.h
   lib/mkostemp.c
   lib/mktime-internal.h
   lib/mktime.c
@@ -1524,6 +1526,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/unistd.in.h
   lib/unlink.c
   lib/unsetenv.c
+  lib/unused-parameter.h
   lib/utimens.c
   lib/utimens.h
   lib/verify.h
@@ -1532,6 +1535,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/vma-iter.h
   lib/w32sock.h
   lib/waitpid.c
+  lib/warn-on-use.h
   lib/wchar.in.h
   lib/wctype-h.c
   lib/wctype.in.h
@@ -1549,6 +1553,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/atan.m4
   m4/atan2.m4
   m4/autobuild.m4
+  m4/builtin-expect.m4
   m4/byteswap.m4
   m4/c-strtod.m4
   m4/canonicalize.m4
@@ -1657,6 +1662,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/memcmp.m4
   m4/memmove.m4
   m4/memrchr.m4
+  m4/minmax.m4
   m4/mkostemp.m4
   m4/mktime.m4
   m4/mmap-anon.m4

@@ -1,20 +1,20 @@
 /* Declarations for getopt.
-   Copyright (C) 1989-1994, 1996-1999, 2001, 2003-2007, 2009-2016 Free Software
-   Foundation, Inc.
+   Copyright (C) 1989-2017 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3 of the License, or
-   (at your option) any later version.
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public
+   License as published by the Free Software Foundation; either
+   version 3 of the License, or (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
+   The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   You should have received a copy of the GNU General Public
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _@GUARD_PREFIX@_GETOPT_H
 
@@ -47,15 +47,20 @@
    identifiers so that they do not collide with the system functions
    and variables.  Renaming avoids problems with some compilers and
    linkers.  */
-#if defined __GETOPT_PREFIX && !defined __need_getopt
-# if !@HAVE_GETOPT_H@
-#  define __need_system_stdlib_h
-#  include <stdlib.h>
-#  undef __need_system_stdlib_h
-#  include <stdio.h>
-#  include <unistd.h>
+#if defined __GETOPT_PREFIX
+# if !defined __need_getopt
+#  if !@HAVE_GETOPT_H@
+#   define __need_system_stdlib_h
+#   include <stdlib.h>
+#   undef __need_system_stdlib_h
+#   include <stdio.h>
+#   include <unistd.h>
+#  endif
+#  undef __need_getopt
 # endif
-# undef __need_getopt
+# undef __GETOPT_CONCAT
+# undef __GETOPT_XCONCAT
+# undef __GETOPT_ID
 # undef getopt
 # undef getopt_long
 # undef getopt_long_only
@@ -64,6 +69,7 @@
 # undef optind
 # undef optopt
 # undef option
+# undef _getopt_internal
 # define __GETOPT_CONCAT(x, y) x ## y
 # define __GETOPT_XCONCAT(x, y) __GETOPT_CONCAT (x, y)
 # define __GETOPT_ID(y) __GETOPT_XCONCAT (__GETOPT_PREFIX, y)
@@ -231,6 +237,25 @@ struct option
 
 extern int getopt (int ___argc, char *const *___argv, const char *__shortopts)
        __THROW _GL_ARG_NONNULL ((2, 3));
+
+#ifndef __GETOPT_PREFIX
+# if defined __need_getopt && defined __USE_POSIX2 \
+  && !defined __USE_POSIX_IMPLICITLY && !defined __USE_GNU
+/* The GNU getopt has more functionality than the standard version.  The
+   additional functionality can be disable at runtime.  This redirection
+   helps to also do this at runtime.  */
+#  ifdef __REDIRECT
+  extern int __REDIRECT_NTH (getopt, (int ___argc, char *const *___argv,
+				      const char *__shortopts),
+			     __posix_getopt);
+#  else
+extern int __posix_getopt (int ___argc, char *const *___argv,
+			   const char *__shortopts)
+  __THROW _GL_ARG_NONNULL ((2, 3));
+#   define getopt __posix_getopt
+#  endif
+# endif
+#endif
 
 #ifndef __need_getopt
 extern int getopt_long (int ___argc, char *__getopt_argv_const *___argv,

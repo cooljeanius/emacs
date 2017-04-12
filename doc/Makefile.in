@@ -96,8 +96,9 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/00gnulib.m4 \
 	$(top_srcdir)/m4/ax_append_flag.m4 \
 	$(top_srcdir)/m4/ax_cflags_strict_prototypes.m4 \
 	$(top_srcdir)/m4/ax_check_gnu_make.m4 \
-	$(top_srcdir)/m4/blocks.m4 $(top_srcdir)/m4/byteswap.m4 \
-	$(top_srcdir)/m4/c-strtod.m4 $(top_srcdir)/m4/canonicalize.m4 \
+	$(top_srcdir)/m4/blocks.m4 $(top_srcdir)/m4/builtin-expect.m4 \
+	$(top_srcdir)/m4/byteswap.m4 $(top_srcdir)/m4/c-strtod.m4 \
+	$(top_srcdir)/m4/canonicalize.m4 \
 	$(top_srcdir)/m4/clock_time.m4 \
 	$(top_srcdir)/m4/close-stream.m4 $(top_srcdir)/m4/closedir.m4 \
 	$(top_srcdir)/m4/codeset.m4 $(top_srcdir)/m4/configmake.m4 \
@@ -154,13 +155,14 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/00gnulib.m4 \
 	$(top_srcdir)/m4/mbsinit.m4 $(top_srcdir)/m4/mbstate_t.m4 \
 	$(top_srcdir)/m4/md5.m4 $(top_srcdir)/m4/memchr.m4 \
 	$(top_srcdir)/m4/memcmp.m4 $(top_srcdir)/m4/memmove.m4 \
-	$(top_srcdir)/m4/memrchr.m4 $(top_srcdir)/m4/mkostemp.m4 \
-	$(top_srcdir)/m4/mktime.m4 $(top_srcdir)/m4/mmap-anon.m4 \
-	$(top_srcdir)/m4/mode_t.m4 $(top_srcdir)/m4/msvc-inval.m4 \
-	$(top_srcdir)/m4/multiarch.m4 $(top_srcdir)/m4/nls.m4 \
-	$(top_srcdir)/m4/no-c++.m4 $(top_srcdir)/m4/nocrash.m4 \
-	$(top_srcdir)/m4/obstack.m4 $(top_srcdir)/m4/off_t.m4 \
-	$(top_srcdir)/m4/openat.m4 $(top_srcdir)/m4/pagealign_alloc.m4 \
+	$(top_srcdir)/m4/memrchr.m4 $(top_srcdir)/m4/minmax.m4 \
+	$(top_srcdir)/m4/mkostemp.m4 $(top_srcdir)/m4/mktime.m4 \
+	$(top_srcdir)/m4/mmap-anon.m4 $(top_srcdir)/m4/mode_t.m4 \
+	$(top_srcdir)/m4/msvc-inval.m4 $(top_srcdir)/m4/multiarch.m4 \
+	$(top_srcdir)/m4/nls.m4 $(top_srcdir)/m4/no-c++.m4 \
+	$(top_srcdir)/m4/nocrash.m4 $(top_srcdir)/m4/obstack.m4 \
+	$(top_srcdir)/m4/off_t.m4 $(top_srcdir)/m4/openat.m4 \
+	$(top_srcdir)/m4/pagealign_alloc.m4 \
 	$(top_srcdir)/m4/pathmax.m4 $(top_srcdir)/m4/perror.m4 \
 	$(top_srcdir)/m4/pipe2.m4 $(top_srcdir)/m4/pkg.m4 \
 	$(top_srcdir)/m4/po.m4 $(top_srcdir)/m4/posix_spawn.m4 \
@@ -632,6 +634,7 @@ GNULIB_OBSTACK_PRINTF_POSIX = @GNULIB_OBSTACK_PRINTF_POSIX@
 GNULIB_OPEN = @GNULIB_OPEN@
 GNULIB_OPENAT = @GNULIB_OPENAT@
 GNULIB_OPENDIR = @GNULIB_OPENDIR@
+GNULIB_OVERRIDES_WINT_T = @GNULIB_OVERRIDES_WINT_T@
 GNULIB_PCLOSE = @GNULIB_PCLOSE@
 GNULIB_PERROR = @GNULIB_PERROR@
 GNULIB_PIPE = @GNULIB_PIPE@
@@ -887,6 +890,7 @@ HAVE_DECL_GETDELIM = @HAVE_DECL_GETDELIM@
 HAVE_DECL_GETDOMAINNAME = @HAVE_DECL_GETDOMAINNAME@
 HAVE_DECL_GETLINE = @HAVE_DECL_GETLINE@
 HAVE_DECL_GETLOADAVG = @HAVE_DECL_GETLOADAVG@
+HAVE_DECL_GETLOGIN = @HAVE_DECL_GETLOGIN@
 HAVE_DECL_GETLOGIN_R = @HAVE_DECL_GETLOGIN_R@
 HAVE_DECL_GETPAGESIZE = @HAVE_DECL_GETPAGESIZE@
 HAVE_DECL_GETUSERSHELL = @HAVE_DECL_GETUSERSHELL@
@@ -1183,6 +1187,7 @@ HAVE__BOOL = @HAVE__BOOL@
 HAVE__EXIT = @HAVE__EXIT@
 HEAD_BIN = @HEAD_BIN@
 HOST_ARCHITECTURE = @HOST_ARCHITECTURE@
+HOST_CPU = @HOST_CPU@
 HOST_CPU_C_ABI = @HOST_CPU_C_ABI@
 ID_BIN = @ID_BIN@
 IMAGEMAGICK_CFLAGS = @IMAGEMAGICK_CFLAGS@
@@ -1260,6 +1265,7 @@ LIB_CRYPTO = @LIB_CRYPTO@
 LIB_EACCESS = @LIB_EACCESS@
 LIB_EXECINFO = @LIB_EXECINFO@
 LIB_FDATASYNC = @LIB_FDATASYNC@
+LIB_GETLOGIN = @LIB_GETLOGIN@
 LIB_HAS_ACL = @LIB_HAS_ACL@
 LIB_MATH = @LIB_MATH@
 LIB_POSIX_SPAWN = @LIB_POSIX_SPAWN@
@@ -1412,6 +1418,8 @@ PRE_WARNING_TESTING_CFLAGS = @PRE_WARNING_TESTING_CFLAGS@
 PRIPTR_PREFIX = @PRIPTR_PREFIX@
 PRI_MACROS_BROKEN = @PRI_MACROS_BROKEN@
 PROFILING_CFLAGS = @PROFILING_CFLAGS@
+PROFILING_CFLAGS_BOOTSTRAP_EMACS = @PROFILING_CFLAGS_BOOTSTRAP_EMACS@
+PROFILING_CFLAGS_TEMACS = @PROFILING_CFLAGS_TEMACS@
 PTHREAD_H_DEFINES_STRUCT_TIMESPEC = @PTHREAD_H_DEFINES_STRUCT_TIMESPEC@
 PTRDIFF_T_SUFFIX = @PTRDIFF_T_SUFFIX@
 RALLOC_OBJ = @RALLOC_OBJ@
@@ -1422,6 +1430,10 @@ REAL_CPPFLAGS = @REAL_CPPFLAGS@
 REAL_LDFLAGS = @REAL_LDFLAGS@
 REAL_LIBS = @REAL_LIBS@
 RELPATH_BIN = @RELPATH_BIN@
+REPLACE_ACOSF = @REPLACE_ACOSF@
+REPLACE_ASINF = @REPLACE_ASINF@
+REPLACE_ATAN2F = @REPLACE_ATAN2F@
+REPLACE_ATANF = @REPLACE_ATANF@
 REPLACE_BTOWC = @REPLACE_BTOWC@
 REPLACE_CALLOC = @REPLACE_CALLOC@
 REPLACE_CANONICALIZE_FILE_NAME = @REPLACE_CANONICALIZE_FILE_NAME@
@@ -1433,12 +1445,15 @@ REPLACE_CEILL = @REPLACE_CEILL@
 REPLACE_CHOWN = @REPLACE_CHOWN@
 REPLACE_CLOSE = @REPLACE_CLOSE@
 REPLACE_CLOSEDIR = @REPLACE_CLOSEDIR@
+REPLACE_COSF = @REPLACE_COSF@
+REPLACE_COSHF = @REPLACE_COSHF@
 REPLACE_DIRFD = @REPLACE_DIRFD@
 REPLACE_DPRINTF = @REPLACE_DPRINTF@
 REPLACE_DUP = @REPLACE_DUP@
 REPLACE_DUP2 = @REPLACE_DUP2@
 REPLACE_EXP2 = @REPLACE_EXP2@
 REPLACE_EXP2L = @REPLACE_EXP2L@
+REPLACE_EXPF = @REPLACE_EXPF@
 REPLACE_EXPM1 = @REPLACE_EXPM1@
 REPLACE_EXPM1F = @REPLACE_EXPM1F@
 REPLACE_FABSL = @REPLACE_FABSL@
@@ -1580,9 +1595,12 @@ REPLACE_SELECT = @REPLACE_SELECT@
 REPLACE_SETENV = @REPLACE_SETENV@
 REPLACE_SIGNBIT = @REPLACE_SIGNBIT@
 REPLACE_SIGNBIT_USING_GCC = @REPLACE_SIGNBIT_USING_GCC@
+REPLACE_SINF = @REPLACE_SINF@
+REPLACE_SINHF = @REPLACE_SINHF@
 REPLACE_SLEEP = @REPLACE_SLEEP@
 REPLACE_SNPRINTF = @REPLACE_SNPRINTF@
 REPLACE_SPRINTF = @REPLACE_SPRINTF@
+REPLACE_SQRTF = @REPLACE_SQRTF@
 REPLACE_SQRTL = @REPLACE_SQRTL@
 REPLACE_STAT = @REPLACE_STAT@
 REPLACE_STDIO_READ_FUNCS = @REPLACE_STDIO_READ_FUNCS@
@@ -1605,6 +1623,8 @@ REPLACE_STRTOUMAX = @REPLACE_STRTOUMAX@
 REPLACE_STRUCT_TIMEVAL = @REPLACE_STRUCT_TIMEVAL@
 REPLACE_SYMLINK = @REPLACE_SYMLINK@
 REPLACE_SYMLINKAT = @REPLACE_SYMLINKAT@
+REPLACE_TANF = @REPLACE_TANF@
+REPLACE_TANHF = @REPLACE_TANHF@
 REPLACE_TIMEGM = @REPLACE_TIMEGM@
 REPLACE_TMPFILE = @REPLACE_TMPFILE@
 REPLACE_TOWLOWER = @REPLACE_TOWLOWER@

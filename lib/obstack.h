@@ -1,5 +1,5 @@
 /* obstack.h - object stack macros
-   Copyright (C) 1988-2016 Free Software Foundation, Inc.
+   Copyright (C) 1988-2017 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -111,6 +111,12 @@
 #include <stddef.h>             /* For size_t and ptrdiff_t.  */
 #include <string.h>             /* For __GNU_LIBRARY__, and memcpy.  */
 
+#if __STDC_VERSION__ < 199901L
+# define __FLEXIBLE_ARRAY_MEMBER 1
+#else
+# define __FLEXIBLE_ARRAY_MEMBER
+#endif
+
 #if _OBSTACK_INTERFACE_VERSION == 1
 /* For binary compatibility with obstack version 1, which used "int"
    and "long" for these two types.  */
@@ -162,7 +168,7 @@ struct _obstack_chunk           /* Lives at front of each chunk. */
 {
   char *limit;                  /* 1 past end of this chunk */
   struct _obstack_chunk *prev;  /* address of prior chunk or NULL */
-  char contents[4];             /* objects begin here */
+  char contents[__FLEXIBLE_ARRAY_MEMBER]; /* objects begin here */
 };
 
 struct obstack          /* control current object in current chunk */

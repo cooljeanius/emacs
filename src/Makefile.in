@@ -804,6 +804,7 @@ mostlyclean:
 	rm -f globals.h gl-stamp
 	rm -f version.h
 	rm -f *.res *.tmp
+	rm -f gmon.out
 clean: mostlyclean
 	rm -f emacs-*.*.*$(EXEEXT) emacs$(EXEEXT)
 	-rm -rf *.dSYM

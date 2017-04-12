@@ -594,10 +594,16 @@ AC_ARG_ENABLE([profiling],
 [ac_enable_profiling="${enableval}"],[])
 if test "x${ac_enable_profiling}" != "x"; then
    PROFILING_CFLAGS="-DPROFILING=1 -pg"
+   PROFILING_CFLAGS_TEMACS="-fprofile-generate"
+   PROFILING_CFLAGS_BOOTSTRAP_EMACS="-fprofile-use"
 else
    PROFILING_CFLAGS=""
+   PROFILING_CFLAGS_TEMACS=""
+   PROFILING_CFLAGS_BOOTSTRAP_EMACS=""
 fi
 AC_SUBST([PROFILING_CFLAGS])dnl
+AC_SUBST([PROFILING_CFLAGS_TEMACS])dnl
+AC_SUBST([PROFILING_CFLAGS_BOOTSTRAP_EMACS])dnl
 
 AC_ARG_ENABLE([autodepend],
 [AS_HELP_STRING([--enable-autodepend],

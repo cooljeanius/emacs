@@ -1,6 +1,6 @@
 /* Declarations of functions and data types used for SHA256 and SHA224 sum
    library functions.
-   Copyright (C) 2005-2006, 2008-2016 Free Software Foundation, Inc.
+   Copyright (C) 2005-2006, 2008-2017 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -44,8 +44,8 @@ struct sha256_ctx
   uint32_t state[8];
 
   uint32_t total[2];
-  size_t buflen;
-  uint32_t buffer[32];
+  size_t buflen;       /* ≥ 0, ≤ 128 */
+  uint32_t buffer[32]; /* 128 bytes; the first buflen bytes are in use */
 };
 
 /* Initialize structure containing state of computation. */

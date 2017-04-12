@@ -1,8 +1,8 @@
 #!/bin/sh
 
 # The gnulib commit ID to use for the update.
-# If you know your version is newer, feel free to replace:
-GNULIB_COMMIT_SHA1="94d81adc2f56c048b7872cd8ae2dd8568aef6dcf"
+# If you know your version works and is newer, feel free to replace:
+GNULIB_COMMIT_SHA1="06d9e7302a736d7fa3db9cf1eb9850b60aee612f"
 
 if [ $# -ne 1 ]; then
    echo "Warning: Path to gnulib repository missing."
@@ -60,9 +60,9 @@ else
   module_list="\
       absolute-header acl acl-permissions alignof alloca alloca-opt \
       allocator assert-h assure atan atan2 autobuild \
-      bcopy binary-io byteswap \
-      c-ctype c-strcase c-strcaseeq canonicalize-lgpl careadlinkat chdir \
-      clock-time close-stream closedir configmake count-one-bits \
+      bcopy binary-io builtin-expect byteswap \
+      c-ctype c-strcase c-strcaseeq c99 canonicalize-lgpl careadlinkat \
+      chdir clock-time close-stream closedir configmake count-one-bits \
       count-trailing-zeros \
       crypto/md5 crypto/sha1 crypto/sha256 crypto/sha512 \
       dirent dirfd dirname-lgpl dosname double-slash-root \
