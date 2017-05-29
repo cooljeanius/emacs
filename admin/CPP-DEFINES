@@ -7,6 +7,8 @@ documented in config.in, and this file would not be necessary.
 
 ** Distinguishing OSes **
 
+MAC_OS8 	Compiling for Mac OS Classic (v8 or v9). No longer supported, all code using it can be removed.
+MAC_OSX 	Compiling for Mac OS X. Not bare Darwin.
 AIX
 _AIX
 CYGWIN		Compiling the Cygwin port.
@@ -29,6 +31,8 @@ USG5_4
 ** Distinguishing GUIs **
 
 HAVE_NTGUI	Use the native W32 GUI for windows, frames, menus&scrollbars.
+MAC_OS 		Compiling for the `mac' window-system.
+HAVE_CARBON 	Compile support for the Carbon GUI. Requires MAC_OS?
 HAVE_NS		Use the NeXT/OpenStep/Cocoa UI under Mac OS X or GNUstep.
 NS_IMPL_GNUSTEP	Compile support for GNUstep implementation of NS GUI API.
 NS_IMPL_COCOA	Compile support for Cocoa (Apple) implementation of NS GUI API.
@@ -49,6 +53,7 @@ USE_GTK		Use the Gtk   toolkit for menus&scrollbars.  Requires HAVE_X11.
 FRAME_TERMCAP_P	A tty (character terminal) frame.
 FRAME_X_P	A frame on X Window system.
 FRAME_MSDOS_P	An MS-DOS frame (used only by the DOS port).
+FRAME_MAC_P 	A Mac frame.
 FRAME_W32_P	A frame using native MS-Windows GUI.
 FRAME_WINDOW_P	A GUI frame (like X, w32, etc.)
 

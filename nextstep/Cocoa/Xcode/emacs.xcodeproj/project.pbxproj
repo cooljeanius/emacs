@@ -40,6 +40,7 @@
 
 /* Begin PBXFileReference section */
 		6130AF4E1C697379005874AA /* times.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = times.c; sourceTree = "<group>"; };
+		613360BD1EDBE4820017189F /* mactoolbox.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = mactoolbox.c; sourceTree = "<group>"; tabWidth = 8; };
 		61CD36491DDAB32700CFF599 /* regex_broken.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = regex_broken.c; sourceTree = "<group>"; tabWidth = 8; };
 		61CD39381DDBDE4800CFF599 /* hft.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hft.h; sourceTree = "<group>"; };
 		61CD396C1DDBE26700CFF599 /* devinfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = devinfo.h; sourceTree = "<group>"; };
@@ -1598,6 +1599,7 @@
 				A540ECEA1A0C29D50008DA29 /* macselect.c */,
 				A540ECEB1A0C29D50008DA29 /* macterm.c */,
 				A540ECEC1A0C29D50008DA29 /* macterm.h */,
+				613360BD1EDBE4820017189F /* mactoolbox.c */,
 				A540ECED1A0C29D50008DA29 /* macuvs.h */,
 				A540ECF11A0C29D50008DA29 /* marker.c */,
 				A540ECF21A0C29D50008DA29 /* md5.c */,
@@ -2203,7 +2205,6 @@
 			isa = PBXProject;
 			buildConfigurationList = 1DEB919308733D9F0010E9CD /* Build configuration list for PBXProject "emacs" */;
 			compatibilityVersion = "Xcode 3.1";
-			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				English,

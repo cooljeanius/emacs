@@ -6474,6 +6474,8 @@ Emacs is using for displaying the frame.  The possible values are
 Emacs is displaying the frame using X.
 @item w32
 Emacs is displaying the frame using native MS-Windows GUI.
+@item mac
+Emacs is displaying using a Macintosh.
 @item ns
 Emacs is displaying the frame using the Nextstep interface (used on
 GNUstep and Mac OS X).

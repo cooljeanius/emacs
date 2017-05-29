@@ -276,7 +276,7 @@ dot = .
 dotdot = ${dot}${dot}
 mac = $(dot)$(dot)/mac/
 ##FIXME: make these objects configurable from the configure script:
-MAC_OBJ = mac.o macterm.o macfns.o macmenu.o macselect.o fontset.o fringe.o image.o
+MAC_OBJ = mac.o macterm.o macfns.o macmenu.o macselect.o fontset.o fringe.o image.o mactoolbox.o
 ## as a start towards the above, compare this with the previous,
 ## and make sure they come out the same:
 MAC_OBJ_SUBSTED = @MAC_OBJ@

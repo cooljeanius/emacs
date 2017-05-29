@@ -198,14 +198,13 @@ NSSizeToCGSize(NSSize nssize)
 /* Return a string created from the Lisp string.  May cause GC: */
 + (instancetype)stringWithLispString:(Lisp_Object)lispString
 {
-  return CF_BRIDGING_RELEASE (cfstring_create_with_string (lispString));
+  return CF_BRIDGING_RELEASE(cfstring_create_with_string(lispString));
 }
 
 /* Return a string created from the unibyte Lisp string in UTF 8: */
 + (instancetype)stringWithUTF8LispString:(Lisp_Object)lispString
 {
-  return CF_BRIDGING_RELEASE (cfstring_create_with_string_noencode
-			      (lispString));
+  return CF_BRIDGING_RELEASE(cfstring_create_with_string_noencode(lispString));
 }
 
 /* Like -[NSString stringWithUTF8String:], but fall back on Mac-Roman

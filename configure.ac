@@ -3656,6 +3656,21 @@ else
     ],[
       AC_MSG_NOTICE([skipping checks for warnings for gcc 7.0 or newer])
     ])dnl# end block of code for gcc 7
+
+    dnl# to be added in a future version of gcc:
+    gl_GCC_VERSION_IFELSE([8],[0],[
+      gl_WARN_ADD([-Wenum-conversion])dnl
+      gl_WARN_ADD([-Wsizeof-pointer-div])dnl
+      if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
+        AC_LANG_PUSH([C++])dnl
+        gl_WARN_ADD([-Wcatch-value],[WARN_CXXFLAGS])
+        AC_LANG_POP
+      else
+        AC_MSG_NOTICE([-Wcatch-value only relevant for C++, skipping it])
+      fi  ##end check for C++ compiler
+    ],[
+      AC_MSG_NOTICE([skipping checks for warnings for gcc 8.0 or newer])
+    ])dnl# end block of code for gcc 8
     ##...okay, that should be it.
   else
     AC_MSG_WARN([WERROR_CFLAGS is set, so we have to skip some warnings])

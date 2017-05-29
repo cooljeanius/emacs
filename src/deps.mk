@@ -342,6 +342,9 @@ macterm.o: blockinput.h atimer.h systime.h syssignal.h macterm.h macgui.h \
   process.h coding.h $(config_h)
 macselect.o: blockinput.h atimer.h systime.h macterm.h macgui.h frame.h \
   keymap.h $(config_h)
+mactoolbox.o: blockinput.h atimer.h systime.h macterm.h macgui.h frame.h \
+  charset.h coding.h ccl.h dispextern.h fontset.h termhooks.h buffer.h \
+  window.h keyboard.h $(config_h)
 #endif /* HAVE_CARBON */
 
 ## how to make headers listed in this file that are in generated in ../lib:

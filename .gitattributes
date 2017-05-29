@@ -32,6 +32,11 @@ test/etags/html-src/algrthms.html whitespace=cr-at-eol
 
 # The upstream maintainer does not want to remove trailing whitespace.
 doc/misc/texinfo.tex -whitespace=blank-at-eol
+m4/libtool.m4 -whitespace=blank-at-eol
+m4/lt~obsolete.m4 -whitespace=blank-at-eol
+m4/ltoptions.m4 -whitespace=space-before-tab
+configure -whitespace=space-before-tab
+build-aux/ltmain.sh -whitespace=blank-at-eof
 
 # Some files should not be treated as text when diffing or merging.
 *.cur binary

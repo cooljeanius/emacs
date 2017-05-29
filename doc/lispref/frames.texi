@@ -53,6 +53,8 @@ kind of display the frame uses:
 The frame is displayed on a text terminal.
 @item x
 The frame is displayed on an X graphical terminal.
+@item mac
+The frame is displayed on a Macintosh.
 @item w32
 The frame is displayed on a MS-Windows graphical terminal.
 @item ns
