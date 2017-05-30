@@ -1001,6 +1001,12 @@ extern Lisp_Object Qtoolbar_switch_mode;
 #endif
 #endif
 
+#ifndef _TIP_WINDOW_DECLARED
+# define _TIP_WINDOW_DECLARED 1
+Window tip_window;
+#endif /* !_TIP_WINDOW_DECLARED */
+
+/* */
 static void
 do_window_update (WindowRef win)
 {
