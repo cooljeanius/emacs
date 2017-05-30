@@ -494,14 +494,14 @@ obj = $(base_obj) $(MAC_OBJC_OBJ) $(NS_OBJC_OBJ) $(MAC_OBJ_SUBSTED) \
 ## These go in the DOC file on all machines in case they are needed.
 ## Some of them have no DOC entries, but it does no harm to have them
 ## in the list, in case they ever add any such entries.
-SOME_MACHINE_OBJECTS = dosfns.o msdos.o \
-  xterm.o xfns.o xmenu.o xselect.o xrdb.o xsmfns.o fringe.o image.o \
-  mac.o macterm.o macfns.o macmenu.o macselect.o fontset.o dbusbind.o \
-  nsterm.o nsfns.o nsmenu.o nsselect.o nsimage.o nsfont.o macfont.o \
-  cygw32.o w32.o w32console.o w32fns.o w32heap.o w32inevt.o w32notify.o \
-  w32menu.o w32proc.o w32reg.o w32select.o w32term.o w32xfns.o \
-  w16select.o widget.o xfont.o ftfont.o xftfont.o ftxfont.o gtkutil.o \
-  xsettings.o xgselect.o termcap.o @MAINT@ $(EXTRA_MACHINE_OBJECTS)
+SOME_MACHINE_OBJECTS = dosfns.o msdos.o xterm.o xfns.o xmenu.o xselect.o \
+  xrdb.o xsmfns.o fringe.o image.o mac.o macterm.o macfns.o macmenu.o \
+  macselect.o mactoolbox.o fontset.o dbusbind.o nsterm.o nsfns.o \
+  nsmenu.o nsselect.o nsimage.o nsfont.o macfont.o cygw32.o w32.o \
+  w32console.o w32fns.o w32heap.o w32inevt.o w32notify.o w32menu.o \
+  w32proc.o w32reg.o w32select.o w32term.o w32xfns.o w16select.o \
+  widget.o xfont.o ftfont.o xftfont.o ftxfont.o gtkutil.o xsettings.o \
+  xgselect.o termcap.o @MAINT@ $(EXTRA_MACHINE_OBJECTS)
 
 EXTRA_MACHINE_OBJECTS = pre-crt0.o sunfns.o w32bdf.o \
   vmsfns.o vmsgmalloc.o vmsmap.o

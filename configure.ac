@@ -5210,7 +5210,7 @@ fail;
   fi
   ## used in libs_nsgui (i.e. libs_macgui) farther below:
   export LIBS_CARBON="-framework Carbon -framework WebKit -framework Quartz ${libs_quartz_core} -framework IOKit -framework OSAKit -framework Cocoa -framework QuickTime -framework CoreFoundation"
-  export MAC_OBJ="mac.o macterm.o macfns.o macmenu.o macselect.o fontset.o fringe.o image.o"
+  export MAC_OBJ="mac.o macterm.o macfns.o macmenu.o macselect.o mactoolbox.o fontset.o fringe.o image.o"
   export MAC_OBJC_OBJ="macappkit.o macfont.o"
   AC_MSG_NOTICE([it looks like we are using Carbon for the window system at this point])
   case "${canonical}" in
@@ -9969,6 +9969,8 @@ LD_SWITCH_SYSTEM_TEMACS="${LDFLAGS_NOCOMBRELOC} ${LD_SWITCH_SYSTEM_TEMACS}"
 ]
 dnl# m4-quotation block 13 (or 14) end
 
+AC_ARG_VAR([LD_NO_PIE],
+           [Set to NO if your linker fails to understand -no_pie])dnl
 AC_SUBST([LD_SWITCH_SYSTEM_TEMACS])dnl
 AC_SUBST([LD64_SWITCH_SYSTEM_TEMACS])dnl
 

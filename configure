@@ -629,6 +629,7 @@ TEMACS_POST_LINK
 ADDSECTION
 LD64_SWITCH_SYSTEM_TEMACS
 LD_SWITCH_SYSTEM_TEMACS
+LD_NO_PIE
 UNIQ_BIN
 LIBGNU_LTLIBDEPS
 LIBGNU_LIBDEPS
@@ -2306,7 +2307,8 @@ LIBRARY_PATH
 PKG_CONFIG
 PKG_CONFIG_PATH
 PKG_CONFIG_LIBDIR
-XMKMF'
+XMKMF
+LD_NO_PIE'
 
 
 # Initialize some variables set by options.
@@ -3118,6 +3120,7 @@ Some influential environment variables:
   PKG_CONFIG_LIBDIR
               path overriding pkg-config's built-in search path
   XMKMF       Path to xmkmf, Makefile generator for X Window System
+  LD_NO_PIE   Set to NO if your linker fails to understand -no_pie
 
 Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
@@ -40812,7 +40815,7 @@ printf "%s\n" "before 10.5" >&6; }
   fi
   ## used in libs_nsgui (i.e. libs_macgui) farther below:
   export LIBS_CARBON="-framework Carbon -framework WebKit -framework Quartz ${libs_quartz_core} -framework IOKit -framework OSAKit -framework Cocoa -framework QuickTime -framework CoreFoundation"
-  export MAC_OBJ="mac.o macterm.o macfns.o macmenu.o macselect.o fontset.o fringe.o image.o"
+  export MAC_OBJ="mac.o macterm.o macfns.o macmenu.o macselect.o mactoolbox.o fontset.o fringe.o image.o"
   export MAC_OBJC_OBJ="macappkit.o macfont.o"
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: it looks like we are using Carbon for the window system at this point" >&5
 printf "%s\n" "$as_me: it looks like we are using Carbon for the window system at this point" >&6;}
