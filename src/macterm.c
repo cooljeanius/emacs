@@ -4981,7 +4981,7 @@ x_scroll_bar_create(struct window *w, int top, int left,
   mac_prepare_for_quickdraw(f);
 #endif /* USE_CG_DRAWING */
 #if TARGET_API_MAC_CARBON
-  ch = NewControl(FRAME_MAC_WINDOW(f), &r, (ConstStr255Param)"\p",
+  ch = NewControl(FRAME_MAC_WINDOW(f), &r, __pascal_string(""),
 # ifdef USE_TOOLKIT_SCROLL_BARS
                   false,
 # else
@@ -8250,17 +8250,17 @@ static MacFontStruct *mac_load_query_font(struct frame *f, char *fontname)
 	      font->max_byte1 = 0xfc;
 	      font->min_char_or_byte2 = 0x40;
 	      font->max_char_or_byte2 = 0xfc;
-	      char_width = StringWidth((ConstStr255Param)"\p\x81\x40");
+	      char_width = StringWidth(__pascal_string("\x81\x40"));
 	      break;
 	    case smTradChinese:
 	      font->min_char_or_byte2 = 0x40;
-	      char_width = StringWidth((ConstStr255Param)"\p\xa1\x40");
+	      char_width = StringWidth(__pascal_string("\xa1\x40"));
 	      break;
 	    case smSimpChinese:
-	      char_width = StringWidth((ConstStr255Param)"\p\xa1\xa1");
+	      char_width = StringWidth(__pascal_string("\xa1\xa1"));
 	      break;
 	    case smKorean:
-	      char_width = StringWidth((ConstStr255Param)"\p\xa1\xa1");
+	      char_width = StringWidth(__pascal_string("\xa1\xa1"));
 	      break;
             default:
 	      char_width = 0;

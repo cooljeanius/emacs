@@ -82,6 +82,14 @@ Boston, MA 02110-1301, USA.  */
 #define FONT_BASE(f)    ((f)->ascent)
 #define FONT_DESCENT(f) ((f)->descent)
 
+#ifndef __pascal_string
+# define __pascal_string(s)						\
+   ((const unsigned char *)&(struct {					\
+                               unsigned char __len;			\
+                               const char __string[__builtin_strlen(s)];\
+                             }){ __builtin_strlen(s), s })
+#endif /* !__pascal_string */
+
 /* Structure recording bitmaps and reference count.
    If REFCOUNT is 0 then this record is free to be reused.  */
 struct mac_bitmap_record

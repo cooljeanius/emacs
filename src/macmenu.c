@@ -2501,7 +2501,7 @@ mac_menu_show(FRAME_PTR f, int x, int y, int for_click, int keymaps,
     }
 
   /* Actually create the menu: */
-  menu = NewMenu(min_menu_id[MAC_MENU_POPUP], (ConstStr255Param)"\p");
+  menu = NewMenu(min_menu_id[MAC_MENU_POPUP], __pascal_string(""));
   InsertMenu(menu, -1);
   fill_menu(menu, first_wv->contents, MAC_MENU_POPUP_SUB,
 	    min_menu_id[MAC_MENU_POPUP_SUB]);
@@ -3320,10 +3320,10 @@ add_menu_item(MenuHandle menu, int pos, widget_value *wv)
 #endif /* TARGET_API_MAC_CARBON */
 
   if (name_is_separator (wv->name))
-    AppendMenu(menu, (ConstStr255Param)"\p-");
+    AppendMenu(menu, __pascal_string("-"));
   else
     {
-      AppendMenu(menu, (ConstStr255Param)"\pX");
+      AppendMenu(menu, __pascal_string("X"));
 
 #if TARGET_API_MAC_CARBON
       item_name = cfstring_create_with_utf8_cstring(wv->name);
@@ -3402,7 +3402,7 @@ fill_menu(MenuHandle menu, widget_value *wv, enum mac_menu_kind kind,
       if (wv->contents && (submenu_id < min_menu_id[kind + 1]))
 	{
 	  MenuHandle submenu = NewMenu(submenu_id,
-                                       (ConstStr255Param)"\pX");
+                                       __pascal_string("X"));
 
 	  InsertMenu(submenu, -1);
 	  SetMenuItemHierarchicalID(menu, pos, submenu_id);

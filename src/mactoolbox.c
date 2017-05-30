@@ -2364,7 +2364,7 @@ mac_create_scroll_bar(struct scroll_bar *bar)
 #if USE_CG_DRAWING
   mac_prepare_for_quickdraw (f);
 #endif
-  ch = NewControl(FRAME_MAC_WINDOW(f), bounds, (ConstStr255Param)"\p", visible,
+  ch = NewControl(FRAME_MAC_WINDOW(f), bounds, __pascal_string(""), visible,
 		  0, 0, 0,
 #if TARGET_API_MAC_CARBON
 		  kControlScrollBarProc,
@@ -4807,7 +4807,7 @@ create_and_show_popup_menu(FRAME_PTR f, widget_value *first_wv, int x, int y,
 			   bool for_click)
 {
   int result = 0;
-  MenuRef menu = NewMenu(min_menu_id[MAC_MENU_POPUP], (ConstStr255Param)"\p");
+  MenuRef menu = NewMenu(min_menu_id[MAC_MENU_POPUP], __pascal_string(""));
   int menu_item_choice;
   int specpdl_count = SPECPDL_INDEX();
 
@@ -4857,10 +4857,10 @@ add_menu_item(MenuRef menu, int pos, widget_value *wv)
 #endif
 
   if (name_is_separator (wv->name))
-    AppendMenu(menu, (ConstStr255Param)"\p-");
+    AppendMenu(menu, __pascal_string("-"));
   else
     {
-      AppendMenu(menu, (ConstStr255Param)"\pX");
+      AppendMenu(menu, __pascal_string("X"));
 
 #if TARGET_API_MAC_CARBON
       item_name = cfstring_create_with_utf8_cstring (wv->name);
@@ -4931,7 +4931,7 @@ fill_menu(MenuRef menu, widget_value *wv, enum mac_menu_kind kind,
       add_menu_item (menu, pos, wv);
       if (wv->contents && submenu_id < min_menu_id[kind + 1])
 	{
-	  MenuRef submenu = NewMenu(submenu_id, (ConstStr255Param)"\pX");
+	  MenuRef submenu = NewMenu(submenu_id, __pascal_string("X"));
 
 	  InsertMenu (submenu, -1);
 #if TARGET_API_MAC_CARBON
