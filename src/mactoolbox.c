@@ -706,10 +706,10 @@ mac_handle_text_input_event(EventHandlerCallRef next_handler, EventRef event,
 	    /* Are we in a window whose display is up to date?
 	       And verify the text of the buffer has not changed.  */
 	    b = XBUFFER (w->buffer);
-	    if (part == ON_TEXT
-		&& EQ (w->window_end_valid, w->buffer)
-		&& XINT (w->last_modified) == BUF_MODIFF (b)
-		&& XINT (w->last_overlay_modified) == BUF_OVERLAY_MODIFF (b))
+	    if ((part == ON_TEXT)
+		&& EQ(make_number(w->window_end_valid), w->buffer)
+		&& (XINT(make_number(w->last_modified)) == BUF_MODIFF(b))
+		&& (XINT(make_number(w->last_overlay_modified)) == BUF_OVERLAY_MODIFF(b)))
 	      {
 		int hpos, vpos, area;
 		struct glyph *glyph;
@@ -1018,7 +1018,7 @@ do_window_update (WindowRef win)
      below.  */
   if (win != tip_window)
     {
-      if (f->async_visible == 0)
+      if (f->visible == 0)
         {
 	  /* Update events may occur when a frame gets iconified.  */
 #if 0
@@ -1177,7 +1177,7 @@ mac_handle_window_event(EventHandlerCallRef next_handler, EventRef event,
 	{
 	  struct frame *sf = SELECTED_FRAME ();
 
-	  if (!(FRAME_MAC_P (sf) && sf->async_visible))
+	  if (!(FRAME_MAC_P (sf) && sf->visible))
 	    RepositionWindow (wp, NULL, kWindowCenterOnMainScreen);
 	  else
 	    {
@@ -3232,7 +3232,7 @@ mac_set_font_info_for_selection(struct frame *f, int face_id, int c)
     {
       target = GetWindowEventTarget(FRAME_MAC_WINDOW(f));
 
-      if (FRAME_FACE_CACHE(f) && CHAR_VALID_P(c, 0))
+      if (FRAME_FACE_CACHE(f) && CHAR_VALID_P(c))
 	{
 	  struct face *face;
 
@@ -3565,6 +3565,8 @@ mac_run_loop_run_once(EventTimeout timeout)
 }
 #endif
 
+/* needed for the following function: */
+FRAME_PTR last_mouse_frame;
 /* Emacs calls this whenever it wants to read an input event from the
    user. */
 extern int XTread_socket P_((int, int, struct input_event *));
@@ -3582,17 +3584,23 @@ XTread_socket(int sd, int expected, struct input_event *hold_quit)
 
   if (interrupt_input_blocked)
     {
+#if 0
       interrupt_input_pending = 1;
+#endif /* 0 */
       return -1;
     }
 
+#if 0
   interrupt_input_pending = 0;
+#endif /* 0 */
   BLOCK_INPUT;
 
   /* So people can tell when we have read the available input.  */
   input_signal_count++;
 
+#if 0
   ++handling_signal;
+#endif /* 0 */
 
 #if TARGET_API_MAC_CARBON
   toolbox_dispatcher = GetEventDispatcherTarget ();
@@ -4247,7 +4255,9 @@ XTread_socket(int sd, int expected, struct input_event *hold_quit)
   }
 #endif
 
+#if 0
   --handling_signal;
+#endif /* 0 */
   UNBLOCK_INPUT;
   return count;
 }
@@ -6584,6 +6594,10 @@ mac_toolbox_initialize(void)
   init_tsm ();
 #endif
 }
+
+#ifdef _TIP_WINDOW_DECLARED
+# undef _TIP_WINDOW_DECLARED
+#endif /* _TIP_WINDOW_DECLARED */
 
 /* arch-tag: 71a597a8-6e9f-47b0-8b89-5a5ae3e16516
    (do not change this comment) */

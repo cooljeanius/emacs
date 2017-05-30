@@ -663,6 +663,17 @@ struct scroll_bar
   (XSETINT((low),  (ulong) & 0xffff), \
    XSETINT((high), (ulong) >> 16))
 
+/* Extract the Mac control handle of the scroll bar from a struct
+ * scroll_bar. */
+#define SCROLL_BAR_CONTROL_REF(ptr) \
+ ((ControlRef)SCROLL_BAR_PACK((ptr)->control_handle_low, \
+			      (ptr)->control_handle_high))
+
+/* Store a Mac control handle in a struct scroll_bar. */
+#define SET_SCROLL_BAR_CONTROL_REF(ptr, ref) \
+ (SCROLL_BAR_UNPACK((ptr)->control_handle_low, \
+		    (ptr)->control_handle_high, (unsigned long)(ref)))
+
 
 /* Extract the Mac control handle of the scroll bar from a struct
    scroll_bar.  */
