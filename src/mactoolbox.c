@@ -64,10 +64,19 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <alloca.h>
 #endif
 
+#ifndef STATIC_WITHOUT_MACTERM_H
+# ifndef _EMACS_MACTERM_H
+#  define STATIC_WITHOUT_MACTERM_H static
+# else
+#  define STATIC_WITHOUT_MACTERM_H /* (nothing) */
+# endif /* !_EMACS_MACTERM_H */
+#endif /* !STATIC_WITHOUT_MACTERM_H */
 
 /************************************************************************
 			       General
  ************************************************************************/
+
+extern void mac_toolbox_initialize P_((void));
 
 /* The difference in pixels between the top left corner of the
    Emacs window (including possible window manager decorations)
@@ -109,44 +118,48 @@ extern int mac_to_emacs_modifiers P_ ((EventModifiers, EventModifiers));
 static struct input_event *read_socket_inev = NULL;
 
 extern const unsigned char keycode_to_xkeysym_table[];
+#ifndef EMACS_GLOBALS_H
 extern EMACS_INT extra_keyboard_modifiers;
+#endif /* !EMACS_GLOBALS_H */
 
 extern Lisp_Object Qhi_command;
 #if USE_MAC_TSM
 static TSMDocumentID tsm_document_id;
 extern Lisp_Object Qtext_input;
 extern Lisp_Object Qupdate_active_input_area, Qunicode_for_key_event;
-extern Lisp_Object Vmac_ts_active_input_overlay, Vmac_ts_active_input_buf;
+# ifndef EMACS_GLOBALS_H
+extern Lisp_Object Vmac_ts_active_input_overlay;
+# endif /* !EMACS_GLOBALS_H */
+extern Lisp_Object Vmac_ts_active_input_buf;
 extern Lisp_Object Qbefore_string;
 #endif
 
-static int mac_event_to_emacs_modifiers P_ ((EventRef));
-static OSStatus install_menu_target_item_handler P_ ((void));
+static int mac_event_to_emacs_modifiers P_((EventRef));
+STATIC_WITHOUT_MACTERM_H OSStatus install_menu_target_item_handler P_((WindowPtr));
 #ifdef MAC_OSX
-static OSStatus install_service_handler P_ ((void));
+static OSStatus install_service_handler P_((void));
 #endif
 
-extern OSStatus mac_store_event_ref_as_apple_event P_ ((AEEventClass, AEEventID,
-							Lisp_Object,
-							Lisp_Object,
-							EventRef, UInt32,
-							const EventParamName *,
-							const EventParamType *));
-extern int fast_find_position P_ ((struct window *, int, int *, int *,
-				   int *, int *, Lisp_Object));
-extern struct glyph *x_y_to_hpos_vpos P_ ((struct window *, int, int,
-					   int *, int *, int *, int *, int *));
-extern void mac_ax_selected_text_range P_ ((struct frame *, CFRange *));
+extern OSStatus mac_store_event_ref_as_apple_event P_((AEEventClass, AEEventID,
+						       Lisp_Object, Lisp_Object,
+						       EventRef, UInt32,
+						       const EventParamName *,
+						       const EventParamType *));
+extern int fast_find_position P_((struct window *, int, int *, int *,
+				  int *, int *, Lisp_Object));
+extern struct glyph *x_y_to_hpos_vpos P_((struct window *, int, int,
+					  int *, int *, int *, int *, int *));
+extern void mac_ax_selected_text_range P_((struct frame *, CFRange *));
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= 1030
-extern unsigned int mac_ax_number_of_characters P_ ((struct frame *));
+extern unsigned int mac_ax_number_of_characters P_((struct frame *));
 #endif
 
 #if USE_MAC_TSM
-extern OSStatus mac_restore_keyboard_input_source P_ ((void));
-extern void mac_save_keyboard_input_source P_ ((void));
+extern OSStatus mac_restore_keyboard_input_source P_((void));
+extern void mac_save_keyboard_input_source P_((void));
 
 static OSStatus
-mac_tsm_resume ()
+mac_tsm_resume(void)
 {
   OSStatus err;
 
@@ -158,7 +171,7 @@ mac_tsm_resume ()
 }
 
 static OSStatus
-mac_tsm_suspend ()
+mac_tsm_suspend(void)
 {
   OSStatus err;
 
@@ -169,7 +182,7 @@ mac_tsm_suspend ()
 }
 
 static void
-init_tsm ()
+init_tsm(void)
 {
 #ifdef MAC_OSX
   static InterfaceTypeList types = {kUnicodeDocument};
@@ -183,10 +196,8 @@ init_tsm ()
 #endif	/* USE_MAC_TSM */
 
 static pascal OSStatus
-mac_handle_keyboard_event (next_handler, event, data)
-     EventHandlerCallRef next_handler;
-     EventRef event;
-     void *data;
+mac_handle_keyboard_event(EventHandlerCallRef next_handler, EventRef event,
+			  void *data)
 {
   OSStatus err, result = eventNotHandledErr;
   UInt32 event_kind, key_code, modifiers;
@@ -253,11 +264,10 @@ mac_handle_keyboard_event (next_handler, event, data)
   return result;
 }
 
+/* */
 static pascal OSStatus
-mac_handle_command_event (next_handler, event, data)
-     EventHandlerCallRef next_handler;
-     EventRef event;
-     void *data;
+mac_handle_command_event(EventHandlerCallRef next_handler, EventRef event,
+			 void *data)
 {
   OSStatus err, result = eventNotHandledErr;
   HICommand command;
@@ -304,11 +314,10 @@ mac_handle_command_event (next_handler, event, data)
   return result;
 }
 
+/* */
 static pascal OSStatus
-mac_handle_mouse_event (next_handler, event, data)
-     EventHandlerCallRef next_handler;
-     EventRef event;
-     void *data;
+mac_handle_mouse_event(EventHandlerCallRef next_handler, EventRef event,
+		       void *data)
 {
   OSStatus err, result = eventNotHandledErr;
 
@@ -380,15 +389,14 @@ mac_handle_mouse_event (next_handler, event, data)
 }
 
 #if USE_MAC_TSM
-extern void mac_get_selected_range P_ ((struct window *, CFRange *));
-extern int mac_store_buffer_text_to_unicode_chars P_ ((struct buffer *,
-						       int, int, UniChar *));
+extern void mac_get_selected_range P_((struct window *, CFRange *));
+extern int mac_store_buffer_text_to_unicode_chars P_((struct buffer *,
+						      int, int, UniChar *));
 
+/* */
 static pascal OSStatus
-mac_handle_text_input_event (next_handler, event, data)
-     EventHandlerCallRef next_handler;
-     EventRef event;
-     void *data;
+mac_handle_text_input_event(EventHandlerCallRef next_handler, EventRef event,
+			    void *data)
 {
   OSStatus err, result;
   Lisp_Object id_key = Qnil;
@@ -471,7 +479,7 @@ mac_handle_text_input_event (next_handler, event, data)
 				   typeUInt32, NULL, sizeof (UInt32),
 				   NULL, &key_code);
 	if (err == noErr && mac_mapped_modifiers (modifiers, key_code))
-	  /* There're mapped modifier keys.  Process it in
+	  /* There are/were mapped modifier keys.  Process it in
 	     do_keystroke.  */
 	  break;
 	if (err == noErr)
@@ -601,7 +609,7 @@ mac_handle_text_input_event (next_handler, event, data)
 	    face = FACE_FROM_ID (f, glyph->face_id);
 	    if (face && face->font)
 	      {
-		XFontStruct *font = face->font;
+		XFontStruct *font = (XFontStruct *)face->font;
 		Fixed point_size = Long2Fix (font->mac_fontsize);
 		short height = row->visible_height;
 		short ascent = row->ascent;
@@ -696,7 +704,7 @@ mac_handle_text_input_event (next_handler, event, data)
 	    frame_to_window_pixel_xy (w, &x, &y);
 
 	    /* Are we in a window whose display is up to date?
-	       And verify the buffer's text has not changed.  */
+	       And verify the text of the buffer has not changed.  */
 	    b = XBUFFER (w->buffer);
 	    if (part == ON_TEXT
 		&& EQ (w->window_end_valid, w->buffer)
@@ -740,7 +748,7 @@ mac_handle_text_input_event (next_handler, event, data)
 	UniChar *characters, c;
 
 	if (poll_suppress_count == 0 && !NILP (Vinhibit_quit))
-	  /* Don't try to get buffer contents as the gap might be
+	  /* Do NOT try to get buffer contents as the gap might be
 	     being altered. */
 	  break;
 
@@ -798,11 +806,10 @@ mac_handle_text_input_event (next_handler, event, data)
 }
 
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= 1030
+/* */
 static pascal OSStatus
-mac_handle_document_access_event (next_handler, event, data)
-     EventHandlerCallRef next_handler;
-     EventRef event;
-     void *data;
+mac_handle_document_access_event(EventHandlerCallRef next_handler,
+				 EventRef event, void *data)
 {
   OSStatus err, result;
   struct frame *f = mac_focus_frame (&one_mac_display_info);
@@ -845,7 +852,7 @@ mac_handle_document_access_event (next_handler, event, data)
 	int start, end;
 
 	if (poll_suppress_count == 0 && !NILP (Vinhibit_quit))
-	  /* Don't try to get buffer contents as the gap might be
+	  /* Do NOT try to get buffer contents as the gap might be
 	     being altered. */
 	  break;
 
@@ -878,8 +885,9 @@ mac_handle_document_access_event (next_handler, event, data)
 #endif
 #endif
 
+/* */
 OSStatus
-install_application_handler ()
+install_application_handler(void)
 {
   OSStatus err = noErr;
 
@@ -953,11 +961,11 @@ install_application_handler ()
 #endif
 
   if (err == noErr)
-    err = install_menu_target_item_handler ();
+    err = install_menu_target_item_handler(NULL);
 
 #ifdef MAC_OSX
   if (err == noErr)
-    err = install_service_handler ();
+    err = install_service_handler();
 #endif
 
   return err;
@@ -975,16 +983,16 @@ install_application_handler ()
 #define MAX_DOC_SIZE 32767
 
 /* Drag and Drop */
-static OSErr install_drag_handler P_ ((WindowRef));
-static void remove_drag_handler P_ ((WindowRef));
+STATIC_WITHOUT_MACTERM_H OSErr install_drag_handler P_((WindowRef));
+STATIC_WITHOUT_MACTERM_H void remove_drag_handler P_((WindowRef));
 
 #if USE_CG_DRAWING
-static void mac_prepare_for_quickdraw P_ ((struct frame *));
+STATIC_WITHOUT_MACTERM_H void mac_prepare_for_quickdraw P_((struct frame *));
 #endif
 
-extern void mac_handle_visibility_change P_ ((struct frame *));
-extern void mac_handle_origin_change P_ ((struct frame *));
-extern void mac_handle_size_change P_ ((struct frame *, int, int));
+extern void mac_handle_visibility_change P_((struct frame *));
+extern void mac_handle_origin_change P_((struct frame *));
+extern void mac_handle_size_change P_((struct frame *, int, int));
 
 #if TARGET_API_MAC_CARBON
 #ifdef MAC_OSX
@@ -1056,11 +1064,8 @@ is_emacs_window (WindowRef win)
 
 /* Handle drags in size box.  Based on code contributed by Ben
    Mesander and IM - Window Manager A.  */
-
 static void
-do_grow_window (w, e)
-     WindowRef w;
-     const EventRecord *e;
+do_grow_window(WindowRef w, const EventRecord *e)
 {
   Rect limit_rect;
   int rows, columns, width, height;
@@ -1100,14 +1105,13 @@ do_grow_window (w, e)
       rows = FRAME_PIXEL_HEIGHT_TO_TEXT_LINES (f, height);
       columns = FRAME_PIXEL_WIDTH_TO_TEXT_COLS (f, width);
 
-      x_set_window_size (f, 0, columns, rows);
+      x_set_window_size(f, 0, columns, rows, true);
     }
 }
 
 #if TARGET_API_MAC_CARBON
 static Point
-mac_get_ideal_size (f)
-     struct frame *f;
+mac_get_ideal_size(struct frame *f)
 {
   struct mac_display_info *dpyinfo = FRAME_MAC_DISPLAY_INFO (f);
   WindowRef w = FRAME_MAC_WINDOW (f);
@@ -1129,11 +1133,10 @@ mac_get_ideal_size (f)
   return ideal_size;
 }
 
+/* */
 static pascal OSStatus
-mac_handle_window_event (next_handler, event, data)
-     EventHandlerCallRef next_handler;
-     EventRef event;
-     void *data;
+mac_handle_window_event(EventHandlerCallRef next_handler, EventRef event,
+			void *data)
 {
   WindowRef wp;
   OSStatus err, result = eventNotHandledErr;
@@ -1243,18 +1246,18 @@ mac_handle_window_event (next_handler, event, data)
 	  if (width < size_hints->min_width)
 	    width = size_hints->min_width;
 	  else
-	    width = size_hints->base_width
-	      + (int) ((width - size_hints->base_width)
-		       / (float) size_hints->width_inc + .5)
-	      * size_hints->width_inc;
+	    width = (size_hints->base_width
+		     + ((int)(((float)(width - size_hints->base_width)
+			       / (float)size_hints->width_inc) + 0.5f)
+			* size_hints->width_inc));
 
 	  if (height < size_hints->min_height)
 	    height = size_hints->min_height;
 	  else
-	    height = size_hints->base_height
-	      + (int) ((height - size_hints->base_height)
-		       / (float) size_hints->height_inc + .5)
-	      * size_hints->height_inc;
+	    height = (size_hints->base_height
+		      + ((int)(((float)(height - size_hints->base_height)
+				/ (float)size_hints->height_inc) + 0.5f)
+			 * size_hints->height_inc));
 
 	  bounds.right = bounds.left + width;
 	  bounds.bottom = bounds.top + height;
@@ -1398,10 +1401,10 @@ do_zoom_window (WindowRef w, int zoom_in_or_out)
   else
     zoom_in_or_out = inZoomOut;
 
-#ifdef MAC_OS8
+# ifdef MAC_OS8
   mac_clear_area (f, 0, 0, port_rect.right - port_rect.left,
 		  port_rect.bottom - port_rect.top);
-#endif
+# endif /* MAC_OS8 */
   ZoomWindowIdeal (w, zoom_in_or_out, &ideal_size);
 #else /* not TARGET_API_MAC_CARBON */
   GrafPtr save_port;
@@ -1452,14 +1455,16 @@ do_zoom_window (WindowRef w, int zoom_in_or_out)
   height = port_rect.bottom - port_rect.top;
   width = port_rect.right - port_rect.left;
 
-  mac_handle_size_change (f, width, height);
-  mac_handle_origin_change (f);
-#endif
+  mac_handle_size_change(f, width, height);
+  mac_handle_origin_change(f);
+#else
+  IF_LINT((void)height);
+  IF_LINT((void)width);
+#endif /* !TARGET_API_MAC_CARBON */
 }
 
-static OSStatus
-install_window_handler (window)
-     WindowRef window;
+STATIC_WITHOUT_MACTERM_H OSStatus
+install_window_handler(WindowRef window)
 {
   OSStatus err = noErr;
 
@@ -1508,17 +1513,15 @@ install_window_handler (window)
   return err;
 }
 
-static void
-remove_window_handler (window)
-     WindowRef window;
+STATIC_WITHOUT_MACTERM_H void
+remove_window_handler(WindowRef window)
 {
-  remove_drag_handler (window);
+  remove_drag_handler(window);
 }
 
+/* */
 void
-mac_get_window_bounds (f, inner, outer)
-     struct frame *f;
-     Rect *inner, *outer;
+mac_get_window_bounds(struct frame *f, Rect *inner, Rect *outer)
 {
 #if TARGET_API_MAC_CARBON
   GetWindowBounds (FRAME_MAC_WINDOW (f), kWindowContentRgn, inner);
@@ -1534,10 +1537,11 @@ mac_get_window_bounds (f, inner, outer)
 #endif /* not TARGET_API_MAC_CARBON */
 }
 
+/* prototype: */
+extern Rect *mac_get_frame_bounds P_((struct frame *, Rect *));
+/* */
 Rect *
-mac_get_frame_bounds (f, r)
-     struct frame *f;
-     Rect *r;
+mac_get_frame_bounds(struct frame *f, Rect *r)
 {
 #if TARGET_API_MAC_CARBON
   return GetWindowPortBounds (FRAME_MAC_WINDOW (f), r);
@@ -1548,10 +1552,9 @@ mac_get_frame_bounds (f, r)
 #endif
 }
 
+/* */
 void
-mac_get_frame_mouse (f, point)
-     struct frame *f;
-     Point *point;
+mac_get_frame_mouse(struct frame *f, Point *point)
 {
 #if TARGET_API_MAC_CARBON
   GetGlobalMouse (point);
@@ -1563,23 +1566,22 @@ mac_get_frame_mouse (f, point)
 #endif
 }
 
+/* */
 void
-mac_convert_frame_point_to_global (f, x, y)
-     struct frame *f;
-     int *x, *y;
+mac_convert_frame_point_to_global(struct frame *f, int *x, int *y)
 {
   *x += f->left_pos + FRAME_OUTER_TO_INNER_DIFF_X (f);
   *y += f->top_pos + FRAME_OUTER_TO_INNER_DIFF_Y (f);
 }
 
 #if TARGET_API_MAC_CARBON
+/* */
 void
-mac_update_proxy_icon (f)
-     struct frame *f;
+mac_update_proxy_icon(struct frame *f)
 {
   OSStatus err;
   Lisp_Object file_name =
-    XBUFFER (XWINDOW (FRAME_SELECTED_WINDOW (f))->buffer)->filename;
+    XBUFFER(XWINDOW(FRAME_SELECTED_WINDOW(f))->buffer)->filename_;
   Window w = FRAME_MAC_WINDOW (f);
   AliasHandle alias = NULL;
 
@@ -1659,12 +1661,9 @@ mac_update_proxy_icon (f)
 }
 #endif
 
-/* Mac replacement for XSetWindowBackground.  */
-
+/* Mac replacement for XSetWindowBackground: */
 void
-mac_set_frame_window_background (f, color)
-     struct frame *f;
-     unsigned long color;
+mac_set_frame_window_background(struct frame *f, unsigned long color)
 {
   WindowRef w = FRAME_MAC_WINDOW (f);
 #if !TARGET_API_MAC_CARBON
@@ -1702,11 +1701,9 @@ mac_set_frame_window_background (f, color)
 #endif
 }
 
-/* Flush display of frame F, or of all frames if F is null.  */
-
+/* Flush display of frame F, or of all frames if F is null: */
 void
-x_flush (f)
-     struct frame *f;
+x_flush(struct frame *f)
 {
 #if TARGET_API_MAC_CARBON
   BLOCK_INPUT;
@@ -1722,19 +1719,21 @@ x_flush (f)
 }
 
 #if USE_CG_DRAWING
+/* prototype: */
+extern void mac_flush_display_optional P_((struct frame *));
+/* */
 void
-mac_flush_display_optional (f)
-     struct frame *f;
+mac_flush_display_optional(struct frame *f)
 {
   BLOCK_INPUT;
-  mac_prepare_for_quickdraw (f);
+  mac_prepare_for_quickdraw(f);
   UNBLOCK_INPUT;
 }
-#endif
+#endif /* USE_CG_DRAWING */
 
+/* */
 void
-mac_update_begin (f)
-     struct frame *f;
+mac_update_begin(struct frame *f)
 {
 #if TARGET_API_MAC_CARBON
   /* During update of a frame, availability of input events is
@@ -1747,26 +1746,28 @@ mac_update_begin (f)
 #endif
 }
 
+/* */
 void
-mac_update_end (f)
-     struct frame *f;
+mac_update_end(struct frame *f)
 {
 #if TARGET_API_MAC_CARBON
   EnableScreenUpdates ();
 #endif
 }
 
+/* prototype: */
+extern void mac_frame_up_to_date P_((struct frame *));
+/* */
 void
-mac_frame_up_to_date (f)
-     struct frame *f;
+mac_frame_up_to_date(struct frame *f)
 {
-  /* Nothing to do.  */
+  /* Nothing to do but return: */
+  return;
 }
 
+/* */
 void
-mac_create_frame_window (f, tooltip_p)
-     struct frame *f;
-     int tooltip_p;
+mac_create_frame_window(struct frame *f, int tooltip_p)
 {
   Rect r;
 #if TARGET_API_MAC_CARBON
@@ -1849,11 +1850,9 @@ mac_create_frame_window (f, tooltip_p)
 #endif
 }
 
-/* Dispose of the Mac window of the frame F.  */
-
+/* Dispose of the Mac window of the frame F: */
 void
-mac_dispose_frame_window (f)
-     struct frame *f;
+mac_dispose_frame_window(struct frame *f)
 {
   WindowRef window = FRAME_MAC_WINDOW (f);
 
@@ -1874,10 +1873,9 @@ mac_dispose_frame_window (f)
 #if USE_CG_DRAWING
 #define FRAME_CG_CONTEXT(f)	((f)->output_data.mac->cg_context)
 
+/* */
 CGContextRef
-mac_begin_cg_clip (f, gc)
-     struct frame *f;
-     GC gc;
+mac_begin_cg_clip(struct frame *f, GC gc)
 {
   CGContextRef context = FRAME_CG_CONTEXT (f);
 
@@ -1896,16 +1894,16 @@ mac_begin_cg_clip (f, gc)
   return context;
 }
 
+/* */
 void
-mac_end_cg_clip (f)
-     struct frame *f;
+mac_end_cg_clip(struct frame *f)
 {
-  CGContextRestoreGState (FRAME_CG_CONTEXT (f));
+  CGContextRestoreGState(FRAME_CG_CONTEXT(f));
 }
 
-static void
-mac_prepare_for_quickdraw (f)
-     struct frame *f;
+/* */
+STATIC_WITHOUT_MACTERM_H void
+mac_prepare_for_quickdraw(struct frame *f)
 {
   if (f == NULL)
     {
@@ -1929,11 +1927,12 @@ mac_prepare_for_quickdraw (f)
 #endif
 
 static RgnHandle saved_port_clip_region = NULL;
+extern void mac_begin_clip P_((struct frame *, GC));
+extern void mac_end_clip P_((struct frame *, GC));
 
+/* */
 void
-mac_begin_clip (f, gc)
-     struct frame *f;
-     GC gc;
+mac_begin_clip(struct frame *f, GC gc)
 {
   static RgnHandle new_region = NULL;
 
@@ -1955,25 +1954,19 @@ mac_begin_clip (f, gc)
     }
 }
 
+/* */
 void
-mac_end_clip (f, gc)
-     struct frame *f;
-     GC gc;
+mac_end_clip(struct frame *f, GC gc)
 {
   if (gc && gc->n_clip_rects)
     SetClip (saved_port_clip_region);
 }
 
 #if TARGET_API_MAC_CARBON
-/* Mac replacement for XCopyArea: used only for scrolling.  */
-
+/* Mac replacement for XCopyArea: used only for scrolling: */
 void
-mac_scroll_area (f, gc, src_x, src_y, width, height, dest_x, dest_y)
-     struct frame *f;
-     GC gc;
-     int src_x, src_y;
-     unsigned int width, height;
-     int dest_x, dest_y;
+mac_scroll_area(struct frame *f, GC gc, int src_x, int src_y,
+		unsigned int width, unsigned int height, int dest_x, int dest_y)
 {
   Rect src_r;
   RgnHandle dummy = NewRgn ();	/* For avoiding update events.  */
@@ -2251,10 +2244,8 @@ x_scroll_bar_handle_drag (win, bar, mouse_pos, bufp)
 /* Update BAR->track_top, BAR->track_height, and BAR->min_handle for
    the scroll bar BAR.  This function should be called when the bounds
    of the scroll bar is changed.  */
-
 static void
-update_scroll_bar_track_info (bar)
-     struct scroll_bar *bar;
+update_scroll_bar_track_info(struct scroll_bar *bar)
 {
   ControlRef ch = SCROLL_BAR_CONTROL_REF (bar);
   Rect r0, r1;
@@ -2303,11 +2294,9 @@ update_scroll_bar_track_info (bar)
 
 /* Set the thumb size and position of scroll bar BAR.  We are currently
    displaying PORTION out of a whole WHOLE, and our position POSITION.  */
-
 void
-x_set_toolkit_scroll_bar_thumb (bar, portion, position, whole)
-     struct scroll_bar *bar;
-     int portion, position, whole;
+x_set_toolkit_scroll_bar_thumb(struct scroll_bar *bar, int portion,
+			       int position, int whole)
 {
   ControlRef ch = SCROLL_BAR_CONTROL_REF (bar);
   int value, viewsize, maximum;
@@ -2351,12 +2340,9 @@ x_set_toolkit_scroll_bar_thumb (bar, portion, position, whole)
 /* Create a scroll bar control for BAR.  BOUNDS and VISIBLE specifies
    the initial geometry and visibility, respectively.  The created
    control is stored in some members of BAR.  */
-
 void
-mac_create_scroll_bar (bar, bounds, visible)
-     struct scroll_bar *bar;
-     const Rect *bounds;
-     Boolean visible;
+mac_create_scroll_bar(struct scroll_bar *bar, const Rect *bounds,
+		      Boolean visible)
 {
   struct frame *f = XFRAME (WINDOW_FRAME (XWINDOW (bar->window)));
   ControlRef ch;
@@ -2364,13 +2350,14 @@ mac_create_scroll_bar (bar, bounds, visible)
 #if USE_CG_DRAWING
   mac_prepare_for_quickdraw (f);
 #endif
-  ch = NewControl (FRAME_MAC_WINDOW (f), bounds, "\p", visible, 0, 0, 0,
+  ch = NewControl(FRAME_MAC_WINDOW(f), bounds, (ConstStr255Param)"\p", visible,
+		  0, 0, 0,
 #if TARGET_API_MAC_CARBON
-		   kControlScrollBarProc,
+		  kControlScrollBarProc,
 #else
-		   scrollBarProc,
+		  scrollBarProc,
 #endif
-		   (SInt32) bar);
+		  (SInt32)bar);
   SET_SCROLL_BAR_CONTROL_REF (bar, ch);
 
   XSETINT (bar->start, 0);
@@ -2384,10 +2371,8 @@ mac_create_scroll_bar (bar, bounds, visible)
 
 /* Dispose of the scroll bar control stored in some members of
    BAR.  */
-
 void
-mac_dispose_scroll_bar (bar)
-     struct scroll_bar *bar;
+mac_dispose_scroll_bar(struct scroll_bar *bar)
 {
 #if USE_CG_DRAWING
   struct frame *f = XFRAME (WINDOW_FRAME (XWINDOW (bar->window)));
@@ -2397,12 +2382,11 @@ mac_dispose_scroll_bar (bar)
   DisposeControl (SCROLL_BAR_CONTROL_REF (bar));
 }
 
-/* Set bounds of the scroll bar BAR to BOUNDS.  */
-
+/* prototype: */
+extern void mac_set_scroll_bar_bounds P_((struct scroll_bar *, const Rect *));
+/* Set bounds of the scroll bar BAR to BOUNDS: */
 void
-mac_set_scroll_bar_bounds (bar, bounds)
-     struct scroll_bar *bar;
-     const Rect *bounds;
+mac_set_scroll_bar_bounds(struct scroll_bar *bar, const Rect *bounds)
 {
   ControlRef ch = SCROLL_BAR_CONTROL_REF (bar);
   SInt16 width, height;
@@ -2425,11 +2409,9 @@ mac_set_scroll_bar_bounds (bar, bounds)
 #endif
 }
 
-/* Draw the scroll bar BAR.  */
-
+/* Draw the scroll bar BAR: */
 void
-mac_redraw_scroll_bar (bar)
-     struct scroll_bar *bar;
+mac_redraw_scroll_bar(struct scroll_bar *bar)
 {
 #if USE_CG_DRAWING
   struct frame *f = XFRAME (WINDOW_FRAME (XWINDOW (bar->window)));
@@ -2439,23 +2421,24 @@ mac_redraw_scroll_bar (bar)
   Draw1Control (SCROLL_BAR_CONTROL_REF (bar));
 }
 
+
+#ifndef GC_WINDOWP
+# define GC_WINDOWP WINDOWP
+#endif /* !GC_WINDOWP */
+
 /* Handle a mouse click on the scroll bar BAR.  If *EMACS_EVENT's kind
    is set to something other than NO_EVENT, it is enqueued.
 
    This may be called from a signal handler, so we have to ignore GC
    mark bits.  */
-
 static void
-x_scroll_bar_handle_click (bar, part_code, er, bufp)
-     struct scroll_bar *bar;
-     ControlPartCode part_code;
-     const EventRecord *er;
-     struct input_event *bufp;
+x_scroll_bar_handle_click(struct scroll_bar *bar, ControlPartCode part_code,
+			  const EventRecord *er, struct input_event *bufp)
 {
   int win_y, top_range;
 
-  if (! GC_WINDOWP (bar->window))
-    abort ();
+  if (! GC_WINDOWP(bar->window))
+    abort();
 
   bufp->kind = SCROLL_BAR_CLICK_EVENT;
   bufp->frame_or_window = bar->window;
@@ -2508,16 +2491,17 @@ x_scroll_bar_handle_click (bar, part_code, er, bufp)
   XSETINT (bufp->y, top_range);
 }
 
+/* prototype: */
+extern void x_scroll_bar_report_motion P_((FRAME_PTR *, Lisp_Object *,
+					   enum scroll_bar_part *,
+					   Lisp_Object *, Lisp_Object *,
+					   unsigned long *));
 /* Return information to the user about the current position of the mouse
    on the scroll bar.  */
-
 void
-x_scroll_bar_report_motion (fp, bar_window, part, x, y, time)
-     FRAME_PTR *fp;
-     Lisp_Object *bar_window;
-     enum scroll_bar_part *part;
-     Lisp_Object *x, *y;
-     unsigned long *time;
+x_scroll_bar_report_motion(FRAME_PTR *fp, Lisp_Object *bar_window,
+			   enum scroll_bar_part *part, Lisp_Object *x,
+			   Lisp_Object *y, unsigned long *time)
 {
   struct scroll_bar *bar = XSCROLL_BAR (last_mouse_scroll_bar);
   ControlRef ch = SCROLL_BAR_CONTROL_REF (bar);
@@ -2576,6 +2560,7 @@ x_scroll_bar_report_motion (fp, bar_window, part, x, y, time)
 }
 
 #ifndef USE_TOOLKIT_SCROLL_BARS
+extern void x_scroll_bar_set_handle P_((struct scroll_bar *, int, int, int));
 /* Draw BAR's handle in the proper position.
 
    If the handle is already drawn from START to END, don't bother
@@ -2588,12 +2573,8 @@ x_scroll_bar_report_motion (fp, bar_window, part, x, y, time)
    bar handle, we want to let them drag it down all the way, so that
    the bar's top is as far down as it goes; otherwise, there's no way
    to move to the very end of the buffer.  */
-
 void
-x_scroll_bar_set_handle (bar, start, end, rebuild)
-     struct scroll_bar *bar;
-     int start, end;
-     int rebuild;
+x_scroll_bar_set_handle(struct scroll_bar *bar, int start, int end, int rebuild)
 {
   int dragging = ! NILP (bar->dragging);
   ControlRef ch = SCROLL_BAR_CONTROL_REF (bar);
@@ -2646,18 +2627,19 @@ x_scroll_bar_set_handle (bar, start, end, rebuild)
 #endif
 
   UNBLOCK_INPUT;
+  IF_LINT((void)f);
 }
+
+#ifndef GC_NILP
+# define GC_NILP NILP
+#endif /* !GC_NILP */
 
 /* Handle some mouse motion while someone is dragging the scroll bar.
 
    This may be called from a signal handler, so we have to ignore GC
    mark bits.  */
-
 static void
-x_scroll_bar_note_movement (bar, y_pos, t)
-     struct scroll_bar *bar;
-     int y_pos;
-     Time t;
+x_scroll_bar_note_movement(struct scroll_bar *bar, int y_pos, Time t)
 {
   FRAME_PTR f = XFRAME (XWINDOW (bar->window)->frame);
 
@@ -2682,7 +2664,22 @@ x_scroll_bar_note_movement (bar, y_pos, t)
 }
 #endif /* !USE_TOOLKIT_SCROLL_BARS */
 
-
+/* */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__)
+# if (defined(__APPLE__) && defined(__APPLE_CC__) && (__APPLE_CC__ > 1))
+#  if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6))
+#   pragma GCC diagnostic push
+#  endif /* GCC 4.6 (version in which push/pop was introduced) */
+#  pragma GCC diagnostic ignored "-Wfour-char-constants"
+# endif /* Apple GCC (not sure the exact one) */
+# if (__GNUC__ >= 2)
+#  if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6))
+#   pragma GCC diagnostic push
+#  endif /* GCC 4.6 (version in which push/pop was introduced) */
+#  pragma GCC diagnostic ignored "-Wmultichar"
+# endif /* GCC 2+ (not sure the exact one) */
+#endif /* gcc */
+
 /***********************************************************************
 			       Tool-bars
  ***********************************************************************/
@@ -3126,19 +3123,17 @@ static int font_panel_shown_p = 0;
 extern Lisp_Object Qpanel_closed, Qselection;
 extern Lisp_Object Qfont;
 
-/* Whether the font panel is currently visible.  */
-
+/* Whether the font panel is currently visible: */
 int
-mac_font_panel_visible_p ()
+mac_font_panel_visible_p(void)
 {
   return font_panel_shown_p && FPIsFontPanelVisible ();
 }
 
+/* */
 static pascal OSStatus
-mac_handle_font_event (next_handler, event, data)
-     EventHandlerCallRef next_handler;
-     EventRef event;
-     void *data;
+mac_handle_font_event(EventHandlerCallRef next_handler, EventRef event,
+		      void *data)
 {
   OSStatus result, err;
   Lisp_Object id_key;
@@ -3177,6 +3172,9 @@ mac_handle_font_event (next_handler, event, data)
       names = names_sel;
       types = types_sel;
       break;
+
+    default:
+      break;
     }
 
   err = mac_store_event_ref_as_apple_event (0, 0, Qfont, id_key,
@@ -3188,10 +3186,9 @@ mac_handle_font_event (next_handler, event, data)
   return result;
 }
 
-/* Toggle visiblity of the font panel.  */
-
+/* Toggle visiblity of the font panel: */
 OSStatus
-mac_show_hide_font_panel ()
+mac_show_hide_font_panel(void)
 {
   if (!font_panel_shown_p)
     {
@@ -3215,30 +3212,27 @@ mac_show_hide_font_panel ()
 
 /* Set the font selected in the font panel to the one corresponding to
    the face FACE_ID and the charcacter C in the frame F.  */
-
 OSStatus
-mac_set_font_info_for_selection (f, face_id, c)
-     struct frame *f;
-     int face_id, c;
+mac_set_font_info_for_selection(struct frame *f, int face_id, int c)
 {
   OSStatus err;
   EventTargetRef target = NULL;
   XFontStruct *font = NULL;
 
-  if (!mac_font_panel_visible_p ())
+  if (!mac_font_panel_visible_p())
     return noErr;
 
   if (f)
     {
-      target = GetWindowEventTarget (FRAME_MAC_WINDOW (f));
+      target = GetWindowEventTarget(FRAME_MAC_WINDOW(f));
 
-      if (FRAME_FACE_CACHE (f) && CHAR_VALID_P (c, 0))
+      if (FRAME_FACE_CACHE(f) && CHAR_VALID_P(c, 0))
 	{
 	  struct face *face;
 
-	  face_id = FACE_FOR_CHAR (f, FACE_FROM_ID (f, face_id), c);
-	  face = FACE_FROM_ID (f, face_id);
-	  font = face->font;
+	  face_id = FACE_FOR_CHAR(f, FACE_FROM_ID(f, face_id), c, 0L, Qnil);
+	  face = FACE_FROM_ID(f, face_id);
+	  font = (XFontStruct *)face->font;
 	}
     }
 
@@ -3293,32 +3287,31 @@ extern int volatile input_signal_count;
 extern int input_signal_count;
 #endif
 
-extern int mac_screen_config_changed;
+extern bool mac_screen_config_changed;
 
+#ifndef EMACS_GLOBALS_H
 extern Lisp_Object Vmac_emulate_three_button_mouse;
-#if TARGET_API_MAC_CARBON
+# if TARGET_API_MAC_CARBON
 extern int mac_wheel_button_is_mouse_2;
 extern int mac_pass_command_to_system;
 extern int mac_pass_control_to_system;
-#endif	/* TARGET_API_MAC_CARBON */
+# endif	/* TARGET_API_MAC_CARBON */
+#endif /* !EMACS_GLOBALS_H */
 extern int mac_ready_for_apple_events;
 
-extern void mac_focus_changed P_ ((int, struct mac_display_info *,
-				   struct frame *, struct input_event *));
-extern int mac_get_emulated_btn P_ ((UInt32));
-extern int note_mouse_movement P_ ((FRAME_PTR, Point *));
-extern void mac_get_screen_info P_ ((struct mac_display_info *));
+extern void mac_focus_changed P_((int, struct mac_display_info *,
+				  struct frame *, struct input_event *));
+extern int mac_get_emulated_btn P_((UInt32));
+extern int note_mouse_movement P_((FRAME_PTR, Point *));
+extern void mac_get_screen_info P_((struct mac_display_info *));
 
 /* The focus may have changed.  Figure out if it is a real focus change,
    by checking both FocusIn/Out and Enter/LeaveNotify events.
 
    Returns FOCUS_IN_EVENT event in *BUFP. */
-
 static void
-x_detect_focus_change (dpyinfo, event, bufp)
-     struct mac_display_info *dpyinfo;
-     const EventRecord *event;
-     struct input_event *bufp;
+x_detect_focus_change(struct mac_display_info *dpyinfo,
+		      const EventRecord *event, struct input_event *bufp)
 {
   struct frame *frame;
 
@@ -3355,10 +3348,10 @@ mac_event_to_emacs_modifiers (EventRef eventRef)
    code in the emacs input_event.  */
 
 static int
-mac_get_mouse_btn (EventRef ref)
+mac_get_mouse_btn(EventRef ref)
 {
   EventMouseButton result = kEventMouseButtonPrimary;
-  GetEventParameter (ref, kEventParamMouseButton, typeMouseButton, NULL,
+  GetEventParameter(ref, kEventParamMouseButton, typeMouseButton, NULL,
 		    sizeof (EventMouseButton), NULL, &result);
   switch (result)
     {
@@ -3388,10 +3381,10 @@ mac_get_mouse_btn (EventRef ref)
    a mouse up/down, or a dead key Carbon event that has not been
    converted, and if so, converts it by hand (to be picked up in the
    XTread_socket loop).  */
-static Boolean mac_convert_event_ref (EventRef eventRef, EventRecord *eventRec)
+static Boolean mac_convert_event_ref(EventRef eventRef, EventRecord *eventRec)
 {
   OSStatus err;
-  Boolean result = ConvertEventRefToEventRecord (eventRef, eventRec);
+  Boolean result = ConvertEventRefToEventRecord(eventRef, eventRec);
   EventKind action;
 
   if (result)
@@ -3481,11 +3474,9 @@ static Boolean mac_convert_event_ref (EventRef eventRef, EventRecord *eventRec)
 #if !TARGET_API_MAC_CARBON
 static RgnHandle mouse_region = NULL;
 
+/* */
 Boolean
-mac_wait_next_event (er, sleep_time, dequeue)
-     EventRecord *er;
-     UInt32 sleep_time;
-     Boolean dequeue;
+mac_wait_next_event(EventRecord *er, UInt32 sleep_time, Boolean dequeue)
 {
   static EventRecord er_buf = {nullEvent};
   UInt32 target_tick, current_tick;
@@ -3519,7 +3510,7 @@ mac_wait_next_event (er, sleep_time, dequeue)
 
 #if TARGET_API_MAC_CARBON
 OSStatus
-mac_post_mouse_moved_event ()
+mac_post_mouse_moved_event(void)
 {
   EventRef event = NULL;
   OSStatus err;
@@ -3557,8 +3548,7 @@ mac_post_mouse_moved_event ()
    true if timeout occurs first.  */
 
 Boolean
-mac_run_loop_run_once (timeout)
-     EventTimeout timeout;
+mac_run_loop_run_once(EventTimeout timeout)
 {
 #if USE_CG_DRAWING
   mac_prepare_for_quickdraw (NULL);
@@ -3571,11 +3561,9 @@ mac_run_loop_run_once (timeout)
 
 /* Emacs calls this whenever it wants to read an input event from the
    user. */
-
+extern int XTread_socket P_((int, int, struct input_event *));
 int
-XTread_socket (sd, expected, hold_quit)
-     int sd, expected;
-     struct input_event *hold_quit;
+XTread_socket(int sd, int expected, struct input_event *hold_quit)
 {
   struct input_event inev;
   int count = 0;
@@ -3838,7 +3826,9 @@ XTread_socket (sd, expected, hold_quit)
 			case mouseUp:
 			  inev.modifiers |= up_modifier;
 			  break;
-			}
+			default:
+			  break;
+			} /* end inner switch */
 		  }
 		break;
 
@@ -3952,7 +3942,7 @@ XTread_socket (sd, expected, hold_quit)
 	      if (dpyinfo->mouse_face_hidden)
 		{
 		  dpyinfo->mouse_face_hidden = 0;
-		  clear_mouse_face (dpyinfo);
+		  clear_mouse_face((Mouse_HLInfo *)dpyinfo);
 		}
 
 	      if (f)
@@ -3967,15 +3957,18 @@ XTread_socket (sd, expected, hold_quit)
 				 - (f->top_pos
 				    + FRAME_OUTER_TO_INNER_DIFF_Y (f)));
 		  if (dpyinfo->grabbed && tracked_scroll_bar)
+		    {
 #ifdef USE_TOOLKIT_SCROLL_BARS
-		    x_scroll_bar_handle_drag (wp, tracked_scroll_bar,
-					      mouse_pos, &inev);
+		      x_scroll_bar_handle_drag(wp, tracked_scroll_bar,
+					       mouse_pos, &inev);
 #else /* not USE_TOOLKIT_SCROLL_BARS */
-		    x_scroll_bar_note_movement (tracked_scroll_bar,
-						mouse_pos.v
-						- XINT (tracked_scroll_bar->top),
-						er.when * (1000 / 60));
+		      x_scroll_bar_note_movement(tracked_scroll_bar,
+						 (mouse_pos.v
+						  - XINT(tracked_scroll_bar->top)),
+						 (er.when * (1000 / 60)));
+		      IF_LINT((void)wp);
 #endif /* not USE_TOOLKIT_SCROLL_BARS */
+		    }
 		  else
 		    {
 		      /* Generate SELECT_WINDOW_EVENTs when needed.  */
@@ -4023,7 +4016,10 @@ XTread_socket (sd, expected, hold_quit)
 	      if (!NILP (help_echo_string) || !NILP (previous_help_echo_string))
 		do_help = 1;
 	      break;
-	    }
+
+	    default:
+	      break;
+	    } /* end inner switch */
 	  break;
 
 	case activateEvt:
@@ -4096,7 +4092,7 @@ XTread_socket (sd, expected, hold_quit)
 		    /* If we move outside the frame, then we're
 		       certainly no longer on any text in the
 		       frame.  */
-		    clear_mouse_face (dpyinfo);
+		    clear_mouse_face((Mouse_HLInfo *)dpyinfo);
 		    dpyinfo->mouse_face_mouse_frame = 0;
 		  }
 
@@ -4123,7 +4119,7 @@ XTread_socket (sd, expected, hold_quit)
 	  if (!dpyinfo->mouse_face_hidden && INTEGERP (Vmouse_highlight)
 	      && !EQ (f->tool_bar_window, dpyinfo->mouse_face_window))
 	    {
-	      clear_mouse_face (dpyinfo);
+	      clear_mouse_face((Mouse_HLInfo *)dpyinfo);
 	      dpyinfo->mouse_face_hidden = 1;
 	    }
 
@@ -4163,11 +4159,14 @@ XTread_socket (sd, expected, hold_quit)
 
 	    read_socket_inev = &inev;
 	    err = SendEventToEventTarget (eventRef, toolbox_dispatcher);
+	    if (err != noErr) {
+	      ; /* ??? */
+	    }
 	    read_socket_inev = NULL;
 	  }
 #endif
 	  break;
-	}
+	} /* end outer switch */
 #if TARGET_API_MAC_CARBON
       ReleaseEvent (eventRef);
 #endif
@@ -4253,12 +4252,13 @@ XTread_socket (sd, expected, hold_quit)
  ***********************************************************************/
 
 #if TARGET_API_MAC_CARBON
+
+extern void mac_reposition_hourglass P_((struct frame *));
+
 /* Show the spinning progress indicator for the frame F.  Create it if
    it doesn't exist yet. */
-
 void
-mac_show_hourglass (f)
-     struct frame *f;
+mac_show_hourglass(struct frame *f)
 {
 #if USE_CG_DRAWING
   mac_prepare_for_quickdraw (f);
@@ -4282,10 +4282,8 @@ mac_show_hourglass (f)
 
 /* Hide the spinning progress indicator for the frame F.  Do nothing
    it doesn't exist yet. */
-
 void
-mac_hide_hourglass (f)
-     struct frame *f;
+mac_hide_hourglass(struct frame *f)
 {
   if (f->output_data.mac->hourglass_control)
     {
@@ -4298,10 +4296,8 @@ mac_hide_hourglass (f)
 
 /* Reposition the spinning progress indicator for the frame F.  Do
    nothing it doesn't exist yet. */
-
 void
-mac_reposition_hourglass (f)
-     struct frame *f;
+mac_reposition_hourglass(struct frame *f)
 {
   if (f->output_data.mac->hourglass_control)
     {
@@ -4322,14 +4318,14 @@ mac_reposition_hourglass (f)
 #if TARGET_API_MAC_CARBON
 extern Lisp_Object Qfile_name_history;
 
-static pascal void mac_nav_event_callback P_ ((NavEventCallbackMessage,
-					       NavCBRecPtr, void *));
+static pascal void mac_nav_event_callback P_((NavEventCallbackMessage,
+					      NavCBRecPtr, void *));
 
-/* The actual implementation of Fx_file_dialog.  */
-
+/* The actual implementation of Fx_file_dialog: */
 Lisp_Object
-mac_file_dialog (prompt, dir, default_filename, mustmatch, only_dir_p)
-     Lisp_Object prompt, dir, default_filename, mustmatch, only_dir_p;
+mac_file_dialog(Lisp_Object prompt, Lisp_Object dir,
+		Lisp_Object default_filename, Lisp_Object mustmatch,
+		Lisp_Object only_dir_p)
 {
   Lisp_Object file = Qnil;
   int count = SPECPDL_INDEX ();
@@ -4369,9 +4365,10 @@ mac_file_dialog (prompt, dir, default_filename, mustmatch, only_dir_p)
 	message = cfstring_create_with_string (prompt);
 	options.message = message;
       }
-    /* Don't set the application, let it use default.
+    /* Don't set the application, let it use default: */
+#ifdef DO_ACTUALLY_SET_THE_APPLICATION
     options.clientName = CFSTR ("Emacs");
-    */
+#endif /* DO_ACTUALLY_SET_THE_APPLICATION */
 
     if (mac_nav_event_callbackUPP == NULL)
       mac_nav_event_callbackUPP = NewNavEventUPP (mac_nav_event_callback);
@@ -4389,7 +4386,7 @@ mac_file_dialog (prompt, dir, default_filename, mustmatch, only_dir_p)
 	if (STRINGP (default_filename))
 	  {
 	    Lisp_Object utf8 = ENCODE_UTF_8 (default_filename);
-	    char *begPtr = SDATA(utf8);
+	    char *begPtr = (char *)SDATA(utf8);
 	    char *filePtr = begPtr + SBYTES(utf8);
 	    while (filePtr != begPtr && !IS_DIRECTORY_SEP(filePtr[-1]))
 	      filePtr--;
@@ -4404,7 +4401,7 @@ mac_file_dialog (prompt, dir, default_filename, mustmatch, only_dir_p)
 	}
     else
       {
-	/* This is an open dialog*/
+	/* This is an open dialog: */
 	status = NavCreateChooseFileDialog(&options, fileTypes,
 					   mac_nav_event_callbackUPP, NULL,
 					   NULL, NULL, &dialogRef);
@@ -4474,6 +4471,8 @@ mac_file_dialog (prompt, dir, default_filename, mustmatch, only_dir_p)
 	    NavDisposeReply(&reply);
 	  }
 	  break;
+	default:
+	  break;
 	}
       NavDialogDispose(dialogRef);
       UNBLOCK_INPUT;
@@ -4499,11 +4498,10 @@ mac_file_dialog (prompt, dir, default_filename, mustmatch, only_dir_p)
 /* Need to register some event callback function for enabling drag and
    drop in Navigation Service dialogs.  */
 static pascal void
-mac_nav_event_callback (selector, parms, data)
-     NavEventCallbackMessage selector;
-     NavCBRecPtr parms;
-     void *data;
+mac_nav_event_callback(NavEventCallbackMessage selector, NavCBRecPtr parms,
+		       void *data)
 {
+  return;
 }
 #endif
 
@@ -4528,10 +4526,10 @@ mac_nav_event_callback (selector, parms, data)
 
 extern int menu_item_selection;
 extern int popup_activated_flag;
-extern int name_is_separator P_ ((const char *));
-extern void find_and_call_menu_selection P_ ((FRAME_PTR, int, Lisp_Object,
-					      void *));
-extern void set_frame_menubar P_ ((FRAME_PTR, int, int));
+extern int name_is_separator P_((const char *));
+extern void find_and_call_menu_selection P_((FRAME_PTR, int, Lisp_Object,
+					     void *));
+extern void set_frame_menubar P_((FRAME_PTR, bool, bool));
 
 enum mac_menu_kind {		/* Menu ID range  */
   MAC_MENU_APPLE,		/* 0 (Reserved by Apple) */
@@ -4546,12 +4544,12 @@ enum mac_menu_kind {		/* Menu ID range  */
 
 static const int min_menu_id[] = {0, 1, 234, 235, 236, 256, 16384, 32768};
 
-static int fill_menu P_ ((MenuRef, widget_value *, enum mac_menu_kind, int));
-static void dispose_menus P_ ((enum mac_menu_kind, int));
+static int fill_menu P_((MenuRef, widget_value *, enum mac_menu_kind, int));
+static void dispose_menus P_((enum mac_menu_kind, int));
 
 #if !TARGET_API_MAC_CARBON
 static void
-do_apple_menu (SInt16 menu_item)
+do_apple_menu(SInt16 menu_item)
 {
   Str255 item_name;
   SInt16 da_driver_refnum;
@@ -4578,10 +4576,8 @@ do_apple_menu (SInt16 menu_item)
    The reason for saving the button event until here, instead of
    passing it to the toolkit right away, is that we can safely
    execute Lisp code.  */
-
 void
-x_activate_menubar (f)
-     FRAME_PTR f;
+x_activate_menubar(FRAME_PTR f)
 {
   SInt32 menu_choice;
   SInt16 menu_id, menu_item;
@@ -4620,22 +4616,22 @@ x_activate_menubar (f)
 }
 
 #if TARGET_API_MAC_CARBON
+# ifndef EMACS_GLOBALS_H
 extern Lisp_Object Vshow_help_function;
+# endif /* !EMACS_GLOBALS_H */
 
 static Lisp_Object
-restore_show_help_function (old_show_help_function)
-     Lisp_Object old_show_help_function;
+restore_show_help_function(Lisp_Object old_show_help_function)
 {
   Vshow_help_function = old_show_help_function;
 
   return Qnil;
 }
 
+/* */
 static pascal OSStatus
-menu_target_item_handler (next_handler, event, data)
-     EventHandlerCallRef next_handler;
-     EventRef event;
-     void *data;
+menu_target_item_handler(EventHandlerCallRef next_handler, EventRef event,
+			 void *data)
 {
   OSStatus err;
   MenuRef menu;
@@ -4673,18 +4669,19 @@ menu_target_item_handler (next_handler, event, data)
   return err == noErr ? noErr : eventNotHandledErr;
 }
 
-/* Showing help echo string during menu tracking.  */
-
-static OSStatus
-install_menu_target_item_handler ()
+/* Showing help echo string during menu tracking: */
+STATIC_WITHOUT_MACTERM_H OSStatus
+install_menu_target_item_handler(WindowPtr unusedwindow)
 {
+# if defined(__APPLE__) && defined(__APPLE_CC__) && (__APPLE_CC__ > 1)
+#  pragma unused (unusedwindow)
+# endif /* __APPLE__ && (__APPLE_CC__ > 1) */
   static const EventTypeSpec specs[] =
     {{kEventClassMenu, kEventMenuTargetItem}};
 
-  return InstallApplicationEventHandler (NewEventHandlerUPP
-					 (menu_target_item_handler),
-					 GetEventTypeCount (specs),
-					 specs, NULL, NULL);
+  return InstallApplicationEventHandler(NewEventHandlerUPP(menu_target_item_handler),
+					GetEventTypeCount(specs),
+					specs, NULL, NULL);
 }
 #endif  /* TARGET_API_MAC_CARBON */
 
@@ -4693,10 +4690,8 @@ install_menu_target_item_handler ()
 
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= 1030
 static pascal OSStatus
-menu_quit_handler (nextHandler, theEvent, userData)
-     EventHandlerCallRef nextHandler;
-     EventRef theEvent;
-     void* userData;
+menu_quit_handler(EventHandlerCallRef nextHandler, EventRef theEvent,
+		  void *userData)
 {
   OSStatus err;
   UInt32 keyCode;
@@ -4728,11 +4723,8 @@ menu_quit_handler (nextHandler, theEvent, userData)
    C-g.  ROOT_MENU is the root menu of the tracking session to dismiss
    when C-g is detected.  NULL means the menu bar.  If
    CancelMenuTracking isn't available, do nothing.  */
-
 static void
-install_menu_quit_handler (kind, root_menu)
-     enum mac_menu_kind kind;
-     MenuRef root_menu;
+install_menu_quit_handler(enum mac_menu_kind kind, MenuRef root_menu)
 {
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= 1030
   static const EventTypeSpec typesList[] =
@@ -4757,11 +4749,10 @@ install_menu_quit_handler (kind, root_menu)
 }
 
 static Lisp_Object
-pop_down_menu (arg)
-     Lisp_Object arg;
+pop_down_menu(Lisp_Object arg)
 {
   struct Lisp_Save_Value *p = XSAVE_VALUE (arg);
-  FRAME_PTR f = p->pointer;
+  FRAME_PTR f = p->data[0].pointer;
   MenuRef menu = GetMenuRef (min_menu_id[MAC_MENU_POPUP]);
 
   BLOCK_INPUT;
@@ -4777,24 +4768,20 @@ pop_down_menu (arg)
 
   UNBLOCK_INPUT;
 
+  IF_LINT((void)f);
   return Qnil;
 }
 
 /* Pop up the menu for frame F defined by FIRST_WV at X/Y and loop
    until the menu pops down.  Return the selection.  */
-
-void
-create_and_show_popup_menu (f, first_wv, x, y, for_click)
-     FRAME_PTR f;
-     widget_value *first_wv;
-     int x;
-     int y;
-     int for_click;
+int
+create_and_show_popup_menu(FRAME_PTR f, widget_value *first_wv, int x, int y,
+			   bool for_click)
 {
   int result = 0;
-  MenuRef menu = NewMenu (min_menu_id[MAC_MENU_POPUP], "\p");
+  MenuRef menu = NewMenu(min_menu_id[MAC_MENU_POPUP], (ConstStr255Param)"\p");
   int menu_item_choice;
-  int specpdl_count = SPECPDL_INDEX ();
+  int specpdl_count = SPECPDL_INDEX();
 
   InsertMenu (menu, -1);
   fill_menu (menu, first_wv->contents, MAC_MENU_POPUP_SUB,
@@ -4828,13 +4815,12 @@ create_and_show_popup_menu (f, first_wv, x, y, for_click)
   unbind_to (specpdl_count, Qnil);
 
   menu_item_selection = result;
+  return 0;
 }
 
+/* */
 static void
-add_menu_item (menu, pos, wv)
-     MenuRef menu;
-     int pos;
-     widget_value *wv;
+add_menu_item(MenuRef menu, int pos, widget_value *wv)
 {
 #if TARGET_API_MAC_CARBON
   CFStringRef item_name;
@@ -4843,10 +4829,10 @@ add_menu_item (menu, pos, wv)
 #endif
 
   if (name_is_separator (wv->name))
-    AppendMenu (menu, "\p-");
+    AppendMenu(menu, (ConstStr255Param)"\p-");
   else
     {
-      AppendMenu (menu, "\pX");
+      AppendMenu(menu, (ConstStr255Param)"\pX");
 
 #if TARGET_API_MAC_CARBON
       item_name = cfstring_create_with_utf8_cstring (wv->name);
@@ -4905,14 +4891,10 @@ add_menu_item (menu, pos, wv)
     }
 }
 
-/* Construct native Mac OS menu based on widget_value tree.  */
-
+/* Construct native Mac OS menu based on widget_value tree: */
 static int
-fill_menu (menu, wv, kind, submenu_id)
-     MenuRef menu;
-     widget_value *wv;
-     enum mac_menu_kind kind;
-     int submenu_id;
+fill_menu(MenuRef menu, widget_value *wv, enum mac_menu_kind kind,
+	  int submenu_id)
 {
   int pos;
 
@@ -4921,7 +4903,7 @@ fill_menu (menu, wv, kind, submenu_id)
       add_menu_item (menu, pos, wv);
       if (wv->contents && submenu_id < min_menu_id[kind + 1])
 	{
-	  MenuRef submenu = NewMenu (submenu_id, "\pX");
+	  MenuRef submenu = NewMenu(submenu_id, (ConstStr255Param)"\pX");
 
 	  InsertMenu (submenu, -1);
 #if TARGET_API_MAC_CARBON
@@ -4939,11 +4921,8 @@ fill_menu (menu, wv, kind, submenu_id)
 /* Fill menu bar with the items defined by WV.  If DEEP_P, consider
    the entire menu trees we supply, rather than just the menu bar item
    names.  */
-
 void
-mac_fill_menubar (wv, deep_p)
-     widget_value *wv;
-     int deep_p;
+mac_fill_menubar(widget_value *wv, bool deep_p)
 {
   int id, submenu_id;
 #if !TARGET_API_MAC_CARBON
@@ -5072,11 +5051,8 @@ mac_fill_menubar (wv, deep_p)
 
 /* Dispose of menus that belong to KIND, and remove them from the menu
    list.  ID is the lower bound of menu IDs that will be processed.  */
-
 static void
-dispose_menus (kind, id)
-     enum mac_menu_kind kind;
-     int id;
+dispose_menus(enum mac_menu_kind kind, int id)
 {
   for (id = max (id, min_menu_id[kind]); id < min_menu_id[kind + 1]; id++)
     {
@@ -5089,8 +5065,9 @@ dispose_menus (kind, id)
     }
 }
 
+/* */
 static void
-init_menu_bar ()
+init_menu_bar(void)
 {
 #ifdef MAC_OSX
   OSStatus err;
@@ -5133,14 +5110,15 @@ init_menu_bar ()
 #define DIALOG_BUTTON_MAKE_COMMAND_ID(value)	\
   ((value) + DIALOG_BUTTON_COMMAND_ID_OFFSET)
 
-extern EMACS_TIME timer_check P_ ((int));
+#ifndef EMACS_KEYBOARD_H
+extern EMACS_TIME timer_check P_((int));
+#endif /* !EMACS_KEYBOARD_H */
 static int quit_dialog_event_loop;
 
+/* */
 static pascal OSStatus
-mac_handle_dialog_event (next_handler, event, data)
-     EventHandlerCallRef next_handler;
-     EventRef event;
-     void *data;
+mac_handle_dialog_event(EventHandlerCallRef next_handler, EventRef event,
+			void *data)
 {
   OSStatus err, result = eventNotHandledErr;
   WindowRef window = (WindowRef) data;
@@ -5219,9 +5197,9 @@ mac_handle_dialog_event (next_handler, event, data)
   return result;
 }
 
+/* */
 static OSStatus
-install_dialog_event_handler (window)
-     WindowRef window;
+install_dialog_event_handler(WindowRef window)
 {
   static const EventTypeSpec specs[] =
     {{kEventClassCommand, kEventCommandProcess},
@@ -5235,12 +5213,12 @@ install_dialog_event_handler (window)
 				    window, NULL);
 }
 
+/* */
 static Lisp_Object
-pop_down_dialog (arg)
-     Lisp_Object arg;
+pop_down_dialog(Lisp_Object arg)
 {
   struct Lisp_Save_Value *p = XSAVE_VALUE (arg);
-  WindowRef window = p->pointer;
+  WindowRef window = p->data[0].pointer;
 
   BLOCK_INPUT;
 
@@ -5257,14 +5235,11 @@ pop_down_dialog (arg)
 /* Pop up the dialog for frame F defined by FIRST_WV and loop until the
    dialog pops down.
    menu_item_selection will be set to the selection.  */
-
-void
-create_and_show_dialog (f, first_wv)
-     FRAME_PTR f;
-     widget_value *first_wv;
+int
+create_and_show_dialog(FRAME_PTR f, widget_value *first_wv)
 {
   OSStatus err;
-  char *dialog_name, *message;
+  const char *dialog_name, *message;
   int nb_buttons, first_group_count, i, result = 0;
   widget_value *wv;
   short buttons_height, text_height, inner_width, inner_height;
@@ -5289,9 +5264,9 @@ create_and_show_dialog (f, first_wv)
 			 &empty_rect, &window);
   if (err == noErr)
     {
-      record_unwind_protect (pop_down_dialog, make_save_value (window, 0));
-      err = SetThemeWindowBackground (window, kThemeBrushMovableModalBackground,
-				      true);
+      record_unwind_protect(pop_down_dialog, make_save_value(window, 0));
+      err = SetThemeWindowBackground(window, kThemeBrushMovableModalBackground,
+				     true);
     }
   if (err == noErr)
     err = SetWindowTitleWithCFString (window, (dialog_name[0] == 'Q'
@@ -5527,9 +5502,17 @@ create_and_show_dialog (f, first_wv)
       quit_dialog_event_loop = 0;
       while (1)
 	{
-	  EMACS_TIME next_time = timer_check (1);
-	  long secs = EMACS_SECS (next_time);
-	  long usecs = EMACS_USECS (next_time);
+#ifndef EMACS_KEYBOARD_H
+	  EMACS_TIME next_time = timer_check(1);
+#else
+	  struct timespec next_time = timer_check();
+#endif /* !EMACS_KEYBOARD_H */
+	  long secs = EMACS_SECS(next_time);
+#ifndef EMACS_KEYBOARD_H
+	  long usecs = EMACS_USECS(next_time);
+#else
+	  long usecs = 0L;
+#endif /* !EMACS_KEYBOARD_H */
 	  EventTimeout timeout;
 	  EventRef event;
 
@@ -5579,6 +5562,8 @@ create_and_show_dialog (f, first_wv)
   unbind_to (specpdl_count, Qnil);
 
   menu_item_selection = result;
+
+  return 0;
 }
 #else  /* not TARGET_API_MAC_CARBON */
 #define DIALOG_WINDOW_RESOURCE 130
@@ -5689,6 +5674,13 @@ mac_dialog (widget_value *wv)
 }
 #endif  /* not TARGET_API_MAC_CARBON */
 
+/* this goes with the removal of "-Wmultichar" way above: */
+#if defined(__GNUC__) && defined(__GNUC_MINOR__)
+# if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6))
+#  pragma GCC diagnostic pop
+# endif /* GCC 4.6 (version in which push/pop was introduced) */
+#endif /* gcc */
+
 
 /***********************************************************************
 			  Selection support
@@ -5699,22 +5691,20 @@ mac_dialog (widget_value *wv)
 #include <Endian.h>
 #endif
 
+#ifndef EMACS_GLOBALS_H
 extern Lisp_Object Vselection_converter_alist;
+#endif /* !EMACS_GLOBALS_H */
 extern Lisp_Object Qmac_scrap_name, Qmac_ostype;
 
-static ScrapFlavorType get_flavor_type_from_symbol P_ ((Lisp_Object,
-							Selection));
+static ScrapFlavorType get_flavor_type_from_symbol P_((Lisp_Object,
+						       Selection));
 
 /* Get a reference to the selection corresponding to the symbol SYM.
    The reference is set to *SEL, and it becomes NULL if there's no
    corresponding selection.  Clear the selection if CLEAR_P is
    non-zero.  */
-
 OSStatus
-mac_get_selection_from_symbol (sym, clear_p, sel)
-     Lisp_Object sym;
-     int clear_p;
-     Selection *sel;
+mac_get_selection_from_symbol(Lisp_Object sym, bool clear_p, Selection *sel)
 {
   OSStatus err = noErr;
   Lisp_Object str = Fget (sym, Qmac_scrap_name);
@@ -5724,20 +5714,20 @@ mac_get_selection_from_symbol (sym, clear_p, sel)
   else
     {
 #if TARGET_API_MAC_CARBON
-#ifdef MAC_OSX
+# ifdef MAC_OSX
       CFStringRef scrap_name = cfstring_create_with_string (str);
       OptionBits options = (clear_p ? kScrapClearNamedScrap
 			    : kScrapGetNamedScrap);
 
-      err = GetScrapByName (scrap_name, options, sel);
+      err = GetScrapByName(scrap_name, options, (ScrapRef *)sel);
       CFRelease (scrap_name);
-#else	/* !MAC_OSX */
+# else /* !MAC_OSX: */
       if (clear_p)
 	err = ClearCurrentScrap ();
       if (err == noErr)
 	err = GetCurrentScrap (sel);
-#endif	/* !MAC_OSX */
-#else	/* !TARGET_API_MAC_CARBON */
+# endif /* !MAC_OSX */
+#else /* !TARGET_API_MAC_CARBON: */
       if (clear_p)
 	err = ZeroScrap ();
       if (err == noErr)
@@ -5753,9 +5743,7 @@ mac_get_selection_from_symbol (sym, clear_p, sel)
    non-zero only when the SEL has the flavor type.  */
 
 static ScrapFlavorType
-get_flavor_type_from_symbol (sym, sel)
-     Lisp_Object sym;
-     Selection sel;
+get_flavor_type_from_symbol(Lisp_Object sym, Selection sel)
 {
   Lisp_Object str = Fget (sym, Qmac_ostype);
   ScrapFlavorType flavor_type;
@@ -5786,24 +5774,20 @@ get_flavor_type_from_symbol (sym, sel)
   return flavor_type;
 }
 
-/* Check if the symbol SYM has a corresponding selection target type.  */
-
-int
-mac_valid_selection_target_p (sym)
-     Lisp_Object sym;
+/* Check if the symbol SYM has a corresponding selection target type: */
+bool
+mac_valid_selection_target_p(Lisp_Object sym)
 {
-  return get_flavor_type_from_symbol (sym, 0) != 0;
+  return (get_flavor_type_from_symbol(sym, 0) != 0);
 }
 
-/* Clear the selection whose reference is *SEL.  */
-
+/* Clear the selection whose reference is *SEL: */
 OSStatus
-mac_clear_selection (sel)
-     Selection *sel;
+mac_clear_selection(Selection *sel)
 {
 #if TARGET_API_MAC_CARBON
 #ifdef MAC_OSX
-  return ClearScrap (sel);
+  return ClearScrap((ScrapRef *)sel);
 #else
   OSStatus err;
 
@@ -5822,8 +5806,7 @@ mac_clear_selection (sel)
    ownership information.  */
 
 Lisp_Object
-mac_get_selection_ownership_info (sel)
-     Selection sel;
+mac_get_selection_ownership_info(Selection sel)
 {
 #if TARGET_API_MAC_CARBON
   return long_to_cons ((unsigned long) sel);
@@ -5835,21 +5818,16 @@ mac_get_selection_ownership_info (sel)
 }
 
 /* Return non-zero if VALUE is a valid selection value for TARGET.  */
-
-int
-mac_valid_selection_value_p (value, target)
-     Lisp_Object value, target;
+bool
+mac_valid_selection_value_p(Lisp_Object value, Lisp_Object target)
 {
-  return STRINGP (value);
+  return STRINGP(value);
 }
 
 /* Put Lisp object VALUE to the selection SEL.  The target type is
    specified by TARGET. */
-
 OSStatus
-mac_put_selection_value (sel, target, value)
-     Selection sel;
-     Lisp_Object target, value;
+mac_put_selection_value(Selection sel, Lisp_Object target, Lisp_Object value)
 {
   ScrapFlavorType flavor_type = get_flavor_type_from_symbol (target, 0);
 
@@ -5864,23 +5842,18 @@ mac_put_selection_value (sel, target, value)
 #endif	/* !TARGET_API_MAC_CARBON */
 }
 
-/* Check if data for the target type TARGET is available in SEL.  */
-
-int
-mac_selection_has_target_p (sel, target)
-     Selection sel;
-     Lisp_Object target;
+/* Check if data for the target type TARGET is available in SEL: */
+bool
+mac_selection_has_target_p(Selection sel, Lisp_Object target)
 {
-  return get_flavor_type_from_symbol (target, sel) != 0;
+  return (get_flavor_type_from_symbol(target, sel) != 0);
 }
 
 /* Get data for the target type TARGET from SEL and create a Lisp
    string.  Return nil if failed to get data.  */
 
 Lisp_Object
-mac_get_selection_value (sel, target)
-     Selection sel;
-     Lisp_Object target;
+mac_get_selection_value(Selection sel, Lisp_Object target)
 {
   OSStatus err;
   Lisp_Object result = Qnil;
@@ -5890,20 +5863,18 @@ mac_get_selection_value (sel, target)
 
   if (flavor_type)
     {
-      err = GetScrapFlavorSize (sel, flavor_type, &size);
+      err = GetScrapFlavorSize(sel, flavor_type, &size);
       if (err == noErr)
 	{
-	  do
-	    {
-	      result = make_uninit_string (size);
-	      err = GetScrapFlavorData (sel, flavor_type,
-					&size, SDATA (result));
-	      if (err != noErr)
-		result = Qnil;
-	      else if (size < SBYTES (result))
-		result = make_unibyte_string (SDATA (result), size);
-	    }
-	  while (STRINGP (result) && size > SBYTES (result));
+	  do {
+	    result = make_uninit_string(size);
+	    err = GetScrapFlavorData(sel, flavor_type,
+				       &size, SDATA(result));
+	    if (err != noErr)
+	      result = Qnil;
+	    else if (size < SBYTES(result))
+	      result = make_unibyte_string((const char *)SDATA(result), size);
+	  } while (STRINGP(result) && (size > SBYTES(result)));
 	}
     }
 #else
@@ -5931,8 +5902,7 @@ mac_get_selection_value (sel, target)
    strings.  */
 
 Lisp_Object
-mac_get_selection_target_list (sel)
-     Selection sel;
+mac_get_selection_target_list(Selection sel)
 {
   Lisp_Object result = Qnil, rest, target;
 #if TARGET_API_MAC_CARBON
@@ -5995,12 +5965,12 @@ mac_get_selection_target_list (sel)
 			 Apple event support
 ***********************************************************************/
 
-extern pascal OSErr mac_handle_apple_event P_ ((const AppleEvent *,
-						AppleEvent *, SInt32));
-extern void cleanup_all_suspended_apple_events P_ ((void));
+extern pascal OSErr mac_handle_apple_event P_((const AppleEvent *,
+					       AppleEvent *, SInt32));
+extern void cleanup_all_suspended_apple_events P_((void));
 
 void
-init_apple_event_handler ()
+init_apple_event_handler(void)
 {
   OSErr err;
   long result;
@@ -6032,20 +6002,19 @@ init_apple_event_handler ()
 ***********************************************************************/
 
 #if TARGET_API_MAC_CARBON
+# ifndef EMACS_GLOBALS_H
 extern Lisp_Object Vmac_dnd_known_types;
+# endif /* !EMACS_GLOBALS_H */
 
-static pascal OSErr mac_do_track_drag P_ ((DragTrackingMessage, WindowRef,
-					   void *, DragRef));
-static pascal OSErr mac_do_receive_drag P_ ((WindowRef, void *, DragRef));
+static pascal OSErr mac_do_track_drag P_((DragTrackingMessage, WindowRef,
+					  void *, DragRef));
+static pascal OSErr mac_do_receive_drag P_((WindowRef, void *, DragRef));
 static DragTrackingHandlerUPP mac_do_track_dragUPP = NULL;
 static DragReceiveHandlerUPP mac_do_receive_dragUPP = NULL;
 
-static OSErr
-create_apple_event_from_drag_ref (drag, num_types, types, result)
-     DragRef drag;
-     UInt32 num_types;
-     const FlavorType *types;
-     AppleEvent *result;
+STATIC_WITHOUT_MACTERM_H OSErr
+create_apple_event_from_drag_ref(DragRef drag, UInt32 num_types,
+				 const FlavorType *types, AppleEvent *result)
 {
   OSErr err;
   UInt16 num_items;
@@ -6109,11 +6078,8 @@ create_apple_event_from_drag_ref (drag, num_types, types, result)
 }
 
 static void
-mac_store_drag_event (window, mouse_pos, modifiers, desc)
-     WindowRef window;
-     Point mouse_pos;
-     SInt16 modifiers;
-     const AEDesc *desc;
+mac_store_drag_event(WindowRef window, Point mouse_pos, SInt16 modifiers,
+		     const AEDesc *desc)
 {
   struct input_event buf;
 
@@ -6130,11 +6096,8 @@ mac_store_drag_event (window, mouse_pos, modifiers, desc)
 }
 
 static pascal OSErr
-mac_do_track_drag (message, window, refcon, drag)
-     DragTrackingMessage message;
-     WindowRef window;
-     void *refcon;
-     DragRef drag;
+mac_do_track_drag(DragTrackingMessage message, WindowRef window, void *refcon,
+		  DragRef drag)
 {
   OSErr err = noErr;
   static int can_accept;
@@ -6211,6 +6174,9 @@ mac_do_track_drag (message, window, refcon, drag)
 
     case kDragTrackingLeaveHandler:
       break;
+
+    default:
+      break;
     }
 
   if (err != noErr)
@@ -6219,10 +6185,7 @@ mac_do_track_drag (message, window, refcon, drag)
 }
 
 static pascal OSErr
-mac_do_receive_drag (window, refcon, drag)
-     WindowRef window;
-     void *refcon;
-     DragRef drag;
+mac_do_receive_drag(WindowRef window, void *refcon, DragRef drag)
 {
   OSErr err;
   int num_types, i;
@@ -6283,9 +6246,9 @@ mac_do_receive_drag (window, refcon, drag)
 }
 #endif	/* TARGET_API_MAC_CARBON */
 
-static OSErr
-install_drag_handler (window)
-     WindowRef window;
+/* */
+STATIC_WITHOUT_MACTERM_H OSErr
+install_drag_handler(WindowRef window)
 {
   OSErr err = noErr;
 
@@ -6303,9 +6266,9 @@ install_drag_handler (window)
   return err;
 }
 
-static void
-remove_drag_handler (window)
-     WindowRef window;
+/* */
+STATIC_WITHOUT_MACTERM_H void
+remove_drag_handler(WindowRef window)
 {
 #if TARGET_API_MAC_CARBON
   if (mac_do_track_dragUPP)
@@ -6319,7 +6282,7 @@ remove_drag_handler (window)
 /* Return default value for mac-dnd-known-types.  */
 
 Lisp_Object
-mac_dnd_default_known_types ()
+mac_dnd_default_known_types(void)
 {
   Lisp_Object result = list4 (build_string ("hfs "), build_string ("utxt"),
 			      build_string ("TEXT"), build_string ("TIFF"));
@@ -6339,11 +6302,12 @@ mac_dnd_default_known_types ()
 
 #ifdef MAC_OSX
 extern Lisp_Object Qservice, Qpaste, Qperform;
+# ifndef EMACS_GLOBALS_H
 extern Lisp_Object Vmac_service_selection;
+# endif /* !EMACS_GLOBALS_H */
 
 static OSStatus
-mac_store_service_event (event)
-     EventRef event;
+mac_store_service_event(EventRef event)
 {
   OSStatus err;
   Lisp_Object id_key;
@@ -6382,10 +6346,10 @@ mac_store_service_event (event)
   return err;
 }
 
+/* */
 static OSStatus
-copy_scrap_flavor_data (from_scrap, to_scrap, flavor_type)
-     ScrapRef from_scrap, to_scrap;
-     ScrapFlavorType flavor_type;
+copy_scrap_flavor_data(ScrapRef from_scrap, ScrapRef to_scrap,
+		       ScrapFlavorType flavor_type)
 {
   OSStatus err;
   Size size, size_allocated;
@@ -6423,11 +6387,10 @@ copy_scrap_flavor_data (from_scrap, to_scrap, flavor_type)
   return err;
 }
 
+/* */
 static OSStatus
-mac_handle_service_event (call_ref, event, data)
-     EventHandlerCallRef call_ref;
-     EventRef event;
-     void *data;
+mac_handle_service_event(EventHandlerCallRef call_ref, EventRef event,
+			 void *data)
 {
   OSStatus err = noErr;
   ScrapRef cur_scrap, specific_scrap;
@@ -6442,7 +6405,8 @@ mac_handle_service_event (call_ref, event, data)
   if (!SYMBOLP (Vmac_service_selection))
     err = eventNotHandledErr;
   else
-    err = mac_get_selection_from_symbol (Vmac_service_selection, 0, &cur_scrap);
+    err = mac_get_selection_from_symbol(Vmac_service_selection, 0,
+					(Selection *)&cur_scrap);
   if (!(err == noErr && cur_scrap))
     return eventNotHandledErr;
 
@@ -6479,17 +6443,19 @@ mac_handle_service_event (call_ref, event, data)
       if (err != noErr)
 	break;
 
-      if (NILP (Fx_selection_owner_p (Vmac_service_selection)))
+      if (NILP(Fx_selection_owner_p(Vmac_service_selection, Qnil)))
 	break;
       else
 	goto copy_all_flavors;
+
+      ATTRIBUTE_FALLTHROUGH;
 
     case kEventServiceCopy:
       err = GetEventParameter (event, kEventParamScrapRef,
 			       typeScrapRef, NULL,
 			       sizeof (ScrapRef), NULL, &specific_scrap);
-      if (err != noErr
-	  || NILP (Fx_selection_owner_p (Vmac_service_selection)))
+      if ((err != noErr)
+	  || NILP(Fx_selection_owner_p(Vmac_service_selection, Qnil)))
 	{
 	  err = eventNotHandledErr;
 	  break;
@@ -6540,13 +6506,13 @@ mac_handle_service_event (call_ref, event, data)
     case kEventServicePaste:
     case kEventServicePerform:
       {
-	int data_exists_p = 0;
+	bool data_exists_p = 0;
 
         err = GetEventParameter (event, kEventParamScrapRef, typeScrapRef,
 				 NULL, sizeof (ScrapRef), NULL,
 				 &specific_scrap);
 	if (err == noErr)
-	  err = mac_clear_selection (&cur_scrap);
+	  err = mac_clear_selection((Selection *)&cur_scrap);
 	if (err == noErr)
 	  for (rest = Vselection_converter_alist; CONSP (rest);
 	       rest = XCDR (rest))
@@ -6568,7 +6534,10 @@ mac_handle_service_event (call_ref, event, data)
 	  err = mac_store_service_event (event);
       }
       break;
-    }
+
+    default:
+      break;
+    } /* end switch */
 
   if (err != noErr)
     err = eventNotHandledErr;
@@ -6576,7 +6545,7 @@ mac_handle_service_event (call_ref, event, data)
 }
 
 static OSStatus
-install_service_handler ()
+install_service_handler(void)
 {
   static const EventTypeSpec specs[] =
     {{kEventClassService, kEventServiceGetTypes},
@@ -6584,10 +6553,9 @@ install_service_handler ()
      {kEventClassService, kEventServicePaste},
      {kEventClassService, kEventServicePerform}};
 
-  return InstallApplicationEventHandler (NewEventHandlerUPP
-					 (mac_handle_service_event),
-					 GetEventTypeCount (specs),
-					 specs, NULL, NULL);
+  return InstallApplicationEventHandler(NewEventHandlerUPP(mac_handle_service_event),
+					GetEventTypeCount(specs),
+					specs, NULL, NULL);
 }
 #endif	/* MAC_OSX */
 
@@ -6597,7 +6565,7 @@ install_service_handler ()
  ***********************************************************************/
 
 void
-mac_toolbox_initialize ()
+mac_toolbox_initialize(void)
 {
   any_help_event_p = 0;
 
