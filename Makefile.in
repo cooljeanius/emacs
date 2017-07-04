@@ -1002,7 +1002,7 @@ distclean: FRC distclean-local
 	cd lisp     && $(MAKE) $(MFLAGS) distclean
 	cd mac      && $(MAKE) $(MFLAGS) distclean
 	cd nextstep && $(MAKE) $(MFLAGS) distclean
-	for dir in test/automated admin/grammars admin/unidata; do \
+	for dir in test/automated admin admin/grammars admin/unidata; do \
 	  [ ! -d $$dir ] || (cd $$dir && $(MAKE) $(MFLAGS) distclean); \
 	done
 	${top_distclean}
@@ -1028,7 +1028,7 @@ bootstrap-clean: FRC
 	cd lisp     && $(MAKE) $(MFLAGS) bootstrap-clean
 	cd mac      && $(MAKE) $(MFLAGS) maintainer-clean
 	cd nextstep && $(MAKE) $(MFLAGS) maintainer-clean
-	for dir in test/automated admin/grammars admin/unidata; do \
+	for dir in test/automated admin admin/grammars admin/unidata; do \
 	  [ ! -d $${dir} ] || (cd $${dir} && $(MAKE) $(MFLAGS) bootstrap-clean); \
 	done
 	[ ! -f config.log ] || mv -f config.log config.log~
@@ -1055,7 +1055,7 @@ maintainer-clean: bootstrap-clean FRC maintainer-clean-local
 	cd leim && $(MAKE) $(MFLAGS) maintainer-clean
 	cd lisp && $(MAKE) $(MFLAGS) maintainer-clean
 	cd machocheck && $(MAKE) $(MFLAGS) maintainer-clean
-	for dir in test/automated admin/grammars admin/unidata; do \
+	for dir in test/automated admin admin/grammars admin/unidata; do \
 	  [ ! -d $${dir} ] || (cd $${dir} && $(MAKE) $(MFLAGS) maintainer-clean); \
 	done
 	-rm -f .DS_Store

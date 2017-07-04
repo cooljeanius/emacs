@@ -32,6 +32,9 @@ vms-pp
 vms_pp
 libemacs.a
 
+# -save-temps output:
+*.mi
+
 # static analysis output:
 clang_static_analysis/*
 

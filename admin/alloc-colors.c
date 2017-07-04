@@ -1,4 +1,4 @@
-/* Allocate X colors.  Used for testing with dense colormaps.
+/* alloc-colors.c: Allocate X colors.  Used for testing with dense colormaps.
 
 Copyright (C) 2001-2014 Free Software Foundation, Inc.
 
@@ -22,30 +22,34 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <string.h>
 #include <unistd.h>
 
-void
-fatal (const char *fmt, ...)
+/* */
+static void __attribute__((noreturn)) __attribute__((format(printf, 1, 2)))
+fatal(const char *fmt, ...)
 {
   va_list ap;
 
-  va_start (ap, fmt);
-  vfprintf (stderr, fmt, ap);
-  fputc ('\n', stderr);
-  va_end (ap);
-  exit (1);
+  va_start(ap, fmt);
+  vfprintf(stderr, fmt, ap);
+  fputc('\n', stderr);
+  va_end(ap);
+  exit(1);
 }
 
-void
-usage (const char *progname)
+/* */
+static void __attribute__((noreturn))
+usage(const char *progname)
 {
-  fprintf (stderr, "Usage %s options\n", progname);
-  fprintf (stderr, "-n NCOLORS  allocate NCOLORS colors\n");
-  exit (1);
+  fprintf(stderr, "Usage %s options\n", progname);
+  fprintf(stderr, "-n NCOLORS  allocate NCOLORS colors\n");
+  exit(1);
 }
 
+/* */
 int
-main (int argc, char **argv)
+main(int argc, char **argv)
 {
   Display *dpy;
   int opt, ncolors = 0, i;
@@ -54,47 +58,50 @@ main (int argc, char **argv)
   XColor color;
   Colormap cmap;
 
-  while ((opt = getopt (argc, argv, "n:")) != EOF)
+  while ((opt = getopt(argc, argv, "n:")) != EOF)
     switch (opt)
       {
       case 'n':
-	ncolors = atoi (optarg);
+	ncolors = atoi(optarg);
 	break;
 
       case '?':
-	usage (argv[0]);
+	usage(argv[0]);
       }
 
   if (ncolors == 0)
-    usage (argv[0]);
+    usage(argv[0]);
 
-  dpy = XOpenDisplay ("");
+  dpy = XOpenDisplay("");
   if (dpy == NULL)
-    fatal ("Cannot open display");
-  cmap = DefaultColormap (dpy, 0);
+    fatal("Cannot open display");
+  cmap = DefaultColormap(dpy, 0);
 
-  allocated = malloc (ncolors * sizeof *allocated);
+  allocated = (XColor *)malloc(ncolors * sizeof(*allocated));
+  if (allocated == NULL) {
+    fatal("Out of memory");
+  }
   nallocated = 0;
-  memset (&color, 0, sizeof color);
+  memset(&color, 0, sizeof(color));
 
-  while (nallocated < ncolors
-	 && color.red < 65536)
+  while ((nallocated < ncolors)
+	 && (color.red < 65536))
     {
       allocated[nallocated] = color;
-      if (XAllocColor (dpy, cmap, &allocated[nallocated]))
+      if (XAllocColor(dpy, cmap, &allocated[nallocated]))
 	{
 	  for (i = 0; i < nallocated; ++i)
-	    if (allocated[i].red == allocated[nallocated].red
-		&& allocated[i].green == allocated[nallocated].green
-		&& allocated[i].blue == allocated[nallocated].blue)
+	    if ((allocated[i].red == allocated[nallocated].red)
+		&& (allocated[i].green == allocated[nallocated].green)
+		&& (allocated[i].blue == allocated[nallocated].blue))
 	      break;
 
 	  if (i == nallocated)
 	    {
-	      printf ("allocated %d/%d/%d\n",
-		      allocated[nallocated].red,
-		      allocated[nallocated].green,
-		      allocated[nallocated].blue);
+	      printf("allocated %d/%d/%d\n",
+		     allocated[nallocated].red,
+		     allocated[nallocated].green,
+		     allocated[nallocated].blue);
 	      ++nallocated;
 	    }
 	}
@@ -104,10 +111,12 @@ main (int argc, char **argv)
       ++color.blue;
     }
 
-  fprintf (stderr, "Waiting.  Press ^C to stop.\n");
+  fprintf(stderr, "Waiting.  Press ^C to stop.\n");
   while (1)
-    sleep (10);
+    sleep(10);
 
-  XCloseDisplay (dpy);
+  XCloseDisplay(dpy);
   return 0;
 }
+
+/* EOF */

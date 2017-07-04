@@ -3661,9 +3661,11 @@ else
     gl_GCC_VERSION_IFELSE([8],[0],[
       gl_WARN_ADD([-Wenum-conversion])dnl
       gl_WARN_ADD([-Wsizeof-pointer-div])dnl
+      gl_WARN_ADD([-Wmultistatement-macros])dnl
       if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
         AC_LANG_PUSH([C++])dnl
         gl_WARN_ADD([-Wcatch-value],[WARN_CXXFLAGS])
+        gl_WARN_ADD([-Wclass-memaccess],[WARN_CXXFLAGS])
         AC_LANG_POP
       else
         AC_MSG_NOTICE([-Wcatch-value only relevant for C++, skipping it])
@@ -10351,7 +10353,8 @@ fi
 dnl########################################################################
 dnl# The admin/ directory used to be excluded from tarfiles.
 if test -d ${srcdir}/admin; then
-  SUBDIR_MAKEFILES="${SUBDIR_MAKEFILES} admin/unidata/Makefile admin/grammars/Makefile"
+  SUBDIR_MAKEFILES="${SUBDIR_MAKEFILES} admin/Makefile admin/unidata/Makefile admin/grammars/Makefile"
+  AC_CONFIG_FILES([admin/Makefile])
   AC_CONFIG_FILES([admin/unidata/Makefile])
   AC_CONFIG_FILES([admin/grammars/Makefile])
 fi                              dnl# -d admin

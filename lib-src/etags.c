@@ -3293,24 +3293,29 @@ C_entries (int c_ext, FILE *inf)
 			    }
 			  token.named = false;
 			  if (!plainc
-			      && nestlev > 0 && definedef == dnone)
+			      && (nestlev > 0) && (definedef == dnone))
 			    /* in struct body */
 			    {
 			      int len;
-                              write_classname (&token_name, qualifier);
+                              write_classname(&token_name, qualifier);
 			      len = token_name.len;
-			      linebuffer_setlen (&token_name, len+qlen+toklen);
-			      sprintf (token_name.buffer + len, "%s%.*s",
-				       qualifier, toklen, newlb.buffer + tokoff);
+			      linebuffer_setlen(&token_name,
+						(len + qlen + toklen));
+			      snprintf((token_name.buffer + len),
+				       (token_name.size + token_name.len + len),
+				       "%s%.*s", qualifier, toklen,
+				       (newlb.buffer + tokoff));
 			      token.named = true;
 			    }
 			  else if (objdef == ocatseen)
 			    /* Objective C category */
 			    {
-			      int len = strlen (objtag) + 2 + toklen;
-			      linebuffer_setlen (&token_name, len);
-			      sprintf (token_name.buffer, "%s(%.*s)",
-				       objtag, toklen, newlb.buffer + tokoff);
+			      int len = (strlen(objtag) + 2 + toklen);
+			      linebuffer_setlen(&token_name, len);
+			      snprintf(token_name.buffer,
+				       (token_name.size + token_name.len + len),
+				       "%s(%.*s)", objtag, toklen,
+				       (newlb.buffer + tokoff));
 			      token.named = true;
 			    }
 			  else if (objdef == omethodtag

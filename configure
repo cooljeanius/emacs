@@ -20366,6 +20366,45 @@ then :
   as_fn_append WARN_CFLAGS " -Wsizeof-pointer-div"
 fi
 
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wmultistatement-macros" >&5
+printf %s "checking whether C compiler handles -Wmultistatement-macros... " >&6; }
+if test ${gl_cv_warn_c__Wmultistatement_macros+y}
+then :
+  printf %s "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wmultistatement-macros"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_warn_c__Wmultistatement_macros=yes
+else
+  gl_cv_warn_c__Wmultistatement_macros=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wmultistatement_macros" >&5
+printf "%s\n" "$gl_cv_warn_c__Wmultistatement_macros" >&6; }
+if test "x$gl_cv_warn_c__Wmultistatement_macros" = xyes
+then :
+  as_fn_append WARN_CFLAGS " -Wmultistatement-macros"
+fi
+
       if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
         ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
@@ -20409,6 +20448,46 @@ printf "%s\n" "$gl_cv_warn_cxx__Wcatch_value" >&6; }
 if test "x$gl_cv_warn_cxx__Wcatch_value" = xyes
 then :
   as_fn_append WARN_CXXFLAGS " -Wcatch-value"
+fi
+
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C++ compiler handles -Wclass-memaccess" >&5
+printf %s "checking whether C++ compiler handles -Wclass-memaccess... " >&6; }
+if test ${gl_cv_warn_cxx__Wclass_memaccess+y}
+then :
+  printf %s "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CXXFLAGS"
+  as_fn_append CXXFLAGS " $gl_unknown_warnings_are_errors -Wclass-memaccess"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"
+then :
+  gl_cv_warn_cxx__Wclass_memaccess=yes
+else
+  gl_cv_warn_cxx__Wclass_memaccess=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CXXFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_cxx__Wclass_memaccess" >&5
+printf "%s\n" "$gl_cv_warn_cxx__Wclass_memaccess" >&6; }
+if test "x$gl_cv_warn_cxx__Wclass_memaccess" = xyes
+then :
+  as_fn_append WARN_CXXFLAGS " -Wclass-memaccess"
 fi
 
 
@@ -82161,7 +82240,9 @@ if test -d machocheck || test -d ${srcdir}/machocheck; then
 fi
 
 if test -d ${srcdir}/admin; then
-  SUBDIR_MAKEFILES="${SUBDIR_MAKEFILES} admin/unidata/Makefile admin/grammars/Makefile"
+  SUBDIR_MAKEFILES="${SUBDIR_MAKEFILES} admin/Makefile admin/unidata/Makefile admin/grammars/Makefile"
+  ac_config_files="$ac_config_files admin/Makefile"
+
   ac_config_files="$ac_config_files admin/unidata/Makefile"
 
   ac_config_files="$ac_config_files admin/grammars/Makefile"
@@ -83486,6 +83567,7 @@ do
     "po/Makevars") CONFIG_FILES="$CONFIG_FILES po/Makevars" ;;
     "test/automated/Makefile") CONFIG_FILES="$CONFIG_FILES test/automated/Makefile" ;;
     "machocheck/Makefile") CONFIG_FILES="$CONFIG_FILES machocheck/Makefile" ;;
+    "admin/Makefile") CONFIG_FILES="$CONFIG_FILES admin/Makefile" ;;
     "admin/unidata/Makefile") CONFIG_FILES="$CONFIG_FILES admin/unidata/Makefile" ;;
     "admin/grammars/Makefile") CONFIG_FILES="$CONFIG_FILES admin/grammars/Makefile" ;;
     "src/epaths.h") CONFIG_COMMANDS="$CONFIG_COMMANDS src/epaths.h" ;;

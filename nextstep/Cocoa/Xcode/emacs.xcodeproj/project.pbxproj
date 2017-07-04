@@ -44,6 +44,16 @@
 		61CD36491DDAB32700CFF599 /* regex_broken.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = regex_broken.c; sourceTree = "<group>"; tabWidth = 8; };
 		61CD39381DDBDE4800CFF599 /* hft.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hft.h; sourceTree = "<group>"; };
 		61CD396C1DDBE26700CFF599 /* devinfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = devinfo.h; sourceTree = "<group>"; };
+		61F659801F0B2C0C000C1129 /* alloc-colors.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = "alloc-colors.c"; sourceTree = "<group>"; tabWidth = 8; };
+		61F659841F0B2C0C000C1129 /* build-configs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = "build-configs"; sourceTree = "<group>"; };
+		61F65A101F0B2C0D000C1129 /* check-doc-strings */ = {isa = PBXFileReference; explicitFileType = text.script.perl; fileEncoding = 4; path = "check-doc-strings"; sourceTree = "<group>"; };
+		61F65A1E1F0B2C0D000C1129 /* diff-tar-files */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "diff-tar-files"; sourceTree = "<group>"; };
+		61F65A2E1F0B2C0D000C1129 /* make-emacs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = "make-emacs"; sourceTree = "<group>"; };
+		61F65A331F0B2C0D000C1129 /* merge-gnulib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "merge-gnulib"; sourceTree = "<group>"; };
+		61F65A341F0B2C0D000C1129 /* merge-pkg-config */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "merge-pkg-config"; sourceTree = "<group>"; };
+		61F65A521F0B2C0D000C1129 /* quick-install-emacs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "quick-install-emacs"; sourceTree = "<group>"; };
+		61F65A641F0B2C0D000C1129 /* update-copyright */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "update-copyright"; sourceTree = "<group>"; };
+		61F65A651F0B2C0D000C1129 /* update_autogen */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = update_autogen; sourceTree = "<group>"; };
 		A5017CF31B41CB19004F7B48 /* test_mach_o_binary.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = test_mach_o_binary.c; path = ../../../test_mach_o_binary.c; sourceTree = SOURCE_ROOT; };
 		A5017D1E1B41D5B5004F7B48 /* test_mach_o_binary */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test_mach_o_binary; sourceTree = BUILT_PRODUCTS_DIR; };
 		A52C809D1A1D1D7800897236 /* autodeps.mk */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; fileEncoding = 4; path = autodeps.mk; sourceTree = "<group>"; };
@@ -990,6 +1000,7 @@
 			isa = PBXGroup;
 			children = (
 				A540E9B11A0C1D6A0008DA29 /* top */,
+				61F6597C1F0B2C0C000C1129 /* admin */,
 				A540EA141A0C27C00008DA29 /* lib */,
 				A540EAD31A0C28170008DA29 /* lib-src */,
 				A540EB011A0C28680008DA29 /* lwlib */,
@@ -1015,6 +1026,24 @@
 			);
 			path = sys;
 			sourceTree = "<group>";
+		};
+		61F6597C1F0B2C0C000C1129 /* admin */ = {
+			isa = PBXGroup;
+			children = (
+				61F659801F0B2C0C000C1129 /* alloc-colors.c */,
+				61F659841F0B2C0C000C1129 /* build-configs */,
+				61F65A101F0B2C0D000C1129 /* check-doc-strings */,
+				61F65A1E1F0B2C0D000C1129 /* diff-tar-files */,
+				61F65A2E1F0B2C0D000C1129 /* make-emacs */,
+				61F65A331F0B2C0D000C1129 /* merge-gnulib */,
+				61F65A341F0B2C0D000C1129 /* merge-pkg-config */,
+				61F65A521F0B2C0D000C1129 /* quick-install-emacs */,
+				61F65A641F0B2C0D000C1129 /* update-copyright */,
+				61F65A651F0B2C0D000C1129 /* update_autogen */,
+			);
+			name = admin;
+			path = ../../../admin;
+			sourceTree = SOURCE_ROOT;
 		};
 		A5361DB61A2126BD0058110B /* Other Sources */ = {
 			isa = PBXGroup;
