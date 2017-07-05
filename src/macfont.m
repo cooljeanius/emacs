@@ -3101,6 +3101,7 @@ macfont_shape(Lisp_Object lgstring)
 
       /* Convert UTF-16 index to UTF-32: */
       j = 0;
+      /* FIXME: -Wsizeof-pointer-div */
       while ((j < (sizeof(nonbmp_indices) / sizeof(nonbmp_indices[0])))
              && (nonbmp_indices[j] < from))
 	j++;

@@ -639,7 +639,7 @@ public:
 	uint32_t		magic() const					INLINE { return E::get32(header.fields.magic); }
 	void			set_magic(uint32_t value)		INLINE { E::set32(header.fields.magic, value); }
 
-	uint32_t		cputype() const					INLINE { return E::get32((const uint32_t)header.fields.cputype); }
+	uint32_t		cputype() const					INLINE { return E::get32((uint32_t)header.fields.cputype); }
 	void			set_cputype(uint32_t value)		INLINE { E::set32((uint32_t&)header.fields.cputype, value); }
 
 	uint32_t		cpusubtype() const				INLINE { return E::get32(header.fields.cpusubtype); }
@@ -717,10 +717,10 @@ public:
 	uint64_t		filesize() const				INLINE { return P::getP(segment.fields.filesize); }
 	void			set_filesize(uint64_t value)	INLINE { P::setP(segment.fields.filesize, value); }
 
-	uint32_t		maxprot() const					INLINE { return E::get32((const uint32_t)segment.fields.maxprot); }
+	uint32_t		maxprot() const					INLINE { return E::get32((uint32_t)segment.fields.maxprot); }
 	void			set_maxprot(uint32_t value)		INLINE { E::set32((uint32_t&)segment.fields.maxprot, value); }
 
-	uint32_t		initprot() const				INLINE { return E::get32((const uint32_t)segment.fields.initprot); }
+	uint32_t		initprot() const				INLINE { return E::get32((uint32_t)segment.fields.initprot); }
 	void			set_initprot(uint32_t value)	INLINE { E::set32((uint32_t&)segment.fields.initprot, value); }
 
 	uint32_t		nsects() const					INLINE { return E::get32(segment.fields.nsects); }
@@ -1336,7 +1336,7 @@ template <> struct macho_nlist_content<Pointer64<LittleEndian> > { struct nlist_
 template <typename P>
 class macho_nlist {
 public:
-	uint32_t		n_strx() const					INLINE { return E::get32((const uint32_t)entry.fields.n_un.n_strx); }
+	uint32_t		n_strx() const					INLINE { return E::get32((uint32_t)entry.fields.n_un.n_strx); }
 	void			set_n_strx(uint32_t value)		INLINE { E::set32((uint32_t&)entry.fields.n_un.n_strx, value); }
 
 	uint8_t			n_type() const					INLINE { return entry.fields.n_type; }

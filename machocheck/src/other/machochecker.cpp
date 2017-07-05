@@ -66,6 +66,7 @@
 // Specification for main function in this file, and throwf(), too:
 #include "machochecker.h"
 
+/* */
 __attribute__((noreturn))
 void throwf(const char* format, ...)
 {
@@ -79,6 +80,7 @@ void throwf(const char* format, ...)
 	throw t;
 }
 
+/* */
 static uint64_t read_uleb128(const uint8_t*& p, const uint8_t* end)
 {
 	uint64_t result = 0;
