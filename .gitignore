@@ -21,7 +21,7 @@ libtool
 # allow gnulib's automake-generated Makefile.in, for the same reason
 # as allowing the configure script
 po/Makevars
-src/config.in
+# allow src/config.in for the configure script
 test_mach_o_binary
 # this catches both autom4te.cache and config.cache:
 *.cache

@@ -38,6 +38,7 @@ m4/ltoptions.m4 -whitespace=space-before-tab
 configure -whitespace=space-before-tab
 build-aux/ltmain.sh -whitespace=blank-at-eof
 admin/Makefile.in -whitespace=blank-at-eol
+src/config.in -whitespace=blank-at-eol
 
 # Some files should not be treated as text when diffing or merging.
 *.cur binary

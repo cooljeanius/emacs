@@ -3682,13 +3682,13 @@ else
 
   AC_DEFINE([lint],[1],[Define to 1 if the compiler is checking for lint.])
   AC_DEFINE([GCC_LINT],[1],[Define to 1 if --enable-gcc-warnings.])
-  AH_VERBATIM([FORTIFY_SOURCE],
-  [/* Enable compile-time and run-time bounds-checking, and some warnings,
-    * without upsetting glibc 2.15+. */
-   #if !defined _FORTIFY_SOURCE && defined __OPTIMIZE__ && __OPTIMIZE__
-   # define _FORTIFY_SOURCE 2
-   #endif /* !_FORTIFY_SOURCE && __OPTIMIZE__ */
-  ])dnl
+  AH_VERBATIM([FORTIFY_SOURCE],[
+/* Enable compile-time and run-time bounds-checking, and some warnings,
+ * without upsetting glibc 2.15+. */
+#if !defined _FORTIFY_SOURCE && defined __OPTIMIZE__ && __OPTIMIZE__
+# define _FORTIFY_SOURCE 2
+#endif /* !_FORTIFY_SOURCE && __OPTIMIZE__ */
+])dnl
   AC_DEFINE([GNULIB_PORTCHECK],[1],
             [Define to 1 to enable some gnulib portability checks])dnl
 
@@ -10106,7 +10106,7 @@ Local Variables:
 mode: c
 End:
 */
-])dnl
+/* EOF */])dnl
 
 dnl# begin final m4-quotation block:
 [
