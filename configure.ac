@@ -2588,6 +2588,8 @@ Check `etc/MACHINES' for recognized configuration names.])
   fi
 elif test "x${unofficially_ported}" = "xyes"; then
   AC_MSG_WARN([Emacs does not officially support `${canonical}' systems, because: "${unofficial_port_warning_reason}" However, we will not stop you from trying to build it anyways...])
+else
+  echo "Congratulations, it looks like you are using an official port! (i.e. ${opsys} on ${machine})"
 fi
 
 machfile="m/${machine}.h"
@@ -4731,6 +4733,8 @@ if test "x${ac_cv_have_decl_sys_siglist}" != "xyes"; then
   fi
 elif test "x${ac_cv_have_decl_sys_siglist}" = "x"; then
   AC_CHECK_DECLS([sys_siglist])
+else
+  test -n "${ac_cv_have_decl_sys_siglist}"
 fi
 dnl# I forget about this next one:
 AC_CHECK_DECLS([MD5_DIGEST_SIZE])dnl
@@ -4754,6 +4758,14 @@ if test "x${ac_cv_have_decl___MACH__}" = "xyes" || test -d /usr/include/mach-o; 
   elif test "x${machine}" = "xarm" || test "x${machine}" = "xacorn"; then
     test -n "${machine}"
     AC_CHECK_HEADERS([mach-o/arm/reloc.h])
+  elif test "x${machine}" = "xintel386"; then
+    test -n "${machine}"
+    AC_CHECK_HEADERS([mach-o/i386/swap.h])
+  elif test "x${machine}" = "xamdx86-64"; then
+    test -n "${machine}"
+    AC_CHECK_HEADERS([mach-o/x86_64/reloc.h])
+  else
+    AC_MSG_NOTICE([no arch-specific header for mach-o for your machine])
   fi
 fi
 if test "x${enable_acl}" != "xno"; then

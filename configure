@@ -8929,6 +8929,8 @@ Check \`etc/MACHINES' for recognized configuration names." "$LINENO" 5
 elif test "x${unofficially_ported}" = "xyes"; then
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: Emacs does not officially support \`${canonical}' systems, because: \"${unofficial_port_warning_reason}\" However, we will not stop you from trying to build it anyways..." >&5
 printf "%s\n" "$as_me: WARNING: Emacs does not officially support \`${canonical}' systems, because: \"${unofficial_port_warning_reason}\" However, we will not stop you from trying to build it anyways..." >&2;}
+else
+  echo "Congratulations, it looks like you are using an official port! (i.e. ${opsys} on ${machine})"
 fi
 
 machfile="m/${machine}.h"
@@ -37970,6 +37972,8 @@ cat >>confdefs.h <<_ACEOF
 #define HAVE_DECL_SYS_SIGLIST $ac_have_decl
 _ACEOF
 
+else
+  test -n "${ac_cv_have_decl_sys_siglist}"
 fi
 ac_fn_c_check_decl "$LINENO" "MD5_DIGEST_SIZE" "ac_cv_have_decl_MD5_DIGEST_SIZE" "$ac_includes_default"
 if test "x$ac_cv_have_decl_MD5_DIGEST_SIZE" = xyes
@@ -38068,6 +38072,37 @@ _ACEOF
 fi
 done
 
+  elif test "x${machine}" = "xintel386"; then
+    test -n "${machine}"
+    for ac_header in mach-o/i386/swap.h
+do :
+  ac_fn_c_check_header_compile "$LINENO" "mach-o/i386/swap.h" "ac_cv_header_mach_o_i386_swap_h" "$ac_includes_default"
+if test "x$ac_cv_header_mach_o_i386_swap_h" = xyes
+then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_MACH_O_I386_SWAP_H 1
+_ACEOF
+
+fi
+done
+
+  elif test "x${machine}" = "xamdx86-64"; then
+    test -n "${machine}"
+    for ac_header in mach-o/x86_64/reloc.h
+do :
+  ac_fn_c_check_header_compile "$LINENO" "mach-o/x86_64/reloc.h" "ac_cv_header_mach_o_x86_64_reloc_h" "$ac_includes_default"
+if test "x$ac_cv_header_mach_o_x86_64_reloc_h" = xyes
+then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_MACH_O_X86_64_RELOC_H 1
+_ACEOF
+
+fi
+done
+
+  else
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: no arch-specific header for mach-o for your machine" >&5
+printf "%s\n" "$as_me: no arch-specific header for mach-o for your machine" >&6;}
   fi
 fi
 if test "x${enable_acl}" != "xno"; then
