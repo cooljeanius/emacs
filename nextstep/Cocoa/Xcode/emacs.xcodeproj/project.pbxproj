@@ -2234,6 +2234,7 @@
 			isa = PBXProject;
 			buildConfigurationList = 1DEB919308733D9F0010E9CD /* Build configuration list for PBXProject "emacs" */;
 			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				English,

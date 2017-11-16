@@ -4792,7 +4792,7 @@ extern void *record_xmalloc (size_t);
 /* SAFE_ALLOCA allocates a simple buffer.  */
 
 #define SAFE_ALLOCA(size) (((size) < MAX_ALLOCA)\
-			   ? alloca(size)	\
+			   ? alloca((size_t)(size))	\
 			   : (sa_must_free = true, record_xmalloc(size)))
 
 /* SAFE_NALLOCA sets BUF to a newly allocated array of MULTIPLIER *

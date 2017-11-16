@@ -1320,6 +1320,7 @@ search_buffer(Lisp_Object string, ptrdiff_t pos, ptrdiff_t pos_byte,
       unsigned char *raw_pattern, *pat;
       ptrdiff_t raw_pattern_size;
       ptrdiff_t raw_pattern_size_byte;
+      size_t amt_to_alloca;
       unsigned char *patbuf;
       bool multibyte = !NILP (BVAR (current_buffer, enable_multibyte_characters));
       unsigned char *base_pat;
@@ -1344,7 +1345,8 @@ search_buffer(Lisp_Object string, ptrdiff_t pos, ptrdiff_t pos_byte,
 	  raw_pattern_size_byte
 	    = count_size_as_multibyte (SDATA (string),
 				       raw_pattern_size);
-	  raw_pattern = alloca (raw_pattern_size_byte + 1);
+	  amt_to_alloca = min(MAX_ALLOCA, (raw_pattern_size_byte + 1UL));
+	  raw_pattern = alloca(amt_to_alloca);
 	  copy_text (SDATA (string), raw_pattern,
 		     SCHARS (string), 0, 1);
 	}
@@ -1358,7 +1360,8 @@ search_buffer(Lisp_Object string, ptrdiff_t pos, ptrdiff_t pos_byte,
 	     the chosen single-byte character set can possibly match.  */
 	  raw_pattern_size = SCHARS (string);
 	  raw_pattern_size_byte = SCHARS (string);
-	  raw_pattern = alloca (raw_pattern_size + 1);
+	  amt_to_alloca = min(MAX_ALLOCA, (raw_pattern_size + 1UL));
+	  raw_pattern = alloca(amt_to_alloca);
 	  copy_text (SDATA (string), raw_pattern,
 		     SBYTES (string), 1, 0);
 	}
@@ -1366,7 +1369,8 @@ search_buffer(Lisp_Object string, ptrdiff_t pos, ptrdiff_t pos_byte,
       /* Copy and optionally translate the pattern.  */
       len = raw_pattern_size;
       len_byte = raw_pattern_size_byte;
-      patbuf = alloca (len * MAX_MULTIBYTE_LENGTH);
+      amt_to_alloca = min(MAX_ALLOCA, ((size_t)len * MAX_MULTIBYTE_LENGTH));
+      patbuf = alloca((size_t)amt_to_alloca);
       pat = patbuf;
       base_pat = raw_pattern;
       if (multibyte)
@@ -1812,9 +1816,10 @@ boyer_moore (EMACS_INT n, unsigned char *base_pat,
       /* Setup translate_prev_byte1/2/3/4 from CHAR_BASE.  Only a
 	 byte following them are the target of translation.  */
       unsigned char str[MAX_MULTIBYTE_LENGTH];
-      int cblen = CHAR_STRING (char_base, str);
+      size_t cblen = CHAR_STRING (char_base, str);
 
-      translate_prev_byte1 = str[cblen - 2];
+      const size_t stridx = min(0, (cblen - 2UL));
+      translate_prev_byte1 = str[stridx];
       if (cblen > 2)
 	{
 	  translate_prev_byte2 = str[cblen - 3];
@@ -2828,7 +2833,7 @@ Return value is undefined if the last search failed.  */)
 
   prev = Qnil;
 
-  data = alloca ((2 * search_regs.num_regs + 1) * sizeof *data);
+  data = alloca(((2UL * search_regs.num_regs) + 1UL) * sizeof(*data));
 
   len = 0;
   for (i = 0; i < search_regs.num_regs; i++)
@@ -3094,7 +3099,7 @@ DEFUN ("regexp-quote", Fregexp_quote, Sregexp_quote, 1, 1, 0,
 
   CHECK_STRING (string);
 
-  temp = alloca (SBYTES (string) * 2);
+  temp = alloca(SBYTES(string) * 2UL);
 
   /* Now copy the data into the new string, inserting escapes. */
 

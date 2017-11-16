@@ -91,7 +91,7 @@ struct buffer alignas (GCALIGNMENT) buffer_local_symbols;
    the buffer structure.  */
 
 #define PER_BUFFER_SYMBOL(OFFSET) \
-      (*(Lisp_Object *)((OFFSET) + (char *) &buffer_local_symbols))
+      (*(Lisp_Object *)(void *)((OFFSET) + (char *) &buffer_local_symbols))
 
 /* Maximum length of an overlay vector.  */
 #define OVERLAY_COUNT_MAX						\
@@ -3091,13 +3091,13 @@ mouse_face_overlay_overlaps (Lisp_Object overlay)
   ptrdiff_t n, i, size;
   Lisp_Object *v, tem;
 
-  size = 10;
-  v = alloca (size * sizeof *v);
-  n = overlays_in (start, end, 0, &v, &size, NULL, NULL);
+  size = 10L;
+  v = alloca(min(MAX_ALLOCA, (size * sizeof(*v))));
+  n = overlays_in(start, end, 0, &v, &size, NULL, NULL);
   if (n > size)
     {
-      v = alloca (n * sizeof *v);
-      overlays_in (start, end, 0, &v, &n, NULL, NULL);
+      v = alloca(min(MAX_ALLOCA, (n * sizeof(*v))));
+      overlays_in(start, end, 0, &v, &n, NULL, NULL);
     }
 
   for (i = 0; i < n; ++i)
@@ -4535,7 +4535,7 @@ report_overlay_modification (Lisp_Object start, Lisp_Object end, bool after,
        First copy the vector contents, in case some of these hooks
        do subsequent modification of the buffer.  */
     ptrdiff_t size = max(last_overlay_modification_hooks_used, 1L);
-    Lisp_Object *copy = alloca(size * sizeof(*copy));
+    Lisp_Object *copy = alloca(min(MAX_ALLOCA, (size * sizeof(*copy))));
     ptrdiff_t i;
 
     memcpy (copy, XVECTOR (last_overlay_modification_hooks)->contents,

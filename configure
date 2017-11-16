@@ -20379,6 +20379,123 @@ then :
   as_fn_append WARN_CFLAGS " -Wmultistatement-macros"
 fi
 
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wif-not-aligned" >&5
+printf %s "checking whether C compiler handles -Wif-not-aligned... " >&6; }
+if test ${gl_cv_warn_c__Wif_not_aligned+y}
+then :
+  printf %s "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wif-not-aligned"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_warn_c__Wif_not_aligned=yes
+else
+  gl_cv_warn_c__Wif_not_aligned=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wif_not_aligned" >&5
+printf "%s\n" "$gl_cv_warn_c__Wif_not_aligned" >&6; }
+if test "x$gl_cv_warn_c__Wif_not_aligned" = xyes
+then :
+  as_fn_append WARN_CFLAGS " -Wif-not-aligned"
+fi
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wpacked-not-aligned" >&5
+printf %s "checking whether C compiler handles -Wpacked-not-aligned... " >&6; }
+if test ${gl_cv_warn_c__Wpacked_not_aligned+y}
+then :
+  printf %s "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wpacked-not-aligned"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_warn_c__Wpacked_not_aligned=yes
+else
+  gl_cv_warn_c__Wpacked_not_aligned=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wpacked_not_aligned" >&5
+printf "%s\n" "$gl_cv_warn_c__Wpacked_not_aligned" >&6; }
+if test "x$gl_cv_warn_c__Wpacked_not_aligned" = xyes
+then :
+  as_fn_append WARN_CFLAGS " -Wpacked-not-aligned"
+fi
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wcast-align=strict" >&5
+printf %s "checking whether C compiler handles -Wcast-align=strict... " >&6; }
+if test ${gl_cv_warn_c__Wcast_align_strict+y}
+then :
+  printf %s "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wcast-align=strict"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_warn_c__Wcast_align_strict=yes
+else
+  gl_cv_warn_c__Wcast_align_strict=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wcast_align_strict" >&5
+printf "%s\n" "$gl_cv_warn_c__Wcast_align_strict" >&6; }
+if test "x$gl_cv_warn_c__Wcast_align_strict" = xyes
+then :
+  as_fn_append WARN_CFLAGS " -Wcast-align=strict"
+fi
+
       if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
         ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'

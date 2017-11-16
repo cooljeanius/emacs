@@ -662,33 +662,51 @@ print_load_command_name (int lc)
     case LC_DYLD_INFO_ONLY:
       printf("LC_DYLD_INFO_ONLY      ");
       break;
+#ifdef LC_LOAD_UPWARD_DYLIB
     case LC_LOAD_UPWARD_DYLIB:
       printf("LC_LOAD_UPWARD_DYLIB   ");
       break;
+#endif /* LC_LOAD_UPWARD_DYLIB */
+#ifdef LC_VERSION_MIN_MACOSX
     case LC_VERSION_MIN_MACOSX:
       printf("LC_VERSION_MIN_MACOSX  ");
       break;
+#endif /* LC_VERSION_MIN_MACOSX */
+#ifdef LC_VERSION_MIN_IPHONEOS
     case LC_VERSION_MIN_IPHONEOS:
       printf("LC_VERSION_MIN_IPHONEOS");
       break;
+#endif /* LC_VERSION_MIN_IPHONEOS */
+#ifdef LC_FUNCTION_STARTS
     case LC_FUNCTION_STARTS:
       printf("LC_FUNCTION_STARTS     ");
       break;
+#endif /* LC_FUNCTION_STARTS */
+#ifdef LC_DYLD_ENVIRONMENT
     case LC_DYLD_ENVIRONMENT:
       printf("LC_DYLD_ENVIRONMENT    ");
       break;
+#endif /* LC_DYLD_ENVIRONMENT */
+#ifdef LC_SOURCE_VERSION
     case LC_SOURCE_VERSION:
       printf("LC_SOURCE_VERSION      ");
       break;
+#endif /* LC_SOURCE_VERSION */
+#ifdef LC_DYLIB_CODE_SIGN_DRS
     case LC_DYLIB_CODE_SIGN_DRS:
       printf("LC_DYLIB_CODE_SIGN_DRS ");
       break;
+#endif /* LC_DYLIB_CODE_SIGN_DRS */
+#ifdef LC_MAIN
     case LC_MAIN:
       printf("LC_MAIN                ");
       break;
+#endif /* LC_MAIN */
+#ifdef LC_DATA_IN_CODE
     case LC_DATA_IN_CODE:
       printf("LC_DATA_IN_CODE        ");
       break;
+#endif /* LC_DATA_IN_CODE */
     default:
       printf("unknown(%08x)", lc);
       break;
@@ -1246,9 +1264,15 @@ dump_it ()
 	break;
       case LC_CODE_SIGNATURE:
       case LC_SEGMENT_SPLIT_INFO:
+#ifdef LC_FUNCTION_STARTS
       case LC_FUNCTION_STARTS:
+#endif /* LC_FUNCTION_STARTS */
+#ifdef LC_DATA_IN_CODE
       case LC_DATA_IN_CODE:
+#endif /* LC_DATA_IN_CODE */
+#ifdef LC_DYLIB_CODE_SIGN_DRS
       case LC_DYLIB_CODE_SIGN_DRS:
+#endif /* LC_DYLIB_CODE_SIGN_DRS */
 	copy_linkedit_data(lca[i], linkedit_delta);
 	break;
 

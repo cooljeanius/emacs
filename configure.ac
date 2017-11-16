@@ -3664,6 +3664,9 @@ else
       gl_WARN_ADD([-Wenum-conversion])dnl
       gl_WARN_ADD([-Wsizeof-pointer-div])dnl
       gl_WARN_ADD([-Wmultistatement-macros])dnl
+      gl_WARN_ADD([-Wif-not-aligned])dnl
+      gl_WARN_ADD([-Wpacked-not-aligned])dnl
+      gl_WARN_ADD([-Wcast-align=strict])dnl
       if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
         AC_LANG_PUSH([C++])dnl
         gl_WARN_ADD([-Wcatch-value],[WARN_CXXFLAGS])

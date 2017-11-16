@@ -1186,7 +1186,7 @@ filesystem tree, not (expand-file-name ".."  dirname).  */)
 	  char *o, *p;
 	  for (p = nm; *p && !IS_DIRECTORY_SEP (*p); p++)
 	    continue;
-	  o = SAFE_ALLOCA (p - nm + 1);
+	  o = SAFE_ALLOCA((p - nm) + 1UL);
 	  memcpy (o, nm, p - nm);
 	  o[p - nm] = 0;
 
@@ -1718,7 +1718,7 @@ search_embedded_absfilename (char *nm, char *endp)
 	  for (s = p; *s && !IS_DIRECTORY_SEP (*s); s++);
 	  if (p[0] == '~' && s > p + 1)	/* We've got "/~something/".  */
 	    {
-	      char *o = alloca (s - p + 1);
+	      char *o = alloca((s - p) + 1UL);
 	      struct passwd *pw;
 	      memcpy (o, p, s - p);
 	      o [s - p] = 0;

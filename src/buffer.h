@@ -1376,7 +1376,7 @@ extern int last_per_buffer_idx;
 
 
 #define PER_BUFFER_IDX(OFFSET) \
-      XINT(*(Lisp_Object *)((OFFSET) + (char *)&buffer_local_flags))
+      XINT(*(Lisp_Object *)(void *)((OFFSET) + (char *)&buffer_local_flags))
 
 /* Functions to get and set default value of the per-buffer
    variable at offset OFFSET in the buffer structure.  */
@@ -1384,13 +1384,13 @@ extern int last_per_buffer_idx;
 INLINE Lisp_Object
 per_buffer_default(int offset)
 {
-  return *(Lisp_Object *)(offset + (char *)&buffer_defaults);
+  return *(Lisp_Object *)(void *)(offset + (char *)&buffer_defaults);
 }
 
 INLINE void
 set_per_buffer_default(int offset, Lisp_Object value)
 {
-  *(Lisp_Object *)(offset + (char *)&buffer_defaults) = value;
+  *(Lisp_Object *)(void *)(offset + (char *)&buffer_defaults) = value;
 }
 
 /* Functions to get and set buffer-local value of the per-buffer
@@ -1399,13 +1399,13 @@ set_per_buffer_default(int offset, Lisp_Object value)
 INLINE Lisp_Object
 per_buffer_value(struct buffer *b, int offset)
 {
-  return *(Lisp_Object *)(offset + (char *)b);
+  return *(Lisp_Object *)(void *)(offset + (char *)b);
 }
 
 INLINE void
 set_per_buffer_value(struct buffer *b, int offset, Lisp_Object value)
 {
-  *(Lisp_Object *)(offset + (char *)b) = value;
+  *(Lisp_Object *)(void *)(offset + (char *)b) = value;
 }
 
 /* Downcase a character C, or make no change if that cannot be done: */
