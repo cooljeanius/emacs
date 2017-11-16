@@ -6041,6 +6041,7 @@ if test "x${HAVE_X11}" = "xyes"; then
   if test "x${x_libraries}" != "xNONE" && test -n "${x_libraries}"; then
     LD_RUN_PATH="${x_libraries}${LD_RUN_PATH+:}${LD_RUN_PATH}"
     export LD_RUN_PATH
+    echo "LD_RUN_PATH is now ${LD_RUN_PATH}"
   fi
 
   if test "x${opsys}" = "xgnu-linux"; then
@@ -6097,7 +6098,7 @@ if test "x${HAVE_X11}" = "xyes"; then
   dnl# check some misc. X funcs:
   AC_CHECK_FUNCS([XrmSetDatabase XScreenResourceString \
                   XScreenNumberOfScreen XSetWMProtocols])dnl
-  dnl# and also these:
+  ## and also these:
   AC_CHECK_FUNCS([check_x_display_info x_get_arg x_get_string_resource])dnl
   dnl# and some misc. X headers, if not yet checked:
   ## use cache value as guard:
@@ -8045,6 +8046,7 @@ getifaddrs freeifaddrs gai_strerror mkstemp getline mremap sync \
 difftime memcpy mempcpy getpwent endpwent getgrent endgrent \
 touchlock \
 cfmakeraw cfsetspeed copysign __executable_start log2])dnl
+  ## need this extra line bc I think autoconf changed newline eating behavior
 AC_CHECK_DECLS([cfmakeraw],[],[],[[
 #ifdef HAVE_TERMIOS_H
 # include <termios.h>

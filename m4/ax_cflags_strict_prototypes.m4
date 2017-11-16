@@ -1,7 +1,6 @@
-# ax_cflags_strict_prototypes.m4                           -*- Autoconf -*-
-#==========================================================================
-# http://www.gnu.org/software/autoconf-archive/ax_cflags_strict_prototypes.html
-#==========================================================================
+# ================================================================================
+#  https://www.gnu.org/software/autoconf-archive/ax_cflags_strict_prototypes.html
+# ================================================================================
 #
 # SYNOPSIS
 #
@@ -40,11 +39,11 @@
 #
 #   This program is distributed in the hope that it will be useful, but
 #   WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GPL
-#   for more details.
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+#   Public License for more details.
 #
 #   You should have received a copy of the GNU General Public License along
-#   with this program. If not, see <http://www.gnu.org/licenses/>.
+#   with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 #   As a special exception, the respective Autoconf Macro's copyright owner
 #   gives unlimited permission to copy, distribute and modify the configure
@@ -59,11 +58,9 @@
 #   modified version of the Autoconf Macro, you may extend this special
 #   exception to the GPL to apply to your modified version as well.
 
-#serial 14
+#serial 16
 
-AC_DEFUN([AX_FLAGS_STRICT_PROTOTYPES],[
-AC_REQUIRE([AC_PROG_SED])dnl
-AC_REQUIRE([AC_PROG_GREP])dnl
+AC_DEFUN([AX_FLAGS_STRICT_PROTOTYPES],[dnl
 AS_VAR_PUSHDEF([FLAGS],[_AC_LANG_PREFIX[]FLAGS])dnl
 AS_VAR_PUSHDEF([VAR],[ac_cv_[]_AC_LANG_ABBREV[]flags_strict_prototypes])dnl
 AC_CACHE_CHECK([m4_ifval($1,$1,FLAGS) for strict prototypes],
@@ -71,25 +68,25 @@ VAR,[VAR="no, unknown"
 ac_save_[]FLAGS="$[]FLAGS"
 for ac_arg dnl
 in "-pedantic -Werror % -fstrict-prototypes -Wstrict-prototypes" dnl   GCC
-   "-pedantic -Werror % -Wstrict-prototypes" dnl try to warn atleast
-   "-pedantic -Werror % -Wmissing-prototypes" dnl try to warn atleast
+   "-pedantic -Werror % -Wstrict-prototypes" dnl try to warn at least
+   "-pedantic -Werror % -Wmissing-prototypes" dnl try to warn at least
    "-pedantic -Werror % -Werror-implicit-function-declaration" dnl
    "-pedantic -Werror % -Wimplicit-function-declaration" dnl
    "-pedantic % -Wstrict-prototypes %% no, unsupported" dnl oops
    #
 do FLAGS="$ac_save_[]FLAGS "`echo $ac_arg | sed -e 's,%%.*,,' -e 's,%,,'`
-   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]],[[return 0;]])],
-   [VAR=`echo ${ac_arg} | sed -e 's,.*% *,,'` ; break],[])
+   AC_TRY_COMPILE([],[return 0;],
+   [VAR=`echo $ac_arg | sed -e 's,.*% *,,'` ; break])
 done
 case ".$VAR" in
    .|.no|.no,*) ;;
    *) # sanity check with signal() from sys/signal.h
     cp config.log config.tmp
-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <signal.h>]],[[
+    AC_TRY_COMPILE([#include <signal.h>],[
     if (signal (SIGINT, SIG_IGN) == SIG_DFL) return 1;
-    if (signal (SIGINT, SIG_IGN) != SIG_DFL) return 2;]])],[
-    dnl# the original did use test -n `${CC} testprogram.c`
-    if test `diff config.log config.tmp | grep -i warning | wc -l` != 0
+    if (signal (SIGINT, SIG_IGN) != SIG_DFL) return 2;],
+    dnl the original did use test -n `$CC testprogram.c`
+    [if test `diff config.log config.tmp | grep -i warning | wc -l` != 0
 then if test `diff config.log config.tmp | grep -i warning | wc -l` != 1
 then VAR="no, suppressed, signal.h," ; fi ; fi],
     [VAR="no, suppressed, signal.h"])
@@ -99,23 +96,23 @@ esac
 FLAGS="$ac_save_[]FLAGS"
 ])
 AS_VAR_POPDEF([FLAGS])dnl
-AC_REQUIRE([AX_APPEND_FLAG])
+AX_REQUIRE_DEFINED([AX_APPEND_FLAG])
 case ".$VAR" in
      .ok|.ok,*) m4_ifvaln($3,$3) ;;
    .|.no|.no,*) m4_default($4,[m4_ifval($2,[AX_APPEND_FLAG([$2], [$1])])]) ;;
-   *) m4_default($3,[AX_APPEND_FLAG([$VAR],[$1])]) ;;
+   *) m4_default($3,[AX_APPEND_FLAG([$VAR], [$1])]) ;;
 esac
 AS_VAR_POPDEF([VAR])dnl
-])dnl# end AX_FLAGS_STRICT_PROTOTYPES
+])dnl AX_FLAGS_STRICT_PROTOTYPES
 
-AC_DEFUN([AX_CFLAGS_STRICT_PROTOTYPES],[
+AC_DEFUN([AX_CFLAGS_STRICT_PROTOTYPES],[dnl
 AC_LANG_PUSH([C])
-AX_FLAGS_STRICT_PROTOTYPES([$1],[$2],[$3],[$4])
+AX_FLAGS_STRICT_PROTOTYPES([$1], [$2], [$3], [$4])
 AC_LANG_POP([C])
-])dnl
+])
 
-AC_DEFUN([AX_CXXFLAGS_STRICT_PROTOTYPES],[
+AC_DEFUN([AX_CXXFLAGS_STRICT_PROTOTYPES],[dnl
 AC_LANG_PUSH([C++])
-AX_FLAGS_STRICT_PROTOTYPES([$1],[$2],[$3],[$4])
+AX_FLAGS_STRICT_PROTOTYPES([$1], [$2], [$3], [$4])
 AC_LANG_POP([C++])
-])dnl
+])
