@@ -257,6 +257,7 @@ Returns the abbrev symbol, if expansion took place.  */)
   Lisp_Object expansion, hook, tem;
   Lisp_Object value;
   int multibyte = !NILP(current_buffer->INTERNAL_FIELD(enable_multibyte_characters));
+  size_t amt_to_alloca;
 
   value = Qnil;
 
@@ -300,7 +301,9 @@ Returns the abbrev symbol, if expansion took place.  */)
   if (wordend <= wordstart)
     return value;
 
-  p = buffer = (char *)alloca((size_t)(wordend_byte - wordstart_byte));
+  amt_to_alloca = (size_t)min(MAX_ALLOCA,
+			      (size_t)(wordend_byte - wordstart_byte));
+  p = buffer = (char *)alloca(amt_to_alloca);
 
   for (idx = wordstart, idx_byte = wordstart_byte; idx < wordend; )
     {

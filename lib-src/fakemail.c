@@ -317,7 +317,7 @@ readline(struct linebuffer *linebuffer, FILE *stream)
       if (p == end)
 	{
 	  linebuffer->size *= 2;
-	  buffer = ((char *)xrealloc((long *)buffer, linebuffer->size));
+	  buffer = ((char *)xrealloc((long *)(void *)buffer, linebuffer->size));
 	  p = (buffer + (p - linebuffer->buffer));
 	  end = (buffer + linebuffer->size);
 	  linebuffer->buffer = buffer;

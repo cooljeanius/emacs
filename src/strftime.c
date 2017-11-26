@@ -765,11 +765,15 @@ my_strftime(CHAR_T *s, size_t maxsize, const CHAR_T *format,
       switch (format_char)
 	{
 #define DO_NUMBER(d, v) \
-	  digits = d > width ? d : width;				      \
-	  number_value = v; goto do_number
+	  do { \
+	    digits = ((d > width) ? d : width);				      \
+	    number_value = v; goto do_number;				      \
+	  } while (0)
 #define DO_NUMBER_SPACEPAD(d, v) \
-	  digits = d > width ? d : width;				      \
-	  number_value = v; goto do_number_spacepad
+	  do { \
+	    digits = ((d > width) ? d : width);				      \
+	    number_value = v; goto do_number_spacepad;			      \
+	  } while (0)
 
 	case L_('%'):
 	  if (modifier != 0)

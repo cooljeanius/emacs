@@ -1646,7 +1646,6 @@ If BITMAP already exists, the existing definition is replaced.  */)
 	      if (MAX_FRINGE_BITMAPS < bitmaps)
 		error ("No free fringe bitmap slots");
 
-	      i = max_fringe_bitmaps;
 	      fringe_bitmaps = xrealloc (fringe_bitmaps,
 					 bitmaps * sizeof *fringe_bitmaps);
 	      fringe_faces = xrealloc (fringe_faces,
