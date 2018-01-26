@@ -1799,7 +1799,7 @@ allocate_string_data (struct Lisp_String *s,
     b = current_sblock;
 
   data = b->next_free;
-  b->next_free = (sdata *) ((char *) data + needed + GC_STRING_EXTRA);
+  b->next_free = (sdata *)(void *)((char *)data + needed + GC_STRING_EXTRA);
 
   MALLOC_UNBLOCK_INPUT;
 
@@ -1966,7 +1966,7 @@ compact_small_strings (void)
   /* TB is the sblock we copy to, TO is the sdata within TB we copy
      to, and TB_END is the end of TB.  */
   tb = oldest_sblock;
-  tb_end = (sdata *) ((char *) tb + SBLOCK_SIZE);
+  tb_end = (sdata *)(void *)((char *)tb + SBLOCK_SIZE);
   to = tb->data;
 
   /* Step through the blocks from the oldest to the youngest.  We
@@ -1994,8 +1994,8 @@ compact_small_strings (void)
 	  nbytes = s ? STRING_BYTES (s) : SDATA_NBYTES (from);
 	  eassert (nbytes <= LARGE_STRING_BYTES);
 
-	  nbytes = SDATA_SIZE (nbytes);
-	  from_end = (sdata *) ((char *) from + nbytes + GC_STRING_EXTRA);
+	  nbytes = SDATA_SIZE(nbytes);
+	  from_end = (sdata *)(void *)((char *)from + nbytes + GC_STRING_EXTRA);
 
 #ifdef GC_CHECK_STRING_OVERRUN
 	  if (memcmp (string_overrun_cookie,
@@ -2008,14 +2008,14 @@ compact_small_strings (void)
 	  if (s)
 	    {
 	      /* If TB is full, proceed with the next sblock.  */
-	      to_end = (sdata *) ((char *) to + nbytes + GC_STRING_EXTRA);
+	      to_end = (sdata *)(void *)((char *)to + nbytes + GC_STRING_EXTRA);
 	      if (to_end > tb_end)
 		{
 		  tb->next_free = to;
 		  tb = tb->next;
-		  tb_end = (sdata *) ((char *) tb + SBLOCK_SIZE);
+		  tb_end = (sdata *)(void *)((char *)tb + SBLOCK_SIZE);
 		  to = tb->data;
-		  to_end = (sdata *) ((char *) to + nbytes + GC_STRING_EXTRA);
+		  to_end = (sdata *)(void *)((char *)to + nbytes + GC_STRING_EXTRA);
 		}
 
 	      /* Copy, and update the string's `data' pointer.  */
@@ -2734,7 +2734,7 @@ verify (VECTOR_BLOCK_SIZE <= (1 << PSEUDOVECTOR_SIZE_BITS));
 
 /* Common shortcut to advance vector pointer over a block data.  */
 
-#define ADVANCE(v, nbytes) ((struct Lisp_Vector *) ((char *) (v) + (nbytes)))
+#define ADVANCE(v, nbytes) ((struct Lisp_Vector *)(void *)((char *)(v) + (nbytes)))
 
 /* Common shortcut to calculate NBYTES-vector index in VECTOR_FREE_LISTS.  */
 
@@ -2771,13 +2771,13 @@ struct large_vector
 
 enum
 {
-  large_vector_offset = ROUNDUP (sizeof (struct large_vector), vector_alignment)
+  large_vector_offset = ROUNDUP(sizeof(struct large_vector), vector_alignment)
 };
 
 static struct Lisp_Vector *
-large_vector_vec (struct large_vector *p)
+large_vector_vec(struct large_vector *p)
 {
-  return (struct Lisp_Vector *) ((char *) p + large_vector_offset);
+  return (struct Lisp_Vector *)(void *)((char *)p + large_vector_offset);
 }
 
 /* This internal type is used to maintain an underlying storage
@@ -2885,8 +2885,8 @@ allocate_vector_from_block (size_t nbytes)
   /* Finally, need a new vector block.  */
   block = allocate_vector_block ();
 
-  /* New vector will be at the beginning of this block.  */
-  vector = (struct Lisp_Vector *) block->data;
+  /* New vector will be at the beginning of this block: */
+  vector = (struct Lisp_Vector *)(void *)block->data;
 
   /* If the rest of space from this block is large enough
      for one-slot vector at least, set up it on a free list.  */
@@ -2970,8 +2970,8 @@ sweep_vectors (void)
       bool free_this_block = 0;
       ptrdiff_t nbytes;
 
-      for (vector = (struct Lisp_Vector *) block->data;
-	   VECTOR_IN_BLOCK (vector, block); vector = next)
+      for (vector = (struct Lisp_Vector *)(void *)block->data;
+	   VECTOR_IN_BLOCK(vector, block); vector = next)
 	{
 	  if (VECTOR_MARKED_P (vector))
 	    {
@@ -3005,8 +3005,8 @@ sweep_vectors (void)
 
 	      eassert (total_bytes % roundup_size == 0);
 
-	      if (vector == (struct Lisp_Vector *) block->data
-		  && !VECTOR_IN_BLOCK (next, block))
+	      if ((vector == (struct Lisp_Vector *)(void *)block->data)
+		  && !VECTOR_IN_BLOCK(next, block))
 		/* This block should be freed because all of it's
 		   space was coalesced into the only free vector.  */
 		free_this_block = 1;
@@ -4365,7 +4365,7 @@ live_vector_p (struct mem_node *m, void *p)
     {
       /* This memory node corresponds to a vector block.  */
       struct vector_block *block = m->start;
-      struct Lisp_Vector *vector = (struct Lisp_Vector *) block->data;
+      struct Lisp_Vector *vector = (struct Lisp_Vector *)(void *)block->data;
 
       /* P is in the block's allocation range.  Scan the block
 	 up to P and see whether P points to the start of some
@@ -4681,10 +4681,15 @@ mark_memory (void *start, void *end)
      away.  The only reference to the life string is through the
      pointer `s'.  */
 
-  for (pp = start; (void *) pp < end; pp++)
-    for (i = 0; i < sizeof *pp; i += GC_POINTER_ALIGNMENT)
+  for (pp = start; (void *)pp < end; pp++)
+    for (i = 0; i < sizeof(*pp); i += GC_POINTER_ALIGNMENT)
       {
-	void *p = *(void **) ((char *) pp + i);
+	/* Yes, we need all these casts here, to avoid:
+	 * - -Wcast-align=strict
+	 * - -Wpointer-arith
+	 * - Invalid function: "DEAD"
+	 */
+	void *p = *(void **)(void *)((char *)pp + i);
 	mark_maybe_pointer (p);
 	if (POINTERS_MIGHT_HIDE_IN_OBJECTS)
 	  mark_maybe_object (XIL ((intptr_t) p));

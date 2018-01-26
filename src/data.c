@@ -1010,8 +1010,8 @@ do_symval_forwarding (register union Lisp_Fwd *valcontents)
 	 last-command and real-last-command, and people may rely on
 	 that.  I took a quick look at the Lisp codebase, and I
 	 don't think anything will break.  --lorentey  */
-      return *(Lisp_Object *)(XKBOARD_OBJFWD (valcontents)->offset
-			      + (char *)FRAME_KBOARD (SELECTED_FRAME ()));
+      return *(Lisp_Object *)(void *)(XKBOARD_OBJFWD(valcontents)->offset
+				      + (char *)FRAME_KBOARD(SELECTED_FRAME()));
     default: emacs_abort ();
     }
 }
@@ -1084,9 +1084,9 @@ store_symval_forwarding (union Lisp_Fwd *valcontents, register Lisp_Object newva
 
     case Lisp_Fwd_Kboard_Obj:
       {
-	char *base = (char *) FRAME_KBOARD (SELECTED_FRAME ());
-	char *p = base + XKBOARD_OBJFWD (valcontents)->offset;
-	*(Lisp_Object *) p = newval;
+	char *base = (char *)FRAME_KBOARD(SELECTED_FRAME());
+	void *p = base + XKBOARD_OBJFWD(valcontents)->offset;
+	*(Lisp_Object *)p = newval;
       }
       break;
 

@@ -6842,7 +6842,15 @@ jpeg_image_p (Lisp_Object object)
 #  define HAVE_STDLIB_H_1 1
 # endif /* !HAVE_STDLIB_H_1 */
 # undef HAVE_STDLIB_H
-#endif /* HAVE_STLIB_H */
+#endif /* HAVE_STDLIB_H */
+
+/* Likewise with HAVE_STDDEF_H: */
+#ifdef HAVE_STDDEF_H
+# ifndef HAVE_STDDEF_H_1
+#  define HAVE_STDDEF_H_1 1
+# endif /* !HAVE_STDDEF_H_1 */
+# undef HAVE_STDDEF_H
+#endif /* HAVE_STDDEF_H */
 
 #if defined (HAVE_NTGUI) && !defined (__WIN32__)
 /* In older releases of the jpeg library, jpeglib.h will define boolean
@@ -6870,9 +6878,13 @@ jpeg_image_p (Lisp_Object object)
 #include <jpeglib.h>
 #include <jerror.h>
 
-#if defined(HAVE_STLIB_H_1) && HAVE_STDLIB_H_1 && !defined(HAVE_STDLIB_H)
+#if defined(HAVE_STDLIB_H_1) && HAVE_STDLIB_H_1 && !defined(HAVE_STDLIB_H)
 # define HAVE_STDLIB_H 1
 #endif /* HAVE_STDLIB_H_1 && !HAVE_STDLIB_H */
+
+#if defined(HAVE_STDDEF_H_1) && HAVE_STDDEF_H_1 && !defined(HAVE_STDDEF_H)
+# define HAVE_STDDEF_H 1
+#endif /* HAVE_STDDEF_H_1 && !HAVE_STDDEF_H */
 
 #ifdef WINDOWSNT
 

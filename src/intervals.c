@@ -295,8 +295,9 @@ search_for_interval(INTERVAL i, INTERVAL tree)
 }
 
 static void
-inc_interval_count(INTERVAL i)
+inc_interval_count(INTERVAL i, Lisp_Object unused)
 {
+  (void)unused;
   icount++;
   if (LENGTH(i) == 0)
     zero_length++;
@@ -312,7 +313,7 @@ count_intervals(INTERVAL i)
   icount = 0;
   idepth = 0;
   zero_length = 0;
-  traverse_intervals_noorder(i, (interval_func)&inc_interval_count, Qnil);
+  traverse_intervals_noorder(i, &inc_interval_count, Qnil);
 
   return icount;
 }

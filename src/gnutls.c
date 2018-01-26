@@ -113,9 +113,9 @@ DEF_GNUTLS_FN (void, gnutls_dh_set_prime_bits,
 DEF_GNUTLS_FN (int, gnutls_error_is_fatal, (int));
 DEF_GNUTLS_FN (int, gnutls_global_init, (void));
 DEF_GNUTLS_FN (void, gnutls_global_set_log_function, (gnutls_log_func));
-#if defined(HAVE_GNUTLS3) && HAVE_GNUTLS3
+#if defined(HAVE_GNUTLS3) && defined(HAVE_GNUTLS_GLOBAL_SET_AUDIT_LOG_FUNCTION)
 DEF_GNUTLS_FN (void, gnutls_global_set_audit_log_function, (gnutls_audit_log_func));
-#endif /* HAVE_GNUTLS3 */
+#endif /* HAVE_GNUTLS3 && HAVE_GNUTLS_GLOBAL_SET_AUDIT_LOG_FUNCTION */
 DEF_GNUTLS_FN (void, gnutls_global_set_log_level, (int));
 DEF_GNUTLS_FN (void, gnutls_global_set_mem_functions,
 	       (gnutls_alloc_function, gnutls_alloc_function,
@@ -181,9 +181,9 @@ init_gnutls_functions (void)
   LOAD_GNUTLS_FN (library, gnutls_error_is_fatal);
   LOAD_GNUTLS_FN (library, gnutls_global_init);
   LOAD_GNUTLS_FN (library, gnutls_global_set_log_function);
-#if defined(HAVE_GNUTLS3) && HAVE_GNUTLS3
+#if defined(HAVE_GNUTLS3) && defined(HAVE_GNUTLS_GLOBAL_SET_AUDIT_LOG_FUNCTION)
   LOAD_GNUTLS_FN (library, gnutls_global_set_audit_log_function);
-#endif /* HAVE_GNUTLS3 */
+#endif /* HAVE_GNUTLS3 && HAVE_GNUTLS_GLOBAL_SET_AUDIT_LOG_FUNCTION */
   LOAD_GNUTLS_FN (library, gnutls_global_set_log_level);
   LOAD_GNUTLS_FN (library, gnutls_global_set_mem_functions);
   LOAD_GNUTLS_FN (library, gnutls_handshake);
@@ -241,9 +241,9 @@ init_gnutls_functions (void)
 #define fn_gnutls_error_is_fatal		gnutls_error_is_fatal
 #define fn_gnutls_global_init			gnutls_global_init
 #define fn_gnutls_global_set_log_function	gnutls_global_set_log_function
-#if defined(HAVE_GNUTLS3) && HAVE_GNUTLS3
+#if defined(HAVE_GNUTLS3) && defined(HAVE_GNUTLS_GLOBAL_SET_AUDIT_LOG_FUNCTION)
 # define fn_gnutls_global_set_audit_log_function gnutls_global_set_audit_log_function
-#endif /* HAVE_GNUTLS3 */
+#endif /* HAVE_GNUTLS3 && HAVE_GNUTLS_GLOBAL_SET_AUDIT_LOG_FUNCTION */
 #define fn_gnutls_global_set_log_level		gnutls_global_set_log_level
 #define fn_gnutls_global_set_mem_functions	gnutls_global_set_mem_functions
 #define fn_gnutls_handshake			gnutls_handshake
@@ -835,9 +835,11 @@ one trustfile (usually a CA bundle).  */)
   if (TYPE_RANGED_INTEGERP (int, loglevel))
     {
       fn_gnutls_global_set_log_function (gnutls_log_function);
-#if defined(HAVE_GNUTLS3) && HAVE_GNUTLS3
+#if defined(HAVE_GNUTLS3) && defined(HAVE_GNUTLS_GLOBAL_SET_AUDIT_LOG_FUNCTION)
       fn_gnutls_global_set_audit_log_function (gnutls_audit_log_function);
-#endif /* HAVE_GNUTLS3 */
+#else
+      (void)gnutls_audit_log_function;
+#endif /* HAVE_GNUTLS3 && HAVE_GNUTLS_GLOBAL_SET_AUDIT_LOG_FUNCTION */
       fn_gnutls_global_set_log_level (XINT (loglevel));
       max_log_level = XINT (loglevel);
       XPROCESS (proc)->gnutls_log_level = max_log_level;

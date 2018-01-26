@@ -414,7 +414,7 @@ x_set_frame_alpha (struct frame *f)
 
     if (rc == Success && actual != None)
       {
-        unsigned long value = *(unsigned long *)data;
+        unsigned long value = *(unsigned long *)(void *)data;
 	XFree (data);
 	if (value == opac)
 	  {
@@ -1433,9 +1433,9 @@ cvt_string_to_pixel (Display *dpy, XrmValue *args, Cardinal *nargs,
       return False;
     }
 
-  screen = *(Screen **) args[0].addr;
-  cmap = *(Colormap *) args[1].addr;
-  color_name = (String) from->addr;
+  screen = *(Screen **)(void *)args[0].addr;
+  cmap = *(Colormap *)(void *)args[1].addr;
+  color_name = (String)from->addr;
 
   if (strcmp (color_name, XtDefaultBackground) == 0)
     {
@@ -1474,7 +1474,7 @@ cvt_string_to_pixel (Display *dpy, XrmValue *args, Cardinal *nargs,
 	  return False;
 	}
 
-      *(Pixel *) to->addr = pixel;
+      *(Pixel *)(void *)to->addr = pixel;
     }
   else
     {
@@ -1513,10 +1513,10 @@ cvt_pixel_dtor (XtAppContext app, XrmValuePtr to, XtPointer closure, XrmValuePtr
   else if (closure != NULL)
     {
       /* We did allocate the pixel, so free it.  */
-      Screen *screen = *(Screen **) args[0].addr;
-      Colormap cmap = *(Colormap *) args[1].addr;
-      x_free_dpy_colors (DisplayOfScreen (screen), screen, cmap,
-			 (Pixel *) to->addr, 1);
+      Screen *screen = *(Screen **)(void *)args[0].addr;
+      Colormap cmap = *(Colormap *)(void *)args[1].addr;
+      x_free_dpy_colors(DisplayOfScreen(screen), screen, cmap,
+			(Pixel *)(void *)to->addr, 1);
     }
 }
 
@@ -7840,7 +7840,7 @@ x_new_font (struct frame *f, Lisp_Object font_object, int fontset)
 static void
 xim_destroy_callback (XIM xim, XPointer client_data, XPointer call_data)
 {
-  struct x_display_info *dpyinfo = (struct x_display_info *) client_data;
+  struct x_display_info *dpyinfo = (struct x_display_info *)(void *)client_data;
   Lisp_Object frame, tail;
 
   block_input ();
@@ -7919,7 +7919,7 @@ xim_open_dpy (struct x_display_info *dpyinfo, char *resource_name)
 static void
 xim_instantiate_callback (Display *display, XPointer client_data, XPointer call_data)
 {
-  struct xim_inst_t *xim_inst = (struct xim_inst_t *) client_data;
+  struct xim_inst_t *xim_inst = (struct xim_inst_t *)(void *)client_data;
   struct x_display_info *dpyinfo = xim_inst->dpyinfo;
 
   /* We don't support multiple XIM connections. */
@@ -8181,7 +8181,7 @@ wm_supports (struct frame *f, Atom want_atom)
       return 0;
     }
 
-  wmcheck_window = *(Window *) tmp_data;
+  wmcheck_window = *(Window *)(void *)tmp_data;
   XFree (tmp_data);
 
   /* Check if window exists. */
@@ -8219,7 +8219,7 @@ wm_supports (struct frame *f, Atom want_atom)
           return 0;
         }
 
-      dpyinfo->net_supported_atoms = (Atom *)tmp_data;
+      dpyinfo->net_supported_atoms = (Atom *)(void *)tmp_data;
       dpyinfo->nr_net_supported_atoms = actual_size;
       dpyinfo->net_supported_window = wmcheck_window;
     }
@@ -8308,7 +8308,7 @@ get_current_wm_state (struct frame *f,
 
   for (i = 0; i < actual_size; ++i)
     {
-      Atom a = ((Atom*)tmp_data)[i];
+      Atom a = ((Atom*)(void *)tmp_data)[i];
       if (a == dpyinfo->Xatom_net_wm_state_hidden)
         {
           is_hidden = 1;
@@ -10141,7 +10141,7 @@ x_term_init (Lisp_Object display_name, char *xrm_option, char *resource_name)
                   False, atoms_return);
 
     for (i = 0; i < atom_count; i++)
-      *(Atom *) ((char *) dpyinfo + atom_refs[i].offset) = atoms_return[i];
+      *(Atom *)(void *)((char *)dpyinfo + atom_refs[i].offset) = atoms_return[i];
 
     /* Manual copy of last atom */
     dpyinfo->Xatom_xsettings_sel = atoms_return[i];

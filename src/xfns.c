@@ -1,4 +1,4 @@
-/* Functions for the X window system.
+/* xfns.c: Functions for the X window system.
 
 Copyright (C) 1989, 1992-2014 Free Software Foundation, Inc.
 
@@ -300,7 +300,7 @@ x_real_positions (struct frame *f, int *xptr, int *yptr)
         {
           unsigned int ign;
           Window rootw;
-          long *fe = (long *)tmp_data;
+          long *fe = (long *)(void *)tmp_data;
 
           XGetGeometry (FRAME_X_DISPLAY (f), win,
                         &rootw, &real_x, &real_y, &ign, &ign, &ign, &ign);
@@ -1598,7 +1598,7 @@ hack_wm_protocols (struct frame *f, Widget widget)
 	 == Success)
 	&& format == 32 && type == XA_ATOM)
       {
-	Atom *atoms = (Atom *) catoms;
+	Atom *atoms = (Atom *)(void *)catoms;
 	while (nitems > 0)
 	  {
 	    nitems--;
@@ -3686,7 +3686,7 @@ x_get_net_workarea (struct x_display_info *dpyinfo, XRectangle *rect)
   if (rc == Success && actual_type == target_type && !x_had_errors_p (dpy)
       && actual_format == 32 && actual_size == max_len)
     {
-      long current_desktop = ((long *) tmp_data)[0];
+      long current_desktop = ((long *)(void *)tmp_data)[0];
 
       XFree (tmp_data);
       tmp_data = NULL;
@@ -3701,7 +3701,7 @@ x_get_net_workarea (struct x_display_info *dpyinfo, XRectangle *rect)
       if (rc == Success && actual_type == target_type && !x_had_errors_p (dpy)
 	  && actual_format == 32 && actual_size == max_len)
 	{
-	  long *values = (long *) tmp_data;
+	  long *values = (long *)(void *)tmp_data;
 
 	  rect->x = values[0];
 	  rect->y = values[1];
@@ -4625,8 +4625,8 @@ no value of TYPE (always string in the MS Windows case).  */)
           if (BITS_PER_LONG > 32 && actual_format == 32)
             {
               unsigned long i;
-              int  *idata = (int *) tmp_data;
-              long *ldata = (long *) tmp_data;
+              int  *idata = (int *)(void *)tmp_data;
+              long *ldata = (long *)(void *)tmp_data;
 
               for (i = 0; i < actual_size; ++i)
                 idata[i] = (int) ldata[i];

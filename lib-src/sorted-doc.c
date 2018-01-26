@@ -82,7 +82,7 @@ struct docstr			/* Allocated thing for an entry. */
 /* prototypes: */
 extern void error(const char *s1, const char *s2);
 extern _Noreturn void fatal(const char *s1, const char *s2);
-extern char *xmalloc(int size);
+extern void *xmalloc(int size);
 extern char *xstrdup(char *str);
 extern int cmpdoc(DOCSTR **a, DOCSTR **b);
 
@@ -107,10 +107,10 @@ fatal(const char *s1, const char *s2)
  * already have the C11 one) */
 
 /* xmalloc(): Like malloc but get fatal error if memory is exhausted: */
-char *
+void *
 xmalloc(int size)
 {
-  char *result = malloc((unsigned)size);
+  void *result = malloc((unsigned)size);
   if (result == NULL) {
     fatal("%s", "virtual memory exhausted");
   }

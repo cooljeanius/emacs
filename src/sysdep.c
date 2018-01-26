@@ -1294,17 +1294,8 @@ reset_sys_modes (struct tty_display_info *tty_out)
 }
 
 #ifdef HAVE_PTYS
-/* copied from "config.h": */
-# ifndef ATTRIBUTE_CONST
-/* The __const__ attribute was added in gcc 2.95: */
-#  if (__GNUC__ > 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 95))
-#   define ATTRIBUTE_CONST __attribute__ ((__const__))
-#  else
-#   define ATTRIBUTE_CONST /* empty */
-#  endif /* gcc 2.95+ */
-# endif /* !ATTRIBUTE_CONST */
 /* Set up the proper status flags for use of a pty: */
-void ATTRIBUTE_CONST
+void
 setup_pty(int fd)
 {
   /* I am told that TOICREMOTE does not mean control chars

@@ -1078,7 +1078,7 @@ socket_connection (char *host, int flags)
   for (it = res; it; it = it->ai_next)
     if (it->ai_addrlen == sizeof addr)
       {
-	struct sockaddr_in *in_a = (struct sockaddr_in *) it->ai_addr;
+	struct sockaddr_in *in_a = (struct sockaddr_in *)(void *)it->ai_addr;
 	addr.sin_addr = in_a->sin_addr;
 	if (! connect (sock, (struct sockaddr *) &addr, sizeof addr))
 	  break;

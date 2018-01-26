@@ -1,4 +1,4 @@
-/* X Selection processing for Emacs.
+/* xselect.c: X Selection processing for Emacs.
    Copyright (C) 1993-1997, 2000-2014 Free Software Foundation, Inc.
 
 This file is part of GNU Emacs.
@@ -1363,8 +1363,8 @@ x_get_window_property (Display *display, Window window, Atom property,
       if (BITS_PER_LONG > 32 && *actual_format_ret == 32)
         {
           unsigned long i;
-	  int  *idata = (int *) (data + offset);
-          long *ldata = (long *) tmp_data;
+	  int  *idata = (int *)(void *)(data + offset);
+          long *ldata = (long *)(void *)tmp_data;
 
           for (i = 0; i < *actual_size_ret; ++i)
 	    idata[i] = ldata[i];
@@ -1536,7 +1536,7 @@ x_get_window_property_as_lisp_data (Display *display, Window window,
     {
       /* That wasn't really the data, just the beginning.  */
 
-      unsigned int min_size_bytes = * ((unsigned int *) data);
+      unsigned int min_size_bytes = *((unsigned int *)(void *)data);
       block_input ();
       /* Use xfree, not XFree, because x_get_window_property
 	 calls xmalloc itself.  */
@@ -1636,7 +1636,7 @@ selection_data_to_lisp_data (Display *display, const unsigned char *data,
          But the callers of these function has made sure the data for
          format == 32 is an array of int.  Thus, use int instead
          of Atom.  */
-      int *idata = (int *) data;
+      int *idata = (int *)(void *)data;
 
       if (size == sizeof (int))
 	return x_atom_to_symbol (display, (Atom) idata[0]);
@@ -1654,10 +1654,10 @@ selection_data_to_lisp_data (Display *display, const unsigned char *data,
      If the number is 32 bits and won't fit in a Lisp_Int,
      convert it to a cons of integers, 16 bits in each half.
    */
-  else if (format == 32 && size == sizeof (int))
-    return INTEGER_TO_CONS (((int *) data) [0]);
-  else if (format == 16 && size == sizeof (short))
-    return make_number (((short *) data) [0]);
+  else if (format == 32 && size == sizeof(int))
+    return INTEGER_TO_CONS(((int *)(void *)data)[0]);
+  else if (format == 16 && size == sizeof(short))
+    return make_number(((short *)(void *)data)[0]);
 
   /* Convert any other kind of data to a vector of numbers, represented
      as above (as an integer, or a cons of two 16 bit integers.)
@@ -1665,24 +1665,24 @@ selection_data_to_lisp_data (Display *display, const unsigned char *data,
   else if (format == 16)
     {
       ptrdiff_t i;
-      Lisp_Object v = make_uninit_vector (size / 2);
+      Lisp_Object v = make_uninit_vector(size / 2);
 
-      for (i = 0; i < size / 2; i++)
+      for (i = 0; i < (size / 2); i++)
 	{
-	  short j = ((short *) data) [i];
-	  ASET (v, i, make_number (j));
+	  short j = ((short *)(void *)data)[i];
+	  ASET(v, i, make_number(j));
 	}
       return v;
     }
   else
     {
       ptrdiff_t i;
-      Lisp_Object v = make_uninit_vector (size / X_LONG_SIZE);
+      Lisp_Object v = make_uninit_vector(size / X_LONG_SIZE);
 
-      for (i = 0; i < size / X_LONG_SIZE; i++)
+      for (i = 0; i < (size / X_LONG_SIZE); i++)
 	{
-	  int j = ((int *) data) [i];
-	  ASET (v, i, INTEGER_TO_CONS (j));
+	  int j = ((int *)(void *)data)[i];
+	  ASET(v, i, INTEGER_TO_CONS(j));
 	}
       return v;
     }
@@ -2761,3 +2761,5 @@ A value of 0 means wait as long as necessary.  This is initialized from the
   DEFSYM (Qx_lost_selection_functions, "x-lost-selection-functions");
   DEFSYM (Qx_sent_selection_functions, "x-sent-selection-functions");
 }
+
+/* EOF */

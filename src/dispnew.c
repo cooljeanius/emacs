@@ -1349,22 +1349,11 @@ flush_stdout (void)
   fflush (stdout);
 }
 
-
-/* copied from "config.h": */
-#ifndef ATTRIBUTE_CONST
-/* The __const__ attribute was added in gcc 2.95: */
-# if (__GNUC__ > 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 95))
-#  define ATTRIBUTE_CONST __attribute__ ((__const__))
-# else
-#  define ATTRIBUTE_CONST /* empty */
-# endif /* gcc 2.95+ */
-#endif /* !ATTRIBUTE_CONST */
-
 /* Check that no glyph pointers have been lost in MATRIX.  If a
  * pointer has been lost, e.g. by using a structure assignment between
  * rows, at least one pointer must occur more than once in the rows of
  * MATRIX.  */
-void ATTRIBUTE_CONST
+void
 check_matrix_pointer_lossage (struct glyph_matrix *matrix)
 {
   int i, j;

@@ -3296,7 +3296,7 @@ C_entries (int c_ext, FILE *inf)
 			      && (nestlev > 0) && (definedef == dnone))
 			    /* in struct body */
 			    {
-			      int len;
+			      size_t len;
                               write_classname(&token_name, qualifier);
 			      len = token_name.len;
 			      linebuffer_setlen(&token_name,
@@ -3310,7 +3310,7 @@ C_entries (int c_ext, FILE *inf)
 			  else if (objdef == ocatseen)
 			    /* Objective C category */
 			    {
-			      int len = (strlen(objtag) + 2 + toklen);
+			      size_t len = (strlen(objtag) + 2UL + toklen);
 			      linebuffer_setlen(&token_name, len);
 			      snprintf(token_name.buffer,
 				       (token_name.size + token_name.len + len),
@@ -5965,7 +5965,7 @@ get_tag(register char *bp, char **namepp)
   register char *cp = bp;
 
   assert(bp != NULL);
-  
+
   if (*bp != '\0')
     {
       /* Go till you get to white space or a syntactic break */
@@ -6332,7 +6332,7 @@ skip_non_spaces(char *cp)
 #if defined(assert) && !defined(ATTRIBUTE_NONNULL)
   assert(cp != NULL);
 #endif /* assert && !ATTRIBUTE_NONNULL */
-  
+
   while ((*cp != '\0') && !iswhite(*cp))
     {
       cp++;
