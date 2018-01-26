@@ -4786,6 +4786,33 @@ enum MAX_ALLOCA { MAX_ALLOCA = 16 * 1024 };
 
 extern void *record_xmalloc (size_t);
 
+/* Take some diagnostic macros from glibc/include/libc-diag.h: */
+
+/* Push diagnostic state.  */
+#define DIAG_PUSH_NEEDS_COMMENT _Pragma ("GCC diagnostic push")
+
+/* Pop diagnostic state.  */
+#define DIAG_POP_NEEDS_COMMENT _Pragma ("GCC diagnostic pop")
+
+#define _DIAG_STR1(s) #s
+#define _DIAG_STR(s) _DIAG_STR1(s)
+
+/* Ignore the diagnostic OPTION.  VERSION is the most recent GCC
+ * version for which the diagnostic has been confirmed to appear in
+ * the absence of the pragma (in the form MAJOR.MINOR for GCC 4.x,
+ * just MAJOR for GCC 5 and later).  Uses of this pragma should be
+ * reviewed when the GCC version given is no longer supported for
+ * building emacs; the version number should always be on the same
+ * source line as the macro name, so such uses can be found with grep.
+ * Uses should come with a comment giving more details of the
+ * diagnostic, and an architecture on which it is seen if possibly
+ * optimization-related and not in architecture-specific code.  This
+ * macro should only be used if the diagnostic seems hard to fix (for
+ * example, optimization-related false positives).  */
+#define DIAG_IGNORE_NEEDS_COMMENT(version, option)     \
+  _Pragma (_DIAG_STR (GCC diagnostic ignored option))
+
+/* FIXME: get SAFE_ALLOCA to push and pop -Walloca-larger-than */
 #define USE_SAFE_ALLOCA			\
   ptrdiff_t sa_count = SPECPDL_INDEX (); bool sa_must_free = false
 
@@ -4820,7 +4847,6 @@ extern void *record_xmalloc (size_t);
       unbind_to (sa_count, Qnil);	\
     }					\
   } while (false)
-
 
 /* SAFE_ALLOCA_LISP allocates an array of Lisp_Objects.  */
 

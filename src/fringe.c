@@ -1813,17 +1813,8 @@ mark_fringe_data (void)
       mark_object (fringe_faces[i]);
 }
 
-/* copied from "config.h": */
-#ifndef ATTRIBUTE_CONST
-/* The __const__ attribute was added in gcc 2.95: */
-# if (__GNUC__ > 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 95))
-#  define ATTRIBUTE_CONST __attribute__ ((__const__))
-# else
-#  define ATTRIBUTE_CONST /* empty */
-# endif /* gcc 2.95+ */
-#endif /* !ATTRIBUTE_CONST */
 /* Initialize this module when Emacs starts: */
-void ATTRIBUTE_CONST
+void
 init_fringe_once (void)
 {
   int bt;

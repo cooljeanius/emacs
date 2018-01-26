@@ -4,7 +4,8 @@ HARDCODED_CXX = /usr/bin/g++-4.2
 CXX = @CXX@
 HARDCODED_WARN_CFLAGS = -Wno-system-headers -Wall -Wextra
 WARN_CFLAGS = @WARN_CFLAGS@
-HARDCODED_WARN_CXXFLAGS = $(HARDCODED_WARN_CFLAGS) -Wmissing-include-dirs -Winvalid-pch -Wconversion -Wpointer-arith -Wwrite-strings -Wmissing-noreturn -Wformat=2 -Winline -Wswitch -Wswitch-default -Wredundant-decls -Wshadow
+STDFLAG = -std=gnu++98
+HARDCODED_WARN_CXXFLAGS = $(HARDCODED_WARN_CFLAGS) $(STDFLAG) -Wmissing-include-dirs -Winvalid-pch -Wconversion -Wpointer-arith -Wwrite-strings -Wmissing-noreturn -Wformat=2 -Winline -Wswitch -Wswitch-default -Wredundant-decls -Wshadow
 WARN_CXXFLAGS = @WARN_CXXFLAGS@
 MAC_VERS_CFLAGS = -mmacosx-version-min=10.5
 HARDCODED_CFLAGS = $(MAC_VERS_CFLAGS) -mfix-and-continue -gdwarf-2 -ggdb3 -gfull -O0

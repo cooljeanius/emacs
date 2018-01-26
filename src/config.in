@@ -513,7 +513,8 @@
    may be supplied by this distribution. */
 #undef HAVE_ALLOCA
 
-/* Define to 1 if <alloca.h> works. */
+/* Define to 1 if you have <alloca.h> and it should be used (not on Ultrix).
+   */
 #undef HAVE_ALLOCA_H
 
 /* Define to 1 if ALSA is available. */
@@ -1193,6 +1194,10 @@
 
 /* Define if using GnuTLS v3. */
 #undef HAVE_GNUTLS3
+
+/* Define to 1 if you have the `gnutls_global_set_audit_log_function'
+   function. */
+#undef HAVE_GNUTLS_GLOBAL_SET_AUDIT_LOG_FUNCTION
 
 /* Define to 1 if you have the gpm library (-lgpm). */
 #undef HAVE_GPM
@@ -2778,8 +2783,7 @@
    slash. */
 #undef LSTAT_FOLLOWS_SLASHED_SYMLINK
 
-/* Define to the sub-directory in which libtool stores uninstalled libraries.
-   */
+/* Define to the sub-directory where libtool stores uninstalled libraries. */
 #undef LT_OBJDIR
 
 /* Define to 1 if the system is the darwin distribution known as Mac OS X. */

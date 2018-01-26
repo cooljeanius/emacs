@@ -3637,7 +3637,13 @@ else
       gl_WARN_ADD([-Wpointer-compare])dnl
       gl_WARN_ADD([-Wbool-operation])dnl
       gl_WARN_ADD([-Wduplicated-branches])dnl
-      gl_WARN_ADD([-Walloca-larger-than=16384])dnl# MAX_ALLOCA = 16 * 1024
+      if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
+        test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
+        gl_WARN_ADD([-Walloca-larger-than=16384])dnl# MAX_ALLOCA = 16 * 1024
+      else
+        test -z "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
+        nw="${nw} -Walloca-larger-than"
+      fi
       gl_WARN_ADD([-Wvla-larger-than=16384])dnl# vlas = allocas
       gl_WARN_ADD([-Walloc-size-larger-than=32840])dnl# BLOCKSIZE + 72
       gl_WARN_ADD([-Walloc-zero])dnl
@@ -6582,6 +6588,7 @@ if test "x${with_gnutls}" = "xyes"; then
   if test "x${HAVE_GNUTLS3}" = "xyes"; then
     AC_DEFINE([HAVE_GNUTLS3],[1],[Define if using GnuTLS v3.])
     HAVE_GNUTLS="yes"
+    AC_CHECK_FUNCS([gnutls_global_set_audit_log_function])
   else
     PKG_CHECK_MODULES([LIBGNUTLS],[gnutls >= 2.6.6],
                       [HAVE_GNUTLS=yes],[HAVE_GNUTLS=no])

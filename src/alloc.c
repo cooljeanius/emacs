@@ -1482,7 +1482,7 @@ static EMACS_INT total_string_bytes;
    a pointer to the `u.data' member of its sdata structure; the
    structure starts at a constant offset in front of that.  */
 
-#define SDATA_OF_STRING(S) ((sdata *) ((S)->data - SDATA_DATA_OFFSET))
+#define SDATA_OF_STRING(S) ((sdata *)(void *)((S)->data - SDATA_DATA_OFFSET))
 
 
 #ifdef GC_CHECK_STRING_OVERRUN
@@ -3499,7 +3499,7 @@ make_save_value(void *pointer, int integer)
 {
   register Lisp_Object val;
   register struct Lisp_Save_Value *p;
-  
+
   val = allocate_misc(Lisp_Misc_Save_Value);
   XMISCANY(val)->type = Lisp_Misc_Save_Value;
   p = XSAVE_VALUE(val);

@@ -80,10 +80,6 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #  include <resolv.h>
 # endif /* HAVE_RES_INIT */
 
-# ifdef HAVE_UTIL_H
-#  include <util.h>
-# endif /* HAVE_UTIL_H */
-
 # ifdef HAVE_PTY_H
 #  include <pty.h>
 # endif /* HAVE_PTY_H */
@@ -93,6 +89,15 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 # include <verify.h>
 
 #endif	/* subprocesses */
+
+/* Move out here in case we still need openpty(): */
+#ifdef HAVE_UTIL_H
+# include <util.h>
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(PTY_OPEN)
+#  warning "process.c expects <util.h> to be included so PTY_OPEN will work."
+# endif /* __GNUC__ && !__STRICT_ANSI__ && PTY_OPEN */
+#endif /* HAVE_UTIL_H */
 
 #include "systime.h"
 #include "systty.h"
@@ -1987,7 +1992,7 @@ conv_sockaddr_to_lisp (struct sockaddr *sa, int len)
     {
     case AF_INET:
       {
-	struct sockaddr_in *sin = (struct sockaddr_in *) sa;
+	struct sockaddr_in *sin = (struct sockaddr_in *)(void *)sa;
 	len = sizeof (sin->sin_addr) + 1;
 	address = Fmake_vector (make_number (len), Qnil);
 	p = XVECTOR (address);
@@ -1998,7 +2003,7 @@ conv_sockaddr_to_lisp (struct sockaddr *sa, int len)
 #ifdef AF_INET6
     case AF_INET6:
       {
-	struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) sa;
+	struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *)(void *)sa;
 	uint16_t *ip6 = (uint16_t *) &sin6->sin6_addr;
 	len = sizeof (sin6->sin6_addr)/2 + 1;
 	address = Fmake_vector (make_number (len), Qnil);
@@ -2008,17 +2013,17 @@ conv_sockaddr_to_lisp (struct sockaddr *sa, int len)
 	  p->contents[i] = make_number (ntohs (ip6[i]));
 	return address;
       }
-#endif
+#endif /* AF_INET6 */
 #ifdef HAVE_LOCAL_SOCKETS
     case AF_LOCAL:
       {
-	struct sockaddr_un *sockun = (struct sockaddr_un *) sa;
+	struct sockaddr_un *sockun = (struct sockaddr_un *)(void *)sa;
 	for (i = 0; i < sizeof (sockun->sun_path); i++)
 	  if (sockun->sun_path[i] == 0)
 	    break;
 	return make_unibyte_string (sockun->sun_path, i);
       }
-#endif
+#endif /* HAVE_LOCAL_SOCKETS */
     default:
       len -= offsetof (struct sockaddr, sa_family) + sizeof (sa->sa_family);
       address = Fcons (make_number (sa->sa_family),
@@ -2099,7 +2104,7 @@ conv_lisp_to_sockaddr (int family, Lisp_Object address, struct sockaddr *sa, int
       p = XVECTOR (address);
       if (family == AF_INET)
 	{
-	  struct sockaddr_in *sin = (struct sockaddr_in *) sa;
+	  struct sockaddr_in *sin = (struct sockaddr_in *)(void *)sa;
 	  len = sizeof (sin->sin_addr) + 1;
 	  hostport = XINT (p->contents[--len]);
 	  sin->sin_port = htons (hostport);
@@ -2109,7 +2114,7 @@ conv_lisp_to_sockaddr (int family, Lisp_Object address, struct sockaddr *sa, int
 #ifdef AF_INET6
       else if (family == AF_INET6)
 	{
-	  struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) sa;
+	  struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *)(void *)sa;
 	  uint16_t *ip6 = (uint16_t *)&sin6->sin6_addr;
 	  len = sizeof (sin6->sin6_addr) + 1;
 	  hostport = XINT (p->contents[--len]);
@@ -2123,7 +2128,7 @@ conv_lisp_to_sockaddr (int family, Lisp_Object address, struct sockaddr *sa, int
 	  sa->sa_family = family;
 	  return;
 	}
-#endif
+#endif /* AF_INET6 */
       else
 	return;
     }
@@ -3196,12 +3201,12 @@ usage: (make-network-process &rest ARGS)  */)
 	      socklen_t len1 = sizeof (sa1);
 	      if (getsockname (s, (struct sockaddr *)&sa1, &len1) == 0)
 		{
-		  ((struct sockaddr_in *)(lres->ai_addr))->sin_port = sa1.sin_port;
+		  ((struct sockaddr_in *)(void *)(lres->ai_addr))->sin_port = sa1.sin_port;
 		  service = make_number (ntohs (sa1.sin_port));
 		  contact = Fplist_put (contact, QCservice, service);
 		}
 	    }
-#endif
+#endif /* HAVE_GETSOCKNAME */
 
 	  if (socktype != SOCK_DGRAM && listen (s, backlog))
 	    report_file_error ("Cannot listen on server socket", Qnil);
@@ -3565,7 +3570,7 @@ network_interface_list (void)
       int len = sizeof (*ifreq);
 #endif
       char namebuf[sizeof (ifq->ifr_name) + 1];
-      ifreq = (struct ifreq *) ((char *) ifreq + len);
+      ifreq = (struct ifreq *)(void *)((char *)ifreq + len);
 
       if (ifq->ifr_addr.sa_family != AF_INET)
 	continue;
@@ -3746,7 +3751,7 @@ network_interface_info (Lisp_Object ifname)
 
       for (it = ifap; it != NULL; it = it->ifa_next)
         {
-          struct sockaddr_dl *sdl = (struct sockaddr_dl*) it->ifa_addr;
+          struct sockaddr_dl *sdl = (struct sockaddr_dl*)(void *)it->ifa_addr;
           unsigned char linkaddr[6];
           int n;
 

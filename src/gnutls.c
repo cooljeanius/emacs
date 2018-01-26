@@ -113,7 +113,7 @@ DEF_GNUTLS_FN (void, gnutls_dh_set_prime_bits,
 DEF_GNUTLS_FN (int, gnutls_error_is_fatal, (int));
 DEF_GNUTLS_FN (int, gnutls_global_init, (void));
 DEF_GNUTLS_FN (void, gnutls_global_set_log_function, (gnutls_log_func));
-#ifdef HAVE_GNUTLS3
+#if defined(HAVE_GNUTLS3) && HAVE_GNUTLS3
 DEF_GNUTLS_FN (void, gnutls_global_set_audit_log_function, (gnutls_audit_log_func));
 #endif /* HAVE_GNUTLS3 */
 DEF_GNUTLS_FN (void, gnutls_global_set_log_level, (int));
@@ -181,7 +181,7 @@ init_gnutls_functions (void)
   LOAD_GNUTLS_FN (library, gnutls_error_is_fatal);
   LOAD_GNUTLS_FN (library, gnutls_global_init);
   LOAD_GNUTLS_FN (library, gnutls_global_set_log_function);
-#ifdef HAVE_GNUTLS3
+#if defined(HAVE_GNUTLS3) && HAVE_GNUTLS3
   LOAD_GNUTLS_FN (library, gnutls_global_set_audit_log_function);
 #endif /* HAVE_GNUTLS3 */
   LOAD_GNUTLS_FN (library, gnutls_global_set_log_level);
@@ -241,7 +241,7 @@ init_gnutls_functions (void)
 #define fn_gnutls_error_is_fatal		gnutls_error_is_fatal
 #define fn_gnutls_global_init			gnutls_global_init
 #define fn_gnutls_global_set_log_function	gnutls_global_set_log_function
-#ifdef HAVE_GNUTLS3
+#if defined(HAVE_GNUTLS3) && HAVE_GNUTLS3
 # define fn_gnutls_global_set_audit_log_function gnutls_global_set_audit_log_function
 #endif /* HAVE_GNUTLS3 */
 #define fn_gnutls_global_set_log_level		gnutls_global_set_log_level
@@ -835,7 +835,7 @@ one trustfile (usually a CA bundle).  */)
   if (TYPE_RANGED_INTEGERP (int, loglevel))
     {
       fn_gnutls_global_set_log_function (gnutls_log_function);
-#ifdef HAVE_GNUTLS3
+#if defined(HAVE_GNUTLS3) && HAVE_GNUTLS3
       fn_gnutls_global_set_audit_log_function (gnutls_audit_log_function);
 #endif /* HAVE_GNUTLS3 */
       fn_gnutls_global_set_log_level (XINT (loglevel));
