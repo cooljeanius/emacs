@@ -16,9 +16,8 @@ AC_DEFUN([gl_CRYPTO_CHECK],[
   AC_SUBST([LIB_CRYPTO])dnl
 ])dnl
 # 2
-dnl# Avoid gnulib's tests for HAVE_WORKING_O_NOATIME and
-dnl# HAVE_WORKING_O_NOFOLLOW, as we do NOT use them:
-AC_DEFUN([gl_FCNTL_O_FLAGS],[:])dnl
+dnl# We DO actually need HAVE_WORKING_O_NOFOLLOW now, so stop overriding it
+:
 # 3
 dnl# Avoid gnulib's threadlib module, as we do threads our own way:
 AC_DEFUN([gl_THREADLIB],[:])dnl
@@ -26,6 +25,7 @@ AC_DEFUN([gl_THREADLIB],[:])dnl
 dnl# Avoid gnulib's select module, for whatever reason, and replace its
 dnl# macro with a shorter version:
 AC_DEFUN([gl_FUNC_SELECT],[
+  test -z "${REPLACE_SELECT}" && REPLACE_SELECT=0
   AC_REQUIRE([AC_CANONICAL_HOST])dnl# for cross-compiles
   if test "x${ac_cv_header_winsock2_h}" = "xyes"; then
     REPLACE_SELECT=1

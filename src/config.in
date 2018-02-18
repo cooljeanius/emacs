@@ -2626,6 +2626,12 @@
    7.1. */
 #undef HAVE_WORKING_FSTATAT_ZERO_FLAG
 
+/* Define to 1 if O_NOATIME works. */
+#undef HAVE_WORKING_O_NOATIME
+
+/* Define to 1 if O_NOFOLLOW works. */
+#undef HAVE_WORKING_O_NOFOLLOW
+
 /* Define if you have the posix_spawn and posix_spawnp functions and they
    work. */
 #undef HAVE_WORKING_POSIX_SPAWN

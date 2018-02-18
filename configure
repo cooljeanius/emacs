@@ -4776,6 +4776,8 @@ fi
 as_fn_append ac_header_list " sys/sysinfo.h"
 as_fn_append ac_header_list " sys/types.h"
 as_fn_append ac_header_list " execinfo.h"
+as_fn_append ac_header_list " unistd.h"
+as_fn_append ac_func_list " symlink"
 as_fn_append ac_header_list " features.h"
 as_fn_append ac_header_list " limits.h"
 as_fn_append ac_header_list " sys/cdefs.h"
@@ -4785,7 +4787,6 @@ as_fn_append ac_header_list " stdint.h"
 as_fn_append ac_header_list " sys/time.h"
 as_fn_append ac_header_list " time.h"
 as_fn_append ac_header_list " stdlib.h"
-as_fn_append ac_header_list " unistd.h"
 as_fn_append ac_header_list " sys/param.h"
 as_fn_append ac_func_list " fchdir"
 as_fn_append ac_func_list " getprogname"
@@ -4858,7 +4859,6 @@ as_fn_append ac_header_list " spawn.h"
 as_fn_append ac_header_list " strings.h"
 as_fn_append ac_func_list " strtoimax"
 as_fn_append ac_func_list " strtoumax"
-as_fn_append ac_func_list " symlink"
 as_fn_append ac_header_list " sys/ioctl.h"
 as_fn_append ac_header_list " sys/resource.h"
 as_fn_append ac_header_list " sys/times.h"
@@ -12004,6 +12004,7 @@ $as_echo "$as_me: done with initial compiler checks, now initializing gnulib" >&
 # 0
 # 1
 # 2
+:
 # 3
 # 4
 # 5
@@ -35961,7 +35962,177 @@ fi
 
 
 
-:
+
+
+
+
+
+  for ac_func in $ac_func_list
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
+
+
+
+
+
+
+
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for working fcntl.h" >&5
+$as_echo_n "checking for working fcntl.h... " >&6; }
+if ${gl_cv_header_working_fcntl_h+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test "$cross_compiling" = yes; then :
+  case "$host_os" in
+                  # Guess 'no' on native Windows.
+          mingw*) gl_cv_header_working_fcntl_h='no' ;;
+          *)      gl_cv_header_working_fcntl_h=cross-compiling ;;
+        esac
+
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <sys/types.h>
+           #include <sys/stat.h>
+           #if HAVE_UNISTD_H
+           # include <unistd.h>
+           #else /* on Windows with MSVC */
+           # include <io.h>
+           # include <stdlib.h>
+           # defined sleep(n) _sleep ((n) * 1000)
+           #endif
+           #include <fcntl.h>
+           #ifndef O_NOATIME
+            #define O_NOATIME 0
+           #endif
+           #ifndef O_NOFOLLOW
+            #define O_NOFOLLOW 0
+           #endif
+           static int const constants[] =
+            {
+              O_CREAT, O_EXCL, O_NOCTTY, O_TRUNC, O_APPEND,
+              O_NONBLOCK, O_SYNC, O_ACCMODE, O_RDONLY, O_RDWR, O_WRONLY
+            };
+
+int
+main ()
+{
+
+            int result = !constants;
+            #if HAVE_SYMLINK
+            {
+              static char const sym[] = "conftest.sym";
+              if (symlink ("/dev/null", sym) != 0)
+                result |= 2;
+              else
+                {
+                  int fd = open (sym, O_WRONLY | O_NOFOLLOW | O_CREAT, 0);
+                  if (fd >= 0)
+                    {
+                      close (fd);
+                      result |= 4;
+                    }
+                }
+              if (unlink (sym) != 0 || symlink (".", sym) != 0)
+                result |= 2;
+              else
+                {
+                  int fd = open (sym, O_RDONLY | O_NOFOLLOW);
+                  if (fd >= 0)
+                    {
+                      close (fd);
+                      result |= 4;
+                    }
+                }
+              unlink (sym);
+            }
+            #endif
+            {
+              static char const file[] = "confdefs.h";
+              int fd = open (file, O_RDONLY | O_NOATIME);
+              if (fd < 0)
+                result |= 8;
+              else
+                {
+                  struct stat st0;
+                  if (fstat (fd, &st0) != 0)
+                    result |= 16;
+                  else
+                    {
+                      char c;
+                      sleep (1);
+                      if (read (fd, &c, 1) != 1)
+                        result |= 24;
+                      else
+                        {
+                          if (close (fd) != 0)
+                            result |= 32;
+                          else
+                            {
+                              struct stat st1;
+                              if (stat (file, &st1) != 0)
+                                result |= 40;
+                              else
+                                if (st0.st_atime != st1.st_atime)
+                                  result |= 64;
+                            }
+                        }
+                    }
+                }
+            }
+            return result;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_run "$LINENO"; then :
+  gl_cv_header_working_fcntl_h=yes
+else
+  case $? in #(
+        4) gl_cv_header_working_fcntl_h='no (bad O_NOFOLLOW)';; #(
+        64) gl_cv_header_working_fcntl_h='no (bad O_NOATIME)';; #(
+        68) gl_cv_header_working_fcntl_h='no (bad O_NOATIME, O_NOFOLLOW)';; #(
+         *) gl_cv_header_working_fcntl_h='no';;
+        esac
+fi
+rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
+  conftest.$ac_objext conftest.beam conftest.$ac_ext
+fi
+
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_header_working_fcntl_h" >&5
+$as_echo "$gl_cv_header_working_fcntl_h" >&6; }
+
+  case $gl_cv_header_working_fcntl_h in #(
+  *O_NOATIME* | no | cross-compiling) ac_val=0;; #(
+  *) ac_val=1;;
+  esac
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_WORKING_O_NOATIME $ac_val
+_ACEOF
+
+
+  case $gl_cv_header_working_fcntl_h in #(
+  *O_NOFOLLOW* | no | cross-compiling) ac_val=0;; #(
+  *) ac_val=1;;
+  esac
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_WORKING_O_NOFOLLOW $ac_val
+_ACEOF
+
+
 
 
 
@@ -43111,8 +43282,6 @@ esac
 
 
 
-
-
 for ac_func in getpagesize
 do :
   ac_fn_c_check_func "$LINENO" "getpagesize" "ac_cv_func_getpagesize"
@@ -49477,21 +49646,6 @@ fi
 
 
 
-  for ac_func in $ac_func_list
-do :
-  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
-ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
-if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
-  cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
-_ACEOF
-
-fi
-done
-
-
-
-
 
 
   for ac_func in closedir
@@ -53932,6 +54086,7 @@ $as_echo "#define HAVE_MSVC_INVALID_PARAMETER_HANDLER 1" >>confdefs.h
 
 
 
+  test -z "${REPLACE_SELECT}" && REPLACE_SELECT=0
     if test "x${ac_cv_header_winsock2_h}" = "xyes"; then
     REPLACE_SELECT=1
   else
@@ -65344,8 +65499,6 @@ fi
 cat >>confdefs.h <<_ACEOF
 #define HAVE_DECL_STRTOUMAX $ac_have_decl
 _ACEOF
-
-
 
 
 
