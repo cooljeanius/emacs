@@ -189,8 +189,6 @@
 		A540EA6D1A0C27C00008DA29 /* mkostemp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mkostemp.c; sourceTree = "<group>"; };
 		A540EA6E1A0C27C00008DA29 /* mktime-internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "mktime-internal.h"; sourceTree = "<group>"; };
 		A540EA6F1A0C27C00008DA29 /* mktime.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = mktime.c; sourceTree = "<group>"; tabWidth = 8; };
-		A540EA701A0C27C00008DA29 /* msvc-inval.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "msvc-inval.c"; sourceTree = "<group>"; };
-		A540EA711A0C27C00008DA29 /* msvc-inval.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "msvc-inval.h"; sourceTree = "<group>"; };
 		A540EA721A0C27C00008DA29 /* obstack.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obstack.c; sourceTree = "<group>"; };
 		A540EA731A0C27C00008DA29 /* obstack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = obstack.h; sourceTree = "<group>"; };
 		A540EA741A0C27C00008DA29 /* openat-die.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "openat-die.c"; sourceTree = "<group>"; };
@@ -246,7 +244,6 @@
 		A540EAA81A0C27C00008DA29 /* strerror-override.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "strerror-override.c"; sourceTree = "<group>"; };
 		A540EAA91A0C27C00008DA29 /* strerror-override.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "strerror-override.h"; sourceTree = "<group>"; };
 		A540EAAA1A0C27C00008DA29 /* strerror.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = strerror.c; sourceTree = "<group>"; };
-		A540EAAB1A0C27C00008DA29 /* strftime.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = strftime.c; sourceTree = "<group>"; };
 		A540EAAC1A0C27C00008DA29 /* strftime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = strftime.h; sourceTree = "<group>"; };
 		A540EAAD1A0C27C00008DA29 /* string.in.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = string.in.h; sourceTree = "<group>"; };
 		A540EAAE1A0C27C00008DA29 /* strtoimax.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = strtoimax.c; sourceTree = "<group>"; };
@@ -933,6 +930,8 @@
 		A5B3C7E91A2C32D900D553ED /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		A5B3C8A71A2C333700D553ED /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
 		A5B3C8C41A2C335D00D553ED /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		A5F43ABE203960C10075D5A0 /* localcharset.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = localcharset.c; sourceTree = "<group>"; };
+		A5F43ABF203960C10075D5A0 /* localcharset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = localcharset.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1194,6 +1193,8 @@
 				A540EA5F1A0C27C00008DA29 /* group-member.c */,
 				A540EA601A0C27C00008DA29 /* intprops.h */,
 				A540EA611A0C27C00008DA29 /* inttypes.in.h */,
+				A5F43ABE203960C10075D5A0 /* localcharset.c */,
+				A5F43ABF203960C10075D5A0 /* localcharset.h */,
 				A540EA621A0C27C00008DA29 /* lstat.c */,
 				A540EA661A0C27C00008DA29 /* mbrtowc.c */,
 				A540EA671A0C27C00008DA29 /* mbsinit.c */,
@@ -1205,8 +1206,6 @@
 				A540EA6D1A0C27C00008DA29 /* mkostemp.c */,
 				A540EA6E1A0C27C00008DA29 /* mktime-internal.h */,
 				A540EA6F1A0C27C00008DA29 /* mktime.c */,
-				A540EA701A0C27C00008DA29 /* msvc-inval.c */,
-				A540EA711A0C27C00008DA29 /* msvc-inval.h */,
 				A540EA721A0C27C00008DA29 /* obstack.c */,
 				A540EA731A0C27C00008DA29 /* obstack.h */,
 				A540EA741A0C27C00008DA29 /* openat-die.c */,
@@ -1265,7 +1264,6 @@
 				A540EAA81A0C27C00008DA29 /* strerror-override.c */,
 				A540EAA91A0C27C00008DA29 /* strerror-override.h */,
 				A540EAAA1A0C27C00008DA29 /* strerror.c */,
-				A540EAAB1A0C27C00008DA29 /* strftime.c */,
 				A540EAAC1A0C27C00008DA29 /* strftime.h */,
 				A540EAAD1A0C27C00008DA29 /* string.in.h */,
 				A53B88851AED73390067328B /* strings.in.h */,

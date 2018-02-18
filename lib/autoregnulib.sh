@@ -71,7 +71,7 @@ else
       extern-inline \
       faccessat fcntl fcntl-h fdatasync fdopendir file-has-acl filemode \
       filevercmp flexmember float fopen fpending fpieee fpucw fseek fseeko \
-	  fstat fstatat fsusage fsync ftell ftello ftoastr ftruncate func \
+      fstat fstatat fsusage fsync ftell ftello ftoastr ftruncate func \
       gendocs getdelim getdtablesize getgroups gethostname getline \
       getloadavg getlogin getopt-gnu getopt-posix getpagesize getpass \
       getpass-gnu getprogname gettext gettext-h gettime gettimeofday \

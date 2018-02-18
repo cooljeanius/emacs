@@ -29,6 +29,9 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_HEADER_CHECKS],[
       AC_REQUIRE([gl_FCNTL_H])dnl
     ])dnl
   ])dnl# end second block that requires warn-on-use
+  m4_ifdef([gl_FCNTL_O_FLAGS],[
+    AC_REQUIRE([gl_FCNTL_O_FLAGS])dnl
+  ])dnl
   m4_ifdef([gl_FEATURES_H],[
     AC_REQUIRE([gl_FEATURES_H])dnl
   ])dnl
@@ -127,7 +130,7 @@ AC_CACHE_CHECK([for ANSI C header files],[ac_cv_header_stdc],
 #include <float.h>
 ]])],
 		    [ac_cv_header_stdc=yes],
-		    [ac_cv_header_stdc=no])
+		    [ac_cv_header_stdc=no])dnl
 
 if test "x${ac_cv_header_stdc}" = "xyes"; then
   # SunOS 4.x string.h does not declare mem*, contrary to ANSI.

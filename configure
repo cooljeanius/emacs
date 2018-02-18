@@ -35961,6 +35961,7 @@ fi
 
 
 
+:
 
 
 
@@ -37962,6 +37963,7 @@ $as_echo "$gl_cv_next_time_h" >&6; }
        gl_next_as_first_directive=$gl_cv_next_time_h
      fi
      NEXT_AS_FIRST_DIRECTIVE_TIME_H=$gl_next_as_first_directive
+
 
 
 
@@ -62557,7 +62559,6 @@ $as_echo "#define HAVE_ENVIRON_DECL 1" >>confdefs.h
 
 
 
-:
 ac_fn_c_check_decl "$LINENO" "fdatasync" "ac_cv_have_decl_fdatasync" "$ac_includes_default"
 if test "x$ac_cv_have_decl_fdatasync" = xyes; then :
   ac_have_decl=1

@@ -56,3 +56,8 @@ unused-parameter.h
 # gcc -save-temps output for reporting compiler bugs:
 sha256.i
 sha256.s
+
+# distclean removed these:
+charset.alias
+ref-add.sed
+ref-del.sed
