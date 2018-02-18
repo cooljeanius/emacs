@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 Free Software Foundation, Inc.
+# Copyright (C) 2002-2018 Free Software Foundation, Inc.
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -11,7 +11,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this file.  If not, see <http://www.gnu.org/licenses/>.
+# along with this file.  If not, see <https://www.gnu.org/licenses/>.
 #
 # As a special exception to the GNU General Public License,
 # this file may be distributed as part of a program that
@@ -27,7 +27,7 @@
 
 
 # Specification in the form of a command-line invocation:
-#   gnulib-tool --import --lib=libgnu --source-base=lib --m4-base=m4 --doc-base=doc --tests-base=tests --aux-dir=build-aux --with-obsolete --avoid=close --avoid=dup --avoid=fchdir --avoid=fstrcmp --avoid=gnumakefile --avoid=localcharset --avoid=lock --avoid=malloc --avoid=malloc-posix --avoid=memchr-obsolete --avoid=msvc-inval --avoid=msvc-nothrow --avoid=open --avoid=openat-die --avoid=opendir --avoid=raise --avoid=save-cwd --avoid=select --avoid=sigprocmask --avoid=strdup --avoid=strdup-posix --avoid=threadlib --avoid=tls --avoid=vasnprintf --avoid=vasnprintf-posix --makefile-name=gnulib.mk --conditional-dependencies --no-libtool --macro-prefix=gl --no-vc-files absolute-header acl acl-permissions alignof alloca alloca-opt allocator assert-h assure atan atan2 autobuild bcopy binary-io builtin-expect byteswap c-ctype c-strcase c-strcaseeq c99 canonicalize-lgpl careadlinkat chdir clock-time close-stream closedir configmake count-one-bits count-trailing-zeros crypto/md5 crypto/sha1 crypto/sha256 crypto/sha512 dirent dirfd dirname-lgpl dosname double-slash-root dtoastr dtotimespec dup2 environ errno error euidaccess execinfo extensions extern-inline faccessat fcntl fcntl-h fdatasync fdopendir file-has-acl filemode filevercmp flexmember float fopen fpending fpieee fpucw fseek fseeko fstat fstatat fsync ftell ftello ftoastr ftruncate func gendocs getdelim getdtablesize getgroups gethostname getline getloadavg getlogin getopt-gnu getopt-posix getpagesize getpass getpass-gnu getprogname gettext gettext-h gettime gettimeofday git-version-gen gitlog-to-changelog gnu-make gpl-3.0 group-member havelib host-cpu-c-abi host-os ignore-value include_next inline intprops inttypes-incomplete largefile ldd limits-h longlong lseek lstat maintainer-makefile manywarnings math mbsinit memchr memrchr mkostemp mktime multiarch nextafter no-c++ nocrash obstack openat openat-h openmp pagealign_alloc pathmax perror pipe2 posix_spawnp printf-safe progname pselect pthread_sigmask putenv qacl qcopy-acl quote quotearg quotearg-simple read readdir readlink readlinkat realloc-gnu realloc-posix rename rmdir root-uid sched secure_getenv setenv sig2str signal-h sigpipe sleep snippet/_Noreturn snippet/arg-nonnull snippet/c++defs snippet/link-warning snippet/unused-parameter snippet/warn-on-use socketlib sockets socklen spawn ssize_t stat stat-time std-gnu11 stdalign stdarg stdbool stddef stdint stdio stdlib stdnoreturn stpcpy streq strerror strerror-override strftime string strings strstr strstr-simple strtoimax strtoumax symlink sys_ioctl sys_resource sys_select sys_socket sys_stat sys_time sys_types sys_uio sys_utsname sys_wait tempname time time_r time_rz timegm timer-time times timespec timespec-add timespec-sub u64 uname unistd unlink unsetenv update-copyright useless-if-before-free utimens va-args vararrays vc-list-files verify vla vma-iter waitpid warnings wchar wctype-h winsz-ioctl winsz-termios write xalloc xalloc-die xalloc-oversized
+#   gnulib-tool --import --lib=libgnu --source-base=lib --m4-base=m4 --doc-base=doc --tests-base=tests --aux-dir=build-aux --with-obsolete --avoid=close --avoid=dup --avoid=fchdir --avoid=fstrcmp --avoid=gnumakefile --avoid=lock --avoid=malloc --avoid=malloc-posix --avoid=memchr-obsolete --avoid=msvc-inval --avoid=msvc-nothrow --avoid=opendir --avoid=raise --avoid=save-cwd --avoid=select --avoid=sigprocmask --avoid=strdup --avoid=strdup-posix --avoid=threadlib --avoid=tls --avoid=vasnprintf --avoid=vasnprintf-posix --makefile-name=gnulib.mk --conditional-dependencies --no-libtool --macro-prefix=gl --no-vc-files absolute-header acl acl-permissions alignof alloca alloca-opt allocator assert-h assure atan atan2 autobuild bcopy binary-io builtin-expect byteswap c-ctype c-strcase c-strcaseeq c99 canonicalize-lgpl careadlinkat chdir clock-time close-stream closedir configmake count-one-bits count-trailing-zeros crypto/md5 crypto/sha1 crypto/sha256 crypto/sha512 diffseq dirent dirfd dirname-lgpl dosname double-slash-root dtoastr dtotimespec dup2 environ errno error euidaccess execinfo explicit_bzero extensions extern-inline faccessat fcntl fcntl-h fdatasync fdopendir file-has-acl filemode filevercmp flexmember float fopen fpending fpieee fpucw fseek fseeko fstat fstatat fsusage fsync ftell ftello ftoastr ftruncate func gendocs getdelim getdtablesize getgroups gethostname getline getloadavg getlogin getopt-gnu getopt-posix getpagesize getpass getpass-gnu getprogname gettext gettext-h gettime gettimeofday git-version-gen gitlog-to-changelog gnu-make gpl-3.0 group-member havelib host-cpu-c-abi host-os ignore-value include_next inline intprops inttypes-incomplete largefile ldd limits-h localcharset localtime-buffer longlong lseek lstat maintainer-makefile manywarnings math mbsinit memchr memrchr mkostemp mktime multiarch nextafter no-c++ nocrash nstrftime obstack open openat openat-die openat-h openmp pagealign_alloc pathmax perror pipe2 posix_spawnp printf-safe progname pselect pthread_sigmask putenv qacl qcopy-acl quote quotearg quotearg-simple read readdir readlink readlinkat realloc-gnu realloc-posix rename rmdir root-uid sched secure_getenv setenv sig2str signal-h sigpipe sleep snippet/_Noreturn snippet/arg-nonnull snippet/c++defs snippet/link-warning snippet/unused-parameter snippet/warn-on-use socketlib sockets socklen spawn ssize_t stat stat-time std-gnu11 stdalign stdarg stdbool stddef stdint stdio stdlib stdnoreturn stpcpy streq strerror strerror-override strftime string strings strstr strstr-simple strtoimax strtoumax symlink sys_ioctl sys_resource sys_select sys_socket sys_stat sys_time sys_types sys_uio sys_utsname sys_wait tempname time time_r time_rz timegm timer-time times timespec timespec-add timespec-sub u64 uname unistd unlink unlocked-io unsetenv update-copyright useless-if-before-free utimens va-args vararrays vc-list-files verify vla vma-iter waitpid warnings wchar wctype-h winsz-ioctl winsz-termios write xalloc xalloc-die xalloc-oversized
 
 # Specification in the form of a few gnulib-tool.m4 macro invocations:
 gl_LOCAL_DIR([])
@@ -65,6 +65,7 @@ gl_MODULES([
   crypto/sha1
   crypto/sha256
   crypto/sha512
+  diffseq
   dirent
   dirfd
   dirname-lgpl
@@ -78,6 +79,7 @@ gl_MODULES([
   error
   euidaccess
   execinfo
+  explicit_bzero
   extensions
   extern-inline
   faccessat
@@ -98,6 +100,7 @@ gl_MODULES([
   fseeko
   fstat
   fstatat
+  fsusage
   fsync
   ftell
   ftello
@@ -138,6 +141,8 @@ gl_MODULES([
   largefile
   ldd
   limits-h
+  localcharset
+  localtime-buffer
   longlong
   lseek
   lstat
@@ -153,8 +158,11 @@ gl_MODULES([
   nextafter
   no-c++
   nocrash
+  nstrftime
   obstack
+  open
   openat
+  openat-die
   openat-h
   openmp
   pagealign_alloc
@@ -246,6 +254,7 @@ gl_MODULES([
   uname
   unistd
   unlink
+  unlocked-io
   unsetenv
   update-copyright
   useless-if-before-free
@@ -268,7 +277,7 @@ gl_MODULES([
   xalloc-oversized
 ])
 gl_WITH_OBSOLETE
-gl_AVOID([ close dup fchdir fstrcmp gnumakefile localcharset lock malloc malloc-posix memchr-obsolete msvc-inval msvc-nothrow open openat-die opendir raise save-cwd select sigprocmask strdup strdup-posix threadlib tls vasnprintf vasnprintf-posix])
+gl_AVOID([ close dup fchdir fstrcmp gnumakefile lock malloc malloc-posix memchr-obsolete msvc-inval msvc-nothrow opendir raise save-cwd select sigprocmask strdup strdup-posix threadlib tls vasnprintf vasnprintf-posix])
 gl_SOURCE_BASE([lib])
 gl_M4_BASE([m4])
 gl_PO_BASE([])

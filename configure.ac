@@ -3617,12 +3617,11 @@ else
       AC_MSG_NOTICE([skipping checks for warnings for gcc 6.0 or newer])
     ])dnl# end block of code for gcc 6
 
-    dnl# to be added in a future version of gcc:
+    dnl# gcc 7 has been released:
     gl_GCC_VERSION_IFELSE([7],[0],[
-      gl_WARN_ADD([-Wdangling-else])dnl
-      gl_WARN_ADD([-Wduplicate-decl-specifier])dnl
-      gl_WARN_ADD([-Wmemset-elt-size])dnl
-      gl_WARN_ADD([-Wswitch-unreachable])dnl
+      dnl# as with previous versions, most of the new warnings for gcc 7 are
+      dnl# now handled by manywarnings.m4, but handle a few here manually
+      dnl# anyways:
       gl_WARN_ADD([-Wimplicit-fallthrough])dnl
       gl_COMPILER_OPTION_IF([-Wformat-length=2],
                           [WARN_CFLAGS="${WARN_CFLAGS} -Wformat-length=2"],
@@ -3636,12 +3635,6 @@ else
       gl_COMPILER_OPTION_IF([-Wstringop-overflow=2],
                           [WARN_CFLAGS="${WARN_CFLAGS} -Wstringop-overflow=2"],
                           [gl_WARN_ADD([-Wstringop-overflow])])
-      gl_WARN_ADD([-Wexpansion-to-defined])dnl
-      gl_WARN_ADD([-Wrestrict])dnl
-      gl_WARN_ADD([-Wint-in-bool-context])dnl
-      gl_WARN_ADD([-Wpointer-compare])dnl
-      gl_WARN_ADD([-Wbool-operation])dnl
-      gl_WARN_ADD([-Wduplicated-branches])dnl
       if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
         test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
         gl_WARN_ADD([-Walloca-larger-than=16384])dnl# MAX_ALLOCA = 16 * 1024
@@ -3652,8 +3645,6 @@ else
       gl_WARN_ADD([-Wvla-larger-than=16384])dnl# vlas = allocas
       gl_WARN_ADD([-Walloc-size-larger-than=32840])dnl# BLOCKSIZE + 72
       gl_WARN_ADD([-Walloc-zero])dnl
-      gl_WARN_ADD([-Wpsabi])dnl
-      gl_WARN_ADD([-Wbuiltin-declaration-mismatch])dnl
       ## -faligned-new is checked later:
       if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
         AC_LANG_PUSH([C++])dnl

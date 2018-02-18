@@ -2,7 +2,7 @@
 
 # The gnulib commit ID to use for the update.
 # If you know your version works and is newer, feel free to replace:
-GNULIB_COMMIT_SHA1="06d9e7302a736d7fa3db9cf1eb9850b60aee612f"
+GNULIB_COMMIT_SHA1="3b1e0bcd35f006ea401d3dbd2169fd75f31bee3b"
 
 if [ $# -ne 1 ]; then
    echo "Warning: Path to gnulib repository missing."
@@ -65,23 +65,25 @@ else
       chdir clock-time close-stream closedir configmake count-one-bits \
       count-trailing-zeros \
       crypto/md5 crypto/sha1 crypto/sha256 crypto/sha512 \
-      dirent dirfd dirname-lgpl dosname double-slash-root \
+      diffseq dirent dirfd dirname-lgpl dosname double-slash-root \
       dtoastr dtotimespec dup2 \
-      environ errno error execinfo euidaccess extensions extern-inline \
+      environ errno error execinfo euidaccess explicit_bzero extensions \
+      extern-inline \
       faccessat fcntl fcntl-h fdatasync fdopendir file-has-acl filemode \
       filevercmp flexmember float fopen fpending fpieee fpucw fseek fseeko \
-	  fstat fstatat fsync ftell ftello ftoastr ftruncate func \
+	  fstat fstatat fsusage fsync ftell ftello ftoastr ftruncate func \
       gendocs getdelim getdtablesize getgroups gethostname getline \
       getloadavg getlogin getopt-gnu getopt-posix getpagesize getpass \
       getpass-gnu getprogname gettext gettext-h gettime gettimeofday \
       git-version-gen gitlog-to-changelog gnu-make gpl-3.0 group-member \
       havelib host-cpu-c-abi host-os \
       ignore-value include_next inline intprops inttypes-incomplete \
-      largefile ldd limits-h longlong lseek lstat \
+      largefile ldd limits-h localcharset localtime-buffer longlong \
+      lseek lstat \
       maintainer-makefile manywarnings math mbsinit memchr memrchr \
       mkostemp mktime multiarch \
-      nextafter no-c++ nocrash \
-      obstack openat openat-h openmp \
+      nextafter no-c++ nocrash nstrftime \
+      obstack open openat openat-die openat-h openmp \
       pagealign_alloc pathmax perror pipe2 posix_spawnp printf-safe \
       progname pselect pthread_sigmask putenv \
       qacl qcopy-acl quote quotearg quotearg-simple \
@@ -98,7 +100,7 @@ else
       sys_uio sys_utsname sys_wait \
       tempname time time_r time_rz timegm timer-time times timespec \
       timespec-add timespec-sub \
-      u64 uname unistd unlink unsetenv update-copyright \
+      u64 uname unistd unlink unlocked-io unsetenv update-copyright \
       useless-if-before-free utimens \
       vararrays va-args vc-list-files verify vla vma-iter \
       waitpid warnings wchar wctype-h winsz-ioctl winsz-termios write \
@@ -129,14 +131,13 @@ else
   "${gnulib_tool}" --import --dir=. --lib=libgnu --source-base=lib \
     --m4-base=m4 --doc-base=doc --tests-base=tests --aux-dir=build-aux \
     --avoid=close --avoid=dup --avoid=fchdir --avoid=fstrcmp \
-    --avoid=gnumakefile --avoid=localcharset --avoid=lock --avoid=malloc \
-    --avoid=malloc-posix --avoid=memchr-obsolete --avoid=msvc-inval \
-    --avoid=msvc-nothrow --avoid=open --avoid=openat-die --avoid=opendir \
-    --avoid=raise --avoid=save-cwd --avoid=select --avoid=sigprocmask \
-    --avoid=strdup --avoid=strdup-posix --avoid=threadlib --avoid=tls \
-    --avoid=vasnprintf --avoid=vasnprintf-posix --makefile-name=gnulib.mk \
-    --conditional-dependencies --no-libtool --macro-prefix=gl \
-    --no-vc-files --with-obsolete \
+    --avoid=gnumakefile --avoid=lock --avoid=malloc --avoid=malloc-posix \
+    --avoid=memchr-obsolete --avoid=msvc-inval --avoid=msvc-nothrow \
+    --avoid=opendir --avoid=raise --avoid=save-cwd --avoid=select \
+    --avoid=sigprocmask --avoid=strdup --avoid=strdup-posix \
+    --avoid=threadlib --avoid=tls --avoid=vasnprintf --avoid=vasnprintf-posix \
+    --makefile-name=gnulib.mk --conditional-dependencies --no-libtool \
+    --macro-prefix=gl --no-vc-files --with-obsolete \
     "${module_list}"
   if [ $? -ne 0 ]; then
     echo "Error: gnulib import failed.  Aborting."

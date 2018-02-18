@@ -19,6 +19,9 @@
 #ifndef __armhf__
 #undef __armhf__
 #endif
+#ifndef __arm64_ilp32__
+#undef __arm64_ilp32__
+#endif
 #ifndef __arm64__
 #undef __arm64__
 #endif
@@ -27,6 +30,9 @@
 #endif
 #ifndef __hppa64__
 #undef __hppa64__
+#endif
+#ifndef __ia64_ilp32__
+#undef __ia64_ilp32__
 #endif
 #ifndef __ia64__
 #undef __ia64__
@@ -406,6 +412,10 @@
    whether the gnulib module strerror shall be considered present. */
 #undef GNULIB_STRERROR
 
+/* Define to a C preprocessor expression that evaluates to 1 or 0, depending
+   whether the gnulib module strerror_r-posix shall be considered present. */
+#undef GNULIB_STRERROR_R_POSIX
+
 /* Define if this system is compatible with GNU/Linux. */
 #undef GNU_LINUX
 
@@ -654,6 +664,9 @@
 /* Define to 1 if you have the `copysign' function. */
 #undef HAVE_COPYSIGN
 
+/* Define to 1 if you have the <crtdefs.h> header file. */
+#undef HAVE_CRTDEFS_H
+
 /* Define to 1 if you have the file "/usr/lib/crti.o". */
 #undef HAVE_CRTIN
 
@@ -713,6 +726,10 @@
    don't. */
 #undef HAVE_DECL_CFMAKERAW
 
+/* Define to 1 if you have the declaration of `clearerr_unlocked', and to 0 if
+   you don't. */
+#undef HAVE_DECL_CLEARERR_UNLOCKED
+
 /* Define to 1 if you have the declaration of `daylight', and to 0 if you
    don't. */
 #undef HAVE_DECL_DAYLIGHT
@@ -729,17 +746,37 @@
    don't. */
 #undef HAVE_DECL_FDOPENDIR
 
+/* Define to 1 if you have the declaration of `feof_unlocked', and to 0 if you
+   don't. */
+#undef HAVE_DECL_FEOF_UNLOCKED
+
+/* Define to 1 if you have the declaration of `ferror_unlocked', and to 0 if
+   you don't. */
+#undef HAVE_DECL_FERROR_UNLOCKED
+
 /* Define to 1 if you have the declaration of `fflush_unlocked', and to 0 if
    you don't. */
 #undef HAVE_DECL_FFLUSH_UNLOCKED
+
+/* Define to 1 if you have the declaration of `fgets_unlocked', and to 0 if
+   you don't. */
+#undef HAVE_DECL_FGETS_UNLOCKED
 
 /* Define to 1 if you have the declaration of `flockfile', and to 0 if you
    don't. */
 #undef HAVE_DECL_FLOCKFILE
 
+/* Define to 1 if you have the declaration of `fputc_unlocked', and to 0 if
+   you don't. */
+#undef HAVE_DECL_FPUTC_UNLOCKED
+
 /* Define to 1 if you have the declaration of `fputs_unlocked', and to 0 if
    you don't. */
 #undef HAVE_DECL_FPUTS_UNLOCKED
+
+/* Define to 1 if you have the declaration of `fread_unlocked', and to 0 if
+   you don't. */
+#undef HAVE_DECL_FREAD_UNLOCKED
 
 /* Define to 1 if you have the declaration of `fseeko', and to 0 if you don't.
    */
@@ -753,6 +790,14 @@
    don't. */
 #undef HAVE_DECL_FUNLOCKFILE
 
+/* Define to 1 if you have the declaration of `fwrite_unlocked', and to 0 if
+   you don't. */
+#undef HAVE_DECL_FWRITE_UNLOCKED
+
+/* Define to 1 if you have the declaration of `getchar_unlocked', and to 0 if
+   you don't. */
+#undef HAVE_DECL_GETCHAR_UNLOCKED
+
 /* Define to 1 if you have the declaration of `getc_unlocked', and to 0 if you
    don't. */
 #undef HAVE_DECL_GETC_UNLOCKED
@@ -764,10 +809,6 @@
 /* Define to 1 if you have the declaration of `getdtablesize', and to 0 if you
    don't. */
 #undef HAVE_DECL_GETDTABLESIZE
-
-/* Define to 1 if you have the declaration of `getenv', and to 0 if you don't.
-   */
-#undef HAVE_DECL_GETENV
 
 /* Define to 1 if you have the declaration of `getline', and to 0 if you
    don't. */
@@ -809,6 +850,10 @@
    and to 0 if you don't. */
 #undef HAVE_DECL_PROGRAM_INVOCATION_SHORT_NAME
 
+/* Define to 1 if you have the declaration of `putchar_unlocked', and to 0 if
+   you don't. */
+#undef HAVE_DECL_PUTCHAR_UNLOCKED
+
 /* Define to 1 if you have the declaration of `putc_unlocked', and to 0 if you
    don't. */
 #undef HAVE_DECL_PUTC_UNLOCKED
@@ -821,12 +866,9 @@
    */
 #undef HAVE_DECL_SLEEP
 
-/* Define to 1, since you should have the declaration of strerror_r. */
+/* Define to 1 if you have the declaration of `strerror_r', and to 0 if you
+   don't. */
 #undef HAVE_DECL_STRERROR_R
-
-/* Define to 1 if you have the declaration of 'strerror_r' in the system
-   include files, or to 0 otherwise. */
-#undef HAVE_DECL_STRERROR_R_ORIG
 
 /* Define to 1 if you have the declaration of `strmode', and to 0 if you
    don't. */
@@ -928,6 +970,9 @@
 /* Define to 1 if you have the `dup2' function. */
 #undef HAVE_DUP2
 
+/* Define to 1 if you have the <dustat.h> header file. */
+#undef HAVE_DUSTAT_H
+
 /* Define to 1 if you have the `eaccess' function. */
 #undef HAVE_EACCESS
 
@@ -954,6 +999,12 @@
 
 /* Define to 1 if you have the <execinfo.h> header file. */
 #undef HAVE_EXECINFO_H
+
+/* Define to 1 if you have the `explicit_bzero' function. */
+#undef HAVE_EXPLICIT_BZERO
+
+/* Define to 1 if you have the `explicit_memset' function. */
+#undef HAVE_EXPLICIT_MEMSET
 
 /* Define to 1 if you have the `fabs' function. */
 #undef HAVE_FABS
@@ -1876,6 +1927,9 @@
 /* Define to 1 if using librsvg. */
 #undef HAVE_RSVG
 
+/* Define to 1 if you have run the test for working tzset. */
+#undef HAVE_RUN_TZSET_TEST
+
 /* Define to 1 if the system has the type `sa_family_t'. */
 #undef HAVE_SA_FAMILY_T
 
@@ -2050,7 +2104,7 @@
 /* Define to 1 if you have the `strerror' function. */
 #undef HAVE_STRERROR
 
-/* Define to 1, since you should have the function strerror_r. */
+/* Define to 1 if you have the `strerror_r' function. */
 #undef HAVE_STRERROR_R
 
 /* Define to 1 if you have the `strftime' function. */
@@ -2198,8 +2252,7 @@
 /* Define to 1 if `tm_zone' is a member of `struct tm'. */
 #undef HAVE_STRUCT_TM_TM_ZONE
 
-/* Define if struct utimbuf is declared -- usually in <utime.h>. Some systems
-   have utime.h but don't declare the struct anywhere. */
+/* Define to 1 if `struct utimbuf' is declared by <utime.h>. */
 #undef HAVE_STRUCT_UTIMBUF
 
 /* Define to 1 if the system has the type `struct utsname'. */
@@ -2251,6 +2304,12 @@
 /* Define to 1 if you have the <sys/filio.h> header file. */
 #undef HAVE_SYS_FILIO_H
 
+/* Define to 1 if you have the <sys/fs/s5param.h> header file. */
+#undef HAVE_SYS_FS_S5PARAM_H
+
+/* Define to 1 if you have the <sys/fs_types.h> header file. */
+#undef HAVE_SYS_FS_TYPES_H
+
 /* Define to 1 if you have the <sys/hft.h> header file. */
 #undef HAVE_SYS_HFT_H
 
@@ -2268,6 +2327,9 @@
 
 /* Define to 1 if you have the <sys/mman.h> header file. */
 #undef HAVE_SYS_MMAN_H
+
+/* Define to 1 if you have the <sys/mount.h> header file. */
+#undef HAVE_SYS_MOUNT_H
 
 /* Define to 1 if you have the <sys/ndir.h> header file, and it defines `DIR'.
    */
@@ -2302,6 +2364,9 @@
 
 /* Define to 1 if you have the <sys/soundcard.h> header file. */
 #undef HAVE_SYS_SOUNDCARD_H
+
+/* Define to 1 if you have the <sys/statfs.h> header file. */
+#undef HAVE_SYS_STATFS_H
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #undef HAVE_SYS_STAT_H
@@ -2691,9 +2756,6 @@
 /* Define to 1 if you have the `_ftelli64' function. */
 #undef HAVE__FTELLI64
 
-/* Define to 1 if you have the `_ftime' function. */
-#undef HAVE__FTIME
-
 /* Define to 1 if _setjmp and _longjmp work. */
 #undef HAVE__SETJMP
 
@@ -2856,6 +2918,17 @@
 /* Define to 1 if assertions should be disabled. */
 #undef NDEBUG
 
+/* Define if the compilation of mktime.c should define 'mktime_internal'. */
+#undef NEED_MKTIME_INTERNAL
+
+/* Define if the compilation of mktime.c should define 'mktime' with the
+   native Windows TZ workaround. */
+#undef NEED_MKTIME_WINDOWS
+
+/* Define if the compilation of mktime.c should define 'mktime' with the
+   algorithmic workarounds. */
+#undef NEED_MKTIME_WORKING
+
 /* Define if XEditRes should not be used. */
 #undef NO_EDITRES
 
@@ -2885,6 +2958,9 @@
 
 /* Define to 1 if the nlist n_name member is a pointer */
 #undef N_NAME_POINTER
+
+/* Define to 1 if open() fails to recognize a trailing slash. */
+#undef OPEN_TRAILING_SLASH_BUG
 
 /* Name of package */
 #undef PACKAGE
@@ -2975,7 +3051,7 @@
 #undef RENAME_HARD_LINK_BUG
 
 /* Define if rename does not correctly handle slashes on the destination
-   argument, such as on Solaris 10 or NetBSD 1.6. */
+   argument, such as on Solaris 11 or NetBSD 1.6. */
 #undef RENAME_TRAILING_SLASH_DEST_BUG
 
 /* Define if rename does not correctly handle slashes on the source argument,
@@ -2984,10 +3060,6 @@
 
 /* Define to 1 if gnulib's dirfd() replacement is used. */
 #undef REPLACE_DIRFD
-
-/* Define to 1 if stat needs help when passed a directory name with a trailing
-   slash */
-#undef REPLACE_FUNC_STAT_DIR
 
 /* Define to 1 if stat needs help when passed a file name with a trailing
    slash */
@@ -3065,13 +3137,47 @@
 	STACK_DIRECTION = 0 => direction of growth unknown */
 #undef STACK_DIRECTION
 
+/* Define if the block counts reported by statfs may be truncated to 2GB and
+   the correct values may be stored in the f_spare array. (SunOS 4.1.2, 4.1.3,
+   and 4.1.3_U1 are reported to have this problem. SunOS 4.1.1 seems not to be
+   affected.) */
+#undef STATFS_TRUNCATES_BLOCK_COUNTS
+
 /* Define to 1 if the `S_IS*' macros in <sys/stat.h> do not work properly. */
 #undef STAT_MACROS_BROKEN
+
+/* Define if statfs takes 2 args and struct statfs has a field named f_bsize.
+   (4.3BSD, SunOS 4, HP-UX, AIX PS/2) */
+#undef STAT_STATFS2_BSIZE
+
+/* Define if statfs takes 2 args and struct statfs has a field named f_frsize.
+   (glibc/Linux > 2.6) */
+#undef STAT_STATFS2_FRSIZE
+
+/* Define if statfs takes 2 args and struct statfs has a field named f_fsize.
+   (4.4BSD, NetBSD) */
+#undef STAT_STATFS2_FSIZE
+
+/* Define if statfs takes 2 args and the second argument has type struct
+   fs_data. (Ultrix) */
+#undef STAT_STATFS2_FS_DATA
+
+/* Define if statfs takes 3 args. (DEC Alpha running OSF/1) */
+#undef STAT_STATFS3_OSF1
+
+/* Define if statfs takes 4 args. (SVR3, Dynix, old Irix, old AIX, Dolphin) */
+#undef STAT_STATFS4
+
+/* Define if there is a function named statvfs. (SVR4) */
+#undef STAT_STATVFS
+
+/* Define if statvfs64 should be preferred over statvfs. */
+#undef STAT_STATVFS64
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
-/* Define to 0, since strerror_r should not return char *. */
+/* Define to 1 if strerror_r returns char *. */
 #undef STRERROR_R_CHAR_P
 
 /* Define to 1 on System V Release 4. */
@@ -3111,6 +3217,9 @@
 /* Define to 1 if the type of the st_atim member of a struct stat is struct
    timespec. */
 #undef TYPEOF_STRUCT_STAT_ST_ATIM_IS_STRUCT_TIMESPEC
+
+/* Define if tzset clobbers localtime's static buffer. */
+#undef TZSET_CLOBBERS_LOCALTIME
 
 /* Define to 1 for Encore UMAX. */
 #undef UMAX
@@ -3171,6 +3280,14 @@
 #ifndef _GNU_SOURCE
 # undef _GNU_SOURCE
 #endif
+/* Enable NetBSD extensions on NetBSD.  */
+#ifndef _NETBSD_SOURCE
+# undef _NETBSD_SOURCE
+#endif
+/* Enable OpenBSD extensions on NetBSD.  */
+#ifndef _OPENBSD_SOURCE
+# undef _OPENBSD_SOURCE
+#endif
 /* Enable threading extensions on Solaris.  */
 #ifndef _POSIX_PTHREAD_SEMANTICS
 # undef _POSIX_PTHREAD_SEMANTICS
@@ -3213,6 +3330,11 @@
 #ifndef _XOPEN_SOURCE
 # undef _XOPEN_SOURCE
 #endif
+/* Enable X/Open compliant socket functions that do not require linking
+   with -lxnet on HP-UX 11.11.  */
+#ifndef _HPUX_ALT_XOPEN_SOCKET_API
+# undef _HPUX_ALT_XOPEN_SOCKET_API
+#endif
 /* Enable general extensions on Solaris.  */
 #ifndef __EXTENSIONS__
 # undef __EXTENSIONS__
@@ -3221,6 +3343,11 @@
 
 /* Define to 1 if we should use toolkit scroll bars. */
 #undef USE_TOOLKIT_SCROLL_BARS
+
+/* Define to 1 if you want getc etc. to use unlocked I/O if available.
+   Unlocked I/O can improve performance in unithreaded apps, but it is not
+   safe for multithreaded apps. */
+#undef USE_UNLOCKED_IO
 
 /* Define to 1 if we should use XIM, if it is available. */
 #undef USE_XIM
@@ -3298,10 +3425,6 @@
 /* Number of bits in a file offset, on hosts where this is settable. */
 #undef _FILE_OFFSET_BITS
 
-/* Define to 1 if Gnulib overrides 'struct stat' on Windows so that struct
-   stat.st_size becomes 64-bit. */
-#undef _GL_WINDOWS_64_BIT_ST_SIZE
-
 /* Enable GNU extensions on systems that have them.  */
 #ifndef _GNU_SOURCE
 # undef _GNU_SOURCE
@@ -3364,6 +3487,9 @@
    <pthread.h>, or <semaphore.h> is not used. If the typedef were allowed, the
    #define below would cause a syntax error. */
 #undef _UINT8_T
+
+/* For standard stat data types on VMS. */
+#undef _USE_STD_STAT
 
 /* Define to 1 if type `char' is unsigned and you are not using gcc.  */
 #ifndef __CHAR_UNSIGNED__

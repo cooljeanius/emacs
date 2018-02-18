@@ -139,6 +139,9 @@ am__v_at_ = $(am__v_at_@AM_DEFAULT_V@)
 am__v_at_0 = @
 am__v_at_1 =
 
+# For tests:
+TESTS_ENVIRONMENT += @LOCALCHARSET_TESTS_ENVIRONMENT@
+
 # ==================== Where To Install Things ====================
 
 # Location to install the Carbon Emacs.app on Mac OS X

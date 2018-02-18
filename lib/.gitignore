@@ -17,6 +17,7 @@ execinfo.h
 fcntl.h
 float.h
 getopt.h
+getopt-cdefs.h
 inttypes.h
 limits.h
 math.h
