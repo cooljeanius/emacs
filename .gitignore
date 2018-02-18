@@ -4,7 +4,7 @@
 # changes are having on it.
 configure*.scan
 autoscan.log
-aclocal.m4
+# allow aclocal.m4 to avoid trying to rebuild it
 bo.h
 # allow compile for the configure script
 # allow config.guess and config.sub for the configure script
