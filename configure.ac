@@ -9838,7 +9838,7 @@ dnl# gettext:
 AC_MSG_CHECKING([gettext])
 AC_MSG_RESULT([ ])
 AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION([0.19.7])
+AM_GNU_GETTEXT_VERSION([0.18.3])
 # Solaris requires -lintl if you want strerror (which calls dgettext)
 # to return localized messages.
 if test "x${ac_cv_func_strerror}" = "xyes" || test "x${ac_cv_search_strerror}" != "x"; then
