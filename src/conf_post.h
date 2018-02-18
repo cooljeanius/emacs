@@ -381,14 +381,17 @@ extern void _DebPrint (const char *fmt, ...);
 # ifdef vsprintf
 #  undef vsprintf
 # endif /* vsprintf */
+# ifdef strdup
+#  undef strdup
+# endif /* strdup */
+# ifdef strndup
+#  undef strndup
+# endif /* strndup */
 /* I also avoid these ones in the gdb sources: */
 # pragma GCC poison strdup sprintf
 /* for similar reasons, such as gnulib also providing replacements: */
 # pragma GCC poison strndup memdup vsprintf vasprintf
 /* also consider poisoining for similar reasons: asprintf atexit exit */
-# if !defined(__clang_analyzer__) && !defined(strerror)
-#  pragma GCC poison strerror
-# endif /* !__clang_analyzer__ && !strerror */
 # if defined(HAVE_STRLCPY) && defined(PREFER_BSDISMS)
 #  pragma GCC poison strcpy
 # endif /* HAVE_STRLCPY && PREFER_BSDISMS */
