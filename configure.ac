@@ -3118,6 +3118,10 @@ else
          nw="${nw} -Wdiscarded-qualifiers"
          gl_WARN_ADD([-Wno-discarded-qualifiers])
        ])
+       if test "x${emacs_cv_clang}" = "xyes"; then
+         nw="${nw} -Wincompatible-pointer-types-discards-qualifiers"
+         gl_WARN_ADD([-Wno-incompatible-pointer-types-discards-qualifiers])
+       fi
        ;;
     gtk*)
        AC_MSG_NOTICE([no special warning flags for using gtk as a toolkit])
@@ -3684,6 +3688,27 @@ else
     ],[
       AC_MSG_NOTICE([skipping checks for warnings for gcc 8.0 or newer])
     ])dnl# end block of code for gcc 8
+
+    if test "x${emacs_cv_clang}" = "xyes"; then
+      gl_WARN_ADD([-Wgcc-compat])
+      gl_WARN_ADD([-Wasm])
+      gl_WARN_ADD([-Wunneeded-internal-declaration])
+      gl_WARN_ADD([-Wbool-conversion])
+      gl_WARN_ADD([-Wconstant-logical-operand])
+      gl_WARN_ADD([-Wunused-comparison])
+      gl_WARN_ADD([-Wabsolute-value])
+      gl_WARN_ADD([-Wunevaluated-expression])
+      gl_WARN_ADD([-Wextra-semi])
+      gl_WARN_ADD([-Wunsequenced])
+      gl_WARN_ADD([-Wself-assign])
+      gl_WARN_ADD([-Wshift-sign-overflow])
+      gl_WARN_ADD([-Wstatic-in-inline])
+      gl_WARN_ADD([-Wparentheses-equality])
+      gl_WARN_ADD([-Winvalid-noreturn])
+      gl_WARN_ADD([-Wfor-loop-analysis])
+      gl_WARN_ADD([-Wunreachable-code-loop-increment])
+      gl_WARN_ADD([-Wtautological-pointer-compare])
+    fi  ##end check for clang
     ##...okay, that should be it.
   else
     AC_MSG_WARN([WERROR_CFLAGS is set, so we have to skip some warnings])

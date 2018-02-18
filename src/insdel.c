@@ -1905,7 +1905,7 @@ invalidate_buffer_caches (struct buffer *buf, ptrdiff_t start, ptrdiff_t end)
     preserve_marker = Fcopy_marker (make_number (*preserve_ptr), Qnil)
 
 #define RESTORE_VALUE						\
-  if (! NILP(preserve_marker))					\
+  if (! NILP(preserve_marker) && (preserve_ptr != NULL))	\
     {								\
       *preserve_ptr = marker_position(preserve_marker); 	\
       unchain_marker(XMARKER(preserve_marker)); 		\

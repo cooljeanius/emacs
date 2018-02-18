@@ -3,3 +3,4 @@
 # Normally I would ignore the whole app bundle, but the original source
 # included the whole thing, so instead just ignore the executable:
 emacs
+#

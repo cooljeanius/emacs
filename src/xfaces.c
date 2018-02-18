@@ -4625,6 +4625,7 @@ smaller_face (struct frame *f, int face_id, int steps)
   steps = eabs(steps);
 
   face = FACE_FROM_ID(f, face_id);
+  xassert(face != NULL);
   memcpy(attrs, face->lface, sizeof(attrs));
   pt = last_pt = XFASTINT(attrs[LFACE_HEIGHT_INDEX]);
   new_face_id = face_id;
@@ -4673,15 +4674,16 @@ face_with_height (struct frame *f, int face_id, int height)
   struct face *face;
   Lisp_Object attrs[LFACE_VECTOR_SIZE];
 
-  if (FRAME_TERMCAP_P (f)
-      || height <= 0)
+  if (FRAME_TERMCAP_P(f)
+      || (height <= 0))
     return face_id;
 
-  face = FACE_FROM_ID (f, face_id);
-  memcpy (attrs, face->lface, sizeof attrs);
-  attrs[LFACE_HEIGHT_INDEX] = make_number (height);
-  font_clear_prop (attrs, FONT_SIZE_INDEX);
-  face_id = lookup_face (f, attrs);
+  face = FACE_FROM_ID(f, face_id);
+  xassert(face != NULL);
+  memcpy(attrs, face->lface, sizeof(attrs));
+  attrs[LFACE_HEIGHT_INDEX] = make_number(height);
+  font_clear_prop(attrs, FONT_SIZE_INDEX);
+  face_id = lookup_face(f, attrs);
 #endif /* HAVE_WINDOW_SYSTEM */
 
   return face_id;
@@ -5306,9 +5308,9 @@ realize_basic_faces (struct frame *f)
    that are not explicitly specified are taken from frame parameters.  */
 
 static bool
-realize_default_face (struct frame *f)
+realize_default_face(struct frame *f)
 {
-  struct face_cache *c = FRAME_FACE_CACHE (f);
+  struct face_cache *c = ((f != NULL) ? FRAME_FACE_CACHE(f) : NULL);
   Lisp_Object lface;
   Lisp_Object attrs[LFACE_VECTOR_SIZE];
   struct face *face;
@@ -5323,7 +5325,7 @@ realize_default_face (struct frame *f)
     }
 
 #ifdef HAVE_WINDOW_SYSTEM
-  if (FRAME_WINDOW_P (f))
+  if ((f != NULL) && FRAME_WINDOW_P(f))
     {
       Lisp_Object font_object;
 
@@ -5334,7 +5336,7 @@ realize_default_face (struct frame *f)
     }
 #endif /* HAVE_WINDOW_SYSTEM */
 
-  if (!FRAME_WINDOW_P (f))
+  if ((f != NULL) && !FRAME_WINDOW_P(f))
     {
       ASET (lface, LFACE_FAMILY_INDEX, build_string ("default"));
       ASET (lface, LFACE_FOUNDRY_INDEX, LFACE_FAMILY (lface));
@@ -5363,35 +5365,35 @@ realize_default_face (struct frame *f)
   if (UNSPECIFIEDP (LFACE_INVERSE (lface)))
     ASET (lface, LFACE_INVERSE_INDEX, Qnil);
 
-  if (UNSPECIFIEDP (LFACE_FOREGROUND (lface)))
+  if (UNSPECIFIEDP(LFACE_FOREGROUND(lface)) && (f != NULL))
     {
       /* This function is called so early that colors are not yet
 	 set in the frame parameter list.  */
-      Lisp_Object color = Fassq (Qforeground_color, f->param_alist);
+      Lisp_Object color = Fassq(Qforeground_color, f->param_alist);
 
-      if (CONSP (color) && STRINGP (XCDR (color)))
-	ASET (lface, LFACE_FOREGROUND_INDEX, XCDR (color));
-      else if (FRAME_WINDOW_P (f))
+      if (CONSP(color) && STRINGP(XCDR(color)))
+	ASET(lface, LFACE_FOREGROUND_INDEX, XCDR(color));
+      else if (FRAME_WINDOW_P(f))
 	return 0;
-      else if (FRAME_INITIAL_P (f) || FRAME_TERMCAP_P (f) || FRAME_MSDOS_P (f))
-	ASET (lface, LFACE_FOREGROUND_INDEX, build_string (unspecified_fg));
+      else if (FRAME_INITIAL_P(f) || FRAME_TERMCAP_P(f) || FRAME_MSDOS_P(f))
+	ASET(lface, LFACE_FOREGROUND_INDEX, build_string(unspecified_fg));
       else
-	emacs_abort ();
+	emacs_abort();
     }
 
-  if (UNSPECIFIEDP (LFACE_BACKGROUND (lface)))
+  if (UNSPECIFIEDP(LFACE_BACKGROUND(lface)) && (f != NULL))
     {
       /* This function is called so early that colors are not yet
 	 set in the frame parameter list.  */
-      Lisp_Object color = Fassq (Qbackground_color, f->param_alist);
-      if (CONSP (color) && STRINGP (XCDR (color)))
-	ASET (lface, LFACE_BACKGROUND_INDEX, XCDR (color));
-      else if (FRAME_WINDOW_P (f))
+      Lisp_Object color = Fassq(Qbackground_color, f->param_alist);
+      if (CONSP(color) && STRINGP(XCDR(color)))
+	ASET (lface, LFACE_BACKGROUND_INDEX, XCDR(color));
+      else if (FRAME_WINDOW_P(f))
 	return 0;
-      else if (FRAME_INITIAL_P (f) || FRAME_TERMCAP_P (f) || FRAME_MSDOS_P (f))
-	ASET (lface, LFACE_BACKGROUND_INDEX, build_string (unspecified_bg));
+      else if (FRAME_INITIAL_P(f) || FRAME_TERMCAP_P(f) || FRAME_MSDOS_P(f))
+	ASET(lface, LFACE_BACKGROUND_INDEX, build_string(unspecified_bg));
       else
-	emacs_abort ();
+	emacs_abort();
     }
 
   if (UNSPECIFIEDP (LFACE_STIPPLE (lface)))
@@ -5405,7 +5407,7 @@ realize_default_face (struct frame *f)
 
 #ifdef HAVE_WINDOW_SYSTEM
 # ifdef HAVE_X_WINDOWS
-  if (FRAME_X_P(f) && (face->font != FRAME_FONT(f)))
+  if ((f != NULL) && FRAME_X_P(f) && (face->font != FRAME_FONT(f)))
     {
       /* This can happen when making a frame on a display that does
 	 not support the default font.  */
@@ -5974,10 +5976,11 @@ compute_char_face (struct frame *f, int ch, Lisp_Object prop)
   else
     {
       Lisp_Object attrs[LFACE_VECTOR_SIZE];
-      struct face *default_face = FACE_FROM_ID (f, DEFAULT_FACE_ID);
-      memcpy (attrs, default_face->lface, sizeof attrs);
-      merge_face_ref (f, prop, attrs, 1, 0);
-      face_id = lookup_face (f, attrs);
+      struct face *default_face = FACE_FROM_ID(f, DEFAULT_FACE_ID);
+      xassert(default_face != NULL);
+      memcpy(attrs, default_face->lface, sizeof(attrs));
+      merge_face_ref(f, prop, attrs, 1, 0);
+      face_id = lookup_face(f, attrs);
     }
 
   return face_id;
@@ -6048,12 +6051,13 @@ face_at_buffer_position (struct window *w, ptrdiff_t pos,
 
     if (base_face_id >= 0)
       face_id = base_face_id;
-    else if (NILP (Vface_remapping_alist))
+    else if (NILP(Vface_remapping_alist))
       face_id = DEFAULT_FACE_ID;
     else
-      face_id = lookup_basic_face (f, DEFAULT_FACE_ID);
+      face_id = lookup_basic_face(f, DEFAULT_FACE_ID);
 
-    default_face = FACE_FROM_ID (f, face_id);
+    default_face = FACE_FROM_ID(f, face_id);
+    xassert(default_face != NULL);
   }
 
   /* Optimize common cases where we can use the default face.  */
@@ -6062,7 +6066,7 @@ face_at_buffer_position (struct window *w, ptrdiff_t pos,
     return default_face->id;
 
   /* Begin with attributes from the default face.  */
-  memcpy (attrs, default_face->lface, sizeof attrs);
+  memcpy(attrs, default_face->lface, sizeof(attrs));
 
   /* Merge in attributes specified via text properties.  */
   if (!NILP (prop))
@@ -6135,8 +6139,9 @@ face_for_overlay_string (struct window *w, ptrdiff_t pos,
     return DEFAULT_FACE_ID;
 
   /* Begin with attributes from the default face.  */
-  default_face = FACE_FROM_ID (f, lookup_basic_face (f, DEFAULT_FACE_ID));
-  memcpy (attrs, default_face->lface, sizeof attrs);
+  default_face = FACE_FROM_ID(f, lookup_basic_face(f, DEFAULT_FACE_ID));
+  xassert(default_face != NULL);
+  memcpy(attrs, default_face->lface, sizeof(attrs));
 
   /* Merge in attributes specified via text properties.  */
   if (!NILP (prop))
@@ -6203,7 +6208,8 @@ face_at_string_position (struct window *w, Lisp_Object string,
     *endptr = -1;
 
   base_face = FACE_FROM_ID (f, base_face_id);
-  eassert (base_face);
+  eassert(base_face);
+  xassert(base_face != NULL);
 
   /* Optimize the default case that there is no face property.  */
   if (NILP (prop)

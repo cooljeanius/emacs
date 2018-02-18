@@ -1514,7 +1514,7 @@ compute_motion (ptrdiff_t from, ptrdiff_t frombyte, EMACS_INT fromvpos,
 	    {
 	      /* Is this character part of the current run?  If so, extend
 		 the run.  */
-	      if (((pos - 1) == width_run_end)
+	      if (((pos - 1) == width_run_end) && (width_table != NULL)
 		  && (XFASTINT(width_table[c]) == width_run_width))
 		width_run_end = pos;
 
@@ -1530,7 +1530,8 @@ compute_motion (ptrdiff_t from, ptrdiff_t frombyte, EMACS_INT fromvpos,
 				      width_run_start, width_run_end);
 
 		  /* Start recording a new width run: */
-		  width_run_width = XFASTINT(width_table[c]);
+		  width_run_width = XFASTINT((width_table != NULL)
+					     ? width_table[c] : Qnil);
 		  width_run_start = (pos - 1);
 		  width_run_end = pos;
 		}

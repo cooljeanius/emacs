@@ -1,4 +1,4 @@
-/* nsfont.m
+/* nsfont.m -*- Objective-C -*-
  * Font back-end driver for the NeXT/Open/GNUstep and MacOSX window system.
  * See font.h
  * Copyright (C) 2006-2014 Free Software Foundation, Inc.  */

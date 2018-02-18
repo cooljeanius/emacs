@@ -1173,6 +1173,7 @@ lisp_align_malloc (size_t nbytes, enum mem_type type)
   return val;
 }
 
+/* */
 static void
 lisp_align_free (void *block)
 {
@@ -1208,10 +1209,10 @@ lisp_align_free (void *block)
 	}
       eassert ((aligned & 1) == aligned);
       eassert (i == (aligned ? ABLOCKS_SIZE : ABLOCKS_SIZE - 1));
-#ifdef USE_POSIX_MEMALIGN
+#if defined(USE_POSIX_MEMALIGN) || defined(__APPLE__)
       eassert ((uintptr_t) ABLOCKS_BASE (abase) % BLOCK_ALIGN == 0);
-#endif
-      free (ABLOCKS_BASE (abase));
+#endif /* USE_POSIX_MEMALIGN || __APPLE__ */
+      free (ABLOCKS_BASE (abase)); /*FIXME: sometimes frees unaligned ptrs */
     }
   MALLOC_UNBLOCK_INPUT;
 }
@@ -5517,7 +5518,7 @@ See Info node `(elisp)Garbage Collection'.  */)
   /* Can't GC if pure storage overflowed because we can't determine
      if something is a pure object or not.  */
   if (pure_bytes_used_before_overflow)
-    return Qnil;
+    return retval; /* Qnil at this point; pacifies the clang static analyzer */
 
   /* Record this function, so it appears on the profiler's backtraces: */
   record_in_backtrace (Qautomatic_gc, &Qnil, 0);
@@ -5729,7 +5730,7 @@ See Info node `(elisp)Garbage Collection'.  */)
     total[10] = list4 (Qheap, make_number (1024),
                        bounded_number ((mallinfo ().uordblks + 1023) >> 10),
                        bounded_number ((mallinfo ().fordblks + 1023) >> 10));
-#endif
+#endif /* DOUG_LEA_MALLOC */
     retval = Flist (total_size, total);
   }
 
@@ -5746,7 +5747,7 @@ See Info node `(elisp)Garbage Collection'.  */)
     max_zombies = max (nzombies, max_zombies);
     ++ngcs;
   }
-#endif
+#endif /* GC_MARK_STACK == GC_USE_GCPROS_CHECK_ZOMBIES */
 
   if (!NILP (Vpost_gc_hook))
     {
@@ -6871,7 +6872,7 @@ init_alloc(void)
   Vgc_elapsed = make_float(0.0);
   gcs_done = 0;
 
-#if USE_VALGRIND
+#if defined(USE_VALGRIND) && USE_VALGRIND
   valgrind_p = (RUNNING_ON_VALGRIND != 0);
 #endif /* USE_VALGRIND */
 }

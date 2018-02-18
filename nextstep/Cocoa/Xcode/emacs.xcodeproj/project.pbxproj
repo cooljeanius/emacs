@@ -371,7 +371,7 @@
 		A540EBBA1A0C29360008DA29 /* paths.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = paths.h; sourceTree = "<group>"; };
 		A540EBBB1A0C29360008DA29 /* preprep.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = preprep.c; sourceTree = "<group>"; };
 		A540EBBE1A0C29360008DA29 /* runemacs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = runemacs.c; sourceTree = "<group>"; };
-		A540EBC41A0C29990008DA29 /* Activate.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Activate.c; sourceTree = "<group>"; };
+		A540EBC41A0C29990008DA29 /* Activate.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.c; path = Activate.c; sourceTree = "<group>"; };
 		A540EBC51A0C29990008DA29 /* AddPane.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = AddPane.c; sourceTree = "<group>"; };
 		A540EBC61A0C29990008DA29 /* AddSel.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = AddSel.c; sourceTree = "<group>"; };
 		A540EBC81A0C29990008DA29 /* ChgPane.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ChgPane.c; sourceTree = "<group>"; };

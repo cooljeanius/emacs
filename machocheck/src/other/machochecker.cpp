@@ -1372,7 +1372,7 @@ void MachOChecker<x86>::checkExternalRelocation(const macho_relocation_info<P>* 
 	if (! this->addressInWritableSegment(reloc->r_address() + this->relocBase()))
 		throw "external relocation address not in writable segment";
 #ifdef DEBUG
-	int reloc_num = reloc->r_symbolnum();
+	int reloc_num = (int)reloc->r_symbolnum();
 	if (reloc_num != last_external_reloc_num) {
 		last_external_reloc_num = reloc_num;
 		printf("r_symbolnum for x86 (32-bit) external reloc is %d.\n",

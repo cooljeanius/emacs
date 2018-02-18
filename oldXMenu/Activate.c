@@ -292,13 +292,13 @@ XMenuActivate(
      * Begin event processing loop.
      */
     while (1) {
-        if (wait_func) (*wait_func) (wait_data);
+        if (wait_func) (*wait_func)(wait_data);
 	XNextEvent(display, &event);	/* Get next event. */
 	switch (event.type) {		/* Dispatch on the event type. */
     case Expose:
-	    event_xmp = (XMPane *)XLookUpAssoc(display,
-					       menu->assoc_tab,
-					       event.xexpose.window);
+	    event_xmp = (XMPane *)(void *)XLookUpAssoc(display,
+						       menu->assoc_tab,
+						       event.xexpose.window);
 	    if (event_xmp == NULL) {
 		/*
 		 * If AEQ mode is enabled then queue the event.
@@ -336,8 +336,8 @@ XMenuActivate(
 	     * "passing through". If so, ignore this one.
 	     */
 
-	    event_xmw = (XMWindow *)XLookUpAssoc(display,
-						 menu->assoc_tab,
+	    event_xmw =
+		(XMWindow *)(void *)XLookUpAssoc(display, menu->assoc_tab,
 						 event.xcrossing.window);
 	    if (event_xmw == NULL) break;
 	    if (event_xmw->type == SELECTION) {
@@ -380,9 +380,9 @@ XMenuActivate(
 			      &root_x, &root_y,
 			      &win_x, &win_y,
 			      &mask);
-		event_xmp = (XMPane *)XLookUpAssoc(display,
-						   menu->assoc_tab,
-						   child);
+		event_xmp = (XMPane *)(void *)XLookUpAssoc(display,
+							   menu->assoc_tab,
+							   child);
 		if (event_xmp == NULL) break;
 		if (event_xmp == cur_p) break;
 		if (event_xmp->serial > cur_p->serial) forward = True;
@@ -408,7 +408,7 @@ XMenuActivate(
 		 * not drawn in when it should be in that case.
 		 * in that case, this is probably an ugly fix!
 		 * i hope someone more familiar with this code would
-		 * take it from here.  -- caveh@eng.sun.com.
+		 * take it from here.  -- <caveh@eng.sun.com>.
 		 */
 		XSetWindowBackground(display,
 				     event_xmp->window,
@@ -419,13 +419,11 @@ XMenuActivate(
 	    }
 	    break;
     case LeaveNotify:
-	    event_xmw = (XMWindow *)XLookUpAssoc(
-						 display,
-						 menu->assoc_tab,
-						 event.xcrossing.window
-						 );
+	    event_xmw =
+		(XMWindow *)(void *)XLookUpAssoc(display, menu->assoc_tab,
+						 event.xcrossing.window);
 	    if (event_xmw == NULL) break;
-	    if(cur_s == NULL) break;
+	    if (cur_s == NULL) break;
 
 	    /*
 	     * If the current selection was activated then
@@ -565,12 +563,11 @@ XMenuActivate(
 		 * If so, discard it and process the next event.
 		 * If not fall through and treat it as a foreign event.
 		 */
-		event_xmp = (XMPane *)XLookUpAssoc(
-						   display,
-						   menu->assoc_tab,
-						   event.xbutton.window
-						   );
+		event_xmp =
+		    (XMPane *)(void *)XLookUpAssoc(display, menu->assoc_tab,
+						   event.xbutton.window);
 		if (event_xmp != NULL) continue;
+		/*FALLTHRU*/
 	    default:
 		/*
 		 * This is a foreign event.

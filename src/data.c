@@ -2774,7 +2774,7 @@ float_arith_driver (double accum, ptrdiff_t argnum, enum arithop code,
 	    accum = next;
 	  else
 	    {
-	      if (! IEEE_FLOATING_POINT && (next == 0.0f))
+	      if (! IEEE_FLOATING_POINT && (next == (double)0.0f))
 		xsignal0 (Qarith_error);
 	      accum /= next;
 	    }

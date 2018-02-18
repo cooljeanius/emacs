@@ -24,6 +24,7 @@ XMenuError(void)
     if ((_XMErrorCode < XME_CODE_COUNT) && (_XMErrorCode >= 0)) {
 	return(_XMErrorList[_XMErrorCode]);
     }
-    sprintf(message, "Unknown _XMErrorCode: %d", _XMErrorCode);
+    snprintf(message, sizeof(message), "Unknown _XMErrorCode: %d", 
+	     _XMErrorCode);
     return(message);
 }

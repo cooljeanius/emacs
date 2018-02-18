@@ -1925,21 +1925,22 @@ x_y_to_hpos_vpos (struct window *w, int x, int y, int *hpos, int *vpos,
 	  *area = LEFT_MARGIN_AREA;
 	  x0 = window_box_left_offset (w, LEFT_MARGIN_AREA);
 	}
-      else if (x < window_box_right_offset (w, TEXT_AREA))
+      else if (x < window_box_right_offset(w, TEXT_AREA))
 	{
 	  *area = TEXT_AREA;
-	  x0 = window_box_left_offset (w, TEXT_AREA) + min (row->x, 0);
+	  x0 = (window_box_left_offset(w, TEXT_AREA)
+		+ ((row != NULL) ? min(row->x, 0) : 0));
 	}
       else
 	{
 	  *area = RIGHT_MARGIN_AREA;
-	  x0 = window_box_left_offset (w, RIGHT_MARGIN_AREA);
+	  x0 = window_box_left_offset(w, RIGHT_MARGIN_AREA);
 	}
     }
 
   /* Find glyph containing X.  */
-  glyph = row->glyphs[*area];
-  end = glyph + row->used[*area];
+  glyph = ((row != NULL) ? row->glyphs[*area] : NULL);
+  end = glyph + ((row != NULL) ? row->used[*area] : 0);
   x -= x0;
   while (glyph < end && x >= glyph->pixel_width)
     {
@@ -4753,7 +4754,9 @@ handle_single_display_spec(struct it *it, Lisp_Object spec, Lisp_Object object,
 		     Value is the new height.  */
 		  Lisp_Object height;
 		  height = safe_call1(it->font_height,
-				      face->lface[LFACE_HEIGHT_INDEX]);
+				      ((face != NULL)
+				       ? face->lface[LFACE_HEIGHT_INDEX]
+				       : Qnil));
 		  if (NUMBERP(height))
 		    new_height = XFLOATINT(height);
 		}
@@ -4780,7 +4783,8 @@ handle_single_display_spec(struct it *it, Lisp_Object spec, Lisp_Object object,
 		     current specified height to get the new height.  */
 		  ptrdiff_t count = SPECPDL_INDEX();
 
-		  specbind(Qheight, face->lface[LFACE_HEIGHT_INDEX]);
+		  specbind(Qheight, ((face != NULL) 
+				     ? face->lface[LFACE_HEIGHT_INDEX] : Qnil));
 		  value = safe_eval(it->font_height);
 		  unbind_to(count, Qnil);
 
@@ -9135,6 +9139,9 @@ move_it_to (struct it *it, ptrdiff_t to_charpos, int to_x, int to_y, int to_vpos
 	  emacs_abort ();
 	}
 
+      if (reached > 1) {
+	; /* ??? */
+      }
       /* Reset/increment for the next run.  */
       recenter_overlay_lists (current_buffer, IT_CHARPOS (*it));
       it->current_x = line_start_x;
@@ -9147,6 +9154,9 @@ move_it_to (struct it *it, ptrdiff_t to_charpos, int to_x, int to_y, int to_vpos
     }
 
  out:
+  if (reached == 0) {
+    ; /* ??? */
+  }
 
   /* On text terminals, we may stop at the end of a line in the middle
      of a multi-character glyph.  If the glyph itself is continued,
@@ -10623,17 +10633,18 @@ resize_mini_window_1 (ptrdiff_t a1, Lisp_Object exactly)
    Value is non-zero if the window height has been changed.  */
 
 int
-resize_mini_window (struct window *w, int exact_p)
+resize_mini_window(struct window *w, int exact_p)
 {
-  struct frame *f = XFRAME (w->frame);
+  struct frame *f = ((w != NULL) ? XFRAME(w->frame) : NULL);
   int window_height_changed_p = 0;
 
-  eassert (MINI_WINDOW_P (w));
+  eassert(MINI_WINDOW_P(w));
 
   /* By default, start display at the beginning.  */
-  set_marker_both (w->start, w->contents,
-		   BUF_BEGV (XBUFFER (w->contents)),
-		   BUF_BEGV_BYTE (XBUFFER (w->contents)));
+  if (w != NULL)
+    set_marker_both(w->start, w->contents,
+		    BUF_BEGV(XBUFFER(w->contents)),
+		    BUF_BEGV_BYTE(XBUFFER(w->contents)));
 
   /* Don't resize windows while redisplaying a window; it would
      confuse redisplay functions when the size of the window they are
@@ -10645,8 +10656,8 @@ resize_mini_window (struct window *w, int exact_p)
     return 0;
 
   /* Nil means don't try to resize.  */
-  if (NILP (Vresize_mini_windows)
-      || (FRAME_X_P (f) && FRAME_X_OUTPUT (f) == NULL))
+  if (NILP(Vresize_mini_windows) || (f == NULL)
+      || (FRAME_X_P(f) && (FRAME_X_OUTPUT(f) == NULL)))
     return 0;
 
   if (!FRAME_MINIBUF_ONLY_P (f))
@@ -21899,8 +21910,8 @@ store_mode_line_string (const char *string, Lisp_Object lisp_string, int copy_st
       if (precision > 0 && len > precision)
 	{
 	  len = precision;
-	  lisp_string = Fsubstring (lisp_string, make_number (0), make_number (len));
-	  precision = -1;
+	  lisp_string = Fsubstring(lisp_string, make_number(0),
+				   make_number(len));
 	}
       if (!NILP (mode_line_string_face))
 	{
@@ -25152,7 +25163,7 @@ void produce_stretch_glyph(struct it *it)
 	       && calc_pixel_width_or_height (&tem, it, prop, font, 0, 0))
 	ascent = min (max (0, (int)tem), height);
       else
-	ascent = (height * FONT_BASE(font)) / FONT_HEIGHT(font);
+	ascent = (height * FONT_BASE(font)) / max(FONT_HEIGHT(font), 1);
     }
   else
 #endif	/* HAVE_WINDOW_SYSTEM */
@@ -26993,7 +27004,7 @@ display_and_set_cursor (struct window *w, bool on,
 {
   struct frame *f = XFRAME (w->frame);
   int new_cursor_type;
-  int new_cursor_width;
+  int new_cursor_width IF_LINT(= 0);
   int active_cursor;
   struct glyph_row *glyph_row;
   struct glyph *glyph;
@@ -27062,9 +27073,9 @@ display_and_set_cursor (struct window *w, bool on,
       w->phys_cursor.vpos = vpos;
     }
 
-  FRAME_RIF (f)->draw_window_cursor (w, glyph_row, x, y,
-                                     new_cursor_type, new_cursor_width,
-                                     on, active_cursor);
+  FRAME_RIF(f)->draw_window_cursor(w, glyph_row, x, y,
+                                   new_cursor_type, new_cursor_width,
+                                   on, active_cursor);
 }
 
 

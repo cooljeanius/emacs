@@ -1,4 +1,4 @@
-/* macfont.m: Font driver on Mac OSX Core text.
+/* macfont.m: Font driver on Mac OSX Core text. -*- Objective-C -*-
  * Copyright (C) 2009-2014 Free Software Foundation, Inc.  */
 /*
 This file is part of GNU Emacs.

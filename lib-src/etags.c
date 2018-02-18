@@ -3303,7 +3303,7 @@ C_entries (int c_ext, FILE *inf)
 						(len + qlen + toklen));
 			      snprintf((token_name.buffer + len),
 				       (token_name.size + token_name.len + len),
-				       "%s%.*s", qualifier, toklen,
+				       "%s%.*s", qualifier, (int8_t)toklen,
 				       (newlb.buffer + tokoff));
 			      token.named = true;
 			    }
@@ -3314,7 +3314,7 @@ C_entries (int c_ext, FILE *inf)
 			      linebuffer_setlen(&token_name, len);
 			      snprintf(token_name.buffer,
 				       (token_name.size + token_name.len + len),
-				       "%s(%.*s)", objtag, toklen,
+				       "%s(%.*s)", objtag, (int8_t)toklen,
 				       (newlb.buffer + tokoff));
 			      token.named = true;
 			    }
