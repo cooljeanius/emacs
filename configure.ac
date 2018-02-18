@@ -3155,6 +3155,7 @@ else
   nw="${nw} -Wformat-nonliteral"                         # we do this a lot
   nw="${nw} -Wvla"       # warnings in "gettext.h", and Emacs uses <vla.h>.
   nw="${nw} -Wnested-externs"          # use of XARGMATCH/verify_function__
+  nw="${nw} -Wunused-const-variable=2"     # lisp.h declares const objects.
   nw="${nw} -Winline"                               # OK to ignore 'inline'
   # I am leaving "-Wjump-misses-init" on; I am distrustful of the assertion
   # that we sometimes safely jump over init.
@@ -5609,6 +5610,24 @@ AC_SUBST([INSTALL_ARCH_INDEP_EXTRA])dnl
 AC_SUBST([ns_self_contained])dnl
 AC_SUBST([NS_OBJ])dnl
 AC_SUBST([NS_OBJC_OBJ])dnl
+
+if test "x${HAVE_NS}" = "xyes"; then
+  AC_CACHE_CHECK([if the Objective C compiler supports instancetype],
+    [emacs_cv_objc_instancetype],
+    [AC_LANG_PUSH([Objective C])
+     AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+@interface Test
++ (instancetype)test;
+@end
+]])],[emacs_cv_objc_instancetype=yes],
+     [emacs_cv_objc_instancetype=no])
+     AC_LANG_POP([Objective C])])dnl
+
+  if test "x${emacs_cv_objc_instancetype}" = "xyes"; then
+    AC_DEFINE([NATIVE_OBJC_INSTANCETYPE],[1],
+              [Define if ObjC compiler supports instancetype natively.])
+  fi
+fi
 
 HAVE_W32=no
 W32_OBJ=""

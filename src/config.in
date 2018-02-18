@@ -513,7 +513,8 @@
    may be supplied by this distribution. */
 #undef HAVE_ALLOCA
 
-/* Define to 1 if <alloca.h> works. */
+/* Define to 1 if you have <alloca.h> and it should be used (not on Ultrix).
+   */
 #undef HAVE_ALLOCA_H
 
 /* Define to 1 if ALSA is available. */
@@ -2848,6 +2849,9 @@
 /* Define if system's imake configuration file defines `NeedWidePrototypes' as
    `NO'. */
 #undef NARROWPROTO
+
+/* Define if ObjC compiler supports instancetype natively. */
+#undef NATIVE_OBJC_INSTANCETYPE
 
 /* Define to 1 if assertions should be disabled. */
 #undef NDEBUG

@@ -153,12 +153,24 @@ minor_version ()
 check_version ()
 {
     ## Respect e.g. ${AUTOMAKE} if it is set, like autoreconf does.
-    uprog=`echo $1 | sed -e 's/-/_/g' -e 'y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/'`
+    uprog0=`echo $1 | sed -e 's/-/_/g' -e 'y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/'`
 
-    eval uprog=\$${uprog}
+    eval uprog=\$${uprog0}
 
-    [ x"${uprog}" = x"" ] && uprog=$1
+    if [ x"${uprog}" = x"" ]; then
+        uprog=$1
+    else
+        printf '%s' "(using $uprog0=$uprog) "
+    fi
 
+    ## /bin/sh should always define the "command" builtin, but for
+    ## some odd reason sometimes it does not on hydra.nixos.org.
+    ## /bin/sh = "BusyBox v1.27.2", "built-in shell (ash)". ?
+    if command -v command > /dev/null 2>&1; then
+        command -v $uprog > /dev/null || return 1
+    else
+        $uprog --version > /dev/null 2>&1 || return 1
+    fi
     have_version=`get_version $uprog`
 
     [ x"${have_version}" = x"" ] && return 1
