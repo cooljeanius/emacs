@@ -29,8 +29,10 @@ before_install:
 install:
   - "DEBIAN_FRONTEND=noninteractive sudo apt-get install --no-install-recommends -y -qq -o=Dpkg::Use-Pty=0 libc-dev gcc make autoconf automake libncurses-dev gobjc gobjc++ gobjc-multilib gobjc++-multilib"
 
-script: ./configure --without-makeinfo --without-gif && make && make check
+script: ./configure --without-makeinfo --without-gif && touch aclocal.m4 && make && make check
 
 compiler:
   - clang
   - gcc
+
+after_failure: automake --version
