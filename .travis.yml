@@ -27,7 +27,7 @@ before_install:
   - "sudo apt-get update -qq"
 
 install:
-  - "DEBIAN_FRONTEND=noninteractive sudo apt-get install --no-install-recommends -y -qq -o=Dpkg::Use-Pty=0 libc-dev gcc make autoconf automake libncurses-dev gobjc gobjc++ gobjc-multilib gobjc++-multilib"
+  - "DEBIAN_FRONTEND=noninteractive sudo apt-get install --no-install-recommends -y -qq -o=Dpkg::Use-Pty=0 libc-dev gcc make autoconf automake libncurses-dev gobjc gobjc++ gobjc-multilib gobjc++-multilib autopoint"
 
 script: sh ./autogen.sh && ./configure --without-makeinfo --without-gif && make && make check
 
