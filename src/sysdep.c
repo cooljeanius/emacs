@@ -2715,7 +2715,7 @@ list_system_processes (void)
 
 #endif /* !defined (WINDOWSNT) */
 
-#if defined GNU_LINUX && defined HAVE_LONG_LONG_INT
+#if (defined GNU_LINUX && defined HAVE_LONG_LONG_INT)
 static struct timespec
 time_from_jiffies (unsigned long long tval, long hz)
 {
@@ -2825,7 +2825,8 @@ procfs_ttyname (int rdev)
 
 	      if (MINOR (rdev) >= minor_beg && MINOR (rdev) <= minor_end)
 		{
-		  sprintf (name + strlen (name), "%u", MINOR (rdev));
+		  snprintf((name + strlen(name)), (sizeof(name) + strlen(name)),
+			   "%u", MINOR(rdev));
 		  break;
 		}
 	    }
@@ -2891,7 +2892,7 @@ system_process_attributes (Lisp_Object pid)
   ssize_t nread;
   static char const default_cmd[] = "???";
   const char *cmd = default_cmd;
-  int cmdsize = sizeof default_cmd - 1;
+  size_t cmdsize = (sizeof(default_cmd) - 1UL);
   char *cmdline = NULL;
   ptrdiff_t cmdline_size;
   char c;
@@ -2911,7 +2912,7 @@ system_process_attributes (Lisp_Object pid)
 
   CHECK_NUMBER_OR_FLOAT (pid);
   CONS_TO_INTEGER (pid, pid_t, proc_id);
-  sprintf (procfn, "/proc/%"pMd, proc_id);
+  snprintf(procfn, sizeof(procfn), "/proc/%"pMd, proc_id);
   if (stat (procfn, &st) < 0)
     return attrs;
 
@@ -3095,7 +3096,7 @@ system_process_attributes (Lisp_Object pid)
 	  cmdline_size = nread + 1;
 	  q = cmdline = xrealloc (cmdline, cmdline_size);
 	  set_unwind_protect_ptr (count + 1, xfree, cmdline);
-	  sprintf (cmdline, "[%.*s]", cmdsize, cmd);
+	  snprintf(cmdline, cmdline_size, "[%.*s]", (uint8_t)cmdsize, cmd);
 	}
       /* Command line is encoded in locale-coding-system; decode it.  */
       cmd_str = make_unibyte_string (q, nread);
@@ -3109,7 +3110,7 @@ system_process_attributes (Lisp_Object pid)
   return attrs;
 }
 
-#elif defined (SOLARIS2) && defined (HAVE_PROCFS)
+#elif (defined(SOLARIS2) && defined(HAVE_PROCFS))
 
 /* The <procfs.h> header does not like to be included if _LP64 is defined and
    __FILE_OFFSET_BITS == 64.  This is an ugly workaround that.  */
@@ -3253,6 +3254,10 @@ system_process_attributes (Lisp_Object pid)
 
 #elif defined __FreeBSD__
 
+#ifdef HAVE_MATH_H
+# include <math.h>
+#endif /* HAVE_MATH_H */
+
 static struct timespec
 timeval_to_timespec (struct timeval t)
 {
@@ -3340,6 +3345,9 @@ system_process_attributes (Lisp_Object pid)
       case SSTOP:
 	state[0] = 'T';
 	break;
+	  
+      default:
+	break;
       }
     attrs = Fcons (Fcons (Qstate, build_string (state)), attrs);
   }
@@ -3414,6 +3422,11 @@ system_process_attributes (Lisp_Object pid)
       attrs = Fcons (Fcons (Qpmem, make_fixnum_or_float (pmem)), attrs);
     }
 
+#ifndef KERN_PROC_ARGS
+# ifdef KERN_PROCARGS
+#  define KERN_PROC_ARGS KERN_PROCARGS
+# endif /* KERN_PROCARGS */
+#endif /* KERN_PROC_ARGS */
   mib[2] = KERN_PROC_ARGS;
   len = MAXPATHLEN;
   if (sysctl (mib, 4, args, &len, NULL, 0) == 0)
@@ -3447,4 +3460,10 @@ system_process_attributes (Lisp_Object pid)
   return Qnil;
 }
 
-#endif	/* !defined (WINDOWSNT) */
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#  warning "missing system_process_attributes() implementation here"
+# endif /* __GNUC__ && !__STRICT_ANSI__ */
+#endif /* !defined(WINDOWSNT) etc. */
+
+/* EOF */
