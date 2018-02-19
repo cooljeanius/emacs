@@ -370,7 +370,7 @@ main(int argc, char **argv)
 	  if (infile == NULL)
 	    {
 	      fprintf (stderr, "Error: too many clients.\n");
-	      write(infd, "Too many clients.\n", 18);
+	      (void)write(infd, "Too many clients.\n", 18);
 	      close(infd);		/* Prevent descriptor leak... */
 	      continue;
 	    }
@@ -399,9 +399,10 @@ main(int argc, char **argv)
       else if (FD_ISSET(0, &rmask)) /* emacs sends codeword, fd, and string message */
 	{
 	  /* Read command codeword and fd */
+	  int ret;
 	  clearerr(stdin);
-	  scanf("%s %d%*c", code, &infd);
-	  if (ferror(stdin) || feof(stdin))
+	  ret = scanf("%s %d%*c", code, &infd);
+	  if (ferror(stdin) || feof(stdin) || (ret == EOF))
 	    fatal_error("server: error reading from standard input\n");
 
 	  /* Transfer text from Emacs to the client, up to a newline.  */

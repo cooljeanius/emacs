@@ -213,7 +213,7 @@ GENERAL_PURPOSE_LIBS=@LIBS@
 
 ## Extra libraries to use when linking movemail.
 LIBS_MOVE = $(LIBS_MAIL) $(KRB4LIB) $(DESLIB) $(KRB5LIB) $(CRYPTOLIB) \
-            $(COM_ERRLIB) $(LIBHESIOD) $(LIBRESOLV) $(LIB_WSOCK32)
+            $(COM_ERRLIB) $(LIBHESIOD) $(LIBRESOLV) $(LIB_WSOCK32) $(LIBINTL)
 
 ## Extra libraries when linking emacsclient
 ## (empty or -lcomctl32 for MinGW)
@@ -579,7 +579,7 @@ hexl${EXEEXT}: ${srcdir}/hexl.c $(stddep)
 update-game-score${EXEEXT}: ${srcdir}/update-game-score.c $(stddep)
 	$(AM_V_CCLD)$(CC) ${ALL_CFLAGS} \
 	  -DHAVE_SHARED_GAME_DIR="\"$(gamedir)\"" \
-	  ${srcdir}/update-game-score.c $(LOADLIBES) $(NTLIB) \
+	  ${srcdir}/update-game-score.c $(LOADLIBES) $(NTLIB) $(LIBINTL) \
 	  -o update-game-score${EXEEXT}
 
 update-game-score.o: ${srcdir}/update-game-score.c $(config_h) $(GETOPT_H)
