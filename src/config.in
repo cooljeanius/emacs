@@ -1766,7 +1766,7 @@
 /* Define to 1 if you have the `openat' function. */
 #undef HAVE_OPENAT
 
-/* Define to 1 if the system has the 'openpty' function. */
+/* Define to 1 if you have the `openpty' function. */
 #undef HAVE_OPENPTY
 
 /* Define to 1 if you have the <osreldate.h> header file. */
@@ -2790,9 +2790,6 @@
 
 /* Define to 1 if you have the `_ftelli64' function. */
 #undef HAVE__FTELLI64
-
-/* Define to 1 if you have the `_getpty' function. */
-#undef HAVE__GETPTY
 
 /* Define to 1 if _setjmp and _longjmp work. */
 #undef HAVE__SETJMP

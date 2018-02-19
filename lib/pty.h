@@ -518,7 +518,7 @@ _GL_WARN_ON_USE (forkpty, "forkpty is not declared consistently - "
 # endif
 #endif
 
-#if 1
+#if 0
 /* Create pseudo tty master slave pair and set terminal attributes
    according to TERMP and WINP.  Return handles for both ends in
    *AMASTER and *ASLAVE, and return the name of the slave end in NAME.  */
@@ -534,7 +534,7 @@ _GL_CXXALIAS_RPL (openpty, int,
                   (int *amaster, int *aslave, char *name,
                    struct termios const *termp, struct winsize const *winp));
 # else
-#  if !0
+#  if !1
 _GL_FUNCDECL_SYS (openpty, int,
                   (int *amaster, int *aslave, char *name,
                    struct termios const *termp, struct winsize const *winp));

@@ -77,15 +77,15 @@ else
       getpass-gnu getprogname gettext gettext-h gettime gettimeofday \
       git-version-gen gitlog-to-changelog gnu-make gpl-3.0 group-member \
       havelib host-cpu-c-abi host-os \
-      ignore-value include_next inline intprops inttypes-incomplete \
+      ignore-value include_next inline intprops inttypes-incomplete ioctl \
       largefile ldd limits-h localcharset localtime-buffer longlong \
       lseek lstat \
       maintainer-makefile manywarnings math mbsinit memchr memrchr \
       mkostemp mktime multiarch \
       nextafter no-c++ nocrash nstrftime \
-      obstack open openat openat-die openat-h openmp openpty \
-      pagealign_alloc pathmax perror pipe2 posix_spawnp printf-safe \
-      progname pselect pthread_sigmask putenv \
+      obstack open openat openat-die openat-h openmp \
+      pagealign_alloc pathmax perror pipe2 posix_openpt posix_spawnp \
+      printf-safe progname pselect pthread_sigmask pty putenv \
       qacl qcopy-acl quote quotearg quotearg-simple \
       read readdir readlink readlinkat realloc-gnu realloc-posix rename \
       rmdir root-uid \

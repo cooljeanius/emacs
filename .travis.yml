@@ -29,7 +29,7 @@ before_install:
 install:
   - "DEBIAN_FRONTEND=noninteractive sudo apt-get install --no-install-recommends -y -qq -o=Dpkg::Use-Pty=0 libc-dev gcc make autoconf automake libncurses-dev gobjc gobjc++ gobjc-multilib gobjc++-multilib autopoint"
 
-script: sh ./autogen.sh && ./configure --without-makeinfo --without-gif --without-gnutls --enable-silent-rules --disable-autodepend && make && make check
+script: sh ./autogen.sh && ./configure --without-makeinfo --without-gif --without-gnutls --enable-silent-rules --disable-autodepend && make only_bootstrap-emacs
 
 compiler:
   - clang

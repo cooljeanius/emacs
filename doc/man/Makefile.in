@@ -173,13 +173,12 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/00gnulib.m4 \
 	$(top_srcdir)/m4/po.m4 $(top_srcdir)/m4/posix_openpt.m4 \
 	$(top_srcdir)/m4/posix_spawn.m4 $(top_srcdir)/m4/progtest.m4 \
 	$(top_srcdir)/m4/pselect.m4 \
-	$(top_srcdir)/m4/pthread_sigmask.m4 $(top_srcdir)/m4/pty.m4 \
-	$(top_srcdir)/m4/pty_h.m4 $(top_srcdir)/m4/putenv.m4 \
-	$(top_srcdir)/m4/quote.m4 $(top_srcdir)/m4/quotearg.m4 \
-	$(top_srcdir)/m4/rawmemchr.m4 $(top_srcdir)/m4/read.m4 \
-	$(top_srcdir)/m4/readdir.m4 $(top_srcdir)/m4/readlink.m4 \
-	$(top_srcdir)/m4/readlinkat.m4 $(top_srcdir)/m4/realloc.m4 \
-	$(top_srcdir)/m4/rename.m4 \
+	$(top_srcdir)/m4/pthread_sigmask.m4 $(top_srcdir)/m4/pty_h.m4 \
+	$(top_srcdir)/m4/putenv.m4 $(top_srcdir)/m4/quote.m4 \
+	$(top_srcdir)/m4/quotearg.m4 $(top_srcdir)/m4/rawmemchr.m4 \
+	$(top_srcdir)/m4/read.m4 $(top_srcdir)/m4/readdir.m4 \
+	$(top_srcdir)/m4/readlink.m4 $(top_srcdir)/m4/readlinkat.m4 \
+	$(top_srcdir)/m4/realloc.m4 $(top_srcdir)/m4/rename.m4 \
 	$(top_srcdir)/m4/restartable_syscalls.m4 \
 	$(top_srcdir)/m4/rmdir.m4 $(top_srcdir)/m4/sched_h.m4 \
 	$(top_srcdir)/m4/secure_getenv.m4 $(top_srcdir)/m4/setenv.m4 \
@@ -1435,7 +1434,6 @@ PROFILING_CFLAGS_BOOTSTRAP_EMACS = @PROFILING_CFLAGS_BOOTSTRAP_EMACS@
 PROFILING_CFLAGS_TEMACS = @PROFILING_CFLAGS_TEMACS@
 PTHREAD_H_DEFINES_STRUCT_TIMESPEC = @PTHREAD_H_DEFINES_STRUCT_TIMESPEC@
 PTRDIFF_T_SUFFIX = @PTRDIFF_T_SUFFIX@
-PTY_LIB = @PTY_LIB@
 RALLOC_OBJ = @RALLOC_OBJ@
 RANLIB = @RANLIB@
 RC_ARCHS = @RC_ARCHS@

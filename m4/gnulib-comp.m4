@@ -194,7 +194,6 @@ AC_DEFUN([gl_EARLY],
   # Code from module openat-die:
   # Code from module openat-h:
   # Code from module openmp:
-  # Code from module openpty:
   # Code from module pagealign_alloc:
   # Code from module pathmax:
   # Code from module perror:
@@ -610,6 +609,11 @@ AC_DEFUN([gl_INIT],
   gl_HOST_OS
   gl_INLINE
   gl_INTTYPES_INCOMPLETE
+  gl_FUNC_IOCTL
+  if test $HAVE_IOCTL = 0 || test $REPLACE_IOCTL = 1; then
+    AC_LIBOBJ([ioctl])
+  fi
+  gl_SYS_IOCTL_MODULE_INDICATOR([ioctl])
   AC_REQUIRE([gl_LARGEFILE])
   gl_LDD
   AC_CONFIG_FILES([ldd.sh:build-aux/ldd.sh.in])
@@ -699,11 +703,6 @@ AC_DEFUN([gl_INIT],
   gl_MODULE_INDICATOR([openat]) dnl for lib/getcwd.c
   gl_FCNTL_MODULE_INDICATOR([openat])
   AC_OPENMP
-  gl_FUNC_OPENPTY
-  if test $HAVE_OPENPTY = 0 || test $REPLACE_OPENPTY = 1; then
-    AC_LIBOBJ([openpty])
-  fi
-  gl_PTY_MODULE_INDICATOR([openpty])
   gl_PAGEALIGN_ALLOC
   gl_PATHMAX
   gl_FUNC_PERROR
@@ -713,6 +712,11 @@ AC_DEFUN([gl_INIT],
   gl_STRING_MODULE_INDICATOR([perror])
   gl_FUNC_PIPE2
   gl_UNISTD_MODULE_INDICATOR([pipe2])
+  gl_FUNC_POSIX_OPENPT
+  if test $HAVE_POSIX_OPENPT = 0; then
+    AC_LIBOBJ([posix_openpt])
+  fi
+  gl_STDLIB_MODULE_INDICATOR([posix_openpt])
   gl_POSIX_SPAWN
   if test $HAVE_POSIX_SPAWN = 0 || test $REPLACE_POSIX_SPAWN = 1; then
     AC_LIBOBJ([spawnp])
@@ -995,11 +999,9 @@ AC_DEFUN([gl_INIT],
   gl_gnulib_enabled_cloexec=false
   gl_gnulib_enabled_filename=false
   gl_gnulib_enabled_30838f5439487421042f2225bed3af76=false
-  gl_gnulib_enabled_ioctl=false
   gl_gnulib_enabled_malloca=false
   gl_gnulib_enabled_memmove=false
   gl_gnulib_enabled_5264294aa0a5557541b53c8c741f7f31=false
-  gl_gnulib_enabled_posix_openpt=false
   gl_gnulib_enabled_332607f759618fb73dfc3076748afea7=false
   gl_gnulib_enabled_rawmemchr=false
   gl_gnulib_enabled_9bc5f216d57e231e4834049d67d0db62=false
@@ -1035,17 +1037,6 @@ AC_DEFUN([gl_INIT],
       gl_gnulib_enabled_30838f5439487421042f2225bed3af76=true
     fi
   }
-  func_gl_gnulib_m4code_ioctl ()
-  {
-    if ! $gl_gnulib_enabled_ioctl; then
-      gl_FUNC_IOCTL
-      if test $HAVE_IOCTL = 0 || test $REPLACE_IOCTL = 1; then
-        AC_LIBOBJ([ioctl])
-      fi
-      gl_SYS_IOCTL_MODULE_INDICATOR([ioctl])
-      gl_gnulib_enabled_ioctl=true
-    fi
-  }
   func_gl_gnulib_m4code_malloca ()
   {
     if ! $gl_gnulib_enabled_malloca; then
@@ -1073,17 +1064,6 @@ AC_DEFUN([gl_INIT],
         gl_PREREQ_MKTIME
       fi
       gl_gnulib_enabled_5264294aa0a5557541b53c8c741f7f31=true
-    fi
-  }
-  func_gl_gnulib_m4code_posix_openpt ()
-  {
-    if ! $gl_gnulib_enabled_posix_openpt; then
-      gl_FUNC_POSIX_OPENPT
-      if test $HAVE_POSIX_OPENPT = 0; then
-        AC_LIBOBJ([posix_openpt])
-      fi
-      gl_STDLIB_MODULE_INDICATOR([posix_openpt])
-      gl_gnulib_enabled_posix_openpt=true
     fi
   }
   func_gl_gnulib_m4code_332607f759618fb73dfc3076748afea7 ()
@@ -1202,12 +1182,6 @@ AC_DEFUN([gl_INIT],
   if test $REPLACE_OPENAT = 1; then
     func_gl_gnulib_m4code_cloexec
   fi
-  if test $HAVE_OPENPTY = 0 || test $REPLACE_OPENPTY = 1; then
-    func_gl_gnulib_m4code_ioctl
-  fi
-  if test $HAVE_OPENPTY = 0 || test $REPLACE_OPENPTY = 1; then
-    func_gl_gnulib_m4code_posix_openpt
-  fi
   if test $REPLACE_PERROR = 1; then
     func_gl_gnulib_m4code_1f32594a85e6221ba15f884daeee8c2a
   fi
@@ -1252,11 +1226,9 @@ AC_DEFUN([gl_INIT],
   AM_CONDITIONAL([gl_GNULIB_ENABLED_cloexec], [$gl_gnulib_enabled_cloexec])
   AM_CONDITIONAL([gl_GNULIB_ENABLED_filename], [$gl_gnulib_enabled_filename])
   AM_CONDITIONAL([gl_GNULIB_ENABLED_30838f5439487421042f2225bed3af76], [$gl_gnulib_enabled_30838f5439487421042f2225bed3af76])
-  AM_CONDITIONAL([gl_GNULIB_ENABLED_ioctl], [$gl_gnulib_enabled_ioctl])
   AM_CONDITIONAL([gl_GNULIB_ENABLED_malloca], [$gl_gnulib_enabled_malloca])
   AM_CONDITIONAL([gl_GNULIB_ENABLED_memmove], [$gl_gnulib_enabled_memmove])
   AM_CONDITIONAL([gl_GNULIB_ENABLED_5264294aa0a5557541b53c8c741f7f31], [$gl_gnulib_enabled_5264294aa0a5557541b53c8c741f7f31])
-  AM_CONDITIONAL([gl_GNULIB_ENABLED_posix_openpt], [$gl_gnulib_enabled_posix_openpt])
   AM_CONDITIONAL([gl_GNULIB_ENABLED_332607f759618fb73dfc3076748afea7], [$gl_gnulib_enabled_332607f759618fb73dfc3076748afea7])
   AM_CONDITIONAL([gl_GNULIB_ENABLED_rawmemchr], [$gl_gnulib_enabled_rawmemchr])
   AM_CONDITIONAL([gl_GNULIB_ENABLED_9bc5f216d57e231e4834049d67d0db62], [$gl_gnulib_enabled_9bc5f216d57e231e4834049d67d0db62])
@@ -1577,7 +1549,6 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/openat-proc.c
   lib/openat.c
   lib/openat.h
-  lib/openpty.c
   lib/pagealign_alloc.c
   lib/pagealign_alloc.h
   lib/pathmax.h
@@ -1869,7 +1840,6 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/progtest.m4
   m4/pselect.m4
   m4/pthread_sigmask.m4
-  m4/pty.m4
   m4/pty_h.m4
   m4/putenv.m4
   m4/quote.m4

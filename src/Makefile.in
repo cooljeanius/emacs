@@ -554,15 +554,18 @@ check: gnulib_headers getloadavg_test$(EXEEXT)
 	$(MAKE) $(ALLPLISTS)
 .PHONY: check
 
-$(leimdir)/leim-list.el: bootstrap-emacs$(EXEEXT)
+$(leimdir)/leim-list.el: bootstrap-emacs$(EXEEXT) use_bootstrap_emacs \
+  ../leim/Makefile
 	cd ../leim && $(MAKE) $(MFLAGS) leim-list.el EMACS="$(bootstrap_exe)"
 
-$(lispsource)/international/charprop.el: bootstrap-emacs$(EXEEXT)
+$(lispsource)/international/charprop.el: bootstrap-emacs$(EXEEXT) \
+  use_bootstrap_emacs ../admin/unidata/Makefile
 	cd ../admin/unidata && $(MAKE) $(MFLAGS) all EMACS="../$(bootstrap_exe)"
 
 ## FORCE it so that admin/unidata can decide whether this file
 ## is up-to-date.
-$(srcdir)/macuvs.h: bootstrap-emacs$(EXEEXT) @MAINT@ FORCE
+$(srcdir)/macuvs.h: bootstrap-emacs$(EXEEXT) use_bootstrap_emacs \
+  ../admin/unidata/Makefile @MAINT@ FORCE
 	$(MAKE) -C ../admin/unidata all EMACS="../$(bootstrap_exe)"
 
 #ifdef HAVE_SHM
@@ -903,19 +906,20 @@ tags: TAGS ../lisp/TAGS $(lwlibdir)/TAGS
 	                     THEFILE=$< EMACS="$(bootstrap_exe)"
 
 ## Since the .el.elc rule cannot specify an extra dependency, we do it here.
-$(lisp): $(BOOTSTRAPEMACS)
+$(lisp): $(BOOTSTRAPEMACS) use_bootstrap_emacs
 
 ## VCSWITNESS points to the file that holds info about the current checkout.
 ## We use it as a heuristic to decide when to rebuild loaddefs.el.
 ## If empty it is ignored; the parent makefile can set it to some other value.
 VCSWITNESS =
 
-$(lispsource)/loaddefs.el: $(BOOTSTRAPEMACS) @MAINT@ $(VCSWITNESS)
+$(lispsource)/loaddefs.el: $(BOOTSTRAPEMACS) use_bootstrap_emacs \
+  ../lisp/Makefile @MAINT@ $(VCSWITNESS)
 	cd ../lisp; $(MAKE) $(MFLAGS) autoloads EMACS="$(bootstrap_exe)"
 
 ## Dump an Emacs executable named bootstrap-emacs containing the
 ## files from loadup.el in source form.
-bootstrap-emacs$(EXEEXT): ../lisp/Makefile temacs$(EXEEXT)
+bootstrap-emacs$(EXEEXT): temacs$(EXEEXT)
 	cd ../lisp; $(MAKE) $(MFLAGS) update-subdirs
 	if test "x$(CANNOT_DUMP)" = "xyes"; then \
 	  echo "Skipping dumping"; \
@@ -938,8 +942,12 @@ bootstrap-emacs$(EXEEXT): ../lisp/Makefile temacs$(EXEEXT)
 	if test "x$(DSYMUTIL)" != "x"; then \
 	  $(DSYMUTIL) bootstrap-emacs$(EXEEXT); \
 	fi
+	touch $@
+
+use_bootstrap_emacs: bootstrap-emacs$(EXEEXT) ../lisp/Makefile
 	@echo "Compiling some files earlier to speed up further compilation."
 	cd ../lisp; $(MAKE) $(MFLAGS) compile-first EMACS="$(bootstrap_exe)"
+.PHONY: use_bootstrap_emacs
 
 ## for testing:
 getloadavg_test$(EXEEXT): $(srcdir)/getloadavg.c $(config_h)

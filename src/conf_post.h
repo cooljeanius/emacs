@@ -222,7 +222,9 @@ extern void _DebPrint (const char *fmt, ...);
 # define RE_TRANSLATE_P(TBL) (!EQ(TBL, make_number((EMACS_INT)0)))
 #endif /* emacs */
 
-#include <string.h>
+#ifdef HAVE_STRING_H
+# include <string.h>
+#endif /* HAVE_STRING_H */
 #include <stdlib.h>
 
 #if (__GNUC__ >= 3)  /* On GCC 3.0 we might get a warning.  */

@@ -1101,9 +1101,7 @@ EXTRA_DIST += inttypes.in.h
 
 ## begin gnulib module ioctl
 
-if gl_GNULIB_ENABLED_ioctl
 
-endif
 EXTRA_DIST += ioctl.c w32sock.h
 
 EXTRA_libgnu_a_SOURCES += ioctl.c
@@ -1698,15 +1696,6 @@ EXTRA_DIST += openat.h
 
 ## end   gnulib module openat-h
 
-## begin gnulib module openpty
-
-
-EXTRA_DIST += openpty.c
-
-EXTRA_libgnu_a_SOURCES += openpty.c
-
-## end   gnulib module openpty
-
 ## begin gnulib module pagealign_alloc
 
 libgnu_a_SOURCES += pagealign_alloc.c
@@ -1739,9 +1728,7 @@ libgnu_a_SOURCES += pipe2.c
 
 ## begin gnulib module posix_openpt
 
-if gl_GNULIB_ENABLED_posix_openpt
 
-endif
 EXTRA_DIST += posix_openpt.c
 
 EXTRA_libgnu_a_SOURCES += posix_openpt.c

@@ -328,13 +328,12 @@ host_triplet = @host@
 @BUILDING_FOR_WINDOWSNT_FALSE@	mktime-internal.h mktime.c \
 @BUILDING_FOR_WINDOWSNT_FALSE@	strftime.h obstack.c obstack.h \
 @BUILDING_FOR_WINDOWSNT_FALSE@	open.c openat.c openat.h \
-@BUILDING_FOR_WINDOWSNT_FALSE@	openpty.c pagealign_alloc.h \
-@BUILDING_FOR_WINDOWSNT_FALSE@	pathmax.h perror.c \
-@BUILDING_FOR_WINDOWSNT_FALSE@	posix_openpt.c spawn_int.h \
-@BUILDING_FOR_WINDOWSNT_FALSE@	spawni.c spawnp.c pselect.c \
-@BUILDING_FOR_WINDOWSNT_FALSE@	pthread_sigmask.c pty.in.h \
-@BUILDING_FOR_WINDOWSNT_FALSE@	putenv.c quote.h quote.h \
-@BUILDING_FOR_WINDOWSNT_FALSE@	quotearg.h rawmemchr.c \
+@BUILDING_FOR_WINDOWSNT_FALSE@	pagealign_alloc.h pathmax.h \
+@BUILDING_FOR_WINDOWSNT_FALSE@	perror.c posix_openpt.c \
+@BUILDING_FOR_WINDOWSNT_FALSE@	spawn_int.h spawni.c spawnp.c \
+@BUILDING_FOR_WINDOWSNT_FALSE@	pselect.c pthread_sigmask.c \
+@BUILDING_FOR_WINDOWSNT_FALSE@	pty.in.h putenv.c quote.h \
+@BUILDING_FOR_WINDOWSNT_FALSE@	quote.h quotearg.h rawmemchr.c \
 @BUILDING_FOR_WINDOWSNT_FALSE@	rawmemchr.valgrind read.c \
 @BUILDING_FOR_WINDOWSNT_FALSE@	dirent-private.h readdir.c \
 @BUILDING_FOR_WINDOWSNT_FALSE@	readlink.c at-func.c \
@@ -509,13 +508,12 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/00gnulib.m4 \
 	$(top_srcdir)/m4/po.m4 $(top_srcdir)/m4/posix_openpt.m4 \
 	$(top_srcdir)/m4/posix_spawn.m4 $(top_srcdir)/m4/progtest.m4 \
 	$(top_srcdir)/m4/pselect.m4 \
-	$(top_srcdir)/m4/pthread_sigmask.m4 $(top_srcdir)/m4/pty.m4 \
-	$(top_srcdir)/m4/pty_h.m4 $(top_srcdir)/m4/putenv.m4 \
-	$(top_srcdir)/m4/quote.m4 $(top_srcdir)/m4/quotearg.m4 \
-	$(top_srcdir)/m4/rawmemchr.m4 $(top_srcdir)/m4/read.m4 \
-	$(top_srcdir)/m4/readdir.m4 $(top_srcdir)/m4/readlink.m4 \
-	$(top_srcdir)/m4/readlinkat.m4 $(top_srcdir)/m4/realloc.m4 \
-	$(top_srcdir)/m4/rename.m4 \
+	$(top_srcdir)/m4/pthread_sigmask.m4 $(top_srcdir)/m4/pty_h.m4 \
+	$(top_srcdir)/m4/putenv.m4 $(top_srcdir)/m4/quote.m4 \
+	$(top_srcdir)/m4/quotearg.m4 $(top_srcdir)/m4/rawmemchr.m4 \
+	$(top_srcdir)/m4/read.m4 $(top_srcdir)/m4/readdir.m4 \
+	$(top_srcdir)/m4/readlink.m4 $(top_srcdir)/m4/readlinkat.m4 \
+	$(top_srcdir)/m4/realloc.m4 $(top_srcdir)/m4/rename.m4 \
 	$(top_srcdir)/m4/restartable_syscalls.m4 \
 	$(top_srcdir)/m4/rmdir.m4 $(top_srcdir)/m4/sched_h.m4 \
 	$(top_srcdir)/m4/secure_getenv.m4 $(top_srcdir)/m4/setenv.m4 \
@@ -697,11 +695,11 @@ am__EXTRA_libgnu_a_SOURCES_DIST = acl_entries.c alloca.c openat-proc.c \
 	getpass.c gettimeofday.c group-member.c ioctl.c \
 	localtime-buffer.c lseek.c lstat.c mbrtowc.c mbsinit.c \
 	memchr.c memcmp.c memmove.c memrchr.c mkostemp.c mktime.c \
-	obstack.c open.c openat.c openpty.c perror.c posix_openpt.c \
-	spawni.c spawnp.c pselect.c pthread_sigmask.c putenv.c \
-	rawmemchr.c read.c readdir.c readlink.c readlinkat.c realloc.c \
-	rename.c rmdir.c secure_getenv.c setenv.c sig2str.c \
-	stdio-write.c sleep.c stat.c stpcpy.c strchrnul.c strerror.c \
+	obstack.c open.c openat.c perror.c posix_openpt.c spawni.c \
+	spawnp.c pselect.c pthread_sigmask.c putenv.c rawmemchr.c \
+	read.c readdir.c readlink.c readlinkat.c realloc.c rename.c \
+	rmdir.c secure_getenv.c setenv.c sig2str.c stdio-write.c \
+	sleep.c stat.c stpcpy.c strchrnul.c strerror.c \
 	strerror-override.c strerror_r.c strstr.c strtoimax.c strtol.c \
 	strtoll.c strtoul.c strtoull.c strtoumax.c symlink.c time_r.c \
 	time_rz.c timegm.c times.c tzset.c uname.c unlink.c unsetenv.c \
@@ -1918,7 +1916,6 @@ PROFILING_CFLAGS_BOOTSTRAP_EMACS = @PROFILING_CFLAGS_BOOTSTRAP_EMACS@
 PROFILING_CFLAGS_TEMACS = @PROFILING_CFLAGS_TEMACS@
 PTHREAD_H_DEFINES_STRUCT_TIMESPEC = @PTHREAD_H_DEFINES_STRUCT_TIMESPEC@
 PTRDIFF_T_SUFFIX = @PTRDIFF_T_SUFFIX@
-PTY_LIB = @PTY_LIB@
 RALLOC_OBJ = @RALLOC_OBJ@
 RANLIB = @RANLIB@
 RC_ARCHS = @RC_ARCHS@
@@ -2435,12 +2432,11 @@ AM_DEFAULT_INCLUDES = $(AM_CPPFLAGS)
 @BUILDING_FOR_WINDOWSNT_FALSE@	mbsinit.c memchr.c memcmp.c \
 @BUILDING_FOR_WINDOWSNT_FALSE@	memmove.c memrchr.c mkostemp.c \
 @BUILDING_FOR_WINDOWSNT_FALSE@	mktime.c mktime.c obstack.c \
-@BUILDING_FOR_WINDOWSNT_FALSE@	open.c openat.c openpty.c \
-@BUILDING_FOR_WINDOWSNT_FALSE@	perror.c posix_openpt.c spawni.c \
-@BUILDING_FOR_WINDOWSNT_FALSE@	spawnp.c pselect.c \
-@BUILDING_FOR_WINDOWSNT_FALSE@	pthread_sigmask.c putenv.c \
-@BUILDING_FOR_WINDOWSNT_FALSE@	rawmemchr.c read.c readdir.c \
-@BUILDING_FOR_WINDOWSNT_FALSE@	readlink.c at-func.c \
+@BUILDING_FOR_WINDOWSNT_FALSE@	open.c openat.c perror.c \
+@BUILDING_FOR_WINDOWSNT_FALSE@	posix_openpt.c spawni.c spawnp.c \
+@BUILDING_FOR_WINDOWSNT_FALSE@	pselect.c pthread_sigmask.c \
+@BUILDING_FOR_WINDOWSNT_FALSE@	putenv.c rawmemchr.c read.c \
+@BUILDING_FOR_WINDOWSNT_FALSE@	readdir.c readlink.c at-func.c \
 @BUILDING_FOR_WINDOWSNT_FALSE@	readlinkat.c realloc.c realloc.c \
 @BUILDING_FOR_WINDOWSNT_FALSE@	rename.c rmdir.c secure_getenv.c \
 @BUILDING_FOR_WINDOWSNT_FALSE@	setenv.c sig2str.c stdio-write.c \
@@ -2660,7 +2656,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openat-die.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openat-proc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openat.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/openpty.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pagealign_alloc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/perror.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pipe2.Po@am__quote@
