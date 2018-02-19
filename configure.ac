@@ -740,6 +740,14 @@ case "${canonical}" in
   ## GNU/Linux and similar ports:
   *-*-linux* )
     opsys=gnu-linux
+    case "${canonical}" in
+      alpha*-*-linux*)		machine=alpha ;;
+      ia64-*-linux*)		machine=ia64 ;;
+      sparc64-*-linux*)		machine=sparc ;;
+      powerpc-*-linux*)		machine=powerpc ;;
+      i[3456]86-*-linux*)	machine=intel386 ;;
+      amd64-*-linux*|x86_64-*-linux*) machine=amdx86-64 ;;
+    esac
   ;;
 
   ## FreeBSD ports:

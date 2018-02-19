@@ -1,4 +1,4 @@
-/* Copyright (C) 1985-1988, 1990, 1992, 1999-2014 Free Software
+/* unexelf.c: Copyright (C) 1985-1988, 1990, 1992, 1999-2014 Free Software
    Foundation, Inc.
 
 This file is part of GNU Emacs.
@@ -528,9 +528,12 @@ verify ((! TYPE_SIGNED (ElfW (Half))
 	 || PTRDIFF_MIN <= TYPE_MINIMUM (ElfW (Half)))
 	&& TYPE_MAXIMUM (ElfW (Half)) <= PTRDIFF_MAX);
 
+#ifndef UNEXELF_DEBUG
+# define UNEXELF_DEBUG 1
+#endif /* !UNEXELF_DEBUG */
 #ifdef UNEXELF_DEBUG
 # define DEBUG_LOG(expr) fprintf (stderr, #expr " 0x%jx\n", (uintmax_t) (expr))
-#endif
+#endif /* UNEXELF_DEBUG */
 
 /* Get the address of a particular section or program header entry,
  * accounting for the size of the entries.
@@ -606,7 +609,7 @@ find_section (const char *name, const char *section_names, const char *file_name
       char const *found_name = section_names + OLD_SECTION_H (idx).sh_name;
 #ifdef UNEXELF_DEBUG
       fprintf (stderr, "Looking for %s - found %s\n", name, found_name);
-#endif
+#endif /* UNEXELF_DEBUG */
       if (strcmp (name, found_name) == 0)
 	return idx;
     }
@@ -790,7 +793,7 @@ unexec (const char *new_name, const char *old_name)
   DEBUG_LOG (new_data2_size);
   DEBUG_LOG (new_data2_offset);
   DEBUG_LOG (new_data2_incr);
-#endif
+#endif /* UNEXELF_DEBUG */
 
   if (new_bss_addr < old_bss_addr + old_bss_size)
     fatal (".bss shrank when undumping");
@@ -839,7 +842,7 @@ unexec (const char *new_name, const char *old_name)
   fprintf (stderr, "Old section count %td\n", (ptrdiff_t) old_file_h->e_shnum);
   DEBUG_LOG (new_file_h->e_shoff);
   fprintf (stderr, "New section count %td\n", (ptrdiff_t) new_file_h->e_shnum);
-#endif
+#endif /* UNEXELF_DEBUG */
 
   /* Fix up a new program header.  Extend the writable data segment so
      that the bss area is covered too. Find that segment by looking
