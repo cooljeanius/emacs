@@ -3126,30 +3126,30 @@ update_frame_with_menu (struct frame *f)
   set_frame_matrix_frame (f);
 
   /* Update the display.  */
-  update_begin (f);
+  update_begin(f);
   /* Force update_frame_1 not to stop due to pending input, and not
      try scrolling.  */
-  paused_p = update_frame_1 (f, 1, 1);
-  update_end (f);
+  paused_p = update_frame_1(f, 1, 1);
+  update_end(f);
 
-  if (FRAME_TTY (f)->termscript)
-    fflush (FRAME_TTY (f)->termscript);
-  fflush (FRAME_TTY (f)->output);
+  if (FRAME_TTY(f)->termscript)
+    fflush(FRAME_TTY(f)->termscript);
+  fflush(FRAME_TTY(f)->output);
   /* Check window matrices for lost pointers.  */
 #if GLYPH_DEBUG
-#if 0
+# if 0
       /* We cannot possibly survive the matrix pointers check, since
 	 we have overwritten parts of the frame glyph matrix without
 	 making any updates to the window matrices.  */
-  check_window_matrix_pointers (root_window);
-#endif
-  add_frame_display_history (f, paused_p);
+  check_window_matrix_pointers(root_window);
+# endif /* 0 */
+  add_frame_display_history(f, paused_p);
 #else
-  IF_LINT ((void) paused_p);
-#endif
+  IF_LINT((void)paused_p);
+#endif /* GLYPH_DEBUG */
 
   /* Reset flags indicating that a window should be updated.  */
-  set_window_update_flags (root_window, false);
+  set_window_update_flags(root_window, false);
 }
 
 

@@ -94,9 +94,9 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #ifdef HAVE_UTIL_H
 # include <util.h>
 #else
-# if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(PTY_OPEN)
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(PTY_OPEN) && defined(__APPLE__)
 #  warning "process.c expects <util.h> to be included so PTY_OPEN will work."
-# endif /* __GNUC__ && !__STRICT_ANSI__ && PTY_OPEN */
+# endif /* __GNUC__ && !__STRICT_ANSI__ && PTY_OPEN && __APPLE__ */
 #endif /* HAVE_UTIL_H */
 
 #include "systime.h"
