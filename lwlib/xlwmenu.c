@@ -1631,11 +1631,11 @@ make_drawing_gcs (XlwMenuWidget mw)
   else
     scale = 0.55;
 
-  x_alloc_lighter_color_for_widget ((Widget) mw, XtDisplay ((Widget) mw),
-				    mw->core.colormap,
-				    &mw->menu.disabled_foreground,
-				    scale,
-				    0x8000);
+  x_alloc_lighter_color_for_widget((Widget)mw, XtDisplay((Widget)mw),
+				   mw->core.colormap,
+				   &mw->menu.disabled_foreground,
+				   (double)scale,
+				   0x8000);
 
   if (mw->menu.foreground == mw->menu.disabled_foreground
       || mw->core.background_pixel == mw->menu.disabled_foreground)
