@@ -676,12 +676,12 @@ allocate_pty (char pty_name[PTY_NAME_SIZE])
 #ifdef PTY_NAME_SPRINTF
 	PTY_NAME_SPRINTF
 #else
-	sprintf (pty_name, "/dev/pty%c%x", c, i);
+	snprintf(pty_name, PTY_NAME_SIZE, "/dev/pty%c%x", c, i);
 #endif /* no PTY_NAME_SPRINTF */
 
-#ifdef PTY_OPEN
+#if defined(PTY_OPEN) && defined(HAVE_OPENPTY) && defined(HAVE_DECL_OPENPTY) && HAVE_DECL_OPENPTY 
 	PTY_OPEN;
-#else /* no PTY_OPEN */
+#else /* no PTY_OPEN: */
 	fd = emacs_open (pty_name, O_RDWR | O_NONBLOCK, 0);
 #endif /* no PTY_OPEN */
 
@@ -701,7 +701,7 @@ allocate_pty (char pty_name[PTY_NAME_SIZE])
 #ifdef PTY_TTY_NAME_SPRINTF
 	    PTY_TTY_NAME_SPRINTF
 #else
-	    sprintf (pty_name, "/dev/tty%c%x", c, i);
+	    snprintf(pty_name, PTY_NAME_SIZE, "/dev/tty%c%x", c, i);
 #endif /* no PTY_TTY_NAME_SPRINTF */
 	    if (faccessat (AT_FDCWD, pty_name, R_OK | W_OK, AT_EACCESS) != 0)
 	      {

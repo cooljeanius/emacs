@@ -40,6 +40,11 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_FUNC_CHECKS],[
   m4_ifdef([gl_FUNC_GETPROGNAME],[
     AC_REQUIRE([gl_FUNC_GETPROGNAME])dnl
   ])dnl
+  m4_ifdef([gl_WARN_ON_USE_PREPARE],[
+    m4_ifdef([gl_FUNC_IOCTL],[
+      AC_REQUIRE([gl_FUNC_IOCTL])dnl
+    ])dnl
+  ])dnl
   m4_ifdef([gl_FUNC_LSEEK],[
     AC_REQUIRE([gl_FUNC_LSEEK])dnl
   ],[
@@ -126,6 +131,9 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_FUNC_CHECKS],[
       m4_ifdef([gl_FUNC_GETTIMEOFDAY],[
         AC_REQUIRE([gl_FUNC_GETTIMEOFDAY])dnl
       ])dnl
+    ])dnl
+    m4_ifdef([gl_FUNC_OPENPTY],[
+      AC_REQUIRE([gl_FUNC_OPENPTY])dnl
     ])dnl
   ])dnl# end replication of problematic macro call stack
   m4_ifdef([gl_FUNC_PERROR],[

@@ -4653,8 +4653,8 @@ AC_CHECK_HEADERS([OS.h arpa/inet.h dpmi.h err.h errno.h fcntl.h float.h \
                   mbstring.h msvcrt/string.h paths.h nl_types.h sgtty.h \
                   signal.h stddef.h sys/_mbstate_t.h sys/bsdtty.h \
                   sys/file.h sys/ptyio.h sys/signal.h sys/sysctl.h \
-                  sys/syslimits.h sys/timeb.h sys/vfs.h sysexits.h \
-                  termcap.h termio.h timespec.h unixlib.h])
+                  sys/syslimits.h sys/timeb.h sysexits.h termcap.h \
+                  termio.h timespec.h unixlib.h])
 dnl# (usually I would have checked <malloc/malloc.h> just after <malloc.h>,
 dnl# but we do that elsewhere in this one)
 if test "x${ac_cv_header_limits_h}" = "x"; then
@@ -4665,6 +4665,10 @@ if test "x${ac_cv_header_stdalign_h}" = "x"; then
   test -z "${ac_cv_header_stdalign_h}"
   AC_CHECK_HEADERS([stdalign.h])
 fi
+if test "x${ac_cv_header_sys_vfs_h}" = "x"; then
+  test -z "${ac_cv_header}"
+  AC_CHECK_HEADERS([sys/vfs.h])
+fi
 if test "x${ac_cv_header_wctype_h}" = "x"; then
   test -z "${ac_cv_header_wctype_h}"
   AC_CHECK_HEADERS([wctype.h])
@@ -4674,7 +4678,7 @@ if test "x" = "Y0"; then
   test -x "`which autoscan`"
   AC_CHECK_HEADERS([inttypes.h memory.h stdint.h stdio_ext.h string.h \
                     strings.h sys/ioctl.h sys/mman.h sys/param.h \
-                    sys/time.h unistd.h utime.h wchar.h])
+                    sys/statvfs.h sys/time.h unistd.h utime.h wchar.h])
   ## ...just in case.
 fi
 if test "x${ac_cv_header_wctype_h}" = "xyes" && test "x${ac_cv_func_wctype}" = "x"; then
@@ -4875,6 +4879,8 @@ AC_INCLUDES_DEFAULT
 # endif /* __GNUC__ && !__STRICT_ANSI__ && __MACH__ */
 #endif /* HAVE_MACH_PROCESSOR_INFO_H */
 ])dnl
+AC_CHECK_MEMBERS([struct stat.st_blksize])
+AC_STRUCT_ST_BLOCKS
 dnl# definition of macro for checking timezone structs has been moved to:
 m4_include([m4/timezone_structs.m4])dnl
 AC_REQUIRE_TIMEZONE_STRUCTS
@@ -8132,12 +8138,16 @@ AC_CHECK_FUNCS([__fpending _stricmp acl atexit atof atoi btowc bzero \
                 cuserid doprnt errc fabs fabsf fgets floor ftime \
                 get_etext get_edata get_end getpass getpwuid inet_ntoa \
                 isascii iswprint mbrlen memmove memset mkdir munmap \
-                nl_langinfo pathconf posix_spawnp pow putenv re_comp \
+                nl_langinfo openpty pathconf posix_spawnp pow putenv re_comp \
                 reallocf regcomp rmdir socket sqrt strcasecmp strcasestr \
                 strchr strcmp strcspn strdup strerror stricmp strlcat \
                 strlcpy strncasecmp strncat strncmp strnicmp strnstr \
                 strpbrk strrchr strtok strtok_r strtol strtoul sysctl \
-                system xstricmp utime utmpname vfprintf])
+                system xstricmp utmpname vfprintf])
+if test "x${ac_cv_func_utime}" = "x"; then
+  test -z "${ac_cv_func_utime}"
+  AC_CHECK_FUNCS([utime])
+fi
 dnl# Keep autoscan happy with a dummy condition:
 if test "x" = "Y0"; then
   test -x "`which autoscan`"
@@ -8150,9 +8160,18 @@ if test "x" = "Y0"; then
   ])dnl
   AC_CHECK_FUNCS([alarm dup2 fchdir ftruncate getcwd geteuid \
                   gethostbyname getpagesize gettimeofday localtime_r \
-                  setenv strtoumax tzset uname])dnl
+                  setenv strtoumax strverscmp tzset uname])dnl
   ## just in case...
 fi
+AC_CHECK_DECLS([openpty],[],[],[[
+#ifdef HAVE_UTIL_H
+# include <util.h>
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#  warning "This conftest for openpty expects <util.h> to be included."
+# endif /* __GNUC__ && !__STRICT_ANSI__ */
+#endif /* HAVE_UTIL_H */
+]])dnl
 
 dnl# No need to check for aligned_alloc and posix_memalign if using
 dnl# gmalloc.o, as it supplies them, unless we are using hybrid_malloc.

@@ -27,6 +27,7 @@ include gnulib.mk
 ## remember to update the former to match when the latter is updated.
 
 libgnu_a_SOURCES += openat-die.c save-cwd.c
+TESTS_ENVIRONMENT = @LOCALCHARSET_TESTS_ENVIRONMENT@
 endif
 
 ## a rule to make sure that all generated headers are built:

@@ -2,3 +2,5 @@ Makefile
 alloc-colors
 *.dSYM
 *.o
+*deps/*.*o
+.deps/.dirstamp

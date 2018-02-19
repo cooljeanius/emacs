@@ -1099,6 +1099,17 @@ EXTRA_DIST += inttypes.in.h
 
 ## end   gnulib module inttypes-incomplete
 
+## begin gnulib module ioctl
+
+if gl_GNULIB_ENABLED_ioctl
+
+endif
+EXTRA_DIST += ioctl.c w32sock.h
+
+EXTRA_libgnu_a_SOURCES += ioctl.c
+
+## end   gnulib module ioctl
+
 ## begin gnulib module ldd
 
 
@@ -1687,6 +1698,15 @@ EXTRA_DIST += openat.h
 
 ## end   gnulib module openat-h
 
+## begin gnulib module openpty
+
+
+EXTRA_DIST += openpty.c
+
+EXTRA_libgnu_a_SOURCES += openpty.c
+
+## end   gnulib module openpty
+
 ## begin gnulib module pagealign_alloc
 
 libgnu_a_SOURCES += pagealign_alloc.c
@@ -1716,6 +1736,17 @@ EXTRA_libgnu_a_SOURCES += perror.c
 libgnu_a_SOURCES += pipe2.c
 
 ## end   gnulib module pipe2
+
+## begin gnulib module posix_openpt
+
+if gl_GNULIB_ENABLED_posix_openpt
+
+endif
+EXTRA_DIST += posix_openpt.c
+
+EXTRA_libgnu_a_SOURCES += posix_openpt.c
+
+## end   gnulib module posix_openpt
 
 ## begin gnulib module posix_spawn-internal
 
@@ -1760,6 +1791,40 @@ EXTRA_DIST += pthread_sigmask.c
 EXTRA_libgnu_a_SOURCES += pthread_sigmask.c
 
 ## end   gnulib module pthread_sigmask
+
+## begin gnulib module pty
+
+BUILT_SOURCES += pty.h
+
+# We need the following in order to create <pty.h> when the system
+# doesn't have one that works with the given compiler.
+pty.h: pty.in.h $(top_builddir)/config.status $(CXXDEFS_H) $(WARN_ON_USE_H)
+	$(AM_V_GEN)rm -f $@-t $@ && \
+	{ echo '/* DO NOT EDIT! GENERATED AUTOMATICALLY! */'; \
+	  sed -e 's|@''GUARD_PREFIX''@|GL|g' \
+	      -e 's|@''HAVE_PTY_H''@|$(HAVE_PTY_H)|g' \
+	      -e 's|@''INCLUDE_NEXT''@|$(INCLUDE_NEXT)|g' \
+	      -e 's|@''PRAGMA_SYSTEM_HEADER''@|@PRAGMA_SYSTEM_HEADER@|g' \
+	      -e 's|@''PRAGMA_COLUMNS''@|@PRAGMA_COLUMNS@|g' \
+	      -e 's|@''NEXT_PTY_H''@|$(NEXT_PTY_H)|g' \
+	      -e 's/@''GNULIB_FORKPTY''@/$(GNULIB_FORKPTY)/g' \
+	      -e 's/@''GNULIB_OPENPTY''@/$(GNULIB_OPENPTY)/g' \
+	      -e 's|@''HAVE_UTIL_H''@|$(HAVE_UTIL_H)|g' \
+	      -e 's|@''HAVE_LIBUTIL_H''@|$(HAVE_LIBUTIL_H)|g' \
+	      -e 's|@''HAVE_FORKPTY''@|$(HAVE_FORKPTY)|g' \
+	      -e 's|@''HAVE_OPENPTY''@|$(HAVE_OPENPTY)|g' \
+	      -e 's|@''REPLACE_FORKPTY''@|$(REPLACE_FORKPTY)|g' \
+	      -e 's|@''REPLACE_OPENPTY''@|$(REPLACE_OPENPTY)|g' \
+	      -e '/definitions of _GL_FUNCDECL_RPL/r $(CXXDEFS_H)' \
+	      -e '/definition of _GL_WARN_ON_USE/r $(WARN_ON_USE_H)' \
+	      < $(srcdir)/pty.in.h; \
+	} > $@-t && \
+	mv $@-t $@
+MOSTLYCLEANFILES += pty.h pty.h-t
+
+EXTRA_DIST += pty.in.h
+
+## end   gnulib module pty
 
 ## begin gnulib module putenv
 

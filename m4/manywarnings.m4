@@ -327,3 +327,10 @@ m4_defun([gl_MANYWARN_ALL_GCC(C++)],
 [
   gl_MANYWARN_ALL_GCC_CXX_IMPL([$1])
 ])
+
+# Specialization for _AC_LANG = Objective C.
+# Use of m4_defun rather than AC_DEFUN works around a bug in autoconf < 2.63b.
+m4_defun([gl_MANYWARN_ALL_GCC(Objective C)],
+[
+  gl_MANYWARN_ALL_GCC_OBJC_IMPL([$1])
+])

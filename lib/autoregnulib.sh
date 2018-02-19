@@ -83,7 +83,7 @@ else
       maintainer-makefile manywarnings math mbsinit memchr memrchr \
       mkostemp mktime multiarch \
       nextafter no-c++ nocrash nstrftime \
-      obstack open openat openat-die openat-h openmp \
+      obstack open openat openat-die openat-h openmp openpty \
       pagealign_alloc pathmax perror pipe2 posix_spawnp printf-safe \
       progname pselect pthread_sigmask putenv \
       qacl qcopy-acl quote quotearg quotearg-simple \

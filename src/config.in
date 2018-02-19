@@ -842,6 +842,10 @@
    don't. */
 #undef HAVE_DECL_MEMRCHR
 
+/* Define to 1 if you have the declaration of `openpty', and to 0 if you
+   don't. */
+#undef HAVE_DECL_OPENPTY
+
 /* Define to 1 if you have the declaration of `program_invocation_name', and
    to 0 if you don't. */
 #undef HAVE_DECL_PROGRAM_INVOCATION_NAME
@@ -1391,6 +1395,9 @@
    declares uintmax_t. */
 #undef HAVE_INTTYPES_H_WITH_UINTMAX
 
+/* Define to 1 if you have the `ioctl' function. */
+#undef HAVE_IOCTL
+
 /* Define to 1 if you have the <io.h> header file. */
 #undef HAVE_IO_H
 
@@ -1480,6 +1487,9 @@
 
 /* Define to 1 if you have the `sun' library (-lsun). */
 #undef HAVE_LIBSUN
+
+/* Define to 1 if you have the <libutil.h> header file. */
+#undef HAVE_LIBUTIL_H
 
 /* Define to 1 if you have the `Xext' library (-lXext). */
 #undef HAVE_LIBXEXT
@@ -1755,6 +1765,9 @@
 
 /* Define to 1 if you have the `openat' function. */
 #undef HAVE_OPENAT
+
+/* Define to 1 if the system has the 'openpty' function. */
+#undef HAVE_OPENPTY
 
 /* Define to 1 if you have the <osreldate.h> header file. */
 #undef HAVE_OSRELDATE_H
@@ -2243,6 +2256,12 @@
 /* Define to 1 if `st_birthtim.tv_nsec' is a member of `struct stat'. */
 #undef HAVE_STRUCT_STAT_ST_BIRTHTIM_TV_NSEC
 
+/* Define to 1 if `st_blksize' is a member of `struct stat'. */
+#undef HAVE_STRUCT_STAT_ST_BLKSIZE
+
+/* Define to 1 if `st_blocks' is a member of `struct stat'. */
+#undef HAVE_STRUCT_STAT_ST_BLOCKS
+
 /* Define to 1 if `st_rdev' is a member of `struct stat'. */
 #undef HAVE_STRUCT_STAT_ST_RDEV
 
@@ -2257,6 +2276,13 @@
 
 /* Define to 1 if the system has the type `struct utsname'. */
 #undef HAVE_STRUCT_UTSNAME
+
+/* Define to 1 if you have the `strverscmp' function. */
+#undef HAVE_STRVERSCMP
+
+/* Define to 1 if your `struct stat' has `st_blocks'. Deprecated, use
+   `HAVE_STRUCT_STAT_ST_BLOCKS' instead. */
+#undef HAVE_ST_BLOCKS
 
 /* Define if struct stat has an st_dm_mode member. */
 #undef HAVE_ST_DM_MODE
@@ -2367,6 +2393,9 @@
 
 /* Define to 1 if you have the <sys/statfs.h> header file. */
 #undef HAVE_SYS_STATFS_H
+
+/* Define to 1 if you have the <sys/statvfs.h> header file. */
+#undef HAVE_SYS_STATVFS_H
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #undef HAVE_SYS_STAT_H
@@ -2761,6 +2790,9 @@
 
 /* Define to 1 if you have the `_ftelli64' function. */
 #undef HAVE__FTELLI64
+
+/* Define to 1 if you have the `_getpty' function. */
+#undef HAVE__GETPTY
 
 /* Define to 1 if _setjmp and _longjmp work. */
 #undef HAVE__SETJMP

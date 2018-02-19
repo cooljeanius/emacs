@@ -675,12 +675,16 @@ gl_GNULIB_ENABLED_rawmemchr_FALSE
 gl_GNULIB_ENABLED_rawmemchr_TRUE
 gl_GNULIB_ENABLED_332607f759618fb73dfc3076748afea7_FALSE
 gl_GNULIB_ENABLED_332607f759618fb73dfc3076748afea7_TRUE
+gl_GNULIB_ENABLED_posix_openpt_FALSE
+gl_GNULIB_ENABLED_posix_openpt_TRUE
 gl_GNULIB_ENABLED_5264294aa0a5557541b53c8c741f7f31_FALSE
 gl_GNULIB_ENABLED_5264294aa0a5557541b53c8c741f7f31_TRUE
 gl_GNULIB_ENABLED_memmove_FALSE
 gl_GNULIB_ENABLED_memmove_TRUE
 gl_GNULIB_ENABLED_malloca_FALSE
 gl_GNULIB_ENABLED_malloca_TRUE
+gl_GNULIB_ENABLED_ioctl_FALSE
+gl_GNULIB_ENABLED_ioctl_TRUE
 gl_GNULIB_ENABLED_30838f5439487421042f2225bed3af76_FALSE
 gl_GNULIB_ENABLED_30838f5439487421042f2225bed3af76_TRUE
 gl_GNULIB_ENABLED_filename_FALSE
@@ -828,6 +832,18 @@ REPLACE_PSELECT
 HAVE_PSELECT
 GNULIB_SELECT
 GNULIB_PSELECT
+NEXT_AS_FIRST_DIRECTIVE_PTY_H
+NEXT_PTY_H
+HAVE_PTY_H
+REPLACE_OPENPTY
+REPLACE_FORKPTY
+HAVE_OPENPTY
+HAVE_FORKPTY
+HAVE_LIBUTIL_H
+HAVE_UTIL_H
+GNULIB_OPENPTY
+GNULIB_FORKPTY
+PTY_LIB
 NO_CXX
 NEXTAFTER_LIBM
 NEXT_AS_FIRST_DIRECTIVE_MATH_H
@@ -4842,6 +4858,7 @@ as_fn_append ac_header_list " inttypes.h"
 as_fn_append ac_header_list " math.h"
 as_fn_append ac_func_list " mkostemp"
 as_fn_append ac_func_list " openat"
+as_fn_append ac_header_list " pty.h"
 as_fn_append ac_func_list " posix_memalign"
 as_fn_append ac_func_list " pipe2"
 gl_printf_safe=yes
@@ -4879,6 +4896,7 @@ as_fn_append ac_func_list " pstat_getprocvm"
 as_fn_append ac_header_list " crtdefs.h"
 as_fn_append ac_func_list " iswcntrl"
 as_fn_append ac_header_list " wctype.h"
+as_fn_append ac_func_list " posix_openpt"
 as_fn_append ac_func_list " catgets"
 as_fn_append ac_func_list " snprintf"
 # Check that the precious variables saved in the cache have kept the same
@@ -13220,6 +13238,7 @@ $as_echo "$as_me: autobuild timestamp... $date" >&6;}
   # Code from module inline:
   # Code from module intprops:
   # Code from module inttypes-incomplete:
+  # Code from module ioctl:
   # Code from module largefile:
 
   # Code from module ldd:
@@ -13254,16 +13273,19 @@ $as_echo "$as_me: autobuild timestamp... $date" >&6;}
   # Code from module openat-die:
   # Code from module openat-h:
   # Code from module openmp:
+  # Code from module openpty:
   # Code from module pagealign_alloc:
   # Code from module pathmax:
   # Code from module perror:
   # Code from module pipe2:
+  # Code from module posix_openpt:
   # Code from module posix_spawn-internal:
   # Code from module posix_spawnp:
   # Code from module printf-safe:
   # Code from module progname:
   # Code from module pselect:
   # Code from module pthread_sigmask:
+  # Code from module pty:
   # Code from module putenv:
   # Code from module qacl:
   # Code from module qcopy-acl:
@@ -34883,8 +34905,8 @@ for ac_header in OS.h arpa/inet.h dpmi.h err.h errno.h fcntl.h float.h \
                   mbstring.h msvcrt/string.h paths.h nl_types.h sgtty.h \
                   signal.h stddef.h sys/_mbstate_t.h sys/bsdtty.h \
                   sys/file.h sys/ptyio.h sys/signal.h sys/sysctl.h \
-                  sys/syslimits.h sys/timeb.h sys/vfs.h sysexits.h \
-                  termcap.h termio.h timespec.h unixlib.h
+                  sys/syslimits.h sys/timeb.h sysexits.h termcap.h \
+                  termio.h timespec.h unixlib.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -34927,6 +34949,21 @@ fi
 done
 
 fi
+if test "x${ac_cv_header_sys_vfs_h}" = "x"; then
+  test -z "${ac_cv_header}"
+  for ac_header in sys/vfs.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "sys/vfs.h" "ac_cv_header_sys_vfs_h" "$ac_includes_default"
+if test "x$ac_cv_header_sys_vfs_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_SYS_VFS_H 1
+_ACEOF
+
+fi
+
+done
+
+fi
 if test "x${ac_cv_header_wctype_h}" = "x"; then
   test -z "${ac_cv_header_wctype_h}"
   for ac_header in wctype.h
@@ -34946,7 +34983,7 @@ if test "x" = "Y0"; then
   test -x "`which autoscan`"
   for ac_header in inttypes.h memory.h stdint.h stdio_ext.h string.h \
                     strings.h sys/ioctl.h sys/mman.h sys/param.h \
-                    sys/time.h unistd.h utime.h wchar.h
+                    sys/statvfs.h sys/time.h unistd.h utime.h wchar.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -38844,6 +38881,36 @@ _ACEOF
 
 
 fi
+ac_fn_c_check_member "$LINENO" "struct stat" "st_blksize" "ac_cv_member_struct_stat_st_blksize" "$ac_includes_default"
+if test "x$ac_cv_member_struct_stat_st_blksize" = xyes; then :
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_STRUCT_STAT_ST_BLKSIZE 1
+_ACEOF
+
+
+fi
+
+ac_fn_c_check_member "$LINENO" "struct stat" "st_blocks" "ac_cv_member_struct_stat_st_blocks" "$ac_includes_default"
+if test "x$ac_cv_member_struct_stat_st_blocks" = xyes; then :
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_STRUCT_STAT_ST_BLOCKS 1
+_ACEOF
+
+
+$as_echo "#define HAVE_ST_BLOCKS 1" >>confdefs.h
+
+else
+  case " $LIBOBJS " in
+  *" fileblocks.$ac_objext "* ) ;;
+  *) LIBOBJS="$LIBOBJS fileblocks.$ac_objext"
+ ;;
+esac
+
+fi
+
+
 # timezone_structs.m4 serial 2 file starts here
 
 
@@ -55852,12 +55919,12 @@ for ac_func in __fpending _stricmp acl atexit atof atoi btowc bzero \
                 cuserid doprnt errc fabs fabsf fgets floor ftime \
                 get_etext get_edata get_end getpass getpwuid inet_ntoa \
                 isascii iswprint mbrlen memmove memset mkdir munmap \
-                nl_langinfo pathconf posix_spawnp pow putenv re_comp \
+                nl_langinfo openpty pathconf posix_spawnp pow putenv re_comp \
                 reallocf regcomp rmdir socket sqrt strcasecmp strcasestr \
                 strchr strcmp strcspn strdup strerror stricmp strlcat \
                 strlcpy strncasecmp strncat strncmp strnicmp strnstr \
                 strpbrk strrchr strtok strtok_r strtol strtoul sysctl \
-                system xstricmp utime utmpname vfprintf
+                system xstricmp utmpname vfprintf
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -55869,6 +55936,20 @@ _ACEOF
 fi
 done
 
+if test "x${ac_cv_func_utime}" = "x"; then
+  test -z "${ac_cv_func_utime}"
+  for ac_func in utime
+do :
+  ac_fn_c_check_func "$LINENO" "utime" "ac_cv_func_utime"
+if test "x$ac_cv_func_utime" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_UTIME 1
+_ACEOF
+
+fi
+done
+
+fi
 if test "x" = "Y0"; then
   test -x "`which autoscan`"
   if test "x${ac_cv_lib_error_at_line}" = "x" || test "x${ac_cv_lib_error_at_line}" = "xno"; then
@@ -55922,7 +56003,7 @@ fi
 done
     for ac_func in alarm dup2 fchdir ftruncate getcwd geteuid \
                   gethostbyname getpagesize gettimeofday localtime_r \
-                  setenv strtoumax tzset uname
+                  setenv strtoumax strverscmp tzset uname
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -55935,6 +56016,25 @@ fi
 done
   ## just in case...
 fi
+ac_fn_c_check_decl "$LINENO" "openpty" "ac_cv_have_decl_openpty" "
+#ifdef HAVE_UTIL_H
+# include <util.h>
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#  warning \"This conftest for openpty expects <util.h> to be included.\"
+# endif /* __GNUC__ && !__STRICT_ANSI__ */
+#endif /* HAVE_UTIL_H */
+
+"
+if test "x$ac_cv_have_decl_openpty" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_OPENPTY $ac_have_decl
+_ACEOF
 
 if (test -z "${GMALLOC_OBJ}" || test "x${hybrid_malloc}" = "xyes") \
   && test "x${opsys}" != "xdarwin"; then
@@ -64673,6 +64773,194 @@ _ACEOF
 
 
 
+  # Check for the library required for forkpty.
+  PTY_LIB=
+  save_LIBS="$LIBS"
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing forkpty" >&5
+$as_echo_n "checking for library containing forkpty... " >&6; }
+if ${ac_cv_search_forkpty+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_func_search_save_LIBS=$LIBS
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char forkpty ();
+int
+main ()
+{
+return forkpty ();
+  ;
+  return 0;
+}
+_ACEOF
+for ac_lib in '' util; do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
+  fi
+  if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_search_forkpty=$ac_res
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext
+  if ${ac_cv_search_forkpty+:} false; then :
+  break
+fi
+done
+if ${ac_cv_search_forkpty+:} false; then :
+
+else
+  ac_cv_search_forkpty=no
+fi
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_forkpty" >&5
+$as_echo "$ac_cv_search_forkpty" >&6; }
+ac_res=$ac_cv_search_forkpty
+if test "$ac_res" != no; then :
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
+  if test "$ac_cv_search_forkpty" != "none required"; then
+       PTY_LIB="$ac_cv_search_forkpty"
+     fi
+fi
+
+  LIBS="$save_LIBS"
+
+
+
+  GNULIB_FORKPTY=0;
+  GNULIB_OPENPTY=0;
+    HAVE_UTIL_H=0;
+  HAVE_LIBUTIL_H=0;
+  HAVE_FORKPTY=1;
+  HAVE_OPENPTY=1;
+  REPLACE_FORKPTY=0;
+  REPLACE_OPENPTY=0;
+
+
+
+
+
+
+  # Make sure that pty.h provides forkpty, or setup the replacement.
+
+  if test $ac_cv_header_pty_h != yes; then
+    HAVE_PTY_H=0
+    for ac_header in util.h libutil.h
+do :
+  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
+ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
+if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+
+done
+
+    if test $ac_cv_header_util_h = yes; then
+      HAVE_UTIL_H=1
+    fi
+    if test $ac_cv_header_libutil_h = yes; then
+      HAVE_LIBUTIL_H=1
+    fi
+  else # Have <pty.h>, assume forkpty is declared there.
+    HAVE_PTY_H=1
+  fi
+
+
+
+
+
+
+
+
+
+
+     if test $gl_cv_have_include_next = yes; then
+       gl_cv_next_pty_h='<'pty.h'>'
+     else
+       { $as_echo "$as_me:${as_lineno-$LINENO}: checking absolute name of <pty.h>" >&5
+$as_echo_n "checking absolute name of <pty.h>... " >&6; }
+if ${gl_cv_next_pty_h+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+             if test $ac_cv_header_pty_h = yes; then
+
+
+
+
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <pty.h>
+_ACEOF
+                case "$host_os" in
+    aix*) gl_absname_cpp="$ac_cpp -C" ;;
+    *)    gl_absname_cpp="$ac_cpp" ;;
+  esac
+
+  case "$host_os" in
+    mingw*)
+                                          gl_dirsep_regex='[/\\]'
+      ;;
+    *)
+      gl_dirsep_regex='\/'
+      ;;
+  esac
+      gl_make_literal_regex_sed='s,[]$^\\.*/[],\\&,g'
+  gl_header_literal_regex=`echo 'pty.h' \
+                           | sed -e "$gl_make_literal_regex_sed"`
+  gl_absolute_header_sed="/${gl_dirsep_regex}${gl_header_literal_regex}/"'{
+      s/.*"\(.*'"${gl_dirsep_regex}${gl_header_literal_regex}"'\)".*/\1/
+      s|^/[^/]|//&|
+      p
+      q
+    }'
+
+        gl_cv_absolute_pty_h=`(eval "$gl_absname_cpp conftest.$ac_ext") 2>&5 |
+  sed -n "$gl_absolute_header_sed"`
+
+           gl_header=$gl_cv_absolute_pty_h
+           gl_cv_next_pty_h='"'$gl_header'"'
+          else
+               gl_cv_next_pty_h='<'pty.h'>'
+             fi
+
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_next_pty_h" >&5
+$as_echo "$gl_cv_next_pty_h" >&6; }
+     fi
+     NEXT_PTY_H=$gl_cv_next_pty_h
+
+     if test $gl_cv_have_include_next = yes || test $gl_cv_have_include_next = buggy; then
+       # INCLUDE_NEXT_AS_FIRST_DIRECTIVE='include_next'
+       gl_next_as_first_directive='<'pty.h'>'
+     else
+       # INCLUDE_NEXT_AS_FIRST_DIRECTIVE='include'
+       gl_next_as_first_directive=$gl_cv_next_pty_h
+     fi
+     NEXT_AS_FIRST_DIRECTIVE_PTY_H=$gl_next_as_first_directive
+
+
+
+
+
+
+
+
 
 
 
@@ -66330,6 +66618,8 @@ fi
 cat >>confdefs.h <<_ACEOF
 #define MALLOC_0_IS_NONNULL $gl_cv_func_malloc_0_nonnull
 _ACEOF
+
+
 
 
 
@@ -74516,6 +74806,124 @@ $as_echo "$ac_cv_prog_c_openmp" >&6; }
 
 
 
+      ac_fn_c_check_decl "$LINENO" "openpty" "ac_cv_have_decl_openpty" "
+/* <sys/types.h> is a prerequisite of <libutil.h> on FreeBSD 8.0.  */
+#include <sys/types.h>
+#if HAVE_PTY_H
+# include <pty.h>
+#endif
+#if HAVE_UTIL_H
+# include <util.h>
+#endif
+#if HAVE_LIBUTIL_H
+# include <libutil.h>
+#endif
+
+"
+if test "x$ac_cv_have_decl_openpty" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_OPENPTY $ac_have_decl
+_ACEOF
+
+  if test $ac_cv_have_decl_openpty = yes; then
+
+$as_echo "#define HAVE_OPENPTY 1" >>confdefs.h
+
+            { $as_echo "$as_me:${as_lineno-$LINENO}: checking for const-safe openpty signature" >&5
+$as_echo_n "checking for const-safe openpty signature... " >&6; }
+if ${gl_cv_func_openpty_const+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* <sys/types.h> is a prerequisite of <libutil.h> on FreeBSD 8.0.  */
+#include <sys/types.h>
+#if HAVE_PTY_H
+# include <pty.h>
+#endif
+#if HAVE_UTIL_H
+# include <util.h>
+#endif
+#if HAVE_LIBUTIL_H
+# include <libutil.h>
+#endif
+
+int
+main ()
+{
+
+            int openpty (int *, int *, char *, struct termios const *,
+                       struct winsize const *);
+
+  ;
+  return 0;
+}
+
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  gl_cv_func_openpty_const=yes
+else
+  gl_cv_func_openpty_const=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_func_openpty_const" >&5
+$as_echo "$gl_cv_func_openpty_const" >&6; }
+    if test $gl_cv_func_openpty_const != yes; then
+      REPLACE_OPENPTY=1
+    fi
+  else
+        HAVE_OPENPTY=0
+        for ac_func in _getpty posix_openpt
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
+
+  fi
+
+  if test $HAVE_OPENPTY = 0 || test $REPLACE_OPENPTY = 1; then
+
+
+
+
+
+
+
+
+  gl_LIBOBJS="$gl_LIBOBJS openpty.$ac_objext"
+
+  fi
+
+
+
+
+
+          GNULIB_OPENPTY=1
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -75182,6 +75590,7 @@ $as_echo "#define HAVE_PTHREAD_SIGMASK 1" >>confdefs.h
 
 
           GNULIB_PTHREAD_SIGMASK=1
+
 
 
 
@@ -81089,9 +81498,11 @@ $as_echo "#define WINSIZE_IN_PTEM 1" >>confdefs.h
   gl_gnulib_enabled_cloexec=false
   gl_gnulib_enabled_filename=false
   gl_gnulib_enabled_30838f5439487421042f2225bed3af76=false
+  gl_gnulib_enabled_ioctl=false
   gl_gnulib_enabled_malloca=false
   gl_gnulib_enabled_memmove=false
   gl_gnulib_enabled_5264294aa0a5557541b53c8c741f7f31=false
+  gl_gnulib_enabled_posix_openpt=false
   gl_gnulib_enabled_332607f759618fb73dfc3076748afea7=false
   gl_gnulib_enabled_rawmemchr=false
   gl_gnulib_enabled_9bc5f216d57e231e4834049d67d0db62=false
@@ -81136,6 +81547,93 @@ $as_echo "#define WINSIZE_IN_PTEM 1" >>confdefs.h
   :
 
       gl_gnulib_enabled_30838f5439487421042f2225bed3af76=true
+    fi
+  }
+  func_gl_gnulib_m4code_ioctl ()
+  {
+    if ! $gl_gnulib_enabled_ioctl; then
+
+
+
+  HAVE_IOCTL=1
+  if test "$ac_cv_header_winsock2_h" = yes; then
+                HAVE_IOCTL=0
+  else
+    for ac_func in ioctl
+do :
+  ac_fn_c_check_func "$LINENO" "ioctl" "ac_cv_func_ioctl"
+if test "x$ac_cv_func_ioctl" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_IOCTL 1
+_ACEOF
+
+fi
+done
+
+                { $as_echo "$as_me:${as_lineno-$LINENO}: checking for ioctl with POSIX signature" >&5
+$as_echo_n "checking for ioctl with POSIX signature... " >&6; }
+if ${gl_cv_func_ioctl_posix_signature+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <sys/ioctl.h>
+              /* On some platforms, ioctl() is declared in <unistd.h>.  */
+              #include <unistd.h>
+
+int
+main ()
+{
+extern
+              #ifdef __cplusplus
+              "C"
+              #endif
+              int ioctl (int, int, ...);
+
+  ;
+  return 0;
+}
+
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  gl_cv_func_ioctl_posix_signature=yes
+else
+  gl_cv_func_ioctl_posix_signature=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_func_ioctl_posix_signature" >&5
+$as_echo "$gl_cv_func_ioctl_posix_signature" >&6; }
+    if test $gl_cv_func_ioctl_posix_signature != yes; then
+      REPLACE_IOCTL=1
+    fi
+  fi
+
+      if test $HAVE_IOCTL = 0 || test $REPLACE_IOCTL = 1; then
+
+
+
+
+
+
+
+
+  gl_LIBOBJS="$gl_LIBOBJS ioctl.$ac_objext"
+
+      fi
+
+
+
+
+
+          GNULIB_IOCTL=1
+
+
+
+
+
+      gl_gnulib_enabled_ioctl=true
     fi
   }
   func_gl_gnulib_m4code_malloca ()
@@ -81218,6 +81716,45 @@ fi
         :
       fi
       gl_gnulib_enabled_5264294aa0a5557541b53c8c741f7f31=true
+    fi
+  }
+  func_gl_gnulib_m4code_posix_openpt ()
+  {
+    if ! $gl_gnulib_enabled_posix_openpt; then
+
+
+
+
+
+
+  if test $ac_cv_func_posix_openpt != yes; then
+        HAVE_POSIX_OPENPT=0
+  fi
+
+      if test $HAVE_POSIX_OPENPT = 0; then
+
+
+
+
+
+
+
+
+  gl_LIBOBJS="$gl_LIBOBJS posix_openpt.$ac_objext"
+
+      fi
+
+
+
+
+
+          GNULIB_POSIX_OPENPT=1
+
+
+
+
+
+      gl_gnulib_enabled_posix_openpt=true
     fi
   }
   func_gl_gnulib_m4code_332607f759618fb73dfc3076748afea7 ()
@@ -81710,6 +82247,12 @@ $as_echo "#define TZSET_CLOBBERS_LOCALTIME 1" >>confdefs.h
   if test $REPLACE_OPENAT = 1; then
     func_gl_gnulib_m4code_cloexec
   fi
+  if test $HAVE_OPENPTY = 0 || test $REPLACE_OPENPTY = 1; then
+    func_gl_gnulib_m4code_ioctl
+  fi
+  if test $HAVE_OPENPTY = 0 || test $REPLACE_OPENPTY = 1; then
+    func_gl_gnulib_m4code_posix_openpt
+  fi
   if test $REPLACE_PERROR = 1; then
     func_gl_gnulib_m4code_1f32594a85e6221ba15f884daeee8c2a
   fi
@@ -81782,6 +82325,14 @@ else
   gl_GNULIB_ENABLED_30838f5439487421042f2225bed3af76_FALSE=
 fi
 
+   if $gl_gnulib_enabled_ioctl; then
+  gl_GNULIB_ENABLED_ioctl_TRUE=
+  gl_GNULIB_ENABLED_ioctl_FALSE='#'
+else
+  gl_GNULIB_ENABLED_ioctl_TRUE='#'
+  gl_GNULIB_ENABLED_ioctl_FALSE=
+fi
+
    if $gl_gnulib_enabled_malloca; then
   gl_GNULIB_ENABLED_malloca_TRUE=
   gl_GNULIB_ENABLED_malloca_FALSE='#'
@@ -81804,6 +82355,14 @@ fi
 else
   gl_GNULIB_ENABLED_5264294aa0a5557541b53c8c741f7f31_TRUE='#'
   gl_GNULIB_ENABLED_5264294aa0a5557541b53c8c741f7f31_FALSE=
+fi
+
+   if $gl_gnulib_enabled_posix_openpt; then
+  gl_GNULIB_ENABLED_posix_openpt_TRUE=
+  gl_GNULIB_ENABLED_posix_openpt_FALSE='#'
+else
+  gl_GNULIB_ENABLED_posix_openpt_TRUE='#'
+  gl_GNULIB_ENABLED_posix_openpt_FALSE=
 fi
 
    if $gl_gnulib_enabled_332607f759618fb73dfc3076748afea7; then
@@ -82660,6 +83219,10 @@ if test -z "${gl_GNULIB_ENABLED_30838f5439487421042f2225bed3af76_TRUE}" && test 
   as_fn_error $? "conditional \"gl_GNULIB_ENABLED_30838f5439487421042f2225bed3af76\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
+if test -z "${gl_GNULIB_ENABLED_ioctl_TRUE}" && test -z "${gl_GNULIB_ENABLED_ioctl_FALSE}"; then
+  as_fn_error $? "conditional \"gl_GNULIB_ENABLED_ioctl\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
 if test -z "${gl_GNULIB_ENABLED_malloca_TRUE}" && test -z "${gl_GNULIB_ENABLED_malloca_FALSE}"; then
   as_fn_error $? "conditional \"gl_GNULIB_ENABLED_malloca\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
@@ -82670,6 +83233,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${gl_GNULIB_ENABLED_5264294aa0a5557541b53c8c741f7f31_TRUE}" && test -z "${gl_GNULIB_ENABLED_5264294aa0a5557541b53c8c741f7f31_FALSE}"; then
   as_fn_error $? "conditional \"gl_GNULIB_ENABLED_5264294aa0a5557541b53c8c741f7f31\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${gl_GNULIB_ENABLED_posix_openpt_TRUE}" && test -z "${gl_GNULIB_ENABLED_posix_openpt_FALSE}"; then
+  as_fn_error $? "conditional \"gl_GNULIB_ENABLED_posix_openpt\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${gl_GNULIB_ENABLED_332607f759618fb73dfc3076748afea7_TRUE}" && test -z "${gl_GNULIB_ENABLED_332607f759618fb73dfc3076748afea7_FALSE}"; then

@@ -46,6 +46,11 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_HEADER_CHECKS],[
   m4_ifdef([gl_LIMITS_H],[
     AC_REQUIRE([gl_LIMITS_H])dnl
   ])dnl
+  m4_ifdef([gl_WARN_ON_USE_PREPARE],[
+    m4_ifdef([gl_PTY_H],[
+      AC_REQUIRE([gl_PTY_H])dnl
+    ])dnl
+  ])dnl# end fourth block that requires warn-on-use
   m4_ifdef([gl_SCHED_H],[
     AC_REQUIRE([gl_SCHED_H])dnl
   ])dnl#
@@ -53,7 +58,7 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_HEADER_CHECKS],[
     m4_ifdef([gl_SIGNAL_H],[
       AC_REQUIRE([gl_SIGNAL_H])dnl
     ])dnl
-  ])dnl# end fourth block that requires warn-on-use
+  ])dnl# end fifth block that requires warn-on-use
   m4_ifdef([gl_CHECK_SOCKET_HEADERS],[
     AC_REQUIRE([gl_CHECK_SOCKET_HEADERS])dnl
   ])dnl
@@ -61,7 +66,7 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_HEADER_CHECKS],[
     m4_ifdef([gl_SPAWN_H],[
       AC_REQUIRE([gl_SPAWN_H])dnl
     ])dnl
-  ])dnl# end fifth block that requires warn-on-use
+  ])dnl# end sixth block that requires warn-on-use
   m4_ifdef([gl_STDALIGN_H],[
     AC_REQUIRE([gl_STDALIGN_H])dnl
   ])dnl
@@ -107,7 +112,7 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_HEADER_CHECKS],[
     m4_ifdef([gl_HEADER_SYS_TIME_H],[
       AC_REQUIRE([gl_HEADER_SYS_TIME_H])dnl
     ])dnl
-  ])dnl# end sixth block that requires warn-on-use
+  ])dnl# end seventh block that requires warn-on-use
   m4_ifdef([gl_HEADER_TIME_H],[
     AC_REQUIRE([gl_HEADER_TIME_H])dnl
   ])dnl
@@ -115,7 +120,7 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_HEADER_CHECKS],[
     m4_ifdef([gl_UNISTD_H],[
       AC_REQUIRE([gl_UNISTD_H])dnl
     ])dnl
-  ])dnl# end seventh and final block that requires warn-on-use
+  ])dnl# end eighth and final block that requires warn-on-use
 ])dnl# end macro definition
 
 dnl# AC_HEADER_STDC
