@@ -2370,6 +2370,10 @@ void unexec_free(void *ptr)
 {
   if (ptr == NULL)
     return;
+#if MACOSX_MALLOC_MULT16
+  assert((((vm_address_t)ptr % 16) == 8)
+	 || (((vm_address_t)ptr % 16) == 0));
+#endif /* MACOSX_MALLOC_MULT16 */
   if (in_dumped_exec)
     {
       if (!ptr_in_unexec_regions(ptr))

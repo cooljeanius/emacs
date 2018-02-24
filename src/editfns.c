@@ -2034,7 +2034,7 @@ but this is considered obsolete.  */)
 {
   time_t value = lisp_seconds_argument (specified_time);
   struct tm *tm;
-  char buf[sizeof("Mon Apr 30 12:49:17 ") + INT_STRLEN_BOUND(int) + 4];
+  char buf[sizeof("Mon Apr 30 12:49:17 ") + INT_STRLEN_BOUND(printmax_t) + 5];
   int len IF_LINT (= 0);
 
   /* Convert to a string in ctime format, except without the trailing
@@ -2054,8 +2054,8 @@ but this is considered obsolete.  */)
 
       len = snprintf(buf, sizeof(buf), "%s %s%3d %02d:%02d:%02d %"pMd,
 		     wday_name[tm->tm_wday], mon_name[tm->tm_mon], tm->tm_mday,
-		     tm->tm_hour, tm->tm_min, tm->tm_sec,
-		     tm->tm_year + year_base);
+		     (int8_t)tm->tm_hour, (int8_t)tm->tm_min,
+		     (int8_t)tm->tm_sec, (tm->tm_year + year_base));
     }
   unblock_input ();
   if (! tm)

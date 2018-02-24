@@ -1596,7 +1596,7 @@ check_sblock (struct sblock *b)
 	 same as the one recorded in the sdata structure.  */
       nbytes = SDATA_SIZE (from->string ? string_bytes (from->string)
 			   : SDATA_NBYTES (from));
-      from_end = (sdata *) ((char *) from + nbytes + GC_STRING_EXTRA);
+      from_end = (sdata *)(void *)((char *)from + nbytes + GC_STRING_EXTRA);
     }
 }
 
@@ -2526,7 +2526,7 @@ DEFUN ("cons", Fcons, Scons, 2, 2, 0,
 
 #ifdef GC_CHECK_CONS_LIST
 /* Get an error now if there is any junk in the cons free list: */
-INLINE void
+void
 check_cons_list(void)
 {
   struct Lisp_Cons *tail = cons_free_list;

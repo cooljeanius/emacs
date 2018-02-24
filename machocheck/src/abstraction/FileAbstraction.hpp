@@ -29,11 +29,13 @@
 #include <string.h>
 #include <libkern/OSByteOrder.h>
 
-#ifdef __OPTIMIZE__
-#define INLINE	__attribute__((always_inline))
-#else
-#define INLINE
-#endif
+#ifndef INLINE
+# ifdef __OPTIMIZE__
+#  define INLINE __attribute__((always_inline))
+# else
+#  define INLINE /* (nothing) */
+# endif /* __OPTIMIZE__ */
+#endif /* !INLINE */
 
 //
 // This abstraction layer is for use with file formats that have 64-bit/32-bit and Big-Endian/Little-Endian variants

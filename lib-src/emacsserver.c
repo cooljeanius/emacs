@@ -372,7 +372,7 @@ main(int argc, char **argv)
 	      ssize_t ret;
 	      fprintf(stderr, "Error: too many clients.\n");
 	      ret = write(infd, "Too many clients.\n", 18);
-	      if (ret = -1) {
+	      if (ret == -1) {
 		(void)ret; /* Failing anyways; no need to point out more... */
 	      }
 	      close(infd);		/* Prevent descriptor leak... */
