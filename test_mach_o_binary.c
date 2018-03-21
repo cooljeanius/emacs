@@ -57,6 +57,9 @@
 #include <errno.h> /* getrlimit() may set errno */
 #include <string.h> /* for strerror() */
 #include <assert.h> /* for assert() */
+#if !defined(__OPTIMIZE__)
+/* FIXME: warning or something */
+#endif /* !__OPTIMIZE__ */
 #include "src/lisp.h"
 
 /* in case gnulib re-defined this on us: */

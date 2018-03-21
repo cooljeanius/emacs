@@ -29,8 +29,9 @@ before_install:
 install:
   - "DEBIAN_FRONTEND=noninteractive sudo apt-get install --no-install-recommends -y -qq -o=Dpkg::Use-Pty=0 libc-dev gcc make autoconf automake libncurses-dev gobjc gobjc++ gobjc-multilib gobjc++-multilib autopoint"
 
-script: sh ./autogen.sh && ./configure --without-makeinfo --without-gif --without-gnutls --enable-silent-rules --disable-autodepend --without-imagemagick --enable-gcc-warnings --with-x-toolkit=no --disable-openmp && make only_bootstrap-emacs
+script: sh ./autogen.sh && ./configure --without-makeinfo --without-gif --without-gnutls --enable-silent-rules --disable-autodepend --without-imagemagick --enable-gcc-warnings --with-x-toolkit=no --disable-openmp && make only_bootstrap-emacs && make apple_helper_executables && make apple_check
 
 compiler:
   - clang
   - gcc
+

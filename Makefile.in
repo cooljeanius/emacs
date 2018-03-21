@@ -1376,7 +1376,7 @@ test_mach_o_binary: test_mach_o_binary.c src/config.h src/lisp.h \
 	$(MAKE) -C src globals.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) -Ilib -Isrc $(DEFS) $(WARN_CFLAGS) \
 	  -Wformat=2 $(BETTER_DEBUG_CFLAGS) $(LDFLAGS) $(WARN_LDFLAGS) \
-	  -O0 -o $@ -g $<
+	  -O2 -o $@ -g $<
 
 APPLE_AUX_EXES = dumpemacs emacswrapper isemacsvalid test_mach_o_binary
 
