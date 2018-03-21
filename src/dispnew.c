@@ -1354,17 +1354,18 @@ flush_stdout (void)
  * rows, at least one pointer must occur more than once in the rows of
  * MATRIX.  */
 void
-check_matrix_pointer_lossage (struct glyph_matrix *matrix)
+check_matrix_pointer_lossage(struct glyph_matrix *matrix)
 {
   int i, j;
 
+  eassert(matrix != NULL);
   for (i = 0; i < matrix->nrows; ++i)
     {
       for (j = 0; j < matrix->nrows; ++j)
         {
-          eassert ((i == j)
-                   || (matrix->rows[i].glyphs[TEXT_AREA]
-                       != matrix->rows[j].glyphs[TEXT_AREA]));
+          eassert((i == j)
+                  || (matrix->rows[i].glyphs[TEXT_AREA]
+                      != matrix->rows[j].glyphs[TEXT_AREA]));
         }
     }
 

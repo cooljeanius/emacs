@@ -7020,5 +7020,9 @@ union
 } const EXTERNALLY_VISIBLE gdb_make_enums_visible = {0};
 #endif	/* __GNUC__ */
 
+#ifdef __malloc_size_t
+# undef __malloc_size_t
+#endif /* __malloc_size_t */
+
 /* arch-tag: 6695ca10-e3c5-4c2c-8bc3-ed26a7dda857
    (do not change this comment) */

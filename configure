@@ -38453,8 +38453,8 @@ done
 
   ## other possibly useful headers from that directory:
   for ac_header in mach-o/arch.h mach-o/compact_unwind_encoding.h \
-                    mach-o/dyld.h mach-o/getsect.h mach-o/nlist.h \
-                    mach-o/ldsyms.h mach-o/reloc.h
+                    mach-o/dyld.h mach-o/fat.h mach-o/getsect.h \
+                    mach-o/nlist.h mach-o/ldsyms.h mach-o/reloc.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"

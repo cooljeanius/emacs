@@ -4788,8 +4788,8 @@ if test "x${ac_cv_have_decl___MACH__}" = "xyes" || test -d /usr/include/mach-o; 
   AC_CHECK_HEADERS([mach-o/loader.h])
   ## other possibly useful headers from that directory:
   AC_CHECK_HEADERS([mach-o/arch.h mach-o/compact_unwind_encoding.h \
-                    mach-o/dyld.h mach-o/getsect.h mach-o/nlist.h \
-                    mach-o/ldsyms.h mach-o/reloc.h])
+                    mach-o/dyld.h mach-o/fat.h mach-o/getsect.h \
+                    mach-o/nlist.h mach-o/ldsyms.h mach-o/reloc.h])
   if test "x${machine}" = "xmacppc" || test "x${machine}" = "xpowermac"; then
     test -n "${machine}"
     AC_CHECK_HEADERS([mach-o/ppc/reloc.h])

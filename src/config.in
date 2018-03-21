@@ -1564,6 +1564,9 @@
 /* Define to 1 if you have the <mach-o/dyld.h> header file. */
 #undef HAVE_MACH_O_DYLD_H
 
+/* Define to 1 if you have the <mach-o/fat.h> header file. */
+#undef HAVE_MACH_O_FAT_H
+
 /* Define to 1 if you have the <mach-o/getsect.h> header file. */
 #undef HAVE_MACH_O_GETSECT_H
 

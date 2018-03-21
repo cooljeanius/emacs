@@ -679,7 +679,7 @@ allocate_pty (char pty_name[PTY_NAME_SIZE])
 	snprintf(pty_name, PTY_NAME_SIZE, "/dev/pty%c%x", c, i);
 #endif /* no PTY_NAME_SPRINTF */
 
-#if defined(PTY_OPEN) && defined(HAVE_OPENPTY) && defined(HAVE_DECL_OPENPTY) && HAVE_DECL_OPENPTY 
+#if defined(PTY_OPEN) && defined(HAVE_OPENPTY) && defined(HAVE_DECL_OPENPTY) && HAVE_DECL_OPENPTY
 	PTY_OPEN;
 #else /* no PTY_OPEN: */
 	fd = emacs_open (pty_name, O_RDWR | O_NONBLOCK, 0);
@@ -1910,6 +1910,7 @@ create_process (Lisp_Object process, char **new_argv, Lisp_Object current_dir)
     }
 }
 
+/* */
 static void create_pty(Lisp_Object process)
 {
   struct Lisp_Process *p = XPROCESS (process);
@@ -1920,7 +1921,7 @@ static void create_pty(Lisp_Object process)
     {
       int forkout;
       p->open_fd[SUBPROCESS_STDIN] = pty_fd;
-#if ! defined (USG) || defined (USG_SUBTTY_WORKS)
+#if !defined(USG) || defined(USG_SUBTTY_WORKS)
       /* On most USG systems it does not work to open the pty's tty here,
 	 then close it and reopen it in the child.  */
       /* Do NOT let this terminal become our controlling terminal
@@ -1929,17 +1930,17 @@ static void create_pty(Lisp_Object process)
       if (forkout < 0)
 	report_file_error("Opening pty", Qnil);
       p->open_fd[WRITE_TO_SUBPROCESS] = forkout;
-# if defined (DONT_REOPEN_PTY)
+# if defined(DONT_REOPEN_PTY)
       /* In the case that vfork is defined as fork, the parent process
 	 (Emacs) may send some data before the child process completes
 	 tty options setup.  So we setup tty before forking.  */
-      child_setup_tty (forkout);
+      child_setup_tty(forkout);
 # endif /* DONT_REOPEN_PTY */
 #else
       forkout = 0;
 #endif /* not USG, or USG_SUBTTY_WORKS */
 
-      fcntl (pty_fd, F_SETFL, O_NONBLOCK);
+      fcntl(pty_fd, F_SETFL, O_NONBLOCK);
 
       /* Record this as an active process, with its channels.
 	 As a result, child_setup will close Emacs's side of the pipes.  */
@@ -1953,15 +1954,16 @@ static void create_pty(Lisp_Object process)
 	 more portable (see USG_SUBTTY_WORKS above).  */
 
       p->pty_flag = 1;
-      pset_status (p, Qrun);
-      setup_process_coding_systems (process);
+      pset_status(p, Qrun);
+      setup_process_coding_systems(process);
 
-      FD_SET (pty_fd, &input_wait_mask);
-      FD_SET (pty_fd, &non_keyboard_wait_mask);
+      FD_SET(pty_fd, &input_wait_mask);
+      FD_SET(pty_fd, &non_keyboard_wait_mask);
       if (pty_fd > max_process_desc)
 	max_process_desc = pty_fd;
 
-      pset_tty_name (p, build_string (pty_name));
+      pset_tty_name(p, build_string(pty_name));
+      IF_LINT((void)forkout);
     }
 
   p->pid = -2;

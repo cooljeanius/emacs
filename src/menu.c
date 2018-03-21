@@ -105,12 +105,15 @@ init_menu_items (void)
 /* Call at the end of generating the data in menu_items.  */
 
 void
-finish_menu_items (void)
+finish_menu_items(void)
 {
+#if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(lint)
+  __asm__("");
+#endif /* __GNUC__ && !__STRICT_ANSI__ && lint */
 }
 
 void
-unuse_menu_items (void)
+unuse_menu_items(void)
 {
   menu_items_inuse = Qnil;
 }
