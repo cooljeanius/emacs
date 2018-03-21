@@ -1958,7 +1958,7 @@ bool MachOChecker<A>::addressIsBindingSite(pint_t targetAddr)
 static void check(const char* path)
 {
 	struct stat stat_buf;
-	
+
 #ifdef emacs
 	char *exe_name = basename((char *)path);
 	if (exe_name == NULL) {
@@ -2040,6 +2040,7 @@ static void check(const char* path)
 #if defined(SUPPORT_ARCH_arm_any) && SUPPORT_ARCH_arm_any
 				case CPU_TYPE_ARM:
                     if (MachOChecker<arm>::validFile(p + offset)) {
+						/* FIXME: leaks: */
 						MachOChecker<arm>::make((p + offset),
                                                 (uint32_t)size, path);
 					} else {
@@ -2052,6 +2053,7 @@ static void check(const char* path)
 				}
 			}
 		} else if (MachOChecker<x86>::validFile(p)) {
+			/* FIXME: leaks: */
 			MachOChecker<x86>::make(p, length, path);
 		} else if (MachOChecker<ppc>::validFile(p)) {
 			MachOChecker<ppc>::make(p, length, path);

@@ -1213,6 +1213,7 @@ lisp_align_free (void *block)
       eassert ((uintptr_t) ABLOCKS_BASE (abase) % BLOCK_ALIGN == 0);
 #endif /* USE_POSIX_MEMALIGN || __APPLE__ */
       free (ABLOCKS_BASE (abase)); /*FIXME: sometimes frees unaligned ptrs */
+      /* words to find this spot easier: grep free() xfree() alignment */
     }
   MALLOC_UNBLOCK_INPUT;
 }

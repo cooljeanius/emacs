@@ -4039,10 +4039,13 @@ init_tty (const char *name, const char *terminal_type, bool must_succeed)
        defined on Hurd.  On other systems, we need to explicitly
        dissociate ourselves from the controlling tty when we want to
        open a frame on the same terminal.  */
-    int flags = (O_RDWR | O_NOCTTY | ((ctty && (O_IGNORE_CTTY != 0))
-				      ? 0 : O_IGNORE_CTTY));
+#if defined(O_IGNORE_CTTY) && (O_IGNORE_CTTY != 0)
+    int flags = (O_RDWR | O_NOCTTY | (ctty ? 0 : O_IGNORE_CTTY));
+#else
+    int flags = (O_RDWR | O_NOCTTY | 0);
+#endif /* O_IGNORE_CTTY != 0 */
     int fd = emacs_open (name, flags, 0);
-    tty->input = tty->output = fd < 0 || ! isatty (fd) ? 0 : fdopen (fd, "w+");
+    tty->input = tty->output = (fd < 0) || !isatty(fd) ? 0 : fdopen(fd, "w+");
 
     if (! tty->input)
       {

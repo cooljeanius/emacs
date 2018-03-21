@@ -915,7 +915,7 @@
 		A56E5A181B21336C005E1D43 /* MachOFileAbstraction.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MachOFileAbstraction.hpp; sourceTree = "<group>"; };
 		A56E5A191B21336C005E1D43 /* create_configure.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = create_configure.sh; sourceTree = "<group>"; };
 		A56E5A1C1B21336C005E1D43 /* Architectures.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Architectures.hpp; sourceTree = "<group>"; };
-		A56E5A1E1B21336C005E1D43 /* machochecker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = machochecker.cpp; sourceTree = "<group>"; };
+		A56E5A1E1B21336C005E1D43 /* machochecker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = machochecker.cpp; sourceTree = "<group>"; tabWidth = 4; };
 		A56E5A201B213412005E1D43 /* machochecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = machochecker.h; sourceTree = "<group>"; };
 		A584B1A81B696685005A6951 /* autogen.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = autogen.sh; path = ../../../autogen.sh; sourceTree = SOURCE_ROOT; };
 		A584B1DF1B712E9E005A6951 /* setenv.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = setenv.c; sourceTree = "<group>"; };
