@@ -1359,6 +1359,7 @@ check_matrix_pointer_lossage(struct glyph_matrix *matrix)
   int i, j;
 
   eassert(matrix != NULL);
+  xassert(matrix != NULL);
   for (i = 0; i < matrix->nrows; ++i)
     {
       for (j = 0; j < matrix->nrows; ++j)
@@ -1366,9 +1367,13 @@ check_matrix_pointer_lossage(struct glyph_matrix *matrix)
           eassert((i == j)
                   || (matrix->rows[i].glyphs[TEXT_AREA]
                       != matrix->rows[j].glyphs[TEXT_AREA]));
+#if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(lint)
+	  __asm__("");
+#endif /* __GNUC__ && !__STRICT_ANSI__ && lint */
         }
     }
 
+  IF_LINT((void)matrix);
   return;
 }
 

@@ -4783,7 +4783,7 @@ handle_single_display_spec(struct it *it, Lisp_Object spec, Lisp_Object object,
 		     current specified height to get the new height.  */
 		  ptrdiff_t count = SPECPDL_INDEX();
 
-		  specbind(Qheight, ((face != NULL) 
+		  specbind(Qheight, ((face != NULL)
 				     ? face->lface[LFACE_HEIGHT_INDEX] : Qnil));
 		  value = safe_eval(it->font_height);
 		  unbind_to(count, Qnil);
@@ -25552,8 +25552,9 @@ produce_glyphless_glyph(struct it *it, int for_no_font, Lisp_Object acronym)
       else
 	{
 	  eassert(it->glyphless_method == GLYPHLESS_DISPLAY_HEX_CODE);
-	  snprintf(buf, sizeof(buf), "%0*X", ((it->c < 0x10000) ? 4 : 6),
-                  (unsigned int)it->c);
+	  snprintf(buf, sizeof(buf), "%0*X",
+		   (uint8_t)((it->c < 0x10000) ? 4 : 6),
+		   (unsigned short)it->c);
 	  str = buf;
 	}
       for (len = 0; str[len] && ASCII_BYTE_P (str[len]) && len < 6; len++)

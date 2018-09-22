@@ -43,9 +43,10 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #if defined(lint) && defined(HAVE_SYS_INODE_H)
 # include <sys/inode.h>
 #else
-# if defined(lint) && defined(__GNUC__) && !defined(__STRICT_ANSI__) && !defined(__APPLE__)
+# if defined(lint) && defined(__GNUC__) && !defined(__STRICT_ANSI__) && \
+     !defined(__APPLE__) && defined(GCC_LINT)
 #  warning "linting lread.c expects <sys/inode.h> to be included."
-# endif /* lint && __GNUC__ && !__STRICT_ANSI__ && !__APPLE__ */
+# endif /* lint && __GNUC__ && !__STRICT_ANSI__ && !__APPLE__ && GCC_LINT */
 #endif /* lint && HAVE_SYS_INODE_H */
 
 #ifdef MSDOS

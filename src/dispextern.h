@@ -498,7 +498,7 @@ struct glyph
 
   /* Which kind of glyph this is---character, image etc.  Value
      should be an enumerator of type enum glyph_type.  */
-  unsigned type : 3;
+  unsigned int type : 3;
 
   /* True means this glyph was produced from multibyte text.  False
      means it was produced from unibyte text, i.e. charsets are NOT
@@ -537,26 +537,26 @@ struct glyph
   bool_bf avoid_cursor_p : 1;
 
   /* Resolved bidirectional level of this character [0..63].  */
-  unsigned resolved_level : 5;
+  unsigned int resolved_level : 5;
 
   /* Resolved bidirectional type of this character, see enum
      bidi_type_t below.  Note that according to UAX#9, only some
      values (STRONG_L, STRONG_R, WEAK_AN, WEAK_EN, WEAK_BN, and
      NEUTRAL_B) can appear in the resolved type, so we only reserve
      space for those that can.  */
-  unsigned bidi_type : 3;
+  unsigned int bidi_type : 3;
 
 #define FACE_ID_BITS	20
 
   /* Face of the glyph.  This is a realized face ID,
      an index in the face cache of the frame.  */
-  unsigned face_id : FACE_ID_BITS;
+  unsigned int face_id : FACE_ID_BITS;
 
   /* Type of font used to display the character glyph.  May be used to
      determine which set of functions to use to obtain font metrics
      for the glyph.  On W32, value should be an enumerator of the type
      w32_char_font_type.  Otherwise it equals FONT_TYPE_UNKNOWN.  */
-  unsigned font_type : 3;
+  unsigned int font_type : 3;
 
   /* A union of sub-structures for different glyph types.  */
   union
@@ -585,7 +585,7 @@ struct glyph
       /* Flag to tell if the composition is automatic or not.  */
       bool_bf automatic : 1;
       /* ID of the composition.  */
-      unsigned id    : 31;
+      unsigned int id    : 31;
     } cmp;
 
     /* Image ID for image glyphs (type == IMAGE_GLYPH).  */
@@ -595,10 +595,10 @@ struct glyph
     struct
     {
       /* The height of the glyph.  */
-      unsigned height  : 16;
+      unsigned int height  : 16;
 
       /* The ascent of the glyph.  */
-      unsigned ascent  : 16;
+      unsigned int ascent  : 16;
     }
     stretch;
 
@@ -606,17 +606,17 @@ struct glyph
     struct
     {
       /* Value is an enum of the type glyphless_display_method.  */
-      unsigned method : 2;
+      unsigned short method : 2;
       /* True iff this glyph is for a character of no font. */
       bool_bf for_no_font : 1;
       /* Length of acronym or hexadecimal code string (at most 8).  */
-      unsigned len : 4;
+      unsigned short len : 4;
       /* Character to display.  Actually we need only 22 bits.  */
-      unsigned ch : 25;
+      unsigned int ch : 25;
     } glyphless;
 
     /* Used to compare all bit-fields above in one step.  */
-    unsigned val;
+    unsigned int val;
   } u;
 };
 
@@ -1393,7 +1393,7 @@ struct glyph_string
 
   /* Font in which this string is to be drawn: */
   struct font *font;
-  
+
 #ifdef COMING_FROM_MACTERM_C
   /* Font info for this string: */
   struct font_info *font_info;

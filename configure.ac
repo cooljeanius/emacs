@@ -3243,6 +3243,12 @@ else
     fi  ##end check for g3 flags
     # Same "shorten-the-command-line" reasoning as above:
     nw="${nw} -Wpointer-sign"
+  else
+    gl_GCC_VERSION_IFELSE([9],[0],[
+      nw="${nw} -Wabi"
+      nw="${nw} -Wchkp"
+    ])dnl#
+    ## Otherwise we get extra warnings
   fi  ##end check for Apple compiler
 
   gl_MANYWARN_ALL_GCC([ws])
@@ -3444,7 +3450,6 @@ else
       if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
         WARN_CXXFLAGS=""
         AC_LANG_PUSH([C++])dnl
-        gl_WARN_ADD([-Wabi],[WARN_CXXFLAGS])
         gl_WARN_ADD([-Wabi-tag],[WARN_CXXFLAGS])
         gl_WARN_ADD([-Wconditionally-supported],[WARN_CXXFLAGS])
         if test "x${PRINT_CONVERSION_WARNINGS}" = "xyes"; then
@@ -3677,10 +3682,15 @@ else
       gl_WARN_ADD([-Wif-not-aligned])dnl
       gl_WARN_ADD([-Wpacked-not-aligned])dnl
       gl_WARN_ADD([-Wcast-align=strict])dnl
+      gl_WARN_ADD([-Wcast-function-type])dnl
+      gl_COMPILER_OPTION_IF([-Wstringop-truncation=2],
+                      [WARN_CFLAGS="${WARN_CFLAGS} -Wstringop-truncation=2"],
+                      [gl_WARN_ADD([-Wstringop-truncation])])
       if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
         AC_LANG_PUSH([C++])dnl
         gl_WARN_ADD([-Wcatch-value],[WARN_CXXFLAGS])
         gl_WARN_ADD([-Wclass-memaccess],[WARN_CXXFLAGS])
+        gl_WARN_ADD([-Wmissing-attributes],[WARN_CXXFLAGS])
         AC_LANG_POP
       else
         AC_MSG_NOTICE([-Wcatch-value only relevant for C++, skipping it])

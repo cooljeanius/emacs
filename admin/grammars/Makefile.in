@@ -105,7 +105,7 @@ ${cedetdir}/srecode/srt-wy.el: ${srcdir}/srecode-template.wy
 .PHONY: distclean bootstrap-clean maintainer-clean extraclean
 
 distclean:
-	rm -f Makefile
+	if test -e Makefile; then rm -f Makefile; fi
 
 ## Perhaps this (bootstrap-clean) should do what extraclean (qv) does:
 bootstrap-clean maintainer-clean: distclean

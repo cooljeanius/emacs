@@ -1330,6 +1330,11 @@ setup_pty(int fd)
 #  endif /* UNIX98_PTYS */
 # endif /* FIONBIO */
 
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(lint)
+  __asm__("");
+# endif /* __GNUC__ && !__STRICT_ANSI__ && lint */
+
+  IF_LINT((void)fd);
   return;
 }
 #endif /* HAVE_PTYS */
@@ -3345,7 +3350,7 @@ system_process_attributes (Lisp_Object pid)
       case SSTOP:
 	state[0] = 'T';
 	break;
-	  
+
       default:
 	break;
       }

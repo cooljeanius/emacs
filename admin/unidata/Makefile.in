@@ -100,7 +100,7 @@ clean:
 bootstrap-clean: clean
 
 distclean: clean
-	rm -f Makefile
+	if test -e Makefile; then rm -f Makefile; fi
 
 maintainer-clean: distclean
 
