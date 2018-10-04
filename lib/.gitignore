@@ -21,6 +21,7 @@ getopt-cdefs.h
 inttypes.h
 limits.h
 math.h
+pty.h
 sched.h
 signal.h
 spawn.h

@@ -85,7 +85,7 @@ else
       nextafter no-c++ nocrash nstrftime \
       obstack open openat openat-die openat-h openmp \
       pagealign_alloc pathmax perror pipe2 posix_openpt posix_spawnp \
-      printf-safe progname pselect pthread_sigmask pty putenv \
+      posixcheck printf-safe progname pselect pthread_sigmask pty putenv \
       qacl qcopy-acl quote quotearg quotearg-simple \
       read readdir readlink readlinkat realloc-gnu realloc-posix rename \
       rmdir root-uid \
