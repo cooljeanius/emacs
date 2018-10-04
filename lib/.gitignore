@@ -22,6 +22,7 @@ fnmatch.h
 getopt.h
 getopt-cdefs.h
 glob.h
+iconv.h
 inttypes.h
 langinfo.h
 limits.h
@@ -59,6 +60,7 @@ sys/wait.h
 termios.h
 time.h
 unistd.h
+utime.h
 wchar.h
 wctype.h
 

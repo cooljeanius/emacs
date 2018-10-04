@@ -58,6 +58,39 @@
 #ifndef __powerpc64_elfv2__
 #undef __powerpc64_elfv2__
 #endif
+#ifndef __riscv32__
+#undef __riscv32__
+#endif
+#ifndef __riscv64__
+#undef __riscv64__
+#endif
+#ifndef __riscv32_ilp32__
+#undef __riscv32_ilp32__
+#endif
+#ifndef __riscv32_ilp32f__
+#undef __riscv32_ilp32f__
+#endif
+#ifndef __riscv32_ilp32d__
+#undef __riscv32_ilp32d__
+#endif
+#ifndef __riscv64_ilp32__
+#undef __riscv64_ilp32__
+#endif
+#ifndef __riscv64_ilp32f__
+#undef __riscv64_ilp32f__
+#endif
+#ifndef __riscv64_ilp32d__
+#undef __riscv64_ilp32d__
+#endif
+#ifndef __riscv64_lp64__
+#undef __riscv64_lp64__
+#endif
+#ifndef __riscv64_lp64f__
+#undef __riscv64_lp64f__
+#endif
+#ifndef __riscv64_lp64d__
+#undef __riscv64_lp64d__
+#endif
 #ifndef __s390__
 #undef __s390__
 #endif
@@ -293,6 +326,10 @@
 /* Define to 1 if the system's ftello function has the Solaris bug. */
 #undef FTELLO_BROKEN_AFTER_SWITCHING_FROM_READ_TO_WRITE
 
+/* Define to 1 if fflush is known to work on stdin as per POSIX.1-2008, 0 if
+   fflush is known to not work, -1 if unknown. */
+#undef FUNC_FFLUSH_STDIN
+
 /* Define to 1 if realpath() can malloc memory, always gives an absolute path,
    and handles trailing slash correctly. */
 #undef FUNC_REALPATH_WORKS
@@ -361,6 +398,9 @@
 /* Define this to enable glyphs debugging code. */
 #undef GLYPH_DEBUG
 
+/* Compile Gnulib crypto stream ops. */
+#undef GL_COMPILE_CRYPTO_STREAM
+
 /* Define to a C preprocessor expression that evaluates to 1 or 0, depending
    whether the gnulib module canonicalize-lgpl shall be considered present. */
 #undef GNULIB_CANONICALIZE_LGPL
@@ -378,6 +418,10 @@
 #undef GNULIB_FDOPENDIR
 
 /* Define to a C preprocessor expression that evaluates to 1 or 0, depending
+   whether the gnulib module fflush shall be considered present. */
+#undef GNULIB_FFLUSH
+
+/* Define to a C preprocessor expression that evaluates to 1 or 0, depending
    whether the gnulib module fscanf shall be considered present. */
 #undef GNULIB_FSCANF
 
@@ -391,6 +435,10 @@
 
 /* Define to 1 to enable some gnulib portability checks */
 #undef GNULIB_PORTCHECK
+
+/* Define to enable warnings for determining which Gnulib modules to use, for
+   portability of POSIX functions. */
+#undef GNULIB_POSIXCHECK
 
 /* Define to 1 if printf and friends should be labeled with attribute
    "__gnu_printf__" instead of "__printf__" */
@@ -621,6 +669,10 @@
    CoreFoundation framework. */
 #undef HAVE_CFLOCALECOPYCURRENT
 
+/* Define to 1 if you have the Mac OS X function
+   CFLocaleCopyPreferredLanguages in the CoreFoundation framework. */
+#undef HAVE_CFLOCALECOPYPREFERREDLANGUAGES
+
 /* Define to 1 if you have the `cfmakeraw' function. */
 #undef HAVE_CFMAKERAW
 
@@ -766,6 +818,10 @@
    don't. */
 #undef HAVE_DECL_FLOCKFILE
 
+/* Define to 1 if you have the declaration of `fpurge', and to 0 if you don't.
+   */
+#undef HAVE_DECL_FPURGE
+
 /* Define to 1 if you have the declaration of `fputc_unlocked', and to 0 if
    you don't. */
 #undef HAVE_DECL_FPUTC_UNLOCKED
@@ -817,10 +873,6 @@
 /* Define to 1 if you have the declaration of `getlogin', and to 0 if you
    don't. */
 #undef HAVE_DECL_GETLOGIN
-
-/* Define to 1 if you have the declaration of `getpass', and to 0 if you
-   don't. */
-#undef HAVE_DECL_GETPASS
 
 /* Define to 1 if you have the declaration of `localtime_r', and to 0 if you
    don't. */
@@ -913,6 +965,10 @@
 /* Define to 1 if you have the declaration of `unsetenv', and to 0 if you
    don't. */
 #undef HAVE_DECL_UNSETENV
+
+/* Define to 1 if you have the declaration of `_fseeki64', and to 0 if you
+   don't. */
+#undef HAVE_DECL__FSEEKI64
 
 /* Define to 1 if you have the declaration of `_putenv', and to 0 if you
    don't. */
@@ -1058,6 +1114,9 @@
 /* Define to 1 if you have the `fmod' function. */
 #undef HAVE_FMOD
 
+/* Define to 1 if you have the <fnmatch.h> header file. */
+#undef HAVE_FNMATCH_H
+
 /* Define to 1 if you have the `fork' function. */
 #undef HAVE_FORK
 
@@ -1066,6 +1125,9 @@
 
 /* Define to 1 if you have the `fpathconf' function. */
 #undef HAVE_FPATHCONF
+
+/* Define to 1 if you have the `fpurge' function. */
+#undef HAVE_FPURGE
 
 /* Define to 1 if you have the `freeifaddrs' function. */
 #undef HAVE_FREEIFADDRS
@@ -1241,6 +1303,9 @@
 /* Define to 1 if you have the <glib-object.h> header file. */
 #undef HAVE_GLIB_OBJECT_H
 
+/* Define to 1 if you have the <glob.h> header file. */
+#undef HAVE_GLOB_H
+
 /* Define to 1 if you have the <GNUstepBase/GSConfig.h> header file. */
 #undef HAVE_GNUSTEPBASE_GSCONFIG_H
 
@@ -1361,6 +1426,9 @@
 
 /* Define if you have the iconv() function and it works. */
 #undef HAVE_ICONV
+
+/* Define to 1 if you have the <iconv.h> header file. */
+#undef HAVE_ICONV_H
 
 /* Define to 1 if we have the 'id' program */
 #undef HAVE_ID_BIN
@@ -1506,6 +1574,9 @@
 /* Define to 1 if you have the `link' function. */
 #undef HAVE_LINK
 
+/* Define to 1 if you have 'struct sockaddr_alg' defined. */
+#undef HAVE_LINUX_IF_ALG_H
+
 /* Define to 1 if you have Linux sysinfo function. */
 #undef HAVE_LINUX_SYSINFO
 
@@ -1514,6 +1585,10 @@
 
 /* Define to 1 if you have the <locale.h> header file. */
 #undef HAVE_LOCALE_H
+
+/* Define if localtime-like functions can loop forever on extreme arguments.
+   */
+#undef HAVE_LOCALTIME_INFLOOP_BUG
 
 /* Define to 1 if you have the `localtime_r' function. */
 #undef HAVE_LOCALTIME_R
@@ -1694,6 +1769,9 @@
 /* Define to 1 if you have a working `mmap' system call. */
 #undef HAVE_MMAP
 
+/* Define to 1 if you have the <monetary.h> header file. */
+#undef HAVE_MONETARY_H
+
 /* Define to 1 if you have the `mprotect' function. */
 #undef HAVE_MPROTECT
 
@@ -1712,9 +1790,6 @@
 
 /* Define to 1 if you have the `munmap' function. */
 #undef HAVE_MUNMAP
-
-/* Define to 1 if you have the `nanotime' function. */
-#undef HAVE_NANOTIME
 
 /* Define to 1 if you have the <NavigationServices/Navigation.h> header file.
    */
@@ -1804,6 +1879,9 @@
 
 /* Define to 1 if you have the `png_set_longjmp_fn' function. */
 #undef HAVE_PNG_SET_LONGJMP_FN
+
+/* Define to 1 if you have the <poll.h> header file. */
+#undef HAVE_POLL_H
 
 /* Define to 1 if you have the `posix_memalign' function. */
 #undef HAVE_POSIX_MEMALIGN
@@ -2454,10 +2532,10 @@
 /* Define to 1 if you have tcgetattr and tcsetattr. */
 #undef HAVE_TCATTR
 
-/* Define to 1 if you have the `tcgetattr' function. */
+/* Define to 1 if the system has the 'tcgetattr' function. */
 #undef HAVE_TCGETATTR
 
-/* Define to 1 if you have the `tcsetattr' function. */
+/* Define to 1 if the system has the 'tcsetattr' function. */
 #undef HAVE_TCSETATTR
 
 /* Define to 1 if you have the <termcap.h> header file. */
@@ -2664,10 +2742,6 @@
 /* Define to 1 if O_NOFOLLOW works. */
 #undef HAVE_WORKING_O_NOFOLLOW
 
-/* Define if you have the posix_spawn and posix_spawnp functions and they
-   work. */
-#undef HAVE_WORKING_POSIX_SPAWN
-
 /* Define if utimes works properly. */
 #undef HAVE_WORKING_UTIMES
 
@@ -2730,6 +2804,9 @@
 
 /* Define to 1 if you have the Xkb extension. */
 #undef HAVE_XKB
+
+/* Define to 1 if you have the <xlocale.h> header file. */
+#undef HAVE_XLOCALE_H
 
 /* Define to 1 if you have the <Xm/Xm.h> header file. */
 #undef HAVE_XM_XM_H
@@ -2822,8 +2899,17 @@
 /* Define to 1 if you have the `__fpending' function. */
 #undef HAVE___FPENDING
 
+/* Define to 1 if you have the `__fpurge' function. */
+#undef HAVE___FPURGE
+
+/* Define to 1 if you have the `__freading' function. */
+#undef HAVE___FREADING
+
 /* Define to 1 if you have the `__fsetlocking' function. */
 #undef HAVE___FSETLOCKING
+
+/* Define to 1 if the compiler supports the keyword '__inline'. */
+#undef HAVE___INLINE
 
 /* Define to 1 if you have the `__secure_getenv' function. */
 #undef HAVE___SECURE_GETENV
@@ -3103,6 +3189,9 @@
    slash */
 #undef REPLACE_FUNC_STAT_FILE
 
+/* Define if gnulib uses its own posix_spawn and posix_spawnp functions. */
+#undef REPLACE_POSIX_SPAWN
+
 /* Define to 1 if strerror(0) does not return a message implying success. */
 #undef REPLACE_STRERROR_0
 
@@ -3294,6 +3383,9 @@
 /* Define to 1 if using GTK. */
 #undef USE_GTK
 
+/* Define to 1 if you want to use the Linux kernel cryptographic API. */
+#undef USE_LINUX_CRYPTO_API
+
 /* Define to 1 if using the Lucid X toolkit. */
 #undef USE_LUCID
 
@@ -3474,6 +3566,9 @@
 /* Define for large files, on AIX-style hosts. */
 #undef _LARGE_FILES
 
+/* Define to 1 on Solaris. */
+#undef _LCONV_C99
+
 /* Define to 1 if on MINIX. */
 #undef _MINIX
 
@@ -3628,9 +3723,6 @@
 # define _GL_INLINE_HEADER_END
 #endif
 
-/* Define to a replacement function name for getpass(). */
-#undef getpass
-
 /* A replacement for va_copy, if needed.  */
 #define gl_va_copy(a,b) ((a) = (b))
 
@@ -3774,6 +3866,13 @@
 # define _GL_ATTRIBUTE_CONST __attribute__ ((__const__))
 #else
 # define _GL_ATTRIBUTE_CONST /* empty */
+#endif
+
+/* The __malloc__ attribute was added in gcc 3.  */
+#if 3 <= __GNUC__
+# define _GL_ATTRIBUTE_MALLOC __attribute__ ((__malloc__))
+#else
+# define _GL_ATTRIBUTE_MALLOC /* empty */
 #endif
 
 
