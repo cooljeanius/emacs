@@ -20,9 +20,15 @@
 /* On Solaris in 32-bit mode, when gnulib module 'largefile' is in use,
    prevent a compilation error
      "Cannot use procfs in the large file compilation environment"
+   On Android, when targeting Android 4.4 or older with a GCC toolchain,
+   prevent a compilation error
+     "error: call to 'mmap' declared with attribute error: mmap is not
+      available with _FILE_OFFSET_BITS=64 when using GCC until android-21.
+      Either raise your minSdkVersion, disable _FILE_OFFSET_BITS=64, or
+      switch to Clang."
    The files that we access in this compilation unit are less than 2 GB
    large.  */
-#if defined __sun
+#if defined __sun || defined __ANDROID__
 # undef _FILE_OFFSET_BITS
 #endif
 
@@ -86,7 +92,7 @@
 # include <mach/mach.h>
 #endif
 
-#if (defined _WIN32 || defined __WIN32__) || defined __CYGWIN__ /* Windows */
+#if defined _WIN32 || defined __CYGWIN__ /* Windows */
 # include <windows.h>
 #endif
 
@@ -1397,7 +1403,7 @@ vma_iterate (vma_iterate_callback_fn callback, void *data)
     }
   return 0;
 
-#elif (defined _WIN32 || defined __WIN32__) || defined __CYGWIN__
+#elif defined _WIN32 || defined __CYGWIN__
   /* Windows platform.  Use the native Windows API.  */
 
   MEMORY_BASIC_INFORMATION info;

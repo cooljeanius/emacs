@@ -49,6 +49,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module alloca:
   # Code from module alloca-opt:
   # Code from module allocator:
+  # Code from module arpa_inet:
   # Code from module assert-h:
   # Code from module assure:
   # Code from module at-internal:
@@ -74,10 +75,16 @@ AC_DEFUN([gl_EARLY],
   # Code from module configmake:
   # Code from module count-one-bits:
   # Code from module count-trailing-zeros:
+  # Code from module crypto/af_alg:
   # Code from module crypto/md5:
+  # Code from module crypto/md5-buffer:
   # Code from module crypto/sha1:
+  # Code from module crypto/sha1-buffer:
   # Code from module crypto/sha256:
+  # Code from module crypto/sha256-buffer:
   # Code from module crypto/sha512:
+  # Code from module crypto/sha512-buffer:
+  # Code from module ctype:
   # Code from module diffseq:
   # Code from module dirent:
   # Code from module dirfd:
@@ -103,17 +110,22 @@ AC_DEFUN([gl_EARLY],
   # Code from module fd-hook:
   # Code from module fdatasync:
   # Code from module fdopendir:
+  # Code from module fflush:
+  AC_REQUIRE([AC_FUNC_FSEEKO])
   # Code from module file-has-acl:
   # Code from module filemode:
   # Code from module filename:
   # Code from module filevercmp:
   # Code from module flexmember:
   # Code from module float:
+  # Code from module fnmatch-h:
   # Code from module fopen:
   # Code from module fpending:
   # Code from module fpieee:
   AC_REQUIRE([gl_FP_IEEE])
   # Code from module fpucw:
+  # Code from module fpurge:
+  # Code from module freading:
   # Code from module fseek:
   # Code from module fseeko:
   AC_REQUIRE([AC_FUNC_FSEEKO])
@@ -147,6 +159,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module gettimeofday:
   # Code from module git-version-gen:
   # Code from module gitlog-to-changelog:
+  # Code from module glob-h:
   # Code from module gnu-make:
   # Code from module gpl-3.0:
   # Code from module group-member:
@@ -154,17 +167,21 @@ AC_DEFUN([gl_EARLY],
   # Code from module havelib:
   # Code from module host-cpu-c-abi:
   # Code from module host-os:
+  # Code from module iconv-h:
   # Code from module ignore-value:
   # Code from module include_next:
   # Code from module inline:
   # Code from module intprops:
   # Code from module inttypes-incomplete:
   # Code from module ioctl:
+  # Code from module langinfo:
   # Code from module largefile:
   AC_REQUIRE([AC_SYS_LARGEFILE])
   # Code from module ldd:
+  # Code from module libc-config:
   # Code from module limits-h:
   # Code from module localcharset:
+  # Code from module locale:
   # Code from module localtime-buffer:
   # Code from module longlong:
   # Code from module lseek:
@@ -183,7 +200,9 @@ AC_DEFUN([gl_EARLY],
   # Code from module mkostemp:
   # Code from module mktime:
   # Code from module mktime-internal:
+  # Code from module monetary:
   # Code from module multiarch:
+  # Code from module netdb:
   # Code from module nextafter:
   # Code from module no-c++:
   # Code from module nocrash:
@@ -198,9 +217,11 @@ AC_DEFUN([gl_EARLY],
   # Code from module pathmax:
   # Code from module perror:
   # Code from module pipe2:
+  # Code from module poll-h:
   # Code from module posix_openpt:
   # Code from module posix_spawn-internal:
   # Code from module posix_spawnp:
+  # Code from module posixcheck:
   # Code from module printf-safe:
   # Code from module progname:
   # Code from module pselect:
@@ -225,6 +246,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module root-uid:
   # Code from module same-inode:
   # Code from module sched:
+  # Code from module search:
   # Code from module secure_getenv:
   # Code from module setenv:
   # Code from module sig2str:
@@ -274,6 +296,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module strtoull:
   # Code from module strtoumax:
   # Code from module symlink:
+  # Code from module sys_file:
   # Code from module sys_ioctl:
   # Code from module sys_resource:
   # Code from module sys_select:
@@ -286,6 +309,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module sys_utsname:
   # Code from module sys_wait:
   # Code from module tempname:
+  # Code from module termios:
   # Code from module time:
   # Code from module time_r:
   # Code from module time_rz:
@@ -343,6 +367,8 @@ AC_DEFUN([gl_INIT],
   gl_source_base='lib'
   gl_FUNC_ACL
   gl_FUNC_ALLOCA
+  gl_HEADER_ARPA_INET
+  AC_PROG_MKDIR_P
   gl_ASSERT_H
   gl_FUNC_ATAN
   gl_FUNC_ATAN2
@@ -369,10 +395,16 @@ AC_DEFUN([gl_INIT],
   gl_CONFIGMAKE_PREP
   gl_COUNT_ONE_BITS
   gl_COUNT_TRAILING_ZEROS
+  gl_AF_ALG
+  AC_DEFINE([GL_COMPILE_CRYPTO_STREAM], 1, [Compile Gnulib crypto stream ops.])
   gl_MD5
+  AC_DEFINE([GL_COMPILE_CRYPTO_STREAM], 1, [Compile Gnulib crypto stream ops.])
   gl_SHA1
+  AC_DEFINE([GL_COMPILE_CRYPTO_STREAM], 1, [Compile Gnulib crypto stream ops.])
   gl_SHA256
+  AC_DEFINE([GL_COMPILE_CRYPTO_STREAM], 1, [Compile Gnulib crypto stream ops.])
   gl_SHA512
+  gl_CTYPE_H
   gl_DIRENT_H
   gl_FUNC_DIRFD
   if test $ac_cv_func_dirfd = no && test $gl_cv_func_dirfd_macro = no \
@@ -450,6 +482,7 @@ AC_DEFUN([gl_INIT],
   if test $REPLACE_ITOLD = 1; then
     AC_LIBOBJ([itold])
   fi
+  gl_FNMATCH_H
   gl_FUNC_FOPEN
   if test $REPLACE_FOPEN = 1; then
     AC_LIBOBJ([fopen])
@@ -577,15 +610,17 @@ AC_DEFUN([gl_INIT],
   fi
   gl_UNISTD_MODULE_INDICATOR([getpagesize])
   gl_FUNC_GETPASS
-  if test $HAVE_GETPASS = 0; then
+  if test $HAVE_GETPASS = 0 || test $REPLACE_GETPASS = 1; then
     AC_LIBOBJ([getpass])
     gl_PREREQ_GETPASS
   fi
+  gl_UNISTD_MODULE_INDICATOR([getpass])
   gl_FUNC_GETPASS_GNU
-  if test $REPLACE_GETPASS = 1; then
+  if test $HAVE_GETPASS = 0 || test $REPLACE_GETPASS = 1; then
     AC_LIBOBJ([getpass])
     gl_PREREQ_GETPASS
   fi
+  gl_UNISTD_MODULE_INDICATOR([getpass])
   gl_FUNC_GETPROGNAME
   dnl you must add AM_GNU_GETTEXT([external]) or similar to configure.ac.
   AM_GNU_GETTEXT_VERSION([0.18.1])
@@ -598,6 +633,7 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_GETTIMEOFDAY
   fi
   gl_SYS_TIME_MODULE_INDICATOR([gettimeofday])
+  gl_GLOB_H
   gl_GNU_MAKE
   gl_FUNC_GROUP_MEMBER
   if test $HAVE_GROUP_MEMBER = 0; then
@@ -607,6 +643,7 @@ AC_DEFUN([gl_INIT],
   gl_UNISTD_MODULE_INDICATOR([group-member])
   AC_REQUIRE([gl_HOST_CPU_C_ABI])
   gl_HOST_OS
+  gl_ICONV_H
   gl_INLINE
   gl_INTTYPES_INCOMPLETE
   gl_FUNC_IOCTL
@@ -614,13 +651,17 @@ AC_DEFUN([gl_INIT],
     AC_LIBOBJ([ioctl])
   fi
   gl_SYS_IOCTL_MODULE_INDICATOR([ioctl])
+  gl_LANGINFO_H
   AC_REQUIRE([gl_LARGEFILE])
   gl_LDD
   AC_CONFIG_FILES([ldd.sh:build-aux/ldd.sh.in])
+  gl___INLINE
   gl_LIMITS_H
   gl_LOCALCHARSET
-  LOCALCHARSET_TESTS_ENVIRONMENT="CHARSETALIASDIR=\"\$(abs_top_builddir)/$gl_source_base\""
+  dnl For backward compatibility. Some packages still use this.
+  LOCALCHARSET_TESTS_ENVIRONMENT=
   AC_SUBST([LOCALCHARSET_TESTS_ENVIRONMENT])
+  gl_LOCALE_H
   AC_REQUIRE([gl_LOCALTIME_BUFFER_DEFAULTS])
   AC_LIBOBJ([localtime-buffer])
   AC_REQUIRE([AC_TYPE_LONG_LONG_INT])
@@ -683,7 +724,9 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_MKTIME
   fi
   gl_TIME_MODULE_INDICATOR([mktime])
+  gl_MONETARY_H
   gl_MULTIARCH
+  gl_HEADER_NETDB
   gl_MATHFUNC([nextafter], [double], [(double, double)])
   gt_NO_CXX
   gl_FUNC_GNU_STRFTIME
@@ -712,6 +755,7 @@ AC_DEFUN([gl_INIT],
   gl_STRING_MODULE_INDICATOR([perror])
   gl_FUNC_PIPE2
   gl_UNISTD_MODULE_INDICATOR([pipe2])
+  gl_POLL_H
   gl_FUNC_POSIX_OPENPT
   if test $HAVE_POSIX_OPENPT = 0; then
     AC_LIBOBJ([posix_openpt])
@@ -724,6 +768,7 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_POSIX_SPAWN_INTERNAL
   fi
   gl_SPAWN_MODULE_INDICATOR([posix_spawnp])
+  gl_POSIXCHECK
   m4_divert_text([INIT_PREPARE], [gl_printf_safe=yes])
   AC_CHECK_DECLS([program_invocation_name], [], [], [#include <errno.h>])
   AC_CHECK_DECLS([program_invocation_short_name], [], [], [#include <errno.h>])
@@ -790,6 +835,7 @@ AC_DEFUN([gl_INIT],
   fi
   gl_UNISTD_MODULE_INDICATOR([rmdir])
   gl_SCHED_H
+  gl_SEARCH_H
   gl_FUNC_SECURE_GETENV
   if test $HAVE_SECURE_GETENV = 0; then
     AC_LIBOBJ([secure_getenv])
@@ -898,6 +944,8 @@ AC_DEFUN([gl_INIT],
     AC_LIBOBJ([symlink])
   fi
   gl_UNISTD_MODULE_INDICATOR([symlink])
+  gl_HEADER_SYS_FILE_H
+  AC_PROG_MKDIR_P
   gl_SYS_IOCTL_H
   AC_PROG_MKDIR_P
   gl_HEADER_SYS_RESOURCE
@@ -921,6 +969,7 @@ AC_DEFUN([gl_INIT],
   gl_SYS_WAIT_H
   AC_PROG_MKDIR_P
   gl_FUNC_GEN_TEMPNAME
+  gl_TERMIOS_H
   gl_HEADER_TIME_H
   gl_TIME_R
   if test $HAVE_LOCALTIME_R = 0 || test $REPLACE_LOCALTIME_R = 1; then
@@ -997,7 +1046,10 @@ AC_DEFUN([gl_INIT],
   gl_XALLOC
   gl_gnulib_enabled_260941c0e5dc67ec9e87d1fb321c300b=false
   gl_gnulib_enabled_cloexec=false
+  gl_gnulib_enabled_fflush=false
   gl_gnulib_enabled_filename=false
+  gl_gnulib_enabled_fpurge=false
+  gl_gnulib_enabled_freading=false
   gl_gnulib_enabled_30838f5439487421042f2225bed3af76=false
   gl_gnulib_enabled_malloca=false
   gl_gnulib_enabled_memmove=false
@@ -1024,16 +1076,52 @@ AC_DEFUN([gl_INIT],
       gl_gnulib_enabled_cloexec=true
     fi
   }
+  func_gl_gnulib_m4code_fflush ()
+  {
+    if ! $gl_gnulib_enabled_fflush; then
+      gl_FUNC_FFLUSH
+      if test $REPLACE_FFLUSH = 1; then
+        AC_LIBOBJ([fflush])
+        gl_PREREQ_FFLUSH
+      fi
+      gl_MODULE_INDICATOR([fflush])
+      gl_STDIO_MODULE_INDICATOR([fflush])
+      gl_gnulib_enabled_fflush=true
+      if test $REPLACE_FFLUSH = 1; then
+        func_gl_gnulib_m4code_fpurge
+      fi
+      if test $REPLACE_FFLUSH = 1; then
+        func_gl_gnulib_m4code_freading
+      fi
+    fi
+  }
   func_gl_gnulib_m4code_filename ()
   {
     if ! $gl_gnulib_enabled_filename; then
       gl_gnulib_enabled_filename=true
     fi
   }
+  func_gl_gnulib_m4code_fpurge ()
+  {
+    if ! $gl_gnulib_enabled_fpurge; then
+      gl_FUNC_FPURGE
+      if test $HAVE_FPURGE = 0 || test $REPLACE_FPURGE = 1; then
+        AC_LIBOBJ([fpurge])
+      fi
+      gl_STDIO_MODULE_INDICATOR([fpurge])
+      gl_gnulib_enabled_fpurge=true
+    fi
+  }
+  func_gl_gnulib_m4code_freading ()
+  {
+    if ! $gl_gnulib_enabled_freading; then
+      gl_FUNC_FREADING
+      gl_gnulib_enabled_freading=true
+    fi
+  }
   func_gl_gnulib_m4code_30838f5439487421042f2225bed3af76 ()
   {
     if ! $gl_gnulib_enabled_30838f5439487421042f2225bed3af76; then
-      gl_HARD_LOCALE
       gl_gnulib_enabled_30838f5439487421042f2225bed3af76=true
     fi
   }
@@ -1161,6 +1249,9 @@ AC_DEFUN([gl_INIT],
   if test $HAVE_CANONICALIZE_FILE_NAME = 0 || test $REPLACE_CANONICALIZE_FILE_NAME = 1; then
     func_gl_gnulib_m4code_memmove
   fi
+  if test $USE_AF_ALG = 1; then
+    func_gl_gnulib_m4code_fflush
+  fi
   if test $HAVE_FACCESSAT = 0 || test $REPLACE_FACCESSAT = 1; then
     func_gl_gnulib_m4code_260941c0e5dc67ec9e87d1fb321c300b
   fi
@@ -1224,7 +1315,10 @@ AC_DEFUN([gl_INIT],
   m4_pattern_allow([^gl_GNULIB_ENABLED_])
   AM_CONDITIONAL([gl_GNULIB_ENABLED_260941c0e5dc67ec9e87d1fb321c300b], [$gl_gnulib_enabled_260941c0e5dc67ec9e87d1fb321c300b])
   AM_CONDITIONAL([gl_GNULIB_ENABLED_cloexec], [$gl_gnulib_enabled_cloexec])
+  AM_CONDITIONAL([gl_GNULIB_ENABLED_fflush], [$gl_gnulib_enabled_fflush])
   AM_CONDITIONAL([gl_GNULIB_ENABLED_filename], [$gl_gnulib_enabled_filename])
+  AM_CONDITIONAL([gl_GNULIB_ENABLED_fpurge], [$gl_gnulib_enabled_fpurge])
+  AM_CONDITIONAL([gl_GNULIB_ENABLED_freading], [$gl_gnulib_enabled_freading])
   AM_CONDITIONAL([gl_GNULIB_ENABLED_30838f5439487421042f2225bed3af76], [$gl_gnulib_enabled_30838f5439487421042f2225bed3af76])
   AM_CONDITIONAL([gl_GNULIB_ENABLED_malloca], [$gl_gnulib_enabled_malloca])
   AM_CONDITIONAL([gl_GNULIB_ENABLED_memmove], [$gl_gnulib_enabled_memmove])
@@ -1396,12 +1490,15 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/acl-internal.h
   lib/acl.h
   lib/acl_entries.c
+  lib/af_alg.c
+  lib/af_alg.h
   lib/alignof.h
   lib/alloca.c
   lib/alloca.in.h
   lib/allocator.c
   lib/allocator.h
   lib/arg-nonnull.h
+  lib/arpa_inet.in.h
   lib/assert.in.h
   lib/assure.h
   lib/at-func.c
@@ -1420,17 +1517,18 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/canonicalize-lgpl.c
   lib/careadlinkat.c
   lib/careadlinkat.h
+  lib/cdefs.h
   lib/cloexec.c
   lib/cloexec.h
   lib/close-stream.c
   lib/close-stream.h
   lib/closedir.c
-  lib/config.charset
   lib/copy-acl.c
   lib/count-one-bits.c
   lib/count-one-bits.h
   lib/count-trailing-zeros.c
   lib/count-trailing-zeros.h
+  lib/ctype.in.h
   lib/diffseq.h
   lib/dirent-private.h
   lib/dirent.in.h
@@ -1457,6 +1555,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/fd-hook.h
   lib/fdatasync.c
   lib/fdopendir.c
+  lib/fflush.c
   lib/file-has-acl.c
   lib/filemode.c
   lib/filemode.h
@@ -1466,10 +1565,14 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/flexmember.h
   lib/float.c
   lib/float.in.h
+  lib/fnmatch.in.h
   lib/fopen.c
   lib/fpending.c
   lib/fpending.h
   lib/fpucw.h
+  lib/fpurge.c
+  lib/freading.c
+  lib/freading.h
   lib/fseek.c
   lib/fseeko.c
   lib/fstat.c
@@ -1508,17 +1611,23 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/gettime.c
   lib/gettimeofday.c
   lib/gl_openssl.h
+  lib/glob-libc.h
+  lib/glob.in.h
   lib/group-member.c
   lib/hard-locale.c
   lib/hard-locale.h
+  lib/iconv.in.h
   lib/ignore-value.h
   lib/intprops.h
   lib/inttypes.in.h
   lib/ioctl.c
   lib/itold.c
+  lib/langinfo.in.h
+  lib/libc-config.h
   lib/limits.in.h
   lib/localcharset.c
   lib/localcharset.h
+  lib/locale.in.h
   lib/localtime-buffer.c
   lib/localtime-buffer.h
   lib/lseek.c
@@ -1540,6 +1649,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/mkostemp.c
   lib/mktime-internal.h
   lib/mktime.c
+  lib/monetary.in.h
+  lib/netdb.in.h
   lib/nstrftime.c
   lib/obstack.c
   lib/obstack.h
@@ -1554,6 +1665,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/pathmax.h
   lib/perror.c
   lib/pipe2.c
+  lib/poll.in.h
   lib/posix_openpt.c
   lib/progname.c
   lib/progname.h
@@ -1573,13 +1685,12 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/readlink.c
   lib/readlinkat.c
   lib/realloc.c
-  lib/ref-add.sin
-  lib/ref-del.sin
   lib/rename.c
   lib/rmdir.c
   lib/root-uid.h
   lib/same-inode.h
   lib/sched.in.h
+  lib/search.in.h
   lib/secure_getenv.c
   lib/set-acl.c
   lib/set-permissions.c
@@ -1636,6 +1747,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/strtoull.c
   lib/strtoumax.c
   lib/symlink.c
+  lib/sys-limits.h
+  lib/sys_file.in.h
   lib/sys_ioctl.in.h
   lib/sys_resource.in.h
   lib/sys_select.in.h
@@ -1650,6 +1763,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/sys_wait.in.h
   lib/tempname.c
   lib/tempname.h
+  lib/termios.in.h
   lib/time-internal.h
   lib/time.in.h
   lib/time_r.c
@@ -1690,9 +1804,12 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/xalloc.h
   lib/xmalloc.c
   m4/00gnulib.m4
+  m4/__inline.m4
   m4/absolute-header.m4
   m4/acl.m4
+  m4/af_alg.m4
   m4/alloca.m4
+  m4/arpa_inet_h.m4
   m4/asm-underscore.m4
   m4/assert_h.m4
   m4/atan.m4
@@ -1709,6 +1826,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/configmake.m4
   m4/count-one-bits.m4
   m4/count-trailing-zeros.m4
+  m4/ctype.m4
   m4/dirent_h.m4
   m4/dirfd.m4
   m4/dirname.m4
@@ -1730,12 +1848,16 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/fcntl_h.m4
   m4/fdatasync.m4
   m4/fdopendir.m4
+  m4/fflush.m4
   m4/filemode.m4
   m4/flexmember.m4
   m4/float_h.m4
+  m4/fnmatch_h.m4
   m4/fopen.m4
   m4/fpending.m4
   m4/fpieee.m4
+  m4/fpurge.m4
+  m4/freading.m4
   m4/fseek.m4
   m4/fseeko.m4
   m4/fstat.m4
@@ -1763,13 +1885,14 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/gl-openssl.m4
   m4/glibc2.m4
   m4/glibc21.m4
+  m4/glob_h.m4
   m4/gnu-make.m4
   m4/gnulib-common.m4
   m4/group-member.m4
-  m4/hard-locale.m4
   m4/host-cpu-c-abi.m4
   m4/host-os.m4
   m4/iconv.m4
+  m4/iconv_h.m4
   m4/include_next.m4
   m4/inline.m4
   m4/intdiv0.m4
@@ -1783,6 +1906,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/ioctl.m4
   m4/jm-winsz1.m4
   m4/jm-winsz2.m4
+  m4/langinfo_h.m4
   m4/largefile.m4
   m4/lcmessage.m4
   m4/ldd.m4
@@ -1794,6 +1918,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/locale-fr.m4
   m4/locale-ja.m4
   m4/locale-zh.m4
+  m4/locale_h.m4
   m4/localtime-buffer.m4
   m4/lock.m4
   m4/longlong.m4
@@ -1818,7 +1943,9 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/mktime.m4
   m4/mmap-anon.m4
   m4/mode_t.m4
+  m4/monetary_h.m4
   m4/multiarch.m4
+  m4/netdb_h.m4
   m4/nls.m4
   m4/no-c++.m4
   m4/nocrash.m4
@@ -1834,8 +1961,10 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/perror.m4
   m4/pipe2.m4
   m4/po.m4
+  m4/poll_h.m4
   m4/posix_openpt.m4
   m4/posix_spawn.m4
+  m4/posixcheck.m4
   m4/printf-posix.m4
   m4/progtest.m4
   m4/pselect.m4
@@ -1853,6 +1982,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/rename.m4
   m4/rmdir.m4
   m4/sched_h.m4
+  m4/search_h.m4
   m4/secure_getenv.m4
   m4/setenv.m4
   m4/sha1.m4
@@ -1894,6 +2024,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/strtoull.m4
   m4/strtoumax.m4
   m4/symlink.m4
+  m4/sys_file_h.m4
   m4/sys_ioctl_h.m4
   m4/sys_resource_h.m4
   m4/sys_select_h.m4
@@ -1906,6 +2037,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/sys_utsname_h.m4
   m4/sys_wait_h.m4
   m4/tempname.m4
+  m4/termios_h.m4
   m4/threadlib.m4
   m4/time_h.m4
   m4/time_r.m4
