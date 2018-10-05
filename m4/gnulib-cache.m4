@@ -187,7 +187,6 @@
 #  mbsrchr \
 #  memchr \
 #  memrchr \
-#  mkostemp \
 #  mktime \
 #  multiarch \
 #  nextafter \
@@ -441,7 +440,6 @@ gl_MODULES([
   mbsrchr
   memchr
   memrchr
-  mkostemp
   mktime
   multiarch
   nextafter

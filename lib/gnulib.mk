@@ -182,7 +182,6 @@
 #  mbsrchr \
 #  memchr \
 #  memrchr \
-#  mkostemp \
 #  mktime \
 #  multiarch \
 #  nextafter \
@@ -1921,15 +1920,6 @@ EXTRA_libgnu_a_SOURCES += memrchr.c
 libgnu_a_SOURCES += minmax.h
 
 ## end   gnulib module minmax
-
-## begin gnulib module mkostemp
-
-
-EXTRA_DIST += mkostemp.c
-
-EXTRA_libgnu_a_SOURCES += mkostemp.c
-
-## end   gnulib module mkostemp
 
 ## begin gnulib module mktime
 

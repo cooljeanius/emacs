@@ -219,7 +219,6 @@
 #  mbsrchr \
 #  memchr \
 #  memrchr \
-#  mkostemp \
 #  mktime \
 #  multiarch \
 #  nextafter \
@@ -613,7 +612,7 @@ host_triplet = @host@
 @BUILDING_FOR_WINDOWSNT_FALSE@	malloca.h math.in.h mbchar.h \
 @BUILDING_FOR_WINDOWSNT_FALSE@	mbrtowc.c mbsinit.c memchr.c \
 @BUILDING_FOR_WINDOWSNT_FALSE@	memchr.valgrind memcmp.c \
-@BUILDING_FOR_WINDOWSNT_FALSE@	memmove.c memrchr.c mkostemp.c \
+@BUILDING_FOR_WINDOWSNT_FALSE@	memmove.c memrchr.c \
 @BUILDING_FOR_WINDOWSNT_FALSE@	mktime-internal.h mktime.c \
 @BUILDING_FOR_WINDOWSNT_FALSE@	mktime-internal.h mktime.c \
 @BUILDING_FOR_WINDOWSNT_FALSE@	strftime.h obstack.c obstack.h \
@@ -794,14 +793,14 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/00gnulib.m4 \
 	$(top_srcdir)/m4/mbstate_t.m4 $(top_srcdir)/m4/md5.m4 \
 	$(top_srcdir)/m4/memchr.m4 $(top_srcdir)/m4/memcmp.m4 \
 	$(top_srcdir)/m4/memmove.m4 $(top_srcdir)/m4/memrchr.m4 \
-	$(top_srcdir)/m4/minmax.m4 $(top_srcdir)/m4/mkostemp.m4 \
-	$(top_srcdir)/m4/mktime.m4 $(top_srcdir)/m4/mmap-anon.m4 \
-	$(top_srcdir)/m4/mode_t.m4 $(top_srcdir)/m4/msvc-inval.m4 \
-	$(top_srcdir)/m4/multiarch.m4 $(top_srcdir)/m4/nls.m4 \
-	$(top_srcdir)/m4/no-c++.m4 $(top_srcdir)/m4/nocrash.m4 \
-	$(top_srcdir)/m4/nstrftime.m4 $(top_srcdir)/m4/obstack.m4 \
-	$(top_srcdir)/m4/off_t.m4 $(top_srcdir)/m4/open-cloexec.m4 \
-	$(top_srcdir)/m4/openat.m4 $(top_srcdir)/m4/pagealign_alloc.m4 \
+	$(top_srcdir)/m4/minmax.m4 $(top_srcdir)/m4/mktime.m4 \
+	$(top_srcdir)/m4/mmap-anon.m4 $(top_srcdir)/m4/mode_t.m4 \
+	$(top_srcdir)/m4/msvc-inval.m4 $(top_srcdir)/m4/multiarch.m4 \
+	$(top_srcdir)/m4/nls.m4 $(top_srcdir)/m4/no-c++.m4 \
+	$(top_srcdir)/m4/nocrash.m4 $(top_srcdir)/m4/nstrftime.m4 \
+	$(top_srcdir)/m4/obstack.m4 $(top_srcdir)/m4/off_t.m4 \
+	$(top_srcdir)/m4/open-cloexec.m4 $(top_srcdir)/m4/openat.m4 \
+	$(top_srcdir)/m4/pagealign_alloc.m4 \
 	$(top_srcdir)/m4/pathmax.m4 $(top_srcdir)/m4/perror.m4 \
 	$(top_srcdir)/m4/pipe2.m4 $(top_srcdir)/m4/pkg.m4 \
 	$(top_srcdir)/m4/po.m4 $(top_srcdir)/m4/posix_openpt.m4 \
@@ -1008,16 +1007,15 @@ am__EXTRA_libgnu_a_SOURCES_DIST = acl_entries.c alloca.c openat-proc.c \
 	getopt.c getopt1.c getpagesize.c getpass.c gettimeofday.c \
 	group-member.c ioctl.c iswblank.c localtime-buffer.c lseek.c \
 	lstat.c mbrtowc.c mbsinit.c memchr.c memcmp.c memmove.c \
-	memrchr.c mkostemp.c mktime.c obstack.c open.c openat.c \
-	perror.c posix_openpt.c spawni.c spawnp.c pselect.c \
-	pthread_sigmask.c putenv.c rawmemchr.c read.c readdir.c \
-	readlink.c readlinkat.c realloc.c rename.c rmdir.c \
-	secure_getenv.c setenv.c sig2str.c stdio-write.c sleep.c \
-	stat.c stpcpy.c strchrnul.c strerror.c strerror-override.c \
-	strerror_r.c strstr.c strtoimax.c strtol.c strtoll.c strtoul.c \
-	strtoull.c strtoumax.c symlink.c time_r.c time_rz.c timegm.c \
-	times.c tzset.c uname.c unlink.c unsetenv.c utime.c waitpid.c \
-	wcwidth.c write.c msvc-inval.c
+	memrchr.c mktime.c obstack.c open.c openat.c perror.c \
+	posix_openpt.c spawni.c spawnp.c pselect.c pthread_sigmask.c \
+	putenv.c rawmemchr.c read.c readdir.c readlink.c readlinkat.c \
+	realloc.c rename.c rmdir.c secure_getenv.c setenv.c sig2str.c \
+	stdio-write.c sleep.c stat.c stpcpy.c strchrnul.c strerror.c \
+	strerror-override.c strerror_r.c strstr.c strtoimax.c strtol.c \
+	strtoll.c strtoul.c strtoull.c strtoumax.c symlink.c time_r.c \
+	time_rz.c timegm.c times.c tzset.c uname.c unlink.c unsetenv.c \
+	utime.c waitpid.c wcwidth.c write.c msvc-inval.c
 libgnu_a_OBJECTS = $(am_libgnu_a_OBJECTS)
 SCRIPTS = $(noinst_SCRIPTS)
 AM_V_P = $(am__v_P_@AM_V@)
@@ -1082,49 +1080,48 @@ am__depfiles_remade = ./$(DEPDIR)/acl-errno-valid.Po \
 	./$(DEPDIR)/mbsrchr.Po ./$(DEPDIR)/mbuiter.Po \
 	./$(DEPDIR)/md5.Po ./$(DEPDIR)/memchr.Po ./$(DEPDIR)/memcmp.Po \
 	./$(DEPDIR)/memmove.Po ./$(DEPDIR)/memrchr.Po \
-	./$(DEPDIR)/mkostemp.Po ./$(DEPDIR)/mktime.Po \
-	./$(DEPDIR)/msvc-inval.Po ./$(DEPDIR)/nstrftime.Po \
-	./$(DEPDIR)/obstack.Po ./$(DEPDIR)/open.Po \
-	./$(DEPDIR)/openat-die.Po ./$(DEPDIR)/openat-proc.Po \
-	./$(DEPDIR)/openat.Po ./$(DEPDIR)/pagealign_alloc.Po \
-	./$(DEPDIR)/perror.Po ./$(DEPDIR)/pipe2.Po \
-	./$(DEPDIR)/posix_openpt.Po ./$(DEPDIR)/progname.Po \
-	./$(DEPDIR)/pselect.Po ./$(DEPDIR)/pthread_sigmask.Po \
-	./$(DEPDIR)/putenv.Po ./$(DEPDIR)/qcopy-acl.Po \
-	./$(DEPDIR)/qset-acl.Po ./$(DEPDIR)/quotearg.Po \
-	./$(DEPDIR)/rawmemchr.Po ./$(DEPDIR)/read.Po \
-	./$(DEPDIR)/readdir.Po ./$(DEPDIR)/readlink.Po \
-	./$(DEPDIR)/readlinkat.Po ./$(DEPDIR)/realloc.Po \
-	./$(DEPDIR)/rename.Po ./$(DEPDIR)/rmdir.Po \
-	./$(DEPDIR)/save-cwd.Po ./$(DEPDIR)/secure_getenv.Po \
-	./$(DEPDIR)/set-acl.Po ./$(DEPDIR)/set-permissions.Po \
-	./$(DEPDIR)/setenv.Po ./$(DEPDIR)/sha1.Po \
-	./$(DEPDIR)/sha256.Po ./$(DEPDIR)/sha512.Po \
-	./$(DEPDIR)/sig2str.Po ./$(DEPDIR)/sleep.Po \
-	./$(DEPDIR)/sockets.Po ./$(DEPDIR)/spawni.Po \
-	./$(DEPDIR)/spawnp.Po ./$(DEPDIR)/stat-time.Po \
-	./$(DEPDIR)/stat-w32.Po ./$(DEPDIR)/stat.Po \
-	./$(DEPDIR)/stdio-write.Po ./$(DEPDIR)/stpcpy.Po \
-	./$(DEPDIR)/strchrnul.Po ./$(DEPDIR)/strerror-override.Po \
-	./$(DEPDIR)/strerror.Po ./$(DEPDIR)/strerror_r.Po \
-	./$(DEPDIR)/strftime.Po ./$(DEPDIR)/stripslash.Po \
-	./$(DEPDIR)/strnlen1.Po ./$(DEPDIR)/strstr.Po \
-	./$(DEPDIR)/strtoimax.Po ./$(DEPDIR)/strtol.Po \
-	./$(DEPDIR)/strtoll.Po ./$(DEPDIR)/strtoul.Po \
-	./$(DEPDIR)/strtoull.Po ./$(DEPDIR)/strtoumax.Po \
-	./$(DEPDIR)/symlink.Po ./$(DEPDIR)/sys_socket.Po \
-	./$(DEPDIR)/tempname.Po ./$(DEPDIR)/time_r.Po \
-	./$(DEPDIR)/time_rz.Po ./$(DEPDIR)/timegm.Po \
-	./$(DEPDIR)/times.Po ./$(DEPDIR)/timespec-add.Po \
-	./$(DEPDIR)/timespec-sub.Po ./$(DEPDIR)/timespec.Po \
-	./$(DEPDIR)/tzset.Po ./$(DEPDIR)/u64.Po ./$(DEPDIR)/uname.Po \
-	./$(DEPDIR)/unistd.Po ./$(DEPDIR)/unlink.Po \
-	./$(DEPDIR)/unsetenv.Po ./$(DEPDIR)/utime.Po \
-	./$(DEPDIR)/utimens.Po ./$(DEPDIR)/vma-iter.Po \
-	./$(DEPDIR)/waitpid.Po ./$(DEPDIR)/wctype-h.Po \
-	./$(DEPDIR)/wcwidth.Po ./$(DEPDIR)/write.Po \
-	./$(DEPDIR)/xalloc-die.Po ./$(DEPDIR)/xmalloc.Po \
-	uniwidth/$(DEPDIR)/width.Po
+	./$(DEPDIR)/mktime.Po ./$(DEPDIR)/msvc-inval.Po \
+	./$(DEPDIR)/nstrftime.Po ./$(DEPDIR)/obstack.Po \
+	./$(DEPDIR)/open.Po ./$(DEPDIR)/openat-die.Po \
+	./$(DEPDIR)/openat-proc.Po ./$(DEPDIR)/openat.Po \
+	./$(DEPDIR)/pagealign_alloc.Po ./$(DEPDIR)/perror.Po \
+	./$(DEPDIR)/pipe2.Po ./$(DEPDIR)/posix_openpt.Po \
+	./$(DEPDIR)/progname.Po ./$(DEPDIR)/pselect.Po \
+	./$(DEPDIR)/pthread_sigmask.Po ./$(DEPDIR)/putenv.Po \
+	./$(DEPDIR)/qcopy-acl.Po ./$(DEPDIR)/qset-acl.Po \
+	./$(DEPDIR)/quotearg.Po ./$(DEPDIR)/rawmemchr.Po \
+	./$(DEPDIR)/read.Po ./$(DEPDIR)/readdir.Po \
+	./$(DEPDIR)/readlink.Po ./$(DEPDIR)/readlinkat.Po \
+	./$(DEPDIR)/realloc.Po ./$(DEPDIR)/rename.Po \
+	./$(DEPDIR)/rmdir.Po ./$(DEPDIR)/save-cwd.Po \
+	./$(DEPDIR)/secure_getenv.Po ./$(DEPDIR)/set-acl.Po \
+	./$(DEPDIR)/set-permissions.Po ./$(DEPDIR)/setenv.Po \
+	./$(DEPDIR)/sha1.Po ./$(DEPDIR)/sha256.Po \
+	./$(DEPDIR)/sha512.Po ./$(DEPDIR)/sig2str.Po \
+	./$(DEPDIR)/sleep.Po ./$(DEPDIR)/sockets.Po \
+	./$(DEPDIR)/spawni.Po ./$(DEPDIR)/spawnp.Po \
+	./$(DEPDIR)/stat-time.Po ./$(DEPDIR)/stat-w32.Po \
+	./$(DEPDIR)/stat.Po ./$(DEPDIR)/stdio-write.Po \
+	./$(DEPDIR)/stpcpy.Po ./$(DEPDIR)/strchrnul.Po \
+	./$(DEPDIR)/strerror-override.Po ./$(DEPDIR)/strerror.Po \
+	./$(DEPDIR)/strerror_r.Po ./$(DEPDIR)/strftime.Po \
+	./$(DEPDIR)/stripslash.Po ./$(DEPDIR)/strnlen1.Po \
+	./$(DEPDIR)/strstr.Po ./$(DEPDIR)/strtoimax.Po \
+	./$(DEPDIR)/strtol.Po ./$(DEPDIR)/strtoll.Po \
+	./$(DEPDIR)/strtoul.Po ./$(DEPDIR)/strtoull.Po \
+	./$(DEPDIR)/strtoumax.Po ./$(DEPDIR)/symlink.Po \
+	./$(DEPDIR)/sys_socket.Po ./$(DEPDIR)/tempname.Po \
+	./$(DEPDIR)/time_r.Po ./$(DEPDIR)/time_rz.Po \
+	./$(DEPDIR)/timegm.Po ./$(DEPDIR)/times.Po \
+	./$(DEPDIR)/timespec-add.Po ./$(DEPDIR)/timespec-sub.Po \
+	./$(DEPDIR)/timespec.Po ./$(DEPDIR)/tzset.Po \
+	./$(DEPDIR)/u64.Po ./$(DEPDIR)/uname.Po ./$(DEPDIR)/unistd.Po \
+	./$(DEPDIR)/unlink.Po ./$(DEPDIR)/unsetenv.Po \
+	./$(DEPDIR)/utime.Po ./$(DEPDIR)/utimens.Po \
+	./$(DEPDIR)/vma-iter.Po ./$(DEPDIR)/waitpid.Po \
+	./$(DEPDIR)/wctype-h.Po ./$(DEPDIR)/wcwidth.Po \
+	./$(DEPDIR)/write.Po ./$(DEPDIR)/xalloc-die.Po \
+	./$(DEPDIR)/xmalloc.Po uniwidth/$(DEPDIR)/width.Po
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -2849,10 +2846,10 @@ AM_DEFAULT_INCLUDES = $(AM_CPPFLAGS)
 @BUILDING_FOR_WINDOWSNT_FALSE@	localtime-buffer.c lseek.c \
 @BUILDING_FOR_WINDOWSNT_FALSE@	lstat.c mbrtowc.c mbsinit.c \
 @BUILDING_FOR_WINDOWSNT_FALSE@	memchr.c memcmp.c memmove.c \
-@BUILDING_FOR_WINDOWSNT_FALSE@	memrchr.c mkostemp.c mktime.c \
-@BUILDING_FOR_WINDOWSNT_FALSE@	mktime.c obstack.c open.c \
-@BUILDING_FOR_WINDOWSNT_FALSE@	openat.c perror.c posix_openpt.c \
-@BUILDING_FOR_WINDOWSNT_FALSE@	spawni.c spawnp.c pselect.c \
+@BUILDING_FOR_WINDOWSNT_FALSE@	memrchr.c mktime.c mktime.c \
+@BUILDING_FOR_WINDOWSNT_FALSE@	obstack.c open.c openat.c \
+@BUILDING_FOR_WINDOWSNT_FALSE@	perror.c posix_openpt.c spawni.c \
+@BUILDING_FOR_WINDOWSNT_FALSE@	spawnp.c pselect.c \
 @BUILDING_FOR_WINDOWSNT_FALSE@	pthread_sigmask.c putenv.c \
 @BUILDING_FOR_WINDOWSNT_FALSE@	rawmemchr.c read.c readdir.c \
 @BUILDING_FOR_WINDOWSNT_FALSE@	readlink.c at-func.c \
@@ -3083,7 +3080,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/memcmp.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/memmove.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/memrchr.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mkostemp.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mktime.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/msvc-inval.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nstrftime.Po@am__quote@ # am--include-marker
@@ -3432,7 +3428,6 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/memcmp.Po
 	-rm -f ./$(DEPDIR)/memmove.Po
 	-rm -f ./$(DEPDIR)/memrchr.Po
-	-rm -f ./$(DEPDIR)/mkostemp.Po
 	-rm -f ./$(DEPDIR)/mktime.Po
 	-rm -f ./$(DEPDIR)/msvc-inval.Po
 	-rm -f ./$(DEPDIR)/nstrftime.Po
@@ -3656,7 +3651,6 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/memcmp.Po
 	-rm -f ./$(DEPDIR)/memmove.Po
 	-rm -f ./$(DEPDIR)/memrchr.Po
-	-rm -f ./$(DEPDIR)/mkostemp.Po
 	-rm -f ./$(DEPDIR)/mktime.Po
 	-rm -f ./$(DEPDIR)/msvc-inval.Po
 	-rm -f ./$(DEPDIR)/nstrftime.Po

@@ -4870,7 +4870,6 @@ as_fn_append ac_header_list " crtdefs.h"
 as_fn_append ac_header_list " wctype.h"
 as_fn_append ac_func_list " iswblank"
 as_fn_append ac_header_list " math.h"
-as_fn_append ac_func_list " mkostemp"
 as_fn_append ac_func_list " openat"
 as_fn_append ac_func_list " posix_memalign"
 as_fn_append ac_func_list " pipe2"
@@ -13298,7 +13297,6 @@ $as_echo "$as_me: autobuild timestamp... $date" >&6;}
   # Code from module memmove:
   # Code from module memrchr:
   # Code from module minmax:
-  # Code from module mkostemp:
   # Code from module mktime:
   # Code from module mktime-internal:
   # Code from module multiarch:
@@ -65792,8 +65790,6 @@ $as_echo "#define HAVE_MINMAX_IN_SYS_PARAM_H 1" >>confdefs.h
 
 
 
-
-
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for O_CLOEXEC" >&5
 $as_echo_n "checking for O_CLOEXEC... " >&6; }
 if ${gl_cv_macro_O_CLOEXEC+:} false; then :
@@ -75845,48 +75841,6 @@ done
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-  if test $ac_cv_func_mkostemp != yes; then
-    HAVE_MKOSTEMP=0
-  fi
-
-  if test $HAVE_MKOSTEMP = 0; then
-
-
-
-
-
-
-
-
-  gl_LIBOBJS="$gl_LIBOBJS mkostemp.$ac_objext"
-
-
-
-  fi
-
-
-cat >>confdefs.h <<_ACEOF
-#define GNULIB_MKOSTEMP 1
-_ACEOF
-
-
-
-
-
-
-
-          GNULIB_MKOSTEMP=1
 
 
 

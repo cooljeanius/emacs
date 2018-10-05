@@ -81,7 +81,7 @@ else
       largefile ldd limits-h localcharset localtime-buffer longlong \
       lseek lstat \
       maintainer-makefile manywarnings math mbschr mbsinit mbsrchr memchr \
-      memrchr mkostemp mktime multiarch \
+      memrchr mktime multiarch \
       nextafter no-c++ nocrash nstrftime \
       obstack open openat openat-die openat-h openmp \
       pagealign_alloc pathmax perror pipe2 posix_openpt posix_spawnp \
@@ -119,6 +119,8 @@ else
    # - likewise with snprintf and snprintf-posix
    # - sigaction, which depends on sigprocmask, which is avoided
    # - posixcheck, which breaks stuff
+   # - mkostemp, which drags <unistd.h> into <stdlib.h> which breaks
+   #   unexmacosx.c
    # (even though I cannot add them, there is no need to explicitly ignore
    # them below, though)
    # Other obsolete modules that I have stopped explicitly adding:

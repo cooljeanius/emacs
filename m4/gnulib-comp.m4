@@ -196,7 +196,6 @@ AC_DEFUN([gl_EARLY],
   # Code from module memmove:
   # Code from module memrchr:
   # Code from module minmax:
-  # Code from module mkostemp:
   # Code from module mktime:
   # Code from module mktime-internal:
   # Code from module multiarch:
@@ -724,13 +723,6 @@ AC_DEFUN([gl_INIT],
   fi
   gl_STRING_MODULE_INDICATOR([memrchr])
   gl_MINMAX
-  gl_FUNC_MKOSTEMP
-  if test $HAVE_MKOSTEMP = 0; then
-    AC_LIBOBJ([mkostemp])
-    gl_PREREQ_MKOSTEMP
-  fi
-  gl_MODULE_INDICATOR([mkostemp])
-  gl_STDLIB_MODULE_INDICATOR([mkostemp])
   gl_FUNC_MKTIME
   if test $REPLACE_MKTIME = 1; then
     AC_LIBOBJ([mktime])
@@ -1643,7 +1635,6 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/memmove.c
   lib/memrchr.c
   lib/minmax.h
-  lib/mkostemp.c
   lib/mktime-internal.h
   lib/mktime.c
   lib/nstrftime.c
@@ -1934,7 +1925,6 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/memmove.m4
   m4/memrchr.m4
   m4/minmax.m4
-  m4/mkostemp.m4
   m4/mktime.m4
   m4/mmap-anon.m4
   m4/mode_t.m4
