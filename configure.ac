@@ -3674,15 +3674,8 @@ else
       AC_MSG_NOTICE([skipping checks for warnings for gcc 7.0 or newer])
     ])dnl# end block of code for gcc 7
 
-    dnl# to be added in a future version of gcc:
+    dnl# gcc 8 has been released:
     gl_GCC_VERSION_IFELSE([8],[0],[
-      gl_WARN_ADD([-Wenum-conversion])dnl
-      gl_WARN_ADD([-Wsizeof-pointer-div])dnl
-      gl_WARN_ADD([-Wmultistatement-macros])dnl
-      gl_WARN_ADD([-Wif-not-aligned])dnl
-      gl_WARN_ADD([-Wpacked-not-aligned])dnl
-      gl_WARN_ADD([-Wcast-align=strict])dnl
-      gl_WARN_ADD([-Wcast-function-type])dnl
       gl_COMPILER_OPTION_IF([-Wstringop-truncation=2],
                       [WARN_CFLAGS="${WARN_CFLAGS} -Wstringop-truncation=2"],
                       [gl_WARN_ADD([-Wstringop-truncation])])
@@ -3698,6 +3691,21 @@ else
     ],[
       AC_MSG_NOTICE([skipping checks for warnings for gcc 8.0 or newer])
     ])dnl# end block of code for gcc 8
+
+    dnl# to be added in a future version of gcc:
+    gl_GCC_VERSION_IFELSE([9],[0],[
+      gl_WARN_ADD([-Wenum-conversion])dnl
+      if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
+        AC_LANG_PUSH([C++])dnl
+        gl_WARN_ADD([-Wdeprecated-copy],[WARN_CXXFLAGS])
+        gl_WARN_ADD([-Winit-list-lifetime],[WARN_CXXFLAGS])
+        AC_LANG_POP
+      else
+        AC_MSG_NOTICE([-Wdeprecated-copy only relevant for C++, skipping it])
+      fi  ##end check for C++ compiler
+    ],[
+      AC_MSG_NOTICE([skipping checks for warnings for gcc 9.0 or newer])
+    ])dnl# end block of code for gcc 9
 
     if test "x${emacs_cv_clang}" = "xyes"; then
       gl_WARN_ADD([-Wgcc-compat])

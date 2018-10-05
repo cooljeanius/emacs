@@ -90,7 +90,24 @@ struct linebuffer
 extern char *strtok(char *, const char *);
 #endif /* !_STRING_H_ */
 
-long *xmalloc(unsigned int size);
+#ifndef GCC_VERSION
+# define GCC_VERSION (__GNUC__ * 1000 + __GNUC_MINOR__)
+#endif /* GCC_VERSION */
+
+#if (GCC_VERSION < 2007)
+# define __attribute__(x)
+#endif /* gcc pre-2.7 */
+
+/* Attribute __malloc__ on functions was valid as of gcc 2.96. */
+#ifndef ATTRIBUTE_MALLOC
+# if (GCC_VERSION >= 2096)
+#  define ATTRIBUTE_MALLOC __attribute__((__malloc__))
+# else
+#  define ATTRIBUTE_MALLOC
+# endif /* GNUC >= 2.96 */
+#endif /* ATTRIBUTE_MALLOC */
+
+long *xmalloc(unsigned int size) ATTRIBUTE_MALLOC;
 long *xrealloc(char *ptr, unsigned int size);
 char *concat(const char *s1, const char *s2, const char *s3);
 long readline(struct linebuffer *linebuffer, register FILE *stream);

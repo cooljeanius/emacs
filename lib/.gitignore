@@ -2,9 +2,14 @@
 
 # general build output:
 *deps/*.*o
+*/*deps/*.*o
 .deps/.dirstamp
+*/.deps/.dirstamp
+*/.dirstamp
 *.o
+*/*.o
 lib*.a
+*/lib*.a
 
 # built headers:
 alloca.h
@@ -60,6 +65,8 @@ sys/wait.h
 termios.h
 time.h
 unistd.h
+unitypes.h
+uniwidth.h
 utime.h
 wchar.h
 wctype.h

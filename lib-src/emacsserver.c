@@ -98,6 +98,23 @@ extern int errno;
 # endif /* RETSIGTYPE */
 #endif /* !SIGTYPE */
 
+#ifndef GCC_VERSION
+# define GCC_VERSION (__GNUC__ * 1000 + __GNUC_MINOR__)
+#endif /* GCC_VERSION */
+
+#if (GCC_VERSION < 2007)
+# define __attribute__(x)
+#endif /* gcc pre-2.7 */
+
+/* Attribute __malloc__ on functions was valid as of gcc 2.96. */
+#ifndef ATTRIBUTE_MALLOC
+# if (GCC_VERSION >= 2096)
+#  define ATTRIBUTE_MALLOC __attribute__((__malloc__))
+# else
+#  define ATTRIBUTE_MALLOC
+# endif /* GNUC >= 2.96 */
+#endif /* ATTRIBUTE_MALLOC */
+
 /* This is the file name of the socket that we made: */
 char *socket_name;
 
@@ -109,7 +126,7 @@ extern SIGTYPE delete_socket(int sig);
 extern void handle_signals(void);
 extern void error(const char *s1, char *s2);
 extern _Noreturn void fatal(const char *s1, char *s2);
-extern long *xmalloc(unsigned int size);
+extern long *xmalloc(unsigned int size) ATTRIBUTE_MALLOC;
 
 /* Handle fatal signals: */
 

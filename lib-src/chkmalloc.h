@@ -6,6 +6,23 @@
 #ifndef CHKMALLOC_H
 #define CHKMALLOC_H 1
 
+#ifndef GCC_VERSION
+# define GCC_VERSION (__GNUC__ * 1000 + __GNUC_MINOR__)
+#endif /* GCC_VERSION */
+
+#if (GCC_VERSION < 2007)
+# define __attribute__(x)
+#endif /* gcc pre-2.7 */
+
+/* Attribute __malloc__ on functions was valid as of gcc 2.96. */
+#ifndef ATTRIBUTE_MALLOC
+# if (GCC_VERSION >= 2096)
+#  define ATTRIBUTE_MALLOC __attribute__((__malloc__))
+# else
+#  define ATTRIBUTE_MALLOC
+# endif /* GNUC >= 2.96 */
+#endif /* ATTRIBUTE_MALLOC */
+
 #if defined(__STDC__) || defined(PROTOTYPES) || defined(__PROTOTYPES)
 # ifdef HAVE_STDLIB_H
 #  include <stdlib.h>
@@ -14,7 +31,9 @@
 #  ifndef _STDLIB_H_
 #   define _STDLIB_H_ 1
 #  endif /* !_STDLIB_H_ */
-extern void *calloc(int, int), *malloc(int), *realloc(void *, int);
+extern void *calloc(int, int);
+extern void *malloc(int) ATTRIBUTE_MALLOC;
+extern void *realloc(void *, int);
 extern void free(void *ptr);
 # endif /* HAVE_STDLIB_H */
 extern void *trace_malloc(char const *, int, size_t);

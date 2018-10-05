@@ -479,9 +479,11 @@ etags${EXEEXT}: $(etags_deps)
 	$(AM_V_CCLD)$(CC) ${ALL_CFLAGS} $(etags_DEFS) ${srcdir}/etags.c \
 	  $(etags_libs) -o etags${EXEEXT}
 
+ebrowse_libs = $(LOADLIBES) $(NTLIB) $(LIBINTL) $(INTLLIBS)
+
 ebrowse${EXEEXT}: ${srcdir}/ebrowse.c ${srcdir}/$(lib)/min-max.h $(stddep)
 	$(AM_V_CCLD)$(CC) ${ALL_CFLAGS} -DVERSION="\"${version}\"" \
-	  ${srcdir}/ebrowse.c $(LOADLIBES) $(NTLIB) -o ebrowse${EXEEXT}
+	  ${srcdir}/ebrowse.c $(ebrowse_libs) -o ebrowse${EXEEXT}
 
 ## We depend on etags to assure that parallel makes do not write two
 ## etags.o files on top of each other.

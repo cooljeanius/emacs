@@ -113,10 +113,12 @@
 #  extensions \
 #  extern-inline \
 #  faccessat \
+#  fclose \
 #  fcntl \
 #  fcntl-h \
 #  fdatasync \
 #  fdopendir \
+#  fflush \
 #  file-has-acl \
 #  filemode \
 #  filevercmp \
@@ -180,7 +182,9 @@
 #  maintainer-makefile \
 #  manywarnings \
 #  math \
+#  mbschr \
 #  mbsinit \
+#  mbsrchr \
 #  memchr \
 #  memrchr \
 #  mkostemp \
@@ -202,7 +206,6 @@
 #  pipe2 \
 #  posix_openpt \
 #  posix_spawnp \
-#  posixcheck \
 #  printf-safe \
 #  progname \
 #  pselect \
@@ -364,10 +367,12 @@ gl_MODULES([
   extensions
   extern-inline
   faccessat
+  fclose
   fcntl
   fcntl-h
   fdatasync
   fdopendir
+  fflush
   file-has-acl
   filemode
   filevercmp
@@ -431,7 +436,9 @@ gl_MODULES([
   maintainer-makefile
   manywarnings
   math
+  mbschr
   mbsinit
+  mbsrchr
   memchr
   memrchr
   mkostemp
@@ -453,7 +460,6 @@ gl_MODULES([
   pipe2
   posix_openpt
   posix_spawnp
-  posixcheck
   printf-safe
   progname
   pselect

@@ -69,9 +69,9 @@ else
       dtoastr dtotimespec dup2 \
       environ errno error execinfo euidaccess explicit_bzero extensions \
       extern-inline \
-      faccessat fcntl fcntl-h fdatasync fdopendir file-has-acl filemode \
-      filevercmp flexmember float fopen fpending fpieee fpucw fseek fseeko \
-      fstat fstatat fsusage fsync ftell ftello ftoastr ftruncate func \
+      faccessat fclose fcntl fcntl-h fdatasync fdopendir fflush file-has-acl \
+      filemode filevercmp flexmember float fopen fpending fpieee fpucw fseek \
+      fseeko fstat fstatat fsusage fsync ftell ftello ftoastr ftruncate func \
       gendocs getdelim getdtablesize getgroups gethostname getline \
       getloadavg getlogin getopt-gnu getopt-posix getpagesize getpass \
       getpass-gnu getprogname gettext gettext-h gettime gettimeofday \
@@ -80,12 +80,12 @@ else
       ignore-value include_next inline intprops inttypes-incomplete ioctl \
       largefile ldd limits-h localcharset localtime-buffer longlong \
       lseek lstat \
-      maintainer-makefile manywarnings math mbsinit memchr memrchr \
-      mkostemp mktime multiarch \
+      maintainer-makefile manywarnings math mbschr mbsinit mbsrchr memchr \
+      memrchr mkostemp mktime multiarch \
       nextafter no-c++ nocrash nstrftime \
       obstack open openat openat-die openat-h openmp \
       pagealign_alloc pathmax perror pipe2 posix_openpt posix_spawnp \
-      posixcheck printf-safe progname pselect pthread_sigmask pty putenv \
+      printf-safe progname pselect pthread_sigmask pty putenv \
       qacl qcopy-acl quote quotearg quotearg-simple \
       read readdir readlink readlinkat realloc-gnu realloc-posix rename \
       rmdir root-uid \
@@ -118,6 +118,7 @@ else
    #   printf-posix, which gets it indirectly via vfprintf-posix
    # - likewise with snprintf and snprintf-posix
    # - sigaction, which depends on sigprocmask, which is avoided
+   # - posixcheck, which breaks stuff
    # (even though I cannot add them, there is no need to explicitly ignore
    # them below, though)
    # Other obsolete modules that I have stopped explicitly adding:

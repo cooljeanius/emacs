@@ -57,7 +57,24 @@ Boston, MA 02110-1301, USA.  */
 extern char *getenv(const char *);
 #endif /* !HAVE_STDLIB_H && !_STDLIB_H_ && !getenv */
 
-extern char *xmalloc __P((unsigned));
+#ifndef GCC_VERSION
+# define GCC_VERSION (__GNUC__ * 1000 + __GNUC_MINOR__)
+#endif /* GCC_VERSION */
+
+#if (GCC_VERSION < 2007)
+# define __attribute__(x)
+#endif /* gcc pre-2.7 */
+
+/* Attribute __malloc__ on functions was valid as of gcc 2.96. */
+#ifndef ATTRIBUTE_MALLOC
+# if (GCC_VERSION >= 2096)
+#  define ATTRIBUTE_MALLOC __attribute__((__malloc__))
+# else
+#  define ATTRIBUTE_MALLOC
+# endif /* GNUC >= 2.96 */
+#endif /* ATTRIBUTE_MALLOC */
+
+extern char *xmalloc __P((unsigned)) ATTRIBUTE_MALLOC;
 extern char *xrealloc __P((char *, unsigned));
 extern void skip_to_lf __P((FILE *));
 extern _Noreturn void sysfail __P((char *));

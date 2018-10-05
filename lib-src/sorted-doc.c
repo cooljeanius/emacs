@@ -45,10 +45,28 @@
 # include <fcntl.h>		/* for O_BINARY */
 # include <io.h>		/* for setmode */
 #endif /* DOS_NT */
+
+#ifndef GCC_VERSION
+# define GCC_VERSION (__GNUC__ * 1000 + __GNUC_MINOR__)
+#endif /* GCC_VERSION */
+
+#if (GCC_VERSION < 2007)
+# define __attribute__(x)
+#endif /* gcc pre-2.7 */
+
+/* Attribute __malloc__ on functions was valid as of gcc 2.96. */
+#ifndef ATTRIBUTE_MALLOC
+# if (GCC_VERSION >= 2096)
+#  define ATTRIBUTE_MALLOC __attribute__((__malloc__))
+# else
+#  define ATTRIBUTE_MALLOC
+# endif /* GNUC >= 2.96 */
+#endif /* ATTRIBUTE_MALLOC */
+
 /* config.h includes <stdlib.h>: */
 #if !defined(HAVE_STDLIB_H) && !defined(_STDLIB_H_)
 # ifndef WINDOWSNT		/* src/s/ms-w32.h includes <stdlib.h> */
-extern char *malloc(size_t size);
+extern char *malloc(size_t size) ATTRIBUTE_MALLOC;
 # endif /* !WINDOWSNT */
 #endif /* !HAVE_STDLIB_H && !_STDLIB_H_ */
 
@@ -82,7 +100,7 @@ struct docstr			/* Allocated thing for an entry. */
 /* prototypes: */
 extern void error(const char *s1, const char *s2);
 extern _Noreturn void fatal(const char *s1, const char *s2);
-extern void *xmalloc(int size);
+extern void *xmalloc(int size) ATTRIBUTE_MALLOC;
 extern char *xstrdup(char *str);
 extern int cmpdoc(DOCSTR **a, DOCSTR **b);
 

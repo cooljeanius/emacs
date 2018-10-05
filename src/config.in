@@ -436,10 +436,6 @@
 /* Define to 1 to enable some gnulib portability checks */
 #undef GNULIB_PORTCHECK
 
-/* Define to enable warnings for determining which Gnulib modules to use, for
-   portability of POSIX functions. */
-#undef GNULIB_POSIXCHECK
-
 /* Define to 1 if printf and friends should be labeled with attribute
    "__gnu_printf__" instead of "__printf__" */
 #undef GNULIB_PRINTF_ATTRIBUTE_FLAVOR_GNU
@@ -874,6 +870,10 @@
    don't. */
 #undef HAVE_DECL_GETLOGIN
 
+/* Define to 1 if you have the declaration of `iswblank', and to 0 if you
+   don't. */
+#undef HAVE_DECL_ISWBLANK
+
 /* Define to 1 if you have the declaration of `localtime_r', and to 0 if you
    don't. */
 #undef HAVE_DECL_LOCALTIME_R
@@ -965,6 +965,10 @@
 /* Define to 1 if you have the declaration of `unsetenv', and to 0 if you
    don't. */
 #undef HAVE_DECL_UNSETENV
+
+/* Define to 1 if you have the declaration of `wcwidth', and to 0 if you
+   don't. */
+#undef HAVE_DECL_WCWIDTH
 
 /* Define to 1 if you have the declaration of `_fseeki64', and to 0 if you
    don't. */
@@ -1113,9 +1117,6 @@
 
 /* Define to 1 if you have the `fmod' function. */
 #undef HAVE_FMOD
-
-/* Define to 1 if you have the <fnmatch.h> header file. */
-#undef HAVE_FNMATCH_H
 
 /* Define to 1 if you have the `fork' function. */
 #undef HAVE_FORK
@@ -1303,9 +1304,6 @@
 /* Define to 1 if you have the <glib-object.h> header file. */
 #undef HAVE_GLIB_OBJECT_H
 
-/* Define to 1 if you have the <glob.h> header file. */
-#undef HAVE_GLOB_H
-
 /* Define to 1 if you have the <GNUstepBase/GSConfig.h> header file. */
 #undef HAVE_GNUSTEPBASE_GSCONFIG_H
 
@@ -1427,9 +1425,6 @@
 /* Define if you have the iconv() function and it works. */
 #undef HAVE_ICONV
 
-/* Define to 1 if you have the <iconv.h> header file. */
-#undef HAVE_ICONV_H
-
 /* Define to 1 if we have the 'id' program */
 #undef HAVE_ID_BIN
 
@@ -1474,6 +1469,9 @@
 
 /* Define to 1 if you have the `issetugid' function. */
 #undef HAVE_ISSETUGID
+
+/* Define to 1 if you have the `iswblank' function. */
+#undef HAVE_ISWBLANK
 
 /* Define to 1 if you have the `iswcntrl' function. */
 #undef HAVE_ISWCNTRL
@@ -1769,9 +1767,6 @@
 /* Define to 1 if you have a working `mmap' system call. */
 #undef HAVE_MMAP
 
-/* Define to 1 if you have the <monetary.h> header file. */
-#undef HAVE_MONETARY_H
-
 /* Define to 1 if you have the `mprotect' function. */
 #undef HAVE_MPROTECT
 
@@ -1879,9 +1874,6 @@
 
 /* Define to 1 if you have the `png_set_longjmp_fn' function. */
 #undef HAVE_PNG_SET_LONGJMP_FN
-
-/* Define to 1 if you have the <poll.h> header file. */
-#undef HAVE_POLL_H
 
 /* Define to 1 if you have the `posix_memalign' function. */
 #undef HAVE_POSIX_MEMALIGN
@@ -2696,6 +2688,9 @@
 /* Define to 1 if you have the <wctype.h> header file. */
 #undef HAVE_WCTYPE_H
 
+/* Define to 1 if you have the `wcwidth' function. */
+#undef HAVE_WCWIDTH
+
 /* Define to 1 if you have the <winbase.h> header file. */
 #undef HAVE_WINBASE_H
 
@@ -2805,9 +2800,6 @@
 /* Define to 1 if you have the Xkb extension. */
 #undef HAVE_XKB
 
-/* Define to 1 if you have the <xlocale.h> header file. */
-#undef HAVE_XLOCALE_H
-
 /* Define to 1 if you have the <Xm/Xm.h> header file. */
 #undef HAVE_XM_XM_H
 
@@ -2907,9 +2899,6 @@
 
 /* Define to 1 if you have the `__fsetlocking' function. */
 #undef HAVE___FSETLOCKING
-
-/* Define to 1 if the compiler supports the keyword '__inline'. */
-#undef HAVE___INLINE
 
 /* Define to 1 if you have the `__secure_getenv' function. */
 #undef HAVE___SECURE_GETENV
@@ -3565,9 +3554,6 @@
 
 /* Define for large files, on AIX-style hosts. */
 #undef _LARGE_FILES
-
-/* Define to 1 on Solaris. */
-#undef _LCONV_C99
 
 /* Define to 1 if on MINIX. */
 #undef _MINIX

@@ -180,6 +180,9 @@ INLINE bool timespec_valid_p(struct timespec t)
   return (t.tv_nsec >= 0);
 }
 
+/* The gnulib "timespec.h" has an extern definition of this that conflicts with
+ * this static one: */
+#ifndef TIMESPEC_H
 /* Return current system time.  */
 INLINE struct timespec current_timespec(void)
 {
@@ -187,6 +190,7 @@ INLINE struct timespec current_timespec(void)
   gettime(&r);
   return r;
 }
+#endif /* TIMESPEC_H */
 
 /* defined in sysdep.c */
 extern int set_file_times(int, const char *, struct timespec, struct timespec);

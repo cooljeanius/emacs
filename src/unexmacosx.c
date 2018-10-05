@@ -91,7 +91,8 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
    We want the undefined versions, but if config.h includes stdlib.h
    with the #define:s in place, the prototypes will be wrong and we get
    warnings.  To prevent that, include stdlib.h before config.h.  */
-
+/* FIXME: but now gnulib's <stdlib.h> includes gnulib's <unistd.h> which needs
+ * <config.h> to be included first... */
 #include <stdlib.h>
 #include <config.h>
 #undef malloc
@@ -1276,7 +1277,7 @@ enum secttype_flags_e
 #ifdef S_THREAD_LOCAL_ZEROFILL
   , S_THREAD_LOCAL_ZEROFILL_e = S_THREAD_LOCAL_ZEROFILL
 #endif /* S_THREAD_LOCAL_ZEROFILL */
-#ifdef S_THREAD_LOCAL_VARIABLES 
+#ifdef S_THREAD_LOCAL_VARIABLES
   , S_THREAD_LOCAL_VARIABLES_e = S_THREAD_LOCAL_VARIABLES
 #endif /* S_THREAD_LOCAL_VARIABLES */
 #ifdef S_THREAD_LOCAL_VARIABLE_POINTERS
