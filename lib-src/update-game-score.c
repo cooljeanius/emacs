@@ -441,7 +441,11 @@ write_scores (const char *filename, const struct score_entry *scores,
     return -1;
   strcpy (tempfile, filename);
   strcat (tempfile, ".tempXXXXXX");
-  fd = mkostemp (tempfile, 0);
+#ifdef HAVE_MKOSTEMP
+  fd = mkostemp(tempfile, 0);
+#else
+  fd = mkstemp(tempfile);
+#endif /* HAVE_MKOSTEMP */
   if (fd < 0)
     return -1;
 #ifndef WINDOWSNT

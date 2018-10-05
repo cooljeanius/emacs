@@ -994,9 +994,13 @@ create_temp_file (ptrdiff_t nargs, Lisp_Object *args,
     GCPRO1 (filename_string);
     tempfile = SSDATA (filename_string);
 
-    count = SPECPDL_INDEX ();
-    record_unwind_protect_nothing ();
-    fd = mkostemp (tempfile, O_CLOEXEC);
+    count = SPECPDL_INDEX();
+    record_unwind_protect_nothing();
+#ifdef HAVE_MKOSTEMP
+    fd = mkostemp(tempfile, O_CLOEXEC);
+#else
+    fd = mkstemp(tempfile);
+#endif /* HAVE_MKOSTEMP */
     if (fd < 0)
       report_file_error ("Failed to open temporary file using pattern",
 			 pattern);

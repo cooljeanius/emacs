@@ -205,8 +205,7 @@ get_boot_time (void)
 
       filename = Qnil;
 
-      tempname = make_formatted_string
-	(cmd_string, "%s.%d", WTMP_FILE, counter);
+      tempname = make_formatted_string(cmd_string, "%s.%d", WTMP_FILE, counter);
       if (! NILP (Ffile_exists_p (tempname)))
 	filename = tempname;
       else
@@ -419,7 +418,11 @@ create_lock_file (char *lfname, char *lock_info_str, bool force)
       memcpy (nonce, lfname, lfdirlen);
       strcpy (nonce + lfdirlen, nonce_base);
 
-      fd = mkostemp (nonce, O_BINARY | O_CLOEXEC);
+#ifdef HAVE_MKOSTEMP
+      fd = mkostemp(nonce, (O_BINARY | O_CLOEXEC));
+#else
+      fd = mkstemp(nonce);
+#endif /* HAVE_MKOSTEMP */
       if (fd < 0)
 	err = errno;
       else
