@@ -38,13 +38,15 @@
 # define _GLIBCXX_PERMIT_BACKWARD_HASH 1
 #endif /* !_GLIBCXX_PERMIT_BACKWARD_HASH */
 #include <ext/hash_set>
+/* FIXME: check for this header with autoconf and/or get the correct includes
+ * for it: */
 #if defined(__cplusplus) && defined(__GNUC__) && defined(__GNUC_MINOR__)
 # if ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 3))) || \
-     (defined(__clang__) && defined(__llvm__))
+     (defined(__clang__) && defined(__llvm__) && !defined(__clang_analyzer__))
 #  if (__cplusplus >= 201103L)
 #   include <unordered_set>
 #  endif /* c++11 */
-# endif /* gcc 4.3+ || clang */
+# endif /* gcc 4.3+ || clang, but not the static analyzer */
 #endif /* __cplusplus && __GNUC__ && __GNUC_MINOR__ */
 
 #include "configure.h"
@@ -167,12 +169,12 @@ private:
 
 
 	typedef __gnu_cxx::hash_set<const char*, __gnu_cxx::hash<const char*>, CStringEquals>  GnuStringSet;
-#if defined(__cplusplus) && (__cplusplus >= 201103L)
+#if defined(__cplusplus) && (__cplusplus >= 201103L) && !defined(__clang_analyzer__)
     typedef std::unordered_set<const char*, CStringHash, CStringEquals_s>  StdStringSet;
     typedef StdStringSet StringSet;
 #else
     typedef GnuStringSet StringSet;
-#endif /* c++11 */
+#endif /* c++11, but not the clang static analyzer */
 
 												MachOChecker(const uint8_t* fileContent, uint32_t fileLength, const char* path);
 	void										checkMachHeader();
@@ -1999,6 +2001,7 @@ static void check(const char* path)
 		if (mh->magic == OSSwapBigToHostInt32(FAT_MAGIC)) {
 			const struct fat_header* fh = (struct fat_header*)p;
 			const struct fat_arch* archs = (struct fat_arch*)(p + sizeof(struct fat_header));
+			/* FIXME: the clang static analyzer finds a potential memory leak in this loop: */
 			for (unsigned long i = 0UL; i < OSSwapBigToHostInt32(fh->nfat_arch); ++i) {
 				size_t offset = OSSwapBigToHostInt32(archs[i].offset);
 				size_t size = OSSwapBigToHostInt32(archs[i].size);
@@ -2079,6 +2082,8 @@ static void check(const char* path)
 	catch (const char* msg) {
 		throwf("%s in %s", msg, path);
 	}
+	/* FIXME: the clang static analyzer detects a potential memory leak at the
+	 * end of this function */
 }
 
 // might be worth moving this higher up in the program later, but as it is,

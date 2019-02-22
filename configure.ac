@@ -3354,6 +3354,21 @@ else
         gl_WARN_ADD([${acl_cv_wl}-warn_weak_exports],[WARN_LDFLAGS])
         gl_WARN_ADD([${acl_cv_wl}-warn_stabs],[WARN_LDFLAGS])
         gl_WARN_ADD([${acl_cv_wl}-warn_commons],[WARN_LDFLAGS])
+        gl_WARN_ADD([${acl_cv_wl}-arch_errors_fatal],[LD_ARCHFLAGS])
+        if test "x${LD_ARCHFLAGS}" != "x"; then
+          test -n "${LD_ARCHFLAGS}"
+          if test "x${ERROR_ON_WARNING}" = "xyes"; then
+            if test "x${WARN_LDFLAGS}" != "x"; then
+              test -n "${WARN_LDFLAGS}" && WARN_LDFLAGS="${WARN_LDFLAGS} ${LD_ARCHFLAGS}"
+            else
+              test -z "${WARN_LDFLAGS}" && WARN_LDFLAGS="${LD_ARCHFLAGS}"
+            fi
+          fi
+          AC_SUBST([LD_ARCHFLAGS])dnl
+          ## that should be all we need to do with them for now...
+        else
+          test -z "${LD_ARCHFLAGS}"
+        fi
         test -n "${LD_WARN_COMMONS}"
         ;;
       gnu*)
@@ -3698,6 +3713,7 @@ else
       if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
         AC_LANG_PUSH([C++])dnl
         gl_WARN_ADD([-Wdeprecated-copy],[WARN_CXXFLAGS])
+        gl_WARN_ADD([-Wdeprecated-copy-dtor],[WARN_CXXFLAGS])
         gl_WARN_ADD([-Winit-list-lifetime],[WARN_CXXFLAGS])
         AC_LANG_POP
       else
@@ -4568,6 +4584,19 @@ m4_ifdef([PKG_PROG_PKG_CONFIG],[
 ],[
 AC_PATH_PROG([PKG_CONFIG],[pkg-config],[no])dnl
 ])dnl# end ifdef
+
+if test -n "${PKG_CONFIG_PATH}"; then
+  AC_MSG_NOTICE([verifying PKG_CONFIG_PATH is sane...])
+  for pkcdir in `echo ${PKG_CONFIG_PATH} | tr : \\\n`; do
+    if test -d ${pkcdir}; then
+      stat ${pkcdir}
+    else
+      AC_MSG_WARN([directory ${pkcdir} in PKG_CONFIG_PATH is missing])
+    fi
+  done
+else
+  test -z "${PKG_CONFIG_PATH}" && echo "PKG_CONFIG_PATH is unset."
+fi
 
 dnl# The definition of the macro for checking pkgs has moved to:
 m4_include([m4/pkg_extra.m4])dnl
@@ -5992,8 +6021,8 @@ AC_MSG_CHECKING([other libraries])
 AC_MSG_RESULT([ ])
 LIBS="${LIBS_SYSTEM} ${LIBS}"
 
-dnl# what AC\_ISC\_POSIX autoupdates to:
-AC_SEARCH_LIBS([strerror],[cposix])dnl
+dnl# what AC\_ISC\_POSIX autoupdates to, with some additions:
+AC_SEARCH_LIBS([strerror],[cposix posix c])dnl
 
 dnl# part of what AC\_IRIX\_SUN autoupdates to:
 AC_CHECK_LIB([sun],[getpwnam])dnl
@@ -6259,10 +6288,10 @@ if test "x${HAVE_X11}" = "xyes" || test "x${HAVE_NS}" = "xyes" || test "x${opsys
       LIBS="${RSVG_LIBS} ${LIBS}"
     fi
   else
-    AC_MSG_NOTICE([skipping checks for librsvg])
+    AC_MSG_NOTICE([skipping checks for librsvg (disabled)])
   fi
 else
-  AC_MSG_NOTICE([skipping checks for librsvg])
+  AC_MSG_NOTICE([skipping checks for librsvg (irrelevant)])
 fi
 
 HAVE_IMAGEMAGICK=no
@@ -6298,10 +6327,10 @@ if test "x${HAVE_X11}" = "xyes" || test "x${HAVE_NS}" = "xyes" || test "x${HAVE_
       AC_MSG_NOTICE([we do not have imagemagick so we will do no further checks for it.])
     fi
   else
-    AC_MSG_NOTICE([skipping checks for imagemagick])
+    AC_MSG_NOTICE([skipping checks for imagemagick (disabled)])
   fi
 else
-  AC_MSG_NOTICE([skipping checks for imagemagick])
+  AC_MSG_NOTICE([skipping checks for imagemagick (irrelevant)])
 fi
 
 dnl# section for gtk environment:
@@ -6597,8 +6626,11 @@ dnl# GConf has been tested under GNU/Linux only.
 dnl# The version is really arbitrary, it is about the same age as Gtk+ 2.6.
 HAVE_GCONF=no
 if test "x${HAVE_X11}" = "xyes" && test "x${with_gconf}" = "xyes"; then
+   pre_GCONF_LDFLAGS="${LDFLAGS}"
+   LDFLAGS="${LDFLAGS} ${LD_ARCHFLAGS}"
    PKG_CHECK_MODULES([GCONF],[gconf-2.0 >= 2.13],
                      [HAVE_GCONF=yes],[HAVE_GCONF=no])
+   LDFLAGS="${pre_GCONF_LDFLAGS}"
    if test "x${HAVE_GCONF}" = "xyes"; then
       AC_DEFINE([HAVE_GCONF],[1],[Define to 1 if using GConf.])
       dnl# Newer GConf does NOT link with g_objects, so this is not
@@ -10331,7 +10363,13 @@ fi
 if test -n "${EMACSDOC}"; then
    echo "  Environment variable EMACSDOC set to:  ${EMACSDOC}"
 else
-   echo "  Enivornment variable EMACSDOC unset."
+   echo "  Environment variable EMACSDOC unset."
+fi
+if test -n "${PKG_CONFIG_PATH}"; then
+   echo "  Environment variable PKG_CONFIG_PATH set to: ${PKG_CONFIG_PATH}"
+   echo "  (consider unsetting PKG_CONFIG_PATH if it leads to build issues)"
+else
+   echo "  Environment variable PKG_CONFIG_PATH unset."
 fi
 
 echo ""

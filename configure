@@ -2151,6 +2151,7 @@ PRE_WARNING_TESTING_CFLAGS
 BETTER_DEBUG_CFLAGS
 GNULIB_WARN_CFLAGS
 WARN_CXXFLAGS
+LD_ARCHFLAGS
 WARN_LDFLAGS
 acl_cv_wl
 WERROR_CFLAGS
@@ -16503,6 +16504,63 @@ if eval test \"x\$"$as_gl_Warn"\" = x"yes"; then :
 fi
 
 
+
+
+as_gl_Warn=`$as_echo "gl_cv_warn_c_${acl_cv_wl}-arch_errors_fatal" | $as_tr_sh`
+gl_positive="${acl_cv_wl}-arch_errors_fatal"
+case $gl_positive in
+  -Wno-*) gl_positive=-W`expr "X$gl_positive" : 'X-Wno-\(.*\)'` ;;
+esac
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles ${acl_cv_wl}-arch_errors_fatal" >&5
+$as_echo_n "checking whether C compiler handles ${acl_cv_wl}-arch_errors_fatal... " >&6; }
+if eval \${$as_gl_Warn+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors $gl_positive"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  eval "$as_gl_Warn=yes"
+else
+  eval "$as_gl_Warn=no"
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+eval ac_res=\$$as_gl_Warn
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+if eval test \"x\$"$as_gl_Warn"\" = x"yes"; then :
+  as_fn_append LD_ARCHFLAGS " ${acl_cv_wl}-arch_errors_fatal"
+fi
+
+
+        if test "x${LD_ARCHFLAGS}" != "x"; then
+          test -n "${LD_ARCHFLAGS}"
+          if test "x${ERROR_ON_WARNING}" = "xyes"; then
+            if test "x${WARN_LDFLAGS}" != "x"; then
+              test -n "${WARN_LDFLAGS}" && WARN_LDFLAGS="${WARN_LDFLAGS} ${LD_ARCHFLAGS}"
+            else
+              test -z "${WARN_LDFLAGS}" && WARN_LDFLAGS="${LD_ARCHFLAGS}"
+            fi
+          fi
+                    ## that should be all we need to do with them for now...
+        else
+          test -z "${LD_ARCHFLAGS}"
+        fi
         test -n "${LD_WARN_COMMONS}"
         ;;
       gnu*)
@@ -20115,6 +20173,44 @@ fi
 $as_echo "$gl_cv_warn_cxx__Wdeprecated_copy" >&6; }
 if test "x$gl_cv_warn_cxx__Wdeprecated_copy" = xyes; then :
   as_fn_append WARN_CXXFLAGS " -Wdeprecated-copy"
+fi
+
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C++ compiler handles -Wdeprecated-copy-dtor" >&5
+$as_echo_n "checking whether C++ compiler handles -Wdeprecated-copy-dtor... " >&6; }
+if ${gl_cv_warn_cxx__Wdeprecated_copy_dtor+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CXXFLAGS"
+  as_fn_append CXXFLAGS " $gl_unknown_warnings_are_errors -Wdeprecated-copy-dtor"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+  gl_cv_warn_cxx__Wdeprecated_copy_dtor=yes
+else
+  gl_cv_warn_cxx__Wdeprecated_copy_dtor=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CXXFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_cxx__Wdeprecated_copy_dtor" >&5
+$as_echo "$gl_cv_warn_cxx__Wdeprecated_copy_dtor" >&6; }
+if test "x$gl_cv_warn_cxx__Wdeprecated_copy_dtor" = xyes; then :
+  as_fn_append WARN_CXXFLAGS " -Wdeprecated-copy-dtor"
 fi
 
 
@@ -34706,6 +34802,21 @@ fi
     test -z "${PKG_CONFIG}" && export PKG_CONFIG="no"
   fi
 
+if test -n "${PKG_CONFIG_PATH}"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: verifying PKG_CONFIG_PATH is sane..." >&5
+$as_echo "$as_me: verifying PKG_CONFIG_PATH is sane..." >&6;}
+  for pkcdir in `echo ${PKG_CONFIG_PATH} | tr : \\\n`; do
+    if test -d ${pkcdir}; then
+      stat ${pkcdir}
+    else
+      { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: directory ${pkcdir} in PKG_CONFIG_PATH is missing" >&5
+$as_echo "$as_me: WARNING: directory ${pkcdir} in PKG_CONFIG_PATH is missing" >&2;}
+    fi
+  done
+else
+  test -z "${PKG_CONFIG_PATH}" && echo "PKG_CONFIG_PATH is unset."
+fi
+
 # pkg_extra.m4 serial 1 file starts here
 
 # pkg_extra.m4 used to end here
@@ -43654,7 +43765,7 @@ return strerror ();
   return 0;
 }
 _ACEOF
-for ac_lib in '' cposix; do
+for ac_lib in '' cposix posix c; do
   if test -z "$ac_lib"; then
     ac_res="none required"
   else
@@ -44478,12 +44589,12 @@ $as_echo "#define HAVE_RSVG 1" >>confdefs.h
       LIBS="${RSVG_LIBS} ${LIBS}"
     fi
   else
-    { $as_echo "$as_me:${as_lineno-$LINENO}: skipping checks for librsvg" >&5
-$as_echo "$as_me: skipping checks for librsvg" >&6;}
+    { $as_echo "$as_me:${as_lineno-$LINENO}: skipping checks for librsvg (disabled)" >&5
+$as_echo "$as_me: skipping checks for librsvg (disabled)" >&6;}
   fi
 else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: skipping checks for librsvg" >&5
-$as_echo "$as_me: skipping checks for librsvg" >&6;}
+  { $as_echo "$as_me:${as_lineno-$LINENO}: skipping checks for librsvg (irrelevant)" >&5
+$as_echo "$as_me: skipping checks for librsvg (irrelevant)" >&6;}
 fi
 
 HAVE_IMAGEMAGICK=no
@@ -44648,12 +44759,12 @@ done
 $as_echo "$as_me: we do not have imagemagick so we will do no further checks for it." >&6;}
     fi
   else
-    { $as_echo "$as_me:${as_lineno-$LINENO}: skipping checks for imagemagick" >&5
-$as_echo "$as_me: skipping checks for imagemagick" >&6;}
+    { $as_echo "$as_me:${as_lineno-$LINENO}: skipping checks for imagemagick (disabled)" >&5
+$as_echo "$as_me: skipping checks for imagemagick (disabled)" >&6;}
   fi
 else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: skipping checks for imagemagick" >&5
-$as_echo "$as_me: skipping checks for imagemagick" >&6;}
+  { $as_echo "$as_me:${as_lineno-$LINENO}: skipping checks for imagemagick (irrelevant)" >&5
+$as_echo "$as_me: skipping checks for imagemagick (irrelevant)" >&6;}
 fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking gtk features" >&5
@@ -45338,6 +45449,8 @@ fi
 
 HAVE_GCONF=no
 if test "x${HAVE_X11}" = "xyes" && test "x${with_gconf}" = "xyes"; then
+   pre_GCONF_LDFLAGS="${LDFLAGS}"
+   LDFLAGS="${LDFLAGS} ${LD_ARCHFLAGS}"
 
   succeeded=no
 
@@ -45391,6 +45504,7 @@ $as_echo "no" >&6; }
      HAVE_GCONF=no
   fi
 
+   LDFLAGS="${pre_GCONF_LDFLAGS}"
    if test "x${HAVE_GCONF}" = "xyes"; then
 
 $as_echo "#define HAVE_GCONF 1" >>confdefs.h
@@ -84586,7 +84700,13 @@ fi
 if test -n "${EMACSDOC}"; then
    echo "  Environment variable EMACSDOC set to:  ${EMACSDOC}"
 else
-   echo "  Enivornment variable EMACSDOC unset."
+   echo "  Environment variable EMACSDOC unset."
+fi
+if test -n "${PKG_CONFIG_PATH}"; then
+   echo "  Environment variable PKG_CONFIG_PATH set to: ${PKG_CONFIG_PATH}"
+   echo "  (consider unsetting PKG_CONFIG_PATH if it leads to build issues)"
+else
+   echo "  Environment variable PKG_CONFIG_PATH unset."
 fi
 
 echo ""

@@ -1413,7 +1413,7 @@ only_temacs: src/Makefile @MAINT@ $(SUBDIR_REALLY_ONLY_C)
 only_bootstrap-emacs: src/Makefile @MAINT@ $(SUBDIR_REALLY_ONLY_C)
 	$(MAKE) -C src globals.h
 	$(MAKE) -C src bootstrap-emacs
-.PHONY: only_temacs
+.PHONY: only_bootstrap-emacs
 
 # might also need this:
 gnulib_headers: lib/Makefile
