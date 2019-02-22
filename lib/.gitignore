@@ -71,9 +71,9 @@ utime.h
 wchar.h
 wctype.h
 
-# copied snippets:
+# copied snippet:
 link-warning.h
-unused-parameter.h
+# unused-parameter.h is no longer a copied snippet, so allow it.
 
 # gcc -save-temps output for reporting compiler bugs:
 sha256.i
