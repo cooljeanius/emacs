@@ -3777,6 +3777,12 @@ else
   nw="${nw} -Wc99-c11-compat"       # Emacs/gnulib both use _Noreturn a lot
   nw="${nw} -Wsuggest-attribute=const"                                # meh
   nw="${nw} -Wformat-signedness"                 # shorten the command line
+  nw="${nw} -Wdeclaration-after-statement"    # gnulib assumes C99 or later
+  nw="${nw} -Wduplicated-branches"                # euidaccess.c, fsusage.c
+  nw="${nw} -Wcast-align"                                       # memrchr.c
+  nw="${nw} -Wcast-align=strict"                                 # likewise
+  nw="${nw} -Wformat-truncation"                              # sterror_r.c
+  nw="${nw} -Wformat-truncation=2"                               # likewise
 
   dnl# see if this will silence a warning in error.c:
   gl_WARN_ADD([-Wno-format-signedness],[GNULIB_WARN_CFLAGS])dnl

@@ -372,7 +372,7 @@ xd_signature_cat (char *signature, char const *x)
    signature is embedded, or DBUS_TYPE_INVALID.  It is needed for the
    check that DBUS_TYPE_DICT_ENTRY occurs only as array element.  */
 static void
-xd_signature (char *signature, int dtype, int parent_type, Lisp_Object object)
+xd_signature(char *signature, int dtype, int parent_type, Lisp_Object object)
 {
   int subtype;
   Lisp_Object elt;
@@ -386,7 +386,7 @@ xd_signature (char *signature, int dtype, int parent_type, Lisp_Object object)
     {
     case DBUS_TYPE_BYTE:
     case DBUS_TYPE_UINT16:
-      CHECK_NATNUM (object);
+      CHECK_NATNUM(object);
       snprintf(signature, DBUS_MAXIMUM_SIGNATURE_LENGTH, "%c", dtype);
       break;
 
@@ -459,8 +459,9 @@ xd_signature (char *signature, int dtype, int parent_type, Lisp_Object object)
 	  elt = CDR_SAFE (XD_NEXT_VALUE (elt));
 	}
 
-      subsiglen = snprintf (signature, DBUS_MAXIMUM_SIGNATURE_LENGTH,
-			    "%c%s", dtype, subsig);
+      /* FIXME: -Wformat-truncation: */
+      subsiglen = snprintf(signature, DBUS_MAXIMUM_SIGNATURE_LENGTH,
+			   "%c%s", dtype, subsig);
       if (! (0 <= subsiglen && subsiglen < DBUS_MAXIMUM_SIGNATURE_LENGTH))
 	string_overflow ();
       break;

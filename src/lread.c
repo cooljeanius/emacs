@@ -4217,18 +4217,17 @@ void defvar_per_buffer(const char *namestring, Lisp_Object *address,
 
 /* Similar but define a variable whose value is the Lisp Object stored
    at a particular offset in the current kboard object.  */
-
 void
-defvar_kboard (struct Lisp_Kboard_Objfwd *ko_fwd,
-	       const char *namestring, int offset)
+defvar_kboard(struct Lisp_Kboard_Objfwd *ko_fwd,
+	      const char *namestring, int offset)
 {
   Lisp_Object sym;
-  sym = intern_c_string (namestring);
+  sym = intern_c_string(namestring);
   ko_fwd->type = Lisp_Fwd_Kboard_Obj;
   ko_fwd->offset = offset;
-  XSYMBOL (sym)->declared_special = 1;
-  XSYMBOL (sym)->redirect = SYMBOL_FORWARDED;
-  SET_SYMBOL_FWD (XSYMBOL (sym), (union Lisp_Fwd *)ko_fwd);
+  XSYMBOL(sym)->declared_special = 1;
+  XSYMBOL(sym)->redirect = SYMBOL_FORWARDED;
+  SET_SYMBOL_FWD(XSYMBOL(sym), (union Lisp_Fwd *)(void *)ko_fwd);
 }
 
 /* Check that the elements of lpath exist: */

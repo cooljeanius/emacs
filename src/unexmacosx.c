@@ -1017,7 +1017,7 @@ print_load_command(struct load_command *lc)
       struct section *sectp;
       uint32_t j;
 
-      scp = (struct segment_command *)lc;
+      scp = (struct segment_command *)(void *)lc;
       printf(" %-16.16s %#11lx %#11lx\n",
 	     scp->segname, (unsigned long)(scp->vmaddr),
              (unsigned long)(scp->vmsize));
@@ -1166,7 +1166,7 @@ read_load_commands(void)
         unexec_error("cannot read content of load command");
       if ((lc.cmd == LC_SEGMENT) || (lc.cmd == LC_SEGMENT_64))
 	{
-	  struct segment_command *scp = (struct segment_command *)lca[i];
+	  struct segment_command *scp = (struct segment_command *)(void *)lca[i];
 
 	  if ((scp->vmaddr + scp->vmsize) > infile_lc_highest_addr)
 	    infile_lc_highest_addr = (scp->vmaddr + scp->vmsize);
@@ -1205,7 +1205,7 @@ read_load_commands(void)
 static void
 copy_segment(struct load_command *lc)
 {
-  struct segment_command *scp = (struct segment_command *)lc;
+  struct segment_command *scp = (struct segment_command *)(void *)lc;
   unsigned long old_fileoff = scp->fileoff;
   struct section *sectp;
   uint32_t j;
@@ -1367,7 +1367,7 @@ static const char *strsecttype(int inflags)
 static void
 copy_data_segment(struct load_command *lc)
 {
-  struct segment_command *scp = (struct segment_command *)lc;
+  struct segment_command *scp = (struct segment_command *)(void *)lc;
   struct section *sectp;
   uint32_t j;
   unsigned long header_offset, old_file_offset;
@@ -2128,7 +2128,7 @@ dump_it(void)
       {
       case LC_SEGMENT:
 	{
-	  struct segment_command *scp = (struct segment_command *)lca[i];
+	  struct segment_command *scp = (struct segment_command *)(void *)lca[i];
 	  if (strncmp(scp->segname, SEG_DATA, (size_t)16UL) == 0)
 	    {
 	      /* save data segment file offset and segment_command for
