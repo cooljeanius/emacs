@@ -45,6 +45,15 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_FUNC_CHECKS],[
       AC_REQUIRE([gl_FUNC_IOCTL])dnl
     ])dnl
   ])dnl
+  m4_ifdef([gl_FUNC_LDEXP],[
+    AC_REQUIRE([gl_FUNC_LDEXP])dnl
+  ])dnl
+  m4_ifdef([gl_FUNC_ISNANL],[
+    AC_REQUIRE([gl_FUNC_ISNANL])dnl
+    m4_ifdef([gl_FUNC_LDEXPL],[
+      AC_REQUIRE([gl_FUNC_LDEXPL])dnl
+    ])dnl
+  ])dnl
   m4_ifdef([gl_FUNC_LSEEK],[
     AC_REQUIRE([gl_FUNC_LSEEK])dnl
   ],[
@@ -73,6 +82,11 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_FUNC_CHECKS],[
     fi  ##end check for memchr function check cache value
   ],[
     AC_CHECK_FUNCS([memchr])dnl
+  ])dnl
+  m4_ifdef([gl_FUNC_MKDIR],[
+    AC_REQUIRE([gl_FUNC_MKDIR])dnl
+  ],[
+    AC_CHECK_FUNCS([mkdir])dnl
   ])dnl
   m4_ifdef([gl_FUNC_MKTIME_INTERNAL],[
     AC_REQUIRE([gl_FUNC_MKTIME_INTERNAL])dnl
@@ -196,6 +210,14 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_FUNC_CHECKS],[
     ],[
       AC_CHECK_FUNCS([strstr])dnl
     ])dnl
+  ])dnl
+  m4_ifdef([gl_FUNC_STRTOD],[
+    AC_REQUIRE([gl_FUNC_STRTOD])dnl
+  ],[
+    AC_REQUIRE([AC_FUNC_STRTOD])dnl
+  ])dnl
+  m4_ifdef([gl_FUNC_STRTOLD],[
+    AC_REQUIRE([gl_FUNC_STRTOLD])dnl
   ])dnl
   m4_ifdef([gl_FUNC_UNAME],[
     AC_REQUIRE([gl_FUNC_UNAME])dnl

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 Free Software Foundation, Inc.
+# Copyright (C) 2002-2019 Free Software Foundation, Inc.
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -76,11 +76,13 @@
 #  autobuild \
 #  bcopy \
 #  binary-io \
+#  bitset \
 #  builtin-expect \
 #  byteswap \
 #  c-ctype \
 #  c-strcase \
 #  c-strcaseeq \
+#  c-strtod \
 #  c99 \
 #  canonicalize-lgpl \
 #  careadlinkat \
@@ -171,6 +173,7 @@
 #  intprops \
 #  inttypes-incomplete \
 #  ioctl \
+#  isnanl \
 #  largefile \
 #  ldd \
 #  limits-h \
@@ -228,6 +231,7 @@
 #  sched \
 #  secure_getenv \
 #  setenv \
+#  sh-filename \
 #  sig2str \
 #  signal-h \
 #  sigpipe \
@@ -264,6 +268,7 @@
 #  strstr \
 #  strstr-simple \
 #  strtoimax \
+#  strtold \
 #  strtoumax \
 #  symlink \
 #  sys_ioctl \
@@ -329,11 +334,13 @@ gl_MODULES([
   autobuild
   bcopy
   binary-io
+  bitset
   builtin-expect
   byteswap
   c-ctype
   c-strcase
   c-strcaseeq
+  c-strtod
   c99
   canonicalize-lgpl
   careadlinkat
@@ -424,6 +431,7 @@ gl_MODULES([
   intprops
   inttypes-incomplete
   ioctl
+  isnanl
   largefile
   ldd
   limits-h
@@ -481,6 +489,7 @@ gl_MODULES([
   sched
   secure_getenv
   setenv
+  sh-filename
   sig2str
   signal-h
   sigpipe
@@ -517,6 +526,7 @@ gl_MODULES([
   strstr
   strstr-simple
   strtoimax
+  strtold
   strtoumax
   symlink
   sys_ioctl

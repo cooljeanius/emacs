@@ -8143,7 +8143,10 @@ if test "x${ac_cv_func_strerror_r_char_p}" = "x"; then
   AC_FUNC_STRERROR_R
 fi
 AC_FUNC_STRFTIME
-AC_FUNC_STRTOD
+if test "x${ac_cv_func_strtod}" = "x"; then
+  test -z "${ac_cv_func_strtod}"
+  AC_FUNC_STRTOD
+fi
 AC_FUNC_UTIME_NULL
 dnl# these ones are approximately in their historical order, and get
 dnl# special LIBS while checking for them:
@@ -8201,13 +8204,13 @@ dnl# these ones should be in alphabetical order:
 AC_CHECK_FUNCS([__fpending _stricmp acl atexit atof atoi btowc bzero \
                 cuserid doprnt errc fabs fabsf fgets floor ftime \
                 get_etext get_edata get_end getpass getpwuid inet_ntoa \
-                isascii iswprint mbrlen memmove memset mkdir munmap \
+                isascii iswprint localeconv mbrlen memmove memset munmap \
                 nl_langinfo openpty pathconf posix_spawnp pow putenv re_comp \
                 reallocf regcomp rmdir socket sqrt strcasecmp strcasestr \
                 strchr strcmp strcspn strdup strerror stricmp strlcat \
                 strlcpy strncasecmp strncat strncmp strnicmp strnstr \
                 strpbrk strrchr strtok strtok_r strtol strtoul sysctl \
-                system xstricmp utmpname vfprintf])
+                system xstricmp utmpname vfprintf wcwidth])
 if test "x${ac_cv_func_utime}" = "x"; then
   test -z "${ac_cv_func_utime}"
   AC_CHECK_FUNCS([utime])
@@ -8224,7 +8227,7 @@ if test "x" = "Y0"; then
   ])dnl
   AC_CHECK_FUNCS([alarm dup2 fchdir ftruncate getcwd geteuid \
                   gethostbyname getpagesize gettimeofday localtime_r \
-                  setenv strtoumax strverscmp tzset uname])dnl
+                  mkdir setenv strtoumax strverscmp tzset uname])dnl
   ## just in case...
 fi
 AC_CHECK_DECLS([openpty],[],[],[[
@@ -9957,6 +9960,13 @@ CFLAGS="${pre_PKG_CONFIG_CFLAGS}"
 LIBS="${LIB_PTHREAD} ${pre_PKG_CONFIG_LIBS}"
 gl_ASSERT_NO_GNULIB_POSIXCHECK([])dnl
 gl_ASSERT_NO_GNULIB_TESTS([])dnl
+  ## avoid message from one configure test:
+case "${opsys}" in
+  darwin)
+    gl_cv_func_localtime_infloop_bug=yes
+    ;;
+esac
+  ## actually check gnulib stuff for real now:
 gl_INIT
 CFLAGS="${SAVE_CFLAGS}"
 LIBS="${SAVE_LIBS}"

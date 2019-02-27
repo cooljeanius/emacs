@@ -330,6 +330,10 @@
    fflush is known to not work, -1 if unknown. */
 #undef FUNC_FFLUSH_STDIN
 
+/* Define to 1 if mkdir mistakenly creates a directory given with a trailing
+   dot component. */
+#undef FUNC_MKDIR_DOT_BUG
+
 /* Define to 1 if realpath() can malloc memory, always gives an absolute path,
    and handles trailing slash correctly. */
 #undef FUNC_REALPATH_WORKS
@@ -623,9 +627,6 @@
 
 /* Define to 1 if you have the `bzero' function. */
 #undef HAVE_BZERO
-
-/* Define to 1 if strtold conforms to C99. */
-#undef HAVE_C99_STRTOLD
 
 /* Define to 1 if you have the `canonicalize_file_name' function. */
 #undef HAVE_CANONICALIZE_FILE_NAME
@@ -926,6 +927,10 @@
    don't. */
 #undef HAVE_DECL_STRMODE
 
+/* Define to 1 if you have the declaration of `strtod', and to 0 if you don't.
+   */
+#undef HAVE_DECL_STRTOD
+
 /* Define to 1 if you have the declaration of `strtoimax', and to 0 if you
    don't. */
 #undef HAVE_DECL_STRTOIMAX
@@ -1029,9 +1034,6 @@
 
 /* Define to 1 if you have the `dup2' function. */
 #undef HAVE_DUP2
-
-/* Define to 1 if you have the <dustat.h> header file. */
-#undef HAVE_DUSTAT_H
 
 /* Define to 1 if you have the `eaccess' function. */
 #undef HAVE_EACCESS
@@ -1502,6 +1504,15 @@
 /* Define to 1 if you have the <langinfo.h> header file. */
 #undef HAVE_LANGINFO_H
 
+/* Define if the ldexpl() function is available. */
+#undef HAVE_LDEXPL
+
+/* Define if the ldexpl function is available in libc. */
+#undef HAVE_LDEXPL_IN_LIBC
+
+/* Define if the ldexp function is available in libc. */
+#undef HAVE_LDEXP_IN_LIBC
+
 /* Define to 1 if you have the <libc.h> header file. */
 #undef HAVE_LIBC_H
 
@@ -1576,6 +1587,9 @@
 
 /* Define to 1 if you have the <linux/version.h> header file. */
 #undef HAVE_LINUX_VERSION_H
+
+/* Define to 1 if you have the `localeconv' function. */
+#undef HAVE_LOCALECONV
 
 /* Define to 1 if you have the <locale.h> header file. */
 #undef HAVE_LOCALE_H
@@ -2009,6 +2023,9 @@
 /* Define to 1 if you have run the test for working tzset. */
 #undef HAVE_RUN_TZSET_TEST
 
+/* Define to 1 if 'long double' and 'double' have the same representation. */
+#undef HAVE_SAME_LONG_DOUBLE_AS_DOUBLE
+
 /* Define to 1 if the system has the type `sa_family_t'. */
 #undef HAVE_SA_FAMILY_T
 
@@ -2231,6 +2248,9 @@
 /* Define to 1 if you have the `strstr' function. */
 #undef HAVE_STRSTR
 
+/* Define to 1 if the system has the 'strtod_l' function. */
+#undef HAVE_STRTOD_L
+
 /* Define to 1 if you have the `strtof' function. */
 #undef HAVE_STRTOF
 
@@ -2245,6 +2265,9 @@
 
 /* Define to 1 if you have the `strtol' function. */
 #undef HAVE_STRTOL
+
+/* Define to 1 if you have the `strtold' function. */
+#undef HAVE_STRTOLD
 
 /* Define to 1 if you have the `strtoll' function. */
 #undef HAVE_STRTOLL
@@ -2620,6 +2643,9 @@
 /* Define to 1 if the system has the type 'unsigned long long int'. */
 #undef HAVE_UNSIGNED_LONG_LONG_INT
 
+/* Define to 1 if you have the `uselocale' function. */
+#undef HAVE_USELOCALE
+
 /* Define to 1 if you have the <usp10.h> header file. */
 #undef HAVE_USP10_H
 
@@ -2730,6 +2756,9 @@
 /* Define to 1 if O_NOFOLLOW works. */
 #undef HAVE_WORKING_O_NOFOLLOW
 
+/* Define if the uselocale function exists any may safely be called. */
+#undef HAVE_WORKING_USELOCALE
+
 /* Define if utimes works properly. */
 #undef HAVE_WORKING_UTIMES
 
@@ -2792,6 +2821,9 @@
 
 /* Define to 1 if you have the Xkb extension. */
 #undef HAVE_XKB
+
+/* Define to 1 if you have the <xlocale.h> header file. */
+#undef HAVE_XLOCALE_H
 
 /* Define to 1 if you have the <Xm/Xm.h> header file. */
 #undef HAVE_XM_XM_H
@@ -2893,6 +2925,9 @@
 /* Define to 1 if you have the `__fsetlocking' function. */
 #undef HAVE___FSETLOCKING
 
+/* Define to 1 if the compiler supports the keyword '__inline'. */
+#undef HAVE___INLINE
+
 /* Define to 1 if you have the `__secure_getenv' function. */
 #undef HAVE___SECURE_GETENV
 
@@ -2937,6 +2972,13 @@
 
 /* Define to use Kerberos 5 instead of Kerberos 4. */
 #undef KERBEROS5
+
+/* Define as the bit index in the word where to find bit 0 of the exponent of
+   'long double'. */
+#undef LDBL_EXPBIT0_BIT
+
+/* Define as the word index where to find the exponent of 'long double'. */
+#undef LDBL_EXPBIT0_WORD
 
 /* Define to 1 if Linux sysinfo sizes are in multiples of mem_unit bytes. */
 #undef LINUX_SYSINFO_UNIT
@@ -3209,6 +3251,17 @@
    3. */
 #undef SETVBUF_REVERSED
 
+/* File name of the Bourne shell.  */
+#if defined __CYGWIN__ || defined __ANDROID__
+/* Omit the directory part because
+   - For 32-bit Cygwin programs in a 64-bit Cygwin environment, the Cygwin
+     mounts are not visible.
+   - On Android, /bin/sh does not exist. It's /system/bin/sh instead.  */
+# define BOURNE_SHELL "sh"
+#else
+# define BOURNE_SHELL "/bin/sh"
+#endif
+
 /* Make process_send_signal work by "typing" a signal character on the pty. */
 #undef SIGNALS_VIA_CHARACTERS
 
@@ -3256,7 +3309,7 @@
 #undef STAT_MACROS_BROKEN
 
 /* Define if statfs takes 2 args and struct statfs has a field named f_bsize.
-   (4.3BSD, SunOS 4, HP-UX, AIX PS/2) */
+   (4.3BSD, SunOS 4, HP-UX) */
 #undef STAT_STATFS2_BSIZE
 
 /* Define if statfs takes 2 args and struct statfs has a field named f_frsize.
@@ -3267,14 +3320,10 @@
    (4.4BSD, NetBSD) */
 #undef STAT_STATFS2_FSIZE
 
-/* Define if statfs takes 2 args and the second argument has type struct
-   fs_data. (Ultrix) */
-#undef STAT_STATFS2_FS_DATA
-
 /* Define if statfs takes 3 args. (DEC Alpha running OSF/1) */
 #undef STAT_STATFS3_OSF1
 
-/* Define if statfs takes 4 args. (SVR3, Dynix, old Irix, old AIX, Dolphin) */
+/* Define if statfs takes 4 args. (SVR3, old Irix) */
 #undef STAT_STATFS4
 
 /* Define if there is a function named statvfs. (SVR4) */
@@ -3548,6 +3597,9 @@
 /* Define for large files, on AIX-style hosts. */
 #undef _LARGE_FILES
 
+/* Define to 1 on Solaris. */
+#undef _LCONV_C99
+
 /* Define to 1 if on MINIX. */
 #undef _MINIX
 
@@ -3558,12 +3610,15 @@
 #undef _NETBSD_SOURCE
 
 /* The _Noreturn keyword of C11.  */
-#if ! (defined _Noreturn \
-       || (defined __STDC_VERSION__ && 201112 <= __STDC_VERSION__))
-# if (3 <= __GNUC__ || (__GNUC__ == 2 && 8 <= __GNUC_MINOR__) \
-      || 0x5110 <= __SUNPRO_C)
+#ifndef _Noreturn
+# if 201103 <= (defined __cplusplus ? __cplusplus : 0)
+#  define _Noreturn [[noreturn]]
+# elif (201112 <= (defined __STDC_VERSION__ ? __STDC_VERSION__ : 0) \
+        || 4 < __GNUC__ + (7 <= __GNUC_MINOR__))
+   /* _Noreturn works as-is.  */
+# elif 2 < __GNUC__ + (8 <= __GNUC_MINOR__) || 0x5110 <= __SUNPRO_C
 #  define _Noreturn __attribute__ ((__noreturn__))
-# elif defined _MSC_VER && 1200 <= _MSC_VER
+# elif 1200 <= (defined _MSC_VER ? _MSC_VER : 0)
 #  define _Noreturn __declspec (noreturn)
 # else
 #  define _Noreturn

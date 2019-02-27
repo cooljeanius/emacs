@@ -47,6 +47,9 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_HEADER_CHECKS],[
     AC_REQUIRE([gl_LIMITS_H])dnl
   ])dnl
   m4_ifdef([gl_WARN_ON_USE_PREPARE],[
+    m4_ifdef([gl_LOCALE_H],[
+      AC_REQUIRE([gl_LOCALE_H])dnl
+    ])dnl
     m4_ifdef([gl_PTY_H],[
       AC_REQUIRE([gl_PTY_H])dnl
     ])dnl

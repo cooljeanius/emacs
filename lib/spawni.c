@@ -1,5 +1,5 @@
 /* Guts of POSIX spawn interface.  Generic POSIX.1 version.
-   Copyright (C) 2000-2006, 2008-2018 Free Software Foundation, Inc.
+   Copyright (C) 2000-2006, 2008-2019 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    This program is free software: you can redistribute it and/or modify
@@ -32,7 +32,7 @@
 #if _LIBC || HAVE_PATHS_H
 # include <paths.h>
 #else
-# define _PATH_BSHELL "/bin/sh"
+# define _PATH_BSHELL BOURNE_SHELL
 #endif
 
 #include <signal.h>

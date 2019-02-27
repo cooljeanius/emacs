@@ -2,7 +2,8 @@
 
 # The gnulib commit ID to use for the update.
 # If you know your version works and is newer, feel free to replace:
-GNULIB_COMMIT_SHA1="635beea5deb0426d14e3639993a1d45dfeb8cf5f"
+GNULIB_COMMIT_SHA1="1e5153d4ecc50f9258b384b7c616831bbaa6af33"
+# (this hash last updated February 26th, 2019)
 
 if [ $# -ne 1 ]; then
    echo "Warning: Path to gnulib repository missing."
@@ -60,10 +61,10 @@ else
   module_list="\
       absolute-header acl acl-permissions alignof alloca alloca-opt \
       allocator assert-h assure atan atan2 autobuild \
-      bcopy binary-io builtin-expect byteswap \
-      c-ctype c-strcase c-strcaseeq c99 canonicalize-lgpl careadlinkat \
-      chdir clock-time close-stream closedir configmake count-one-bits \
-      count-trailing-zeros \
+      bcopy binary-io bitset builtin-expect byteswap \
+      c-ctype c-strcase c-strcaseeq c-strtod c99 canonicalize-lgpl \
+      careadlinkat chdir clock-time close-stream closedir configmake \
+      count-one-bits count-trailing-zeros \
       crypto/md5 crypto/sha1 crypto/sha256 crypto/sha512 \
       diffseq dirent dirfd dirname-lgpl dosname double-slash-root \
       dtoastr dtotimespec dup2 \
@@ -78,6 +79,7 @@ else
       git-version-gen gitlog-to-changelog gnu-make gpl-3.0 group-member \
       havelib host-cpu-c-abi host-os \
       ignore-value include_next inline intprops inttypes-incomplete ioctl \
+      isnanl \
       largefile ldd limits-h localcharset localtime-buffer longlong \
       lseek lstat \
       maintainer-makefile manywarnings math mbschr mbsinit mbsrchr memchr \
@@ -89,13 +91,13 @@ else
       qacl qcopy-acl quote quotearg quotearg-simple \
       read readdir readlink readlinkat realloc-gnu realloc-posix rename \
       rmdir root-uid \
-      sched secure_getenv setenv sig2str signal-h sigpipe sleep \
+      sched secure_getenv setenv sh-filename sig2str signal-h sigpipe sleep \
       snippet/_Noreturn snippet/arg-nonnull snippet/c++defs \
       snippet/link-warning snippet/unused-parameter snippet/warn-on-use \
       socketlib sockets socklen spawn ssize_t stat stat-time std-gnu11 \
       stdalign stdarg stdbool stddef stdint stdio stdlib stdnoreturn \
       stpcpy streq strerror strerror-override strftime string strings \
-      strstr strstr-simple strtoimax strtoumax symlink sys_ioctl \
+      strstr strstr-simple strtoimax strtold strtoumax symlink sys_ioctl \
       sys_resource sys_select sys_socket sys_stat sys_time sys_types \
       sys_uio sys_utsname sys_wait \
       tempname time time_r time_rz timegm timer-time times timespec \

@@ -1,6 +1,6 @@
-# serial 30
+# serial 31
 
-# Copyright (C) 2001, 2003, 2005-2006, 2009-2018 Free Software Foundation, Inc.
+# Copyright (C) 2001, 2003, 2005-2006, 2009-2019 Free Software Foundation, Inc.
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
@@ -19,7 +19,7 @@ AC_DEFUN([gl_FUNC_RENAME],
   AC_REQUIRE([gl_STDIO_H_DEFAULTS])
   AC_CHECK_FUNCS_ONCE([lstat])
 
-  dnl Solaris 11, AIX 7.1 mistakenly allow rename("file","name/").
+  dnl Solaris 11.3, AIX 7.1 mistakenly allow rename("file","name/").
   dnl NetBSD 1.6 mistakenly forbids rename("dir","name/").
   dnl FreeBSD 7.2 mistakenly allows rename("file","link-to-file/").
   dnl The Solaris bug can be worked around without stripping
