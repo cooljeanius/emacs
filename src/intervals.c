@@ -2198,6 +2198,9 @@ get_property_and_range (ptrdiff_t pos, Lisp_Object prop, Lisp_Object *val,
     return 0;
 
   next = i;			/* remember it in advance */
+  if (next == NULL) {
+    ; /* ??? */
+  }
   prev = previous_interval (i);
   while (prev
 	 && EQ (*val, textget (prev->plist, prop)))

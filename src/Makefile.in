@@ -64,6 +64,10 @@ LIBS = $(BAD_LIBS_THAT_SHOULD_BE_COMMENTED_OUT)
 LIBOBJDIR = @LIBOBJDIR@
 LIBOBJS = @LIBOBJS@
 
+LTO_KIND = @LTO_KIND@
+LTO = @LTO@
+FAT_LTO_CFLAGS = @FAT_LTO_CFLAGS@
+
 CLANG_ANALYZER = @CLANG_ANALYZER@
 
 PRE_WARNING_TESTING_CFLAGS = @PRE_WARNING_TESTING_CFLAGS@
@@ -294,7 +298,8 @@ WINDOW_SYSTEM_OBJ=@WINDOW_SYSTEM_OBJ@
 #ifdef HAVE_X_WINDOWS
 MSDOS_OBJ = @MAINT@ dosfns.o msdos.o
 #else
-MSDOS_OBJ = @MAINT@ dosfns.o msdos.o w16select.o
+## FIXME: need to move these conditionals from the preprocessor to GNU make
+MSDOS_OBJ = @MAINT@ dosfns.o msdos.o # w16select.o
 #endif /* HAVE_X_WINDOWS */
 #endif /* MSDOS */
 ## w16select.o termcap.o if MSDOS && HAVE_X_WINDOWS.
@@ -424,6 +429,9 @@ DEPFLAGS=@DEPFLAGS@
 ## ${MKDIR_P} ${DEPDIR} (if AUTO_DEPEND); else 'echo'.
 MKDEPDIR=@MKDEPDIR@
 
+# for compilers that use an old version of the clang-based assembler:
+acl_cv_wp = @acl_cv_wp@
+
 ## DO NOT use -R.  There is a special hack described in lastfile.c
 ## which is used instead.  Some initialized data areas are modified
 ## at initial startup, then labeled as part of the text area when
@@ -433,15 +441,15 @@ MKDEPDIR=@MKDEPDIR@
 ## for use in Emacs.
 ##
 ## FIXME? MYCPPFLAGS only referenced in etc/DEBUG.
-ALL_CFLAGS=-Demacs $(MYCPPFLAGS) -I. -I$(srcdir) \
-  -I$(lib) -I$(srcdir)/../lib \
+ALL_CFLAGS=-Demacs $(MYCPPFLAGS) ${acl_cv_wp}-I. ${acl_cv_wp}-I$(srcdir) \
+  ${acl_cv_wp}-I$(lib) ${acl_cv_wp}-I$(srcdir)/../lib \
   $(C_SWITCH_MACHINE) $(C_SWITCH_SYSTEM) $(C_SWITCH_X_SITE) \
   $(MAC_CFLAGS) $(GNUSTEP_CFLAGS) $(CFLAGS_SOUND) $(RSVG_CFLAGS) \
   $(IMAGEMAGICK_CFLAGS) $(PNG_CFLAGS) $(LIBXML2_CFLAGS) $(DBUS_CFLAGS) \
   $(XRANDR_CFLAGS) $(XINERAMA_CFLAGS) $(XFIXES_CFLAGS) \
   $(SETTINGS_CFLAGS) $(FREETYPE_CFLAGS) $(FONTCONFIG_CFLAGS) \
   $(LIBOTF_CFLAGS) $(M17N_FLT_CFLAGS) $(DEPFLAGS) \
-  $(LIBGNUTLS_CFLAGS) $(GFILENOTIFY_CFLAGS) \
+  $(LIBGNUTLS_CFLAGS) $(GFILENOTIFY_CFLAGS) $(FAT_LTO_CFLAGS) $(LTO) \
   $(WARN_CFLAGS) $(BETTER_DEBUG_CFLAGS) $(CFLAGS) @MAINT@ $(WERROR_CFLAGS)
 ALL_OBJC_CFLAGS=$(ALL_CFLAGS) $(GNU_OBJC_CFLAGS)
 

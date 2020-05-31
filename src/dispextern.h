@@ -2795,7 +2795,7 @@ enum move_operation_enum
 
   /* Stop if specified buffer or string position is reached.  */
   MOVE_TO_POS = 0x08
-};
+} ATTRIBUTE_FLAG_ENUM;
 
 /***********************************************************************
 			    Mouse Highlight

@@ -554,6 +554,9 @@
 /* Define to 1 if the ACL type ACL_TYPE_EXTENDED exists. */
 #undef HAVE_ACL_TYPE_EXTENDED
 
+/* Define to 1 if you have the <AE/AEDataModel.h> header file. */
+#undef HAVE_AE_AEDATAMODEL_H
+
 /* Define to 1 if the file /usr/lpp/X11/bin/smt.exp exists. */
 #undef HAVE_AIX_SMT_EXP
 
@@ -668,6 +671,9 @@
 
 /* Define to 1 if you have the `cfmakeraw' function. */
 #undef HAVE_CFMAKERAW
+
+/* Define to 1 or more if we can include a CFMCarbon headers dir */
+#undef HAVE_CFMCARBON_HEADERS_DIR
 
 /* Define to 1 if you have the Mac OS X function CFPreferencesCopyAppValue in
    the CoreFoundation framework. */
@@ -2709,6 +2715,9 @@
 
 /* Define to 1 if you have the `wcwidth' function. */
 #undef HAVE_WCWIDTH
+
+/* Define to 1 if you have the <Webkit/Webkit.h> header file. */
+#undef HAVE_WEBKIT_WEBKIT_H
 
 /* Define to 1 if you have the <winbase.h> header file. */
 #undef HAVE_WINBASE_H

@@ -1784,26 +1784,29 @@ merge (Lisp_Object org_l1, Lisp_Object org_l2, Lisp_Object pred)
 	  UNGCPRO;
 	  if (NILP (tail))
 	    return l1;
-	  Fsetcdr (tail, l1);
+	  Fsetcdr(tail, l1);
 	  return value;
 	}
-      tem = call2 (pred, Fcar (l2), Fcar (l1));
-      if (NILP (tem))
+      tem = call2(pred, Fcar(l2), Fcar(l1));
+      if (NILP(tem))
 	{
 	  tem = l1;
-	  l1 = Fcdr (l1);
+	  l1 = Fcdr(l1);
 	  org_l1 = l1;
 	}
       else
 	{
 	  tem = l2;
-	  l2 = Fcdr (l2);
+	  l2 = Fcdr(l2);
 	  org_l2 = l2;
 	}
-      if (NILP (tail))
+      if (EQ(org_l1, org_l2)) {
+	; /* ??? */
+      }
+      if (NILP(tail))
 	value = tem;
       else
-	Fsetcdr (tail, tem);
+	Fsetcdr(tail, tem);
       tail = tem;
     }
 }

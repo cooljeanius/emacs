@@ -34,6 +34,8 @@ PROFILING_CFLAGS = @PROFILING_CFLAGS@
 WARN_CFLAGS = `echo @WARN_CFLAGS@ | sed 's/ -Wwrite-strings//'`
 WERROR_CFLAGS = @WERROR_CFLAGS@
 
+acl_cv_wp = @acl_cv_wp@
+
 CC=@CC@
 CFLAGS=@CFLAGS@
 CPPFLAGS=@CPPFLAGS@
@@ -73,8 +75,9 @@ MKDEPDIR = @MKDEPDIR@
 ALL_CFLAGS= $(C_SWITCH_SYSTEM) $(C_SWITCH_X_SITE) \
   $(C_SWITCH_MACHINE) $(DEPFLAGS) \
   $(WARN_CFLAGS) $(WERROR_CFLAGS) $(PROFILING_CFLAGS) $(CFLAGS) \
-  -Demacs -I../src \
-  -I$(srcdir) -I$(srcdir)/../src -I../lib -I$(srcdir)/../lib
+  -Demacs ${acl_cv_wp}-I../src ${acl_cv_wp}-I$(srcdir) \
+  ${acl_cv_wp}-I$(srcdir)/../src ${acl_cv_wp}-I../lib \
+  ${acl_cv_wp}-I$(srcdir)/../lib
 
 all: liblw.a
 .PHONY: all

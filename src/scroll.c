@@ -613,6 +613,9 @@ calculate_direct_scrolling (struct frame *frame,
 	if (i < j && p1->insertcost < cost)
 	  cost = p1->insertcost;
 	cost1 = p1->deletecost;
+	if (cost != cost1) {
+	  (void)cost1;
+	}
 	if (p1->deletecost <= cost)
 	  {
 	    cost = p1->deletecost;

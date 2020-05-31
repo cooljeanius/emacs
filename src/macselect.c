@@ -272,7 +272,8 @@ static int valid_scrap_target_type_p(Lisp_Object sym)
 }
 
 /* Clear the scrap whose reference is *SCRAP. */
-static INLINE OSStatus clear_scrap(ScrapRef *scrap)
+/*static*/ INLINE OSStatus
+clear_scrap(ScrapRef *scrap)
 {
 #if TARGET_API_MAC_CARBON
 # ifdef MAC_OSX
@@ -312,7 +313,7 @@ put_scrap_string(ScrapRef scrap, Lisp_Object type, Lisp_Object str)
 
 /* Put TIMESTAMP to the scrap SCRAP.  The timestamp is used for
    checking if the scrap is owned by the process.  */
-static INLINE OSStatus
+/*static*/ INLINE OSStatus
 put_scrap_private_timestamp(ScrapRef scrap, unsigned long timestamp)
 {
 #if TARGET_API_MAC_CARBON
@@ -1083,7 +1084,7 @@ find_event_binding(Lisp_Object keymap,
 {
   eassert(event_binding != NULL);
   xassert(event_binding != NULL);
-  
+
   if (event_binding->code == 0)
     event_binding->binding =
       access_keymap(keymap, event_binding->key, 0, 1, 0);
@@ -1175,8 +1176,8 @@ mac_handle_apple_event_1(Lisp_Object class, Lisp_Object id,
   struct suspended_ae_info *new_info;
 
   new_info = ((struct suspended_ae_info *)
-              xmalloc(sizeof(struct suspended_ae_info)));
-  bzero(new_info, sizeof(struct suspended_ae_info));
+              xmalloc(sizeof(struct suspended_ae_info) + 1UL));
+  bzero(new_info, (sizeof(struct suspended_ae_info) + 1UL));
   new_info->apple_event.descriptorType = typeNull;
   new_info->reply.descriptorType = typeNull;
 

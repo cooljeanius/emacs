@@ -397,17 +397,15 @@ doprnt (char *buffer, ptrdiff_t bufsize, const char *format,
 		{
 		  /* Truncate the string at character boundary.  */
 		  tem = bufsize;
-		  do
-		    {
-		      tem--;
-		      if (CHAR_HEAD_P(string[tem]))
-			{
-			  if (BYTES_BY_CHAR_HEAD (string[tem]) <= bufsize - tem)
-			    tem = bufsize;
-			  break;
-			}
-		    }
-		  while (tem != 0);
+		  do {
+		    tem--;
+		    if ((tem < strlen(string)) && CHAR_HEAD_P(string[tem]))
+		      {
+			if (BYTES_BY_CHAR_HEAD(string[tem]) <= (bufsize - tem))
+			  tem = bufsize;
+			break;
+		      }
+		  } while (tem > 0);
 
 		  memcpy (bufptr, string, tem);
 		  bufptr[tem] = 0;

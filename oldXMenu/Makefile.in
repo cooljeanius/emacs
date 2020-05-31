@@ -106,12 +106,17 @@ DEPDIR = deps
 DEPFLAGS = @DEPFLAGS@
 ## ${MKDIR_P} ${DEPDIR} (if AUTO_DEPEND); else 'echo'.
 MKDEPDIR = @MKDEPDIR@
+acl_cv_wp = @acl_cv_wp@
+
+FAT_LTO_CFLAGS = @FAT_LTO_CFLAGS@
+LTO = @LTO@
 
 ALL_CFLAGS=$(C_SWITCH_SYSTEM) $(C_SWITCH_MACHINE) \
-  $(C_SWITCH_X_SITE) $(DEPFLAGS) \
+  $(C_SWITCH_X_SITE) $(DEPFLAGS) $(FAT_LTO_CFLAGS) $(LTO) \
   $(WARN_CFLAGS) $(WERROR_CFLAGS) ${PROFILING_CFLAGS} \
   $(CPPFLAGS) $(CFLAGS) -DEMACS_BITMAP_FILES \
-  -I../src -I../lib -I${srcdir} -I${srcdir}/../src -I${srcdir}/../lib
+  ${acl_cv_wp}-I../src ${acl_cv_wp}-I../lib ${acl_cv_wp}-I${srcdir} \
+  ${acl_cv_wp}-I${srcdir}/../src ${acl_cv_wp}-I${srcdir}/../lib
 
 .c.o:
 	@$(MKDEPDIR)

@@ -246,17 +246,21 @@ NEXTAFTER_LIBM = @NEXTAFTER_LIBM@
 LIBM = @LIBM@
 LIBM_WITH_NEXTAFTER = $(LIBM) $(NEXTAFTER_LIBM)
 OPENMP_CFLAGS = @OPENMP_CFLAGS@
+acl_cv_wp = @acl_cv_wp@
 
 BASE_CFLAGS = $(C_SWITCH_SYSTEM) $(C_SWITCH_MACHINE) \
-	      -I. -I../src -I$(lib) \
-	      -I${srcdir} -I${srcdir}/../src -I${srcdir}/$(lib) \
+	      ${acl_cv_wp}-I. ${acl_cv_wp}-I../src ${acl_cv_wp}-I$(lib) \
+	      ${acl_cv_wp}-I${srcdir} ${acl_cv_wp}-I${srcdir}/../src \
+	      ${acl_cv_wp}-I${srcdir}/$(lib) \
 	      $(WARN_CFLAGS) @MAINT@ $(WERROR_CFLAGS)
 
 DEFS = @DEFS@ -DDEBUG
 LDFLAGS = @LDFLAGS@
 CPPFLAGS = @CPPFLAGS@ ${DEFS}
+FAT_LTO_CFLAGS = @FAT_LTO_CFLAGS@
+LTO = @LTO@
 ALL_CFLAGS = ${BASE_CFLAGS} ${PROFILING_CFLAGS} ${LDFLAGS} ${CPPFLAGS} \
-	     ${CFLAGS}
+	     ${CFLAGS} ${FAT_LTO_CFLAGS} ${LTO}
 LINK_CFLAGS = ${BASE_CFLAGS} ${LDFLAGS} ${CFLAGS}
 CPP_CFLAGS = ${BASE_CFLAGS} ${PROFILING_CFLAGS} ${CPPFLAGS} ${CFLAGS}
 

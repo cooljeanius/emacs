@@ -89,20 +89,10 @@ static int trackingMenu;
 
    ===================================================================== */
 
-/* copied from "config.h": */
-#ifndef ATTRIBUTE_CONST
-/* The __const__ attribute was added in gcc 2.95: */
-# if (__GNUC__ > 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 95))
-#  define ATTRIBUTE_CONST __attribute__((__const__))
-# else
-#  define ATTRIBUTE_CONST /* empty */
-# endif /* gcc 2.95+ */
-#endif /* !ATTRIBUTE_CONST */
-
 /* Supposed to discard menubar and free storage.  Since we share the
    menubar among frames and update its context for the focused window,
    there is nothing to do here. */
-void ATTRIBUTE_CONST
+void
 free_frame_menubar(struct frame *f)
 {
   return;
@@ -1566,7 +1556,7 @@ ns_popup_dialog(Lisp_Object position, Lisp_Object header, Lisp_Object contents)
     CHECK_WINDOW(window);
 
   check_window_system(f);
-  
+
   eassert(f != NULL);
   xassert(f != NULL);
 

@@ -4175,11 +4175,11 @@ mac_get_object_from_code(OSType defCode)
 
 /* Some attempts to solve aliasing violations: */
 #if defined(__GNUC__) && defined(__GNUC_MINOR__)
-# if (__GNUC__ >= 4)
+# if (__GNUC__ >= 4) && !defined(__clang__)
 #  define ATTRIBUTE_OPTIMIZE(foo) __attribute__((optimize(#foo)))
 # else
 #  define ATTRIBUTE_OPTIMIZE(foo) /* nothing */
-# endif /* gcc 4+ */
+# endif /* gcc 4+ but not clang */
 #else
 # define ATTRIBUTE_OPTIMIZE /* (nothing) */
 #endif /* any gcc */

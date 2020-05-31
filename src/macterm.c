@@ -571,8 +571,8 @@ mac_draw_line(struct frame *f, GC gc, int x1, int y1, int x2, int y2)
   context = mac_begin_cg_clip(f, gc);
   CG_SET_STROKE_COLOR_WITH_GC_FOREGROUND(context, gc);
   CGContextBeginPath(context);
-  CGContextMoveToPoint(context, gx1, gy1);
-  CGContextAddLineToPoint(context, gx2, gy2);
+  CGContextMoveToPoint(context, (CGFloat)gx1, (CGFloat)gy1);
+  CGContextAddLineToPoint(context, (CGFloat)gx2, (CGFloat)gy2);
   CGContextClosePath(context);
   CGContextStrokePath(context);
   mac_end_cg_clip(f);
@@ -736,13 +736,14 @@ mac_draw_cg_image(CGImageRef image, struct frame *f, GC gc,
     }
   CGContextClipToRect(context, dest_rect);
   CGContextScaleCTM(context, 1, -1);
-  CGContextTranslateCTM(context, 0, -port_height);
+  CGContextTranslateCTM(context, 0, (CGFloat)(-port_height));
   if (CGImageIsMask(image))
     CG_SET_FILL_COLOR_WITH_GC_FOREGROUND(context, gc);
   CGContextDrawImage(context,
                      CGRectMake((dest_x - src_x),
-                                (port_height - (dest_y - src_y
-                                                + CGImageGetHeight(image))),
+                                (CGFloat)(port_height
+					  - (dest_y - src_y
+					     + CGImageGetHeight(image))),
                                 CGImageGetWidth(image),
                                 CGImageGetHeight(image)),
                      image);
@@ -946,7 +947,8 @@ mac_draw_rectangle(struct frame *f, GC gc, int x, int y,
   xassert(gc != NULL);
   CG_SET_STROKE_COLOR_WITH_GC_FOREGROUND(context, gc);
   CGContextStrokeRect(context,
-                      CGRectMake((x + 0.5f), (y + 0.5f), width, height));
+                      CGRectMake((CGFloat)(x + 0.5f), (CGFloat)(y + 0.5f),
+				 width, height));
   mac_end_cg_clip(f);
 #else
   Rect r;
@@ -1136,7 +1138,7 @@ mac_draw_string_common(struct frame *f, GC gc, int x, int y, char *buf,
                                                FONT_HEIGHT(GC_FONT(gc))));
 		}
 	      CGContextScaleCTM(context, 1, -1);
-	      CGContextTranslateCTM(context, 0, -port_height);
+	      CGContextTranslateCTM(context, 0, (CGFloat)(-port_height));
 #  if !USE_CG_DRAWING
 	    }
 #  endif /* !USE_CG_DRAWING */
@@ -1465,7 +1467,7 @@ mac_draw_image_string_cg(struct frame *f, GC gc, int x, int y,
   for (i = 0; i < nchars; i++)
     {
       XCharStruct *pcm = mac_per_char_metric(GC_FONT(gc), buf, 0);
-      
+
       eassert(pcm != NULL);
       xassert(pcm != NULL);
 
@@ -1491,12 +1493,13 @@ mac_draw_image_string_cg(struct frame *f, GC gc, int x, int y,
 	{
 	  CG_SET_FILL_COLOR_WITH_GC_BACKGROUND(context, gc);
 	  CGContextFillRect(context,
-                            CGRectMake(gx, (y - FONT_BASE(GC_FONT(gc))),
+                            CGRectMake((CGFloat)gx,
+				       (y - FONT_BASE(GC_FONT(gc))),
                                        bg_width,
                                        FONT_HEIGHT(GC_FONT(gc))));
 	}
       CGContextScaleCTM(context, 1, -1);
-      CGContextTranslateCTM(context, 0, -port_height);
+      CGContextTranslateCTM(context, 0, (CGFloat)(-port_height));
 # if !USE_CG_DRAWING
     }
 # endif /* !USE_CG_DRAWING */
@@ -1511,11 +1514,11 @@ mac_draw_image_string_cg(struct frame *f, GC gc, int x, int y,
   if (CGContextShowGlyphsWithAdvances != NULL)
 #  endif /* 10.2 */
     {
-      CGContextSetTextPosition(context, gx, gy);
+      CGContextSetTextPosition(context, (CGFloat)gx, (CGFloat)gy);
       CGContextShowGlyphsWithAdvances(context, glyphs, advances, nchars);
       if (overstrike_p)
 	{
-	  CGContextSetTextPosition(context, (gx + 1.0f), gy);
+	  CGContextSetTextPosition(context, (CGFloat)(gx + 1.0f), (CGFloat)gy);
 	  CGContextShowGlyphsWithAdvances(context, glyphs, advances, nchars);
 	}
     }
@@ -1870,7 +1873,7 @@ mac_set_clip_rectangles(Display *display, GC gc, Rect *rectangles, int n)
 
 
 /* Mac replacement for XSetClipMask: */
-static INLINE void mac_reset_clip_rectangles(Display *display, GC gc)
+/*static*/ INLINE void mac_reset_clip_rectangles(Display *display, GC gc)
 {
   gc->n_clip_rects = 0;
 }
@@ -2364,7 +2367,7 @@ static enum pcm_status pcm_get_status(const XCharStruct *pcm)
 
 /* Get metrics of character CHAR2B in FONT.  Value is null if CHAR2B
    is not contained in the font.  */
-static INLINE XCharStruct *
+/*static*/ INLINE XCharStruct *
 x_per_char_metric(XFontStruct *font, XChar2b *char2b)
 {
   /* The result metric information: */
@@ -2811,7 +2814,7 @@ static void x_set_mouse_face_gc(struct glyph_string *s)
 /* Set S->gc of glyph string S to a GC suitable for drawing a mode line.
    Faces to use in the mode line have already been computed when the
    matrix was built, so there is NOT much to do, here.  */
-static INLINE void x_set_mode_line_face_gc(struct glyph_string *s)
+/*static*/ INLINE void x_set_mode_line_face_gc(struct glyph_string *s)
 {
   s->gc = s->face->gc;
 }
@@ -2820,7 +2823,7 @@ static INLINE void x_set_mode_line_face_gc(struct glyph_string *s)
 /* Set S->gc of glyph string S for drawing that glyph string.  Set
    S->stippled_p to a non-zero value if the face of S has a stipple
    pattern.  */
-static INLINE void x_set_glyph_string_gc(struct glyph_string *s)
+/*static*/ INLINE void x_set_glyph_string_gc(struct glyph_string *s)
 {
   PREPARE_FACE_FOR_DISPLAY (s->f, s->face);
 
@@ -2863,7 +2866,7 @@ static INLINE void x_set_glyph_string_gc(struct glyph_string *s)
 
 /* Set clipping for output of glyph string S.  S may be part of a mode
    line or menu if we do NOT have X toolkit support.  */
-static INLINE void x_set_glyph_string_clipping(struct glyph_string *s)
+/*static*/ INLINE void x_set_glyph_string_clipping(struct glyph_string *s)
 {
   Rect rects[MAX_CLIP_RECTS];
   int n;
@@ -2921,8 +2924,8 @@ static void mac_compute_glyph_string_overhangs(struct glyph_string *s)
 
 
 /* Fill rectangle X, Y, W, H with background color of glyph string S: */
-static INLINE void x_clear_glyph_string_rect(struct glyph_string *s,
-                                             int x, int y, int w, int h)
+/*static*/ INLINE void
+x_clear_glyph_string_rect(struct glyph_string *s, int x, int y, int w, int h)
 {
   mac_erase_rectangle(s->f, s->gc, x, y, w, h);
 }
@@ -3991,7 +3994,7 @@ static void mac_shift_glyphs_for_insert(struct frame *f, int x, int y,
 
 /* Delete N glyphs at the nominal cursor position.  Not implemented
    for X frames.  */
-static void x_delete_glyphs(struct frame *f, register int n)
+static _Noreturn void x_delete_glyphs(struct frame *f, register int n)
 {
 #ifdef __APPLE_CC__
 # pragma unused (n)
@@ -4223,7 +4226,7 @@ static void XTset_terminal_window(struct frame * f, register int n)
 /* Perform an insert-lines or delete-lines operation, inserting N
    lines or deleting -N lines at vertical position VPOS.  */
 
-static void x_ins_del_lines(struct frame *f, int vpos, int n)
+static _Noreturn void x_ins_del_lines(struct frame *f, int vpos, int n)
 {
 #if defined(__APPLE__) && defined(__APPLE_CC__) && (__APPLE_CC__ > 1)
 # pragma unused (f, vpos, n)
@@ -5333,7 +5336,7 @@ static void XTredeem_scroll_bar(struct window *window)
     abort();
 
   bar = XSCROLL_BAR(window->vertical_scroll_bar);
-  
+
   eassert(bar != NULL);
   xassert(bar != NULL);
 
@@ -5509,18 +5512,18 @@ x_scroll_bar_report_motion(FRAME_PTR *fp, Lisp_Object *bar_window,
   Point mouse_pos;
   struct frame *f;
   int win_y, top_range;
-  
+
   eassert(bar != NULL);
   xassert(bar != NULL);
-  
+
   ch = SCROLL_BAR_CONTROL_HANDLE(bar);
-  
+
 #if TARGET_API_MAC_CARBON
   wp = GetControlOwner(ch);
 #else
   wp = (*ch)->contrlOwner;
 #endif /* TARGET_API_MAC_CARBON */
-  
+
   f = mac_window_to_frame(wp);
 
   SetPortWindowPort(wp);
@@ -5680,7 +5683,7 @@ x_draw_bar_cursor(struct window *w, struct glyph_row *row, int width,
       unsigned long mask = GCForeground | GCBackground;
       struct face *face = FACE_FROM_ID(f, cursor_glyph->face_id);
       XGCValues xgcv;
-      
+
       eassert(face != NULL);
       xassert(face != NULL);
 
@@ -6834,7 +6837,7 @@ static struct xlfdpat *xlfdpat_create(const char *pattern)
 		if (anychar_head > pat->buf && *(anychar_head - 1) == '*')
 		  /*  ...*??* -> ...*??  */
 		  continue;
-		else
+		else if (anychar_head != NULL)
 		  /*  ...a??* -> ...a*??  */
 		  {
 		    *anychar_head++ = '*';
@@ -6914,7 +6917,7 @@ static struct xlfdpat *xlfdpat_create(const char *pattern)
   return pat;
 }
 
-static INLINE int xlfdpat_exact_p(struct xlfdpat *pat)
+/*static*/ INLINE int xlfdpat_exact_p(struct xlfdpat *pat)
 {
   return pat->blocks == NULL;
 }
@@ -7897,7 +7900,7 @@ static void x_check_font(struct frame *f, XFontStruct * font)
    min_bounds contents.  For example, handa@etl.go.jp reports that
    "-adobe-courier-medium-r-normal--*-180-*-*-m-*-iso8859-1" fonts
    have font->min_bounds.width == 0.  */
-static INLINE void x_font_min_bounds(MacFontStruct *font, int *w, int *h)
+/*static*/ INLINE void x_font_min_bounds(MacFontStruct *font, int *w, int *h)
 {
   *h = FONT_HEIGHT(font);
   *w = font->min_bounds.width;
@@ -10039,6 +10042,7 @@ mac_handle_font_event(EventHandlerCallRef next_handler,
       break;
 
     default:
+      id_key = Qnil;
       num_params = 0;
       names = NULL;
       types = NULL;
@@ -10751,13 +10755,13 @@ int XTread_socket(int sd, int expected, struct input_event *hold_quit)
 		break;
 
 	      case inContent:
-		if (
+		if ((
 #if TARGET_API_MAC_CARBON
 		    FrontNonFloatingWindow()
 #else
 		    FrontWindow()
 #endif /* TARGET_API_MAC_CARBON */
-		    != window_ptr
+		     != window_ptr)
 		    || (mac_window_to_frame(window_ptr)
 			!= dpyinfo->x_focus_frame))
 		  SelectWindow(window_ptr);

@@ -2653,7 +2653,7 @@ static CGRect unset_global_focus_view_frame (void);
 #endif
 }
 
-- (void)attachOverlayWindow;
+- (void)attachOverlayWindow
 {
   [emacsWindow addChildWindow:overlayWindow ordered:NSWindowAbove];
   [emacsWindow addObserver:self forKeyPath:@"alphaValue"
@@ -4487,8 +4487,20 @@ mac_cursor_create(ThemeCursor shape, const XColor *fore_color,
       || (back_color && back_color->pixel != 0xffffff))
     cursor = [NSCursor cursorWithThemeCursor:shape];
   if (cursor == nil)
-    return (Cursor)(intptr_t)CFNumberCreate(NULL, kCFNumberSInt32Type,
-                                            &shape);
+    {
+      Cursor retcursor;
+      CFNumberRef mynum = CFNumberCreate(NULL, kCFNumberSInt32Type,
+					 &shape);
+      void *valuePtr = xmalloc(MAX(sizeof(CFNumberRef), sizeof(Cursor)));
+      Boolean worked = CFNumberGetValue(mynum, kCFNumberSInt32Type, valuePtr);
+      CFRelease(mynum);
+      retcursor = *(Cursor *)valuePtr;
+      xfree(valuePtr);
+      if (worked)
+	return (Cursor)retcursor;
+      else
+	return No_Cursor;
+    }
 
   if (fore_color == NULL)
     fg[RED] = fg[GREEN] = fg[BLUE] = 0;
@@ -5964,8 +5976,8 @@ mac_begin_cg_clip (struct frame *f, GC gc)
 
   if (gc->clip_rects_data)
     {
-      clip_rects = (const CGRect *) CFDataGetBytePtr (gc->clip_rects_data);
-      n_clip_rects = CFDataGetLength (gc->clip_rects_data) / sizeof (CGRect);
+      clip_rects = (const CGRect *)(void *)CFDataGetBytePtr(gc->clip_rects_data);
+      n_clip_rects = (CFDataGetLength(gc->clip_rects_data) / sizeof(CGRect));
     }
   else
     {
@@ -6136,7 +6148,7 @@ create_resize_indicator_image (void)
     }
 }
 
-- (void)setHighlighted:(BOOL)flag;
+- (void)setHighlighted:(BOOL)flag
 {
   if (flag != highlighted)
     {
@@ -6145,7 +6157,7 @@ create_resize_indicator_image (void)
     }
 }
 
-- (void)setShowsResizeIndicator:(BOOL)flag;
+- (void)setShowsResizeIndicator:(BOOL)flag
 {
   if (flag != showsResizeIndicator)
     {
@@ -7551,7 +7563,7 @@ update_frame_tool_bar(struct frame *f)
 	      [frameController updateBackingScaleFactor];
 	      img = IMAGE_FROM_ID(f, img_id);
 	      prepare_image_for_display(f, img);
-	      
+
 	      eassert(img != NULL);
 	      xassert(img != NULL);
 
@@ -10856,7 +10868,8 @@ handle_action_invocation(NSInvocation *invocation)
     }
 }
 
-- (NSAppleEventDescriptor *)executeAppleEvent:(NSAppleEventDescriptor *)event error:(NSDictionary **)errorInfo;
+- (NSAppleEventDescriptor *)executeAppleEvent:(NSAppleEventDescriptor *)event
+					error:(NSDictionary **)errorInfo
 {
   if (inhibit_window_system || [NSApp isRunning])
     return [super executeAppleEvent:event error:errorInfo];
@@ -11806,7 +11819,7 @@ static NSDate *documentRasterizerCacheOldestTimestamp;
     return NSMakeSize(ceil(NSHeight(bounds)), ceil(NSWidth(bounds)));
 }
 
-- (CGColorRef)copyBackgroundCGColorOfPageAtIndex:(NSUInteger)index;
+- (CGColorRef)copyBackgroundCGColorOfPageAtIndex:(NSUInteger)index
 {
   return NULL;
 }
@@ -11817,7 +11830,7 @@ static NSDate *documentRasterizerCacheOldestTimestamp;
 }
 
 - (void)drawPageAtIndex:(NSUInteger)index inRect:(NSRect)rect
-	      inContext:(CGContextRef)ctx;
+	      inContext:(CGContextRef)ctx
 {
   PDFPage *page = [self pageAtIndex:index];
   NSRect bounds = [page boundsForBox:kPDFDisplayBoxTrimBox];
@@ -12131,7 +12144,7 @@ static NSDate *documentRasterizerCacheOldestTimestamp;
 #endif /* pre-10.5 */
 }
 
-- (NSSize)integralSizeOfPageAtIndex:(NSUInteger)index;
+- (NSSize)integralSizeOfPageAtIndex:(NSUInteger)index
 {
   NSLayoutManager *layoutManager = [self layoutManager];
   NSTextContainer *textContainer =
@@ -12140,7 +12153,7 @@ static NSDate *documentRasterizerCacheOldestTimestamp;
   return [textContainer containerSize];
 }
 
-- (CGColorRef)copyBackgroundCGColorOfPageAtIndex:(NSUInteger)index;
+- (CGColorRef)copyBackgroundCGColorOfPageAtIndex:(NSUInteger)index
 {
   NSColor *backgroundColor = [documentAttributes
 			       objectForKey:NSBackgroundColorDocumentAttribute];
@@ -12155,7 +12168,7 @@ static NSDate *documentRasterizerCacheOldestTimestamp;
 }
 
 - (void)drawPageAtIndex:(NSUInteger)index inRect:(NSRect)rect
-	      inContext:(CGContextRef)ctx;
+	      inContext:(CGContextRef)ctx
 {
   NSLayoutManager *layoutManager = [self layoutManager];
   NSTextContainer *textContainer =

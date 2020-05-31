@@ -250,6 +250,14 @@ extern void _DebPrint (const char *fmt, ...);
 # endif /* gcc 7+ */
 #endif /* !ATTRIBUTE_FALLTHROUGH */
 
+/* clang */
+#if __has_attribute(flag_enum)
+# define ATTRIBUTE_FLAG_ENUM __attribute__((flag_enum))
+#else
+# define ATTRIBUTE_FLAG_ENUM /* (nothing) */
+#endif /* __has_attribute(flag_enum) */
+
+/* has been in GCC for a long time: */
 #if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7)
 # define ATTRIBUTE_FORMAT(spec) __attribute__ ((__format__ spec))
 #else

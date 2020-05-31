@@ -4071,9 +4071,9 @@ Internal use only, use `display-monitor-attributes-list' instead.  */)
 			 / x_display_pixel_height (dpyinfo));
   gdpy = gdk_x11_lookup_xdisplay (dpyinfo->display);
   gscreen = gdk_display_get_default_screen (gdpy);
-#if GTK_CHECK_VERSION (2, 20, 0)
+# if GTK_CHECK_VERSION (2, 20, 0)
   primary_monitor = gdk_screen_get_primary_monitor (gscreen);
-#endif
+# endif /* Gtk 2.20+ */
   n_monitors = gdk_screen_get_n_monitors (gscreen);
   monitor_frames = Fmake_vector (make_number (n_monitors), Qnil);
   monitors = xzalloc (n_monitors * sizeof *monitors);
@@ -4100,18 +4100,18 @@ Internal use only, use `display-monitor-attributes-list' instead.  */)
 
       gdk_screen_get_monitor_geometry (gscreen, i, &rec);
 
-#if GTK_CHECK_VERSION (2, 14, 0)
+# if GTK_CHECK_VERSION (2, 14, 0)
       width_mm = gdk_screen_get_monitor_width_mm (gscreen, i);
       height_mm = gdk_screen_get_monitor_height_mm (gscreen, i);
-#endif
+# endif /* Gtk 2.14+ */
       if (width_mm < 0)
 	width_mm = rec.width * mm_width_per_pixel + 0.5;
       if (height_mm < 0)
 	height_mm = rec.height * mm_height_per_pixel + 0.5;
 
-#if GTK_CHECK_VERSION (3, 4, 0)
+# if GTK_CHECK_VERSION (3, 4, 0)
       gdk_screen_get_monitor_workarea (gscreen, i, &work);
-#else
+# else
       /* Emulate the behavior of GTK+ 3.4.  */
       {
 	XRectangle workarea_r;
@@ -4128,7 +4128,7 @@ Internal use only, use `display-monitor-attributes-list' instead.  */)
         else
           work = rec;
       }
-#endif
+# endif /* Gtk 3.4 */
 
 
       mi->geom.x = rec.x;
@@ -4142,9 +4142,9 @@ Internal use only, use `display-monitor-attributes-list' instead.  */)
       mi->mm_width = width_mm;
       mi->mm_height = height_mm;
 
-#if GTK_CHECK_VERSION (2, 14, 0)
+# if GTK_CHECK_VERSION (2, 14, 0)
       mi->name = gdk_screen_get_monitor_plug_name (gscreen, i);
-#endif
+# endif /* Gtk 2.14+ */
     }
 
   attributes_list = make_monitor_attribute_list (monitors,
@@ -4155,9 +4155,9 @@ Internal use only, use `display-monitor-attributes-list' instead.  */)
   unblock_input ();
 #else  /* not USE_GTK */
 
-  block_input ();
-  attributes_list = x_get_monitor_attributes (dpyinfo);
-  unblock_input ();
+  block_input();
+  attributes_list = x_get_monitor_attributes(dpyinfo);
+  unblock_input();
 
 #endif	/* not USE_GTK */
 

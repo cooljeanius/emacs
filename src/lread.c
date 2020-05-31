@@ -873,12 +873,10 @@ lisp_file_lexically_bound_p (Lisp_Object readcharfun)
     }
 
       /* Skip until we get to the file vars, if any.  */
-      do
-	{
-	  ch = READCHAR;
-	  UPDATE_BEG_END_STATE (ch);
-	}
-      while (!in_file_vars && ch != '\n' && ch != EOF);
+      do {
+	ch = READCHAR;
+	UPDATE_BEG_END_STATE(ch);
+      } while (!in_file_vars && ch != '\n' && ch != EOF);
 
       while (in_file_vars)
 	{
@@ -927,7 +925,8 @@ lisp_file_lexically_bound_p (Lisp_Object readcharfun)
 	      if (! in_file_vars)
 		/* The value was terminated by an end-marker, which remove.  */
 		i -= 3;
-	      while (i > 0 && (val[i - 1] == ' ' || val[i - 1] == '\t'))
+	      while ((i > 0) && ((i - 1) <= 100)
+		     && ((val[i - 1] == ' ') || (val[i - 1] == '\t')))
 		i--;
 	      val[i] = '\0';
 
@@ -3184,8 +3183,7 @@ read1 (Lisp_Object readcharfun, int *pch, bool first_in_list)
 	{
 	  char *end = read_buffer + read_buffer_size;
 
-	  do
-	    {
+	  do {
 	      if (end - p < MAX_MULTIBYTE_LENGTH)
 		{
 		  ptrdiff_t offset = p - read_buffer;
@@ -3210,11 +3208,10 @@ read1 (Lisp_Object readcharfun, int *pch, bool first_in_list)
 	      else
 		*p++ = c;
 	      c = READCHAR;
-	    }
-	  while (c > 040
-		 && c != 0xa0 /* NBSP */
-		 && (c >= 0200
-		     || strchr ("\"';()[]#`,", c) == NULL));
+	  } while ((c > 040)
+		   && (c != 0xa0) /* NBSP */
+		   && ((c >= 0200)
+		       || (strchr("\"';()[]#`,", c) == NULL)));
 
 	  if (p == end)
 	    {
@@ -3225,9 +3222,13 @@ read1 (Lisp_Object readcharfun, int *pch, bool first_in_list)
 	      read_buffer_size *= 2;
 	      p = (read_buffer + offset);
 	      end = (read_buffer + read_buffer_size);
+	      if (end == NULL) {
+		; /* ??? */
+	      }
 	    }
-	  *p = 0;
-	  UNREAD (c);
+	  if (p != NULL)
+	    *p = 0;
+	  UNREAD(c);
 	}
 
 	if (!quoted && !uninterned_symbol)
@@ -3400,7 +3401,7 @@ substitute_in_interval (INTERVAL interval, Lisp_Object arg)
    number has integer syntax but does not fit.  */
 
 Lisp_Object
-string_to_number (char const *string, int base, bool ignore_trailing)
+string_to_number(char const *string, int base, bool ignore_trailing)
 {
   int state;
   char const *cp = string;
@@ -3415,20 +3416,25 @@ string_to_number (char const *string, int base, bool ignore_trailing)
   /* Negate the value ourselves.  This treats 0, NaNs, and infinity properly on
      IEEE floating point hosts, and works around a formerly-common bug where
      atof ("-0.0") drops the sign.  */
-  bool negative = *cp == '-';
+  bool negative = (*cp == '-');
 
-  bool signedp = negative || *cp == '+';
+  bool signedp = (negative || (*cp == '+'));
   cp += signedp;
 
   state = 0;
 
-  leading_digit = digit_to_number (*cp, base);
+  leading_digit = digit_to_number(*cp, base);
   if (leading_digit >= 0)
     {
+      size_t counted = 0UL;
       state |= LEAD_INT;
-      do
+      do {
 	++cp;
-      while (digit_to_number (*cp, base) >= 0);
+	counted++;
+      } while (digit_to_number(*cp, base) >= 0);
+      if (counted > strlen(string)) {
+	; /* ??? */
+      }
     }
   if (*cp == '.')
     {

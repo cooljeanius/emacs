@@ -3526,12 +3526,12 @@ verify (((SAVE_INTEGER | SAVE_POINTER | SAVE_FUNCPOINTER | SAVE_OBJECT)
 
 /* Return Lisp_Save_Value objects for the various combinations
    that callers need.  */
-
+/* */
 Lisp_Object
-make_save_int_int_int (ptrdiff_t a, ptrdiff_t b, ptrdiff_t c)
+make_save_int_int_int(ptrdiff_t a, ptrdiff_t b, ptrdiff_t c)
 {
-  Lisp_Object val = allocate_misc (Lisp_Misc_Save_Value);
-  struct Lisp_Save_Value *p = XSAVE_VALUE (val);
+  Lisp_Object val = allocate_misc(Lisp_Misc_Save_Value);
+  struct Lisp_Save_Value *p = XSAVE_VALUE(val);
   p->save_type = SAVE_TYPE_INT_INT_INT;
   p->data[0].integer = a;
   p->data[1].integer = b;
@@ -3539,12 +3539,13 @@ make_save_int_int_int (ptrdiff_t a, ptrdiff_t b, ptrdiff_t c)
   return val;
 }
 
+/* */
 Lisp_Object
-make_save_obj_obj_obj_obj (Lisp_Object a, Lisp_Object b, Lisp_Object c,
-			   Lisp_Object d)
+make_save_obj_obj_obj_obj(Lisp_Object a, Lisp_Object b, Lisp_Object c,
+			  Lisp_Object d)
 {
-  Lisp_Object val = allocate_misc (Lisp_Misc_Save_Value);
-  struct Lisp_Save_Value *p = XSAVE_VALUE (val);
+  Lisp_Object val = allocate_misc(Lisp_Misc_Save_Value);
+  struct Lisp_Save_Value *p = XSAVE_VALUE(val);
   p->save_type = SAVE_TYPE_OBJ_OBJ_OBJ_OBJ;
   p->data[0].object = a;
   p->data[1].object = b;
@@ -3553,21 +3554,23 @@ make_save_obj_obj_obj_obj (Lisp_Object a, Lisp_Object b, Lisp_Object c,
   return val;
 }
 
+/* */
 Lisp_Object
-make_save_ptr (void *a)
+make_save_ptr(void *a)
 {
-  Lisp_Object val = allocate_misc (Lisp_Misc_Save_Value);
-  struct Lisp_Save_Value *p = XSAVE_VALUE (val);
-  p->save_type = SAVE_POINTER;
+  Lisp_Object val = allocate_misc(Lisp_Misc_Save_Value);
+  struct Lisp_Save_Value *p = XSAVE_VALUE(val);
+  p->save_type = SAVE_POINTER; /* FIXME: -Wassign-enum */
   p->data[0].pointer = a;
   return val;
 }
 
+/* */
 Lisp_Object
-make_save_ptr_int (void *a, ptrdiff_t b)
+make_save_ptr_int(void *a, ptrdiff_t b)
 {
-  Lisp_Object val = allocate_misc (Lisp_Misc_Save_Value);
-  struct Lisp_Save_Value *p = XSAVE_VALUE (val);
+  Lisp_Object val = allocate_misc(Lisp_Misc_Save_Value);
+  struct Lisp_Save_Value *p = XSAVE_VALUE(val);
   p->save_type = SAVE_TYPE_PTR_INT;
   p->data[0].pointer = a;
   p->data[1].integer = b;

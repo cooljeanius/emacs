@@ -696,16 +696,16 @@ keymap_panes(Lisp_Object *keymaps, int nmaps, int notreal)
 {
   int mapno;
 
-  init_menu_items ();
+  init_menu_items();
 
   /* Loop over the given keymaps, making a pane for each map.
      But do NOT make a pane that is empty--ignore that map instead.
      P is the number of panes we have made so far.  */
   for (mapno = 0; mapno < nmaps; mapno++)
-    single_keymap_panes (keymaps[mapno],
-			 Fkeymap_prompt (keymaps[mapno]), Qnil, notreal, 10);
+    single_keymap_panes(keymaps[mapno],
+                        Fkeymap_prompt(keymaps[mapno]), Qnil, notreal, 10);
 
-  finish_menu_items ();
+  finish_menu_items();
 }
 
 /* Args passed between single_keymap_panes and single_menu_item.  */
@@ -935,7 +935,7 @@ no quit occurs and `x-popup-menu' returns nil.  */)
   char *error_name = NULL;
   Lisp_Object selection;
   FRAME_PTR f = NULL;
-  Lisp_Object x, y, window;
+  Lisp_Object x = Qnil, y = Qnil, window;
   int keymaps = 0;
   int for_click = 0;
   int specpdl_count = SPECPDL_INDEX ();
@@ -1253,39 +1253,41 @@ for instance using the window manager, then this produces a quit and
       /* Force a redisplay before showing the dialog.  If a frame is
 	 created just before showing the dialog, its contents may not
 	 have been fully drawn.  */
-      Fredisplay (Qt);
+      Fredisplay(Qt);
 
-      tem = Fstring_match (concat3 (build_string ("\\("),
-				    call0 (intern ("sentence-end")),
-				    build_string ("\\)\n")),
-			   XCAR (contents), Qnil);
+      tem = Fstring_match(concat3(build_string("\\("),
+                                  call0(intern("sentence-end")),
+                                  build_string("\\)\n")),
+			  XCAR(contents), Qnil);
       BLOCK_INPUT;
-      if (NILP (tem))
+      if (NILP(tem))
 	{
-	  error_string = cfstring_create_with_string (XCAR (contents));
+	  error_string = cfstring_create_with_string(XCAR(contents));
 	  if (error_string == NULL)
 	    err = memFullErr;
 	  explanation_string = NULL;
 	}
       else
 	{
-	  tem = Fmatch_end (make_number (1));
+	  tem = Fmatch_end(make_number(1));
 	  error_string =
-	    cfstring_create_with_string (Fsubstring (XCAR (contents),
-						     make_number (0), tem));
+	    cfstring_create_with_string(Fsubstring(XCAR(contents),
+                                                   make_number(0), tem));
 	  if (error_string == NULL)
 	    err = memFullErr;
 	  else
 	    {
-	      XSETINT (tem, XINT (tem) + 1);
+	      XSETINT(tem, XINT(tem) + 1);
 	      explanation_string =
-		cfstring_create_with_string (Fsubstring (XCAR (contents),
-							 tem, Qnil));
+		cfstring_create_with_string(Fsubstring(XCAR(contents),
+                                                       tem, Qnil));
 	      if (explanation_string == NULL)
 		{
-		  CFRelease (error_string);
+		  CFRelease(error_string);
 		  err = memFullErr;
 		}
+              else if ((error_string != NULL) && (err == noErr) && 0)
+                CFRelease(error_string);
 	    }
 	}
       if (err == noErr)
@@ -1310,6 +1312,11 @@ for instance using the window manager, then this produces a quit and
 	  if (explanation_string)
 	    CFRelease(explanation_string);
 	}
+      else if ((error_string != NULL) && (err != memFullErr))
+        CFRelease(error_string);
+      else if (explanation_string != NULL)
+        CFRelease(explanation_string);
+
       if (err == noErr)
 	err = RunStandardAlert(alert, mac_dialog_modal_filter, &item_hit);
       UNBLOCK_INPUT;
@@ -2041,7 +2048,7 @@ set_frame_menubar(FRAME_PTR f, bool first_time, bool deep_p)
       FRAME_MENU_BAR_ITEMS(f) = menu_bar_items(FRAME_MENU_BAR_ITEMS(f));
 
       items = FRAME_MENU_BAR_ITEMS(f);
-      
+
       lvec = XVECTOR(items);
       eassert(lvec != NULL);
       xassert(lvec != NULL);
@@ -2158,10 +2165,10 @@ set_frame_menubar(FRAME_PTR f, bool first_time, bool deep_p)
   else
     {
       struct Lisp_Vector *lvec = XVECTOR(items);
-      
+
       eassert(lvec != NULL);
       xassert(lvec != NULL);
-      
+
       /* Make a widget-value tree containing
 	 just the top level menu bar strings.  */
 
@@ -2174,11 +2181,11 @@ set_frame_menubar(FRAME_PTR f, bool first_time, bool deep_p)
       first_wv = wv;
 
       items = FRAME_MENU_BAR_ITEMS(f);
-      
+
       if (NILP(items)) {
         ; /* ??? */
       }
-      
+
       for (i = 0; i < lvec->size; i += 4)
 	{
 	  Lisp_Object string;
@@ -2250,7 +2257,7 @@ pop_down_menu(Lisp_Object arg)
    * for reasoning behind this conditional: */
   FRAME_PTR f = ((p->save_type == SAVE_TYPE_PTR_OBJ)
                  ? (FRAME_PTR)&p->data[0]
-                 : ((p->save_type == SAVE_TYPE_MEMORY) 
+                 : ((p->save_type == SAVE_TYPE_MEMORY)
                     ? (FRAME_PTR)p->data[0].pointer : (FRAME_PTR)NULL));
   MenuHandle menu = GetMenuHandle(min_menu_id[MAC_MENU_POPUP]);
 
@@ -2308,6 +2315,9 @@ mac_menu_show(FRAME_PTR f, int x, int y, int for_click, int keymaps,
 
   int first_pane;
   int specpdl_count = SPECPDL_INDEX();
+
+  memset(submenu_stack, 0, max(1UL, (menu_items_used
+                                     * sizeof(widget_value *))));
 
   *error = NULL;
 
@@ -2763,8 +2773,9 @@ create_and_show_dialog(FRAME_PTR f, widget_value *first_wv)
   /* Create button controls and measure their optimal bounds: */
   if (err == noErr)
     {
-      buttons = alloca(sizeof(ControlRef) * nb_buttons);
-      rects = alloca(sizeof(Rect) * nb_buttons);
+      buttons = (ControlRef *)alloca(sizeof(ControlRef) * nb_buttons);
+      rects = (Rect *)alloca((sizeof(Rect) * nb_buttons) + 1UL);
+      memset(rects, 0, ((sizeof(Rect) * nb_buttons) + 1UL));
       for (i = 0; i < nb_buttons; i++)
 	{
 	  CFStringRef label = cfstring_create_with_utf8_cstring(wv->value);

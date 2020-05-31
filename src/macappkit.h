@@ -18,7 +18,16 @@ along with GNU Emacs Mac port.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #undef Z
 #import <Cocoa/Cocoa.h>
-#import <WebKit/WebKit.h>
+#ifndef AVAILABLE_IN_WEBKIT_VERSION_4_0
+# if defined(WEAK_IMPORT_ATTRIBUTE)
+#  define AVAILABLE_IN_WEBKIT_VERSION_4_0 WEAK_IMPORT_ATTRIBUTE
+# else
+#  define AVAILABLE_IN_WEBKIT_VERSION_4_0 /* (nothing?) */
+# endif /* WEAK_IMPORT_ATTRIBUTE */
+#endif /* !AVAILABLE_IN_WEBKIT_VERSION_4_0 */
+#if defined(HAVE_WEBKIT_WEBKIT_H) || defined(__APPLE__)
+# import <WebKit/WebKit.h>
+#endif /* HAVE_WEBKIT_WEBKIT_H || __APPLE__ */
 #import <Quartz/Quartz.h>
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= 1050
 #import <QuartzCore/QuartzCore.h>

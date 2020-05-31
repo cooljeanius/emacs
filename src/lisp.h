@@ -2175,10 +2175,11 @@ enum { SAVE_VALUE_SLOTS = 4 };
 
 /* Bit-width and values for struct Lisp_Save_Value's save_type member.  */
 
-enum { SAVE_TYPE_BITS = SAVE_VALUE_SLOTS * SAVE_SLOT_BITS + 1 };
+enum { SAVE_TYPE_BITS = (SAVE_VALUE_SLOTS * SAVE_SLOT_BITS) + 1 };
 
 enum Lisp_Save_Type
   {
+    SAVE_TYPE_UNUSED = SAVE_UNUSED,
     SAVE_TYPE_INT_INT = SAVE_INTEGER + (SAVE_INTEGER << SAVE_SLOT_BITS),
     SAVE_TYPE_INT_INT_INT
       = (SAVE_INTEGER + (SAVE_TYPE_INT_INT << SAVE_SLOT_BITS)),
@@ -2192,7 +2193,7 @@ enum Lisp_Save_Type
     SAVE_TYPE_FUNCPTR_PTR_OBJ
       = SAVE_FUNCPOINTER + (SAVE_TYPE_PTR_OBJ << SAVE_SLOT_BITS),
 
-    /* This has an extra bit indicating it's raw memory.  */
+    /* This has an extra bit indicating it is raw memory: */
     SAVE_TYPE_MEMORY = SAVE_TYPE_PTR_INT + (1 << (SAVE_TYPE_BITS - 1))
   };
 

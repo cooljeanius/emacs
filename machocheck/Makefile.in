@@ -16,7 +16,8 @@ BETTER_DEBUG_CFLAGS = @BETTER_DEBUG_CFLAGS@
 ARM_DEFS = -DSUPPORT_ARCH_arm_any=1 -DSUPPORT_ARCH_arm64=1
 HARDCODED_DEFS = -D__STRICT_BSD__ -DDEBUG -DLTO_SUPPORT # $(ARM_DEFS)
 DEFS = @DEFS@ -Demacs
-HARDCODED_CPPFLAGS = -I. -Isrc/abstraction -Isrc/ld -Isrc/other
+acl_cv_wp = @acl_cv_wp@
+HARDCODED_CPPFLAGS = ${acl_cv_wp}-I. ${acl_cv_wp}-Isrc/abstraction ${acl_cv_wp}-Isrc/ld ${acl_cv_wp}-Isrc/other
 CPPFLAGS = @CPPFLAGS@
 HARDCODED_CXXFLAGS = $(HARDCODED_WARN_CXXFLAGS) $(HARDCODED_CFLAGS)
 CXXFLAGS = @CXXFLAGS@

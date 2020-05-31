@@ -2187,9 +2187,14 @@ GNULIB_WARN_CFLAGS
 WARN_CXXFLAGS
 LD_ARCHFLAGS
 WARN_LDFLAGS
+acl_cv_wa
 acl_cv_wl
 WERROR_CFLAGS
 WARN_CFLAGS
+GOLD_PLUGIN
+FAT_LTO_CFLAGS
+LTO
+LTO_KIND
 old_LDFLAGS
 GETCONF_PROG
 CLANG_ANALYZER
@@ -2232,6 +2237,7 @@ CPPFLAGS
 LDFLAGS
 CFLAGS
 CC
+acl_cv_wp
 RC_ARCHS
 HOST_ARCHITECTURE
 host_os
@@ -7167,6 +7173,11 @@ if test -z "${RC_ARCHS}"; then
   if test -n "${TARGET_ARCHITECTURE}" -a "x${HOST_ARCHITECTURE}" != "x${TARGET_ARCHITECTURE}"; then
     export RC_ARCHS="${RC_ARCHS} ${TARGET_ARCHITECTURE}"
   fi
+fi
+
+# For later:
+if test "x${acl_cv_wp}" = "x"; then
+  test -z "${acl_cv_wp}" && export acl_cv_wp='-Wp,'
 fi
 
 
@@ -14024,6 +14035,7 @@ $as_echo "$ac_cv_path_CLANG_ANALYZER" >&6; }  ## (need this extra line here)
 CLANG_ANALYZER=${ac_cv_path_CLANG_ANALYZER}
 
 
+LTO_KIND="none"
 
       cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -14165,6 +14177,7 @@ $as_echo "$as_me: WARNING: link-time optimization requested, but it currently re
      fi  ##end gcc-specific checks
      ## now use it what we found, but only once:
      if test "x${ac_cv_lto_supported}" = "xyes"; then
+        LTO_KIND="gcc"
         CFLAGS="${CFLAGS} ${LTO}"
 
       cat confdefs.h - <<_ACEOF >conftest.$ac_ext
@@ -14221,11 +14234,18 @@ fi
 $as_echo "$gl_cv_warn_c__ffat_lto_objects" >&6; }
 if test "x$gl_cv_warn_c__ffat_lto_objects" = xyes; then :
   CFLAGS="${CFLAGS} -ffat-lto-objects"
+             FAT_LTO_CFLAGS="-ffat-lto-objects"
 fi
 
 fi
-rm -f conftest.err conftest.i conftest.$ac_ext        ##end case for compiling with gcc lto
+rm -f conftest.err conftest.i conftest.$ac_ext        ## might need this here too:
+        if test "x${ac_cv_ld_lto_supported}" = "xyes"; then
+           LDFLAGS="${LDFLAGS} ${LTO}"
+        fi
+        echo "CFLAGS are now: ${CFLAGS}"
+        ##end case for compiling with gcc lto
      elif test "x${ac_cv_ld_lto_supported}" = "xyes"; then
+        LTO_KIND="gcc (but just for linking)"
         LDFLAGS="${LDFLAGS} ${LTO}"
      fi
   else
@@ -14283,6 +14303,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
       { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_cv_lto_supported}" >&5
 $as_echo "${ac_cv_lto_supported}" >&6; }
       if test "x${ac_cv_lto_supported}" = "xyes"; then
+         LTO_KIND="clang"
          CFLAGS="${CFLAGS} ${LTO}"
          ## (already in the clang case here)
          { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Please check INSTALL before using link-time optimization with clang" >&5
@@ -14291,6 +14312,9 @@ $as_echo "$as_me: WARNING: Please check INSTALL before using link-time optimizat
          # command, so plugin name is appended to ARFLAGS.
          ARFLAGS="cru --plugin ${GOLD_PLUGIN}"
          RANLIB="${RANLIB} --plugin ${GOLD_PLUGIN}"
+      elif test "x${enableval}" = "xyes" && test "x${ac_cv_lto_supported}" = "xno"; then
+         { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: LTO requested but unsupported" >&5
+$as_echo "$as_me: WARNING: LTO requested but unsupported" >&2;}
       fi
     else
       { $as_echo "$as_me:${as_lineno-$LINENO}: need clang for LTO checks, when not using gcc 4.5.0 or newer." >&5
@@ -14370,6 +14394,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
   CFLAGS="${CFLAGS} ${gl_unknown_warnings_are_errors}"
+  echo "CFLAGS are now: ${CFLAGS}"
 else
   { $as_echo "$as_me:${as_lineno-$LINENO}: Hopefully your compiler should reject unknown warning flags without any extra options" >&5
 $as_echo "$as_me: Hopefully your compiler should reject unknown warning flags without any extra options" >&6;}
@@ -15823,8 +15848,8 @@ fi
 
 else
 
-    { $as_echo "$as_me:${as_lineno-$LINENO}: no need to explicitly add '-Wno-logical-op' for versions of gcc before 4.5.0" >&5
-$as_echo "$as_me: no need to explicitly add '-Wno-logical-op' for versions of gcc before 4.5.0" >&6;}
+    { $as_echo "$as_me:${as_lineno-$LINENO}: no need to explicitly add '-Wno-logical-op' for compilers that report being versions of gcc before 4.5.0" >&5
+$as_echo "$as_me: no need to explicitly add '-Wno-logical-op' for compilers that report being versions of gcc before 4.5.0" >&6;}
 
 fi
 rm -f conftest.err conftest.i conftest.$ac_ext
@@ -16226,6 +16251,10 @@ fi
       test -z "${acl_cv_wl}" && export acl_cv_wl='-Wl,'
     fi
 
+    if test "x${acl_cv_wa}" = "x"; then
+      test -z "${acl_cv_wa}" && export acl_cv_wa='-Wa,'
+    fi
+
     WARN_LDFLAGS=""
         case ${host_vendor} in
       apple*)
@@ -16600,11 +16629,57 @@ fi
               test -z "${WARN_LDFLAGS}" && WARN_LDFLAGS="${LD_ARCHFLAGS}"
             fi
           fi
-                    ## that should be all we need to do with them for now...
+                    ## that should be all we need to do with the linker flags for now...
         else
           test -z "${LD_ARCHFLAGS}"
         fi
         test -n "${LD_WARN_COMMONS}"
+        if test "x${acl_cv_wa}" = "x-Wa,"; then
+
+
+as_gl_Warn=`$as_echo "gl_cv_warn_c_${acl_cv_wa}-Qunused-arguments" | $as_tr_sh`
+gl_positive="${acl_cv_wa}-Qunused-arguments"
+case $gl_positive in
+  -Wno-*) gl_positive=-W`expr "X$gl_positive" : 'X-Wno-\(.*\)'` ;;
+esac
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles ${acl_cv_wa}-Qunused-arguments" >&5
+$as_echo_n "checking whether C compiler handles ${acl_cv_wa}-Qunused-arguments... " >&6; }
+if eval \${$as_gl_Warn+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors $gl_positive"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  eval "$as_gl_Warn=yes"
+else
+  eval "$as_gl_Warn=no"
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+eval ac_res=\$$as_gl_Warn
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+if eval test \"x\$"$as_gl_Warn"\" = x"yes"; then :
+  as_fn_append WARN_CFLAGS " ${acl_cv_wa}-Qunused-arguments"
+fi
+
+
+        fi
         ;;
       gnu*)
 
@@ -20140,6 +20215,43 @@ if ac_fn_c_try_cpp "$LINENO"; then :
 
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wabsolute-value" >&5
+$as_echo_n "checking whether C compiler handles -Wabsolute-value... " >&6; }
+if ${gl_cv_warn_c__Wabsolute_value+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wabsolute-value"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__Wabsolute_value=yes
+else
+  gl_cv_warn_c__Wabsolute_value=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wabsolute_value" >&5
+$as_echo "$gl_cv_warn_c__Wabsolute_value" >&6; }
+if test "x$gl_cv_warn_c__Wabsolute_value" = xyes; then :
+  as_fn_append WARN_CFLAGS " -Wabsolute-value"
+fi
+
+
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wenum-conversion" >&5
 $as_echo_n "checking whether C compiler handles -Wenum-conversion... " >&6; }
 if ${gl_cv_warn_c__Wenum_conversion+:} false; then :
@@ -20310,10 +20422,316 @@ else
 
       { $as_echo "$as_me:${as_lineno-$LINENO}: skipping checks for warnings for gcc 9.0 or newer" >&5
 $as_echo "$as_me: skipping checks for warnings for gcc 9.0 or newer" >&6;}
+      if test "x${emacs_cv_clang}" = "xyes"; then
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wabsolute-value" >&5
+$as_echo_n "checking whether C compiler handles -Wabsolute-value... " >&6; }
+if ${gl_cv_warn_c__Wabsolute_value+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wabsolute-value"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__Wabsolute_value=yes
+else
+  gl_cv_warn_c__Wabsolute_value=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wabsolute_value" >&5
+$as_echo "$gl_cv_warn_c__Wabsolute_value" >&6; }
+if test "x$gl_cv_warn_c__Wabsolute_value" = xyes; then :
+  as_fn_append WARN_CFLAGS " -Wabsolute-value"
+fi
+
+
+      fi
 
 fi
 rm -f conftest.err conftest.i conftest.$ac_ext
+
+      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#if (10) < __GNUC__ || ((10) == __GNUC__ && (0) <= __GNUC_MINOR__)
+/* ok */
+#else
+# error "your version of gcc is older than 10.0"
+#endif /* GCC version check */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+},
+
+_ACEOF
+if ac_fn_c_try_cpp "$LINENO"; then :
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wstring-compare" >&5
+$as_echo_n "checking whether C compiler handles -Wstring-compare... " >&6; }
+if ${gl_cv_warn_c__Wstring_compare+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wstring-compare"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__Wstring_compare=yes
+else
+  gl_cv_warn_c__Wstring_compare=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wstring_compare" >&5
+$as_echo "$gl_cv_warn_c__Wstring_compare" >&6; }
+if test "x$gl_cv_warn_c__Wstring_compare" = xyes; then :
+  as_fn_append WARN_CFLAGS " -Wstring-compare"
+fi
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wzero-length-bounds" >&5
+$as_echo_n "checking whether C compiler handles -Wzero-length-bounds... " >&6; }
+if ${gl_cv_warn_c__Wzero_length_bounds+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wzero-length-bounds"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__Wzero_length_bounds=yes
+else
+  gl_cv_warn_c__Wzero_length_bounds=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wzero_length_bounds" >&5
+$as_echo "$gl_cv_warn_c__Wzero_length_bounds" >&6; }
+if test "x$gl_cv_warn_c__Wzero_length_bounds" = xyes; then :
+  as_fn_append WARN_CFLAGS " -Wzero-length-bounds"
+fi
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Warith-conversion" >&5
+$as_echo_n "checking whether C compiler handles -Warith-conversion... " >&6; }
+if ${gl_cv_warn_c__Warith_conversion+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Warith-conversion"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__Warith_conversion=yes
+else
+  gl_cv_warn_c__Warith_conversion=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Warith_conversion" >&5
+$as_echo "$gl_cv_warn_c__Warith_conversion" >&6; }
+if test "x$gl_cv_warn_c__Warith_conversion" = xyes; then :
+
+        if test "x${PRINT_CONVERSION_WARNINGS}" = "xyes"; then
+          test -n "${PRINT_CONVERSION_WARNINGS}"
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Warith-conversion" >&5
+$as_echo_n "checking whether C compiler handles -Warith-conversion... " >&6; }
+if ${gl_cv_warn_c__Warith_conversion+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Warith-conversion"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__Warith_conversion=yes
+else
+  gl_cv_warn_c__Warith_conversion=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Warith_conversion" >&5
+$as_echo "$gl_cv_warn_c__Warith_conversion" >&6; }
+if test "x$gl_cv_warn_c__Warith_conversion" = xyes; then :
+  as_fn_append WARN_CFLAGS " -Warith-conversion"
+fi
+
+
+        elif test "x${PRINT_CONVERSION_WARNINGS}" = "x"; then
+          test -z "${PRINT_CONVERSION_WARNINGS}" &&
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wconversion" >&5
+$as_echo_n "checking whether C compiler handles -Wconversion... " >&6; }
+if ${gl_cv_warn_c__Wconversion+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wconversion"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__Wconversion=yes
+else
+  gl_cv_warn_c__Wconversion=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wconversion" >&5
+$as_echo "$gl_cv_warn_c__Wconversion" >&6; }
+if test "x$gl_cv_warn_c__Wconversion" = xyes; then :
+  as_fn_append WARN_CFLAGS " -Wconversion"
+fi
+
+
+        else
+          { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: conversion warnings should be ok now; try them" >&5
+$as_echo "$as_me: WARNING: conversion warnings should be ok now; try them" >&2;}
+        fi
+
+else
+  :
+fi
+
+else
+
+      { $as_echo "$as_me:${as_lineno-$LINENO}: skipping checks for warnings for gcc 10.0 or newer" >&5
+$as_echo "$as_me: skipping checks for warnings for gcc 10.0 or newer" >&6;}
+
+fi
+rm -f conftest.err conftest.i conftest.$ac_ext
+
     if test "x${emacs_cv_clang}" = "xyes"; then
+      if test "x${acl_cv_wa}" != "x"; then
+        test -n "${acl_cv_wa}" && test -n "${gl_cv_warn_c__Wa__Qunused_arguments}"
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Qunused-arguments" >&5
+$as_echo_n "checking whether C compiler handles -Qunused-arguments... " >&6; }
+if ${gl_cv_warn_c__Qunused_arguments+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Qunused-arguments"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__Qunused_arguments=yes
+else
+  gl_cv_warn_c__Qunused_arguments=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Qunused_arguments" >&5
+$as_echo "$gl_cv_warn_c__Qunused_arguments" >&6; }
+if test "x$gl_cv_warn_c__Qunused_arguments" = xyes; then :
+  as_fn_append WARN_CFLAGS " -Qunused-arguments"
+fi
+
+
+      fi
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wgcc-compat" >&5
@@ -20539,44 +20957,6 @@ fi
 $as_echo "$gl_cv_warn_c__Wunused_comparison" >&6; }
 if test "x$gl_cv_warn_c__Wunused_comparison" = xyes; then :
   as_fn_append WARN_CFLAGS " -Wunused-comparison"
-fi
-
-
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wabsolute-value" >&5
-$as_echo_n "checking whether C compiler handles -Wabsolute-value... " >&6; }
-if ${gl_cv_warn_c__Wabsolute_value+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-
-  gl_save_compiler_FLAGS="$CFLAGS"
-  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wabsolute-value"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  gl_cv_warn_c__Wabsolute_value=yes
-else
-  gl_cv_warn_c__Wabsolute_value=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  CFLAGS="$gl_save_compiler_FLAGS"
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wabsolute_value" >&5
-$as_echo "$gl_cv_warn_c__Wabsolute_value" >&6; }
-if test "x$gl_cv_warn_c__Wabsolute_value" = xyes; then :
-  as_fn_append WARN_CFLAGS " -Wabsolute-value"
 fi
 
 
@@ -20995,6 +21375,389 @@ fi
 $as_echo "$gl_cv_warn_c__Wtautological_pointer_compare" >&6; }
 if test "x$gl_cv_warn_c__Wtautological_pointer_compare" = xyes; then :
   as_fn_append WARN_CFLAGS " -Wtautological-pointer-compare"
+fi
+
+
+      if test "x${PRINT_CONVERSION_WARNINGS}" = "xyes"; then
+        test -n "${PRINT_CONVERSION_WARNINGS}"
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wbitfield-enum-conversion" >&5
+$as_echo_n "checking whether C compiler handles -Wbitfield-enum-conversion... " >&6; }
+if ${gl_cv_warn_c__Wbitfield_enum_conversion+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wbitfield-enum-conversion"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__Wbitfield_enum_conversion=yes
+else
+  gl_cv_warn_c__Wbitfield_enum_conversion=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wbitfield_enum_conversion" >&5
+$as_echo "$gl_cv_warn_c__Wbitfield_enum_conversion" >&6; }
+if test "x$gl_cv_warn_c__Wbitfield_enum_conversion" = xyes; then :
+  as_fn_append WARN_CFLAGS " -Wbitfield-enum-conversion"
+fi
+
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wimplicit-float-conversion" >&5
+$as_echo_n "checking whether C compiler handles -Wimplicit-float-conversion... " >&6; }
+if ${gl_cv_warn_c__Wimplicit_float_conversion+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wimplicit-float-conversion"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__Wimplicit_float_conversion=yes
+else
+  gl_cv_warn_c__Wimplicit_float_conversion=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wimplicit_float_conversion" >&5
+$as_echo "$gl_cv_warn_c__Wimplicit_float_conversion" >&6; }
+if test "x$gl_cv_warn_c__Wimplicit_float_conversion" = xyes; then :
+  as_fn_append WARN_CFLAGS " -Wimplicit-float-conversion"
+fi
+
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wimplicit-int-conversion" >&5
+$as_echo_n "checking whether C compiler handles -Wimplicit-int-conversion... " >&6; }
+if ${gl_cv_warn_c__Wimplicit_int_conversion+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wimplicit-int-conversion"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__Wimplicit_int_conversion=yes
+else
+  gl_cv_warn_c__Wimplicit_int_conversion=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wimplicit_int_conversion" >&5
+$as_echo "$gl_cv_warn_c__Wimplicit_int_conversion" >&6; }
+if test "x$gl_cv_warn_c__Wimplicit_int_conversion" = xyes; then :
+  as_fn_append WARN_CFLAGS " -Wimplicit-int-conversion"
+fi
+
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wfloat-overflow-conversion" >&5
+$as_echo_n "checking whether C compiler handles -Wfloat-overflow-conversion... " >&6; }
+if ${gl_cv_warn_c__Wfloat_overflow_conversion+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wfloat-overflow-conversion"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__Wfloat_overflow_conversion=yes
+else
+  gl_cv_warn_c__Wfloat_overflow_conversion=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wfloat_overflow_conversion" >&5
+$as_echo "$gl_cv_warn_c__Wfloat_overflow_conversion" >&6; }
+if test "x$gl_cv_warn_c__Wfloat_overflow_conversion" = xyes; then :
+  as_fn_append WARN_CFLAGS " -Wfloat-overflow-conversion"
+fi
+
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wfloat-zero-conversion" >&5
+$as_echo_n "checking whether C compiler handles -Wfloat-zero-conversion... " >&6; }
+if ${gl_cv_warn_c__Wfloat_zero_conversion+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wfloat-zero-conversion"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__Wfloat_zero_conversion=yes
+else
+  gl_cv_warn_c__Wfloat_zero_conversion=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wfloat_zero_conversion" >&5
+$as_echo "$gl_cv_warn_c__Wfloat_zero_conversion" >&6; }
+if test "x$gl_cv_warn_c__Wfloat_zero_conversion" = xyes; then :
+  as_fn_append WARN_CFLAGS " -Wfloat-zero-conversion"
+fi
+
+
+      fi  ##end dummy variable check
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Warray-bounds-pointer-arithmetic" >&5
+$as_echo_n "checking whether C compiler handles -Warray-bounds-pointer-arithmetic... " >&6; }
+if ${gl_cv_warn_c__Warray_bounds_pointer_arithmetic+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Warray-bounds-pointer-arithmetic"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__Warray_bounds_pointer_arithmetic=yes
+else
+  gl_cv_warn_c__Warray_bounds_pointer_arithmetic=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Warray_bounds_pointer_arithmetic" >&5
+$as_echo "$gl_cv_warn_c__Warray_bounds_pointer_arithmetic" >&6; }
+if test "x$gl_cv_warn_c__Warray_bounds_pointer_arithmetic" = xyes; then :
+  as_fn_append WARN_CFLAGS " -Warray-bounds-pointer-arithmetic"
+fi
+
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wassign-enum" >&5
+$as_echo_n "checking whether C compiler handles -Wassign-enum... " >&6; }
+if ${gl_cv_warn_c__Wassign_enum+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wassign-enum"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__Wassign_enum=yes
+else
+  gl_cv_warn_c__Wassign_enum=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wassign_enum" >&5
+$as_echo "$gl_cv_warn_c__Wassign_enum" >&6; }
+if test "x$gl_cv_warn_c__Wassign_enum" = xyes; then :
+  as_fn_append WARN_CFLAGS " -Wassign-enum"
+fi
+
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wempty-translation-unit" >&5
+$as_echo_n "checking whether C compiler handles -Wempty-translation-unit... " >&6; }
+if ${gl_cv_warn_c__Wempty_translation_unit+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wempty-translation-unit"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__Wempty_translation_unit=yes
+else
+  gl_cv_warn_c__Wempty_translation_unit=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wempty_translation_unit" >&5
+$as_echo "$gl_cv_warn_c__Wempty_translation_unit" >&6; }
+if test "x$gl_cv_warn_c__Wempty_translation_unit" = xyes; then :
+  as_fn_append WARN_CFLAGS " -Wempty-translation-unit"
+fi
+
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Winfinite-recursion" >&5
+$as_echo_n "checking whether C compiler handles -Winfinite-recursion... " >&6; }
+if ${gl_cv_warn_c__Winfinite_recursion+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Winfinite-recursion"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__Winfinite_recursion=yes
+else
+  gl_cv_warn_c__Winfinite_recursion=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Winfinite_recursion" >&5
+$as_echo "$gl_cv_warn_c__Winfinite_recursion" >&6; }
+if test "x$gl_cv_warn_c__Winfinite_recursion" = xyes; then :
+  as_fn_append WARN_CFLAGS " -Winfinite-recursion"
+fi
+
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wkeyword-macro" >&5
+$as_echo_n "checking whether C compiler handles -Wkeyword-macro... " >&6; }
+if ${gl_cv_warn_c__Wkeyword_macro+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wkeyword-macro"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  gl_cv_warn_c__Wkeyword_macro=yes
+else
+  gl_cv_warn_c__Wkeyword_macro=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wkeyword_macro" >&5
+$as_echo "$gl_cv_warn_c__Wkeyword_macro" >&6; }
+if test "x$gl_cv_warn_c__Wkeyword_macro" = xyes; then :
+  as_fn_append WARN_CFLAGS " -Wkeyword-macro"
 fi
 
 
@@ -21941,13 +22704,16 @@ fi
 
 if test "x${edit_cflags}" != "x"; then
   test -x "`which sed`"
+  ##FIXME: this does more than the simple edit might suggest:
   test -n "${edit_cflags}" && export CFLAGS=`$as_echo "${PRE_WARNING_TESTING_CFLAGS}" | sed -e "${edit_cflags}"`
   if test "x${CFLAGS}" != "x${PRE_WARNING_TESTING_CFLAGS}"; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: we have edited CFLAGS; they are now '${CFLAGS}'" >&5
-$as_echo "$as_me: we have edited CFLAGS; they are now '${CFLAGS}'" >&6;}
+    { $as_echo "$as_me:${as_lineno-$LINENO}: we have edited CFLAGS from '${PRE_WARNING_TESTING_CFLAGS}' to '${CFLAGS}'" >&5
+$as_echo "$as_me: we have edited CFLAGS from '${PRE_WARNING_TESTING_CFLAGS}' to '${CFLAGS}'" >&6;}
   fi
 else
+  echo "reverting CFLAGS to the ones from before testing for warnings"
   CFLAGS="${PRE_WARNING_TESTING_CFLAGS}"
+  echo "thus CFLAGS are now: '${CFLAGS}'"
 fi
 
 : ${AM_DEFAULT_VERBOSITY=1}
@@ -33710,6 +34476,7 @@ elif test "x${opsys}" = "xdarwin"; then
       if test "x${MAC_OSX_DEFINED}" != "x1"; then
         export MAC_OSX_DEFINED=1
         C_SWITCH_SYSTEM="-DMAC_OSX=1"
+        echo "C_SWITCH_SYSTEM is now ${C_SWITCH_SYSTEM}"
       fi
     ;;
     mac-apple-*) C_SWITCH_SYSTEM="-DMAC_OS" ;;
@@ -33763,9 +34530,12 @@ esac
 
 ### Make sure subsequent tests use flags consistent with the build flags.
 if test x"${OVERRIDE_CPPFLAGS}" != x""; then
+  echo "overriding CPPFLAGS with OVERRIDE_CPPFLAGS: ${OVERRIDE_CPPFLAGS}"
   CPPFLAGS="${OVERRIDE_CPPFLAGS}"
 else
+  echo "prepending C_SWITCH_SYSTEM and C_SWITCH_MACHINE to CPPFLAGS"
   CPPFLAGS="${C_SWITCH_SYSTEM} ${C_SWITCH_MACHINE} ${CPPFLAGS}"
+  echo "this means that CPPFLAGS are now: ${CPPFLAGS}"
 fi
 
 
@@ -34858,8 +35628,9 @@ $as_echo "$as_me: verifying PKG_CONFIG_PATH is sane..." >&6;}
     if test -d ${pkcdir}; then
       stat ${pkcdir}
     else
-      { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: directory ${pkcdir} in PKG_CONFIG_PATH is missing" >&5
-$as_echo "$as_me: WARNING: directory ${pkcdir} in PKG_CONFIG_PATH is missing" >&2;}
+      { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: directory ${pkcdir} in PKG_CONFIG_PATH is missing; attempting to remove it..." >&5
+$as_echo "$as_me: WARNING: directory ${pkcdir} in PKG_CONFIG_PATH is missing; attempting to remove it..." >&2;}
+      export PKG_CONFIG_PATH="`echo ${PKG_CONFIG_PATH} | ${SED} 's/${pkcdir}://g'`"
     fi
   done
 else
@@ -40354,6 +41125,8 @@ $as_echo "#define HAVE_RESTARTABLE_SYSCALLS 1" >>confdefs.h
 
 fi
 
+  else
+    echo "skipping test for restartable syscalls"
   fi
 ac_ext=m
 ac_cpp='$OBJCPP $CPPFLAGS'
@@ -41453,7 +42226,24 @@ if test "x$ac_cv_header_Carbon_Carbon_h" = xyes; then :
 fi
 
 
-  for ac_header in CarbonCore/Files.h CarbonCore/MacTypes.h \
+  ## FIXME: including headers from here breaks stuff:
+
+  if test "x${GIMME_YOUR_CFMCARBON_HEADERS}" = "xyes"; then
+    if test -d "${SDKROOT}/Developer/Headers/CFMCarbon"; then
+      CPPFLAGS="${CPPFLAGS} ${acl_cv_wp}-I${SDKROOT}/Developer/Headers/CFMCarbon"
+      $as_echo "#define HAVE_CFMCARBON_HEADERS_DIR 1" >>confdefs.h
+
+    elif test -d "${xcsdkdir}/Developer/Headers/CFMCarbon"; then
+      CPPFLAGS="${CPPFLAGS} ${acl_cv_wp}-I${xcsdkdir}/Developer/Headers/CFMCarbon"
+      $as_echo "#define HAVE_CFMCARBON_HEADERS_DIR 2" >>confdefs.h
+
+    elif test -d /Developer/Headers/CFMCarbon; then
+      CPPFLAGS="${CPPFLAGS} ${acl_cv_wp}-I/Developer/Headers/CFMCarbon"
+      $as_echo "#define HAVE_CFMCARBON_HEADERS_DIR 3" >>confdefs.h
+
+    fi
+  fi
+  for ac_header in AE/AEDataModel.h CarbonCore/Files.h CarbonCore/MacTypes.h \
                     CarbonCore/Script.h CarbonCore/StringCompare.h \
                     CarbonCore/TextUtils.h HIToolbox/Appearance.h \
                     HIToolbox/CarbonEvents.h HIToolbox/Controls.h \
@@ -41464,7 +42254,7 @@ fi
                     HIToolbox/Menus.h HIToolbox/Scrap.h MacTypes.h \
                     NavigationServices/Navigation.h \
                     QD/QuickdrawAPI.h QD/QDOffscreen.h \
-                    QuickTime/ImageCompression.h
+                    QuickTime/ImageCompression.h Webkit/Webkit.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -41924,6 +42714,7 @@ $as_echo "#define HAVE_CBLOCKS_LANGUAGE_FEATURE 1" >>confdefs.h
      GNU_OBJC_CFLAGS="${flags}"
      LIBS_GNUSTEP=$(gnustep-config --gui-libs) || exit
   elif test -f ${GNUSTEP_CONFIG_FILE}; then
+     echo "found GNUSTEP_CONFIG_FILE: ${GNUSTEP_CONFIG_FILE}"
      NS_IMPL=GNUstep
      NS_IMPL_GNUSTEP=yes
      ns_appdir="`pwd`/nextstep/Emacs.app"
@@ -41936,11 +42727,11 @@ $as_echo "#define HAVE_CBLOCKS_LANGUAGE_FEATURE 1" >>confdefs.h
           GNUSTEP_LOCAL_HEADERS="$(. ${GNUSTEP_CONFIG_FILE}; echo ${GNUSTEP_LOCAL_HEADERS})"
      GNUSTEP_LOCAL_LIBRARIES="$(. ${GNUSTEP_CONFIG_FILE}; echo ${GNUSTEP_LOCAL_LIBRARIES})"
      test "x${GNUSTEP_LOCAL_HEADERS}" != "x" && \
-       GNUSTEP_LOCAL_HEADERS="-I${GNUSTEP_LOCAL_HEADERS}"
+       GNUSTEP_LOCAL_HEADERS="${acl_cv_wp}-I${GNUSTEP_LOCAL_HEADERS}"
      test "x${GNUSTEP_LOCAL_LIBRARIES}" != "x" && \
        GNUSTEP_LOCAL_LIBRARIES="-L${GNUSTEP_LOCAL_LIBRARIES}"
-     CPPFLAGS="${CPPFLAGS} -I${GNUSTEP_SYSTEM_HEADERS} ${GNUSTEP_LOCAL_HEADERS}"
-     CFLAGS="${CFLAGS} -I${GNUSTEP_SYSTEM_HEADERS} ${GNUSTEP_LOCAL_HEADERS}"
+     CPPFLAGS="${CPPFLAGS} ${acl_cv_wp}-I${GNUSTEP_SYSTEM_HEADERS} ${GNUSTEP_LOCAL_HEADERS}"
+     CFLAGS="${CFLAGS} ${acl_cv_wp}-I${GNUSTEP_SYSTEM_HEADERS} ${GNUSTEP_LOCAL_HEADERS}"
      LDFLAGS="${LDFLAGS} -L${GNUSTEP_SYSTEM_LIBRARIES} ${GNUSTEP_LOCAL_LIBRARIES}"
      LIBS_GNUSTEP="-lgnustep-gui -lgnustep-base -lobjc -lpthread"
      for ac_header in GNUstepBase/GSConfig.h
@@ -42008,6 +42799,12 @@ elif test "x${MAC_OBJC_OBJ}" != "x"; then
      test -z "${GNUSTEP_CFLAGS}" && GNUSTEP_CFLAGS="-fno-strict-aliasing"
   fi
 fi  ##end ns conditional
+
+if test "x${LDFLAGS}" != "x"; then
+  test -n "${LDFLAGS}" && echo "LDFLAGS are now: ${LDFLAGS}"
+else
+  test -z "${LDFLAGS}" && echo "LDFLAGS are empty"
+fi
 
 if test "x${with_ns}" != "xno" || test "x${MAC_OBJC_OBJ}" != "x"; then
   test -n "${NS_IMPL}" || test -n "${MAC_OBJC_OBJ}"
@@ -42319,9 +43116,628 @@ if test "x$gl_cv_warn_objc__Wshadow_ivar" = xyes; then :
 fi
 
 
+      nw="${nw} -Wcast-function-type"
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether Objective C compiler handles -Wno-cast-function-type" >&5
+$as_echo_n "checking whether Objective C compiler handles -Wno-cast-function-type... " >&6; }
+if ${gl_cv_warn_objc__Wno_cast_function_type+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$OBJCFLAGS"
+  as_fn_append OBJCFLAGS " $gl_unknown_warnings_are_errors -Wcast-function-type"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_objc_try_link "$LINENO"; then :
+  gl_cv_warn_objc__Wno_cast_function_type=yes
+else
+  gl_cv_warn_objc__Wno_cast_function_type=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  OBJCFLAGS="$gl_save_compiler_FLAGS"
 
 fi
-rm -f conftest.err conftest.i conftest.$ac_ext    ## these two selector-related warnings can be overly noisy:
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_objc__Wno_cast_function_type" >&5
+$as_echo "$gl_cv_warn_objc__Wno_cast_function_type" >&6; }
+if test "x$gl_cv_warn_objc__Wno_cast_function_type" = xyes; then :
+  as_fn_append GNU_OBJC_WARN_CFLAGS " -Wno-cast-function-type"
+fi
+
+
+
+fi
+rm -f conftest.err conftest.i conftest.$ac_ext    ## sometimes clang enables this:
+    if test "x${PRINT_CONVERSION_WARNINGS}" != "xyes"; then
+      nw="${nw} -Wdouble-promotion"
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether Objective C compiler handles -Wno-double-promotion" >&5
+$as_echo_n "checking whether Objective C compiler handles -Wno-double-promotion... " >&6; }
+if ${gl_cv_warn_objc__Wno_double_promotion+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$OBJCFLAGS"
+  as_fn_append OBJCFLAGS " $gl_unknown_warnings_are_errors -Wdouble-promotion"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_objc_try_link "$LINENO"; then :
+  gl_cv_warn_objc__Wno_double_promotion=yes
+else
+  gl_cv_warn_objc__Wno_double_promotion=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  OBJCFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_objc__Wno_double_promotion" >&5
+$as_echo "$gl_cv_warn_objc__Wno_double_promotion" >&6; }
+if test "x$gl_cv_warn_objc__Wno_double_promotion" = xyes; then :
+  as_fn_append GNU_OBJC_WARN_CFLAGS " -Wno-double-promotion"
+fi
+
+
+    fi
+    ## other clang things:
+    if test "x${emacs_cv_clang}" = "xyes"; then
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether Objective C compiler handles -Wat-protocol" >&5
+$as_echo_n "checking whether Objective C compiler handles -Wat-protocol... " >&6; }
+if ${gl_cv_warn_objc__Wat_protocol+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$OBJCFLAGS"
+  as_fn_append OBJCFLAGS " $gl_unknown_warnings_are_errors -Wat-protocol"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_objc_try_link "$LINENO"; then :
+  gl_cv_warn_objc__Wat_protocol=yes
+else
+  gl_cv_warn_objc__Wat_protocol=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  OBJCFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_objc__Wat_protocol" >&5
+$as_echo "$gl_cv_warn_objc__Wat_protocol" >&6; }
+if test "x$gl_cv_warn_objc__Wat_protocol" = xyes; then :
+  as_fn_append GNU_OBJC_WARN_CFLAGS " -Wat-protocol"
+fi
+
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether Objective C compiler handles -Warc-repeated-use-of-weak" >&5
+$as_echo_n "checking whether Objective C compiler handles -Warc-repeated-use-of-weak... " >&6; }
+if ${gl_cv_warn_objc__Warc_repeated_use_of_weak+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$OBJCFLAGS"
+  as_fn_append OBJCFLAGS " $gl_unknown_warnings_are_errors -Warc-repeated-use-of-weak"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_objc_try_link "$LINENO"; then :
+  gl_cv_warn_objc__Warc_repeated_use_of_weak=yes
+else
+  gl_cv_warn_objc__Warc_repeated_use_of_weak=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  OBJCFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_objc__Warc_repeated_use_of_weak" >&5
+$as_echo "$gl_cv_warn_objc__Warc_repeated_use_of_weak" >&6; }
+if test "x$gl_cv_warn_objc__Warc_repeated_use_of_weak" = xyes; then :
+  as_fn_append GNU_OBJC_WARN_CFLAGS " -Warc-repeated-use-of-weak"
+fi
+
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether Objective C compiler handles -Wcstring-format-directive" >&5
+$as_echo_n "checking whether Objective C compiler handles -Wcstring-format-directive... " >&6; }
+if ${gl_cv_warn_objc__Wcstring_format_directive+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$OBJCFLAGS"
+  as_fn_append OBJCFLAGS " $gl_unknown_warnings_are_errors -Wcstring-format-directive"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_objc_try_link "$LINENO"; then :
+  gl_cv_warn_objc__Wcstring_format_directive=yes
+else
+  gl_cv_warn_objc__Wcstring_format_directive=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  OBJCFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_objc__Wcstring_format_directive" >&5
+$as_echo "$gl_cv_warn_objc__Wcstring_format_directive" >&6; }
+if test "x$gl_cv_warn_objc__Wcstring_format_directive" = xyes; then :
+  as_fn_append GNU_OBJC_WARN_CFLAGS " -Wcstring-format-directive"
+fi
+
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether Objective C compiler handles -Wduplicate-method-arg" >&5
+$as_echo_n "checking whether Objective C compiler handles -Wduplicate-method-arg... " >&6; }
+if ${gl_cv_warn_objc__Wduplicate_method_arg+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$OBJCFLAGS"
+  as_fn_append OBJCFLAGS " $gl_unknown_warnings_are_errors -Wduplicate-method-arg"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_objc_try_link "$LINENO"; then :
+  gl_cv_warn_objc__Wduplicate_method_arg=yes
+else
+  gl_cv_warn_objc__Wduplicate_method_arg=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  OBJCFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_objc__Wduplicate_method_arg" >&5
+$as_echo "$gl_cv_warn_objc__Wduplicate_method_arg" >&6; }
+if test "x$gl_cv_warn_objc__Wduplicate_method_arg" = xyes; then :
+  as_fn_append GNU_OBJC_WARN_CFLAGS " -Wduplicate-method-arg"
+fi
+
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether Objective C compiler handles -Wduplicate-method-match" >&5
+$as_echo_n "checking whether Objective C compiler handles -Wduplicate-method-match... " >&6; }
+if ${gl_cv_warn_objc__Wduplicate_method_match+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$OBJCFLAGS"
+  as_fn_append OBJCFLAGS " $gl_unknown_warnings_are_errors -Wduplicate-method-match"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_objc_try_link "$LINENO"; then :
+  gl_cv_warn_objc__Wduplicate_method_match=yes
+else
+  gl_cv_warn_objc__Wduplicate_method_match=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  OBJCFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_objc__Wduplicate_method_match" >&5
+$as_echo "$gl_cv_warn_objc__Wduplicate_method_match" >&6; }
+if test "x$gl_cv_warn_objc__Wduplicate_method_match" = xyes; then :
+  as_fn_append GNU_OBJC_WARN_CFLAGS " -Wduplicate-method-match"
+fi
+
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether Objective C compiler handles -Wimplicit-retain-self" >&5
+$as_echo_n "checking whether Objective C compiler handles -Wimplicit-retain-self... " >&6; }
+if ${gl_cv_warn_objc__Wimplicit_retain_self+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$OBJCFLAGS"
+  as_fn_append OBJCFLAGS " $gl_unknown_warnings_are_errors -Wimplicit-retain-self"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_objc_try_link "$LINENO"; then :
+  gl_cv_warn_objc__Wimplicit_retain_self=yes
+else
+  gl_cv_warn_objc__Wimplicit_retain_self=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  OBJCFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_objc__Wimplicit_retain_self" >&5
+$as_echo "$gl_cv_warn_objc__Wimplicit_retain_self" >&6; }
+if test "x$gl_cv_warn_objc__Wimplicit_retain_self" = xyes; then :
+  as_fn_append GNU_OBJC_WARN_CFLAGS " -Wimplicit-retain-self"
+fi
+
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether Objective C compiler handles -Wmethod-signatures" >&5
+$as_echo_n "checking whether Objective C compiler handles -Wmethod-signatures... " >&6; }
+if ${gl_cv_warn_objc__Wmethod_signatures+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$OBJCFLAGS"
+  as_fn_append OBJCFLAGS " $gl_unknown_warnings_are_errors -Wmethod-signatures"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_objc_try_link "$LINENO"; then :
+  gl_cv_warn_objc__Wmethod_signatures=yes
+else
+  gl_cv_warn_objc__Wmethod_signatures=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  OBJCFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_objc__Wmethod_signatures" >&5
+$as_echo "$gl_cv_warn_objc__Wmethod_signatures" >&6; }
+if test "x$gl_cv_warn_objc__Wmethod_signatures" = xyes; then :
+  as_fn_append GNU_OBJC_WARN_CFLAGS " -Wmethod-signatures"
+fi
+
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether Objective C compiler handles -Wmissing-method-return-type" >&5
+$as_echo_n "checking whether Objective C compiler handles -Wmissing-method-return-type... " >&6; }
+if ${gl_cv_warn_objc__Wmissing_method_return_type+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$OBJCFLAGS"
+  as_fn_append OBJCFLAGS " $gl_unknown_warnings_are_errors -Wmissing-method-return-type"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_objc_try_link "$LINENO"; then :
+  gl_cv_warn_objc__Wmissing_method_return_type=yes
+else
+  gl_cv_warn_objc__Wmissing_method_return_type=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  OBJCFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_objc__Wmissing_method_return_type" >&5
+$as_echo "$gl_cv_warn_objc__Wmissing_method_return_type" >&6; }
+if test "x$gl_cv_warn_objc__Wmissing_method_return_type" = xyes; then :
+  as_fn_append GNU_OBJC_WARN_CFLAGS " -Wmissing-method-return-type"
+fi
+
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether Objective C compiler handles -Wobjc-missing-property-synthesis" >&5
+$as_echo_n "checking whether Objective C compiler handles -Wobjc-missing-property-synthesis... " >&6; }
+if ${gl_cv_warn_objc__Wobjc_missing_property_synthesis+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$OBJCFLAGS"
+  as_fn_append OBJCFLAGS " $gl_unknown_warnings_are_errors -Wobjc-missing-property-synthesis"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_objc_try_link "$LINENO"; then :
+  gl_cv_warn_objc__Wobjc_missing_property_synthesis=yes
+else
+  gl_cv_warn_objc__Wobjc_missing_property_synthesis=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  OBJCFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_objc__Wobjc_missing_property_synthesis" >&5
+$as_echo "$gl_cv_warn_objc__Wobjc_missing_property_synthesis" >&6; }
+if test "x$gl_cv_warn_objc__Wobjc_missing_property_synthesis" = xyes; then :
+  as_fn_append GNU_OBJC_WARN_CFLAGS " -Wobjc-missing-property-synthesis"
+fi
+
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether Objective C compiler handles -Wobjc-property-assign-on-object-type" >&5
+$as_echo_n "checking whether Objective C compiler handles -Wobjc-property-assign-on-object-type... " >&6; }
+if ${gl_cv_warn_objc__Wobjc_property_assign_on_object_type+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$OBJCFLAGS"
+  as_fn_append OBJCFLAGS " $gl_unknown_warnings_are_errors -Wobjc-property-assign-on-object-type"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_objc_try_link "$LINENO"; then :
+  gl_cv_warn_objc__Wobjc_property_assign_on_object_type=yes
+else
+  gl_cv_warn_objc__Wobjc_property_assign_on_object_type=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  OBJCFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_objc__Wobjc_property_assign_on_object_type" >&5
+$as_echo "$gl_cv_warn_objc__Wobjc_property_assign_on_object_type" >&6; }
+if test "x$gl_cv_warn_objc__Wobjc_property_assign_on_object_type" = xyes; then :
+  as_fn_append GNU_OBJC_WARN_CFLAGS " -Wobjc-property-assign-on-object-type"
+fi
+
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether Objective C compiler handles -Wselector-type-mismatch" >&5
+$as_echo_n "checking whether Objective C compiler handles -Wselector-type-mismatch... " >&6; }
+if ${gl_cv_warn_objc__Wselector_type_mismatch+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$OBJCFLAGS"
+  as_fn_append OBJCFLAGS " $gl_unknown_warnings_are_errors -Wselector-type-mismatch"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_objc_try_link "$LINENO"; then :
+  gl_cv_warn_objc__Wselector_type_mismatch=yes
+else
+  gl_cv_warn_objc__Wselector_type_mismatch=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  OBJCFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_objc__Wselector_type_mismatch" >&5
+$as_echo "$gl_cv_warn_objc__Wselector_type_mismatch" >&6; }
+if test "x$gl_cv_warn_objc__Wselector_type_mismatch" = xyes; then :
+  as_fn_append GNU_OBJC_WARN_CFLAGS " -Wselector-type-mismatch"
+fi
+
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether Objective C compiler handles -Wsemicolon-before-method-body" >&5
+$as_echo_n "checking whether Objective C compiler handles -Wsemicolon-before-method-body... " >&6; }
+if ${gl_cv_warn_objc__Wsemicolon_before_method_body+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$OBJCFLAGS"
+  as_fn_append OBJCFLAGS " $gl_unknown_warnings_are_errors -Wsemicolon-before-method-body"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_objc_try_link "$LINENO"; then :
+  gl_cv_warn_objc__Wsemicolon_before_method_body=yes
+else
+  gl_cv_warn_objc__Wsemicolon_before_method_body=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  OBJCFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_objc__Wsemicolon_before_method_body" >&5
+$as_echo "$gl_cv_warn_objc__Wsemicolon_before_method_body" >&6; }
+if test "x$gl_cv_warn_objc__Wsemicolon_before_method_body" = xyes; then :
+  as_fn_append GNU_OBJC_WARN_CFLAGS " -Wsemicolon-before-method-body"
+fi
+
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether Objective C compiler handles -Wsuper-class-method-mismatch" >&5
+$as_echo_n "checking whether Objective C compiler handles -Wsuper-class-method-mismatch... " >&6; }
+if ${gl_cv_warn_objc__Wsuper_class_method_mismatch+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$OBJCFLAGS"
+  as_fn_append OBJCFLAGS " $gl_unknown_warnings_are_errors -Wsuper-class-method-mismatch"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_objc_try_link "$LINENO"; then :
+  gl_cv_warn_objc__Wsuper_class_method_mismatch=yes
+else
+  gl_cv_warn_objc__Wsuper_class_method_mismatch=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  OBJCFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_objc__Wsuper_class_method_mismatch" >&5
+$as_echo "$gl_cv_warn_objc__Wsuper_class_method_mismatch" >&6; }
+if test "x$gl_cv_warn_objc__Wsuper_class_method_mismatch" = xyes; then :
+  as_fn_append GNU_OBJC_WARN_CFLAGS " -Wsuper-class-method-mismatch"
+fi
+
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether Objective C compiler handles -Wunused-property-ivar" >&5
+$as_echo_n "checking whether Objective C compiler handles -Wunused-property-ivar... " >&6; }
+if ${gl_cv_warn_objc__Wunused_property_ivar+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  gl_save_compiler_FLAGS="$OBJCFLAGS"
+  as_fn_append OBJCFLAGS " $gl_unknown_warnings_are_errors -Wunused-property-ivar"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_objc_try_link "$LINENO"; then :
+  gl_cv_warn_objc__Wunused_property_ivar=yes
+else
+  gl_cv_warn_objc__Wunused_property_ivar=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+  OBJCFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_objc__Wunused_property_ivar" >&5
+$as_echo "$gl_cv_warn_objc__Wunused_property_ivar" >&6; }
+if test "x$gl_cv_warn_objc__Wunused_property_ivar" = xyes; then :
+  as_fn_append GNU_OBJC_WARN_CFLAGS " -Wunused-property-ivar"
+fi
+
+
+      # too noisy to add:
+      # * -Wobjc-interface-ivars
+      # * -Wobjc-messaging-id
+    fi
+    ## these two selector-related warnings can be overly noisy:
     if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
       test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
 
@@ -42579,6 +43995,8 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 fi  ##end stuff for objc sources, whether ns or mac
 
 if test "x${with_ns}" != "xno"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: ensuring NS headers are compile-able" >&5
+$as_echo "$as_me: ensuring NS headers are compile-able" >&6;}
     CPPFLAGS="${CPPFLAGS} ${GNU_OBJC_CFLAGS}"
   CFLAGS="${CFLAGS} ${GNU_OBJC_CFLAGS}"
 
@@ -42842,6 +44260,8 @@ $as_echo "$as_me: WARNING: could be missing required file for NS/Mac fonts" >&2;
 fi
 CFLAGS="${tmp_CFLAGS}"
 CPPFLAGS="${tmp_CPPFLAGS}"
+
+echo "CPPFLAGS are now: ${CPPFLAGS}"
 
 if test "x${HAVE_NS}" = "xyes"; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking if the Objective C compiler supports instancetype" >&5
@@ -44278,6 +45698,7 @@ $as_echo_n "checking X11 features... " >&6; }
 { $as_echo "$as_me:${as_lineno-$LINENO}: result:  " >&5
 $as_echo " " >&6; }
 if test "x${HAVE_X11}" = "xyes"; then
+  echo "we have X11 so using X11-specific vars"
   DEFS="${C_SWITCH_X_SITE} ${DEFS}"
   LDFLAGS="${LDFLAGS} ${LD_SWITCH_X_SITE}"
   LIBS="-lX11 ${LIBS}"
@@ -44457,6 +45878,8 @@ else
   { $as_echo "$as_me:${as_lineno-$LINENO}: skipping miscellaneous X11 checks" >&5
 $as_echo "$as_me: skipping miscellaneous X11 checks" >&6;}
 fi
+
+echo "CPPFLAGS are now: ${CPPFLAGS}"
 
 if test "x${window_system}" = "xx11"; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking X11 version 6" >&5
@@ -44999,6 +46422,8 @@ $as_echo "$as_me: skipping initial gtk checks" >&6;}
 fi
 
 if test x"${pkg_check_gtk}" = x"yes"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: continuing with gtk stuff" >&5
+$as_echo "$as_me: continuing with gtk stuff" >&6;}
 
   C_SWITCH_X_SITE="${C_SWITCH_X_SITE} ${GTK_CFLAGS}"
   CFLAGS="${CFLAGS} ${GTK_CFLAGS}"
@@ -46431,7 +47856,8 @@ LIBXP=""
 if test "x${USE_X_TOOLKIT}" = "xMOTIF"; then
   # OpenMotif may be installed in such a way on some GNU/Linux systems.
   if test -d /usr/include/openmotif; then
-    CPPFLAGS="-I/usr/include/openmotif ${CPPFLAGS}"
+    echo "found OpenMotif installation in /usr/include/openmotif"
+    CPPFLAGS="${acl_cv_wp}-I/usr/include/openmotif ${CPPFLAGS}"
     emacs_cv_openmotif=yes
     case "${canonical}" in
       x86_64-*-linux-gnu* | powerpc64-*-linux-gnu* | sparc64-*-linux-gnu*)
@@ -46527,7 +47953,7 @@ if test "x$ac_cv_lib_Xp_XpCreateContext" = xyes; then :
 fi
 
     if test "x${emacs_cv_openmotif}" = "xyes"; then
-      REAL_CPPFLAGS="-I/usr/include/openmotif ${REAL_CPPFLAGS}"
+      REAL_CPPFLAGS="${acl_cv_wp}-I/usr/include/openmotif ${REAL_CPPFLAGS}"
     fi
   else
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for LessTif where some systems put it" >&5
@@ -46540,8 +47966,8 @@ else
     # We put this in CPPFLAGS where it precedes the other -I options.
     OLD_CPPFLAGS="${CPPFLAGS}"
     OLD_CFLAGS="${CFLAGS}"
-    CPPFLAGS="-I/usr/X11R6/LessTif/Motif1.2/include ${CPPFLAGS}"
-    CFLAGS="-I/usr/X11R6/LessTif/Motif1.2/include ${CFLAGS}"
+    CPPFLAGS="${acl_cv_wp}-I/usr/X11R6/LessTif/Motif1.2/include ${CPPFLAGS}"
+    CFLAGS="${acl_cv_wp}-I/usr/X11R6/LessTif/Motif1.2/include ${CFLAGS}"
     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include </usr/X11R6/LessTif/Motif1.2/include/Xm/Xm.h>
@@ -46568,7 +47994,7 @@ $as_echo "$emacs_cv_lesstif" >&6; }
       # There is no need to change REAL_CFLAGS, because REAL_CFLAGS does
       # not have those other -I options anyway. Ultimately, having this
       # directory ultimately in CPPFLAGS will be enough.
-      REAL_CPPFLAGS="-I/usr/X11R6/LessTif/Motif1.2/include ${REAL_CPPFLAGS}"
+      REAL_CPPFLAGS="${acl_cv_wp}-I/usr/X11R6/LessTif/Motif1.2/include ${REAL_CPPFLAGS}"
       LDFLAGS="-L/usr/X11R6/LessTif/Motif1.2/lib ${LDFLAGS}"
       REAL_LDFLAGS="-L/usr/X11R6/LessTif/Motif1.2/lib ${REAL_LDFLAGS}"
     else
@@ -47276,8 +48702,26 @@ $as_echo "no" >&6; }
 
 $as_echo "#define HAVE_M17N_FLT 1" >>confdefs.h
 
+        else
+          if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"M17N_FLT\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "M17N_FLT") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  m17n-flt
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: m17n-flt found but unusable; please investigate" >&5
+$as_echo "$as_me: WARNING: m17n-flt found but unusable; please investigate" >&2;}
+fi
 	fi
+      else
+        { $as_echo "$as_me:${as_lineno-$LINENO}: skipping checking for m17n" >&5
+$as_echo "$as_me: skipping checking for m17n" >&6;}
       fi
+    else
+      { $as_echo "$as_me:${as_lineno-$LINENO}: no need to check for m17n when we already have libotf" >&5
+$as_echo "$as_me: no need to check for m17n when we already have libotf" >&6;}
     fi
 else
     { $as_echo "$as_me:${as_lineno-$LINENO}: X11 is unavailable, so skipping checks for X11-specific font-rendering backends" >&5
@@ -47287,6 +48731,8 @@ $as_echo "$as_me: X11 is unavailable, so skipping checks for X11-specific font-r
     HAVE_LIBOTF=no
     HAVE_M17N_FLT=no
 fi
+
+echo "CPPFLAGS are now: ${CPPFLAGS}"
 
 ### End of font-backend (under X11) section.
 
@@ -47303,9 +48749,10 @@ HAVE_XPM=no
 LIBXPM=""
 if test "x${HAVE_W32}" = "xyes" && test "x${opsys}" = "xcygwin"; then
   if test "x${with_xpm}" != "xno"; then
+    echo "doing special Windows stuff for xpm"
     SAVE_CPPFLAGS="${CPPFLAGS}"
     SAVE_LDFLAGS="${LDFLAGS}"
-    CPPFLAGS="${CPPFLAGS} -I/usr/include/noX"
+    CPPFLAGS="${CPPFLAGS} ${acl_cv_wp}-I/usr/include/noX"
     LDFLAGS="${LDFLAGS} -L/usr/lib/noX"
     ac_fn_c_check_header_mongrel "$LINENO" "X11/xpm.h" "ac_cv_header_X11_xpm_h" "$ac_includes_default"
 if test "x$ac_cv_header_X11_xpm_h" = xyes; then :
@@ -47419,7 +48866,7 @@ fi
 rm -f conftest*
 
       if test "x${HAVE_XPM}" = "xyes"; then
-        REAL_CPPFLAGS="${REAL_CPPFLAGS} -I/usr/include/noX"
+        REAL_CPPFLAGS="${REAL_CPPFLAGS} ${acl_cv_wp}-I/usr/include/noX"
         REAL_LDFLAGS="${REAL_LDFLAGS} -L/usr/lib/noX"
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
@@ -47926,7 +49373,7 @@ $as_echo_n "checking for png... " >&6; }
       # in /usr/include/libpng.
       if test -r /usr/include/libpng/png.h &&
 	 test ! -r /usr/include/png.h; then
-	png_cflags=-I/usr/include/libpng
+	png_cflags="${acl_cv_wp}-I/usr/include/libpng"
       else
 	png_cflags=""
       fi
@@ -49251,6 +50698,7 @@ $as_echo "no" >&6; }
 
   # Built-in libxml2 on OS X 10.8+ lacks libxml-2.0.pc.
   if test "x${HAVE_LIBXML2}" != "xyes" -a "x${opsys}" = "xdarwin"; then
+    echo "trying harder to find libxml2 on darwin"
     SAVE_CPPFLAGS="${CPPFLAGS}"
     if test -z "${xcsdkdir}" -a -n "${XCRUN}" -a ! -d /usr/include; then
             xcsdkdir=`${XCRUN} --show-sdk-path 2>/dev/null`
@@ -49259,7 +50707,7 @@ $as_echo "no" >&6; }
 	xcsdkdir="" ;;
       esac
     fi
-    CPPFLAGS="${CPPFLAGS} -I${xcsdkdir}/usr/include/libxml2"
+    CPPFLAGS="${CPPFLAGS} ${acl_cv_wp}-I${xcsdkdir}/usr/include/libxml2"
     ac_fn_c_check_header_mongrel "$LINENO" "libxml/HTMLparser.h" "ac_cv_header_libxml_HTMLparser_h" "$ac_includes_default"
 if test "x$ac_cv_header_libxml_HTMLparser_h" = xyes; then :
   ac_fn_c_check_decl "$LINENO" "HTML_PARSE_RECOVER" "ac_cv_have_decl_HTML_PARSE_RECOVER" "#include <libxml/HTMLparser.h>
@@ -49273,7 +50721,7 @@ fi
 
     CPPFLAGS="${SAVE_CPPFLAGS}"
     if test "x${HAVE_LIBXML2}" = "xyes"; then
-      LIBXML2_CFLAGS="-I'${xcsdkdir}/usr/include/libxml2'"
+      LIBXML2_CFLAGS="${acl_cv_wp}-I'${xcsdkdir}/usr/include/libxml2'"
       LIBXML2_LIBS="-lxml2"
     fi
   fi
@@ -60567,6 +62015,14 @@ CPPFLAGS="${REAL_CPPFLAGS}"
 LDFLAGS="${REAL_LDFLAGS}"
 LIBS="${REAL_LIBS}"
 
+echo "CFLAGS have been replaced with REAL_CFLAGS and are now: ${CFLAGS}"
+echo "CPPFLAGS have been replaced with REAL_CPPFLAGS and are now: ${CPPFLAGS}"
+if test "x${LDFLAGS}" != "x"; then
+  test -n "${LDFLAGS}" && echo "LDFLAGS have been replaced with REAL_LDFLAGS and are now: ${LDFLAGS}"
+else
+  test -z "${LDFLAGS}" && echo "uh oh, overriding LDFLAGS with REAL_LDFLAGS made it empty..."
+fi
+
 ## Hack to detect a buggy GCC version.
 if test "x${GCC}" = "xyes" \
    && test x"`${CC} --version 2> /dev/null | grep 'gcc.* 4.5.0'`" != x"" \
@@ -63624,6 +65080,11 @@ if test "$ac_res" != no; then :
 
 fi
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: done with section for gettext checks" >&5
+$as_echo "$as_me: done with section for gettext checks" >&6;}
+# the main gettext macro can set CPPFLAGS:
+echo "CPPFLAGS are now: ${CPPFLAGS}"
+
 # If user asks to omit features, disable optional features that gnulib
 # might otherwise enable.
 if test "x${with_features}" = "xno" && test "x${enable_acl}" != "xyes"; then
@@ -63653,8 +65114,8 @@ fi
 # for some package unrelated to lib-src.
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking things that gnulib needs" >&5
 $as_echo_n "checking things that gnulib needs... " >&6; }
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result:  " >&5
-$as_echo " " >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: (warning: gnulib is bloated; this part can take a long time)" >&5
+$as_echo "(warning: gnulib is bloated; this part can take a long time)" >&6; }
 SAVE_CFLAGS="${CFLAGS}"
 SAVE_LIBS="${LIBS}"
 CFLAGS="${pre_PKG_CONFIG_CFLAGS}"
@@ -87119,6 +88580,8 @@ if test "x${opsys}" = "xmingw32"; then
   CC=`echo ${CC} | sed -e "s,${GCC_TEST_OPTIONS},,"`
 fi
 
+echo "CPPFLAGS are now: ${CPPFLAGS}"
+
 case "${opsys}" in
   aix4-2) LD_SWITCH_SYSTEM_TEMACS="-Wl,-bnodelcsect" ;;
 
@@ -87285,7 +88748,7 @@ if test "x${LDFLAGS}" = "x"; then
     test -z "${LDFLAGS}" && test -n "${with_libiconv_prefix}" && test -d "${with_libiconv_prefix}/lib" && export LDFLAGS="-L${with_libiconv_prefix}/lib"
     test -z "${LDFLAGS}" && test -n "${x_libraries}" && test -d "${x_libraries}" && export LDFLAGS="-L${x_libraries}"
   elif test "x${prefix}" = "xNONE" && test ! -d "NONE"; then
-    echo "Warning: invalid prefix"
+    echo "Warning: invalid prefix (NONE)"
   else
     echo "Well, this situation is improbable..."
   fi
@@ -87307,7 +88770,8 @@ Configured for \`${canonical}'.
   Should Emacs use a relocating allocator for buffers? ${REL_ALLOC}
   Should Emacs use mmap(2) for buffer allocation?      ${use_mmap_for_buffers}
   What window system should Emacs use?                 ${window_system}
-  What toolkit should Emacs use?                       ${USE_X_TOOLKIT}"
+  What toolkit should Emacs use?                       ${USE_X_TOOLKIT}
+  What kind of LTO should Emacs use?                   ${LTO_KIND}"
 ## see? told ya so.
 
 echo ""
@@ -89623,7 +91087,9 @@ $as_echo X/"$am_mf" |
     { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "Something went wrong bootstrapping makefile fragments
-    for automatic dependency tracking.  Try re-running configure with the
+    for automatic dependency tracking.  If GNU make was not used, consider
+    re-running the configure script with MAKE=\"gmake\" (or whatever is
+    necessary).  You can also try re-running configure with the
     '--disable-dependency-tracking' option to at least be able to build
     the package (albeit without support for automatic dependency tracking).
 See \`config.log' for more details" "$LINENO" 5; }

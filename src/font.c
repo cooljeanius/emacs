@@ -406,7 +406,12 @@ font_style_to_value (enum font_property_index prop, Lisp_Object val,
 	}
       if (! noerror)
 	return -1;
-      return ((last_n << 8) | ((i - 1) << 4));
+      if (last_n >= 0)
+	return ((last_n << 8) | ((i - 1) << 4));
+      else if ((i - 1) >= 0)
+	return ((abs(last_n) << 8) | ((i - 1) << 4));
+      else
+	return ((abs(last_n) << 8) | (abs(i - 1) << 4));
     }
 }
 
@@ -1485,6 +1490,9 @@ font_parse_fcname (char *name, ptrdiff_t len, Lisp_Object font)
                     }
 		}
 	      p = q;
+	      if (p == NULL) {
+		; /* ??? */
+	      }
 	    }
 	}
 
@@ -1631,6 +1639,10 @@ font_unparse_fcname(Lisp_Object font, int pixel_size, char *name, int nbytes)
       else
 	foundry = Qnil;
     }
+
+  if (NILP(foundry)) {
+    ; /* ??? */
+  }
 
   for (i = 0; i < 3; i++)
     styles[i] = font_style_symbolic(font, (FONT_WEIGHT_INDEX + i), 0);
@@ -2129,6 +2141,9 @@ font_score (Lisp_Object entity, Lisp_Object *spec_prop)
 
   /* Score the size.  Maximum difference is 127.  */
   i = FONT_SIZE_INDEX;
+  if (i > 127) {
+    ; /* ??? */
+  }
   if (! NILP (spec_prop[FONT_SIZE_INDEX])
       && XINT (AREF (entity, FONT_SIZE_INDEX)) > 0)
     {
@@ -2790,8 +2805,8 @@ font_list_entities (struct frame *f, Lisp_Object spec)
    nil, is an array of face's attributes, which specifies preferred
    font-related attributes.  */
 
-static Lisp_Object
-font_matching_entity (struct frame *f, Lisp_Object *attrs, Lisp_Object spec)
+static Lisp_Object ATTRIBUTE_NONNULL(2)
+font_matching_entity(struct frame *f, Lisp_Object *attrs, Lisp_Object spec)
 {
   struct font_driver_list *driver_list = f->font_driver_list;
   Lisp_Object ftype, size, entity;
@@ -4042,7 +4057,8 @@ are to be displayed on.  If omitted, the selected frame is used.  */)
       Lisp_Object name = font;
       if (fontset >= 0)
 	font = fontset_ascii(fontset);
-      font = font_spec_from_name(name);
+      else /* assuming this "else" was meant to be here, due to clang */
+	font = font_spec_from_name(name);
       if (! FONTP(font))
 	signal_error("Invalid font name", name);
     }
@@ -4913,10 +4929,16 @@ If the named font is not yet loaded, return nil.  */)
     font_object = font_open_entity (f, name, 0);
   else
     {
-      struct face *face = FACE_FROM_ID (f, DEFAULT_FACE_ID);
-      Lisp_Object entity = font_matching_entity (f, face->lface, name);
+      struct face *face = FACE_FROM_ID(f, DEFAULT_FACE_ID);
+#if defined(__clang_analyzer__)
+      Lisp_Object entity = ((face->lface != NULL)
+			    ? font_matching_entity(f, face->lface, name)
+			    : Qnil);
+#else
+      Lisp_Object entity = font_matching_entity(f, face->lface, name);
+#endif /* __clang_analyzer__ */
 
-      font_object = ! NILP (entity) ? font_open_entity (f, entity, 0) : Qnil;
+      font_object = ! NILP(entity) ? font_open_entity(f, entity, 0) : Qnil;
     }
   if (NILP (font_object))
     return Qnil;

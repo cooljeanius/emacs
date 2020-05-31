@@ -2437,7 +2437,10 @@ macfont_list(struct frame *f, Lisp_Object spec)
 		  if (CFNumberGetValue(format, kCFNumberSInt32Type,
                                        &format_val)
 		      && (format_val == MAC_FONT_FORMAT_BITMAP))
-		    mask_max &= ~MAC_FONT_TRAIT_BOLD;
+		    {
+		      mask_max &= ~MAC_FONT_TRAIT_BOLD;
+		    }
+		  CFRelease(format);
 		}
 	    }
 	  if (spacing >= 0)
@@ -2936,7 +2939,7 @@ macfont_draw(struct glyph_string *s, int from, int to, int x, int y,
 	{
 	  int width;
 
-	  glyphs[i] = *((CGGlyph *)s->char2b + s->cmp_from + i);
+	  glyphs[i] = *((CGGlyph *)(void *)s->char2b + s->cmp_from + i);
 	  width = (s->padding_p ? 1
 		   : macfont_glyph_extents(s->font, glyphs[i],
 					   NULL, &advance_delta,
@@ -3229,7 +3232,7 @@ mac_font_copy_uvs_table(FontRef font)
   cmap_table = mac_font_copy_non_synthetic_table(font, cmapFontTableTag);
   if (cmap_table)
     {
-      sfntCMapHeader *cmap = ((sfntCMapHeader *)
+      sfntCMapHeader *cmap = ((sfntCMapHeader *)(void *)
                               CFDataGetBytePtr(cmap_table));
       struct uvs_table *uvs;
       struct variation_selector_record *records;

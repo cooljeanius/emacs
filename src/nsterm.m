@@ -42,6 +42,14 @@ GNUstep port and post-20 update by Adrian Robert <arobert@cogsci.ucsd.edu>
 #include <c-strcase.h>
 #include <ftoastr.h>
 
+#ifdef HAVE_INTTYPES_H
+# include <inttypes.h>
+#else
+# ifdef HAVE_STDINT_H
+#  include <stdint.h>
+# endif /* HAVE_STDINT_H */
+#endif /* HAVE_INTTYPES_H */
+
 #include "lisp.h"
 #include "blockinput.h"
 #include "sysselect.h"
@@ -1585,7 +1593,7 @@ ns_get_color(const char *name, NSColor **col)
 {
   NSColor *new = nil;
   static char hex[20];
-  int scaling = 0;
+  int8_t scaling = 0;
   float r = -1.0f, g = 0.0f, b = 0.0f;
   NSString *nsname = [NSString stringWithUTF8String: name];
 
@@ -1649,7 +1657,7 @@ ns_get_color(const char *name, NSColor **col)
       scaling = (strlen(name + start) / 3);
       for (i = 0; i < 3; i++)
 	snprintf((hex + i * (scaling + 1)), BUF_LEN_MAX_FOR_SNPRINTF,
-		 "%.*s/", scaling, (name + start + i * scaling));
+		 "%.*s/", scaling, (name + start + (i * scaling)));
       hex[3 * (scaling + 1) - 1] = '\0';
     }
 

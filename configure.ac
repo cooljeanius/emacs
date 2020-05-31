@@ -697,6 +697,12 @@ if test -z "${RC_ARCHS}"; then
 fi
 AC_SUBST([RC_ARCHS])dnl
 
+# For later:
+if test "x${acl_cv_wp}" = "x"; then
+  test -z "${acl_cv_wp}" && export acl_cv_wp='-Wp,'
+fi
+AC_SUBST([acl_cv_wp])dnl
+
 dnl# This used to use changequote, but, apart from `changequote is evil'
 dnl# per the autoconf manual, we can speed up autoconf somewhat by quoting
 dnl# the great gob of text. Thus it is not processed for possible
@@ -2955,6 +2961,7 @@ dnl# speaking of clang:
 EMACS_CLANG_STATIC_ANALYSIS
 
 dnl# lto is compiler-version dependent:
+LTO_KIND="none"
 gl_GCC_VERSION_IFELSE([4],[5],[
   AC_ARG_ENABLE([gcc-link-time-optimization],
   [AS_HELP_STRING([--enable-gcc-link-time-optimization],
@@ -2998,6 +3005,7 @@ gl_GCC_VERSION_IFELSE([4],[5],[
      fi  ##end gcc-specific checks
      ## now use it what we found, but only once:
      if test "x${ac_cv_lto_supported}" = "xyes"; then
+        LTO_KIND="gcc"
         CFLAGS="${CFLAGS} ${LTO}"
         gl_GCC_VERSION_IFELSE([4],[9],[
           dnl# The following is needed for GCC 4.9.0. 
@@ -3006,10 +3014,17 @@ gl_GCC_VERSION_IFELSE([4],[5],[
           dnl# in place of ar and ranlib, but gcc-ar makes /usr/bin/ar
           dnl# dump core on Fedora 20, so play it safe for now:
           gl_COMPILER_OPTION_IF([-ffat-lto-objects],
-            [CFLAGS="${CFLAGS} -ffat-lto-objects"])dnl# end check for flag
+            [CFLAGS="${CFLAGS} -ffat-lto-objects"
+             FAT_LTO_CFLAGS="-ffat-lto-objects"])dnl# end check for flag
         ])dnl# end code for gcc4.9+
+        ## might need this here too:
+        if test "x${ac_cv_ld_lto_supported}" = "xyes"; then
+           LDFLAGS="${LDFLAGS} ${LTO}"
+        fi
+        echo "CFLAGS are now: ${CFLAGS}"
         ##end case for compiling with gcc lto
      elif test "x${ac_cv_ld_lto_supported}" = "xyes"; then
+        LTO_KIND="gcc (but just for linking)"
         LDFLAGS="${LDFLAGS} ${LTO}"
      fi
   else
@@ -3049,6 +3064,7 @@ gl_GCC_VERSION_IFELSE([4],[5],[
       fi
       AC_MSG_RESULT([${ac_cv_lto_supported}])
       if test "x${ac_cv_lto_supported}" = "xyes"; then
+         LTO_KIND="clang"
          CFLAGS="${CFLAGS} ${LTO}"
          ## (already in the clang case here)
          AC_MSG_WARN([Please check INSTALL before using link-time optimization with clang])
@@ -3056,6 +3072,8 @@ gl_GCC_VERSION_IFELSE([4],[5],[
          # command, so plugin name is appended to ARFLAGS.
          ARFLAGS="cru --plugin ${GOLD_PLUGIN}"
          RANLIB="${RANLIB} --plugin ${GOLD_PLUGIN}"
+      elif test "x${enableval}" = "xyes" && test "x${ac_cv_lto_supported}" = "xno"; then
+         AC_MSG_WARN([LTO requested but unsupported])
       fi
     else
       AC_MSG_NOTICE([need clang for LTO checks, when not using gcc 4.5.0 or newer.])
@@ -3069,6 +3087,10 @@ gl_GCC_VERSION_IFELSE([4],[5],[
   fi  ##end enableval check
   ])dnl# end arg enable
 ])dnl# end code for gcc4.5+
+AC_SUBST([LTO_KIND])dnl
+AC_SUBST([LTO])dnl
+AC_SUBST([FAT_LTO_CFLAGS])dnl
+AC_SUBST([GOLD_PLUGIN])dnl
 
 dnl# (compiler id checks moved above the lto checks)
 
@@ -3078,6 +3100,7 @@ dnl# (compiler id checks moved above the lto checks)
 if test "x${emacs_cv_clang}" = "xyes" || test "x${emacs_cv_apple}" = "xyes"; then
   gl_UNKNOWN_WARNINGS_ARE_ERRORS
   CFLAGS="${CFLAGS} ${gl_unknown_warnings_are_errors}"
+  echo "CFLAGS are now: ${CFLAGS}"
 else
   AC_MSG_NOTICE([Hopefully your compiler should reject unknown warning flags without any extra options])
 fi
@@ -3281,7 +3304,7 @@ else
   gl_GCC_VERSION_IFELSE([4],[5],[
     gl_WARN_ADD([-Wno-logical-op])dnl
   ],[
-    AC_MSG_NOTICE([no need to explicitly add '-Wno-logical-op' for versions of gcc before 4.5.0])
+    AC_MSG_NOTICE([no need to explicitly add '-Wno-logical-op' for compilers that report being versions of gcc before 4.5.0])
   ])dnl# end code for gcc4.5(+(?))
 
   # More things that clang is unduly picky about.
@@ -3329,6 +3352,10 @@ else
       test -z "${acl_cv_wl}" && export acl_cv_wl='-Wl,'
     fi
     AC_SUBST([acl_cv_wl])
+    if test "x${acl_cv_wa}" = "x"; then
+      test -z "${acl_cv_wa}" && export acl_cv_wa='-Wa,'
+    fi
+    AC_SUBST([acl_cv_wa])
     WARN_LDFLAGS=""
     dnl# ok, now that set of vendor cases I was mentioning:
     case ${host_vendor} in 
@@ -3365,11 +3392,14 @@ else
             fi
           fi
           AC_SUBST([LD_ARCHFLAGS])dnl
-          ## that should be all we need to do with them for now...
+          ## that should be all we need to do with the linker flags for now...
         else
           test -z "${LD_ARCHFLAGS}"
         fi
         test -n "${LD_WARN_COMMONS}"
+        if test "x${acl_cv_wa}" = "x-Wa,"; then
+          gl_WARN_ADD([${acl_cv_wa}-Qunused-arguments])
+        fi
         ;;
       gnu*)
         dnl#FIXME: these flags are untested, and are only based on my
@@ -3707,8 +3737,9 @@ else
       AC_MSG_NOTICE([skipping checks for warnings for gcc 8.0 or newer])
     ])dnl# end block of code for gcc 8
 
-    dnl# to be added in a future version of gcc:
+    dnl# gcc 9 has been released:
     gl_GCC_VERSION_IFELSE([9],[0],[
+      gl_WARN_ADD([-Wabsolute-value])dnl
       gl_WARN_ADD([-Wenum-conversion])dnl
       if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
         AC_LANG_PUSH([C++])dnl
@@ -3721,16 +3752,42 @@ else
       fi  ##end check for C++ compiler
     ],[
       AC_MSG_NOTICE([skipping checks for warnings for gcc 9.0 or newer])
+      if test "x${emacs_cv_clang}" = "xyes"; then
+        gl_WARN_ADD([-Wabsolute-value])
+      fi
     ])dnl# end block of code for gcc 9
 
+    dnl# gcc 10 has been released:
+    gl_GCC_VERSION_IFELSE([10],[0],[
+      gl_WARN_ADD([-Wstring-compare])dnl
+      gl_WARN_ADD([-Wzero-length-bounds])dnl
+      gl_COMPILER_OPTION_IF([-Warith-conversion],[
+        if test "x${PRINT_CONVERSION_WARNINGS}" = "xyes"; then
+          test -n "${PRINT_CONVERSION_WARNINGS}"
+          gl_WARN_ADD([-Warith-conversion])
+        elif test "x${PRINT_CONVERSION_WARNINGS}" = "x"; then
+          test -z "${PRINT_CONVERSION_WARNINGS}" && gl_WARN_ADD([-Wconversion])
+        else
+          AC_MSG_WARN([conversion warnings should be ok now; try them])
+        fi
+      ],[:])dnl
+    ],[
+      AC_MSG_NOTICE([skipping checks for warnings for gcc 10.0 or newer])
+    ])dnl# end block of code for gcc 10
+
+    dnl# to be added in a future version of gcc: (TODO)
+
     if test "x${emacs_cv_clang}" = "xyes"; then
+      if test "x${acl_cv_wa}" != "x"; then
+        test -n "${acl_cv_wa}" && test -n "${gl_cv_warn_c__Wa__Qunused_arguments}"
+        gl_WARN_ADD([-Qunused-arguments])
+      fi
       gl_WARN_ADD([-Wgcc-compat])
       gl_WARN_ADD([-Wasm])
       gl_WARN_ADD([-Wunneeded-internal-declaration])
       gl_WARN_ADD([-Wbool-conversion])
       gl_WARN_ADD([-Wconstant-logical-operand])
       gl_WARN_ADD([-Wunused-comparison])
-      gl_WARN_ADD([-Wabsolute-value])
       gl_WARN_ADD([-Wunevaluated-expression])
       gl_WARN_ADD([-Wextra-semi])
       gl_WARN_ADD([-Wunsequenced])
@@ -3742,6 +3799,19 @@ else
       gl_WARN_ADD([-Wfor-loop-analysis])
       gl_WARN_ADD([-Wunreachable-code-loop-increment])
       gl_WARN_ADD([-Wtautological-pointer-compare])
+      if test "x${PRINT_CONVERSION_WARNINGS}" = "xyes"; then
+        test -n "${PRINT_CONVERSION_WARNINGS}"
+        gl_WARN_ADD([-Wbitfield-enum-conversion])
+        gl_WARN_ADD([-Wimplicit-float-conversion])
+        gl_WARN_ADD([-Wimplicit-int-conversion])
+        gl_WARN_ADD([-Wfloat-overflow-conversion])
+        gl_WARN_ADD([-Wfloat-zero-conversion])
+      fi  ##end dummy variable check
+      gl_WARN_ADD([-Warray-bounds-pointer-arithmetic])
+      gl_WARN_ADD([-Wassign-enum])
+      gl_WARN_ADD([-Wempty-translation-unit])
+      gl_WARN_ADD([-Winfinite-recursion])
+      gl_WARN_ADD([-Wkeyword-macro])
     fi  ##end check for clang
     ##...okay, that should be it.
   else
@@ -3904,12 +3974,15 @@ dnl# make errors...
 
 if test "x${edit_cflags}" != "x"; then
   test -x "`which sed`"
+  ##FIXME: this does more than the simple edit might suggest:
   test -n "${edit_cflags}" && export CFLAGS=`AS_ECHO(["${PRE_WARNING_TESTING_CFLAGS}"]) | sed -e "${edit_cflags}"`
   if test "x${CFLAGS}" != "x${PRE_WARNING_TESTING_CFLAGS}"; then
-    AC_MSG_NOTICE([we have edited CFLAGS; they are now '${CFLAGS}'])
+    AC_MSG_NOTICE([we have edited CFLAGS from '${PRE_WARNING_TESTING_CFLAGS}' to '${CFLAGS}'])
   fi
 else
+  echo "reverting CFLAGS to the ones from before testing for warnings"
   CFLAGS="${PRE_WARNING_TESTING_CFLAGS}"
+  echo "thus CFLAGS are now: '${CFLAGS}'"
 fi
 dnl# This is a hack to avoid breaking the clang static analyzer:
 AC_SUBST([PRE_WARNING_TESTING_CFLAGS])dnl
@@ -4347,6 +4420,7 @@ elif test "x${opsys}" = "xdarwin"; then
       if test "x${MAC_OSX_DEFINED}" != "x1"; then
         export MAC_OSX_DEFINED=1
         C_SWITCH_SYSTEM="-DMAC_OSX=1"
+        echo "C_SWITCH_SYSTEM is now ${C_SWITCH_SYSTEM}"
       fi
     ;;
     mac-apple-*) C_SWITCH_SYSTEM="-DMAC_OS" ;;
@@ -4410,9 +4484,12 @@ dnl# m4-quotation block 8 begins:
 [
 ### Make sure subsequent tests use flags consistent with the build flags.
 if test x"${OVERRIDE_CPPFLAGS}" != x""; then
+  echo "overriding CPPFLAGS with OVERRIDE_CPPFLAGS: ${OVERRIDE_CPPFLAGS}"
   CPPFLAGS="${OVERRIDE_CPPFLAGS}"
 else
+  echo "prepending C_SWITCH_SYSTEM and C_SWITCH_MACHINE to CPPFLAGS"
   CPPFLAGS="${C_SWITCH_SYSTEM} ${C_SWITCH_MACHINE} ${CPPFLAGS}"
+  echo "this means that CPPFLAGS are now: ${CPPFLAGS}"
 fi
 ]
 dnl# m4-quotation block 8 ends
@@ -4597,7 +4674,8 @@ if test -n "${PKG_CONFIG_PATH}"; then
     if test -d ${pkcdir}; then
       stat ${pkcdir}
     else
-      AC_MSG_WARN([directory ${pkcdir} in PKG_CONFIG_PATH is missing])
+      AC_MSG_WARN([directory ${pkcdir} in PKG_CONFIG_PATH is missing; attempting to remove it...])
+      export PKG_CONFIG_PATH="`echo ${PKG_CONFIG_PATH} | ${SED} 's/${pkcdir}://g'`"
     fi
   done
 else
@@ -5133,6 +5211,8 @@ m4_ifdef([AC_SYS_RESTARTABLE_SYSCALLS],[
   if test "x${I_CAN_AFFORD_TO_WAIT_AROUND}" = "xyes"; then
     test -n "${I_CAN_AFFORD_TO_WAIT_AROUND}"
     AC_SYS_RESTARTABLE_SYSCALLS
+  else
+    echo "skipping test for restartable syscalls"
   fi
 ])dnl
 dnl# this one is kind of a different type of "service", but whatever:
@@ -5256,7 +5336,22 @@ HAVE_CARBON=no
 ## "${with_carbon}" is "${with_mac}" in Yamamoto Mitsuharu's Mac port:
 if test "x${with_carbon}" != "xno"; then
   AC_CHECK_HEADER([Carbon/Carbon.h],[HAVE_CARBON=yes])
-  AC_CHECK_HEADERS([CarbonCore/Files.h CarbonCore/MacTypes.h \
+  ## FIXME: including headers from here breaks stuff:
+  AH_TEMPLATE([HAVE_CFMCARBON_HEADERS_DIR],
+              [Define to 1 or more if we can include a CFMCarbon headers dir])
+  if test "x${GIMME_YOUR_CFMCARBON_HEADERS}" = "xyes"; then
+    if test -d "${SDKROOT}/Developer/Headers/CFMCarbon"; then
+      CPPFLAGS="${CPPFLAGS} ${acl_cv_wp}-I${SDKROOT}/Developer/Headers/CFMCarbon"
+      AC_DEFINE([HAVE_CFMCARBON_HEADERS_DIR],[1])
+    elif test -d "${xcsdkdir}/Developer/Headers/CFMCarbon"; then
+      CPPFLAGS="${CPPFLAGS} ${acl_cv_wp}-I${xcsdkdir}/Developer/Headers/CFMCarbon"
+      AC_DEFINE([HAVE_CFMCARBON_HEADERS_DIR],[2])
+    elif test -d /Developer/Headers/CFMCarbon; then
+      CPPFLAGS="${CPPFLAGS} ${acl_cv_wp}-I/Developer/Headers/CFMCarbon"
+      AC_DEFINE([HAVE_CFMCARBON_HEADERS_DIR],[3])
+    fi
+  fi
+  AC_CHECK_HEADERS([AE/AEDataModel.h CarbonCore/Files.h CarbonCore/MacTypes.h \
                     CarbonCore/Script.h CarbonCore/StringCompare.h \
                     CarbonCore/TextUtils.h HIToolbox/Appearance.h \
                     HIToolbox/CarbonEvents.h HIToolbox/Controls.h \
@@ -5267,7 +5362,7 @@ if test "x${with_carbon}" != "xno"; then
                     HIToolbox/Menus.h HIToolbox/Scrap.h MacTypes.h \
                     NavigationServices/Navigation.h \
                     QD/QuickdrawAPI.h QD/QDOffscreen.h \
-                    QuickTime/ImageCompression.h])dnl
+                    QuickTime/ImageCompression.h Webkit/Webkit.h])dnl
   ## end Carbon headers check
 fi
 if test "x${window_system}" = "xx11" && test "x${HAVE_CARBON}" = "xyes"; then
@@ -5398,6 +5493,7 @@ if test "x${with_ns}" != "xno"; then
      GNU_OBJC_CFLAGS="${flags}"
      LIBS_GNUSTEP=$(gnustep-config --gui-libs) || exit
   elif test -f ${GNUSTEP_CONFIG_FILE}; then
+     echo "found GNUSTEP_CONFIG_FILE: ${GNUSTEP_CONFIG_FILE}"
      NS_IMPL=GNUstep
      NS_IMPL_GNUSTEP=yes
      ns_appdir="`pwd`/nextstep/Emacs.app"
@@ -5412,11 +5508,11 @@ if test "x${with_ns}" != "xno"; then
      GNUSTEP_LOCAL_HEADERS="$(. ${GNUSTEP_CONFIG_FILE}; echo ${GNUSTEP_LOCAL_HEADERS})"
      GNUSTEP_LOCAL_LIBRARIES="$(. ${GNUSTEP_CONFIG_FILE}; echo ${GNUSTEP_LOCAL_LIBRARIES})"
      test "x${GNUSTEP_LOCAL_HEADERS}" != "x" && \
-       GNUSTEP_LOCAL_HEADERS="-I${GNUSTEP_LOCAL_HEADERS}"
+       GNUSTEP_LOCAL_HEADERS="${acl_cv_wp}-I${GNUSTEP_LOCAL_HEADERS}"
      test "x${GNUSTEP_LOCAL_LIBRARIES}" != "x" && \
        GNUSTEP_LOCAL_LIBRARIES="-L${GNUSTEP_LOCAL_LIBRARIES}"
-     CPPFLAGS="${CPPFLAGS} -I${GNUSTEP_SYSTEM_HEADERS} ${GNUSTEP_LOCAL_HEADERS}"
-     CFLAGS="${CFLAGS} -I${GNUSTEP_SYSTEM_HEADERS} ${GNUSTEP_LOCAL_HEADERS}"
+     CPPFLAGS="${CPPFLAGS} ${acl_cv_wp}-I${GNUSTEP_SYSTEM_HEADERS} ${GNUSTEP_LOCAL_HEADERS}"
+     CFLAGS="${CFLAGS} ${acl_cv_wp}-I${GNUSTEP_SYSTEM_HEADERS} ${GNUSTEP_LOCAL_HEADERS}"
      LDFLAGS="${LDFLAGS} -L${GNUSTEP_SYSTEM_LIBRARIES} ${GNUSTEP_LOCAL_LIBRARIES}"
      LIBS_GNUSTEP="-lgnustep-gui -lgnustep-base -lobjc -lpthread"
      AC_CHECK_HEADERS([GNUstepBase/GSConfig.h])
@@ -5456,6 +5552,12 @@ elif test "x${MAC_OBJC_OBJ}" != "x"; then
   fi
 fi  ##end ns conditional
 
+if test "x${LDFLAGS}" != "x"; then
+  test -n "${LDFLAGS}" && echo "LDFLAGS are now: ${LDFLAGS}"
+else
+  test -z "${LDFLAGS}" && echo "LDFLAGS are empty"
+fi
+
 if test "x${with_ns}" != "xno" || test "x${MAC_OBJC_OBJ}" != "x"; then
   test -n "${NS_IMPL}" || test -n "${MAC_OBJC_OBJ}"
   if test "x${gl_gcc_warnings}" = "xyes" && test "x${WERROR_CFLAGS}" = "x"; then
@@ -5467,7 +5569,35 @@ if test "x${with_ns}" != "xno" || test "x${MAC_OBJC_OBJ}" != "x"; then
     gl_WARN_ADD([-Wprotocol],[GNU_OBJC_WARN_CFLAGS])
     gl_GCC_VERSION_IFELSE([5],[0],[
       gl_WARN_ADD([-Wshadow-ivar],[GNU_OBJC_WARN_CFLAGS])
+      nw="${nw} -Wcast-function-type"
+      gl_WARN_ADD([-Wno-cast-function-type],[GNU_OBJC_WARN_CFLAGS])
     ])dnl
+    ## sometimes clang enables this:
+    if test "x${PRINT_CONVERSION_WARNINGS}" != "xyes"; then
+      nw="${nw} -Wdouble-promotion"
+      gl_WARN_ADD([-Wno-double-promotion],[GNU_OBJC_WARN_CFLAGS])
+    fi
+    ## other clang things:
+    if test "x${emacs_cv_clang}" = "xyes"; then
+      gl_WARN_ADD([-Wat-protocol],[GNU_OBJC_WARN_CFLAGS])
+      gl_WARN_ADD([-Warc-repeated-use-of-weak],[GNU_OBJC_WARN_CFLAGS])
+      gl_WARN_ADD([-Wcstring-format-directive],[GNU_OBJC_WARN_CFLAGS])
+      gl_WARN_ADD([-Wduplicate-method-arg],[GNU_OBJC_WARN_CFLAGS])
+      gl_WARN_ADD([-Wduplicate-method-match],[GNU_OBJC_WARN_CFLAGS])
+      gl_WARN_ADD([-Wimplicit-retain-self],[GNU_OBJC_WARN_CFLAGS])
+      gl_WARN_ADD([-Wmethod-signatures],[GNU_OBJC_WARN_CFLAGS])
+      gl_WARN_ADD([-Wmissing-method-return-type],[GNU_OBJC_WARN_CFLAGS])
+      gl_WARN_ADD([-Wobjc-missing-property-synthesis],[GNU_OBJC_WARN_CFLAGS])
+      gl_WARN_ADD([-Wobjc-property-assign-on-object-type],
+                  [GNU_OBJC_WARN_CFLAGS])
+      gl_WARN_ADD([-Wselector-type-mismatch],[GNU_OBJC_WARN_CFLAGS])
+      gl_WARN_ADD([-Wsemicolon-before-method-body],[GNU_OBJC_WARN_CFLAGS])
+      gl_WARN_ADD([-Wsuper-class-method-mismatch],[GNU_OBJC_WARN_CFLAGS])
+      gl_WARN_ADD([-Wunused-property-ivar],[GNU_OBJC_WARN_CFLAGS])
+      # too noisy to add:
+      # * -Wobjc-interface-ivars
+      # * -Wobjc-messaging-id
+    fi
     ## these two selector-related warnings can be overly noisy:
     if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
       test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
@@ -5502,6 +5632,7 @@ if test "x${with_ns}" != "xno" || test "x${MAC_OBJC_OBJ}" != "x"; then
 fi  ##end stuff for objc sources, whether ns or mac
 
 if test "x${with_ns}" != "xno"; then
+  AC_MSG_NOTICE([ensuring NS headers are compile-able])
   dnl# This is only used while we test the NS headers, it gets reset below:
   CPPFLAGS="${CPPFLAGS} ${GNU_OBJC_CFLAGS}"
   CFLAGS="${CFLAGS} ${GNU_OBJC_CFLAGS}"
@@ -5668,6 +5799,8 @@ AC_SUBST([INSTALL_ARCH_INDEP_EXTRA])dnl
 AC_SUBST([ns_self_contained])dnl
 AC_SUBST([NS_OBJ])dnl
 AC_SUBST([NS_OBJC_OBJ])dnl
+
+echo "CPPFLAGS are now: ${CPPFLAGS}"
 
 if test "x${HAVE_NS}" = "xyes"; then
   AC_CACHE_CHECK([if the Objective C compiler supports instancetype],
@@ -6139,6 +6272,7 @@ AC_SUBST([REAL_LIBS])dnl
 AC_MSG_CHECKING([X11 features])
 AC_MSG_RESULT([ ])
 if test "x${HAVE_X11}" = "xyes"; then
+  echo "we have X11 so using X11-specific vars"
   DEFS="${C_SWITCH_X_SITE} ${DEFS}"
   LDFLAGS="${LDFLAGS} ${LD_SWITCH_X_SITE}"
   LIBS="-lX11 ${LIBS}"
@@ -6220,6 +6354,8 @@ if test "x${HAVE_X11}" = "xyes"; then
 else
   AC_MSG_NOTICE([skipping miscellaneous X11 checks])
 fi
+
+echo "CPPFLAGS are now: ${CPPFLAGS}"
 
 if test "x${window_system}" = "xx11"; then
   AC_MSG_CHECKING([X11 version 6])
@@ -6414,6 +6550,7 @@ else
 fi
 
 if test x"${pkg_check_gtk}" = x"yes"; then
+  AC_MSG_NOTICE([continuing with gtk stuff])
   AC_SUBST([GTK_LIBS])dnl
 
   C_SWITCH_X_SITE="${C_SWITCH_X_SITE} ${GTK_CFLAGS}"
@@ -6956,7 +7093,8 @@ LIBXP=""
 if test "x${USE_X_TOOLKIT}" = "xMOTIF"; then
   # OpenMotif may be installed in such a way on some GNU/Linux systems.
   if test -d /usr/include/openmotif; then
-    CPPFLAGS="-I/usr/include/openmotif ${CPPFLAGS}"
+    echo "found OpenMotif installation in /usr/include/openmotif"
+    CPPFLAGS="${acl_cv_wp}-I/usr/include/openmotif ${CPPFLAGS}"
     emacs_cv_openmotif=yes
     case "${canonical}" in
       x86_64-*-linux-gnu* | powerpc64-*-linux-gnu* | sparc64-*-linux-gnu*)
@@ -6982,7 +7120,7 @@ Motif version prior to 2.1.
   if test "x${emacs_cv_motif_version_2_1}" = "xyes"; then
     AC_CHECK_LIB([Xp],[XpCreateContext],[LIBXP='-lXp'])
     if test "x${emacs_cv_openmotif}" = "xyes"; then
-      REAL_CPPFLAGS="-I/usr/include/openmotif ${REAL_CPPFLAGS}"
+      REAL_CPPFLAGS="${acl_cv_wp}-I/usr/include/openmotif ${REAL_CPPFLAGS}"
     fi
   else
     AC_CACHE_CHECK([for LessTif where some systems put it],
@@ -6992,8 +7130,8 @@ Motif version prior to 2.1.
     # We put this in CPPFLAGS where it precedes the other -I options.
     OLD_CPPFLAGS="${CPPFLAGS}"
     OLD_CFLAGS="${CFLAGS}"
-    CPPFLAGS="-I/usr/X11R6/LessTif/Motif1.2/include ${CPPFLAGS}"
-    CFLAGS="-I/usr/X11R6/LessTif/Motif1.2/include ${CFLAGS}"
+    CPPFLAGS="${acl_cv_wp}-I/usr/X11R6/LessTif/Motif1.2/include ${CPPFLAGS}"
+    CFLAGS="${acl_cv_wp}-I/usr/X11R6/LessTif/Motif1.2/include ${CFLAGS}"
     [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include </usr/X11R6/LessTif/Motif1.2/include/Xm/Xm.h>]],
       [[int x = 5;]])],
       [emacs_cv_lesstif=yes],[emacs_cv_lesstif=no])])
@@ -7003,7 +7141,7 @@ Motif version prior to 2.1.
       # There is no need to change REAL_CFLAGS, because REAL_CFLAGS does
       # not have those other -I options anyway. Ultimately, having this
       # directory ultimately in CPPFLAGS will be enough.
-      REAL_CPPFLAGS="-I/usr/X11R6/LessTif/Motif1.2/include ${REAL_CPPFLAGS}"
+      REAL_CPPFLAGS="${acl_cv_wp}-I/usr/X11R6/LessTif/Motif1.2/include ${REAL_CPPFLAGS}"
       LDFLAGS="-L/usr/X11R6/LessTif/Motif1.2/lib ${LDFLAGS}"
       REAL_LDFLAGS="-L/usr/X11R6/LessTif/Motif1.2/lib ${REAL_LDFLAGS}"
     else
@@ -7230,12 +7368,21 @@ if test "x${HAVE_X11}" = "xyes"; then
     if test "x${HAVE_LIBOTF}" = "xyes"; then
       if test "x${with_m17n_flt}" != "xno"; then
 	PKG_CHECK_MODULES([M17N_FLT],[m17n-flt],
-                          [HAVE_M17N_FLT=yes],[HAVE_M17N_FLT=no])
+                          [HAVE_M17N_FLT=yes],
+                          [HAVE_M17N_FLT=no])
 	if test "x${HAVE_M17N_FLT}" = "xyes"; then
 	  AC_DEFINE([HAVE_M17N_FLT],[1],
                     [Define to 1 if using libm17n-flt.])
+        else
+          PKG_CHECK_EXISTS([M17N_FLT],[m17n-flt],
+                           [AC_MSG_WARN([m17n-flt found but unusable; please investigate])],
+                           [if test -n "${LOCATE_BIN}" && test -x "${LOCATE_BIN}"; then ${LOCATE_BIN} m17n-flt.pc; fi])
 	fi
+      else
+        AC_MSG_NOTICE([skipping checking for m17n])
       fi
+    else
+      AC_MSG_NOTICE([no need to check for m17n when we already have libotf])
     fi
 else
     AC_MSG_NOTICE([X11 is unavailable, so skipping checks for X11-specific font-rendering backends])
@@ -7244,6 +7391,8 @@ else
     HAVE_LIBOTF=no
     HAVE_M17N_FLT=no
 fi
+
+echo "CPPFLAGS are now: ${CPPFLAGS}"
 
 ### End of font-backend (under X11) section.
 dnl# subst the stuff from the previous section:
@@ -7268,9 +7417,10 @@ HAVE_XPM=no
 LIBXPM=""
 if test "x${HAVE_W32}" = "xyes" && test "x${opsys}" = "xcygwin"; then
   if test "x${with_xpm}" != "xno"; then
+    echo "doing special Windows stuff for xpm"
     SAVE_CPPFLAGS="${CPPFLAGS}"
     SAVE_LDFLAGS="${LDFLAGS}"
-    CPPFLAGS="${CPPFLAGS} -I/usr/include/noX"
+    CPPFLAGS="${CPPFLAGS} ${acl_cv_wp}-I/usr/include/noX"
     LDFLAGS="${LDFLAGS} -L/usr/lib/noX"
     AC_CHECK_HEADER([X11/xpm.h],
       [AC_CHECK_LIB([Xpm],[XpmReadFileToImage],[HAVE_XPM=yes],
@@ -7294,7 +7444,7 @@ no_return_alloc_pixels
       ],[HAVE_XPM=no],[HAVE_XPM=yes])dnl
 
       if test "x${HAVE_XPM}" = "xyes"; then
-        REAL_CPPFLAGS="${REAL_CPPFLAGS} -I/usr/include/noX"
+        REAL_CPPFLAGS="${REAL_CPPFLAGS} ${acl_cv_wp}-I/usr/include/noX"
         REAL_LDFLAGS="${REAL_LDFLAGS} -L/usr/lib/noX"
 	AC_MSG_RESULT([yes])
       else
@@ -7506,7 +7656,7 @@ elif test "x${HAVE_X11}" = "xyes" || test "x${HAVE_W32}" = "xyes"; then
       # in /usr/include/libpng.
       if test -r /usr/include/libpng/png.h &&
 	 test ! -r /usr/include/png.h; then
-	png_cflags=-I/usr/include/libpng
+	png_cflags="${acl_cv_wp}-I/usr/include/libpng"
       else
 	png_cflags=""
       fi
@@ -7927,6 +8077,7 @@ if test "x${with_xml2}" != "xno"; then
                     [HAVE_LIBXML2=yes],[HAVE_LIBXML2=no])
   # Built-in libxml2 on OS X 10.8+ lacks libxml-2.0.pc.
   if test "x${HAVE_LIBXML2}" != "xyes" -a "x${opsys}" = "xdarwin"; then
+    echo "trying harder to find libxml2 on darwin"
     SAVE_CPPFLAGS="${CPPFLAGS}"
     if test -z "${xcsdkdir}" -a -n "${XCRUN}" -a ! -d /usr/include; then
       dnl# /usr/include is not found.  Try Xcode SDK dir if it is sane:
@@ -7936,13 +8087,13 @@ if test "x${with_xml2}" != "xno"; then
 	xcsdkdir="" ;;
       esac
     fi
-    CPPFLAGS="${CPPFLAGS} -I${xcsdkdir}/usr/include/libxml2"
+    CPPFLAGS="${CPPFLAGS} ${acl_cv_wp}-I${xcsdkdir}/usr/include/libxml2"
     AC_CHECK_HEADER([libxml/HTMLparser.h],
       [AC_CHECK_DECL([HTML_PARSE_RECOVER],[HAVE_LIBXML2=yes],[],
       		     [#include <libxml/HTMLparser.h>])])
     CPPFLAGS="${SAVE_CPPFLAGS}"
     if test "x${HAVE_LIBXML2}" = "xyes"; then
-      LIBXML2_CFLAGS="-I'${xcsdkdir}/usr/include/libxml2'"
+      LIBXML2_CFLAGS="${acl_cv_wp}-I'${xcsdkdir}/usr/include/libxml2'"
       LIBXML2_LIBS="-lxml2"
     fi
   fi
@@ -9588,6 +9739,14 @@ CPPFLAGS="${REAL_CPPFLAGS}"
 LDFLAGS="${REAL_LDFLAGS}"
 LIBS="${REAL_LIBS}"
 
+echo "CFLAGS have been replaced with REAL_CFLAGS and are now: ${CFLAGS}"
+echo "CPPFLAGS have been replaced with REAL_CPPFLAGS and are now: ${CPPFLAGS}"
+if test "x${LDFLAGS}" != "x"; then
+  test -n "${LDFLAGS}" && echo "LDFLAGS have been replaced with REAL_LDFLAGS and are now: ${LDFLAGS}"
+else
+  test -z "${LDFLAGS}" && echo "uh oh, overriding LDFLAGS with REAL_LDFLAGS made it empty..."
+fi
+
 ## Hack to detect a buggy GCC version.
 if test "x${GCC}" = "xyes" \
    && test x"`${CC} --version 2> /dev/null | grep 'gcc.* 4.5.0'`" != x"" \
@@ -9934,6 +10093,11 @@ AC_SEARCH_LIBS([libintl_gettext],[intl asprintf gettextlib gettextpo \
                                   gettextsrc gettext libintl lintl \
                                   gnu c iberty iconv])dnl
 
+AC_MSG_NOTICE([done with section for gettext checks])dnl
+
+# the main gettext macro can set CPPFLAGS:
+echo "CPPFLAGS are now: ${CPPFLAGS}"
+
 # If user asks to omit features, disable optional features that gnulib
 # might otherwise enable.
 if test "x${with_features}" = "xno" && test "x${enable_acl}" != "xyes"; then
@@ -9953,7 +10117,7 @@ fi
 # already contain -lrt merely because 'pkg-config --libs' printed '-lrt'
 # for some package unrelated to lib-src.
 AC_MSG_CHECKING([things that gnulib needs])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([(warning: gnulib is bloated; this part can take a long time)])
 SAVE_CFLAGS="${CFLAGS}"
 SAVE_LIBS="${LIBS}"
 CFLAGS="${pre_PKG_CONFIG_CFLAGS}"
@@ -10013,6 +10177,8 @@ if test "x${opsys}" = "xmingw32"; then
   # Remove unneeded switches from the value of CC that goes to Makefiles
   CC=`echo ${CC} | sed -e "s,${GCC_TEST_OPTIONS},,"`
 fi
+
+echo "CPPFLAGS are now: ${CPPFLAGS}"
 
 case "${opsys}" in
   aix4-2) LD_SWITCH_SYSTEM_TEMACS="-Wl,-bnodelcsect" ;;
@@ -10272,7 +10438,7 @@ if test "x${LDFLAGS}" = "x"; then
     test -z "${LDFLAGS}" && test -n "${with_libiconv_prefix}" && test -d "${with_libiconv_prefix}/lib" && export LDFLAGS="-L${with_libiconv_prefix}/lib"
     test -z "${LDFLAGS}" && test -n "${x_libraries}" && test -d "${x_libraries}" && export LDFLAGS="-L${x_libraries}"
   elif test "x${prefix}" = "xNONE" && test ! -d "NONE"; then
-    echo "Warning: invalid prefix"
+    echo "Warning: invalid prefix (NONE)"
   else
     echo "Well, this situation is improbable..."
   fi
@@ -10294,7 +10460,8 @@ Configured for \`${canonical}'.
   Should Emacs use a relocating allocator for buffers? ${REL_ALLOC}
   Should Emacs use mmap(2) for buffer allocation?      ${use_mmap_for_buffers}
   What window system should Emacs use?                 ${window_system}
-  What toolkit should Emacs use?                       ${USE_X_TOOLKIT}"
+  What toolkit should Emacs use?                       ${USE_X_TOOLKIT}
+  What kind of LTO should Emacs use?                   ${LTO_KIND}"
 ## see? told ya so.
 
 echo ""

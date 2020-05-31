@@ -1,4 +1,4 @@
-/*
+/* lwlib/lwlib.h -*- C -*-
 Copyright (C) 1992, 1993 Lucid, Inc.
 Copyright (C) 1994, 1999-2014 Free Software Foundation, Inc.
 
@@ -168,28 +168,22 @@ void lw_refigure_widget (Widget w, Boolean doit);
 
 /* Toolkit independent way of determining if an event occurred on a
    menubar. */
-Boolean lw_window_is_in_menubar (Window win, Widget menubar_widget);
+Boolean lw_window_is_in_menubar(Window win, Widget menubar_widget);
 
 /* Manage resizing: TRUE permits resizing widget w; FALSE disallows it. */
-#ifndef USE_MOTIF
-ATTRIBUTE_CONST
-#endif /* !USE_MOTIF */
-void lw_allow_resizing (Widget w, Boolean flag);
+void lw_allow_resizing(Widget w, Boolean flag);
 
 /* Set up the main window. */
-#ifndef USE_MOTIF
-ATTRIBUTE_CONST
-#endif /* !USE_MOTIF */
-void lw_set_main_areas (Widget parent,
-                        Widget menubar,
-                        Widget work_area);
+void lw_set_main_areas(Widget parent, Widget menubar, Widget work_area);
 
 /* Value is non-zero if LABEL is a menu separator.  If it is, *TYPE is
    set to an appropriate enumerator of type enum menu_separator.
    MOTIF_P non-zero means map separator types not supported by Motif
    to similar ones that are supported.  */
 
-int lw_separator_p (const char *label, enum menu_separator *type,
-                    int motif_p);
+int lw_separator_p(const char *label, enum menu_separator *type,
+                   int motif_p);
 
 #endif /* LWLIB_H */
+
+/* EOF */

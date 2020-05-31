@@ -519,7 +519,7 @@ exec_byte_code (Lisp_Object bytestr, Lisp_Object vector, Lisp_Object maxdepth,
 #endif /* BYTE_CODE_SAFE */
   struct byte_stack stack;
   struct byte_stack volatile stack_volatile;
-  Lisp_Object *top;
+  Lisp_Object *top = NULL;
   Lisp_Object result;
   enum handlertype type;
 
@@ -561,7 +561,8 @@ exec_byte_code (Lisp_Object bytestr, Lisp_Object vector, Lisp_Object maxdepth,
 #endif /* BYTE_MARK_STACK */
   if (MAX_ALLOCA / word_size <= XFASTINT (maxdepth))
     memory_full (SIZE_MAX);
-  top = alloca ((XFASTINT (maxdepth) + 1) * sizeof *top);
+  top = alloca((XFASTINT(maxdepth) + 1UL) * sizeof(*top));
+  memset(top, 0, (XFASTINT(maxdepth) + 1UL) * sizeof(*top));
 #if BYTE_MAINTAIN_TOP
   stack.bottom = top + 1;
   stack.top = NULL;

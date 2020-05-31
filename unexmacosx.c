@@ -271,7 +271,7 @@ unexec_copy (off_t dest, off_t src, ssize_t count)
 }
 
 /* Debugging and informational messages routines: */
-static void unexec_error(char *format, ...)
+static _Noreturn void unexec_error(char *format, ...)
 {
   va_list ap;
 
@@ -409,7 +409,8 @@ build_region_list ()
 	    }
 	  else
 	    {
-	      region_list_tail->next = r;
+	      if (region_list_tail != NULL)
+		region_list_tail->next = r;
 	      region_list_tail = r;
 	    }
 

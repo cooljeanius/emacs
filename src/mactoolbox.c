@@ -39,14 +39,199 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <Controls.h>
 #include <Windows.h>
 #include <Displays.h>
-#if defined (__MRC__) || (__MSL__ >= 0x6000)
-#include <ControlDefinitions.h>
-#endif
+# if defined (__MRC__) || (__MSL__ >= 0x6000)
+#  include <ControlDefinitions.h>
+# endif
 
-#if __profile__
-#include <profiler.h>
-#endif
+# if __profile__
+#  include <profiler.h>
+# endif /* __profile__ */
 #endif /* not TARGET_API_MAC_CARBON */
+
+#if (defined(TARGET_API_MAC_CARBON) && defined(HAVE_CARBON) && \
+     defined(HAVE_CFMCARBON_HEADERS_DIR)) || \
+    defined(HAVE_NAVIGATION_SERVICES_NAVIGATION_H)
+# include <NavigationServices/Navigation.h>
+#else
+/* inline the parts of the header we need: */
+# if !defined(__NAVIGATION__)
+typedef UInt32 NavUserAction;
+typedef struct __NavDialog *NavDialogRef;
+struct NavTypeList {
+  OSType componentSignature;
+  short reserved;
+  short osTypeCount;
+  OSType osType[1];
+};
+typedef struct NavTypeList NavTypeList;
+typedef NavTypeList *NavTypeListPtr;
+typedef NavTypeListPtr *NavTypeListHandle;
+typedef OptionBits NavDialogOptionFlags;
+struct NavDialogCreationOptions {
+  UInt16 version;
+  NavDialogOptionFlags optionFlags;
+  Point location;
+  CFStringRef clientName;
+  CFStringRef windowTitle;
+  CFStringRef actionButtonLabel;
+  CFStringRef cancelButtonLabel;
+  CFStringRef saveFileName;
+  CFStringRef message;
+  UInt32 preferenceKey;
+  CFArrayRef popupExtension;
+  WindowModality modality;
+  WindowRef parentWindow;
+  char reserved[16];
+};
+typedef struct NavDialogCreationOptions NavDialogCreationOptions;
+enum kNav_e {
+  kNavDefaultNavDlogOptions = 0x000000E4,
+  kNavNoTypePopup = 0x00000001,
+  kNavDontAutoTranslate = 0x00000002,
+  kNavDontAddTranslateItems = 0x00000004,
+  kNavAllFilesInPopup = 0x00000010,
+  kNavAllowStationery = 0x00000020,
+  kNavAllowPreviews = 0x00000040,
+  kNavAllowMultipleFiles = 0x00000080,
+  kNavAllowInvisibleFiles = 0x00000100,
+  kNavDontResolveAliases = 0x00000200,
+  kNavSelectDefaultLocation = 0x00000400,
+  kNavSelectAllReadableItem = 0x00000800,
+  kNavSupportPackages = 0x00001000,
+  kNavAllowOpenPackages = 0x00002000,
+  kNavDontAddRecents = 0x00004000,
+  kNavDontUseCustomFrame = 0x00008000,
+  kNavDontConfirmReplacement = 0x00010000,
+  kNavPreserveSaveFileExtension = 0x00020000
+} ATTRIBUTE_FLAG_ENUM;
+enum kNavUA_e {
+  kNavUserActionNone = 0,
+  kNavUserActionCancel = 1,
+  kNavUserActionOpen = 2,
+  kNavUserActionSaveAs = 3,
+  kNavUserActionChoose = 4,
+  kNavUserActionNewFolder = 5,
+  kNavUserActionSaveChanges = 6,
+  kNavUserActionDontSaveChanges = 7,
+  kNavUserActionDiscardChanges = 8,
+  kNavUserActionReviewDocuments = 9,
+  kNavUserActionDiscardDocuments = 10
+};
+struct NavReplyRecord {
+  UInt16 version;
+  Boolean validRecord;
+  Boolean replacing;
+  Boolean isStationery;
+  Boolean translationNeeded;
+  AEDescList selection;
+  ScriptCode keyScript;
+  FileTranslationSpecArrayHandle fileTranslation;
+  UInt32 reserved1;
+  CFStringRef saveFileName;
+  Boolean saveFileExtensionHidden;
+  UInt8 reserved2;
+  char reserved[225];
+};
+typedef struct NavReplyRecord NavReplyRecord;
+union NavEventDataInfo {
+  EventRecord *event;
+  void *param;
+};
+typedef union NavEventDataInfo NavEventDataInfo;
+struct NavEventData {
+  NavEventDataInfo eventDataParms;
+  SInt16 itemHit;
+};
+typedef struct NavEventData NavEventData;
+struct NavCBRec {
+  UInt16 version;
+  NavDialogRef context;
+  WindowRef window;
+  Rect customRect;
+  Rect previewRect;
+  NavEventData eventData;
+  NavUserAction userAction;
+  char reserved[218];
+};
+typedef struct NavCBRec NavCBRec;
+typedef NavCBRec *NavCBRecPtr;
+enum kNavCtl_e {
+  kNavCtlShowDesktop = 0,
+  kNavCtlSortBy = 1,
+  kNavCtlSortOrder = 2,
+  kNavCtlScrollHome = 3,
+  kNavCtlScrollEnd = 4,
+  kNavCtlPageUp = 5,
+  kNavCtlPageDown = 6,
+  kNavCtlGetLocation = 7,
+  kNavCtlSetLocation = 8,
+  kNavCtlGetSelection = 9,
+  kNavCtlSetSelection = 10,
+  kNavCtlShowSelection = 11,
+  kNavCtlOpenSelection = 12,
+  kNavCtlEjectVolume = 13,
+  kNavCtlNewFolder = 14,
+  kNavCtlCancel = 15,
+  kNavCtlAccept = 16,
+  kNavCtlIsPreviewShowing = 17,
+  kNavCtlAddControl = 18,
+  kNavCtlAddControlList = 19,
+  kNavCtlGetFirstControlID = 20,
+  kNavCtlSelectCustomType = 21,
+  kNavCtlSelectAllType = 22,
+  kNavCtlGetEditFileName = 23,
+  kNavCtlSetEditFileName = 24,
+  kNavCtlSelectEditFileName = 25,
+  kNavCtlBrowserSelectAll = 26,
+  kNavCtlGotoParent = 27,
+  kNavCtlSetActionState = 28,
+  kNavCtlBrowserRedraw = 29,
+  kNavCtlTerminate = 30
+};
+typedef SInt32 NavEventCallbackMessage;
+enum {
+  kNavGenericSignature = '****'
+};
+typedef CALLBACK_API(void, NavEventProcPtr)(NavEventCallbackMessage callBackSelector,
+					    NavCBRecPtr callBackParms, void *callBackUD);
+typedef STACK_UPP_TYPE(NavEventProcPtr) NavEventUPP;
+# endif /* !__NAVIGATION__ */
+#endif /* Carbon || HAVE_NAVIGATION_SERVICES_NAVIGATION_H */
+
+#if (defined(TARGET_API_MAC_CARBON) && defined(HAVE_CARBON) && \
+     defined(HAVE_CFMCARBON_HEADERS_DIR)) || \
+    defined(HAVE_HITOOLBOX_CARBONEVENTS_H)
+# include <HIToolbox/CarbonEvents.h>
+#else
+# if !defined(__CARBONEVENTS__) || (defined(__LP64__) && __LP64__)
+enum {
+  kEventWindowUpdate = 1
+};
+# endif /* !__CARBONEVENTS__ || __LP64__ */
+#endif /* Carbon || HAVE_HITOOLBOX_CARBONEVENTS_H */
+
+
+#if (defined(TARGET_API_MAC_CARBON) && defined(HAVE_CARBON) && \
+     defined(HAVE_CFMCARBON_HEADERS_DIR)) || \
+    defined(HAVE_AE_AEDATAMODEL_H)
+# include <AE/AEDataModel.h>
+#else
+# if !defined(__AEDATAMODEL__) || (defined(__LP64__) && __LP64__)
+enum {
+  typeSMInt = typeSInt16,
+  typeShortInteger = typeSInt16,
+  typeInteger = typeSInt32,
+  typeLongInteger = typeSInt32,
+  typeMagnitude = typeUInt32,
+  typeComp = typeSInt64,
+  typeSMFloat = typeIEEE32BitFloatingPoint,
+  typeShortFloat = typeIEEE32BitFloatingPoint,
+  typeFloat = typeIEEE64BitFloatingPoint,
+  typeLongFloat = typeIEEE64BitFloatingPoint,
+  typeExtended = 'exte'
+};
+# endif /* !__AEDATAMODEL__ || __LP64__ */
+#endif /* Carbon || HAVE_AE_AEDATAMODEL_H */
 
 #include "charset.h"
 #include "coding.h"
@@ -484,34 +669,34 @@ mac_handle_text_input_event(EventHandlerCallRef next_handler, EventRef event,
 	     do_keystroke.  */
 	  break;
 	if (err == noErr)
-	  err = GetEventParameter (kbd_event, kEventParamKeyUnicodes,
-				   typeUnicodeText, NULL, 0, &actual_size,
-				   NULL);
-	if (err == noErr && actual_size == sizeof (UniChar))
+	  err = GetEventParameter(kbd_event, kEventParamKeyUnicodes,
+				  typeUnicodeText, NULL, 0,
+				  (ByteCount *)&actual_size, NULL);
+	if ((err == noErr) && (actual_size == sizeof(UniChar)))
 	  {
 	    UniChar code;
 
-	    err = GetEventParameter (kbd_event, kEventParamKeyUnicodes,
-				     typeUnicodeText, NULL,
-				     sizeof (UniChar), NULL, &code);
-	    if (err == noErr && code < 0x80)
+	    err = GetEventParameter(kbd_event, kEventParamKeyUnicodes,
+				    typeUnicodeText, NULL,
+				    sizeof(UniChar), NULL, &code);
+	    if ((err == noErr) && (code < 0x80))
 	      {
-		/* ASCII character.  Process it in do_keystroke.  */
-		if (read_socket_inev && code >= 0x20 && code <= 0x7e
-		    && !(key_code <= 0x7f
-			 && keycode_to_xkeysym_table [key_code]))
+		/* ASCII character.  Process it in do_keystroke: */
+		if (read_socket_inev && (code >= 0x20) && (code <= 0x7e)
+		    && !((key_code <= 0x7f)
+			 && keycode_to_xkeysym_table[key_code]))
 		  {
-		    struct frame *f = mac_focus_frame (&one_mac_display_info);
+		    struct frame *f = mac_focus_frame(&one_mac_display_info);
 
 		    read_socket_inev->kind = ASCII_KEYSTROKE_EVENT;
 		    read_socket_inev->code = code;
 		    read_socket_inev->modifiers =
-		      mac_to_emacs_modifiers (modifiers, 0);
+		      mac_to_emacs_modifiers(modifiers, 0);
 		    read_socket_inev->modifiers |=
 		      (extra_keyboard_modifiers
 		       & (meta_modifier | alt_modifier
 			  | hyper_modifier | super_modifier));
-		    XSETFRAME (read_socket_inev->frame_or_window, f);
+		    XSETFRAME(read_socket_inev->frame_or_window, f);
 		  }
 		break;
 	      }
@@ -3695,16 +3880,16 @@ XTread_socket(int sd, int expected, struct input_event *hold_quit)
 		break;
 
 	      case inContent:
-		if (
+		if ((
 #if TARGET_API_MAC_CARBON
-		    FrontNonFloatingWindow ()
+		     FrontNonFloatingWindow()
 #else
-		    FrontWindow ()
+		     FrontWindow()
 #endif
-		    != window_ptr
-		    || (mac_window_to_frame (window_ptr)
+		     != window_ptr)
+		    || (mac_window_to_frame(window_ptr)
 			!= dpyinfo->x_focus_frame))
-		  SelectWindow (window_ptr);
+		  SelectWindow(window_ptr);
 		else
 		  {
 		    ControlPartCode control_part_code;
@@ -4734,15 +4919,15 @@ menu_quit_handler(EventHandlerCallRef nextHandler, EventRef theEvent,
 
   if (err == noErr && mac_quit_char_key_p (keyModifiers, keyCode))
     {
-      MenuRef menu = userData != 0
-        ? (MenuRef)userData : AcquireRootMenu ();
+      MenuRef menu = ((userData != 0)
+		      ? (MenuRef)userData : AcquireRootMenu());
 
-      CancelMenuTracking (menu, true, 0);
-      if (!userData) ReleaseMenu (menu);
+      CancelMenuTracking(menu, true, 0);
+      if (!userData) ReleaseMenu(menu);
       return noErr;
     }
 
-  return CallNextEventHandler (nextHandler, theEvent);
+  return CallNextEventHandler(nextHandler, theEvent);
 }
 #endif	/* MAC_OS_X_VERSION_MAX_ALLOWED >= 1030 */
 
@@ -4979,44 +5164,44 @@ mac_fill_menubar(widget_value *wv, bool deep_p)
 #if TARGET_API_MAC_CARBON
       CFStringRef title;
 
-      title = CFStringCreateWithCString (NULL, wv->name,
-					 kCFStringEncodingMacRoman);
+      title = CFStringCreateWithCString(NULL, wv->name,
+					kCFStringEncodingMacRoman);
 #else
       Str255 title;
 
-      strncpy (title, wv->name, 255);
+      strncpy(title, wv->name, 255);
       title[255] = '\0';
-      c2pstr (title);
+      c2pstr(title);
 #endif
 
-      menu = GetMenuRef (id);
+      menu = GetMenuRef(id);
       if (menu)
 	{
 #if TARGET_API_MAC_CARBON
 	  CFStringRef old_title;
 
-	  err = CopyMenuTitleAsCFString (menu, &old_title);
+	  err = CopyMenuTitleAsCFString(menu, &old_title);
 	  if (err == noErr)
 	    {
-	      if (CFStringCompare (title, old_title, 0) != kCFCompareEqualTo)
+	      if (CFStringCompare(title, old_title, 0) != kCFCompareEqualTo)
 		{
 #ifdef MAC_OSX
-		  if (id + 1 == min_menu_id[MAC_MENU_MENU_BAR + 1]
-		      || GetMenuRef (id + 1) == NULL)
+		  if (((id + 1) == min_menu_id[MAC_MENU_MENU_BAR + 1])
+		      || (GetMenuRef(id + 1) == NULL))
 		    {
 		      /* This is a workaround for Mac OS X 10.5 where
 			 just calling SetMenuTitleWithCFString fails
 			 to change the title of the last (Help) menu
 			 in the menu bar.  */
-		      DeleteMenu (id);
-		      DisposeMenu (menu);
+		      DeleteMenu(id);
+		      DisposeMenu(menu);
 		      menu = NULL;
 		    }
 		  else
 #endif	/* MAC_OSX */
-		    err = SetMenuTitleWithCFString (menu, title);
+		    err = SetMenuTitleWithCFString(menu, title);
 		}
-	      CFRelease (old_title);
+	      CFRelease(old_title);
 	    }
 	  else
 	    err = SetMenuTitleWithCFString (menu, title);
@@ -6009,25 +6194,25 @@ init_apple_event_handler(void)
   OSErr err;
   long result;
 
-  /* Make sure we have Apple events before starting.  */
-  err = Gestalt (gestaltAppleEventsAttr, &result);
+  /* Make sure we have Apple events before starting: */
+  err = Gestalt(gestaltAppleEventsAttr, (SInt32 *)&result);
   if (err != noErr)
-    abort ();
+    abort();
 
   if (!(result & (1 << gestaltAppleEventsPresent)))
-    abort ();
+    abort();
 
-  err = AEInstallEventHandler (typeWildCard, typeWildCard,
+  err = AEInstallEventHandler(typeWildCard, typeWildCard,
 #if TARGET_API_MAC_CARBON
-			       NewAEEventHandlerUPP (mac_handle_apple_event),
+			      NewAEEventHandlerUPP(mac_handle_apple_event),
 #else
-			       NewAEEventHandlerProc (mac_handle_apple_event),
+			      NewAEEventHandlerProc(mac_handle_apple_event),
 #endif
-			       0L, false);
+			      0L, false);
   if (err != noErr)
-    abort ();
+    abort();
 
-  atexit (cleanup_all_suspended_apple_events);
+  atexit(cleanup_all_suspended_apple_events);
 }
 
 
@@ -6117,16 +6302,16 @@ mac_store_drag_event(WindowRef window, Point mouse_pos, SInt16 modifiers,
 {
   struct input_event buf;
 
-  EVENT_INIT (buf);
+  EVENT_INIT(buf);
 
   buf.kind = DRAG_N_DROP_EVENT;
-  buf.modifiers = mac_to_emacs_modifiers (modifiers, 0);
-  buf.timestamp = TickCount () * (1000 / 60);
-  XSETINT (buf.x, mouse_pos.h);
-  XSETINT (buf.y, mouse_pos.v);
-  XSETFRAME (buf.frame_or_window, mac_window_to_frame (window));
-  buf.arg = mac_aedesc_to_lisp (desc);
-  kbd_buffer_store_event (&buf);
+  buf.modifiers = mac_to_emacs_modifiers(modifiers, 0);
+  buf.timestamp = (TickCount() * (1000 / 60));
+  XSETINT(buf.x, mouse_pos.h);
+  XSETINT(buf.y, mouse_pos.v);
+  XSETFRAME(buf.frame_or_window, mac_window_to_frame(window));
+  buf.arg = mac_aedesc_to_lisp(desc);
+  kbd_buffer_store_event(&buf);
 }
 
 static pascal OSErr
@@ -6603,14 +6788,14 @@ mac_toolbox_initialize(void)
 {
   any_help_event_p = 0;
 
-  init_menu_bar ();
+  init_menu_bar();
 
 #ifdef MAC_OSX
-  init_apple_event_handler ();
-#endif
+  init_apple_event_handler();
+#endif /* MAC_OSX */
 #if USE_MAC_TSM
-  init_tsm ();
-#endif
+  init_tsm();
+#endif /* USE_MAC_TSM */
 }
 
 #ifdef _TIP_WINDOW_DECLARED

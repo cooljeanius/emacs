@@ -1601,7 +1601,8 @@ See also the function `condition-case'.  */)
       Lisp_Object unwind_data
 	= (NILP (error_symbol) ? data : Fcons (error_symbol, data));
 
-      unwind_to_catch (h, unwind_data);
+      if (h != NULL)
+	unwind_to_catch(h, unwind_data);
     }
   else
     {
@@ -2836,10 +2837,8 @@ usage: (funcall FUNCTION &rest ARGUMENTS)  */)
 	  XSETFASTINT (lisp_numargs, numargs);
 	  xsignal2 (Qwrong_number_of_arguments, original_fun, lisp_numargs);
 	}
-
       else if (XSUBR (fun)->max_args == UNEVALLED)
 	xsignal1 (Qinvalid_function, original_fun);
-
       else if (XSUBR (fun)->max_args == MANY)
 	val = (XSUBR (fun)->function.aMANY) (numargs, args + 1);
       else
@@ -3713,11 +3712,12 @@ NFRAMES and BASE specify the activation frame to use, as in `backtrace-frame'.  
 }
 
 
+/* */
 void
-mark_specpdl (void)
+mark_specpdl(void)
 {
   union specbinding *pdl;
-  for (pdl = specpdl; pdl != specpdl_ptr; pdl++)
+  for (pdl = specpdl; (pdl != specpdl_ptr) && (pdl != NULL); pdl++)
     {
       switch (pdl->kind)
 	{

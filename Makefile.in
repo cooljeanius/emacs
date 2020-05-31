@@ -96,6 +96,8 @@ LDFLAGS=@LDFLAGS@
 CPPFLAGS=@CPPFLAGS@
 EXEEXT=@EXEEXT@
 
+acl_cv_wp = @acl_cv_wp@
+
 WARN_CFLAGS = @WARN_CFLAGS@
 WARN_CXXFLAGS = @WARN_CXXFLAGS@
 WARN_LDFLAGS = @WARN_LDFLAGS@
@@ -1340,7 +1342,8 @@ machocheck/libmachocheck.a: Makefile machocheck/Makefile \
 # -Wl,-warn_weak_exports to print too many useless warnings:
 isemacsvalid: isemacsvalid.c dumpemacs.h machocheck/libmachocheck.a \
   machocheck/src/other/machochecker.h
-	$(CXX) $(CFLAGS) $(CPPFLAGS) $(CXXFLAGS) -Imachocheck/src/other \
+	$(CXX) $(CFLAGS) $(CPPFLAGS) $(CXXFLAGS) \
+	  ${acl_cv_wp}-Imachocheck/src/other \
 	  -DSTANDALONE_ISEMACSVALID $(LDFLAGS) -Wall -Wextra \
 	  $(WARN_CXXFLAGS) -g $(BETTER_DEBUG_CFLAGS) \
 	  -o $@ isemacsvalid.c machocheck/libmachocheck.a
@@ -1356,8 +1359,8 @@ VERSIONDEFFLAG = -DkEmacsVersion=\"$(version)\"
 @ifGNUmake@endif
 
 dumpemacs.o: bo.h dumpemacs.c dumpemacs.h src/version.h
-	$(CC) -I. $(VERSIONDEFFLAG) $(BETTER_DEBUG_CFLAGS) $(CFLAGS) \
-	  $(WARN_CFLAGS) -o $@ -g -c dumpemacs.c
+	$(CC) ${acl_cv_wp}-I. $(VERSIONDEFFLAG) $(BETTER_DEBUG_CFLAGS) \
+	  $(CFLAGS) $(WARN_CFLAGS) -o $@ -g -c dumpemacs.c
 
 dumpemacs: dumpemacs.o runit.o
 	$(CC) $(CFLAGS) $(BETTER_DEBUG_CFLAGS) $(LDFLAGS) $(WARN_LDFLAGS) \
@@ -1374,9 +1377,9 @@ emacswrapper: emacswrapper.o isemacsvalid.o runit.o
 test_mach_o_binary: test_mach_o_binary.c src/config.h src/lisp.h \
   lib/intprops.h
 	$(MAKE) -C src globals.h
-	$(CC) $(CFLAGS) $(CPPFLAGS) -Ilib -Isrc $(DEFS) $(WARN_CFLAGS) \
-	  -Wformat=2 $(BETTER_DEBUG_CFLAGS) $(LDFLAGS) $(WARN_LDFLAGS) \
-	  -O2 -o $@ -g $<
+	$(CC) $(CFLAGS) $(CPPFLAGS) ${acl_cv_wp}-Ilib ${acl_cv_wp}-Isrc \
+	  $(DEFS) $(WARN_CFLAGS) -Wformat=2 $(BETTER_DEBUG_CFLAGS) $(LDFLAGS) \
+	  $(WARN_LDFLAGS) -O2 -o $@ -g $<
 
 APPLE_AUX_EXES = dumpemacs emacswrapper isemacsvalid test_mach_o_binary
 
