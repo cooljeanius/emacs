@@ -3765,8 +3765,12 @@ else
         if test "x${PRINT_CONVERSION_WARNINGS}" = "xyes"; then
           test -n "${PRINT_CONVERSION_WARNINGS}"
           gl_WARN_ADD([-Warith-conversion])
-        elif test "x${PRINT_CONVERSION_WARNINGS}" = "x"; then
-          test -z "${PRINT_CONVERSION_WARNINGS}" && gl_WARN_ADD([-Wconversion])
+        elif test "x${PRINT_CONVERSION_WARNINGS}" = "xmaybe"; then
+          test -n "${PRINT_CONVERSION_WARNINGS}"
+          if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
+            test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
+            test -z "${WERROR_CFLAGS}" && gl_WARN_ADD([-Wconversion])
+          fi
         else
           AC_MSG_WARN([conversion warnings should be ok now; try them])
         fi

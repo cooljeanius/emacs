@@ -20634,8 +20634,11 @@ if test "x$gl_cv_warn_c__Warith_conversion" = xyes; then :
 fi
 
 
-        elif test "x${PRINT_CONVERSION_WARNINGS}" = "x"; then
-          test -z "${PRINT_CONVERSION_WARNINGS}" &&
+        elif test "x${PRINT_CONVERSION_WARNINGS}" = "xmaybe"; then
+          test -n "${PRINT_CONVERSION_WARNINGS}"
+          if test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes"; then
+            test -n "${I_AM_GOOD_AT_SILENCING_WARNINGS}"
+            test -z "${WERROR_CFLAGS}" &&
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wconversion" >&5
 $as_echo_n "checking whether C compiler handles -Wconversion... " >&6; }
@@ -20673,6 +20676,7 @@ if test "x$gl_cv_warn_c__Wconversion" = xyes; then :
 fi
 
 
+          fi
         else
           { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: conversion warnings should be ok now; try them" >&5
 $as_echo "$as_me: WARNING: conversion warnings should be ok now; try them" >&2;}

@@ -378,6 +378,8 @@ if test -d .git && (git status -s) >/dev/null 2>&1; then
 				cp ${cp_options} build-aux/git-hooks/${hook} .git/hooks || exit
 				chmod a-w .git/hooks/${hook} || exit
 			done
+		else
+			echo "skipping tailored hooks"
 		fi
 
 		if test -n "${sample_hooks}"; then
@@ -385,8 +387,14 @@ if test -d .git && (git status -s) >/dev/null 2>&1; then
 				cp ${cp_options} .git/hooks/${hook}.sample .git/hooks/${hook} || exit
 				chmod a-w .git/hooks/${hook} || exit
 			done
+		else
+			echo "skipping sample hooks"
 		fi
+	else
+		echo "skipping git hooks"
     fi
+else
+	echo "skipping git stuff"
 fi
 
 echo ""
