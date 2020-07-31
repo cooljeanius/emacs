@@ -2,8 +2,8 @@
 
 # The gnulib commit ID to use for the update.
 # If you know your version works and is newer, feel free to replace:
-GNULIB_COMMIT_SHA1="1e5153d4ecc50f9258b384b7c616831bbaa6af33"
-# (this hash last updated February 26th, 2019)
+GNULIB_COMMIT_SHA1="d2e9bb0476f26d61331ad6652332ce3a48c6a277"
+# (this hash last updated July 31, 2020)
 
 if [ $# -ne 1 ]; then
    echo "Warning: Path to gnulib repository missing."
@@ -59,56 +59,56 @@ if test -z "${gnulib_tool}" || test ! -x "${gnulib_tool}"; then
 else
   # The list of gnulib modules we are importing for emacs:
   module_list="\
-      absolute-header acl acl-permissions alignof alloca alloca-opt \
-      allocator assert-h assure atan atan2 autobuild \
-      bcopy binary-io bitset builtin-expect byteswap \
-      c-ctype c-strcase c-strcaseeq c-strtod c99 canonicalize-lgpl \
+      absolute-header access acl acl-permissions aligned-malloc alignof alloca \
+      alloca-opt allocator assert-h assure atan atan2 autobuild \
+      basename-lgpl bcopy binary-io bison bitset builtin-expect byteswap \
+      c-ctype c-dtoastr c-strcase c-strcaseeq c-strtod c99 canonicalize-lgpl \
       careadlinkat chdir clock-time close-stream closedir configmake \
-      count-one-bits count-trailing-zeros \
-      crypto/md5 crypto/sha1 crypto/sha256 crypto/sha512 \
-      diffseq dirent dirfd dirname-lgpl dosname double-slash-root \
-      dtoastr dtotimespec dup2 \
+      copy-file-range count-one-bits count-trailing-zeros \
+      creat crypto/md5 crypto/sha1 crypto/sha256 crypto/sha512 \
+      diffseq dirent dirfd dirname-lgpl double-slash-root dtoastr dtotimespec dup2 \
       environ errno error execinfo euidaccess explicit_bzero extensions \
       extern-inline \
-      faccessat fclose fcntl fcntl-h fdatasync fdopendir fflush file-has-acl \
-      filemode filevercmp flexmember float fopen fpending fpieee fpucw fseek \
-      fseeko fstat fstatat fsusage fsync ftell ftello ftoastr ftruncate func \
+      faccessat fchmodat fchownat fclose fcntl fcntl-h fdatasync fdopendir fflush \
+      file-has-acl filemode filename filevercmp flexmember float fopen fopen-gnu \
+      fpending fpieee fpucw fseek fseeko fstat fstatat fsusage fsync ftell ftello \
+      ftoastr ftruncate func \
       gendocs getdelim getdtablesize getgroups gethostname getline \
       getloadavg getlogin getopt-gnu getopt-posix getpagesize getpass \
-      getpass-gnu getprogname gettext gettext-h gettime gettimeofday \
+      getpass-gnu getprogname gettext-h gettime gettimeofday \
       git-version-gen gitlog-to-changelog gnu-make gpl-3.0 group-member \
       havelib host-cpu-c-abi host-os \
       ignore-value include_next inline intprops inttypes-incomplete ioctl \
       isnanl \
-      largefile ldd limits-h localcharset localtime-buffer longlong \
-      lseek lstat \
+      largefile ldd limits-h localcharset longlong lseek lstat \
       maintainer-makefile manywarnings math mbschr mbsinit mbsrchr memchr \
       memrchr mktime multiarch \
       nextafter no-c++ nocrash nstrftime \
       obstack open openat openat-die openat-h openmp \
       pagealign_alloc pathmax perror pipe2 posix_openpt posix_spawnp \
-      printf-safe progname pselect pthread_sigmask pty putenv \
+      printf-safe progname pselect pthread-h pthread_sigmask pty putenv \
       qacl qcopy-acl quote quotearg quotearg-simple \
       read readdir readlink readlinkat realloc-gnu realloc-posix rename \
       rmdir root-uid \
-      sched secure_getenv setenv sh-filename sig2str signal-h sigpipe sleep \
-      snippet/_Noreturn snippet/arg-nonnull snippet/c++defs \
+      sched secure_getenv setenv setlocale-null sh-filename sig2str signal-h \
+      sigpipe sleep snippet/_Noreturn snippet/arg-nonnull snippet/c++defs \
       snippet/link-warning snippet/unused-parameter snippet/warn-on-use \
       socketlib sockets socklen spawn ssize_t stat stat-time std-gnu11 \
       stdalign stdarg stdbool stddef stdint stdio stdlib stdnoreturn \
-      stpcpy streq strerror strerror-override strftime string strings \
+      stpcpy streq strerror strerror-override string strings \
       strstr strstr-simple strtoimax strtold strtoumax symlink sys_ioctl \
       sys_resource sys_select sys_socket sys_stat sys_time sys_types \
       sys_uio sys_utsname sys_wait \
-      tempname time time_r time_rz timegm timer-time times timespec \
+      tempname threads time time_r time_rz timegm timer-time times timespec \
       timespec-add timespec-sub \
-      u64 uname unistd unlink unlocked-io unsetenv update-copyright \
+      u64 uchar uname unistd unlink unlocked-io unsetenv update-copyright \
       useless-if-before-free utimens \
-      vararrays va-args vc-list-files verify vla vma-iter \
+      vararrays va-args vc-list-files vcs-to-changelog verify vla vma-iter \
       waitpid warnings wchar wctype-h winsz-ioctl winsz-termios write \
       xalloc xalloc-die xalloc-oversized"
    # Ones I am tempted to add, but cannot:
    # - atexit, which is obsolete
+   # - attribute, which has definitions that conflict with ones in "src/conf_post.h"
    # - getcwd, which depends on strdup-posix, which depends on malloc-posix
    #   (which is avoided)
    # - git-merge-changelog, which depends on... a lot of things
@@ -128,6 +128,10 @@ else
    # Other obsolete modules that I have stopped explicitly adding:
    # - dup2-obsolete
    # - memcmp
+   # - localtime-buffer (no longer exists)
+   # - dosname (replaced by filename)
+   # - gettext (replaced by gettext-h)
+   # - strftime (replaced by nstrftime)
    # (likewise, even though I no longer explicitly import them, there is no
    # need to go to the other extreme and explicitly ignore them, either)
    # Reasons for explicitly ignoring some:
@@ -135,12 +139,16 @@ else
    echo "Actually beginning import now; this may take a while..."
   "${gnulib_tool}" --import --dir=. --lib=libgnu --source-base=lib \
     --m4-base=m4 --doc-base=doc --tests-base=tests --aux-dir=build-aux \
-    --avoid=close --avoid=dup --avoid=fchdir --avoid=fstrcmp \
-    --avoid=gnumakefile --avoid=lock --avoid=malloc --avoid=malloc-posix \
+    --avoid=arpa_inet --avoid=c-ldtoastr --avoid=chmodat --avoid=chownat --avoid=close \
+    --avoid=dup --avoid=fchdir --avoid=fstrcmp --avoid=gnumakefile --avoid=lock \
+    --avoid=malloc --avoid=malloc-posix \
     --avoid=memchr-obsolete --avoid=msvc-inval --avoid=msvc-nothrow \
     --avoid=opendir --avoid=raise --avoid=save-cwd --avoid=select \
     --avoid=sigprocmask --avoid=strdup --avoid=strdup-posix \
     --avoid=threadlib --avoid=tls --avoid=vasnprintf --avoid=vasnprintf-posix \
+    --avoid=windows-cond --avoid=windows-mutex --avoid=windows-once \
+    --avoid=windows-recmutex --avoid=windows-thread --avoid=windows-timedmutex \
+    --avoid=windows-timedrecmutex --avoid=windows-tls \
     --makefile-name=gnulib.mk --conditional-dependencies --no-libtool \
     --macro-prefix=gl --no-vc-files --with-obsolete \
     "${module_list}"

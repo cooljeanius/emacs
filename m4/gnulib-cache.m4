@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 Free Software Foundation, Inc.
+# Copyright (C) 2002-2020 Free Software Foundation, Inc.
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -40,6 +40,10 @@
 #  --no-libtool \
 #  --macro-prefix=gl \
 #  --no-vc-files \
+#  --avoid=arpa_inet \
+#  --avoid=c-ldtoastr \
+#  --avoid=chmodat \
+#  --avoid=chownat \
 #  --avoid=close \
 #  --avoid=dup \
 #  --avoid=fchdir \
@@ -62,9 +66,19 @@
 #  --avoid=tls \
 #  --avoid=vasnprintf \
 #  --avoid=vasnprintf-posix \
+#  --avoid=windows-cond \
+#  --avoid=windows-mutex \
+#  --avoid=windows-once \
+#  --avoid=windows-recmutex \
+#  --avoid=windows-thread \
+#  --avoid=windows-timedmutex \
+#  --avoid=windows-timedrecmutex \
+#  --avoid=windows-tls \
 #  absolute-header \
+#  access \
 #  acl \
 #  acl-permissions \
+#  aligned-malloc \
 #  alignof \
 #  alloca \
 #  alloca-opt \
@@ -74,12 +88,15 @@
 #  atan \
 #  atan2 \
 #  autobuild \
+#  basename-lgpl \
 #  bcopy \
 #  binary-io \
+#  bison \
 #  bitset \
 #  builtin-expect \
 #  byteswap \
 #  c-ctype \
+#  c-dtoastr \
 #  c-strcase \
 #  c-strcaseeq \
 #  c-strtod \
@@ -91,8 +108,10 @@
 #  close-stream \
 #  closedir \
 #  configmake \
+#  copy-file-range \
 #  count-one-bits \
 #  count-trailing-zeros \
+#  creat \
 #  crypto/md5 \
 #  crypto/sha1 \
 #  crypto/sha256 \
@@ -101,7 +120,6 @@
 #  dirent \
 #  dirfd \
 #  dirname-lgpl \
-#  dosname \
 #  double-slash-root \
 #  dtoastr \
 #  dtotimespec \
@@ -115,6 +133,8 @@
 #  extensions \
 #  extern-inline \
 #  faccessat \
+#  fchmodat \
+#  fchownat \
 #  fclose \
 #  fcntl \
 #  fcntl-h \
@@ -123,10 +143,12 @@
 #  fflush \
 #  file-has-acl \
 #  filemode \
+#  filename \
 #  filevercmp \
 #  flexmember \
 #  float \
 #  fopen \
+#  fopen-gnu \
 #  fpending \
 #  fpieee \
 #  fpucw \
@@ -155,7 +177,6 @@
 #  getpass \
 #  getpass-gnu \
 #  getprogname \
-#  gettext \
 #  gettext-h \
 #  gettime \
 #  gettimeofday \
@@ -178,7 +199,6 @@
 #  ldd \
 #  limits-h \
 #  localcharset \
-#  localtime-buffer \
 #  longlong \
 #  lseek \
 #  lstat \
@@ -211,6 +231,7 @@
 #  printf-safe \
 #  progname \
 #  pselect \
+#  pthread-h \
 #  pthread_sigmask \
 #  pty \
 #  putenv \
@@ -231,6 +252,7 @@
 #  sched \
 #  secure_getenv \
 #  setenv \
+#  setlocale-null \
 #  sh-filename \
 #  sig2str \
 #  signal-h \
@@ -262,7 +284,6 @@
 #  streq \
 #  strerror \
 #  strerror-override \
-#  strftime \
 #  string \
 #  strings \
 #  strstr \
@@ -282,6 +303,7 @@
 #  sys_utsname \
 #  sys_wait \
 #  tempname \
+#  threads \
 #  time \
 #  time_r \
 #  time_rz \
@@ -292,6 +314,7 @@
 #  timespec-add \
 #  timespec-sub \
 #  u64 \
+#  uchar \
 #  uname \
 #  unistd \
 #  unlink \
@@ -303,6 +326,7 @@
 #  va-args \
 #  vararrays \
 #  vc-list-files \
+#  vcs-to-changelog \
 #  verify \
 #  vla \
 #  vma-iter \
@@ -321,8 +345,10 @@
 gl_LOCAL_DIR([])
 gl_MODULES([
   absolute-header
+  access
   acl
   acl-permissions
+  aligned-malloc
   alignof
   alloca
   alloca-opt
@@ -332,12 +358,15 @@ gl_MODULES([
   atan
   atan2
   autobuild
+  basename-lgpl
   bcopy
   binary-io
+  bison
   bitset
   builtin-expect
   byteswap
   c-ctype
+  c-dtoastr
   c-strcase
   c-strcaseeq
   c-strtod
@@ -349,8 +378,10 @@ gl_MODULES([
   close-stream
   closedir
   configmake
+  copy-file-range
   count-one-bits
   count-trailing-zeros
+  creat
   crypto/md5
   crypto/sha1
   crypto/sha256
@@ -359,7 +390,6 @@ gl_MODULES([
   dirent
   dirfd
   dirname-lgpl
-  dosname
   double-slash-root
   dtoastr
   dtotimespec
@@ -373,6 +403,8 @@ gl_MODULES([
   extensions
   extern-inline
   faccessat
+  fchmodat
+  fchownat
   fclose
   fcntl
   fcntl-h
@@ -381,10 +413,12 @@ gl_MODULES([
   fflush
   file-has-acl
   filemode
+  filename
   filevercmp
   flexmember
   float
   fopen
+  fopen-gnu
   fpending
   fpieee
   fpucw
@@ -413,7 +447,6 @@ gl_MODULES([
   getpass
   getpass-gnu
   getprogname
-  gettext
   gettext-h
   gettime
   gettimeofday
@@ -436,7 +469,6 @@ gl_MODULES([
   ldd
   limits-h
   localcharset
-  localtime-buffer
   longlong
   lseek
   lstat
@@ -469,6 +501,7 @@ gl_MODULES([
   printf-safe
   progname
   pselect
+  pthread-h
   pthread_sigmask
   pty
   putenv
@@ -489,6 +522,7 @@ gl_MODULES([
   sched
   secure_getenv
   setenv
+  setlocale-null
   sh-filename
   sig2str
   signal-h
@@ -520,7 +554,6 @@ gl_MODULES([
   streq
   strerror
   strerror-override
-  strftime
   string
   strings
   strstr
@@ -540,6 +573,7 @@ gl_MODULES([
   sys_utsname
   sys_wait
   tempname
+  threads
   time
   time_r
   time_rz
@@ -550,6 +584,7 @@ gl_MODULES([
   timespec-add
   timespec-sub
   u64
+  uchar
   uname
   unistd
   unlink
@@ -561,6 +596,7 @@ gl_MODULES([
   va-args
   vararrays
   vc-list-files
+  vcs-to-changelog
   verify
   vla
   vma-iter
@@ -576,7 +612,7 @@ gl_MODULES([
   xalloc-oversized
 ])
 gl_WITH_OBSOLETE
-gl_AVOID([ close dup fchdir fstrcmp gnumakefile lock malloc malloc-posix memchr-obsolete msvc-inval msvc-nothrow opendir raise save-cwd select sigprocmask strdup strdup-posix threadlib tls vasnprintf vasnprintf-posix])
+gl_AVOID([ arpa_inet c-ldtoastr chmodat chownat close dup fchdir fstrcmp gnumakefile lock malloc malloc-posix memchr-obsolete msvc-inval msvc-nothrow opendir raise save-cwd select sigprocmask strdup strdup-posix threadlib tls vasnprintf vasnprintf-posix windows-cond windows-mutex windows-once windows-recmutex windows-thread windows-timedmutex windows-timedrecmutex windows-tls])
 gl_SOURCE_BASE([lib])
 gl_M4_BASE([m4])
 gl_PO_BASE([])

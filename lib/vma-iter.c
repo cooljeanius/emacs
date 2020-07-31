@@ -1,5 +1,5 @@
 /* Iteration over virtual memory areas.
-   Copyright (C) 2011-2019 Free Software Foundation, Inc.
+   Copyright (C) 2011-2020 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2011-2017.
 
    This program is free software: you can redistribute it and/or modify
@@ -174,7 +174,7 @@ rof_open (struct rofile *rof, const char *filename)
   unsigned long pagesize;
   size_t size;
 
-  fd = open (filename, O_RDONLY);
+  fd = open (filename, O_RDONLY | O_CLOEXEC);
   if (fd < 0)
     return -1;
   rof->position = 0;
@@ -267,7 +267,7 @@ rof_open (struct rofile *rof, const char *filename)
       if (lseek (fd, 0, SEEK_SET) < 0)
         {
           close (fd);
-          fd = open (filename, O_RDONLY);
+          fd = open (filename, O_RDONLY | O_CLOEXEC);
           if (fd < 0)
             goto fail2;
         }
@@ -677,7 +677,7 @@ vma_iterate_bsd (vma_iterate_callback_fn callback, void *data)
 static int
 vma_iterate_bsd (vma_iterate_callback_fn callback, void *data)
 {
-  /* Documentation: http://man.netbsd.org/man/sysctl+7  */
+  /* Documentation: https://man.netbsd.org/man/sysctl+7  */
   unsigned int entry_size =
     /* If we wanted to have the path of each entry, we would need
        sizeof (struct kinfo_vmentry).  But we need only the non-string
@@ -769,7 +769,7 @@ vma_iterate_bsd (vma_iterate_callback_fn callback, void *data)
 static int
 vma_iterate_bsd (vma_iterate_callback_fn callback, void *data)
 {
-  /* Documentation: https://man.openbsd.org/sysctl.3  */
+  /* Documentation: https://man.openbsd.org/sysctl.2  */
   int info_path[] = { CTL_KERN, KERN_PROC_VMMAP, getpid () };
   size_t len;
   size_t pagesize;
@@ -924,7 +924,7 @@ vma_iterate (vma_iterate_callback_fn callback, void *data)
   fname -= 6;
   memcpy (fname, "/proc/", 6);
 
-  fd = open (fname, O_RDONLY);
+  fd = open (fname, O_RDONLY | O_CLOEXEC);
   if (fd < 0)
     return -1;
 
@@ -939,7 +939,7 @@ vma_iterate (vma_iterate_callback_fn callback, void *data)
      So use mmap(), and ignore the resulting VMA.  */
   memneed = ((memneed - 1) / pagesize + 1) * pagesize;
 # if !HAVE_MAP_ANONYMOUS
-  zero_fd = open ("/dev/zero", O_RDONLY, 0644);
+  zero_fd = open ("/dev/zero", O_RDONLY | O_CLOEXEC, 0644);
   if (zero_fd < 0)
     goto fail2;
 # endif
@@ -1049,7 +1049,7 @@ vma_iterate (vma_iterate_callback_fn callback, void *data)
   fname -= 6;
   memcpy (fname, "/proc/", 6);
 
-  fd = open (fname, O_RDONLY);
+  fd = open (fname, O_RDONLY | O_CLOEXEC);
   if (fd < 0)
     return -1;
 
@@ -1064,7 +1064,7 @@ vma_iterate (vma_iterate_callback_fn callback, void *data)
      So use mmap(), and ignore the resulting VMA.  */
   memneed = ((memneed - 1) / pagesize + 1) * pagesize;
 #  if !HAVE_MAP_ANONYMOUS
-  zero_fd = open ("/dev/zero", O_RDONLY, 0644);
+  zero_fd = open ("/dev/zero", O_RDONLY | O_CLOEXEC, 0644);
   if (zero_fd < 0)
     goto fail2;
 #  endif
@@ -1168,7 +1168,7 @@ vma_iterate (vma_iterate_callback_fn callback, void *data)
   fname -= 6;
   memcpy (fname, "/proc/", 6);
 
-  fd = open (fname, O_RDONLY);
+  fd = open (fname, O_RDONLY | O_CLOEXEC);
   if (fd < 0)
     return -1;
 
@@ -1187,7 +1187,7 @@ vma_iterate (vma_iterate_callback_fn callback, void *data)
      So use mmap(), and ignore the resulting VMA.  */
   memneed = ((memneed - 1) / pagesize + 1) * pagesize;
 #  if !HAVE_MAP_ANONYMOUS
-  zero_fd = open ("/dev/zero", O_RDONLY, 0644);
+  zero_fd = open ("/dev/zero", O_RDONLY | O_CLOEXEC, 0644);
   if (zero_fd < 0)
     goto fail2;
 #  endif

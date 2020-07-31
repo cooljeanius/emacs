@@ -1,5 +1,5 @@
 /* Return the canonical absolute name of a given file.
-   Copyright (C) 1996-2019 Free Software Foundation, Inc.
+   Copyright (C) 1996-2020 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    This program is free software: you can redistribute it and/or modify
@@ -51,7 +51,7 @@
 # define __realpath realpath
 # include "pathmax.h"
 # include "malloca.h"
-# include "dosname.h"
+# include "filename.h"
 # if HAVE_GETCWD
 #  if IN_RELOCWRAPPER
     /* When building the relocatable program wrapper, use the system's getcwd

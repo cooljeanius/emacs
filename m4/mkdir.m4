@@ -1,6 +1,6 @@
-# serial 14
+# serial 16
 
-# Copyright (C) 2001, 2003-2004, 2006, 2008-2019 Free Software Foundation, Inc.
+# Copyright (C) 2001, 2003-2004, 2006, 2008-2020 Free Software Foundation, Inc.
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
@@ -36,8 +36,8 @@ AC_DEFUN([gl_FUNC_MKDIR],
                             [gl_cv_func_mkdir_trailing_slash_works="guessing yes"],
                             [gl_cv_func_mkdir_trailing_slash_works="guessing no"])
                           ;;
-                          # If we don't know, assume the worst.
-         *)               gl_cv_func_mkdir_trailing_slash_works="guessing no" ;;
+                          # If we don't know, obey --enable-cross-guesses.
+         *)               gl_cv_func_mkdir_trailing_slash_works="$gl_cross_guess_normal" ;;
        esac
       ])
     rm -rf conftest.dir
@@ -62,10 +62,12 @@ AC_DEFUN([gl_FUNC_MKDIR],
       [case "$host_os" in
                         # Guess yes on glibc systems.
          *-gnu* | gnu*) gl_cv_func_mkdir_trailing_dot_works="guessing yes" ;;
+                        # Guess yes on musl systems.
+         *-musl*)       gl_cv_func_mkdir_trailing_dot_works="guessing yes" ;;
                         # Guess no on native Windows.
          mingw*)        gl_cv_func_mkdir_trailing_dot_works="guessing no" ;;
-                        # If we don't know, assume the worst.
-         *)             gl_cv_func_mkdir_trailing_dot_works="guessing no" ;;
+                        # If we don't know, obey --enable-cross-guesses.
+         *)             gl_cv_func_mkdir_trailing_dot_works="$gl_cross_guess_normal" ;;
        esac
       ])
     rm -rf conftest.dir

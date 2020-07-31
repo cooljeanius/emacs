@@ -1,3 +1,4 @@
 # gitignore file for the following deeply-nested directory:
 # emacs/nextstep/Cocoa/Emacs.base/Contents/Resources/English.lproj
 InfoPlist.strings
+#

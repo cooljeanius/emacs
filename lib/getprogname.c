@@ -1,5 +1,5 @@
 /* Program name management.
-   Copyright (C) 2016-2019 Free Software Foundation, Inc.
+   Copyright (C) 2016-2020 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@
 # include <sys/procfs.h>
 #endif
 
-#include "dirname.h"
+#include "basename-lgpl.h"
 
 #ifndef HAVE_GETPROGNAME             /* not Mac OS X, FreeBSD, NetBSD, OpenBSD >= 5.4, Cygwin */
 char const *
@@ -70,7 +70,7 @@ getprogname (void)
     p = "?";
   return last_component (p);
 # elif HAVE_DECL___ARGV                                     /* mingw, MSVC */
-  /* https://msdn.microsoft.com/en-us/library/dn727674.aspx */
+  /* https://docs.microsoft.com/en-us/cpp/c-runtime-library/argc-argv-wargv */
   const char *p = __argv && __argv[0] ? __argv[0] : "?";
   return last_component (p);
 # elif HAVE_VAR___PROGNAME                                  /* OpenBSD, Android, QNX */
@@ -223,7 +223,7 @@ getprogname (void)
   int fd;
 
   sprintf (filename, "/proc/pinfo/%d", (int) getpid ());
-  fd = open (filename, O_RDONLY);
+  fd = open (filename, O_RDONLY | O_CLOEXEC);
   if (0 <= fd)
     {
       prpsinfo_t buf;
@@ -233,12 +233,13 @@ getprogname (void)
         {
           char *name = buf.pr_fname;
           size_t namesize = sizeof buf.pr_fname;
+          /* It may not be NUL-terminated.  */
           char *namenul = memchr (name, '\0', namesize);
           size_t namelen = namenul ? namenul - name : namesize;
           char *namecopy = malloc (namelen + 1);
           if (namecopy)
             {
-              namecopy[namelen] = 0;
+              namecopy[namelen] = '\0';
               return memcpy (namecopy, name, namelen);
             }
         }

@@ -1,4 +1,4 @@
-/* Copyright (C) 1991, 1994, 1997-1998, 2000, 2003-2019 Free Software
+/* Copyright (C) 1991, 1994, 1997-1998, 2000, 2003-2020 Free Software
    Foundation, Inc.
 
    NOTE: The canonical source of this file is maintained with the GNU C
@@ -56,6 +56,12 @@ __libc_lock_define_initialized (static, envlock)
 #else
 # define LOCK
 # define UNLOCK
+#endif
+
+#if defined _WIN32 && ! defined __CYGWIN__
+/* Don't assume that UNICODE is not defined.  */
+# undef SetEnvironmentVariable
+# define SetEnvironmentVariable SetEnvironmentVariableA
 #endif
 
 static int

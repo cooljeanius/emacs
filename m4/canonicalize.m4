@@ -1,6 +1,6 @@
-# canonicalize.m4 serial 29
+# canonicalize.m4 serial 31
 
-dnl Copyright (C) 2003-2007, 2009-2019 Free Software Foundation, Inc.
+dnl Copyright (C) 2003-2007, 2009-2020 Free Software Foundation, Inc.
 
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -113,10 +113,12 @@ AC_DEFUN([gl_FUNC_REALPATH_WORKS],
      [case "$host_os" in
                        # Guess yes on glibc systems.
         *-gnu* | gnu*) gl_cv_func_realpath_works="guessing yes" ;;
+                       # Guess yes on musl systems.
+        *-musl*)       gl_cv_func_realpath_works="guessing yes" ;;
                        # Guess no on native Windows.
         mingw*)        gl_cv_func_realpath_works="guessing no" ;;
-                       # If we don't know, assume the worst.
-        *)             gl_cv_func_realpath_works="guessing no" ;;
+                       # If we don't know, obey --enable-cross-guesses.
+        *)             gl_cv_func_realpath_works="$gl_cross_guess_normal" ;;
       esac
      ])
     rm -rf conftest.a conftest.d

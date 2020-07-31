@@ -53,10 +53,11 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_HEADER_CHECKS],[
     m4_ifdef([gl_PTY_H],[
       AC_REQUIRE([gl_PTY_H])dnl
     ])dnl
+    m4_ifdef([gl_SCHED_H],[
+      AC_REQUIRE([gl_SCHED_H])dnl
+    ])dnl#
   ])dnl# end fourth block that requires warn-on-use
-  m4_ifdef([gl_SCHED_H],[
-    AC_REQUIRE([gl_SCHED_H])dnl
-  ])dnl#
+  ## check for <sched.h> has been moved inside previous block
   m4_ifdef([gl_WARN_ON_USE_PREPARE],[
     m4_ifdef([gl_SIGNAL_H],[
       AC_REQUIRE([gl_SIGNAL_H])dnl

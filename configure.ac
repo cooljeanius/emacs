@@ -4816,6 +4816,10 @@ if test "x${ac_cv_header_wctype_h}" = "x"; then
   test -z "${ac_cv_header_wctype_h}"
   AC_CHECK_HEADERS([wctype.h])
 fi
+if test "x${ac_cv_header_features_h}" = "x"; then
+  test -z "${ac_cv_header_features_h}"
+  AC_CHECK_HEADERS([features.h])
+fi
 dnl# Keep autoscan happy with a dummy condition that is never reached:
 if test "x" = "Y0"; then
   test -x "`which autoscan`"
@@ -10095,7 +10099,8 @@ AC_CHECK_LIB([intl],[gettext],[:],[
   ## just in case:
 AC_SEARCH_LIBS([libintl_gettext],[intl asprintf gettextlib gettextpo \
                                   gettextsrc gettext libintl lintl \
-                                  gnu c iberty iconv])dnl
+                                  gnu gnuintl intl-compat libintl-compat \
+                                  compat c iberty iconv])dnl
 
 AC_MSG_NOTICE([done with section for gettext checks])dnl
 

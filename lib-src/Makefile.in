@@ -227,6 +227,8 @@ WINDRES = @WINDRES@
 ## Some systems define this to request special libraries.
 LIBS_SYSTEM = @LIBS_SYSTEM@
 
+## (the regular LIBS variable is put into GENERAL_PURPOSE_LIBS above)
+
 ## gnulib-tool says it might be necessary to use the following Makefile
 ## variables when linking:
 GETLOADAVG_LIBS = @GETLOADAVG_LIBS@
@@ -451,7 +453,7 @@ getopt1.o: ${srcdir}/getopt1.c $(GETOPT_H)
 getopt_long_test${EXEEXT}: ${srcdir}/getopt1.c $(GETOPT_H) getopt.o
 	$(AM_V_CCLD)export LIBRARY_PATH=$(LIBRARY_PATH) && \
 	  ${CC} -DTEST ${CPP_CFLAGS} ${srcdir}/getopt1.c \
-	  getopt.o $(LOADLIBES) $(LIBINTL) -o $@
+	  getopt.o $(LOADLIBES) $(LIBINTL) $(GENERAL_PURPOSE_LIBS) -o $@
 alloca.o: ${srcdir}/alloca.c
 	$(AM_V_CC)${CC} -Demacs -c ${BASE_CFLAGS} ${srcdir}/alloca.c
 

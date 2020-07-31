@@ -258,11 +258,13 @@ extern void _DebPrint (const char *fmt, ...);
 #endif /* __has_attribute(flag_enum) */
 
 /* has been in GCC for a long time: */
-#if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7)
-# define ATTRIBUTE_FORMAT(spec) __attribute__ ((__format__ spec))
-#else
-# define ATTRIBUTE_FORMAT(spec) /* empty */
-#endif /* gcc 2.7+ */
+#ifndef ATTRIBUTE_FORMAT
+# if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7)
+#  define ATTRIBUTE_FORMAT(spec) __attribute__((__format__ spec))
+# else
+#  define ATTRIBUTE_FORMAT(spec) /* empty */
+# endif /* gcc 2.7+ */
+#endif /* !ATTRIBUTE_FORMAT */
 
 #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 4)
 # define ATTRIBUTE_FORMAT_PRINTF(formatstring_parameter, first_argument) \

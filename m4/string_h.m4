@@ -1,11 +1,11 @@
 # Configure a GNU-like replacement for <string.h>.
 
-# Copyright (C) 2007-2019 Free Software Foundation, Inc.
+# Copyright (C) 2007-2020 Free Software Foundation, Inc.
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
 
-# serial 22
+# serial 24
 
 # Written by Paul Eggert.
 
@@ -18,7 +18,6 @@ AC_DEFUN([gl_HEADER_STRING_H],
 
 AC_DEFUN([gl_HEADER_STRING_H_BODY],
 [
-  AC_REQUIRE([AC_C_RESTRICT])
   AC_REQUIRE([gl_HEADER_STRING_H_DEFAULTS])
   gl_NEXT_HEADERS([string.h])
 
@@ -30,6 +29,8 @@ AC_DEFUN([gl_HEADER_STRING_H_BODY],
     [ffsl ffsll memmem mempcpy memrchr rawmemchr stpcpy stpncpy strchrnul
      strdup strncat strndup strnlen strpbrk strsep strcasestr strtok_r
      strerror_r strsignal strverscmp])
+
+  AC_REQUIRE([AC_C_RESTRICT])
 ])
 
 AC_DEFUN([gl_STRING_MODULE_INDICATOR],
@@ -86,7 +87,6 @@ AC_DEFUN([gl_HEADER_STRING_H_DEFAULTS],
   HAVE_EXPLICIT_BZERO=1;        AC_SUBST([HAVE_EXPLICIT_BZERO])
   HAVE_FFSL=1;                  AC_SUBST([HAVE_FFSL])
   HAVE_FFSLL=1;                 AC_SUBST([HAVE_FFSLL])
-  HAVE_MEMCHR=1;                AC_SUBST([HAVE_MEMCHR])
   HAVE_DECL_MEMMEM=1;           AC_SUBST([HAVE_DECL_MEMMEM])
   HAVE_MEMPCPY=1;               AC_SUBST([HAVE_MEMPCPY])
   HAVE_DECL_MEMRCHR=1;          AC_SUBST([HAVE_DECL_MEMRCHR])

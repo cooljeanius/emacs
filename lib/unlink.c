@@ -1,6 +1,6 @@
 /* Work around unlink bugs.
 
-   Copyright (C) 2009-2019 Free Software Foundation, Inc.
+   Copyright (C) 2009-2020 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#include "dosname.h"
+#include "filename.h"
 
 #undef unlink
 
@@ -65,10 +65,7 @@ rpl_unlink (char const *name)
           /* Trailing NUL will overwrite the trailing slash.  */
           char *short_name = malloc (len);
           if (!short_name)
-            {
-              errno = EPERM;
-              return -1;
-            }
+            return -1;
           memcpy (short_name, name, len);
           while (len && ISSLASH (short_name[len - 1]))
             short_name[--len] = '\0';

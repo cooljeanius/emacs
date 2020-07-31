@@ -1,6 +1,6 @@
 /* Get the system load averages.
 
-   Copyright (C) 1985-1989, 1991-1995, 1997, 1999-2000, 2003-2019 Free Software
+   Copyright (C) 1985-1989, 1991-1995, 1997, 1999-2000, 2003-2020 Free Software
    Foundation, Inc.
 
    NOTE: The canonical source of this file is maintained with gnulib.
@@ -424,17 +424,17 @@ getloadavg (double loadavg[], int nelem)
   int saved_errno;
 
   kc = kstat_open ();
-  if (kc == 0)
+  if (kc == NULL)
     return -1;
   ksp = kstat_lookup (kc, "unix", 0, "system_misc");
-  if (ksp == 0)
+  if (ksp == NULL)
     return -1;
   if (kstat_read (kc, ksp, 0) == -1)
     return -1;
 
 
   kn = kstat_data_lookup (ksp, "avenrun_1min");
-  if (kn == 0)
+  if (kn == NULL)
     {
       /* Return -1 if no load average information is available.  */
       nelem = 0;
@@ -447,14 +447,14 @@ getloadavg (double loadavg[], int nelem)
   if (nelem >= 2)
     {
       kn = kstat_data_lookup (ksp, "avenrun_5min");
-      if (kn != 0)
+      if (kn != NULL)
         {
           loadavg[elem++] = (double) kn->value.ul / FSCALE;
 
           if (nelem >= 3)
             {
               kn = kstat_data_lookup (ksp, "avenrun_15min");
-              if (kn != 0)
+              if (kn != NULL)
                 loadavg[elem++] = (double) kn->value.ul / FSCALE;
             }
         }
@@ -512,7 +512,7 @@ getloadavg (double loadavg[], int nelem)
   char const *ptr = ldavgbuf;
   int fd, count, saved_errno;
 
-  fd = open (LINUX_LDAV_FILE, O_RDONLY);
+  fd = open (LINUX_LDAV_FILE, O_RDONLY | O_CLOEXEC);
   if (fd == -1)
     return -1;
   count = read (fd, ldavgbuf, sizeof ldavgbuf - 1);
@@ -550,7 +550,7 @@ getloadavg (double loadavg[], int nelem)
         for (ptr++; '0' <= *ptr && *ptr <= '9'; ptr++)
           numerator = 10 * numerator + (*ptr - '0'), denominator *= 10;
 
-      loadavg[elem++] = numerator / denominator;
+      loadavg[elem] = numerator / denominator;
     }
 
   return elem;
@@ -567,15 +567,22 @@ getloadavg (double loadavg[], int nelem)
 
   unsigned long int load_ave[3], scale;
   int count;
-  FILE *fp;
-
-  fp = fopen (NETBSD_LDAV_FILE, "r");
-  if (fp == NULL)
-    return -1;
-  count = fscanf (fp, "%lu %lu %lu %lu\n",
+  char readbuf[4 * INT_BUFSIZE_BOUND (unsigned long int) + 1];
+  int fd = open (NETBSD_LDAV_FILE, O_RDONLY | O_CLOEXEC);
+  if (fd < 0)
+    return fd;
+  int nread = read (fd, readbuf, sizeof readbuf - 1);
+  int err = errno;
+  close (fd);
+  if (nread < 0)
+    {
+      errno = err;
+      return -1;
+    }
+  readbuf[nread] = '\0';
+  count = sscanf (readbuf, "%lu %lu %lu %lu\n",
                   &load_ave[0], &load_ave[1], &load_ave[2],
                   &scale);
-  (void) fclose (fp);
   if (count != 4)
     {
       errno = ENOTSUP;
@@ -869,33 +876,17 @@ getloadavg (double loadavg[], int nelem)
   if (!getloadavg_initialized)
     {
 #  ifndef SUNOS_5
-      /* Set the channel to close on exec, so it does not
-         litter any child's descriptor table.  */
-#   ifndef O_CLOEXEC
-#    define O_CLOEXEC 0
-#   endif
       int fd = open ("/dev/kmem", O_RDONLY | O_CLOEXEC);
       if (0 <= fd)
         {
-#   if F_DUPFD_CLOEXEC
-          if (fd <= STDERR_FILENO)
-            {
-              int fd1 = fcntl (fd, F_DUPFD_CLOEXEC, STDERR_FILENO + 1);
-              close (fd);
-              fd = fd1;
-            }
-#   endif
-          if (0 <= fd)
-            {
-              channel = fd;
-              getloadavg_initialized = true;
-            }
+          channel = fd;
+          getloadavg_initialized = true;
         }
 #  else /* SUNOS_5 */
       /* We pass 0 for the kernel, corefile, and swapfile names
          to use the currently running kernel.  */
       kd = kvm_open (0, 0, 0, O_RDONLY, 0);
-      if (kd != 0)
+      if (kd != NULL)
         {
           /* nlist the currently running kernel.  */
           kvm_nlist (kd, name_list);
