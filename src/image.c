@@ -29,6 +29,10 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 # include <unistd.h>
 #endif /* HAVE_UNISTD_H */
 
+#ifndef __has_include
+# define __has_include(x) 0
+#endif /* !__has_include */
+
 #ifdef HAVE_PNG
 # if defined HAVE_LIBPNG_PNG_H
 #  include <libpng/png.h>
@@ -116,10 +120,17 @@ Lisp_Object Qlibpng_version, Qlibgif_version, Qlibjpeg_version;
 #  include <sys/param.h>
 # endif /* !MAC_OSX */
 # if defined(TARGET_API_MAC_CARBON) && TARGET_API_MAC_CARBON
-#  ifdef MAC_OSX
+#  if defined(MAC_OSX) && (defined(HAVE_QUICKTIME_QUICKTIME_H) || \
+                           __has_include(<QuickTime/QuickTime.h>))
 #   include <QuickTime/QuickTime.h>
 #  else  /* not MAC_OSX: */
-#   include <QuickTime.h>
+#   if defined(HAVE_QUICKTIME_H) || __has_include(<QuickTime.h>)
+#    include <QuickTime.h>
+#   else
+#    if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#     warning "image.c expects a QuickTime header to be included."
+#    endif /* __GNUC__ && !__STRICT_ANSI__ */
+#   endif /* HAVE_QUICKTIME_H */
 #  endif /* not MAC_OSX */
 # else  /* not TARGET_API_MAC_CARBON */
 #  include <Windows.h>

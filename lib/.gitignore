@@ -36,6 +36,7 @@ math.h
 monetary.h
 netdb.h
 poll.h
+pthread.h
 pty.h
 sched.h
 search.h
@@ -52,6 +53,7 @@ string.h
 strings.h
 sys/file.h
 sys/ioctl.h
+sys/random.h
 sys/resource.h
 sys/select.h
 sys/socket.h
@@ -63,7 +65,9 @@ sys/uio.h
 sys/utsname.h
 sys/wait.h
 termios.h
+threads.h
 time.h
+uchar.h
 unistd.h
 unitypes.h
 uniwidth.h

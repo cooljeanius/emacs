@@ -978,6 +978,10 @@ dnl# see the `changequote' comment above.
     # work correctly. However, this flag is old and deprecated, so put it
     # in an unused variable:
     CPP_NO_PRECOMP="${CC-cc} -E -no-cpp-precomp"
+    DEFAULT_FINK_PREFIX="/sw"
+    if test -d /opt/sw -a -r /opt/sw -a -e /opt/sw/bin/fink; then
+      DEFAULT_FINK_PREFIX="/opt/sw"
+    fi
     ## Use Fink packages if available.
     ## FIXME: find a better way to do this: http://debbugs.gnu.org/11507
     ## How about ony doing it if a Fink-specific environment variable is
@@ -985,14 +989,14 @@ dnl# see the `changequote' comment above.
       if test "x${DBUS_FINK_SESSION_BUS_SOCKET}" != "x"; then
         ## force check for Fink in its default prefix, because a Fink in a
         ## non-default prefix may be mis-configured:
-        if test -x /sw/bin/fink; then
+        if test -x "${DEFAULT_FINK_PREFIX}"/bin/fink; then
           echo "Found installation of Fink in its default prefix; checking to see if we should use packages from it..."
-          FINK_ARCH="`/sw/bin/fink --version --quiet | grep Distribution | cut -d\, -f3 | tr -d [:blank:]`"
+          FINK_ARCH="`"${DEFAULT_FINK_PREFIX}"/bin/fink --version --quiet | grep Distribution | cut -d\, -f3 | tr -d [:blank:]`"
           CANONICAL_ARCH="`echo ${canonical} | cut -d\- -f1`"
           if test "x${FINK_ARCH}" = "x${CANONICAL_ARCH}"; then
-            if test -d /sw/include && test -d /sw/lib; then
+            if test -d "${DEFAULT_FINK_PREFIX}"/include && test -d "${DEFAULT_FINK_PREFIX}"/lib; then
               echo "configure: deciding to use Fink packages"
-              GCC_TEST_OPTIONS="-I/sw/include -L/sw/lib -arch ${FINK_ARCH}"
+              GCC_TEST_OPTIONS="-I"${DEFAULT_FINK_PREFIX}"/include -L"${DEFAULT_FINK_PREFIX}"/lib -arch ${FINK_ARCH}"
               CPP_NO_PRECOMP="${CPP_NO_PRECOMP} ${GCC_TEST_OPTIONS}"
               NON_GCC_TEST_OPTIONS="${GCC_TEST_OPTIONS}"
             fi
@@ -1000,7 +1004,7 @@ dnl# see the `changequote' comment above.
             echo "Fink's arch (${FINK_ARCH}) does not match the arch we are configuring for (${CANONICAL_ARCH}), so not using packages from it"
           fi
         else
-          echo "A Fink-specific environment variable is set, but Fink is not installed in its default prefix (i.e. '/sw'), so not using packages from it."
+          echo "A Fink-specific environment variable is set, but Fink is not installed in its default prefix (i.e. '"${DEFAULT_FINK_PREFIX}"'), so not using packages from it."
         fi
       else
         ## (TODO: put checks for other package managers here?)
@@ -2610,6 +2614,8 @@ machfile="m/${machine}.h"
 opsysfile="s/${opsys}.h"
 
 dnl# end check for ported-ness
+
+AC_SUBST([DEFAULT_FINK_PREFIX])dnl
 
 #### Choose a compiler.
 AC_MSG_CHECKING([compiler])
@@ -5357,20 +5363,40 @@ if test "x${with_carbon}" != "xno"; then
     elif test -d /Developer/Headers/CFMCarbon; then
       CPPFLAGS="${CPPFLAGS} ${acl_cv_wp}-I/Developer/Headers/CFMCarbon"
       AC_DEFINE([HAVE_CFMCARBON_HEADERS_DIR],[3])
+    elif test -n "${top_srcdir}" -a -d ${top_srcdir}/mac/inc; then
+      if test -n "${acl_cv_wp}"; then
+        CPPFLAGS="${CPPFLAGS} ${acl_cv_wp}-idirafter,${top_srcdir}/mac/inc"
+      else
+        CPPFLAGS="${CPPFLAGS} -idirafter ${top_srcdir}/mac/inc"
+      fi
+      AC_DEFINE([HAVE_CFMCARBON_HEADERS_DIR],[4])
+    elif test -n "${srcdir}" -a -d ${srcdir}/mac/inc; then
+      if test -n "${acl_cv_wp}"; then
+        CPPFLAGS="${CPPFLAGS} ${acl_cv_wp}-idirafter,${srcdir}/mac/inc"
+      else
+        CPPFLAGS="${CPPFLAGS} -idirafter ${srcdir}/mac/inc"
+      fi
+      AC_DEFINE([HAVE_CFMCARBON_HEADERS_DIR],[5])
     fi
+    test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: ${CPPFLAGS}"
+  else
+    AC_MSG_NOTICE([assuming our CPPFLAGS are already fine to find Carbon headers; try setting GIMME_YOUR_CFMCARBON_HEADERS to "yes" in your environment if they are not])
   fi
-  AC_CHECK_HEADERS([AE/AEDataModel.h CarbonCore/Files.h CarbonCore/MacTypes.h \
-                    CarbonCore/Script.h CarbonCore/StringCompare.h \
-                    CarbonCore/TextUtils.h HIToolbox/Appearance.h \
-                    HIToolbox/CarbonEvents.h HIToolbox/Controls.h \
-                    HIToolbox/Dialogs.h HIToolbox/Drag.h \
-                    HIToolbox/Events.h HIToolbox/HIButtonViews.h \
-                    HIToolbox/HIImageViews.h HIToolbox/HIProgressViews.h \
-                    HIToolbox/HITextViews.h HIToolbox/MacWindows.h \
-                    HIToolbox/Menus.h HIToolbox/Scrap.h MacTypes.h \
-                    NavigationServices/Navigation.h \
-                    QD/QuickdrawAPI.h QD/QDOffscreen.h \
-                    QuickTime/ImageCompression.h Webkit/Webkit.h])dnl
+  AC_CHECK_HEADERS([AE/AEDataModel.h Carbon.h CarbonCore/Files.h \
+                    CarbonCore/MacTypes.h CarbonCore/Script.h \
+                    CarbonCore/StringCompare.h CarbonCore/TextUtils.h \
+                    CommonPanels/ColorPicker.h CommonPanels/CMCalibrator.h \
+                    HIToolbox/Appearance.h HIToolbox/CarbonEvents.h \
+                    HIToolbox/Controls.h HIToolbox/Dialogs.h \
+                    HIToolbox/Drag.h HIToolbox/Events.h \
+                    HIToolbox/HIButtonViews.h HIToolbox/HIImageViews.h \
+                    HIToolbox/HIProgressViews.h HIToolbox/HITextViews.h \
+                    HIToolbox/MacWindows.h HIToolbox/Menus.h \
+                    HIToolbox/Scrap.h Mac/MacTypes.h MacTypes.h \
+                    NavigationServices/Navigation.h QD/QuickDraw.h \
+                    QD/QuickdrawAPI.h QD/QuickdrawTypes.h QD/QDOffscreen.h \
+                    QDOffscreen.h QuickTime/ImageCompression.h \
+                    QuickTime/QuickTime.h QuickTime.h Webkit/Webkit.h])dnl
   ## end Carbon headers check
 fi
 if test "x${window_system}" = "xx11" && test "x${HAVE_CARBON}" = "xyes"; then
@@ -5424,7 +5450,7 @@ fail;
   export MAC_OBJC_OBJ="macappkit.o macfont.o"
   AC_MSG_NOTICE([it looks like we are using Carbon for the window system at this point])
   case "${canonical}" in
-    *64-*-darwin9.* | *64-*-darwin1[[012345]].*)
+    *64-*-darwin9.* | *64-*-darwin1[[0123456789]].*)
       NON_CARBON_LDFLAGS="${LDFLAGS}"
       LDFLAGS="${LDFLAGS} ${LIBS_CARBON} -m64"
       AC_CACHE_CHECK([if Carbon still works when compiling 64-bit],
@@ -8930,7 +8956,7 @@ AC_FUNC_FORK
 
 if test "x${ac_cv_func_vfork_works}" = "xyes"; then
   case ${canonical} in
-    *-darwin[[56789]].* | *-darwin1[[012345]].*)
+    *-darwin[[56789]].* | *-darwin1[[0123456789]].*)
       AC_MSG_NOTICE([looks like the darwin vfork issues have cleared up])
       AC_DEFINE([PUMA_VFORK_ISSUES_CLEARED_UP],[1],
                 [Define to 1 on versions of Mac OS X newer than Puma with a working vfork().])

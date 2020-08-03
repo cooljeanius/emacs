@@ -6,6 +6,8 @@ build/*
 *.build
 *.pbxuser
 *.perspectivev3
+*.xcworkspace
+*/xcuserdata/*
 gdb.log
 src/version.h
 # (leave a hardcoded copy of buildobj.lst in src though)

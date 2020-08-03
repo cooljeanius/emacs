@@ -24,6 +24,10 @@ Boston, MA 02110-1301, USA.  */
 #ifndef EMACS_MACGUI_H
 #define EMACS_MACGUI_H
 
+#ifndef __has_include
+# define __has_include(x) 0
+#endif /* !__has_include */
+
 typedef struct _XDisplay Display; /* opaque */
 
 #ifndef _XRM_DATABASE_DECLARED
@@ -55,7 +59,17 @@ typedef unsigned long Time;
 #  ifndef __ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES
 #   define __ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES 0
 #  endif /* !__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES */
-#  include <Carbon/Carbon.h>
+#  if defined(HAVE_CARBON_CARBON_H) || __has_include(<Carbon/Carbon.h>)
+#   include <Carbon/Carbon.h>
+#  else
+#   if defined(HAVE_CARBON_H) || __has_include(<Carbon.h>)
+#    include <Carbon.h>
+#   else
+#    if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#     warning "macgui.h expects <Carbon/Carbon.h> to be included."
+#    endif /* __GNUC__ && !__STRICT_ANSI__ */
+#   endif /* HAVE_CARBON_H */
+#  endif /* HAVE_CARBON_CARBON_H */
 #  ifdef check /* __ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES is
                 * not in effect.  */
 #   undef check
@@ -102,14 +116,62 @@ typedef unsigned long Time;
 #endif /* not HAVE_CARBON */
 
 #if !defined(__QDOFFSCREEN__)
-# if defined(HAVE_QD_QDOFFSCREEN_H)
+# if defined(HAVE_QD_QDOFFSCREEN_H) || __has_include(<QD/QDOffscreen.h>)
 #  include <QD/QDOffscreen.h>
 # else
-#  if defined(__GNUC__) && !defined(__STRICT_ANSI__)
-#   warning "macgui.h expects <QD/QDOffscreen.h> to be included."
-#  endif /* __GNUC__ && !__STRICT_ANSI__ */
+#  if defined(HAVE_QDOFFSCREEN_H) || __has_include(<QDOffscreen.h>)
+#   include <QDOffscreen.h>
+#  else
+#   if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#    warning "macgui.h expects <QD/QDOffscreen.h> to be included."
+#   endif /* __GNUC__ && !__STRICT_ANSI__ */
+#  endif /* HAVE_QDOFFSCREEN_H */
 # endif /* HAVE_QD_QDOFFSCREEN_H */
 #endif /* !__QDOFFSCREEN__ */
+
+#if !defined(__QUICKDRAWAPI__)
+enum {
+  kQDUseDefaultTextRendering = 0,
+  kQDUseTrueTypeScalerGlyphs = (1 << 0),
+  kQDUseCGTextRendering = (1 << 1),
+  kQDUseCGTextMetrics = (1 << 2),
+  kQDSupportedFlags = (kQDUseTrueTypeScalerGlyphs | kQDUseCGTextRendering | kQDUseCGTextMetrics),
+  kQDDontChangeFlags = (int)0xFFFFFFFF
+};
+#endif /* !__QUICKDRAWAPI__ */
+
+#if !defined(__QUICKDRAWTYPES__)
+enum {
+  srcOr              = 1,
+  srcXor             = 2,
+  srcBic             = 3,
+  notSrcCopy         = 4,
+  notSrcOr           = 5,
+  notSrcXor          = 6,
+  notSrcBic          = 7,
+  patCopy            = 8,
+  patOr              = 9,
+  patXor             = 10,
+  patBic             = 11,
+  notPatCopy         = 12,
+  notPatOr           = 13,
+  notPatXor          = 14,
+  notPatBic          = 15,
+  grayishTextOr      = 49,
+  hilitetransfermode = 50,
+  hilite             = 50,
+  blend              = 32,
+  addPin             = 33,
+  addOver            = 34,
+  subPin             = 35,
+  addMax             = 37,
+  adMax              = 37,
+  subOver            = 38,
+  adMin              = 39,
+  ditherCopy         = 64,
+  transparent        = 36
+};
+#endif /* !__QUICKDRAWTYPES__ */
 
 #ifndef CGFLOAT_DEFINED
 typedef float CGFloat;

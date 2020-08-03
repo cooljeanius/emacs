@@ -713,6 +713,9 @@
 /* Define to 1 if you have the <CarbonCore/TextUtils.h> header file. */
 #undef HAVE_CARBONCORE_TEXTUTILS_H
 
+/* Define to 1 if you have the <Carbon.h> header file. */
+#undef HAVE_CARBON_H
+
 /* Define to 1 if you have the `catgets' function. */
 #undef HAVE_CATGETS
 
@@ -762,6 +765,12 @@
 
 /* Define to 1 if you have the <commctrl.h> header file. */
 #undef HAVE_COMMCTRL_H
+
+/* Define to 1 if you have the <CommonPanels/CMCalibrator.h> header file. */
+#undef HAVE_COMMONPANELS_CMCALIBRATOR_H
+
+/* Define to 1 if you have the <CommonPanels/ColorPicker.h> header file. */
+#undef HAVE_COMMONPANELS_COLORPICKER_H
 
 /* Define to 1 if you have the <com_err.h> header file. */
 #undef HAVE_COM_ERR_H
@@ -1807,6 +1816,9 @@
 /* Define to 1 if you have the <MacTypes.h> header file. */
 #undef HAVE_MACTYPES_H
 
+/* Define to 1 if you have the <Mac/MacTypes.h> header file. */
+#undef HAVE_MAC_MACTYPES_H
+
 /* Define to 1 if you have the `MagickExportImagePixels' function. */
 #undef HAVE_MAGICKEXPORTIMAGEPIXELS
 
@@ -2081,14 +2093,29 @@
 /* Define to 1 if you have the <pwd.h> header file. */
 #undef HAVE_PWD_H
 
+/* Define to 1 if you have the <QDOffscreen.h> header file. */
+#undef HAVE_QDOFFSCREEN_H
+
 /* Define to 1 if you have the <QD/QDOffscreen.h> header file. */
 #undef HAVE_QD_QDOFFSCREEN_H
 
 /* Define to 1 if you have the <QD/QuickdrawAPI.h> header file. */
 #undef HAVE_QD_QUICKDRAWAPI_H
 
+/* Define to 1 if you have the <QD/QuickdrawTypes.h> header file. */
+#undef HAVE_QD_QUICKDRAWTYPES_H
+
+/* Define to 1 if you have the <QD/QuickDraw.h> header file. */
+#undef HAVE_QD_QUICKDRAW_H
+
+/* Define to 1 if you have the <QuickTime.h> header file. */
+#undef HAVE_QUICKTIME_H
+
 /* Define to 1 if you have the <QuickTime/ImageCompression.h> header file. */
 #undef HAVE_QUICKTIME_IMAGECOMPRESSION_H
+
+/* Define to 1 if you have the <QuickTime/QuickTime.h> header file. */
+#undef HAVE_QUICKTIME_QUICKTIME_H
 
 /* Define to 1 if you have the `random' function. */
 #undef HAVE_RANDOM

@@ -78,6 +78,7 @@
 		A53B88831AED730F0067328B /* ftello.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ftello.c; sourceTree = "<group>"; };
 		A53B88841AED73240067328B /* ftruncate.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ftruncate.c; sourceTree = "<group>"; };
 		A53B88851AED73390067328B /* strings.in.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = strings.in.h; sourceTree = "<group>"; };
+		A53D6BD524D7B08500A941E2 /* inc */ = {isa = PBXFileReference; lastKnownFileType = folder; path = inc; sourceTree = "<group>"; };
 		A53DA6F81AF274C600C02B65 /* isemacsvalid */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = isemacsvalid; sourceTree = BUILT_PRODUCTS_DIR; };
 		A53DA7671AF7E20E00C02B65 /* macappkit.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = macappkit.h; sourceTree = "<group>"; tabWidth = 8; };
 		A53DA7681AF7E20E00C02B65 /* macappkit.m */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.objc; path = macappkit.m; sourceTree = "<group>"; tabWidth = 8; };
@@ -1389,6 +1390,7 @@
 			isa = PBXGroup;
 			children = (
 				A540EB3A1A0C288B0008DA29 /* Makefile_un-MPW-ed */,
+				A53D6BD524D7B08500A941E2 /* inc */,
 				A540EB3C1A0C288B0008DA29 /* src */,
 			);
 			comments = "\"inc\" is not listed in here, because it shadows system headers when using \"Always Search User Paths\" is checked";
@@ -2230,6 +2232,8 @@
 /* Begin PBXProject section */
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+			};
 			buildConfigurationList = 1DEB919308733D9F0010E9CD /* Build configuration list for PBXProject "emacs" */;
 			compatibilityVersion = "Xcode 3.1";
 			developmentRegion = English;

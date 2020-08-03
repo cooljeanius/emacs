@@ -258,7 +258,7 @@ extern void _DebPrint (const char *fmt, ...);
 #endif /* __has_attribute(flag_enum) */
 
 /* has been in GCC for a long time: */
-#ifndef ATTRIBUTE_FORMAT
+#if !defined(ATTRIBUTE_FORMAT) && !defined(_IN_GNULIB)
 # if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7)
 #  define ATTRIBUTE_FORMAT(spec) __attribute__((__format__ spec))
 # else
@@ -266,7 +266,8 @@ extern void _DebPrint (const char *fmt, ...);
 # endif /* gcc 2.7+ */
 #endif /* !ATTRIBUTE_FORMAT */
 
-#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 4)
+#if ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 4))) && \
+    (!defined(__clang__) || !__clang__)
 # define ATTRIBUTE_FORMAT_PRINTF(formatstring_parameter, first_argument) \
    ATTRIBUTE_FORMAT ((__gnu_printf__, formatstring_parameter, first_argument))
 #else
@@ -275,7 +276,7 @@ extern void _DebPrint (const char *fmt, ...);
 #endif /* gcc 4.4+ */
 
 /* Attribute `nonnull' was valid as of gcc 3.3: */
-#ifndef ATTRIBUTE_NONNULL
+#if !defined(ATTRIBUTE_NONNULL) && !defined(_IN_GNULIB)
 # if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 3)
 #  define ATTRIBUTE_NONNULL(m) __attribute__((__nonnull__(m)))
 # else
