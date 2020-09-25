@@ -109,3 +109,6 @@ build-aux/msys-to-w32 diff=shell
 build-aux/update-subdirs diff=shell
 lib-src/rcs2log diff=shell
 /make-dist diff=shell
+
+# Gnulib's git-merge-changelog driver:
+ChangeLog    merge=cl-merge

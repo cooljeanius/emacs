@@ -4031,7 +4031,8 @@ m4_ifdef([AM_PROG_AR],[
 
 dnl# not sure where else to put these:
 AC_PATH_PROG([FILE_MAGIC_BIN],[file])dnl
-AC_PATH_PROGS([MACHOCHECK],[machocheck machocheck_debug])dnl
+AC_PATH_PROGS([MACHOCHECK],
+              [machocheck machocheck_debug machocheck-latest])dnl
 AC_PATH_PROG([RELPATH_BIN],[relpath])dnl
 AC_PATH_PROGS([ID_BIN],[id gid])dnl
 
