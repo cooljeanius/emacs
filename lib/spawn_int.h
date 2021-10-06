@@ -1,4 +1,4 @@
-/* Copyright (C) 2000, 2008-2020 Free Software Foundation, Inc.
+/* Copyright (C) 2000, 2008-2021 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    This program is free software: you can redistribute it and/or modify
@@ -68,5 +68,5 @@ extern int __posix_spawn_file_actions_realloc (posix_spawn_file_actions_t *
 #endif
 extern int __spawni (pid_t *pid, const char *path,
                      const posix_spawn_file_actions_t *file_actions,
-                     const posix_spawnattr_t *attrp, char *const argv[],
-                     char *const envp[], int use_path);
+                     const posix_spawnattr_t *attrp, const char *const argv[],
+                     const char *const envp[], int use_path);

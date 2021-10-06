@@ -2,8 +2,8 @@
 
 # The gnulib commit ID to use for the update.
 # If you know your version works and is newer, feel free to replace:
-GNULIB_COMMIT_SHA1="d2e9bb0476f26d61331ad6652332ce3a48c6a277"
-# (this hash last updated July 31, 2020)
+GNULIB_COMMIT_SHA1="1afbb510b0c8a0812d4e4cfc889044503138648f"
+# (this hash last updated October 5, 2021)
 
 if [ $# -ne 1 ]; then
    echo "Warning: Path to gnulib repository missing."
@@ -69,10 +69,10 @@ else
       diffseq dirent dirfd dirname-lgpl double-slash-root dtoastr dtotimespec dup2 \
       environ errno error execinfo euidaccess explicit_bzero extensions \
       extern-inline \
-      faccessat fchmodat fchownat fclose fcntl fcntl-h fdatasync fdopendir fflush \
-      file-has-acl filemode filename filevercmp flexmember float fopen fopen-gnu \
-      fpending fpieee fpucw fseek fseeko fstat fstatat fsusage fsync ftell ftello \
-      ftoastr ftruncate func \
+      faccessat fchdir fchmodat fchownat fclose fcntl fcntl-h fdatasync \
+      fdopendir fflush file-has-acl filemode filename filevercmp flexmember \
+      float fopen fopen-gnu fpending fpieee fpucw fseek fseeko fstat fstatat \
+      fsusage fsync ftell ftello ftoastr ftruncate func \
       gendocs getdelim getdtablesize getgroups gethostname getline \
       getloadavg getlogin getopt-gnu getopt-posix getpagesize getpass \
       getpass-gnu getprogname gettext-h gettime gettimeofday \
@@ -140,7 +140,7 @@ else
   "${gnulib_tool}" --import --dir=. --lib=libgnu --source-base=lib \
     --m4-base=m4 --doc-base=doc --tests-base=tests --aux-dir=build-aux \
     --avoid=arpa_inet --avoid=c-ldtoastr --avoid=chmodat --avoid=chownat --avoid=close \
-    --avoid=dup --avoid=fchdir --avoid=fstrcmp --avoid=gnumakefile --avoid=lock \
+    --avoid=dup --avoid=fstrcmp --avoid=gnumakefile --avoid=lock \
     --avoid=malloc --avoid=malloc-posix \
     --avoid=memchr-obsolete --avoid=msvc-inval --avoid=msvc-nothrow \
     --avoid=opendir --avoid=raise --avoid=save-cwd --avoid=select \

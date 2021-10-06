@@ -1,6 +1,6 @@
 /* A GNU-like <stdlib.h>.
 
-   Copyright (C) 1995, 2001-2004, 2006-2020 Free Software Foundation, Inc.
+   Copyright (C) 1995, 2001-2004, 2006-2021 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -53,8 +53,8 @@
 # include <sys/loadavg.h>
 #endif
 
-/* Native Windows platforms declare mktemp() in <io.h>.  */
-#if 0 && (defined _WIN32 && ! defined __CYGWIN__)
+/* Native Windows platforms declare _mktemp() in <io.h>.  */
+#if defined _WIN32 && !defined __CYGWIN__
 # include <io.h>
 #endif
 
@@ -102,7 +102,7 @@ struct random_data
 /* The __attribute__ feature is available in gcc versions 2.5 and later.
    The attribute __pure__ was added in gcc 2.96.  */
 #ifndef _GL_ATTRIBUTE_PURE
-# if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 96)
+# if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 96) || defined __clang__
 #  define _GL_ATTRIBUTE_PURE __attribute__ ((__pure__))
 # else
 #  define _GL_ATTRIBUTE_PURE /* empty */
@@ -148,6 +148,31 @@ _GL_WARN_ON_USE (_Exit, "_Exit is unportable - "
 # endif
 #endif
 
+
+/* Allocate memory with indefinite extent and specified alignment.  */
+#if @GNULIB_ALIGNED_ALLOC@
+# if @REPLACE_ALIGNED_ALLOC@
+#  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+#   undef aligned_alloc
+#   define aligned_alloc rpl_aligned_alloc
+#  endif
+_GL_FUNCDECL_RPL (aligned_alloc, void *, (size_t alignment, size_t size));
+_GL_CXXALIAS_RPL (aligned_alloc, void *, (size_t alignment, size_t size));
+# else
+#  if @HAVE_ALIGNED_ALLOC@
+_GL_CXXALIAS_SYS (aligned_alloc, void *, (size_t alignment, size_t size));
+#  endif
+# endif
+# if @HAVE_ALIGNED_ALLOC@
+_GL_CXXALIASWARN (aligned_alloc);
+# endif
+#elif defined GNULIB_POSIXCHECK
+# undef aligned_alloc
+# if HAVE_RAW_DECL_ALIGNED_ALLOC
+_GL_WARN_ON_USE (aligned_alloc, "aligned_alloc is not portable - "
+                 "use gnulib module aligned_alloc for portability");
+# endif
+#endif
 
 #if @GNULIB_ATOLL@
 /* Parse a signed decimal integer.
@@ -214,6 +239,94 @@ _GL_CXXALIASWARN (canonicalize_file_name);
 _GL_WARN_ON_USE (canonicalize_file_name,
                  "canonicalize_file_name is unportable - "
                  "use gnulib module canonicalize-lgpl for portability");
+# endif
+#endif
+
+#if @GNULIB_MDA_ECVT@
+/* On native Windows, map 'ecvt' to '_ecvt', so that -loldnames is not
+   required.  In C++ with GNULIB_NAMESPACE, avoid differences between
+   platforms by defining GNULIB_NAMESPACE::ecvt on all platforms that have
+   it.  */
+# if defined _WIN32 && !defined __CYGWIN__
+#  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+#   undef ecvt
+#   define ecvt _ecvt
+#  endif
+_GL_CXXALIAS_MDA (ecvt, char *,
+                  (double number, int ndigits, int *decptp, int *signp));
+# else
+#  if @HAVE_DECL_ECVT@
+_GL_CXXALIAS_SYS (ecvt, char *,
+                  (double number, int ndigits, int *decptp, int *signp));
+#  endif
+# endif
+# if (defined _WIN32 && !defined __CYGWIN__) || @HAVE_DECL_ECVT@
+_GL_CXXALIASWARN (ecvt);
+# endif
+#endif
+
+#if @GNULIB_MDA_FCVT@
+/* On native Windows, map 'fcvt' to '_fcvt', so that -loldnames is not
+   required.  In C++ with GNULIB_NAMESPACE, avoid differences between
+   platforms by defining GNULIB_NAMESPACE::fcvt on all platforms that have
+   it.  */
+# if defined _WIN32 && !defined __CYGWIN__
+#  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+#   undef fcvt
+#   define fcvt _fcvt
+#  endif
+_GL_CXXALIAS_MDA (fcvt, char *,
+                  (double number, int ndigits, int *decptp, int *signp));
+# else
+#  if @HAVE_DECL_FCVT@
+_GL_CXXALIAS_SYS (fcvt, char *,
+                  (double number, int ndigits, int *decptp, int *signp));
+#  endif
+# endif
+# if (defined _WIN32 && !defined __CYGWIN__) || @HAVE_DECL_FCVT@
+_GL_CXXALIASWARN (fcvt);
+# endif
+#endif
+
+#if @GNULIB_FREE_POSIX@
+# if @REPLACE_FREE@
+#  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+#   undef free
+#   define free rpl_free
+#  endif
+_GL_FUNCDECL_RPL (free, void, (void *ptr));
+_GL_CXXALIAS_RPL (free, void, (void *ptr));
+# else
+_GL_CXXALIAS_SYS (free, void, (void *ptr));
+# endif
+# if __GLIBC__ >= 2
+_GL_CXXALIASWARN (free);
+# endif
+#elif defined GNULIB_POSIXCHECK
+# undef free
+/* Assume free is always declared.  */
+_GL_WARN_ON_USE (free, "free is not future POSIX compliant everywhere - "
+                 "use gnulib module free for portability");
+#endif
+
+#if @GNULIB_MDA_GCVT@
+/* On native Windows, map 'gcvt' to '_gcvt', so that -loldnames is not
+   required.  In C++ with GNULIB_NAMESPACE, avoid differences between
+   platforms by defining GNULIB_NAMESPACE::gcvt on all platforms that have
+   it.  */
+# if defined _WIN32 && !defined __CYGWIN__
+#  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+#   undef gcvt
+#   define gcvt _gcvt
+#  endif
+_GL_CXXALIAS_MDA (gcvt, char *, (double number, int ndigits, char *buf));
+# else
+#  if @HAVE_DECL_GCVT@
+_GL_CXXALIAS_SYS (gcvt, char *, (double number, int ndigits, char *buf));
+#  endif
+# endif
+# if (defined _WIN32 && !defined __CYGWIN__) || @HAVE_DECL_GCVT@
+_GL_CXXALIASWARN (gcvt);
 # endif
 #endif
 
@@ -468,6 +581,51 @@ _GL_WARN_ON_USE (mkstemps, "mkstemps is unportable - "
 # endif
 #endif
 
+#if @GNULIB_MDA_MKTEMP@
+/* On native Windows, map 'mktemp' to '_mktemp', so that -loldnames is not
+   required.  In C++ with GNULIB_NAMESPACE, avoid differences between
+   platforms by defining GNULIB_NAMESPACE::mktemp always.  */
+# if defined _WIN32 && !defined __CYGWIN__
+#  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+#   undef mktemp
+#   define mktemp _mktemp
+#  endif
+_GL_CXXALIAS_MDA (mktemp, char *, (char * /*template*/));
+# else
+_GL_CXXALIAS_SYS (mktemp, char *, (char * /*template*/));
+# endif
+_GL_CXXALIASWARN (mktemp);
+#endif
+
+/* Allocate memory with indefinite extent and specified alignment.  */
+#if @GNULIB_POSIX_MEMALIGN@
+# if @REPLACE_POSIX_MEMALIGN@
+#  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+#   undef posix_memalign
+#   define posix_memalign rpl_posix_memalign
+#  endif
+_GL_FUNCDECL_RPL (posix_memalign, int,
+                  (void **memptr, size_t alignment, size_t size)
+                  _GL_ARG_NONNULL ((1)));
+_GL_CXXALIAS_RPL (posix_memalign, int,
+                  (void **memptr, size_t alignment, size_t size));
+# else
+#  if @HAVE_POSIX_MEMALIGN@
+_GL_CXXALIAS_SYS (posix_memalign, int,
+                  (void **memptr, size_t alignment, size_t size));
+#  endif
+# endif
+# if @HAVE_POSIX_MEMALIGN@
+_GL_CXXALIASWARN (posix_memalign);
+# endif
+#elif defined GNULIB_POSIXCHECK
+# undef posix_memalign
+# if HAVE_RAW_DECL_POSIX_MEMALIGN
+_GL_WARN_ON_USE (posix_memalign, "posix_memalign is not portable - "
+                 "use gnulib module posix_memalign for portability");
+# endif
+#endif
+
 #if @GNULIB_POSIX_OPENPT@
 /* Return an FD open to the master side of a pseudo-terminal.  Flags should
    include O_RDWR, and may also include O_NOCTTY.  */
@@ -546,6 +704,28 @@ _GL_WARN_ON_USE (ptsname_r, "ptsname_r is not portable - "
 #  endif
 _GL_FUNCDECL_RPL (putenv, int, (char *string) _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (putenv, int, (char *string));
+# elif defined _WIN32 && !defined __CYGWIN__
+#  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+#   undef putenv
+#   define putenv _putenv
+#  endif
+_GL_CXXALIAS_MDA (putenv, int, (char *string));
+# else
+_GL_CXXALIAS_SYS (putenv, int, (char *string));
+# endif
+_GL_CXXALIASWARN (putenv);
+#elif @GNULIB_MDA_PUTENV@
+/* On native Windows, map 'putenv' to '_putenv', so that -loldnames is not
+   required.  In C++ with GNULIB_NAMESPACE, avoid differences between
+   platforms by defining GNULIB_NAMESPACE::putenv always.  */
+# if defined _WIN32 && !defined __CYGWIN__
+#  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+#   undef putenv
+#   define putenv _putenv
+#  endif
+/* Need to cast, because on mingw, the parameter is either
+   'const char *string' or 'char *string'.  */
+_GL_CXXALIAS_MDA_CAST (putenv, int, (char *string));
 # else
 _GL_CXXALIAS_SYS (putenv, int, (char *string));
 # endif
@@ -852,12 +1032,23 @@ _GL_WARN_ON_USE (realloc, "realloc is not POSIX compliant everywhere - "
 
 
 #if @GNULIB_REALLOCARRAY@
-# if ! @HAVE_REALLOCARRAY@
+# if @REPLACE_REALLOCARRAY@
+#  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+#   undef reallocarray
+#   define reallocarray rpl_reallocarray
+#  endif
+_GL_FUNCDECL_RPL (reallocarray, void *,
+                  (void *ptr, size_t nmemb, size_t size));
+_GL_CXXALIAS_RPL (reallocarray, void *,
+                  (void *ptr, size_t nmemb, size_t size));
+# else
+#  if ! @HAVE_REALLOCARRAY@
 _GL_FUNCDECL_SYS (reallocarray, void *,
                   (void *ptr, size_t nmemb, size_t size));
-# endif
+#  endif
 _GL_CXXALIAS_SYS (reallocarray, void *,
                   (void *ptr, size_t nmemb, size_t size));
+# endif
 _GL_CXXALIASWARN (reallocarray);
 #elif defined GNULIB_POSIXCHECK
 # undef reallocarray
@@ -1022,6 +1213,47 @@ _GL_WARN_ON_USE (strtold, "strtold is unportable - "
 # endif
 #endif
 
+#if @GNULIB_STRTOL@
+/* Parse a signed integer whose textual representation starts at STRING.
+   The integer is expected to be in base BASE (2 <= BASE <= 36); if BASE == 0,
+   it may be decimal or octal (with prefix "0") or hexadecimal (with prefix
+   "0x").
+   If ENDPTR is not NULL, the address of the first byte after the integer is
+   stored in *ENDPTR.
+   Upon overflow, the return value is LONG_MAX or LONG_MIN, and errno is set
+   to ERANGE.  */
+# if @REPLACE_STRTOL@
+#  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+#   define strtol rpl_strtol
+#  endif
+#  define GNULIB_defined_strtol_function 1
+_GL_FUNCDECL_RPL (strtol, long,
+                  (const char *restrict string, char **restrict endptr,
+                   int base)
+                  _GL_ARG_NONNULL ((1)));
+_GL_CXXALIAS_RPL (strtol, long,
+                  (const char *restrict string, char **restrict endptr,
+                   int base));
+# else
+#  if !@HAVE_STRTOL@
+_GL_FUNCDECL_SYS (strtol, long,
+                  (const char *restrict string, char **restrict endptr,
+                   int base)
+                  _GL_ARG_NONNULL ((1)));
+#  endif
+_GL_CXXALIAS_SYS (strtol, long,
+                  (const char *restrict string, char **restrict endptr,
+                   int base));
+# endif
+_GL_CXXALIASWARN (strtol);
+#elif defined GNULIB_POSIXCHECK
+# undef strtol
+# if HAVE_RAW_DECL_STRTOL
+_GL_WARN_ON_USE (strtol, "strtol is unportable - "
+                 "use gnulib module strtol for portability");
+# endif
+#endif
+
 #if @GNULIB_STRTOLL@
 /* Parse a signed integer whose textual representation starts at STRING.
    The integer is expected to be in base BASE (2 <= BASE <= 36); if BASE == 0,
@@ -1031,21 +1263,75 @@ _GL_WARN_ON_USE (strtold, "strtold is unportable - "
    stored in *ENDPTR.
    Upon overflow, the return value is LLONG_MAX or LLONG_MIN, and errno is set
    to ERANGE.  */
-# if !@HAVE_STRTOLL@
+# if @REPLACE_STRTOLL@
+#  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+#   define strtoll rpl_strtoll
+#  endif
+#  define GNULIB_defined_strtoll_function 1
+_GL_FUNCDECL_RPL (strtoll, long long,
+                  (const char *restrict string, char **restrict endptr,
+                   int base)
+                  _GL_ARG_NONNULL ((1)));
+_GL_CXXALIAS_RPL (strtoll, long long,
+                  (const char *restrict string, char **restrict endptr,
+                   int base));
+# else
+#  if !@HAVE_STRTOLL@
 _GL_FUNCDECL_SYS (strtoll, long long,
                   (const char *restrict string, char **restrict endptr,
                    int base)
                   _GL_ARG_NONNULL ((1)));
-# endif
+#  endif
 _GL_CXXALIAS_SYS (strtoll, long long,
                   (const char *restrict string, char **restrict endptr,
                    int base));
+# endif
 _GL_CXXALIASWARN (strtoll);
 #elif defined GNULIB_POSIXCHECK
 # undef strtoll
 # if HAVE_RAW_DECL_STRTOLL
 _GL_WARN_ON_USE (strtoll, "strtoll is unportable - "
                  "use gnulib module strtoll for portability");
+# endif
+#endif
+
+#if @GNULIB_STRTOUL@
+/* Parse an unsigned integer whose textual representation starts at STRING.
+   The integer is expected to be in base BASE (2 <= BASE <= 36); if BASE == 0,
+   it may be decimal or octal (with prefix "0") or hexadecimal (with prefix
+   "0x").
+   If ENDPTR is not NULL, the address of the first byte after the integer is
+   stored in *ENDPTR.
+   Upon overflow, the return value is ULONG_MAX, and errno is set to ERANGE.  */
+# if @REPLACE_STRTOUL@
+#  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+#   define strtoul rpl_strtoul
+#  endif
+#  define GNULIB_defined_strtoul_function 1
+_GL_FUNCDECL_RPL (strtoul, unsigned long,
+                  (const char *restrict string, char **restrict endptr,
+                   int base)
+                  _GL_ARG_NONNULL ((1)));
+_GL_CXXALIAS_RPL (strtoul, unsigned long,
+                  (const char *restrict string, char **restrict endptr,
+                   int base));
+# else
+#  if !@HAVE_STRTOUL@
+_GL_FUNCDECL_SYS (strtoul, unsigned long,
+                  (const char *restrict string, char **restrict endptr,
+                   int base)
+                  _GL_ARG_NONNULL ((1)));
+#  endif
+_GL_CXXALIAS_SYS (strtoul, unsigned long,
+                  (const char *restrict string, char **restrict endptr,
+                   int base));
+# endif
+_GL_CXXALIASWARN (strtoul);
+#elif defined GNULIB_POSIXCHECK
+# undef strtoul
+# if HAVE_RAW_DECL_STRTOUL
+_GL_WARN_ON_USE (strtoul, "strtoul is unportable - "
+                 "use gnulib module strtoul for portability");
 # endif
 #endif
 
@@ -1058,15 +1344,29 @@ _GL_WARN_ON_USE (strtoll, "strtoll is unportable - "
    stored in *ENDPTR.
    Upon overflow, the return value is ULLONG_MAX, and errno is set to
    ERANGE.  */
-# if !@HAVE_STRTOULL@
+# if @REPLACE_STRTOULL@
+#  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+#   define strtoull rpl_strtoull
+#  endif
+#  define GNULIB_defined_strtoull_function 1
+_GL_FUNCDECL_RPL (strtoull, unsigned long long,
+                  (const char *restrict string, char **restrict endptr,
+                   int base)
+                  _GL_ARG_NONNULL ((1)));
+_GL_CXXALIAS_RPL (strtoull, unsigned long long,
+                  (const char *restrict string, char **restrict endptr,
+                   int base));
+# else
+#  if !@HAVE_STRTOULL@
 _GL_FUNCDECL_SYS (strtoull, unsigned long long,
                   (const char *restrict string, char **restrict endptr,
                    int base)
                   _GL_ARG_NONNULL ((1)));
-# endif
+#  endif
 _GL_CXXALIAS_SYS (strtoull, unsigned long long,
                   (const char *restrict string, char **restrict endptr,
                    int base));
+# endif
 _GL_CXXALIASWARN (strtoull);
 #elif defined GNULIB_POSIXCHECK
 # undef strtoull

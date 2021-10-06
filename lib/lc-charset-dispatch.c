@@ -1,5 +1,5 @@
 /* Dispatching based on the current locale's character encoding.
-   Copyright (C) 2018-2020 Free Software Foundation, Inc.
+   Copyright (C) 2018-2021 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 # include "localcharset.h"
 # include "streq.h"
 
-# if GNULIB_WCHAR_SINGLE
+# if GNULIB_WCHAR_SINGLE_LOCALE
 /* When we know that the locale does not change, provide a speedup by
    caching the value of locale_encoding_classification.  */
 #  define locale_encoding_classification_cached locale_encoding_classification
@@ -35,7 +35,7 @@
 #  define locale_encoding_classification_uncached locale_encoding_classification
 # endif
 
-# if GNULIB_WCHAR_SINGLE
+# if GNULIB_WCHAR_SINGLE_LOCALE
 static inline
 # endif
 enc_t
@@ -59,7 +59,7 @@ locale_encoding_classification_uncached (void)
   return enc_other;
 }
 
-# if GNULIB_WCHAR_SINGLE
+# if GNULIB_WCHAR_SINGLE_LOCALE
 
 static int cached_locale_enc = -1;
 

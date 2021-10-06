@@ -3785,7 +3785,36 @@ else
       AC_MSG_NOTICE([skipping checks for warnings for gcc 10.0 or newer])
     ])dnl# end block of code for gcc 10
 
+    dnl# gcc 11 has been released:
+    gl_GCC_VERSION_IFELSE([11],[0],[
+      if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
+        AC_LANG_PUSH([C++])dnl
+        gl_WARN_ADD([-Wctad-maybe-unsupported],[WARN_CXXFLAGS])
+        gl_WARN_ADD([-Wdeprecated-enum-enum-conversion],[WARN_CXXFLAGS])
+        gl_WARN_ADD([-Wdeprecated-enum-float-conversion],[WARN_CXXFLAGS])
+        AC_LANG_POP
+      else
+        AC_MSG_NOTICE([-Wctad-maybe-unsupported only relevant for C++; skipping])
+      fi  ##end check for C++ compiler
+    ],[
+      AC_MSG_NOTICE([skipping checks for warnings for gcc 11.0 or newer])
+    ])dnl# end block of code for gcc 11
+
     dnl# to be added in a future version of gcc: (TODO)
+    gl_GCC_VERSION_IFELSE([12],[0],[
+      gl_WARN_ADD([-Warray-compare])
+      gl_WARN_ADD([-Wformat-same-precision])
+      gl_WARN_ADD([-Wformat-int-precision])
+      if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
+        AC_LANG_PUSH([C++])dnl
+        gl_WARN_ADD([-Wdeprecated-array-compare],[WARN_CXXFLAGS])
+        AC_LANG_POP
+      else
+        AC_MSG_NOTICE([-Wdeprecated-array-compare only relevant for C++, skipping])
+      fi  ##end check for C++ compiler
+    ],[
+      AC_MSG_NOTICE([skipping checks for warnings for gcc 12.0 or newer])
+    ])dnl# end block of code for gcc 12
 
     if test "x${emacs_cv_clang}" = "xyes"; then
       if test "x${acl_cv_wa}" != "x"; then
@@ -4028,6 +4057,10 @@ dnl# this is ifdef-ed the other way (i.e. "in" instead of "out"):
 m4_ifdef([AM_PROG_AR],[
   AM_PROG_AR
 ],[:])dnl
+
+m4_ifdef([AC_PROG_YACC],[
+  AC_PROG_YACC
+],[test -z "${YACC}" && test -x "`which yacc`" && export YACC="`which yacc`"])dnl
 
 dnl# not sure where else to put these:
 AC_PATH_PROG([FILE_MAGIC_BIN],[file])dnl
@@ -5120,7 +5153,7 @@ if test "x${ac_cv_c_prototypes}" = "x"; then
 fi
 AC_C_BACKSLASH_A
 if test "x${ac_cv_c_restrict}" = "x" && test "x${emacs_cv_c_restrict}" = "x" && test "x${emacs_cv_c_restrict_arr}" = "x"; then
-  test -z "${ac_cv_c_restrict}" && test -z "${emacs_cv_c_restrict}" test -z "${emacs_cv_c_restrict_arr}"
+  test -z "${ac_cv_c_restrict}" && test -z "${emacs_cv_c_restrict}" && test -z "${emacs_cv_c_restrict_arr}"
   AC_C_RESTRICT
 fi
 AC_C_TYPEOF
@@ -5129,6 +5162,7 @@ if test "x${ac_cv_c_const}" = "x"; then
   test -z "${ac_cv_c_const}"
   AC_C_CONST
 fi
+AC_C__GENERIC
 dnl# AC_C_INLINE is NOT really useful because we cannot turn on use of
 dnl# `inline' unless the compiler groks also `extern inline'. Luckily there
 dnl# is a gnulib macro for that. Also we call AC_C_INLINE later below
@@ -8296,6 +8330,20 @@ dnl# checks for other various functions:
 AC_MSG_CHECKING([functions])
 AC_MSG_RESULT([ ])
 AC_FUNC_CHOWN
+if test "x${ac_cv_func_fchdir}" = "x"; then
+  test -z "${ac_cv_func_fchdir}"
+  AC_CHECK_FUNCS([fchdir])
+fi
+if test "x${HAVE_FCHDIR}" = "x"; then
+  if test "x${ac_cv_func_fchdir}" = "xno"; then
+    test -z "${HAVE_FCHDIR}" && export HAVE_FCHDIR=0
+  elif test "x${ac_cv_func_fchdir}" = "xyes"; then
+    test -z "${HAVE_FCHDIR}" && export HAVE_FCHDIR=1
+  else
+    # Unsure of what to use as a default...
+    test -z "${HAVE_FCHDIR}" && export HAVE_FCHDIR=0
+  fi
+fi
 dnl# definition of this next macro has been moved to the included file:
 m4_include([m4/functions_extra.m4])dnl
 AC_REQUIRE_VARIOUS_FUNC_CHECKS
@@ -8395,7 +8443,7 @@ AC_CHECK_FUNCS([__fpending _stricmp acl atexit atof atoi btowc bzero \
                 reallocf regcomp rmdir socket sqrt strcasecmp strcasestr \
                 strchr strcmp strcspn strdup strerror stricmp strlcat \
                 strlcpy strncasecmp strncat strncmp strnicmp strnstr \
-                strpbrk strrchr strtok strtok_r strtol strtoul sysctl \
+                strpbrk strrchr strspn strtok strtok_r strtol strtoul sysctl \
                 system xstricmp utmpname vfprintf wcwidth])
 if test "x${ac_cv_func_utime}" = "x"; then
   test -z "${ac_cv_func_utime}"
@@ -8411,9 +8459,9 @@ if test "x" = "Y0"; then
   m4_ifdef([AC_CHECK_FUNCS_ONCE],[
     AC_CHECK_FUNCS([getdelim])dnl
   ])dnl
-  AC_CHECK_FUNCS([alarm dup2 fchdir ftruncate getcwd geteuid \
-                  gethostbyname getpagesize gettimeofday localtime_r \
-                  mkdir setenv strtoumax strverscmp tzset uname])dnl
+  AC_CHECK_FUNCS([alarm dup2 ftruncate getcwd geteuid gethostbyname \
+                  getpagesize gettimeofday localtime_r mkdir setenv \
+                  strtoumax strverscmp tzset uname])dnl
   ## just in case...
 fi
 AC_CHECK_DECLS([openpty],[],[],[[

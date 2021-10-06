@@ -1,6 +1,6 @@
 /* xalloc.h -- malloc with out-of-memory checking
 
-   Copyright (C) 1990-2000, 2003-2004, 2006-2020 Free Software Foundation, Inc.
+   Copyright (C) 1990-2000, 2003-2004, 2006-2021 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -21,7 +21,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "xalloc-oversized.h"
+#if GNULIB_XALLOC
+# include "idx.h"
+# include "intprops.h"
+#endif
 
 #ifndef _GL_INLINE_HEADER_BEGIN
  #error "Please include config.h first."
@@ -31,10 +34,13 @@ _GL_INLINE_HEADER_BEGIN
 # define XALLOC_INLINE _GL_INLINE
 #endif
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+
+#if GNULIB_XALLOC_DIE
 
 /* This function is always triggered when memory is exhausted.
    It must be defined by the application, either explicitly
@@ -42,6 +48,10 @@ extern "C" {
    function to call when one wants the program to die because of a
    memory allocation failure.  */
 /*extern*/ _Noreturn void xalloc_die (void);
+
+#endif /* GNULIB_XALLOC_DIE */
+
+#if GNULIB_XALLOC
 
 void *xmalloc (size_t s)
       _GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_ALLOC_SIZE ((1));
@@ -51,7 +61,11 @@ void *xcalloc (size_t n, size_t s)
       _GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_ALLOC_SIZE ((1, 2));
 void *xrealloc (void *p, size_t s)
       _GL_ATTRIBUTE_ALLOC_SIZE ((2));
+void *xreallocarray (void *p, size_t n, size_t s)
+      _GL_ATTRIBUTE_ALLOC_SIZE ((2, 3));
 void *x2realloc (void *p, size_t *pn);
+void *xpalloc (void *pa, idx_t *nitems, idx_t nitems_incr_min,
+               ptrdiff_t nitems_max, idx_t item_size);
 void *xmemdup (void const *p, size_t s)
       _GL_ATTRIBUTE_ALLOC_SIZE ((2));
 char *xstrdup (char const *str)
@@ -64,23 +78,23 @@ char *xstrdup (char const *str)
 
 /* Allocate an object of type T dynamically, with error checking.  */
 /* extern t *XMALLOC (typename t); */
-#define XMALLOC(t) ((t *) xmalloc (sizeof (t)))
+# define XMALLOC(t) ((t *) xmalloc (sizeof (t)))
 
 /* Allocate memory for N elements of type T, with error checking.  */
 /* extern t *XNMALLOC (size_t n, typename t); */
-#define XNMALLOC(n, t) \
-   ((t *) (sizeof (t) == 1 ? xmalloc (n) : xnmalloc (n, sizeof (t))))
+# define XNMALLOC(n, t) \
+    ((t *) (sizeof (t) == 1 ? xmalloc (n) : xnmalloc (n, sizeof (t))))
 
 /* Allocate an object of type T dynamically, with error checking,
    and zero it.  */
 /* extern t *XZALLOC (typename t); */
-#define XZALLOC(t) ((t *) xzalloc (sizeof (t)))
+# define XZALLOC(t) ((t *) xzalloc (sizeof (t)))
 
 /* Allocate memory for N elements of type T, with error checking,
    and zero it.  */
 /* extern t *XCALLOC (size_t n, typename t); */
-#define XCALLOC(n, t) \
-   ((t *) (sizeof (t) == 1 ? xzalloc (n) : xcalloc (n, sizeof (t))))
+# define XCALLOC(n, t) \
+    ((t *) (sizeof (t) == 1 ? xzalloc (n) : xcalloc (n, sizeof (t))))
 
 
 /* Allocate an array of N objects, each with S bytes of memory,
@@ -91,11 +105,10 @@ XALLOC_INLINE void *xnmalloc (size_t n, size_t s)
 XALLOC_INLINE void *
 xnmalloc (size_t n, size_t s)
 {
-  if (xalloc_oversized (n, s))
-    xalloc_die ();
-  return xmalloc (n * s);
+  return xreallocarray (NULL, n, s);
 }
 
+/* FIXME: Deprecate this in favor of xreallocarray?  */
 /* Change the size of an allocated block of memory P to an array of N
    objects each of S bytes, with error checking.  S must be nonzero.  */
 
@@ -104,9 +117,7 @@ XALLOC_INLINE void *xnrealloc (void *p, size_t n, size_t s)
 XALLOC_INLINE void *
 xnrealloc (void *p, size_t n, size_t s)
 {
-  if (xalloc_oversized (n, s))
-    xalloc_die ();
-  return xrealloc (p, n * s);
+  return xreallocarray (p, n, s);
 }
 
 /* If P is null, allocate a block of at least *PN such objects;
@@ -181,23 +192,17 @@ x2nrealloc (void *p, size_t *pn, size_t s)
           n = DEFAULT_MXFAST / s;
           n += !n;
         }
-      if (xalloc_oversized (n, s))
-        xalloc_die ();
     }
   else
     {
-      /* Set N = floor (1.5 * N) + 1 so that progress is made even if N == 0.
-         Check for overflow, so that N * S stays in both ptrdiff_t and
-         size_t range.  The check may be slightly conservative, but an
-         exact check isn't worth the trouble.  */
-      if ((PTRDIFF_MAX < SIZE_MAX ? PTRDIFF_MAX : SIZE_MAX) / 3 * 2 / s
-          <= n)
+      /* Set N = floor (1.5 * N) + 1 to make progress even if N == 0.  */
+      if (INT_ADD_WRAPV (n, (n >> 1) + 1, &n))
         xalloc_die ();
-      n += n / 2 + 1;
     }
 
+  p = xreallocarray (p, n, s);
   *pn = n;
-  return xrealloc (p, n * s);
+  return p;
 }
 
 /* Return a pointer to a new buffer of N bytes.  This is like xmalloc,
@@ -211,8 +216,15 @@ xcharalloc (size_t n)
   return XNMALLOC (n, char);
 }
 
+#endif /* GNULIB_XALLOC */
+
+
 #ifdef __cplusplus
 }
+#endif
+
+
+#if GNULIB_XALLOC && defined __cplusplus
 
 /* C++ does not allow conversions from void * to other pointer types
    without a cast.  Use templates to work around the problem when
@@ -225,9 +237,16 @@ xrealloc (T *p, size_t s)
 }
 
 template <typename T> inline T *
+xreallocarray (T *p, size_t n, size_t s)
+{
+  return (T *) xreallocarray ((void *) p, n, s);
+}
+
+/* FIXME: Deprecate this in favor of xreallocarray?  */
+template <typename T> inline T *
 xnrealloc (T *p, size_t n, size_t s)
 {
-  return (T *) xnrealloc ((void *) p, n, s);
+  return xreallocarray (p, n, s);
 }
 
 template <typename T> inline T *
@@ -248,7 +267,8 @@ xmemdup (T const *p, size_t s)
   return (T *) xmemdup ((void const *) p, s);
 }
 
-#endif
+#endif /* GNULIB_XALLOC && C++ */
+
 
 _GL_INLINE_HEADER_END
 

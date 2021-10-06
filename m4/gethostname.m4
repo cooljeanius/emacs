@@ -1,5 +1,5 @@
-# gethostname.m4 serial 14
-dnl Copyright (C) 2002, 2008-2020 Free Software Foundation, Inc.
+# gethostname.m4 serial 15
+dnl Copyright (C) 2002, 2008-2021 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -74,7 +74,7 @@ lucky
         dnl mingw.
         gl_cv_decl_HOST_NAME_MAX=256
       else
-        _AC_COMPUTE_INT([MAXHOSTNAMELEN], [gl_cv_decl_HOST_NAME_MAX], [
+        AC_COMPUTE_INT([gl_cv_decl_HOST_NAME_MAX], [MAXHOSTNAMELEN], [
 #include <sys/types.h>
 #if HAVE_SYS_PARAM_H
 # include <sys/param.h>

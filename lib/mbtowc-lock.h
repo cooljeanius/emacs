@@ -1,5 +1,5 @@
 /* Use the internal lock used by mbrtowc and mbrtoc32.
-   Copyright (C) 2019-2020 Free Software Foundation, Inc.
+   Copyright (C) 2019-2021 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -32,7 +32,17 @@ mbtowc_unlocked (wchar_t *pwc, const char *p, size_t m)
 /* Prohibit renaming this symbol.  */
 #undef gl_get_mbtowc_lock
 
-#if defined _WIN32 && !defined __CYGWIN__
+#if GNULIB_MBRTOWC_SINGLE_THREAD
+
+/* All uses of this function are in a single thread.  No locking needed.  */
+
+static int
+mbtowc_with_lock (wchar_t *pwc, const char *p, size_t m)
+{
+  return mbtowc_unlocked (pwc, p, m);
+}
+
+#elif defined _WIN32 && !defined __CYGWIN__
 
 extern __declspec(dllimport) CRITICAL_SECTION *gl_get_mbtowc_lock (void);
 

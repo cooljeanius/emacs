@@ -1,5 +1,5 @@
 /* A GNU-like <sched.h>.
-   Copyright (C) 2008-2020 Free Software Foundation, Inc.
+   Copyright (C) 2008-2021 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -84,7 +84,9 @@ _GL_FUNCDECL_SYS (sched_yield, int, (void));
 #  endif
 _GL_CXXALIAS_SYS (sched_yield, int, (void));
 # endif
+# if __GLIBC__ >= 2
 _GL_CXXALIASWARN (sched_yield);
+# endif
 #elif defined GNULIB_POSIXCHECK
 # undef sched_yield
 # if HAVE_RAW_DECL_SCHED_YIELD

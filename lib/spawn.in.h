@@ -1,5 +1,5 @@
 /* Definitions for POSIX spawn interface.
-   Copyright (C) 2000, 2003-2004, 2008-2020 Free Software Foundation, Inc.
+   Copyright (C) 2000, 2003-2004, 2008-2021 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    This program is free software: you can redistribute it and/or modify
@@ -15,16 +15,33 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
-#ifndef _@GUARD_PREFIX@_SPAWN_H
-
 #if __GNUC__ >= 3
 @PRAGMA_SYSTEM_HEADER@
 #endif
 @PRAGMA_COLUMNS@
 
+#if defined _GL_ALREADY_INCLUDING_SPAWN_H
+/* Special invocation convention:
+   On OS/2 kLIBC, <spawn.h> includes <signal.h>. Then <signal.h> ->
+   <pthread.h> -> <sched.h> -> <spawn.h> are included by GNULIB.
+   In this situation, struct sched_param is not yet defined.  */
+
+#@INCLUDE_NEXT@ @NEXT_SPAWN_H@
+
+#else
+
+#ifndef _@GUARD_PREFIX@_SPAWN_H
+/* Normal invocation convention.  */
+
 /* The include_next requires a split double-inclusion guard.  */
 #if @HAVE_SPAWN_H@
+
+# define _GL_ALREADY_INCLUDING_SPAWN_H
+
 # @INCLUDE_NEXT@ @NEXT_SPAWN_H@
+
+# define _GL_ALREADY_INCLUDING_SPAWN_H
+
 #endif
 
 #ifndef _@GUARD_PREFIX@_SPAWN_H
@@ -50,7 +67,9 @@
    'configure' might #define 'restrict' to those words, so pick a
    different name.  */
 #ifndef _Restrict_
-# if defined __restrict || 2 < __GNUC__ + (95 <= __GNUC_MINOR__)
+# if defined __restrict \
+     || 2 < __GNUC__ + (95 <= __GNUC_MINOR__) \
+     || __clang_major__ >= 3
 #  define _Restrict_ __restrict
 # elif 199901L <= __STDC_VERSION__ || defined restrict
 #  define _Restrict_ restrict
@@ -58,13 +77,18 @@
 #  define _Restrict_
 # endif
 #endif
-/* For [restrict], use glibc's __restrict_arr if available.
-   Otherwise, GCC 3.1 (not in C++ mode) and C99 support [restrict].  */
+/* For the ISO C99 syntax
+     array_name[restrict]
+   use glibc's __restrict_arr if available.
+   Otherwise, GCC 3.1 and clang support this syntax (but not in C++ mode).
+   Other ISO C99 compilers support it as well.  */
 #ifndef _Restrict_arr_
 # ifdef __restrict_arr
 #  define _Restrict_arr_ __restrict_arr
-# elif ((199901L <= __STDC_VERSION__ || 3 < __GNUC__ + (1 <= __GNUC_MINOR__)) \
-        && !defined __GNUG__)
+# elif ((199901L <= __STDC_VERSION__ \
+         || 3 < __GNUC__ + (1 <= __GNUC_MINOR__) \
+         || __clang_major__ >= 3) \
+        && !defined __cplusplus)
 #  define _Restrict_arr_ _Restrict_
 # else
 #  define _Restrict_arr_
@@ -965,3 +989,4 @@ _GL_WARN_ON_USE (posix_spawn_file_actions_addfchdir,
 
 #endif /* _@GUARD_PREFIX@_SPAWN_H */
 #endif /* _@GUARD_PREFIX@_SPAWN_H */
+#endif

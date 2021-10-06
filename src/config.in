@@ -233,7 +233,7 @@
 /* Define if the system is Cygwin. */
 #undef CYGWIN
 
-/* Define to 1 if using 'alloca.c'. */
+/* Define to 1 if using `alloca.c'. */
 #undef C_ALLOCA
 
 /* Define if the system is Darwin. */
@@ -373,6 +373,9 @@
 /* Define to 1 if the system's ftello function has the Solaris bug. */
 #undef FTELLO_BROKEN_AFTER_SWITCHING_FROM_READ_TO_WRITE
 
+/* Define to 1 if the system's ftello function has the macOS bug. */
+#undef FTELLO_BROKEN_AFTER_UNGETC
+
 /* Define to 1 if fflush is known to work on stdin as per POSIX.1-2008, 0 if
    fflush is known to not work, -1 if unknown. */
 #undef FUNC_FFLUSH_STDIN
@@ -382,8 +385,15 @@
 #undef FUNC_MKDIR_DOT_BUG
 
 /* Define to 1 if realpath() can malloc memory, always gives an absolute path,
-   and handles trailing slash correctly. */
+   and handles a trailing slash correctly. */
+#undef FUNC_REALPATH_NEARLY_WORKS
+
+/* Define to 1 if realpath() can malloc memory, always gives an absolute path,
+   and handles leading slashes and a trailing slash correctly. */
 #undef FUNC_REALPATH_WORKS
+
+/* Define to 1 if ungetc is broken when used on arbitrary bytes. */
+#undef FUNC_UNGETC_BROKEN
 
 /* Define to 1 if futimesat mishandles a NULL file name. */
 #undef FUTIMESAT_NULL_BUG
@@ -489,8 +499,8 @@
 #undef GNULIB_PRINTF_ATTRIBUTE_FLAVOR_GNU
 
 /* Define to a C preprocessor expression that evaluates to 1 or 0, depending
-   whether the gnulib module realloc-gnu shall be considered present. */
-#undef GNULIB_REALLOC_GNU
+   whether the gnulib module reallocarray shall be considered present. */
+#undef GNULIB_REALLOCARRAY
 
 /* Define to a C preprocessor expression that evaluates to 1 or 0, depending
    whether the gnulib module scanf shall be considered present. */
@@ -504,6 +514,14 @@
    whether the gnulib module statat shall be considered present. */
 #undef GNULIB_STATAT
 
+/* Define to 1 if you want the FILE stream functions getc, putc, etc. to use
+   unlocked I/O if available, throughout the package. Unlocked I/O can improve
+   performance, sometimes dramatically. But unlocked I/O is safe only in
+   single-threaded programs, as well as in multithreaded programs for which
+   you can guarantee that every FILE stream, including stdin, stdout, stderr,
+   is used only in a single thread. */
+#undef GNULIB_STDIO_SINGLE_THREAD
+
 /* Define to a C preprocessor expression that evaluates to 1 or 0, depending
    whether the gnulib module strerror shall be considered present. */
 #undef GNULIB_STRERROR
@@ -515,6 +533,17 @@
 /* Define to a C preprocessor expression that evaluates to 1 or 0, depending
    whether the gnulib module tempname shall be considered present. */
 #undef GNULIB_TEMPNAME
+
+/* Define to 1 when the gnulib module fchdir should be tested. */
+#undef GNULIB_TEST_FCHDIR
+
+/* Define to a C preprocessor expression that evaluates to 1 or 0, depending
+   whether the gnulib module xalloc shall be considered present. */
+#undef GNULIB_XALLOC
+
+/* Define to a C preprocessor expression that evaluates to 1 or 0, depending
+   whether the gnulib module xalloc-die shall be considered present. */
+#undef GNULIB_XALLOC_DIE
 
 /* Define if this system is compatible with GNU/Linux. */
 #undef GNU_LINUX
@@ -748,9 +777,6 @@
 /* Define to 1 if you have the `chown' function. */
 #undef HAVE_CHOWN
 
-/* Define to 1 if you have the `chsize' function. */
-#undef HAVE_CHSIZE
-
 /* Define to 1 if you have the `clock_gettime' function. */
 #undef HAVE_CLOCK_GETTIME
 
@@ -807,6 +833,9 @@
 
 /* Define to 1 if C supports variable-length arrays. */
 #undef HAVE_C_VARARRAYS
+
+/* Define to 1 if C11-style _Generic works. */
+#undef HAVE_C__GENERIC
 
 /* Define to 1 if data_start is the address of the start of the main data
    segment. */
@@ -879,6 +908,26 @@
    */
 #undef HAVE_DECL_DIRFD
 
+/* Define to 1 if you have the declaration of `ecvt', and to 0 if you don't.
+   */
+#undef HAVE_DECL_ECVT
+
+/* Define to 1 if you have the declaration of `execvpe', and to 0 if you
+   don't. */
+#undef HAVE_DECL_EXECVPE
+
+/* Define to 1 if you have the declaration of `fchdir', and to 0 if you don't.
+   */
+#undef HAVE_DECL_FCHDIR
+
+/* Define to 1 if you have the declaration of `fcloseall', and to 0 if you
+   don't. */
+#undef HAVE_DECL_FCLOSEALL
+
+/* Define to 1 if you have the declaration of `fcvt', and to 0 if you don't.
+   */
+#undef HAVE_DECL_FCVT
+
 /* Define to 1 if you have the declaration of `fdatasync', and to 0 if you
    don't. */
 #undef HAVE_DECL_FDATASYNC
@@ -939,6 +988,10 @@
    you don't. */
 #undef HAVE_DECL_FWRITE_UNLOCKED
 
+/* Define to 1 if you have the declaration of `gcvt', and to 0 if you don't.
+   */
+#undef HAVE_DECL_GCVT
+
 /* Define to 1 if you have the declaration of `getchar_unlocked', and to 0 if
    you don't. */
 #undef HAVE_DECL_GETCHAR_UNLOCKED
@@ -990,6 +1043,10 @@
 /* Define to 1 if you have the declaration of `openpty', and to 0 if you
    don't. */
 #undef HAVE_DECL_OPENPTY
+
+/* Define to 1 if you have the declaration of `posix_spawn', and to 0 if you
+   don't. */
+#undef HAVE_DECL_POSIX_SPAWN
 
 /* Define to 1 if you have the declaration of `program_invocation_name', and
    to 0 if you don't. */
@@ -1062,6 +1119,10 @@
 /* Define to 1 if you have the declaration of `unsetenv', and to 0 if you
    don't. */
 #undef HAVE_DECL_UNSETENV
+
+/* Define to 1 if you have the declaration of `wcsdup', and to 0 if you don't.
+   */
+#undef HAVE_DECL_WCSDUP
 
 /* Define to 1 if you have the declaration of `wcwidth', and to 0 if you
    don't. */
@@ -1207,6 +1268,9 @@
 /* Define to 1 if you have the <features.h> header file. */
 #undef HAVE_FEATURES_H
 
+/* Define to 1 if you have the `ffsl' function. */
+#undef HAVE_FFSL
+
 /* Define to 1 if you have the `fgets' function. */
 #undef HAVE_FGETS
 
@@ -1239,6 +1303,9 @@
 
 /* Define to 1 if using the freetype/fontconfig libraries. */
 #undef HAVE_FREETYPE
+
+/* Define if the 'free' function is guaranteed to preserve errno. */
+#undef HAVE_FREE_POSIX
 
 /* Define to 1 if you have the `frexp' function. */
 #undef HAVE_FREXP
@@ -1838,6 +1905,9 @@
 /* Define to 1 if you have the <malloc/malloc.h> header file. */
 #undef HAVE_MALLOC_MALLOC_H
 
+/* Define if malloc, realloc, and calloc set errno on allocation failure. */
+#undef HAVE_MALLOC_POSIX
+
 /* Define to 1 if mmap()'s MAP_ANONYMOUS flag is available after including
    config.h and <sys/mman.h>. */
 #undef HAVE_MAP_ANONYMOUS
@@ -1898,6 +1968,9 @@
    systems that support xmenu.c. */
 #undef HAVE_MENUS
 
+/* Define to 1 if you have the <minix/config.h> header file. */
+#undef HAVE_MINIX_CONFIG_H
+
 /* Define to 1 if <limits.h> defines the MIN and MAX macros. */
 #undef HAVE_MINMAX_IN_LIMITS_H
 
@@ -1941,6 +2014,9 @@
 
 /* Define to 1 if you have the <ndir.h> header file, and it defines `DIR'. */
 #undef HAVE_NDIR_H
+
+/* Define to 1 if fchmodat works, except for the trailing slash handling. */
+#undef HAVE_NEARLY_WORKING_FCHMODAT
 
 /* Define to 1 if you have the <netdb.h> header file. */
 #undef HAVE_NETDB_H
@@ -2136,15 +2212,11 @@
    and to 0 otherwise. */
 #undef HAVE_REALLOC
 
+/* Define to 1 if you have the `reallocarray' function. */
+#undef HAVE_REALLOCARRAY
+
 /* Define to 1 if you have the `reallocf' function. */
 #undef HAVE_REALLOCF
-
-/* Define to 1 if your system has a GNU libc compatible 'realloc' function,
-   and to 0 otherwise. */
-#undef HAVE_REALLOC_GNU
-
-/* Define if the 'realloc' function is POSIX compliant. */
-#undef HAVE_REALLOC_POSIX
 
 /* Define to 1 if you have the `realpath' function. */
 #undef HAVE_REALPATH
@@ -2200,6 +2272,9 @@
 
 /* Define to 1 if you have the `sched_setscheduler' function. */
 #undef HAVE_SCHED_SETSCHEDULER
+
+/* Define to 1 if you have the <sdkddkver.h> header file. */
+#undef HAVE_SDKDDKVER_H
 
 /* Define to 1 if you have the <search.h> header file. */
 #undef HAVE_SEARCH_H
@@ -2297,6 +2372,10 @@
    buffer had been large enough. */
 #undef HAVE_SNPRINTF_RETVAL_C99
 
+/* Define if the string produced by the snprintf function is always NUL
+   terminated. */
+#undef HAVE_SNPRINTF_TRUNCATION_C99
+
 /* Define to 1 if you have the `socket' function. */
 #undef HAVE_SOCKET
 
@@ -2350,6 +2429,9 @@
 /* Define to 1 if you have the <stdio_ext.h> header file. */
 #undef HAVE_STDIO_EXT_H
 
+/* Define to 1 if you have the <stdio.h> header file. */
+#undef HAVE_STDIO_H
+
 /* Define to 1 if you have the <stdlib.h> header file. */
 #undef HAVE_STDLIB_H
 
@@ -2380,7 +2462,7 @@
 /* Define to 1 if you have the `strerror' function. */
 #undef HAVE_STRERROR
 
-/* Define to 1 if you have the `strerror_r' function. */
+/* Define if you have `strerror_r'. */
 #undef HAVE_STRERROR_R
 
 /* Define to 1 if you have the `strftime' function. */
@@ -2427,6 +2509,9 @@
 
 /* Define to 1 if you have the `strsignal' function. */
 #undef HAVE_STRSIGNAL
+
+/* Define to 1 if you have the `strspn' function. */
+#undef HAVE_STRSPN
 
 /* Define to 1 if you have the `strstr' function. */
 #undef HAVE_STRSTR
@@ -2558,9 +2643,6 @@
 /* Define to 1 if your `struct stat' has `st_blocks'. Deprecated, use
    `HAVE_STRUCT_STAT_ST_BLOCKS' instead. */
 #undef HAVE_ST_BLOCKS
-
-/* Define if struct stat has an st_dm_mode member. */
-#undef HAVE_ST_DM_MODE
 
 /* Define to 1 if you have the `symlink' function. */
 #undef HAVE_SYMLINK
@@ -2974,7 +3056,7 @@
 /* Define to 1 if O_NOFOLLOW works. */
 #undef HAVE_WORKING_O_NOFOLLOW
 
-/* Define if the uselocale function exists any may safely be called. */
+/* Define if the uselocale function exists and may safely be called. */
 #undef HAVE_WORKING_USELOCALE
 
 /* Define if utimes works properly. */
@@ -3099,6 +3181,9 @@
 
 /* Define to 1 if the system has the type `_Bool'. */
 #undef HAVE__BOOL
+
+/* Define to 1 if you have the `_chsize' function. */
+#undef HAVE__CHSIZE
 
 /* Define to 1 if you have the `_fseeki64' function. */
 #undef HAVE__FSEEKI64
@@ -3477,6 +3562,10 @@
 /* Define to 1 if readlink fails to recognize a trailing slash. */
 #undef READLINK_TRAILING_SLASH_BUG
 
+/* Define to 1 if readlink sets errno instead of truncating a too-long link.
+   */
+#undef READLINK_TRUNCATE_BUG
+
 /* Define REL_ALLOC if you want to use the relocating allocator for buffer
    space. */
 #undef REL_ALLOC
@@ -3500,9 +3589,20 @@
 /* Define to 1 if gnulib's dirfd() replacement is used. */
 #undef REPLACE_DIRFD
 
+/* Define to 1 if the gnulib fchdir() replacement would be used. */
+#undef REPLACE_FCHDIR
+
 /* Define to 1 if stat needs help when passed a file name with a trailing
    slash */
 #undef REPLACE_FUNC_STAT_FILE
+
+/* Define to 1 if utime needs help when passed a file name with a trailing
+   slash */
+#undef REPLACE_FUNC_UTIME_FILE
+
+/* Define to 1 if open() should work around the inability to open a directory.
+   */
+#undef REPLACE_OPEN_DIRECTORY
 
 /* Define if gnulib uses its own posix_spawn and posix_spawnp functions. */
 #undef REPLACE_POSIX_SPAWN
@@ -3537,7 +3637,7 @@
 /* Define to 1 if setlocale (category, NULL) is multithread-safe. */
 #undef SETLOCALE_NULL_ONE_MTSAFE
 
-/* Define to 1 if the `setpgrp' function takes no argument. */
+/* Define to 1 if the `setpgrp' function requires zero arguments. */
 #undef SETPGRP_VOID
 
 /* How to set up a slave PTY, if needed. */
@@ -3549,8 +3649,10 @@
 #undef SETVBUF_REVERSED
 
 /* File name of the Bourne shell.  */
-#if defined __CYGWIN__ || defined __ANDROID__
+#if (defined _WIN32 && !defined __CYGWIN__) || defined __CYGWIN__ || defined __ANDROID__
 /* Omit the directory part because
+   - For native Windows programs in a Cygwin environment, the Cygwin mounts
+     are not visible.
    - For 32-bit Cygwin programs in a 64-bit Cygwin environment, the Cygwin
      mounts are not visible.
    - On Android, /bin/sh does not exist. It's /system/bin/sh instead.  */
@@ -3597,9 +3699,9 @@
 /* If using the C implementation of alloca, define if you know the
    direction of stack growth for your system; otherwise it will be
    automatically deduced at runtime.
-        STACK_DIRECTION > 0 => grows toward higher addresses
-        STACK_DIRECTION < 0 => grows toward lower addresses
-        STACK_DIRECTION = 0 => direction of growth unknown */
+	STACK_DIRECTION > 0 => grows toward higher addresses
+	STACK_DIRECTION < 0 => grows toward lower addresses
+	STACK_DIRECTION = 0 => direction of growth unknown */
 #undef STACK_DIRECTION
 
 /* Define if the block counts reported by statfs may be truncated to 2GB and
@@ -3740,19 +3842,44 @@
 #ifndef _DARWIN_C_SOURCE
 # undef _DARWIN_C_SOURCE
 #endif
+/* Enable general extensions on Solaris.  */
+#ifndef __EXTENSIONS__
+# undef __EXTENSIONS__
+#endif
 /* Enable GNU extensions on systems that have them.  */
 #ifndef _GNU_SOURCE
 # undef _GNU_SOURCE
 #endif
-/* Enable NetBSD extensions on NetBSD.  */
+/* Enable X/Open compliant socket functions that do not require linking
+   with -lxnet on HP-UX 11.11.  */
+#ifndef _HPUX_ALT_XOPEN_SOCKET_API
+# undef _HPUX_ALT_XOPEN_SOCKET_API
+#endif
+/* Identify the host operating system as Minix.
+   This macro does not affect the system headers' behavior.
+   A future release of Autoconf may stop defining this macro.  */
+#ifndef _MINIX
+# undef _MINIX
+#endif
+/* Enable general extensions on NetBSD.
+   Enable NetBSD compatibility extensions on Minix.  */
 #ifndef _NETBSD_SOURCE
 # undef _NETBSD_SOURCE
 #endif
-/* Enable OpenBSD extensions on NetBSD.  */
+/* Enable OpenBSD compatibility extensions on NetBSD.
+   Oddly enough, this does nothing on OpenBSD.  */
 #ifndef _OPENBSD_SOURCE
 # undef _OPENBSD_SOURCE
 #endif
-/* Enable threading extensions on Solaris.  */
+/* Define to 1 if needed for POSIX-compatible behavior.  */
+#ifndef _POSIX_SOURCE
+# undef _POSIX_SOURCE
+#endif
+/* Define to 2 if needed for POSIX-compatible behavior.  */
+#ifndef _POSIX_1_SOURCE
+# undef _POSIX_1_SOURCE
+#endif
+/* Enable POSIX-compatible threading on Solaris.  */
 #ifndef _POSIX_PTHREAD_SEMANTICS
 # undef _POSIX_PTHREAD_SEMANTICS
 #endif
@@ -3788,29 +3915,17 @@
 #ifndef _TANDEM_SOURCE
 # undef _TANDEM_SOURCE
 #endif
-/* Enable X/Open extensions if necessary.  HP-UX 11.11 defines
-   mbstate_t only if _XOPEN_SOURCE is defined to 500, regardless of
-   whether compiling with -Ae or -D_HPUX_SOURCE=1.  */
+/* Enable X/Open extensions.  Define to 500 only if necessary
+   to make mbstate_t available.  */
 #ifndef _XOPEN_SOURCE
 # undef _XOPEN_SOURCE
-#endif
-/* Enable X/Open compliant socket functions that do not require linking
-   with -lxnet on HP-UX 11.11.  */
-#ifndef _HPUX_ALT_XOPEN_SOCKET_API
-# undef _HPUX_ALT_XOPEN_SOCKET_API
-#endif
-/* Enable general extensions on Solaris.  */
-#ifndef __EXTENSIONS__
-# undef __EXTENSIONS__
 #endif
 
 
 /* Define to 1 if we should use toolkit scroll bars. */
 #undef USE_TOOLKIT_SCROLL_BARS
 
-/* Define to 1 if you want getc etc. to use unlocked I/O if available.
-   Unlocked I/O can improve performance in unithreaded apps, but it is not
-   safe for multithreaded apps. */
+/* An alias of GNULIB_STDIO_SINGLE_THREAD. */
 #undef USE_UNLOCKED_IO
 
 /* Define to 1 if we should use XIM, if it is available. */
@@ -3895,10 +4010,8 @@
 #endif
 
 
-/* Enable GNU extensions on systems that have them.  */
-#ifndef _GNU_SOURCE
-# undef _GNU_SOURCE
-#endif /* !_GNU_SOURCE */
+/* Define to enable the declarations of ISO C 11 types and functions. */
+#undef _ISOC11_SOURCE
 
 /* Define to 1 to make fseeko visible on some hosts (e.g. glibc 2.2). */
 #undef _LARGEFILE_SOURCE
@@ -3909,14 +4022,8 @@
 /* Define to 1 on Solaris. */
 #undef _LCONV_C99
 
-/* Define to 1 if on MINIX. */
-#undef _MINIX
-
 /* Define if GNUstep uses ObjC exceptions. */
 #undef _NATIVE_OBJC_EXCEPTIONS
-
-/* Define to 1 to make NetBSD features available. MINIX 3 needs this. */
-#undef _NETBSD_SOURCE
 
 /* The _Noreturn keyword of C11.  */
 #ifndef _Noreturn
@@ -3932,13 +4039,14 @@
        this syntax with 'extern'.  */
 #  define _Noreturn [[noreturn]]
 # elif ((!defined __cplusplus || defined __clang__) \
-        && (201112 <= (defined __STDC_VERSION__ ? __STDC_VERSION__ : 0)  \
-            || _GL_GNUC_PREREQ (4, 7) \
-            || (defined __apple_build_version__ \
-                ? 6000000 <= __apple_build_version__ \
-                : 3 < __clang_major__ + (5 <= __clang_minor__))))
+        && (201112 <= (defined __STDC_VERSION__ ? __STDC_VERSION__ : 0) \
+            || (!defined __STRICT_ANSI__ \
+                && (_GL_GNUC_PREREQ (4, 7) \
+                    || (defined __apple_build_version__ \
+                        ? 6000000 <= __apple_build_version__ \
+                        : 3 < __clang_major__ + (5 <= __clang_minor__))))))
    /* _Noreturn works as-is.  */
-# elif _GL_GNUC_PREREQ (2, 8) || 0x5110 <= __SUNPRO_C
+# elif _GL_GNUC_PREREQ (2, 8) || defined __clang__ || 0x5110 <= __SUNPRO_C
 #  define _Noreturn __attribute__ ((__noreturn__))
 # elif 1200 <= (defined _MSC_VER ? _MSC_VER : 0)
 #  define _Noreturn __declspec (noreturn)
@@ -3948,16 +4056,9 @@
 #endif
 
 
-/* Define to 2 if the system does not provide POSIX.1 features except with
-   this defined. */
-#undef _POSIX_1_SOURCE
-
 /* Define to 1 in order to get the POSIX compatible declarations of socket
    functions. */
 #undef _POSIX_PII_SOCKET
-
-/* Define to 1 if you need to in order for 'stat' and other things to work. */
-#undef _POSIX_SOURCE
 
 /* Needed for system_process_attributes on Solaris. */
 #undef _STRUCTURED_PROC
@@ -3980,7 +4081,8 @@
 /* For standard stat data types on VMS. */
 #undef _USE_STD_STAT
 
-/* Define to 1 if type `char' is unsigned and you are not using gcc.  */
+/* Define to 1 if type `char' is unsigned and your compiler does not
+   predefine this macro.  */
 #ifndef __CHAR_UNSIGNED__
 # undef __CHAR_UNSIGNED__
 #endif
@@ -4037,7 +4139,9 @@
 
 
 /* Attributes.  */
-#ifdef __has_attribute
+#if (defined __has_attribute \
+     && (!defined __clang_minor__ \
+         || 3 < __clang_major__ + (5 <= __clang_minor__)))
 # define _GL_HAS_ATTRIBUTE(attr) __has_attribute (__##attr##__)
 #else
 # define _GL_HAS_ATTRIBUTE(attr) _GL_ATTR_##attr
@@ -4047,6 +4151,7 @@
 # define _GL_ATTR_cold _GL_GNUC_PREREQ (4, 3)
 # define _GL_ATTR_const _GL_GNUC_PREREQ (2, 95)
 # define _GL_ATTR_deprecated _GL_GNUC_PREREQ (3, 1)
+# define _GL_ATTR_diagnose_if 0
 # define _GL_ATTR_error _GL_GNUC_PREREQ (4, 3)
 # define _GL_ATTR_externally_visible _GL_GNUC_PREREQ (4, 1)
 # define _GL_ATTR_fallthrough _GL_GNUC_PREREQ (7, 0)
@@ -4119,6 +4224,9 @@
 #if _GL_HAS_ATTRIBUTE (error)
 # define _GL_ATTRIBUTE_ERROR(msg) __attribute__ ((__error__ (msg)))
 # define _GL_ATTRIBUTE_WARNING(msg) __attribute__ ((__warning__ (msg)))
+#elif _GL_HAS_ATTRIBUTE (diagnose_if)
+# define _GL_ATTRIBUTE_ERROR(msg) __attribute__ ((__diagnose_if__ (1, msg, "error")))
+# define _GL_ATTRIBUTE_WARNING(msg) __attribute__ ((__diagnose_if__ (1, msg, "warning")))
 #else
 # define _GL_ATTRIBUTE_ERROR(msg)
 # define _GL_ATTRIBUTE_WARNING(msg)
@@ -4251,6 +4359,9 @@
 
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const
+
+/* Define as 'access' if you don't have the eaccess() function. */
+#undef eaccess
 
 /* Please see the Gnulib manual for how to use these macros.
 
@@ -4386,7 +4497,7 @@
 /* Define to `long int' if <sys/types.h> does not define. */
 #undef off_t
 
-/* Define to `int' if <sys/types.h> does not define. */
+/* Define as a signed integer type capable of holding a process identifier. */
 #undef pid_t
 
 /* Define to rpl_realloc if the replacement function should be used. */
@@ -4394,7 +4505,7 @@
 
 /* Define to the equivalent of the C99 'restrict' keyword, or to
    nothing if this is not supported.  Do not define if restrict is
-   supported directly.  */
+   supported only directly.  */
 #undef restrict
 /* Work around a bug in older versions of Sun C++, which did not
    #define __restrict__ or support _Restrict or __restrict__

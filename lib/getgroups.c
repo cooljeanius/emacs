@@ -1,6 +1,6 @@
 /* provide consistent interface to getgroups for systems that don't allow N==0
 
-   Copyright (C) 1996, 1999, 2003, 2006-2020 Free Software Foundation, Inc.
+   Copyright (C) 1996, 1999, 2003, 2006-2021 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -70,7 +70,6 @@ rpl_getgroups (int n, gid_t *group)
 {
   int n_groups;
   GETGROUPS_T *gbuf;
-  int saved_errno;
 
   if (n < 0)
     {
@@ -99,9 +98,7 @@ rpl_getgroups (int n, gid_t *group)
           while (n--)
             group[n] = gbuf[n];
         }
-      saved_errno = errno;
       free (gbuf);
-      errno = saved_errno;
       return result;
     }
 
@@ -121,10 +118,7 @@ rpl_getgroups (int n, gid_t *group)
       n *= 2;
     }
 
-  saved_errno = errno;
   free (gbuf);
-  errno = saved_errno;
-
   return n_groups;
 }
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 Free Software Foundation, Inc.
+# Copyright (C) 2002-2021 Free Software Foundation, Inc.
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -46,7 +46,6 @@
 #  --avoid=chownat \
 #  --avoid=close \
 #  --avoid=dup \
-#  --avoid=fchdir \
 #  --avoid=fstrcmp \
 #  --avoid=gnumakefile \
 #  --avoid=lock \
@@ -133,6 +132,7 @@
 #  extensions \
 #  extern-inline \
 #  faccessat \
+#  fchdir \
 #  fchmodat \
 #  fchownat \
 #  fclose \
@@ -403,6 +403,7 @@ gl_MODULES([
   extensions
   extern-inline
   faccessat
+  fchdir
   fchmodat
   fchownat
   fclose
@@ -612,7 +613,7 @@ gl_MODULES([
   xalloc-oversized
 ])
 gl_WITH_OBSOLETE
-gl_AVOID([ arpa_inet c-ldtoastr chmodat chownat close dup fchdir fstrcmp gnumakefile lock malloc malloc-posix memchr-obsolete msvc-inval msvc-nothrow opendir raise save-cwd select sigprocmask strdup strdup-posix threadlib tls vasnprintf vasnprintf-posix windows-cond windows-mutex windows-once windows-recmutex windows-thread windows-timedmutex windows-timedrecmutex windows-tls])
+gl_AVOID([ arpa_inet c-ldtoastr chmodat chownat close dup fstrcmp gnumakefile lock malloc malloc-posix memchr-obsolete msvc-inval msvc-nothrow opendir raise save-cwd select sigprocmask strdup strdup-posix threadlib tls vasnprintf vasnprintf-posix windows-cond windows-mutex windows-once windows-recmutex windows-thread windows-timedmutex windows-timedrecmutex windows-tls])
 gl_SOURCE_BASE([lib])
 gl_M4_BASE([m4])
 gl_PO_BASE([])

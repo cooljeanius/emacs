@@ -3,6 +3,7 @@ dnl# This was originally in the emacs configure.ac file.   -*- Autoconf -*-
 
 dnl# checks for functions that might be called elsewhere:
 AC_DEFUN([AC_REQUIRE_VARIOUS_FUNC_CHECKS],[
+  ## on to actual modules:
   m4_ifdef([gl_FUNC_CLOSEDIR],[
     AC_REQUIRE([gl_FUNC_CLOSEDIR])dnl
   ],[
@@ -19,6 +20,10 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_FUNC_CHECKS],[
     AC_REQUIRE([gl_ERROR])dnl
   ],[
     AC_REQUIRE([AC_FUNC_ERROR_AT_LINE])dnl
+  ])dnl
+  m4_ifdef([gl_FUNC_FCHDIR],[
+    AC_REQUIRE([gl_FUNC_FCHDIR])dnl
+    gl_UNISTD_MODULE_INDICATOR([fchdir])dnl
   ])dnl
   dnl# the gnulib check for getgroups will also call the autoconf check
   dnl# for it, but without requiring it, so prefer the gnulib one to try
@@ -89,6 +94,7 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_FUNC_CHECKS],[
     AC_CHECK_FUNCS([mkdir])dnl
   ])dnl
   m4_ifdef([gl_FUNC_MKTIME_INTERNAL],[
+    ## case where we have the internal one:
     AC_REQUIRE([gl_FUNC_MKTIME_INTERNAL])dnl
     ## same as below:
     if test "x${gl_cv_func_working_mktime}" = "xno"; then
@@ -109,6 +115,7 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_FUNC_CHECKS],[
     dnl# the internal mktime gnulib macro would have called this normally,
     dnl# but just in case we have this and not the other:
     m4_ifdef([gl_FUNC_MKTIME],[
+      ## gnulib mktime checks:
       AC_REQUIRE([gl_FUNC_MKTIME])dnl
       ## pretty much the same as below, but with "gl" instead of "ac" at
       ## first, and then only the "ac" version if necessary:
@@ -127,6 +134,7 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_FUNC_CHECKS],[
         fi  ##end check for autoconf mktime cache values
       fi  ##end check for gnulib mktime cache values
     ],[
+      ## fall back to autoconf's default mktime checks:
       AC_REQUIRE([AC_FUNC_MKTIME])dnl
       ## moved here from the main configure.ac file:
       if test "x${ac_cv_func_working_mktime}" = "xno"; then

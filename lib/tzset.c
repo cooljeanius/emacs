@@ -1,6 +1,6 @@
 /* Provide tzset for systems that don't have it or for which it's broken.
 
-   Copyright (C) 2001-2003, 2005-2007, 2009-2020 Free Software Foundation, Inc.
+   Copyright (C) 2001-2003, 2005-2007, 2009-2021 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -25,14 +25,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* This is a wrapper for tzset, for systems on which tzset may clobber
-   the static buffer used for localtime's result.
-   Work around the bug in some systems whereby tzset clobbers the
-   static buffer that localtime uses for its return value.  The
-   tzset function from Solaris 2.5, 2.5.1, and 2.6 has this problem.  */
-
 void
-tzset (void)
+rpl_tzset (void)
 #undef tzset
 {
 #if defined _WIN32 && ! defined __CYGWIN__
@@ -66,9 +60,7 @@ tzset (void)
      <https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/posix-tzset>
      <https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/tzset>  */
   _tzset ();
-#elif HAVE_TZSET
-  tzset ();
 #else
-  /* Do nothing.  Avoid infinite recursion.  */
+  tzset ();
 #endif
 }

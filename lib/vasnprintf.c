@@ -1,5 +1,5 @@
 /* vsprintf with automatic memory allocation.
-   Copyright (C) 1999, 2002-2020 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2002-2021 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -633,7 +633,8 @@ divide (mpn_t a, mpn_t b, mpn_t *q)
         mp_limb_t msd = b_ptr[b_len - 1]; /* = b[n-1], > 0 */
         /* Determine s = GMP_LIMB_BITS - integer_length (msd).
            Code copied from gnulib's integer_length.c.  */
-# if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4)
+# if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4) \
+     || (__clang_major__ >= 4)
         s = __builtin_clz (msd);
 # else
 #  if defined DBL_EXPBIT0_WORD && defined DBL_EXPBIT0_BIT
@@ -1858,6 +1859,7 @@ VASNPRINTF (DCHAR_T *resultbuf, size_t *lengthp,
     /* errno is already set.  */
     return NULL;
 
+  /* Frees the memory allocated by this function.  Preserves errno.  */
 #define CLEANUP() \
   if (d.dir != d.direct_alloc_dir)                                      \
     free (d.dir);                                                       \
@@ -2182,13 +2184,11 @@ VASNPRINTF (DCHAR_T *resultbuf, size_t *lengthp,
 #  endif
                         if (converted == NULL)
                           {
-                            int saved_errno = errno;
                             if (!(result == resultbuf || result == NULL))
                               free (result);
                             if (buf_malloced != NULL)
                               free (buf_malloced);
                             CLEANUP ();
-                            errno = saved_errno;
                             return NULL;
                           }
                         if (converted != result + length)
@@ -2308,13 +2308,11 @@ VASNPRINTF (DCHAR_T *resultbuf, size_t *lengthp,
 #  endif
                         if (converted == NULL)
                           {
-                            int saved_errno = errno;
                             if (!(result == resultbuf || result == NULL))
                               free (result);
                             if (buf_malloced != NULL)
                               free (buf_malloced);
                             CLEANUP ();
-                            errno = saved_errno;
                             return NULL;
                           }
                         if (converted != result + length)
@@ -2434,13 +2432,11 @@ VASNPRINTF (DCHAR_T *resultbuf, size_t *lengthp,
 #  endif
                         if (converted == NULL)
                           {
-                            int saved_errno = errno;
                             if (!(result == resultbuf || result == NULL))
                               free (result);
                             if (buf_malloced != NULL)
                               free (buf_malloced);
                             CLEANUP ();
-                            errno = saved_errno;
                             return NULL;
                           }
                         if (converted != result + length)
@@ -2851,14 +2847,12 @@ VASNPRINTF (DCHAR_T *resultbuf, size_t *lengthp,
                                               NULL, &tmpdst_len);
                   if (tmpdst == NULL)
                     {
-                      int saved_errno = errno;
                       free (tmpsrc);
                       if (!(result == resultbuf || result == NULL))
                         free (result);
                       if (buf_malloced != NULL)
                         free (buf_malloced);
                       CLEANUP ();
-                      errno = saved_errno;
                       return NULL;
                     }
                   free (tmpsrc);
@@ -3078,13 +3072,11 @@ VASNPRINTF (DCHAR_T *resultbuf, size_t *lengthp,
                                               NULL, &tmpdst_len);
                   if (tmpdst == NULL)
                     {
-                      int saved_errno = errno;
                       if (!(result == resultbuf || result == NULL))
                         free (result);
                       if (buf_malloced != NULL)
                         free (buf_malloced);
                       CLEANUP ();
-                      errno = saved_errno;
                       return NULL;
                     }
 # endif
@@ -5116,39 +5108,32 @@ VASNPRINTF (DCHAR_T *resultbuf, size_t *lengthp,
 #endif
                   *fbp = dp->conversion;
 #if USE_SNPRINTF
-# if ! (((__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 3))        \
-         && !defined __UCLIBC__)                                            \
-        || (defined __APPLE__ && defined __MACH__)                          \
-        || defined __ANDROID__                                              \
-        || (defined _WIN32 && ! defined __CYGWIN__))
-                fbp[1] = '%';
-                fbp[2] = 'n';
-                fbp[3] = '\0';
-# else
-                /* On glibc2 systems from glibc >= 2.3 - probably also older
-                   ones - we know that snprintf's return value conforms to
-                   ISO C 99: the tests gl_SNPRINTF_RETVAL_C99 and
-                   gl_SNPRINTF_TRUNCATION_C99 pass.
-                   Therefore we can avoid using %n in this situation.
-                   On glibc2 systems from 2004-10-18 or newer, the use of %n
-                   in format strings in writable memory may crash the program
-                   (if compiled with _FORTIFY_SOURCE=2), so we should avoid it
-                   in this situation.  */
-                /* On Mac OS X 10.3 or newer, we know that snprintf's return
-                   value conforms to ISO C 99: the tests gl_SNPRINTF_RETVAL_C99
-                   and gl_SNPRINTF_TRUNCATION_C99 pass.
-                   Therefore we can avoid using %n in this situation.
-                   On Mac OS X 10.13 or newer, the use of %n in format strings
-                   in writable memory by default crashes the program, so we
-                   should avoid it in this situation.  */
-                /* On Android, we know that snprintf's return value conforms to
-                   ISO C 99: the tests gl_SNPRINTF_RETVAL_C99 and
-                   gl_SNPRINTF_TRUNCATION_C99 pass.
-                   Therefore we can avoid using %n in this situation.
-                   Starting on 2018-03-07, the use of %n in format strings
-                   produces a fatal error (see
-                   <https://android.googlesource.com/platform/bionic/+/41398d03b7e8e0dfb951660ae713e682e9fc0336>),
-                   so we should avoid it.  */
+# if ((HAVE_SNPRINTF_RETVAL_C99 && HAVE_SNPRINTF_TRUNCATION_C99)            \
+      || ((__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 3))       \
+          && !defined __UCLIBC__)                                           \
+      || (defined __APPLE__ && defined __MACH__)                            \
+      || defined __ANDROID__                                                \
+      || (defined _WIN32 && ! defined __CYGWIN__))
+                /* On systems where we know that snprintf's return value
+                   conforms to ISO C 99 (HAVE_SNPRINTF_RETVAL_C99) and that
+                   snprintf always produces NUL-terminated strings
+                   (HAVE_SNPRINTF_TRUNCATION_C99), it is possible to avoid
+                   using %n.  And it is desirable to do so, because more and
+                   more platforms no longer support %n, for "security reasons".
+                   In particular, the following platforms:
+                     - On glibc2 systems from 2004-10-18 or newer, the use of
+                       %n in format strings in writable memory may crash the
+                       program (if compiled with _FORTIFY_SOURCE=2).
+                     - On Mac OS X 10.13 or newer, the use of %n in format
+                       strings in writable memory by default crashes the
+                       program.
+                     - On Android, starting on 2018-03-07, the use of %n in
+                       format strings produces a fatal error (see
+                       <https://android.googlesource.com/platform/bionic/+/41398d03b7e8e0dfb951660ae713e682e9fc0336>).
+                   On these platforms, HAVE_SNPRINTF_RETVAL_C99 and
+                   HAVE_SNPRINTF_TRUNCATION_C99 are 1. We have listed them
+                   explicitly in the condition above, in case of cross-
+                   compilation (just to be sure).  */
                 /* On native Windows systems (such as mingw), we can avoid using
                    %n because:
                      - Although the gl_SNPRINTF_TRUNCATION_C99 test fails,
@@ -5165,6 +5150,10 @@ VASNPRINTF (DCHAR_T *resultbuf, size_t *lengthp,
                      <https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/set-printf-count-output>
                    So we should avoid %n in this situation.  */
                 fbp[1] = '\0';
+# else           /* AIX <= 5.1, HP-UX, IRIX, OSF/1, Solaris <= 9, BeOS */
+                fbp[1] = '%';
+                fbp[2] = 'n';
+                fbp[3] = '\0';
 # endif
 #else
                 fbp[1] = '\0';
@@ -5451,15 +5440,14 @@ VASNPRINTF (DCHAR_T *resultbuf, size_t *lengthp,
                     /* Attempt to handle failure.  */
                     if (count < 0)
                       {
-                        /* SNPRINTF or sprintf failed.  Save and use the errno
-                           that it has set, if any.  */
-                        int saved_errno = errno;
-                        if (saved_errno == 0)
+                        /* SNPRINTF or sprintf failed.  Use the errno that it
+                           has set, if any.  */
+                        if (errno == 0)
                           {
                             if (dp->conversion == 'c' || dp->conversion == 's')
-                              saved_errno = EILSEQ;
+                              errno = EILSEQ;
                             else
-                              saved_errno = EINVAL;
+                              errno = EINVAL;
                           }
 
                         if (!(result == resultbuf || result == NULL))
@@ -5468,7 +5456,6 @@ VASNPRINTF (DCHAR_T *resultbuf, size_t *lengthp,
                           free (buf_malloced);
                         CLEANUP ();
 
-                        errno = saved_errno;
                         return NULL;
                       }
 
@@ -5604,13 +5591,11 @@ VASNPRINTF (DCHAR_T *resultbuf, size_t *lengthp,
                                                     NULL, &tmpdst_len);
                         if (tmpdst == NULL)
                           {
-                            int saved_errno = errno;
                             if (!(result == resultbuf || result == NULL))
                               free (result);
                             if (buf_malloced != NULL)
                               free (buf_malloced);
                             CLEANUP ();
-                            errno = saved_errno;
                             return NULL;
                           }
                         ENSURE_ALLOCATION (xsum (length, tmpdst_len));

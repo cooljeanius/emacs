@@ -1,5 +1,5 @@
 /* A GNU-like <dirent.h>.
-   Copyright (C) 2006-2020 Free Software Foundation, Inc.
+   Copyright (C) 2006-2021 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@ typedef struct gl_directory DIR;
 /* The __attribute__ feature is available in gcc versions 2.5 and later.
    The attribute __pure__ was added in gcc 2.96.  */
 #ifndef _GL_ATTRIBUTE_PURE
-# if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 96)
+# if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 96) || defined __clang__
 #  define _GL_ATTRIBUTE_PURE __attribute__ ((__pure__))
 # else
 #  define _GL_ATTRIBUTE_PURE /* empty */
@@ -154,7 +154,8 @@ _GL_WARN_ON_USE (closedir, "closedir is not portable - "
 /* Return the file descriptor associated with the given directory stream,
    or -1 if none exists.  */
 # if @REPLACE_DIRFD@
-#  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+/* On kLIBC, dirfd() is a macro that does not work.  Undefine it.  */
+#  if !(defined __cplusplus && defined GNULIB_NAMESPACE) || defined dirfd
 #   undef dirfd
 #   define dirfd rpl_dirfd
 #  endif

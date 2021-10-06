@@ -1,6 +1,6 @@
 /* Duplicate an open file descriptor to a specified file descriptor.
 
-   Copyright (C) 1999, 2004-2007, 2009-2020 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2004-2007, 2009-2021 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -52,7 +52,7 @@ dup2_nothrow (int fd, int desired_fd)
 
   TRY_MSVC_INVAL
     {
-      result = dup2 (fd, desired_fd);
+      result = _dup2 (fd, desired_fd);
     }
   CATCH_MSVC_INVAL
     {
@@ -64,7 +64,7 @@ dup2_nothrow (int fd, int desired_fd)
   return result;
 }
 # else
-#  define dup2_nothrow dup2
+#  define dup2_nothrow _dup2
 # endif
 
 static int

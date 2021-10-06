@@ -1,6 +1,6 @@
 /* Obtain a series of random bytes.
 
-   Copyright 2020 Free Software Foundation, Inc.
+   Copyright 2020-2021 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -178,7 +178,11 @@ getrandom (void *buffer, size_t length, unsigned int flags)
                     + (flags & GRND_NONBLOCK ? O_NONBLOCK : 0));
       fd = open (randdevice[devrandom], oflags);
       if (fd < 0)
-        return fd;
+        {
+          if (errno == ENOENT || errno == ENOTDIR)
+            errno = ENOSYS;
+          return -1;
+        }
       randfd[devrandom] = fd;
     }
 

@@ -1,5 +1,5 @@
-# serial 32
-dnl Copyright (C) 2002-2003, 2005-2007, 2009-2020 Free Software Foundation,
+# serial 36
+dnl Copyright (C) 2002-2003, 2005-2007, 2009-2021 Free Software Foundation,
 dnl Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -31,7 +31,6 @@ AC_DEFUN([gl_FUNC_MKTIME_WORKS],
   dnl in Autoconf and because it invokes AC_LIBOBJ.
   AC_CHECK_HEADERS_ONCE([unistd.h])
   AC_CHECK_DECLS_ONCE([alarm])
-  AC_CHECK_FUNCS_ONCE([tzset])
   AC_REQUIRE([gl_MULTIARCH])
   AC_CACHE_CHECK([for working mktime], [gl_cv_func_working_mktime],
     [if test $APPLE_UNIVERSAL_BUILD = 1; then
@@ -55,12 +54,11 @@ AC_DEFUN([gl_FUNC_MKTIME_WORKS],
 # include <signal.h>
 #endif
 
+]GL_MDA_DEFINES[
+
 #ifndef TIME_T_IS_SIGNED
 # define TIME_T_IS_SIGNED 0
 #endif
-
-/* Work around redefinition to rpl_putenv by other config tests.  */
-#undef putenv
 
 static time_t time_t_max;
 static time_t time_t_min;
@@ -257,7 +255,7 @@ main ()
 dnl Main macro of module 'mktime'.
 AC_DEFUN([gl_FUNC_MKTIME],
 [
-  AC_REQUIRE([gl_HEADER_TIME_H_DEFAULTS])
+  AC_REQUIRE([gl_TIME_H_DEFAULTS])
   AC_REQUIRE([AC_CANONICAL_HOST])
   AC_REQUIRE([gl_FUNC_MKTIME_WORKS])
 

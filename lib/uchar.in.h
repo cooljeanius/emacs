@@ -1,5 +1,5 @@
 /* <uchar.h> substitute - 16-bit and 32-bit wide character types.
-   Copyright (C) 2019-2020 Free Software Foundation, Inc.
+   Copyright (C) 2019-2021 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -40,28 +40,28 @@
 /* The definitions of _GL_FUNCDECL_RPL etc. are copied here.  */
 
 
-#if !@HAVE_UCHAR_H@
+#if !(@HAVE_UCHAR_H@ || (defined __cplusplus && @CXX_HAS_UCHAR_TYPES@))
 
 /* A 16-bit variant of wchar_t.
    Note: This type does *NOT* denote UTF-16 units.  (Only on platforms
    on which __STDC_UTF_16__ is defined.)  */
 typedef uint_least16_t char16_t;
 
-#elif @GNULIB_OVERRIDES_CHAR16_T@
+#elif @GNULIBHEADERS_OVERRIDE_CHAR16_T@
 
 typedef uint_least16_t gl_char16_t;
 # define char16_t gl_char16_t
 
 #endif
 
-#if !@HAVE_UCHAR_H@
+#if !(@HAVE_UCHAR_H@ || (defined __cplusplus && @CXX_HAS_UCHAR_TYPES@))
 
 /* A 32-bit variant of wchar_t.
    Note: This type does *NOT* denote UTF-32 code points.  (Only on platforms
    on which __STDC_UTF_32__ is defined.)  */
 typedef uint_least32_t char32_t;
 
-#elif @GNULIB_OVERRIDES_CHAR32_T@
+#elif @GNULIBHEADERS_OVERRIDE_CHAR32_T@
 
 typedef uint_least32_t gl_char32_t;
 # define char32_t gl_char32_t

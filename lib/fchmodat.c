@@ -1,5 +1,5 @@
 /* Change the protections of file relative to an open directory.
-   Copyright (C) 2006, 2009-2020 Free Software Foundation, Inc.
+   Copyright (C) 2006, 2009-2021 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@ orig_fchmodat (int dir, char const *file, mode_t mode, int flags)
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #ifdef __osf__
@@ -63,6 +64,22 @@ orig_fchmodat (int dir, char const *file, mode_t mode, int flags)
 int
 fchmodat (int dir, char const *file, mode_t mode, int flags)
 {
+# if HAVE_NEARLY_WORKING_FCHMODAT
+  /* Correct the trailing slash handling.  */
+  size_t len = strlen (file);
+  if (len && file[len - 1] == '/')
+    {
+      struct stat st;
+      if (fstatat (dir, file, &st, flags & AT_SYMLINK_NOFOLLOW) < 0)
+        return -1;
+      if (!S_ISDIR (st.st_mode))
+        {
+          errno = ENOTDIR;
+          return -1;
+        }
+    }
+# endif
+
 # if NEED_FCHMODAT_NONSYMLINK_FIX
   if (flags == AT_SYMLINK_NOFOLLOW)
     {

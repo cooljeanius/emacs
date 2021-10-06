@@ -1,5 +1,5 @@
 /* Convert multibyte character to wide character.
-   Copyright (C) 1999-2002, 2005-2020 Free Software Foundation, Inc.
+   Copyright (C) 1999-2002, 2005-2021 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -96,7 +96,7 @@
 
                     if ((c2 ^ 0x80) < 0x40
                         && (c >= 0xf1 || c2 >= 0x90)
-                        && (c < 0xf4 || (c == 0xf4 && c2 < 0x90)))
+                        && (c < 0xf4 || (/* c == 0xf4 && */ c2 < 0x90)))
                       {
                         if (m == 2)
                           goto incomplete;

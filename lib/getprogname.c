@@ -1,5 +1,5 @@
 /* Program name management.
-   Copyright (C) 2016-2020 Free Software Foundation, Inc.
+   Copyright (C) 2016-2021 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -43,12 +43,18 @@
 # include <string.h>
 #endif
 
-#ifdef __sgi
+#if defined __sgi || defined __osf__
 # include <string.h>
 # include <unistd.h>
 # include <stdio.h>
 # include <fcntl.h>
 # include <sys/procfs.h>
+#endif
+
+#if defined __SCO_VERSION__ || defined __sysv5__
+# include <fcntl.h>
+# include <stdlib.h>
+# include <string.h>
 #endif
 
 #include "basename-lgpl.h"
@@ -218,11 +224,15 @@ getprogname (void)
       free (buf.ps_pathptr);
     }
   return p;
-# elif defined __sgi                                        /* IRIX */
+# elif defined __sgi || defined __osf__                     /* IRIX or Tru64 */
   char filename[50];
   int fd;
 
-  sprintf (filename, "/proc/pinfo/%d", (int) getpid ());
+  # if defined __sgi
+    sprintf (filename, "/proc/pinfo/%d", (int) getpid ());
+  # else
+    sprintf (filename, "/proc/%d", (int) getpid ());
+  # endif
   fd = open (filename, O_RDONLY | O_CLOEXEC);
   if (0 <= fd)
     {
@@ -245,6 +255,38 @@ getprogname (void)
         }
     }
   return NULL;
+# elif defined __SCO_VERSION__ || defined __sysv5__                /* SCO OpenServer6/UnixWare */
+  char buf[80];
+  int fd;
+  sprintf (buf, "/proc/%d/cmdline", getpid());
+  fd = open (buf, O_RDONLY);
+  if (0 <= fd)
+    {
+      size_t n = read (fd, buf, 79);
+      if (n > 0)
+        {
+          buf[n] = '\0'; /* Guarantee null-termination */
+          char *progname;
+          progname = strrchr (buf, '/');
+          if (progname)
+            {
+              progname = progname + 1; /* Skip the '/' */
+            }
+          else
+            {
+              progname = buf;
+            }
+          char *ret;
+          ret = malloc (strlen (progname) + 1);
+          if (ret)
+            {
+              strcpy (ret, progname);
+              return ret;
+            }
+        }
+      close (fd);
+    }
+  return "?";
 # else
 #  error "getprogname module not ported to this OS"
 # endif
