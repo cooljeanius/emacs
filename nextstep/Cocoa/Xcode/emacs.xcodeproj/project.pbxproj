@@ -136,7 +136,6 @@
 		A540EA321A0C27C00008DA29 /* count-trailing-zeros.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "count-trailing-zeros.c"; sourceTree = "<group>"; };
 		A540EA331A0C27C00008DA29 /* count-trailing-zeros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "count-trailing-zeros.h"; sourceTree = "<group>"; };
 		A540EA341A0C27C00008DA29 /* dirent.in.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dirent.in.h; sourceTree = "<group>"; };
-		A540EA351A0C27C00008DA29 /* dosname.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dosname.h; sourceTree = "<group>"; };
 		A540EA361A0C27C00008DA29 /* dtoastr.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dtoastr.c; sourceTree = "<group>"; };
 		A540EA371A0C27C00008DA29 /* dtotimespec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dtotimespec.c; sourceTree = "<group>"; };
 		A540EA381A0C27C00008DA29 /* dup2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dup2.c; sourceTree = "<group>"; };
@@ -187,7 +186,6 @@
 		A540EA6A1A0C27C00008DA29 /* memcmp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = memcmp.c; sourceTree = "<group>"; };
 		A540EA6B1A0C27C00008DA29 /* memrchr.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = memrchr.c; sourceTree = "<group>"; };
 		A540EA6C1A0C27C00008DA29 /* min-max.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "min-max.h"; sourceTree = "<group>"; };
-		A540EA6D1A0C27C00008DA29 /* mkostemp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mkostemp.c; sourceTree = "<group>"; };
 		A540EA6E1A0C27C00008DA29 /* mktime-internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "mktime-internal.h"; sourceTree = "<group>"; };
 		A540EA6F1A0C27C00008DA29 /* mktime.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; path = mktime.c; sourceTree = "<group>"; tabWidth = 8; };
 		A540EA721A0C27C00008DA29 /* obstack.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = obstack.c; sourceTree = "<group>"; };
@@ -1146,7 +1144,6 @@
 				A540EA331A0C27C00008DA29 /* count-trailing-zeros.h */,
 				A540EA341A0C27C00008DA29 /* dirent.in.h */,
 				A53B887F1AED6B3C0067328B /* dirfd.c */,
-				A540EA351A0C27C00008DA29 /* dosname.h */,
 				A540EA361A0C27C00008DA29 /* dtoastr.c */,
 				A540EA371A0C27C00008DA29 /* dtotimespec.c */,
 				A540EA381A0C27C00008DA29 /* dup2.c */,
@@ -1204,7 +1201,6 @@
 				A540EA6A1A0C27C00008DA29 /* memcmp.c */,
 				A540EA6B1A0C27C00008DA29 /* memrchr.c */,
 				A540EA6C1A0C27C00008DA29 /* min-max.h */,
-				A540EA6D1A0C27C00008DA29 /* mkostemp.c */,
 				A540EA6E1A0C27C00008DA29 /* mktime-internal.h */,
 				A540EA6F1A0C27C00008DA29 /* mktime.c */,
 				A540EA721A0C27C00008DA29 /* obstack.c */,

@@ -1807,18 +1807,19 @@ void
 verror (const char *m, va_list ap)
 {
   char buf[4000];
-  ptrdiff_t size = sizeof buf;
-  ptrdiff_t size_max = STRING_BYTES_BOUND + 1;
+  ptrdiff_t size = sizeof(buf);
+  ptrdiff_t size_max = (STRING_BYTES_BOUND + 1);
   char *buffer = buf;
   ptrdiff_t used;
   Lisp_Object string;
 
-  used = evxprintf (&buffer, &size, buf, size_max, m, ap);
-  string = make_string (buffer, used);
+  memset(buf, 0, size);
+  used = evxprintf(&buffer, &size, buf, size_max, m, ap);
+  string = make_string(buffer, used);
   if (buffer != buf)
-    xfree (buffer);
+    xfree(buffer);
 
-  xsignal1 (Qerror, string);
+  xsignal1(Qerror, string);
 }
 
 

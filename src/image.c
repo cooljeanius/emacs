@@ -6373,7 +6373,7 @@ static bool
 png_load_body(struct frame *f, struct image *img, struct png_load_context *c)
 {
   Lisp_Object file, specified_file;
-  Lisp_Object specified_data;
+  volatile Lisp_Object specified_data;
   int x, y;
   ptrdiff_t i;
   XImagePtr ximg, mask_img = NULL;
@@ -7178,7 +7178,7 @@ jpeg_load_body(struct frame *f, struct image *img,
                struct my_jpeg_error_mgr *mgr)
 {
   Lisp_Object file, specified_file;
-  Lisp_Object specified_data;
+  volatile Lisp_Object specified_data;
   /* the 'volatile' has to go AFTER the 'FILE *' part to work: */
   FILE *volatile fp = NULL;
   JSAMPARRAY buffer;

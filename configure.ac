@@ -3209,6 +3209,7 @@ else
   nw="${nw} -Wopenmp-simd"                               # invalid for ObjC
   nw="${nw} -Wcomments" # redundant synonym for the un-pluralized -Wcomment
   nw="${nw} -Wmudflap"                                # no longer supported
+  nw="${nw} -fanalyzer"                                       # really slow
 
   # Emacs does NOT care about shadowing; see
   # <http://lists.gnu.org/archive/html/emacs-diffs/2011-11/msg00265.html>.
