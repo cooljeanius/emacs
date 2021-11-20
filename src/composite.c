@@ -1013,7 +1013,7 @@ composition_compute_stop_pos (struct composition_it *cmp_it, ptrdiff_t charpos, 
 	  val = CHAR_TABLE_REF (Vcomposition_function_table, c);
 	  if (! NILP (val))
 	    {
-	      Lisp_Object elt;
+	      Lisp_Object elt = Qnil;
 	      int ridx;
 
 	      for (ridx = 0; CONSP (val); val = XCDR (val), ridx++)

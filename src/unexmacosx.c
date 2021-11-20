@@ -693,6 +693,10 @@ static void unexec_regions_merge(void)
   void *zeropage = calloc((size_t)1UL, pagesize);
   vm_size_t padsize;
 
+  if ((zeropage == NULL) && (errno == ENOMEM)) {
+    unexec_error("unexec_regions_merge: out of memory for zeropage");
+  }
+
   qsort(unexec_regions, (size_t)num_unexec_regions,
         sizeof(unexec_regions[0]), &unexec_regions_sort_compare);
   n = 0;
@@ -728,7 +732,8 @@ static void unexec_regions_merge(void)
       /* Truncate zerod pages: */
       while (r.filesize > 0) {
         vm_address_t p = (r.range.address + r.filesize - pagesize);
-        if (memcmp((const void *)p, zeropage, pagesize) == 0) {
+        if ((zeropage != NULL)
+            && (memcmp((const void *)p, zeropage, pagesize) == 0)) {
           r.filesize -= pagesize;
         } else {
           break;
@@ -766,12 +771,14 @@ static void unexec_regions_merge(void)
   /* Truncate zerod pages: */
   while (r.filesize > 0) {
     vm_address_t p = (r.range.address + r.filesize - pagesize);
-    if (memcmp((const void *)p, zeropage, pagesize) == 0) {
+    if ((zeropage != NULL)
+        && memcmp((const void *)p, zeropage, pagesize) == 0) {
       r.filesize -= pagesize;
     } else {
       break;
     }
   }
+  /* FIXME: I worry about this call to free() here: */
   free(zeropage);
   if (r.filesize != r.range.size) {
     printf("Region %d: removed %lx zerod bytes from filesize\n", i,
@@ -2247,7 +2254,7 @@ unexec(const char *outfile, const char *infile)
   emacs_close(outfd);
 }
 
-
+/* */
 void unexec_init_emacs_zone(void)
 {
   emacs_zone = malloc_create_zone((vm_size_t)0, 0);
@@ -2367,6 +2374,7 @@ void *unexec_realloc(void *old_ptr, size_t new_size)
     }
 }
 
+/* */
 void unexec_free(void *ptr)
 {
   if (ptr == NULL)

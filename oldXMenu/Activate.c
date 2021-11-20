@@ -403,11 +403,11 @@ XMenuActivate(
 		if (event_xmp->active) event_xmp->activated = True;
 #if 1
 		/*
-		 * i suspect the we don't get an EXPOSE event when backing
+		 * I suspect that we don't get an EXPOSE event when backing
 		 * store is enabled; the menu windows content is probably
 		 * not drawn in when it should be in that case.
-		 * in that case, this is probably an ugly fix!
-		 * i hope someone more familiar with this code would
+		 * In that case, this is probably an ugly fix!
+		 * I hope someone more familiar with this code would
 		 * take it from here.  -- <caveh@eng.sun.com>.
 		 */
 		XSetWindowBackground(display,
@@ -567,6 +567,7 @@ XMenuActivate(
 		    (XMPane *)(void *)XLookUpAssoc(display, menu->assoc_tab,
 						   event.xbutton.window);
 		if (event_xmp != NULL) continue;
+        /* FIXME: this fallthrough comment isn't always recognized: */
 		/*FALLTHRU*/
 	    default:
 		/*
