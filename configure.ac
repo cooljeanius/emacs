@@ -3806,6 +3806,7 @@ else
       gl_WARN_ADD([-Warray-compare])
       gl_WARN_ADD([-Wformat-same-precision])
       gl_WARN_ADD([-Wformat-int-precision])
+      gl_WARN_ADD([-Wunreachable-code-ctrl])
       if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
         AC_LANG_PUSH([C++])dnl
         gl_WARN_ADD([-Wdeprecated-array-compare],[WARN_CXXFLAGS])
