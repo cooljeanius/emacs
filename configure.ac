@@ -8701,6 +8701,7 @@ AC_CACHE_CHECK([whether signals can be handled on alternate stack],
 	       [emacs_cv_alternate_stack],
   [AC_COMPILE_IFELSE(
      [AC_LANG_PROGRAM([[#include <signal.h>
+#include <stdlib.h>
 		      ]],
 		      [[stack_t ss;
 			struct sigaction sa;
@@ -8878,7 +8879,8 @@ dnl# now do a more specific conftest:
 AC_MSG_CHECKING([whether localtime caches TZ])
 AC_CACHE_VAL([emacs_cv_localtime_cache],
 [if test "x${ac_cv_func_tzset}" = "xyes"; then
-AC_RUN_IFELSE([AC_LANG_SOURCE([[#include <time.h>
+AC_RUN_IFELSE([AC_LANG_SOURCE([[#include <stdlib.h>
+#include <time.h>
 char TZ_GMT0[] = "TZ=GMT0";
 char TZ_PST8[] = "TZ=PST8";
 int main(void)
