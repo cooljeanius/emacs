@@ -30,6 +30,7 @@ TAGS
 *~
 .#*
 *.o
+*.o.tmp
 *.exe
 *.res
 /README.W32
