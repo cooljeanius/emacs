@@ -1,0 +1,25 @@
+name: cooljeanius/emacs
+on:
+  push:
+    branches:
+    - "**/*"
+  pull_request:
+concurrency:
+#   # This item has no matching transformer
+#   maximum_number_of_builds: 0
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v3.5.0
+#     # 'Transformers::TravisCI::Scripts::Dependencies' dependencies are currently unsupported
+#     # 'compiler' was not transformed because there is no suitable equivalent in GitHub Actions
+    - run: sudo apt-get update -qq
+    - run: DEBIAN_FRONTEND=noninteractive sudo apt-get install --no-install-recommends -y -qq -o=Dpkg::Use-Pty=0 libc-dev gcc make autoconf automake libncurses-dev gobjc gobjc++ gobjc-multilib gobjc++-multilib autopoint
+    - run: sh ./autogen.sh && ./configure --without-makeinfo --without-gif --without-gnutls --enable-silent-rules --disable-autodepend --without-imagemagick --enable-gcc-warnings --with-x-toolkit=no --disable-openmp && make only_bootstrap-emacs
+    strategy:
+      matrix:
+        compiler:
+        - clang
+        - gcc
