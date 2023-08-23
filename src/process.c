@@ -4813,7 +4813,7 @@ wait_reading_process_output (intmax_t time_limit, int nsecs, int read_kbd,
 		  if (do_display)
 		    redisplay_preserve_echo_area (12);
 		}
-#ifdef EWOULDBLOCK
+#if defined(EWOULDBLOCK) && (EWOULDBLOCK != EAGAIN)
 	      else if (nread == -1 && errno == EWOULDBLOCK)
 		;
 #endif
