@@ -811,7 +811,7 @@ host_triplet = @host@
 subdir = lib
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/00gnulib.m4 \
-	$(top_srcdir)/m4/__inline.m4 \
+	$(top_srcdir)/m4/_Generic.m4 $(top_srcdir)/m4/__inline.m4 \
 	$(top_srcdir)/m4/absolute-header.m4 $(top_srcdir)/m4/access.m4 \
 	$(top_srcdir)/m4/acl.m4 $(top_srcdir)/m4/af_alg.m4 \
 	$(top_srcdir)/m4/aligned_alloc.m4 $(top_srcdir)/m4/alloca.m4 \

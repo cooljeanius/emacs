@@ -3807,9 +3807,13 @@ else
       gl_WARN_ADD([-Wformat-same-precision])
       gl_WARN_ADD([-Wformat-int-precision])
       gl_WARN_ADD([-Wunreachable-code-ctrl])
+      gl_WARN_ADD([-Wxor-used-as-pow])
+      gl_WARN_ADD([-Wenum-int-mismatch])
       if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
         AC_LANG_PUSH([C++])dnl
         gl_WARN_ADD([-Wdeprecated-array-compare],[WARN_CXXFLAGS])
+        gl_WARN_ADD([-Wself-move],[WARN_CXXFLAGS])
+        gl_WARN_ADD([-Wdangling-reference],[WARN_CXXFLAGS])
         AC_LANG_POP
       else
         AC_MSG_NOTICE([-Wdeprecated-array-compare only relevant for C++, skipping])

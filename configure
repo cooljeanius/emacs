@@ -22128,6 +22128,88 @@ then :
 fi
 
 
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wxor-used-as-pow" >&5
+printf %s "checking whether C compiler handles -Wxor-used-as-pow... " >&6; }
+if test ${gl_cv_warn_c__Wxor_used_as_pow+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wxor-used-as-pow"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_warn_c__Wxor_used_as_pow=yes
+else $as_nop
+  gl_cv_warn_c__Wxor_used_as_pow=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wxor_used_as_pow" >&5
+printf "%s\n" "$gl_cv_warn_c__Wxor_used_as_pow" >&6; }
+if test "x$gl_cv_warn_c__Wxor_used_as_pow" = xyes
+then :
+  as_fn_append WARN_CFLAGS " -Wxor-used-as-pow"
+fi
+
+
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wenum-int-mismatch" >&5
+printf %s "checking whether C compiler handles -Wenum-int-mismatch... " >&6; }
+if test ${gl_cv_warn_c__Wenum_int_mismatch+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wenum-int-mismatch"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_warn_c__Wenum_int_mismatch=yes
+else $as_nop
+  gl_cv_warn_c__Wenum_int_mismatch=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wenum_int_mismatch" >&5
+printf "%s\n" "$gl_cv_warn_c__Wenum_int_mismatch" >&6; }
+if test "x$gl_cv_warn_c__Wenum_int_mismatch" = xyes
+then :
+  as_fn_append WARN_CFLAGS " -Wenum-int-mismatch"
+fi
+
+
       if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
         ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
@@ -22172,6 +22254,88 @@ printf "%s\n" "$gl_cv_warn_cxx__Wdeprecated_array_compare" >&6; }
 if test "x$gl_cv_warn_cxx__Wdeprecated_array_compare" = xyes
 then :
   as_fn_append WARN_CXXFLAGS " -Wdeprecated-array-compare"
+fi
+
+
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C++ compiler handles -Wself-move" >&5
+printf %s "checking whether C++ compiler handles -Wself-move... " >&6; }
+if test ${gl_cv_warn_cxx__Wself_move+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+  gl_save_compiler_FLAGS="$CXXFLAGS"
+  as_fn_append CXXFLAGS " $gl_unknown_warnings_are_errors -Wself-move"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"
+then :
+  gl_cv_warn_cxx__Wself_move=yes
+else $as_nop
+  gl_cv_warn_cxx__Wself_move=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+  CXXFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_cxx__Wself_move" >&5
+printf "%s\n" "$gl_cv_warn_cxx__Wself_move" >&6; }
+if test "x$gl_cv_warn_cxx__Wself_move" = xyes
+then :
+  as_fn_append WARN_CXXFLAGS " -Wself-move"
+fi
+
+
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C++ compiler handles -Wdangling-reference" >&5
+printf %s "checking whether C++ compiler handles -Wdangling-reference... " >&6; }
+if test ${gl_cv_warn_cxx__Wdangling_reference+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+  gl_save_compiler_FLAGS="$CXXFLAGS"
+  as_fn_append CXXFLAGS " $gl_unknown_warnings_are_errors -Wdangling-reference"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"
+then :
+  gl_cv_warn_cxx__Wdangling_reference=yes
+else $as_nop
+  gl_cv_warn_cxx__Wdangling_reference=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+  CXXFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_cxx__Wdangling_reference" >&5
+printf "%s\n" "$gl_cv_warn_cxx__Wdangling_reference" >&6; }
+if test "x$gl_cv_warn_cxx__Wdangling_reference" = xyes
+then :
+  as_fn_append WARN_CXXFLAGS " -Wdangling-reference"
 fi
 
 
