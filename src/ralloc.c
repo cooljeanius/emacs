@@ -408,6 +408,9 @@ get_bloc (size_t size)
 
   /* Record in the heap that this space is in use.  */
   heap = find_heap (new_bloc->data);
+  if (heap == NIL_HEAP) {
+    return NIL_BLOC;
+  }
   heap->free = break_value;
 
   /* Maintain the correspondence between heaps and blocs.  */
