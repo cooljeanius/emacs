@@ -61,3 +61,4 @@ tmpwrk*/gettext-*.*.*/*
 .sc-start-sc_*
 
 # (most of the subdirectories have their own gitignore files in this fork)
+.env.local
