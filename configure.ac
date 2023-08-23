@@ -7144,7 +7144,8 @@ AC_SUBST([LIBXMU])dnl
 
 dnl# FIXME: the logic here seems weird, but this is what cpp was doing.
 dnl# Why not just test for libxmu in the normal way?
-LIBXMU='-lXmu'
+dnl# ...or why not just test for it EVEN WEIRDERLY?!
+if test -e "${prefix}/lib/libXmu.a"; then LIBXMU='-lXmu'; else LIBXMU=""; fi
 case ${opsys} in
   ## These systems do NOT supply Xmu.
   hpux* | aix4-2 )
