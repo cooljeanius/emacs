@@ -67,8 +67,6 @@
 		A5361DB71A2126E80058110B /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		A5361DB91A2127C70058110B /* dummy_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dummy_Prefix.pch; sourceTree = "<group>"; };
 		A5361DC61A212BD30058110B /* main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = main.h; sourceTree = "<group>"; };
-		A5361DEC1A212CDA0058110B /* English */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = English; path = Credits.rtf; sourceTree = "<group>"; };
-		A5361DF01A212CDA0058110B /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = MainMenu.xib; sourceTree = "<group>"; };
 		A5361FB61A216D550058110B /* chkmalloc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = chkmalloc.h; sourceTree = "<group>"; };
 		A53B887E1AED6B190067328B /* acl-internal.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "acl-internal.c"; sourceTree = "<group>"; };
 		A53B887F1AED6B3C0067328B /* dirfd.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dirfd.c; sourceTree = "<group>"; };
@@ -929,6 +927,8 @@
 		A5B3C7E91A2C32D900D553ED /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		A5B3C8A71A2C333700D553ED /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
 		A5B3C8C41A2C335D00D553ED /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		A5C5E2962A962CDC0021DEA7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = ../Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		A5C5E2972A962CE40021DEA7 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = ../en.lproj/Credits.rtf; sourceTree = "<group>"; };
 		A5F43ABE203960C10075D5A0 /* localcharset.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = localcharset.c; sourceTree = "<group>"; };
 		A5F43ABF203960C10075D5A0 /* localcharset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = localcharset.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -2229,16 +2229,18 @@
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastUpgradeCheck = 1320;
 			};
 			buildConfigurationList = 1DEB919308733D9F0010E9CD /* Build configuration list for PBXProject "emacs" */;
 			compatibilityVersion = "Xcode 3.1";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 1;
 			knownRegions = (
-				English,
-				Japanese,
-				French,
-				German,
+				ja,
+				Base,
+				de,
+				en,
+				fr,
 			);
 			mainGroup = 08FB7794FE84155DC02AAC07 /* emacs */;
 			productRefGroup = A540E9E81A0C262F0008DA29 /* Products */;
@@ -2345,7 +2347,7 @@
 		A5361DEB1A212CDA0058110B /* Credits.rtf */ = {
 			isa = PBXVariantGroup;
 			children = (
-				A5361DEC1A212CDA0058110B /* English */,
+				A5C5E2972A962CE40021DEA7 /* en */,
 			);
 			name = Credits.rtf;
 			sourceTree = "<group>";
@@ -2353,7 +2355,7 @@
 		A5361DEF1A212CDA0058110B /* MainMenu.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				A5361DF01A212CDA0058110B /* English */,
+				A5C5E2962A962CDC0021DEA7 /* Base */,
 			);
 			name = MainMenu.xib;
 			sourceTree = "<group>";
@@ -2364,10 +2366,10 @@
 		1DEB919008733D9F0010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUGGING_SYMBOLS = YES;
 				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				OTHER_CFLAGS = "";
@@ -2379,8 +2381,8 @@
 		1DEB919108733D9F0010E9CD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
 				COPY_PHASE_STRIP = YES;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = emacs;
@@ -2390,14 +2392,34 @@
 		1DEB919408733D9F0010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 21.2;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DEBUGGING_SYMBOLS = full;
 				GCC_ENABLE_EXCEPTIONS = YES;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"XASSERTS=1",
@@ -2437,10 +2459,9 @@
 					"-warn_compact_unwind",
 					"-warn_stabs",
 				);
-				PREBINDING = NO;
 				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
 				RUN_CLANG_STATIC_ANALYZER = YES;
-				SDKROOT = macosx10.6;
+				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
 				STRIP_STYLE = "non-global";
 				TOP_SRCROOT = "$(SRCROOT)/../../..";
@@ -2463,10 +2484,29 @@
 		1DEB919508733D9F0010E9CD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CURRENT_PROJECT_VERSION = 21.2;
 				DEAD_CODE_STRIPPING = YES;
 				DEPLOYMENT_POSTPROCESSING = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_AUTO_VECTORIZATION = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_SSE3_EXTENSIONS = YES;
@@ -2474,6 +2514,7 @@
 				GCC_ENABLE_SSE42_EXTENSIONS = YES;
 				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					NDEBUG,
 					_REENTRANT,
@@ -2486,9 +2527,8 @@
 				LD_GENERATE_MAP_FILE = YES;
 				OTHER_CFLAGS = "-fstrict-overflow";
 				OTHER_LDFLAGS = "-no_pie";
-				PREBINDING = NO;
 				RUN_CLANG_STATIC_ANALYZER = YES;
-				SDKROOT = macosx10.6;
+				SDKROOT = macosx;
 				SEPARATE_STRIP = YES;
 				TOP_SRCROOT = "$(SRCROOT)/../../..";
 				VALIDATE_PRODUCT = YES;
@@ -2509,7 +2549,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				"ARCHS[sdk=macosx10.3.9]" = ppc;
 				"ARCHS[sdk=macosx10.4]" = (
 					ppc,
@@ -2522,9 +2561,10 @@
 					x86_64,
 				);
 				"ARCHS[sdk=macosx10.6]" = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2548,7 +2588,6 @@
 					"-fblocks",
 					"-fgnu89-inline",
 				);
-				PREBINDING = NO;
 				PRODUCT_NAME = test_mach_o_binary;
 				"SDKROOT[arch=ppc64]" = macosx10.5;
 				"SDKROOT[arch=ppc]" = macosx10.4;
@@ -2571,7 +2610,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				"ARCHS[sdk=macosx10.3.9]" = ppc;
 				"ARCHS[sdk=macosx10.4]" = (
 					ppc,
@@ -2584,9 +2622,10 @@
 					x86_64,
 				);
 				"ARCHS[sdk=macosx10.6]" = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					NDEBUG,
@@ -2600,7 +2639,6 @@
 					"$(TOP_SRCROOT)/lib",
 				);
 				INSTALL_PATH = /usr/local/bin;
-				PREBINDING = NO;
 				PRODUCT_NAME = test_mach_o_binary;
 				"SDKROOT[arch=ppc64]" = macosx10.5;
 				"SDKROOT[arch=ppc]" = macosx10.4;
@@ -2612,10 +2650,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
 				ENABLE_OPENMP_SUPPORT = YES;
 				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -2628,7 +2667,7 @@
 				GCC_WARN_ABOUT_GLOBAL_CONSTRUCTORS = YES;
 				INFOPLIST_FILE = "dummy-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
-				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = (
 					"-no_pie",
 					"-warn_commons",
@@ -2639,7 +2678,7 @@
 					"-framework",
 					AppKit,
 				);
-				PREBINDING = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.gnu.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = dummy;
 				WARNING_CFLAGS = (
 					"-Wno-system-headers",
@@ -2693,16 +2732,17 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_OPENMP_SUPPORT = YES;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = dummy_Prefix.pch;
 				INFOPLIST_FILE = "dummy-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
-				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = (
 					"-no_pie",
 					"-framework",
@@ -2710,7 +2750,7 @@
 					"-framework",
 					AppKit,
 				);
-				PREBINDING = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.gnu.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = dummy;
 				ZERO_LINK = NO;
 			};
@@ -2720,10 +2760,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
 				GCC_CHECK_RETURN_VALUE_OF_OPERATOR_NEW = YES;
 				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2743,7 +2784,6 @@
 					"-ggdb3",
 					"-fno-pie",
 				);
-				PREBINDING = NO;
 				PRODUCT_NAME = isemacsvalid;
 				SDKROOT = "";
 				WARNING_CFLAGS = (
@@ -2762,9 +2802,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					NDEBUG,
@@ -2773,7 +2814,6 @@
 				);
 				HEADER_SEARCH_PATHS = "$(TOP_SRCROOT)/machocheck/src/ld";
 				INSTALL_PATH = /usr/local/bin;
-				PREBINDING = NO;
 				PRODUCT_NAME = isemacsvalid;
 				SDKROOT = "";
 				ZERO_LINK = NO;
@@ -2784,9 +2824,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2812,7 +2853,6 @@
 					"-fblocks",
 					"-fgnu89-inline",
 				);
-				PREBINDING = NO;
 				PRODUCT_NAME = dumpemacs;
 				USER_HEADER_SEARCH_PATHS = .;
 			};
@@ -2822,10 +2862,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_DEBUGGING_SYMBOLS = used;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					NDEBUG,
@@ -2842,7 +2883,6 @@
 				);
 				INSTALL_PATH = /usr/local/bin;
 				MACH_O_TYPE = mh_execute;
-				PREBINDING = NO;
 				PRODUCT_NAME = dumpemacs;
 				USER_HEADER_SEARCH_PATHS = .;
 				ZERO_LINK = NO;
@@ -2853,15 +2893,15 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = emacs;
 				INSTALL_PATH = /usr/local/bin;
 				MACH_O_TYPE = mh_execute;
-				PREBINDING = NO;
 				PRODUCT_NAME = emacswrapper;
 			};
 			name = Debug;
@@ -2870,14 +2910,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = emacs;
 				INSTALL_PATH = /usr/local/bin;
 				MACH_O_TYPE = mh_execute;
-				PREBINDING = NO;
 				PRODUCT_NAME = emacswrapper;
 				ZERO_LINK = NO;
 			};
@@ -2887,23 +2927,19 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = (
-					ppc,
-					ppc64,
-				);
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
 				"GCC_ALTIVEC_EXTENSIONS[arch=ppc64]" = YES;
 				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_FORCE_CPU_SUBTYPE_ALL = YES;
 				"GCC_MODEL_PPC64[arch=ppc64]" = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				INSTALL_PATH = /usr/local/bin;
 				MACH_O_TYPE = mh_execute;
-				PREBINDING = NO;
 				PRODUCT_NAME = "emacs-ppc";
-				SDKROOT = macosx10.5;
+				SDKROOT = macosx;
 				VALID_ARCHS = "ppc ppc64 ppc7400 ppc970";
 			};
 			name = Debug;
@@ -2912,22 +2948,18 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = (
-					ppc,
-					ppc64,
-				);
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				"GCC_ALTIVEC_EXTENSIONS[arch=ppc64]" = YES;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_FORCE_CPU_SUBTYPE_ALL = YES;
 				"GCC_MODEL_PPC64[arch=ppc64]" = YES;
 				GCC_MODEL_TUNING = G5;
 				INSTALL_PATH = /usr/local/bin;
 				MACH_O_TYPE = mh_execute;
-				PREBINDING = NO;
 				PRODUCT_NAME = "emacs-ppc";
-				SDKROOT = macosx10.5;
+				SDKROOT = macosx;
 				VALID_ARCHS = "ppc ppc64 ppc7400 ppc970";
 				ZERO_LINK = NO;
 			};
