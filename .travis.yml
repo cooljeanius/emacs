@@ -31,6 +31,8 @@ install:
 
 script: sh ./autogen.sh && ./configure --without-makeinfo --without-gif --without-gnutls --enable-silent-rules --disable-autodepend --without-imagemagick --enable-gcc-warnings --with-x-toolkit=no --disable-openmp && make only_bootstrap-emacs
 
+after_failure: autoconf --version
+
 compiler:
   - clang
   - gcc
