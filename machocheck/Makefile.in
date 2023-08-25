@@ -11,7 +11,8 @@ MAC_VERS_CFLAGS = -mmacosx-version-min=10.5
 HARDCODED_CFLAGS = $(MAC_VERS_CFLAGS) -mfix-and-continue -gdwarf-2 -ggdb3 -gfull -O0
 MULTIARCH_CFLAGS = -arch x86_64 -arch i386
 CFLAGS = @CFLAGS@
-HARDCODED_BETTER_DEBUG_CFLAGS = -ftrapping-math -fsignaling-nans -fbounds-check -fstack-check -ftrapv -fstack-protector
+HARDCODED_BETTER_DEBUG_CFLAGS = -ftrapping-math -fstack-check -ftrapv -fstack-protector
+HARDCODED_GCC_BETTER_DEBUG_CFLAGS = -fsignaling-nans -fbounds-check
 BETTER_DEBUG_CFLAGS = @BETTER_DEBUG_CFLAGS@
 ARM_DEFS = -DSUPPORT_ARCH_arm_any=1 -DSUPPORT_ARCH_arm64=1
 HARDCODED_DEFS = -D__STRICT_BSD__ -DDEBUG -DLTO_SUPPORT # $(ARM_DEFS)
@@ -43,7 +44,7 @@ src/other/machochecker.o: src/other/machochecker.cpp src/ld/configure.h \
   src/ld/Architectures.hpp src/Abstraction/FileAbstraction.hpp \
   src/Abstraction/MachOFileAbstraction.hpp src/other/machochecker.h \
   Makefile ../Makefile
-	$(CXX) $(HARDCODED_CFLAGS) $(HARDCODED_BETTER_DEBUG_CFLAGS) $(HARDCODED_WARN_CXXFLAGS) $(WARN_CXXFLAGS) $(HARDCODED_DEFS) $(DEFS) $(HARDCODED_CPPFLAGS) -c -o $@ $<
+	$(CXX) $(HARDCODED_CFLAGS) $(HARDCODED_BETTER_DEBUG_CFLAGS) $(HARDCODED_WARN_CXXFLAGS) $(WARN_CXXFLAGS) $(CXXFLAGS) $(HARDCODED_DEFS) $(DEFS) $(HARDCODED_CPPFLAGS) -c -o $@ $<
 
 libmachocheck.a: src/other/machochecker.o
 	$(HARDCODED_AR) $(HARDCODED_ARFLAGS) libmachocheck.a src/other/machochecker.o
