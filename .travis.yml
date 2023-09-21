@@ -21,7 +21,9 @@
 # any particular service that uses that protocol.  Also, it is intended for
 # evaluation purposes, thus possibly temporary.
 
-language: C
+language: c
+os: linux
+dist: xenial
 
 before_install:
   - "sudo apt-get update -qq"
