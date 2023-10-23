@@ -24,7 +24,7 @@ jobs:
       if: "${{ success() }}"
       run: |
         if test -d doc; then \
-          sudo apt-get install texlive; \
+          sudo apt-get install texlive ghostscript texlive-luatex texlive-pstricks; \
           make -C doc; \
         fi
     strategy:
