@@ -14,7 +14,8 @@ jobs:
 #     # 'compiler' was not transformed because there is no suitable equivalent in GitHub Actions
     - run: sudo apt-get update -qq
     - run: DEBIAN_FRONTEND=noninteractive sudo apt-get install --no-install-recommends -y -qq -o=Dpkg::Use-Pty=0 libc-dev gcc make autoconf automake libncurses-dev gobjc gobjc++ gobjc-multilib gobjc++-multilib autopoint
-    - run: |
+    - name: Initial build
+      run: |
         sh ./autogen.sh
         ./configure --without-makeinfo --without-gif --without-gnutls --enable-silent-rules --disable-autodepend --without-imagemagick --enable-gcc-warnings --with-x-toolkit=no --with-xpm=no --disable-openmp
         make only_temacs
@@ -27,7 +28,7 @@ jobs:
           echo "using $(which makeinfo) for makeinfo with the following version info: $(makeinfo --version)"; \
           sudo apt-get install texlive ghostscript texlive-luatex texlive-pstricks chktex dvidvi dvipng latexdiff latexmk dot2tex texlive-latex-extra; \
           make -C doc || (make -C doc/emacs && make -C doc/lispintro && make -C doc/lispref && make -C doc/man); \
-          if [ $? -eq 1 ]; then \
+          if [ $? -ge 1 ]; then \
             echo "giving doc/misc another try"; \
             pushd doc/misc; \
             make echo-info; \
@@ -37,6 +38,8 @@ jobs:
             make ps; \
             make dist; \
             popd; \
+          else \
+            echo "so much for doc/misc..."; \
           fi; \
         fi
     strategy:
