@@ -68,12 +68,14 @@ jobs:
 
     - name: Dependencies
       if: matrix.language == 'c-cpp'
-      run: sudo apt-get -y install autopoint gobjc gtk+2.0 gtk+3.0 libgif-dev libxpm-dev
+      run: sudo apt-get -y install autopoint gobjc gtk+2.0 gtk+3.0 libxpm-dev
 
     # Autobuild attempts to build any compiled languages (C/C++, C#, Go, Java, or Swift).
     # If this step fails, then you should remove it and run the build manually (see below)
     - name: Autobuild
       uses: github/codeql-action/autobuild@v2
+      env:
+        with_gif: no
 
     # Command-line programs to run using the OS shell.
     # See:

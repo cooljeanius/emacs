@@ -4539,7 +4539,11 @@ if test x"${OVERRIDE_CPPFLAGS}" != x""; then
 else
   echo "prepending C_SWITCH_SYSTEM and C_SWITCH_MACHINE to CPPFLAGS"
   CPPFLAGS="${C_SWITCH_SYSTEM} ${C_SWITCH_MACHINE} ${CPPFLAGS}"
-  echo "this means that CPPFLAGS are now: ${CPPFLAGS}"
+  if test "x${CPPFLAGS}" != "x"; then
+    test -n "${CPPFLAGS}" && echo "this means that CPPFLAGS are now: ${CPPFLAGS}"
+  else
+    test -z "${CPPFLAGS}" && echo "(not that that does anything, though...)"
+  fi
 fi
 ]
 dnl# m4-quotation block 8 ends
@@ -5875,7 +5879,11 @@ AC_SUBST([ns_self_contained])dnl
 AC_SUBST([NS_OBJ])dnl
 AC_SUBST([NS_OBJC_OBJ])dnl
 
-test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: ${CPPFLAGS}"
+if test "x${CPPFLAGS}" != "x"; then
+  test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: ${CPPFLAGS}"
+else
+  test -z "${CPPFLAGS}" && echo "(no CPPFLAGS to speak of here...)"
+fi
 
 if test "x${HAVE_NS}" = "xyes"; then
   AC_CACHE_CHECK([if the Objective C compiler supports instancetype],
@@ -9831,8 +9839,16 @@ CPPFLAGS="${REAL_CPPFLAGS}"
 LDFLAGS="${REAL_LDFLAGS}"
 LIBS="${REAL_LIBS}"
 
-echo "CFLAGS have been replaced with REAL_CFLAGS and are now: ${CFLAGS}"
-echo "CPPFLAGS have been replaced with REAL_CPPFLAGS and are now: ${CPPFLAGS}"
+if test "x${CFLAGS}" != "x"; then
+  test -n "${CFLAGS}" && echo "CFLAGS have been replaced with REAL_CFLAGS and are now: ${CFLAGS}"
+else
+  test -z "${CFLAGS}" && echo "uh oh, overriding CFLAGS with REAL_CFLAGS made it empty..."
+fi
+if test "x${CPPFLAGS}" != "x"; then
+  test -n "${CPPFLAGS}" && echo "CPPFLAGS have been replaced with REAL_CPPFLAGS and are now: ${CPPFLAGS}"
+else
+  test -z "${CPPFLAGS}" && echo "uh oh, overriding CPPFLAGS with REAL_CPPFLAGS made it empty..."
+fi
 if test "x${LDFLAGS}" != "x"; then
   test -n "${LDFLAGS}" && echo "LDFLAGS have been replaced with REAL_LDFLAGS and are now: ${LDFLAGS}"
 else
@@ -10189,7 +10205,11 @@ AC_SEARCH_LIBS([libintl_gettext],[intl asprintf gettextlib gettextpo \
 AC_MSG_NOTICE([done with section for gettext checks])dnl
 
 # the main gettext macro can set CPPFLAGS:
-test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: ${CPPFLAGS}"
+if test "x${CPPFLAGS}" != "x"; then
+  test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: ${CPPFLAGS}"
+else
+  test -z "${CPPFLAGS}" && echo "(no CPPFLAGS to speak of here...)"
+fi
 
 # If user asks to omit features, disable optional features that gnulib
 # might otherwise enable.
@@ -10271,7 +10291,11 @@ if test "x${opsys}" = "xmingw32"; then
   CC=`echo ${CC} | sed -e "s,${GCC_TEST_OPTIONS},,"`
 fi
 
-test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: ${CPPFLAGS}"
+if test "x${CPPFLAGS}" != "x"; then
+  test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: ${CPPFLAGS}"
+else
+  test -z "${CPPFLAGS}" && echo "(no CPPFLAGS to speak of here...)"
+fi
 
 case "${opsys}" in
   aix4-2) LD_SWITCH_SYSTEM_TEMACS="-Wl,-bnodelcsect" ;;
