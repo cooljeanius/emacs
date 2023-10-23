@@ -5875,7 +5875,7 @@ AC_SUBST([ns_self_contained])dnl
 AC_SUBST([NS_OBJ])dnl
 AC_SUBST([NS_OBJC_OBJ])dnl
 
-echo "CPPFLAGS are now: ${CPPFLAGS}"
+test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: ${CPPFLAGS}"
 
 if test "x${HAVE_NS}" = "xyes"; then
   AC_CACHE_CHECK([if the Objective C compiler supports instancetype],
@@ -6430,7 +6430,7 @@ else
   AC_MSG_NOTICE([skipping miscellaneous X11 checks])
 fi
 
-echo "CPPFLAGS are now: ${CPPFLAGS}"
+test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: ${CPPFLAGS}"
 
 if test "x${window_system}" = "xx11"; then
   AC_MSG_CHECKING([X11 version 6])
@@ -7468,7 +7468,7 @@ else
     HAVE_M17N_FLT=no
 fi
 
-echo "CPPFLAGS are now: ${CPPFLAGS}"
+test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: ${CPPFLAGS}"
 
 ### End of font-backend (under X11) section.
 dnl# subst the stuff from the previous section:
@@ -10189,7 +10189,7 @@ AC_SEARCH_LIBS([libintl_gettext],[intl asprintf gettextlib gettextpo \
 AC_MSG_NOTICE([done with section for gettext checks])dnl
 
 # the main gettext macro can set CPPFLAGS:
-echo "CPPFLAGS are now: ${CPPFLAGS}"
+test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: ${CPPFLAGS}"
 
 # If user asks to omit features, disable optional features that gnulib
 # might otherwise enable.
@@ -10271,7 +10271,7 @@ if test "x${opsys}" = "xmingw32"; then
   CC=`echo ${CC} | sed -e "s,${GCC_TEST_OPTIONS},,"`
 fi
 
-echo "CPPFLAGS are now: ${CPPFLAGS}"
+test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: ${CPPFLAGS}"
 
 case "${opsys}" in
   aix4-2) LD_SWITCH_SYSTEM_TEMACS="-Wl,-bnodelcsect" ;;

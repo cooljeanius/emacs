@@ -233,7 +233,7 @@
 /* Define if the system is Cygwin. */
 #undef CYGWIN
 
-/* Define to 1 if using `alloca.c'. */
+/* Define to 1 if using 'alloca.c'. */
 #undef C_ALLOCA
 
 /* Define if the system is Darwin. */
