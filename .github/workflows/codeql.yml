@@ -70,11 +70,13 @@ jobs:
       if: matrix.language == 'c-cpp'
       run: sudo apt-get -y install autopoint gobjc gtk+2.0 gtk+3.0 libxpm-dev
 
-    - run: |
+    - name: Build
+      if: matrix.language == 'c-cpp'
+      run: |
         echo "Run, Build Application using script"
         sh ./autogen.sh
         ./configure --without-gif --enable-silent-rules --disable-autodepend --enable-gcc-warnings
-        make
+        make only_temacs
         make all_only_c
 
     - name: Perform CodeQL Analysis
