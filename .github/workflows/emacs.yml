@@ -23,8 +23,9 @@ jobs:
     - name: Build docs
       if: "${{ success() }}"
       run: |
-        if test -d doc; then \
-          sudo apt-get install texlive ghostscript texlive-luatex texlive-pstricks; \
+        if test -d doc && test -x "$(which makeinfo)"; then \
+          echo "using $(which makeinfo) for makeinfo with the following version info: $(makeinfo --version)"; \
+          sudo apt-get install texlive ghostscript texlive-luatex texlive-pstricks chktex dvidvi dvipng latexdiff latexmk dot2tex texlive-latex-extra; \
           make -C doc; \
         fi
     strategy:
