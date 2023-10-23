@@ -783,7 +783,11 @@ tramp_deps = ${srcdir}/tramp.texi ${srcdir}/trampver.texi ${gfdl}
 tramp : $(buildinfodir)/tramp$(INFO_EXT)
 $(buildinfodir)/tramp$(INFO_EXT): $(tramp_deps)
 	$(mkinfodir)
-	$(MAKEINFO) $(MAKEINFO_OPTS) $(INFO_OPTS) -o $@ -D emacs ${srcdir}/tramp.texi
+	if test ! -e $@; then \
+	  $(MAKEINFO) $(MAKEINFO_OPTS) $(INFO_OPTS) -o $@ -D emacs ${srcdir}/tramp.texi; \
+	else \
+	  touch $@; \
+	fi
 tramp.dvi: $(tramp_deps)
 	$(ENVADD) $(TEXI2DVI) ${srcdir}/tramp.texi
 tramp.pdf: $(tramp_deps)
@@ -874,6 +878,19 @@ woman.pdf: $(woman_deps)
 	$(ENVADD) $(TEXI2PDF) ${srcdir}/woman.texi
 woman.html: $(woman_deps)
 	$(MAKEINFO) $(MAKEINFO_OPTS) $(HTML_OPTS) -o $@ ${srcdir}/woman.texi
+
+Makefile: Makefile.in
+	if test -x $(top_srcdir)/config.status; then \
+	  $(top_srcdir)/config.status doc/misc/Makefile; \
+	elif test -x $(top_builddir)/config.status; then \
+	  $(top_builddir)/config.status doc/misc/Makefile; \
+	elif test -e ../Makefile; then \
+	  $(MAKE) -C .. misc/Makefile; \
+	elif test -e ../../Makefile; then \
+	  $(MAKE) -C ../.. doc/misc/Makefile; \
+	else \
+	  echo "$@: should probably never get here"; \
+	fi
 
 .PHONY: mostlyclean clean distclean bootstrap-clean maintainer-clean
 
