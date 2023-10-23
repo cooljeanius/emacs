@@ -32,6 +32,7 @@ TAGS
 *.o
 *.o.tmp
 *.exe
+a.out
 *.res
 /README.W32
 
