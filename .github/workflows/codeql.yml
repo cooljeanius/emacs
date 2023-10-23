@@ -88,6 +88,17 @@ jobs:
           popd; \
         done
         make -C test/automated/flymake/warnpred CHK_SOURCES=test.c
+        if test -x "$(which clang)"; then \
+          echo "attempting to use $(which clang) for static analysis"; \
+          make -C src check; \
+          if [ $? -eq 1 ]; then \
+            pushd src; \
+            for srcfile in *.c; do \
+              make "$(echo "${srcfile}" | sed "s/\.c/.plist/g")" || stat "${srcfile}"; \
+            done; \
+            popd; \
+          fi; \
+        fi
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
