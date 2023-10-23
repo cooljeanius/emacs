@@ -20,8 +20,13 @@ jobs:
         make only_temacs
     - run: make all_only_c
       if: "${{ success() }}"
-    - run: if test -d doc; then make -C doc; fi
+    - name: Build docs
       if: "${{ success() }}"
+      run: |
+        if test -d doc; then \
+          sudo apt-get install texlive; \
+          make -C doc; \
+        fi
     strategy:
       matrix:
         compiler:
