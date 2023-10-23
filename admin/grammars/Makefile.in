@@ -67,42 +67,58 @@ bovine: ${BOVINE}
 wisent: ${WISENT}
 
 ## c-by.el, make-by.el.
-${bovinedir}/c-by.el: ${srcdir}/c.by
+${bovinedir}/c-by.el: $(EMACS) ${srcdir}/c.by
 	[ ! -f "$@" ] || chmod +w "$@"
 	${make_bovine} -o "$@" ${srcdir}/c.by
 
-${bovinedir}/make-by.el: ${srcdir}/make.by
+${bovinedir}/make-by.el: $(EMACS) ${srcdir}/make.by
 	[ ! -f "$@" ] || chmod +w "$@"
 	${make_bovine} -o "$@" ${srcdir}/make.by
 
-${bovinedir}/scm-by.el: ${srcdir}/scheme.by
+${bovinedir}/scm-by.el: $(EMACS) ${srcdir}/scheme.by
 	[ ! -f "$@" ] || chmod +w "$@"
 	${make_bovine} -o "$@" ${srcdir}/scheme.by
 
 ## grammar-wy.el
-${cedetdir}/semantic/grammar-wy.el: ${srcdir}/grammar.wy
+${cedetdir}/semantic/grammar-wy.el: $(EMACS) ${srcdir}/grammar.wy
 	[ ! -f "$@" ] || chmod +w "$@"
 	${make_wisent} -o "$@" ${srcdir}/grammar.wy
 
 ## js-wy.el, python-wy.el
-${wisentdir}/javat-wy.el: ${srcdir}/java-tags.wy
+${wisentdir}/javat-wy.el: $(EMACS) ${srcdir}/java-tags.wy
 	[ ! -f "$@" ] || chmod +w "$@"
 	${make_wisent} -o "$@" ${srcdir}/java-tags.wy
 
-${wisentdir}/js-wy.el: ${srcdir}/js.wy
+${wisentdir}/js-wy.el: $(EMACS) ${srcdir}/js.wy
 	[ ! -f "$@" ] || chmod +w "$@"
 	${make_wisent} -o "$@" ${srcdir}/js.wy
 
-${wisentdir}/python-wy.el: ${srcdir}/python.wy
+${wisentdir}/python-wy.el: $(EMACS) ${srcdir}/python.wy
 	[ ! -f "$@" ] || chmod +w "$@"
 	${make_wisent} -o "$@" ${srcdir}/python.wy
 
-${cedetdir}/srecode/srt-wy.el: ${srcdir}/srecode-template.wy
+${cedetdir}/srecode/srt-wy.el: $(EMACS) ${srcdir}/srecode-template.wy
 	[ ! -f "$@" ] || chmod +w "$@"
 	${make_wisent} -o "$@" ${srcdir}/srecode-template.wy
 
+Makefile: Makefile.in
+	if test -x $(top_srcdir)/config.status; then \
+	  $(top_srcdir)/config.status admin/grammars/Makefile; \
+	elif test -x $(top_builddir)/config.status; then \
+	  $(top_builddir)/config.status admin/grammars/Makefile; \
+	elif test -e ../Makefile; then \
+	  $(MAKE) -C .. grammars/Makefile; \
+	elif test -e ../../Makefile; then \
+	  $(MAKE) -C ../.. admin/grammars/Makefile; \
+	else \
+	  echo "$@: should probably never get here"; \
+	fi
 
-.PHONY: distclean bootstrap-clean maintainer-clean extraclean
+.PHONY: check distclean bootstrap-clean maintainer-clean extraclean
+
+check:
+	for checkfile in $(ALL); do \
+	  if test -e $${checkfile}; then stat $${checkfile}; fi; done
 
 distclean:
 	if test -e Makefile; then rm -f Makefile; fi

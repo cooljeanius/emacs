@@ -85,7 +85,23 @@ unifiles: ${unidir}/charprop.el
 	  [ -f ${unidir}/$${f} ] || { ${MAKE} $< FORCE=FORCE || exit 1; break; };\
 	done
 
-.PHONY: clean bootstrap-clean distclean maintainer-clean extraclean
+Makefile: Makefile.in
+	if test -x $(top_srcdir)/config.status; then \
+	  $(top_srcdir)/config.status admin/unidata/Makefile; \
+	elif test -x $(top_builddir)/config.status; then \
+	  $(top_builddir)/config.status admin/unidata/Makefile; \
+	elif test -e ../Makefile; then \
+	  $(MAKE) -C .. unidata/Makefile; \
+	elif test -e ../../Makefile; then \
+	  $(MAKE) -C ../.. admin/unidata/Makefile; \
+	else \
+	  echo "$@: should probably never get here"; \
+	fi
+
+.PHONY: check clean bootstrap-clean distclean maintainer-clean extraclean
+
+check:
+	ls
 
 install: charprop.el
 	cp -v charprop.el ${DSTDIR}

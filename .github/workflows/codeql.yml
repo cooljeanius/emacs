@@ -78,6 +78,7 @@ jobs:
         ./configure --without-gif --enable-silent-rules --disable-autodepend --enable-gcc-warnings
         make only_temacs
         make all_only_c
+        make -C admin check
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
