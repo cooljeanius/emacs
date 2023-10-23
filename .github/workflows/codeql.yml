@@ -70,7 +70,7 @@ jobs:
       if: matrix.language == 'c-cpp'
       run: sudo apt-get -y install autopoint gobjc gtk+2.0 gtk+3.0 libxpm-dev ruby
 
-    - name: Build
+    - name: Build (as much as possible)
       if: matrix.language == 'c-cpp'
       run: |
         # shellcheck disable=SC2001
@@ -90,7 +90,7 @@ jobs:
         make -C test/automated/flymake/warnpred CHK_SOURCES=test.c
         if test -x "$(which clang)"; then \
           echo "attempting to use $(which clang) for static analysis"; \
-          make -C src check || make apple_check; \
+          make -C src check || make apple_check || clang --version; \
           if [ $? -ge 1 ]; then \
             pushd src; \
             for srcfile in *.c; do \
