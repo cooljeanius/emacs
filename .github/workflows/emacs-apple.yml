@@ -11,11 +11,11 @@ jobs:
     - name: checkout
       uses: actions/checkout@v4.1.1
     - run: brew update
-    - run: brew install gcc make autoconf automake gettext texinfo
+    - run: brew install make automake gettext texinfo
     - name: Initial build
       run: |
         sh ./autogen.sh
-        ./configure --enable-silent-rules --disable-autodepend --enable-gcc-warnings --enable-better-debugging --with-x-toolkit=no --disable-dependency-tracking
+        ./configure --enable-silent-rules --disable-autodepend --enable-gcc-warnings --enable-better-debugging --with-x-toolkit=no --disable-dependency-tracking --with-ns
         make only_temacs
         cd lisp && make update-subdirs
     - run: make all_only_c
