@@ -1008,8 +1008,13 @@ distclean: FRC distclean-local
 	cd mac      && $(MAKE) $(MFLAGS) distclean
 	cd nextstep && $(MAKE) $(MFLAGS) distclean
 	for dir in test/automated admin admin/grammars admin/unidata; do \
-	  [ ! -d $$dir ] || (cd $$dir && $(MAKE) $(MFLAGS) distclean); \
+	  if test -d $${dir} && test -r $${dir}/Makefile; then \
+	    cd $${dir} && $(MAKE) $(MFLAGS) distclean; \
+	  else \
+	    echo "skipping making distclean in $${dir}"; \
+	  fi; \
 	done
+	@echo "top-level distclean: top_distclean is: ${top_distclean}"
 	${top_distclean}
 
 ### `bootstrap-clean'

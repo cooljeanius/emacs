@@ -33,5 +33,7 @@ extraclean: maintainer-clean
 .PHONY: extraclean
 
 distclean-local:
+	@echo "making distclean-local in `pwd`"
 	-rm -rf *.dSYM || rmdir *.dSYM
+	-rm -rf .deps || rmdir .deps
 .PHONY: distclean-local

@@ -4406,7 +4406,7 @@ distclean: distclean-am
 	-rm -f uniwidth/$(DEPDIR)/width.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
-	distclean-tags
+	distclean-local distclean-tags
 
 dvi: dvi-am
 
@@ -4726,17 +4726,17 @@ uninstall-am:
 .PHONY: CTAGS GTAGS TAGS all all-am am--depfiles check check-am clean \
 	clean-generic clean-libtool clean-noinstLIBRARIES \
 	cscopelist-am ctags ctags-am distclean distclean-compile \
-	distclean-generic distclean-libtool distclean-tags distdir dvi \
-	dvi-am html html-am info info-am install install-am \
-	install-data install-data-am install-dvi install-dvi-am \
-	install-exec install-exec-am install-html install-html-am \
-	install-info install-info-am install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic maintainer-clean-local mostlyclean \
-	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
-	mostlyclean-local pdf pdf-am ps ps-am tags tags-am uninstall \
-	uninstall-am
+	distclean-generic distclean-libtool distclean-local \
+	distclean-tags distdir dvi dvi-am html html-am info info-am \
+	install install-am install-data install-data-am install-dvi \
+	install-dvi-am install-exec install-exec-am install-html \
+	install-html-am install-info install-info-am install-man \
+	install-pdf install-pdf-am install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	maintainer-clean maintainer-clean-generic \
+	maintainer-clean-local mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool mostlyclean-local pdf \
+	pdf-am ps ps-am tags tags-am uninstall uninstall-am
 
 .PRECIOUS: Makefile
 
@@ -7167,8 +7167,15 @@ headers: $(BUILT_SOURCES)
 .PHONY: headers
 
 bootstrap-clean: maintainer-clean
-	@echo "no bootstrap-clean specific rules yet."
+	@echo "no bootstrap-clean specific rules (for `pwd`) yet."
 .PHONY: bootstrap-clean
+
+distclean-local:
+	@echo "making distclean-local in `pwd`"
+	-rm -rf .deps || rmdir .deps
+	-rm -rf $(srcdr)/*/.deps || rmdir $(srcdir)/*/.deps
+	-rm -rf $(builddir)/*/.deps || rmdir $(builddir)/*/.deps
+.PHONY: distclean-local
 
 maintainer-clean-local:
 	rm -rf glthread || rmdir glthread

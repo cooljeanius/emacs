@@ -112,3 +112,7 @@ lib-src/rcs2log diff=shell
 
 # Gnulib's git-merge-changelog driver:
 ChangeLog    merge=cl-merge
+
+# Teach linguist about some files:
+etc/TUTORIAL.* linguist-language=text
+etc/tutorials/TUTORIAL* linguist-language=text

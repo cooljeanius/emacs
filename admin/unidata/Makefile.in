@@ -116,6 +116,7 @@ clean:
 bootstrap-clean: clean
 
 distclean: clean
+	@echo "making distclean in `pwd`
 	if test -e Makefile; then rm -f Makefile; fi
 
 maintainer-clean: distclean

@@ -2805,6 +2805,7 @@ extraclean: maintainer-clean
 
 distclean-local:
 	-rm -rf *.dSYM || rmdir *.dSYM
+	-rm -rf .deps || rmdir .deps
 .PHONY: distclean-local
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

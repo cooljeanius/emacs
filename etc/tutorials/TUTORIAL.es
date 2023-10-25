@@ -1226,5 +1226,6 @@ compartiendo software libre!
 --- end of TUTORIAL.es ---
 
 ;;; Local Variables:
+;;;   mode: text;
 ;;;   coding: utf-8
 ;;; End:

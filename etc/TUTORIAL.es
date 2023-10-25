@@ -1210,6 +1210,7 @@ compartiendo software libre!
 --- end of TUTORIAL.es ---
 
 ;;; Local Variables:
+;;;   mode: text;
 ;;;   coding: latin-1
 ;;; End:
 

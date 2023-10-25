@@ -38,8 +38,15 @@ headers: $(BUILT_SOURCES)
 .PHONY: headers
 
 bootstrap-clean: maintainer-clean
-	@echo "no bootstrap-clean specific rules yet."
+	@echo "no bootstrap-clean specific rules (for `pwd`) yet."
 .PHONY: bootstrap-clean
+
+distclean-local:
+	@echo "making distclean-local in `pwd`"
+	-rm -rf .deps || rmdir .deps
+	-rm -rf $(srcdr)/*/.deps || rmdir $(srcdir)/*/.deps
+	-rm -rf $(builddir)/*/.deps || rmdir $(builddir)/*/.deps
+.PHONY: distclean-local
 
 maintainer-clean-local:
 	rm -rf glthread || rmdir glthread
