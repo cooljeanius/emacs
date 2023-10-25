@@ -1,4 +1,4 @@
-name: cooljeanius/emacs
+name: cooljeanius/emacs-apple
 on:
   push:
     branches:
@@ -6,18 +6,16 @@ on:
   pull_request:
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
     - name: checkout
       uses: actions/checkout@v4.1.1
-#     # 'Transformers::TravisCI::Scripts::Dependencies' dependencies are currently unsupported
-#     # 'compiler' was not transformed because there is no suitable equivalent in GitHub Actions
-    - run: sudo apt-get update -qq
-    - run: DEBIAN_FRONTEND=noninteractive sudo apt-get install --no-install-recommends -y -qq -o=Dpkg::Use-Pty=0 libc-dev gcc make autoconf automake libncurses-dev gobjc gobjc++ gobjc-multilib gobjc++-multilib autopoint
+    - run: brew update
+    - run: brew install gcc make autoconf automake gettext texinfo
     - name: Initial build
       run: |
         sh ./autogen.sh
-        ./configure --without-makeinfo --without-gif --without-gnutls --enable-silent-rules --disable-autodepend --without-imagemagick --enable-gcc-warnings --with-x-toolkit=no --with-xpm=no --disable-openmp
+        ./configure --enable-silent-rules --disable-autodepend --enable-gcc-warnings --enable-better-debugging --with-x-toolkit=no --disable-dependency-tracking
         make only_temacs
         cd lisp && make update-subdirs
     - run: make all_only_c
@@ -27,7 +25,7 @@ jobs:
       run: |
         if test -d doc && test -x "$(which makeinfo)"; then \
           echo "using $(which makeinfo) for makeinfo with the following version info: $(makeinfo --version)"; \
-          sudo apt-get install texlive ghostscript texlive-luatex texlive-pstricks chktex dvidvi dvipng latexdiff latexmk dot2tex texlive-latex-extra; \
+          brew install texlive; \
           make -C doc || (make -C doc/emacs && make -C doc/lispintro && make -C doc/lispref && make -C doc/man); \
           if [ $? -ge 1 ]; then \
             echo "giving doc/misc another try"; \
@@ -43,6 +41,12 @@ jobs:
             echo "so much for doc/misc..."; \
           fi; \
         fi
+    - name: Apple stuff
+      if: "${{ success() }}"
+      run: |
+        make install_source
+        make apple_helper_executables
+        make apple_check
     strategy:
       matrix:
         compiler:
