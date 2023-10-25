@@ -1407,7 +1407,9 @@ apple_check: bo.h src/version.h isemacsvalid.plist runit.plist \
 	if test -d src && test ! -e src/version.h; then \
 	  $(MAKE) -C src version.h; \
 	fi
-	if test -x test_mach_o_binary; then ./test_mach_o_binary; fi
+	if test -x test_mach_o_binary; then ./test_mach_o_binary; \
+	elif test -e test_mach_o_binary; then stat test_mach_o_binary; \
+	else echo "test_mach_o_binary is missing"; fi
 	cd machocheck && $(MAKE) $(MFLAGS) check
 .PHONY: apple_check
 

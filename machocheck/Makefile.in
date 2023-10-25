@@ -67,4 +67,4 @@ extraclean: maintainer-clean
 	test ! -e Makefile || test -e Makefile
 
 check: machochecker.plist
-	ls *.plist
+	ls *.plist || ls

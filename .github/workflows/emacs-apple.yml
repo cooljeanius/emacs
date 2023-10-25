@@ -11,10 +11,17 @@ jobs:
     - name: checkout
       uses: actions/checkout@v4.1.1
     - run: brew update
-    - run: brew install make automake gettext texinfo gawk gdb coreutils
+    - run: brew install make automake gettext texinfo gawk gdb coreutils gnu-tar gnu-sed gnu-which
     - name: Initial build
       run: |
+        if test -n "${{ matrix.compiler }}"; then \
+          echo "This is the ${{ matrix.compiler }} build."; \
+          which -a ${{ matrix.compiler }} || gwhich -a ${{ matrix.compiler }}; \
+        else \
+          echo "matrix.compiler unset (possibly wrong variable?)"; \
+        fi
         sh ./autogen.sh
+        env | uniq | sort | uniq
         ./configure --enable-silent-rules --disable-autodepend --enable-gcc-warnings --enable-better-debugging --with-x-toolkit=no --disable-dependency-tracking --with-ns
         make only_temacs
         cd lisp && make update-subdirs
@@ -23,7 +30,7 @@ jobs:
     - name: Build docs
       if: "${{ success() }}"
       run: |
-        if test -d doc && test -x "$(which makeinfo)" && test -x "$(which brew)" && test -x "$(which nproc)"; then \
+        if test -d doc && test -w doc && test -x "$(which makeinfo)" && test -x "$(which brew)" && test -x "$(which nproc)"; then \
           echo "using $(which makeinfo) for makeinfo with the following version info: $(makeinfo --version)"; \
           brew install texlive; \
           echo "nproc says we can use $(nproc) build jobs."; \
