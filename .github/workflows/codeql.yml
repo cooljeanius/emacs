@@ -105,6 +105,9 @@ jobs:
           fi; \
         fi
 
+    - name: Syntax check
+      if: matrix.language == 'python'
+      run: echo "Checking syntax... $(python -m py_compile etc/emacs.py)"
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
       with:

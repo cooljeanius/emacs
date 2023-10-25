@@ -25,10 +25,11 @@
 
 import lldb
 
-
+
 ########################################################################
 #                              Utilities
 ########################################################################
+
 
 # Return the name of enumerator ENUM as a string.
 def enumerator_name(enum):
@@ -37,6 +38,7 @@ def enumerator_name(enum):
         if enum.GetValueAsUnsigned() == enum_member.GetValueAsUnsigned():
             return enum_member.GetName()
     return None
+
 
 # A class wrapping an SBValue for a Lisp_Object, providing convenience
 # functions.
@@ -73,7 +75,7 @@ class Lisp_Object:
         "PVEC_SUB_CHAR_TABLE": "void",
         "PVEC_RECORD": "struct Lisp_Vector",
         "PVEC_FONT": "struct font",
-        "PVEC_NORMAL_VECTOR": "struct Lisp_Vector"
+        "PVEC_NORMAL_VECTOR": "struct Lisp_Vector",
     }
 
     # Object construction/initialization.
@@ -100,9 +102,11 @@ class Lisp_Object:
     # the pvec_type enumerator if the object is a vector-like, as a
     # string.
     def init_lisp_types(self):
-        t = self.eval(f"(enum Lisp_Type)"
-                      f"((EMACS_INT) {self.unsigned} "
-                      f"& (1 << GCTYPEBITS) - 1)")
+        t = self.eval(
+            f"(enum Lisp_Type)"
+            f"((EMACS_INT) {self.unsigned} "
+            f"& (1 << GCTYPEBITS) - 1)"
+        )
         self.lisp_type = enumerator_name(t)
         if self.lisp_type == "Lisp_Vectorlike":
             self.pvec_type = "PVEC_NORMAL_VECTOR"
@@ -114,16 +118,17 @@ class Lisp_Object:
                 typ = self.eval(
                     f"(enum pvec_type) (({size} "
                     f"& More_Lisp_Bits::PVEC_TYPE_MASK) "
-                    f">> More_Lisp_Bits::PSEUDOVECTOR_AREA_BITS)")
+                    f">> More_Lisp_Bits::PSEUDOVECTOR_AREA_BITS)"
+                )
                 self.pvec_type = enumerator_name(typ)
 
     # Initialize self.untagged according to lisp_type and pvec_type.
     def init_values(self):
         if self.lisp_type == "Lisp_Symbol":
             offset = self.get_lisp_pointer("char").GetValueAsUnsigned()
-            self.untagged = self.eval(f"(struct Lisp_Symbol *)"
-                                   f" ((char *) &lispsym + {offset})",
-                                   True)
+            self.untagged = self.eval(
+                f"(struct Lisp_Symbol *)" f" ((char *) &lispsym + {offset})", True
+            )
         elif self.lisp_type == "Lisp_String":
             self.untagged = self.get_lisp_pointer("struct Lisp_String", True)
         elif self.lisp_type == "Lisp_Vectorlike":
@@ -134,8 +139,9 @@ class Lisp_Object:
         elif self.lisp_type == "Lisp_Float":
             self.untagged = self.get_lisp_pointer("struct Lisp_Float", True)
         elif self.lisp_type in ("Lisp_Int0", "Lisp_Int1"):
-            self.untagged = self.eval(f"((EMACS_INT) {self.unsigned}) "
-                                      f">> (GCTYPEBITS - 1)", True)
+            self.untagged = self.eval(
+                f"((EMACS_INT) {self.unsigned}) " f">> (GCTYPEBITS - 1)", True
+            )
         elif self.lisp_type == "Lisp_Type_Unused0":
             self.untagged = self.unsigned
         else:
@@ -153,9 +159,9 @@ class Lisp_Object:
     # Return an SBValue for this object denoting a pointer of type
     # TYP*.
     def get_lisp_pointer(self, typ, make_var=False):
-        return self.eval(f"({typ}*) (((EMACS_INT) "
-                         f"{self.unsigned}) & VALMASK)",
-                         make_var)
+        return self.eval(
+            f"({typ}*) (((EMACS_INT) " f"{self.unsigned}) & VALMASK)", make_var
+        )
 
     # If this is a Lisp_String, return an SBValue for its string data.
     # Return None otherwise.
@@ -176,16 +182,18 @@ class Lisp_Object:
     def summary(self):
         return str(self.untagged)
 
-
+
 ########################################################################
 #                           LLDB Commands
 ########################################################################
+
 
 def xbacktrace(debugger, command, ctx, result, internal_dict):
     """Print Emacs Lisp backtrace"""
     frame = ctx.GetFrame()
     n = frame.EvaluateExpression(
-        "current_thread->m_specpdl_ptr - current_thread->m_specpdl")
+        "current_thread->m_specpdl_ptr - current_thread->m_specpdl"
+    )
     for i in reversed(range(0, n.GetValueAsUnsigned())):
         s = frame.EvaluateExpression(f"current_thread->m_specpdl[{i}]")
         kind = enumerator_name(s.GetChildMemberWithName("kind"))
@@ -199,22 +207,26 @@ def xbacktrace(debugger, command, ctx, result, internal_dict):
             else:
                 result.AppendMessage(function.lisp_type)
 
+
 def xdebug_print(debugger, command, result, internal_dict):
     """Print Lisp_Objects using safe_debug_print()"""
     debugger.HandleCommand(f"expr safe_debug_print({command})")
 
-
+
 ########################################################################
 #                             Formatters
 ########################################################################
 
+
 def type_summary_Lisp_Object(obj, internal_dict):
     return Lisp_Object(obj).summary()
+
 
 class Lisp_Object_Provider:
     """Synthetic children provider for Lisp_Objects.
     Supposedly only used by 'frame variable', where -P <n> can be used
-    to specify a printing depth. """
+    to specify a printing depth."""
+
     def __init__(self, valobj, internal_dict):
         self.valobj = valobj
         self.children = {}
@@ -255,26 +267,32 @@ class Lisp_Object_Provider:
         key = list(self.children)[index]
         return self.children[key]
 
-
+
 ########################################################################
 #                           Initialization
 ########################################################################
 
+
 # Define Python FUNCTION as an LLDB command.
-def define_command (debugger, function):
+def define_command(debugger, function):
     lldb_command = function.__name__
     python_function = __name__ + "." + function.__name__
     interpreter = debugger.GetCommandInterpreter()
+
     def define(overwrite):
         res = lldb.SBCommandReturnObject()
-        interpreter.HandleCommand(f"command script add "
-                                  f"{overwrite} "
-                                  f"--function {python_function} "
-                                  f"{lldb_command}",
-                                  res)
+        interpreter.HandleCommand(
+            f"command script add "
+            f"{overwrite} "
+            f"--function {python_function} "
+            f"{lldb_command}",
+            res,
+        )
         return res.Succeeded()
+
     if not define("--overwrite"):
         define("")
+
 
 # Define Python FUNCTION as an LLDB type summary provider for types
 # matching REGEX.  Type summaries defined here are defined in the
@@ -282,11 +300,13 @@ def define_command (debugger, function):
 # and deleted in a similar way.
 def define_type_summary(debugger, regex, function):
     python_function = __name__ + "." + function.__name__
-    debugger.HandleCommand(f"type summary add --expand "
-                           f"--cascade true "
-                           f"--category Emacs "
-                           f"--python-function {python_function} "
-                           + regex)
+    debugger.HandleCommand(
+        f"type summary add --expand "
+        f"--cascade true "
+        f"--category Emacs "
+        f"--python-function {python_function} " + regex
+    )
+
 
 # Define Python class CLS as a children provider for the types
 # matching REFEXP.  Providers are defined in the category Emacs, and
@@ -294,14 +314,17 @@ def define_type_summary(debugger, regex, function):
 # similar way.
 def define_type_synthetic(debugger, regex, cls):
     python_class = __name__ + "." + cls.__name__
-    debugger.HandleCommand(f"type synthetic add "
-                           f"--category Emacs "
-                           f"--python-class {python_class} "
-                           + regex)
+    debugger.HandleCommand(
+        f"type synthetic add "
+        f"--category Emacs "
+        f"--python-class {python_class} " + regex
+    )
+
 
 # Enable a given category of type summary providers.
 def enable_type_category(debugger, category):
     debugger.HandleCommand(f"type category enable {category}")
+
 
 # This function is called by LLDB to initialize the module.
 def __lldb_init_module(debugger, internal_dict):
@@ -310,6 +333,7 @@ def __lldb_init_module(debugger, internal_dict):
     define_type_summary(debugger, "Lisp_Object", type_summary_Lisp_Object)
     define_type_synthetic(debugger, "Lisp_Object", Lisp_Object_Provider)
     enable_type_category(debugger, "Emacs")
-    print('Emacs debugging support has been installed.')
+    print("Emacs debugging support has been installed.")
+
 
 # end.

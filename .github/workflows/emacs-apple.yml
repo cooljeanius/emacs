@@ -11,7 +11,7 @@ jobs:
     - name: checkout
       uses: actions/checkout@v4.1.1
     - run: brew update
-    - run: brew install make automake gettext texinfo gawk gdb coreutils gnu-sed gnu-which llvm clang-build-analyzer clang-format
+    - run: brew install make automake gettext texinfo gawk gdb coreutils gnu-sed gnu-which clang-build-analyzer clang-format
       env:
         HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
         HOMEBREW_VERBOSE_USING_DOTS: 1

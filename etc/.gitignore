@@ -6,3 +6,5 @@ images/icons/*
 *.log
 refcards/emacsver.tex
 refcards/*.pdf
+*.pyc
+__pycache__/*

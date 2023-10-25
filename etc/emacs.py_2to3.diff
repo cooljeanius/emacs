@@ -1,0 +1,96 @@
+--- emacs.py	(original)
++++ emacs.py	(refactored)
+@@ -22,6 +22,7 @@
+ # Boston, MA 02110-1301, USA.
+ 
+ import os, sys, traceback, inspect, rlcompleter, __main__
++import importlib
+ 
+ __all__ = ["eexecfile", "args", "complete", "ehelp", "eimport"]
+ 
+@@ -29,13 +30,13 @@
+     """Execute FILE and then remove it.
+     If we get an exception, print a traceback with the top frame
+     (oursleves) excluded."""
+-    try: execfile (file, globals (), globals ())
++    try: exec(compile(open(file, "rb").read(), file, 'exec'), globals (), globals ())
+     except:
+         (type, value, tb) = sys.exc_info ()
+         # Lose the stack frame for this location.
+         tb = tb.tb_next
+         if tb is None:	# print_exception fails to do it
+-            print "Traceback (most recent call last):"
++            print("Traceback (most recent call last):")
+         traceback.print_exception (type, value, tb)
+     finally:
+         os.remove (file)
+@@ -45,24 +46,24 @@
+     try:
+         parts = name.split ('.')
+         if len (parts) > 1:
+-            exec 'import ' + parts[0] # might fail
++            exec('import ' + parts[0]) # might fail
+         func = eval (name)
+         if inspect.isbuiltin (func):
+ 	    doc = func.__doc__
+ 	    if doc.find (' ->') != -1:
+-	        print '_emacs_out', doc.split (' ->')[0]
++	        print('_emacs_out', doc.split (' ->')[0])
+ 	    elif doc.find ('\n') != -1:
+-	        print '_emacs_out', doc.split ('\n')[0]
++	        print('_emacs_out', doc.split ('\n')[0])
+ 	    return
+         if inspect.ismethod (func):
+-	    func = func.im_func
++	    func = func.__func__
+         if not inspect.isfunction (func):
+             return
+         (args, varargs, varkw, defaults) = inspect.getargspec (func)
+         # No space between name and arglist for consistency with builtins.
+-        print '_emacs_out', \
++        print('_emacs_out', \
+ 	    func.__name__ + inspect.formatargspec (args, varargs, varkw,
+-						   defaults)
++						   defaults))
+     except: pass
+ 
+ def complete (text, namespace = None):
+@@ -75,12 +76,12 @@
+             matches = c.attr_matches (text)
+ 	else:
+             matches = c.global_matches (text)
+-            print '_emacs_out (',
++            print('_emacs_out (', end=' ')
+             for elt in matches:
+-                print '"%s"' % elt,
+-            print ')'
++                print('"%s"' % elt, end=' ')
++            print(')')
+     except:
+-        print '_emacs_out ()'
++        print('_emacs_out ()')
+ 
+ def ehelp (name, g, l):
+     """Get help on string NAME using globals G and locals L.
+@@ -96,17 +97,17 @@
+     sys.path[0] = dir
+     try:
+ 	try:
+-	    if globals().has_key(mod) and inspect.ismodule (eval (mod)):
+-		reload(eval (mod))
++	    if mod in globals() and inspect.ismodule (eval (mod)):
++		importlib.reload(eval (mod))
+ 	    else:
+ 		globals ()[mod] = __import__ (mod)
+ 	except:
+ 	    (type, value, tb) = sys.exc_info ()
+-	    print "Traceback (most recent call last):"
++	    print("Traceback (most recent call last):")
+ 	    traceback.print_exception (type, value, tb.tb_next)
+     finally:
+ 	sys.path[0] = path0
+ 
+-print '_emacs_ok'		# ready for input and can call continuation
++print('_emacs_ok')		# ready for input and can call continuation
+ 
+ # arch-tag: d90408f3-90e2-4de4-99c2-6eb9c7b9ca46
