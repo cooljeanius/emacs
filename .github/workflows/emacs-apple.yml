@@ -11,7 +11,10 @@ jobs:
     - name: checkout
       uses: actions/checkout@v4.1.1
     - run: brew update
-    - run: brew install make automake gettext texinfo gawk gdb coreutils gnu-tar gnu-sed gnu-which
+    - run: brew install make automake gettext texinfo gawk gdb coreutils gnu-sed gnu-which llvm clang-build-analyzer clang-format
+      env:
+        HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
+        HOMEBREW_VERBOSE_USING_DOTS: 1
     - name: Initial build
       run: |
         if test -n "${{ matrix.compiler }}"; then \
@@ -22,15 +25,29 @@ jobs:
         fi
         sh ./autogen.sh
         env | uniq | sort | uniq
-        ./configure --enable-silent-rules --disable-autodepend --enable-gcc-warnings --enable-better-debugging --with-x-toolkit=no --disable-dependency-tracking --with-ns
-        make only_temacs
+        if test "${{ matrix.compiler }}" = "gcc"; then \
+          ./configure --enable-silent-rules --disable-autodepend --enable-gcc-warnings --enable-better-debugging --with-x-toolkit=no --disable-dependency-tracking --with-ns --enable-gcc-link-time-optimization CC=gcc CXX=g++ OBJC=gcc OBJCXX=g++; \
+        elif test "${{ matrix.compiler }}" = "clang"; then \
+          ./configure --enable-silent-rules --disable-autodepend --enable-gcc-warnings --enable-better-debugging --with-x-toolkit=no --disable-dependency-tracking --with-ns --enable-clang-link-time-optimization CC=clang CXX=clang++ OBJC=clang OBJCXX=clang++; \
+        else \
+          ./configure --enable-silent-rules --disable-autodepend --enable-gcc-warnings --enable-better-debugging --with-x-toolkit=no --disable-dependency-tracking --with-ns; \
+        fi
+        if test -x "$(which gmake)" && test -x "$(which nproc)" && test -n "$(nproc)"; then \
+          echo "attempting parallel build with $(nproc) jobs..."; \
+          gmake -j"$(nproc)" --output-sync only_temacs; \
+        else \
+          make only_temacs; \
+        fi
         cd lisp && make update-subdirs
     - run: make all_only_c
       if: "${{ success() }}"
     - name: Build docs
       if: "${{ success() }}"
+      env:
+        HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
+        HOMEBREW_VERBOSE_USING_DOTS: 1
       run: |
-        if test -d doc && test -w doc && test -x "$(which makeinfo)" && test -x "$(which brew)" && test -x "$(which nproc)"; then \
+        if test -d doc && test -w doc && test -x "$(which makeinfo)" && test -x "$(which brew)" && test -x "$(which nproc)" && test -n "$(nproc)"; then \
           echo "using $(which makeinfo) for makeinfo with the following version info: $(makeinfo --version)"; \
           brew install texlive; \
           echo "nproc says we can use $(nproc) build jobs."; \
@@ -57,7 +74,11 @@ jobs:
         make install_source
         make dumpemacs
         make emacswrapper
-        make -ki apple_check
+        if test "${{ matrix.compiler }}" = "clang"; then \
+          make -ki apple_check MAC_VERS_CFLAGS="-mmacosx-version-min=10.5 -stdlib=libc++"; \
+        else \
+          make -ki apple_check; \
+        fi
     strategy:
       fail-fast: false
       matrix:
