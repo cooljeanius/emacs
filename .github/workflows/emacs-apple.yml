@@ -23,10 +23,11 @@ jobs:
     - name: Build docs
       if: "${{ success() }}"
       run: |
-        if test -d doc && test -x "$(which makeinfo)" && test -x "$(which nproc)"; then \
+        if test -d doc && test -x "$(which makeinfo)" && test -x "$(which brew)" && test -x "$(which nproc)"; then \
           echo "using $(which makeinfo) for makeinfo with the following version info: $(makeinfo --version)"; \
           brew install texlive; \
-          make -j"$(nproc)" -C doc || (make -C doc/emacs && make -C doc/lispintro && make -C doc/lispref && make -C doc/man); \
+          echo "nproc says we can use $(nproc) build jobs."; \
+          make -j"$(nproc)" -C doc || make -C doc || (make -C doc/emacs && make -C doc/lispintro && make -C doc/lispref && make -C doc/man); \
           if [ $? -ge 1 ]; then \
             echo "giving doc/misc another try"; \
             pushd doc/misc; \
@@ -47,8 +48,9 @@ jobs:
       if: "${{ success() }}"
       run: |
         make install_source
-        make -ki apple_helper_executables
-        make apple_check
+        make dumpemacs
+        make emacswrapper
+        make -ki apple_check
     strategy:
       fail-fast: false
       matrix:
