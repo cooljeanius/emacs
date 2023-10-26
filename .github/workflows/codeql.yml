@@ -83,7 +83,7 @@ jobs:
         make only_temacs
         make all_only_c
         make -C admin check || make -C admin alloc-colors.o || ruby -c ./*.rb
-        for subdir in lib lib-src lwlib msdos oldXMenu src; do \
+        for subdir in lib lib/bitset lib/malloc lib/uniwidth lib-src lwlib mac/src msdos oldXMenu src test/cedet/tests; do \
           pushd "${subdir}"; \
           for srcfile in *.c; do \
             make "$(echo "${srcfile}" | sed "s/\.c/.o/g")" || stat "${srcfile}"; \
@@ -107,7 +107,11 @@ jobs:
 
     - name: Syntax check
       if: matrix.language == 'python'
-      run: echo "Checking syntax... $(python -m py_compile etc/emacs.py)"
+      run: |
+        echo "Checking syntax... $(python -m py_compile etc/emacs.py)"
+        if test -e GNUmakefile; then \
+          make syntax-check || ls .sc-start-sc_* || stat GNUmakefile; \
+        fi
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
       with:

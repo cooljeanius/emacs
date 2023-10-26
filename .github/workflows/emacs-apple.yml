@@ -68,7 +68,7 @@ jobs:
             echo "so much for doc/misc..."; \
           fi; \
         else \
-          echo "skipping building docs..."; \
+          echo "skipping building docs (due to 1 of many possible reasons)..."; \
         fi
     - name: Apple stuff
       if: "${{ success() }}"
