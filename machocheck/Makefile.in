@@ -50,7 +50,7 @@ libmachocheck.a: src/other/machochecker.o
 	$(HARDCODED_AR) $(HARDCODED_ARFLAGS) libmachocheck.a src/other/machochecker.o
 	$(HARDCODED_RANLIB) libmachocheck.a
 
-machochecker.plist: src/other/machochecker.cpp
+machochecker.plist: src/other/machochecker.cpp src/ld/configure.h
 	$(HARDCODED_CLANG_ANALYZER) $(MAC_VERS_CFLAGS) $(HARDCODED_WARN_CFLAGS) $(HARDCODED_DEFS) $(DEFS) $(HARDCODED_CPPFLAGS) --analyze $<
 
 clean:
@@ -67,4 +67,4 @@ extraclean: maintainer-clean
 	test ! -e Makefile || test -e Makefile
 
 check: machochecker.plist
-	ls *.plist || ls
+	ls ./*.plist || ls
