@@ -56,6 +56,7 @@
 		61F65A651F0B2C0D000C1129 /* update_autogen */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = update_autogen; sourceTree = "<group>"; };
 		A5017CF31B41CB19004F7B48 /* test_mach_o_binary.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = test_mach_o_binary.c; path = ../../../test_mach_o_binary.c; sourceTree = SOURCE_ROOT; };
 		A5017D1E1B41D5B5004F7B48 /* test_mach_o_binary */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test_mach_o_binary; sourceTree = BUILT_PRODUCTS_DIR; };
+		A50558F92AEB130B00DFAB6C /* .github */ = {isa = PBXFileReference; lastKnownFileType = folder; name = .github; path = ../../../.github; sourceTree = "<group>"; };
 		A52C809D1A1D1D7800897236 /* autodeps.mk */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; fileEncoding = 4; path = autodeps.mk; sourceTree = "<group>"; };
 		A52C80A41A1D1D9300897236 /* deps.mk */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; fileEncoding = 4; path = deps.mk; sourceTree = "<group>"; };
 		A52C80A81A1D1DC100897236 /* autodeps.mk */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; fileEncoding = 4; path = autodeps.mk; sourceTree = "<group>"; };
@@ -1066,6 +1067,7 @@
 		A540E9B11A0C1D6A0008DA29 /* top */ = {
 			isa = PBXGroup;
 			children = (
+				A50558F92AEB130B00DFAB6C /* .github */,
 				A540E9CF1A0C1F8E0008DA29 /* AppleMakefile */,
 				A584B1A81B696685005A6951 /* autogen.sh */,
 				A540E9B81A0C1F270008DA29 /* dumpemacs.8 */,

@@ -95,7 +95,7 @@ char pot_etags_version[] = "@(#) pot revision number is 17.38.1.4";
 #endif /* DEBUG */
 
 /* FIXME: remove this: */
-#ifndef NO_POISON
+#if !defined(NO_POISON) && 0
 # define NO_POISON 1
 #endif /* !NO_POISON */
 
@@ -1015,6 +1015,7 @@ Relative ones are stored relative to the output file's directory.\n");
 }
 
 
+/* */
 int
 main (int argc, char **argv)
 {
@@ -2631,10 +2632,12 @@ write_classname (linebuffer *cn, const char *qualifier)
   for (i = 1; i < cstack.nl; i++)
     {
       char *s = cstack.cname[i];
+      size_t mylen;
       if (s == NULL)
 	continue;
-      linebuffer_setlen (cn, len + qlen + strlen (s));
-      len += sprintf (cn->buffer + len, "%s%s", qualifier, s);
+      mylen = (len + qlen + strlen(s));
+      linebuffer_setlen(cn, mylen);
+      len += snprintf((cn->buffer + len), mylen, "%s%s", qualifier, s);
     }
 }
 
@@ -3534,7 +3537,7 @@ C_entries (int c_ext, FILE *inf)
 		    make_C_tag (false);	/* forward declaration */
 		  else
 		    token.valid = false;
-		  ATTRIBUTE_FALLTHROUGH;
+		  /* FALLTHRU */
 		} /* switch (fvdef) */
 	      /* FALLTHRU */
 	    default:
