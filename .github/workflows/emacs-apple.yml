@@ -13,12 +13,9 @@ jobs:
     - run: brew update
     - run: brew install make automake gettext texinfo gawk gdb coreutils gnu-sed gnu-which clang-build-analyzer clang-format libstxxl
       env:
-        HOMEBREW_BOOTSNAP: 1
-        HOMEBREW_CURL_VERBOSE: 1
         HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
         HOMEBREW_VERBOSE: 1
         HOMEBREW_VERBOSE_USING_DOTS: 1
-        GIT_CURL_VERBOSE: 1
     - name: Initial build
       run: |
         if test -n "${{ matrix.compiler }}"; then \
@@ -48,14 +45,11 @@ jobs:
     - name: Build docs
       if: "${{ success() }}"
       env:
-        HOMEBREW_BOOTSNAP: 1
-        HOMEBREW_CURL_VERBOSE: 1
         HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
         HOMEBREW_VERBOSE: 1
         HOMEBREW_VERBOSE_USING_DOTS: 1
-        GIT_CURL_VERBOSE: 1
       run: |
-        if test -d doc && test -w doc && test -x "$(which makeinfo)" && test -x "$(which brew)" && test -x "$(which nproc)" && test -n "$(nproc)" && test "$(nproc)" -ge 2; then \
+        if test -d doc && test -w doc && test -x "$(which makeinfo)" && test -x "$(which brew)" && test -x "$(which nproc)" && test -n "$(nproc)" && test "$(nproc)" -ge 2 && test -r doc/Makefile; then \
           echo "using $(which makeinfo) for makeinfo with the following version info: $(makeinfo --version)"; \
           brew install texlive; \
           echo "nproc says we can use $(nproc) build jobs."; \
