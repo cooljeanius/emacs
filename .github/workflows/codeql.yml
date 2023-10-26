@@ -76,13 +76,13 @@ jobs:
     - name: Build (as much as possible)
       if: matrix.language == 'c-cpp'
       run: |
-        # shellcheck disable=SC2001
         echo "Run, Build Application using script"
         sh ./autogen.sh
         ./configure --without-gif --enable-silent-rules --disable-autodepend --enable-gcc-warnings
         make only_temacs
         make all_only_c
         make -C admin check || make -C admin alloc-colors.o || ruby -c ./*.rb
+        # shellcheck disable=SC2001
         for subdir in lib lib/bitset lib/malloc lib/uniwidth lib-src lwlib mac/src msdos oldXMenu src test/cedet/tests; do \
           pushd "${subdir}"; \
           for srcfile in *.c; do \
@@ -91,6 +91,19 @@ jobs:
           popd; \
         done
         make -C test/automated/flymake/warnpred CHK_SOURCES=test.c
+
+    - name: Extra coverage build (C)
+      if: matrix.language == 'c-cpp' && success()
+      run: |
+        # shellcheck disable=SC2044
+        for cfile in $(find . -name '*.c' -type f); do \
+          gcc -c "${cfile}" || stat "${cfile}"; \
+        done
+
+    - name: Clang static analysis
+      if: matrix.language == 'c-cpp' && success()
+      run: |
+        # shellcheck disable=SC2001
         if test -x "$(which clang)"; then \
           echo "attempting to use $(which clang) for static analysis"; \
           make -C src check || make apple_check || clang --version; \
@@ -103,6 +116,8 @@ jobs:
           else \
             echo "so much for static analysis with clang..."; \
           fi; \
+        else \
+          echo "no usable clang found for static analysis!"; \
         fi
 
     - name: Syntax check
@@ -111,8 +126,8 @@ jobs:
           echo "Checking syntax... $(python -m py_compile etc/*.py)"; \
         elif test "${{ matrix.language }}" = "ruby"; then \
           ruby -c ./*.rb || ls ./*.rb || which ruby || pwd; \
-        elif test "${{ matrix.language }}" = "c-cpp" && test -e GNUmakefile; then \
-          make syntax-check || ls .sc-start-sc_* || stat GNUmakefile; \
+        elif test "${{ matrix.language }}" = "c-cpp" && test -e GNUmakefile && test -e maint.mk; then \
+          make syntax-check V=0 || ls .sc-start-sc_* || stat GNUmakefile || stat maint.mk; \
         fi
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
