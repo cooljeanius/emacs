@@ -1,3 +1,4 @@
+# .github/workflows/codeql.yml: codeql workflow for emacs
 # For most projects, this workflow file will not need changing; you simply need
 # to commit it to your repository.
 #
@@ -91,13 +92,20 @@ jobs:
           popd; \
         done
         make -C test/automated/flymake/warnpred CHK_SOURCES=test.c
+        find . -name '*.o' -exec cp -v {} . ";" || echo "failed copying an object file"
 
     - name: Extra coverage build (C)
       if: matrix.language == 'c-cpp' && success()
       run: |
-        # shellcheck disable=SC2044
+        # shellcheck disable=SC2001,SC2044
         for cfile in $(find . -name '*.c' -type f); do \
-          gcc -c "${cfile}" || stat "${cfile}"; \
+          cobjfile="$(echo "${cfile}" | sed "s/\.c/.o/g")"; \
+          if test ! -e "${cobjfile}"; then \
+            gcc -c -I. "${cfile}" || stat "${cfile}" || echo "cfile is ${cfile}"; \
+          else \
+            echo "object file ${cobjfile} already exists for ${cfile}."; \
+            cp -v "${cobjfile}" "$(dirname "${cfile}")" || cp -v "${cobjfile}" .; \
+          fi; \
         done
 
     - name: Clang static analysis

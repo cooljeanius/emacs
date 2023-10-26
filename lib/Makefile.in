@@ -3411,7 +3411,7 @@ with_x = @with_x@
 x_default_search_path = @x_default_search_path@
 xcsdkdir = @xcsdkdir@
 BUILT_SOURCES = $(am__append_3) $(am__append_8)
-CLEANFILES = $(am__append_12)
+CLEANFILES = stamp-headers $(am__append_12)
 EXTRA_DIST = $(am__append_4) $(am__append_7)
 DISTCLEANFILES = .DS_Store *~ glthread/*~
 MOSTLYCLEANDIRS = $(am__append_21)
@@ -7161,10 +7161,9 @@ uninstall-am:
 @BUILDING_FOR_WINDOWSNT_FALSE@	done; \
 @BUILDING_FOR_WINDOWSNT_FALSE@	:
 
-headers: $(BUILT_SOURCES)
-	@echo "ensuring all generated headers have been generated..."
-	$(AM_V_at)ls *.h
-.PHONY: headers
+stamp-headers: $(BUILT_SOURCES)
+	@echo "ensuring all generated headers (in `pwd`) have been generated..."
+	$(AM_V_at)ls *.h > $@
 
 bootstrap-clean: maintainer-clean
 	@echo "no bootstrap-clean specific rules (for `pwd`) yet."
@@ -7182,7 +7181,7 @@ maintainer-clean-local:
 .PHONY: maintainer-clean-local
 
 extraclean: maintainer-clean
-	-rm -f *~ \#*
+	-rm -f *~ \#* stamp-headers
 .PHONY: extraclean
 
 @GNU_MAKE_TRUE@@ifGNUmake@

@@ -23502,6 +23502,89 @@ then :
 fi
 
 
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -ferror-limit=1" >&5
+printf %s "checking whether C compiler handles -ferror-limit=1... " >&6; }
+if test ${gl_cv_warn_c__ferror_limit_1+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -ferror-limit=1"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_warn_c__ferror_limit_1=yes
+else $as_nop
+  gl_cv_warn_c__ferror_limit_1=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__ferror_limit_1" >&5
+printf "%s\n" "$gl_cv_warn_c__ferror_limit_1" >&6; }
+if test "x$gl_cv_warn_c__ferror_limit_1" = xyes
+then :
+  as_fn_append WARN_CFLAGS " -ferror-limit=1"
+fi
+
+
+    else
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wfatal-errors" >&5
+printf %s "checking whether C compiler handles -Wfatal-errors... " >&6; }
+if test ${gl_cv_warn_c__Wfatal_errors+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wfatal-errors"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_warn_c__Wfatal_errors=yes
+else $as_nop
+  gl_cv_warn_c__Wfatal_errors=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wfatal_errors" >&5
+printf "%s\n" "$gl_cv_warn_c__Wfatal_errors" >&6; }
+if test "x$gl_cv_warn_c__Wfatal_errors" = xyes
+then :
+  as_fn_append WARN_CFLAGS " -Wfatal-errors"
+fi
+
+
     fi  ##end check for clang
     ##...okay, that should be it.
   else

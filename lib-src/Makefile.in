@@ -296,7 +296,7 @@ LOADLIBES = $(lib)/libgnu.a $(LIBS_SYSTEM)
 $(EXE_FILES): $(lib)/libgnu.a
 
 gnulib_headers: $(lib)/Makefile
-	$(MAKE) -C $(lib) headers
+	$(MAKE) -C $(lib) stamp-headers
 .PHONY: gnulib_headers
 
 ## Only used if we need blessmail, but no harm in always defining.

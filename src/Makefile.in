@@ -683,7 +683,7 @@ $(ALLOBJS): globals.h
 $(ALLPLISTS): globals.h
 
 gnulib_headers: $(lib)/Makefile
-	$(MAKE) -C $(lib) headers
+	$(MAKE) -C $(lib) stamp-headers
 .PHONY: gnulib_headers
 
 $(lib)/libgnu.a: $(config_h) gnulib_headers

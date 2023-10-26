@@ -2,7 +2,7 @@
 ## uses (in its lib/ subdir)
 
 BUILT_SOURCES =
-CLEANFILES =
+CLEANFILES = stamp-headers
 EXTRA_DIST =
 DISTCLEANFILES = .DS_Store *~ glthread/*~
 MOSTLYCLEANDIRS =
@@ -32,10 +32,9 @@ TESTS_ENVIRONMENT = @LOCALCHARSET_TESTS_ENVIRONMENT@
 endif
 
 ## a rule to make sure that all generated headers are built:
-headers: $(BUILT_SOURCES)
-	@echo "ensuring all generated headers have been generated..."
-	$(AM_V_at)ls *.h
-.PHONY: headers
+stamp-headers: $(BUILT_SOURCES)
+	@echo "ensuring all generated headers (in `pwd`) have been generated..."
+	$(AM_V_at)ls *.h > $@
 
 bootstrap-clean: maintainer-clean
 	@echo "no bootstrap-clean specific rules (for `pwd`) yet."
@@ -53,7 +52,7 @@ maintainer-clean-local:
 .PHONY: maintainer-clean-local
 
 extraclean: maintainer-clean
-	-rm -f *~ \#*
+	-rm -f *~ \#* stamp-headers
 .PHONY: extraclean
 
 if GNU_MAKE

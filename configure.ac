@@ -3857,6 +3857,9 @@ else
       gl_WARN_ADD([-Wempty-translation-unit])
       gl_WARN_ADD([-Winfinite-recursion])
       gl_WARN_ADD([-Wkeyword-macro])
+      gl_WARN_ADD([-ferror-limit=1])
+    else
+      gl_WARN_ADD([-Wfatal-errors])
     fi  ##end check for clang
     ##...okay, that should be it.
   else

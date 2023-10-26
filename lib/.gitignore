@@ -76,6 +76,9 @@ utime.h
 wchar.h
 wctype.h
 
+# ...and a stamp for them:
+stamp-headers
+
 # copied snippet:
 link-warning.h
 # unused-parameter.h is no longer a copied snippet, so allow it.
