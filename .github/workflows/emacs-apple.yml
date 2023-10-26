@@ -11,10 +11,14 @@ jobs:
     - name: checkout
       uses: actions/checkout@v4.1.1
     - run: brew update
-    - run: brew install make automake gettext texinfo gawk gdb coreutils gnu-sed gnu-which clang-build-analyzer clang-format
+    - run: brew install make automake gettext texinfo gawk gdb coreutils gnu-sed gnu-which clang-build-analyzer clang-format libstxxl
       env:
+        HOMEBREW_BOOTSNAP: 1
+        HOMEBREW_CURL_VERBOSE: 1
         HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
+        HOMEBREW_VERBOSE: 1
         HOMEBREW_VERBOSE_USING_DOTS: 1
+        GIT_CURL_VERBOSE: 1
     - name: Initial build
       run: |
         if test -n "${{ matrix.compiler }}"; then \
@@ -44,10 +48,14 @@ jobs:
     - name: Build docs
       if: "${{ success() }}"
       env:
+        HOMEBREW_BOOTSNAP: 1
+        HOMEBREW_CURL_VERBOSE: 1
         HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
+        HOMEBREW_VERBOSE: 1
         HOMEBREW_VERBOSE_USING_DOTS: 1
+        GIT_CURL_VERBOSE: 1
       run: |
-        if test -d doc && test -w doc && test -x "$(which makeinfo)" && test -x "$(which brew)" && test -x "$(which nproc)" && test -n "$(nproc)"; then \
+        if test -d doc && test -w doc && test -x "$(which makeinfo)" && test -x "$(which brew)" && test -x "$(which nproc)" && test -n "$(nproc)" && test "$(nproc)" -ge 2; then \
           echo "using $(which makeinfo) for makeinfo with the following version info: $(makeinfo --version)"; \
           brew install texlive; \
           echo "nproc says we can use $(nproc) build jobs."; \
@@ -75,7 +83,7 @@ jobs:
         make dumpemacs
         make emacswrapper
         if test "${{ matrix.compiler }}" = "clang"; then \
-          make -ki apple_check MAC_VERS_CFLAGS="-mmacosx-version-min=10.5 -stdlib=libc++"; \
+          make -ki apple_check MAC_VERS_CFLAGS="-mmacosx-version-min=10.7 -stdlib=libc++"; \
         else \
           make -ki apple_check; \
         fi
