@@ -106,10 +106,12 @@ jobs:
         fi
 
     - name: Syntax check
-      if: matrix.language == 'python'
       run: |
-        echo "Checking syntax... $(python -m py_compile etc/emacs.py)"
-        if test -e GNUmakefile; then \
+        if test "${{ matrix.language }}" = "python"; then \
+          echo "Checking syntax... $(python -m py_compile etc/*.py)"; \
+        elif test "${{ matrix.language }}" = "ruby"; then \
+          ruby -c ./*.rb || ls ./*.rb || which ruby || pwd; \
+        elif test "${{ matrix.language }}" = "c-cpp" && test -e GNUmakefile; then \
           make syntax-check || ls .sc-start-sc_* || stat GNUmakefile; \
         fi
     - name: Perform CodeQL Analysis
