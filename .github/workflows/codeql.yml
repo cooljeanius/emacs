@@ -101,10 +101,11 @@ jobs:
         for cfile in $(find . -name '*.c' -type f); do \
           cobjfile="$(echo "${cfile}" | sed "s/\.c/.o/g")"; \
           if test ! -e "${cobjfile}"; then \
-            gcc -c -I. "${cfile}" || stat "${cfile}" || echo "cfile is ${cfile}"; \
+            echo "One last attempt at compiling ${cfile}..."; \
+            gcc -c -I. -I.. "${cfile}" || stat "${cfile}" || echo "cfile is ${cfile}"; \
           else \
             echo "object file ${cobjfile} already exists for ${cfile}."; \
-            cp -v "${cobjfile}" "$(dirname "${cfile}")" || cp -v "${cobjfile}" .; \
+            cp -v "${cobjfile}" "$(dirname "${cfile}")" || cp -v "${cobjfile}" . || cp -v "${cobjfile}" ..; \
           fi; \
         done
 
