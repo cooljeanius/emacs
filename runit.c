@@ -140,17 +140,18 @@ int decreasepriv(int debugflag)
 
   ret = initgroups(nobody->pw_name, (int)nobody->pw_gid);
   if (ret) {
-    err(1, "initgroups(%s, %lud) failed", nobody->pw_name, nobody->pw_gid);
+    err(1, "initgroups(%s, %lud) failed", nobody->pw_name,
+    	(unsigned long)nobody->pw_gid);
   }
 
   ret = setgid(nobody->pw_gid);
   if (ret) {
-    err(1, "setgid(%lud) failed", nobody->pw_gid);
+    err(1, "setgid(%lud) failed", (unsigned long)nobody->pw_gid);
   }
 
   ret = setuid(nobody->pw_uid);
   if (ret) {
-    err(1, "setuid(%lud) failed", nobody->pw_uid);
+    err(1, "setuid(%lud) failed", (unsigned long)nobody->pw_uid);
   }
 
 #if defined(HAVE_SYSTEM) && defined(HAVE_ID_BIN)

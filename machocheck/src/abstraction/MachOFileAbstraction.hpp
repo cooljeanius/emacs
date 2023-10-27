@@ -327,8 +327,12 @@ struct unwind_info_compressed_second_level_page_header
 
 // hack until arm64 headers are worked out
 #define CPU_TYPE_ARM64			(CPU_TYPE_ARM | CPU_ARCH_ABI64)
-#define CPU_SUBTYPE_ARM64_ALL	0
-#define CPU_SUBTYPE_ARM64_V8    1
+#if !defined(CPU_SUBTYPE_ARM64_ALL)
+# define CPU_SUBTYPE_ARM64_ALL	0
+#endif /* !CPU_SUBTYPE_ARM64_ALL */
+#if !defined(CPU_SUBTYPE_ARM64_V8)
+# define CPU_SUBTYPE_ARM64_V8    1
+#endif /* !CPU_SUBTYPE_ARM64_V8 */
 
 #define ARM64_RELOC_UNSIGNED            0 // for pointers
 #define ARM64_RELOC_SUBTRACTOR          1 // must be followed by a ARM64_RELOC_UNSIGNED

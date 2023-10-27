@@ -1355,7 +1355,7 @@ isemacsvalid: isemacsvalid.c dumpemacs.h machocheck/libmachocheck.a \
 
 runit.o: runit.c dumpemacs.h
 	$(CC) -c $(CFLAGS) $(BETTER_DEBUG_CFLAGS) $(CPPFLAGS) $(DEFS) \
-	  -D_DEBUG $(WARN_CFLAGS) -Wundef -O0 -o $@ runit.c
+	  -D_DEBUG $(WARN_CFLAGS) -Wundef -Wformat=2 -O0 -o $@ runit.c
 
 GNUVersion = 22.1
 @ifGNUmake@VERSIONDEFFLAG = -DkEmacsVersion=$(patsubst %,'"%"', $(GNUVersion))

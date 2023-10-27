@@ -21,6 +21,12 @@
 # if defined(__x86_64__) && !defined(kEmacsArch)
 #  define kEmacsArch "x86_64"
 # endif /* __x86_64__ && !kEmacsArch */
+# ifdef __arm__
+#  define kEmacsArch "arm"
+# endif /* __arm__ */
+# if defined(__aarch64__) && !defined(kEmacsArch)
+#  define kEmacsArch "aarch64"
+# endif /* __aarch64__ && !kEmacsArch */
 #endif /* !kEmacsArch */
 
 #ifndef kEmacsArch

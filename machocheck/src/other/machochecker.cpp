@@ -985,6 +985,8 @@ void MachOChecker<A>::checkSection(const macho_segment_command<P>* segCmd, const
 	if (strncmp(sect->segname(), segCmd->segname(), 16) != 0)
 		throwf("section %s in segment %s has wrong segment name",
                sect->sectname(), segCmd->segname());
+#else
+	(void)segCmd;
 #endif /* DEBUG */
 
 	// more section tests here...

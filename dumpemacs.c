@@ -607,7 +607,7 @@ char *verfind(void *mem, size_t size, char marker, const char *search)
   while (found != NULL) {
     char *here = (char *)found;
     if (0 == strncmp((here + 1), search, search_size)) {
-      return strdup(here);
+      return strndup(here, PTRDIFF_MAX);
     } else {
       found = memchr((here + 1), marker,
                      ((size_t)(last - (here + 1UL))
