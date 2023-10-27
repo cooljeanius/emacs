@@ -1325,6 +1325,14 @@ main(int argc, char **argv)
 	    default:
 	      continue;		/* the for loop */
 	    }
+#ifdef HAVE_ENCODESHELLSTRING
+	  /* FIXME: unsure if I adapted this from the codeql docs correctly: */
+	  char cmdQuoted[cmdlen];
+	  encodeShellString(cmdQuoted, cmdlen, cmd);
+	  cmd = strndup(cmdQuoted, cmdlen);
+#else
+	  __asm__ volatile ("");
+#endif /* HAVE_ENCODESHELLSTRING */
 	  strncpy(cmd, "mv ", cmdlen);
 	  strncat(cmd, tagfile, cmdlen);
 	  strncat(cmd, " OTAGS;fgrep -v '\t", cmdlen);
@@ -2624,8 +2632,9 @@ popclass_above (int bracelev)
 static void
 write_classname (linebuffer *cn, const char *qualifier)
 {
-  int i, len;
-  int qlen = strlen (qualifier);
+  int i;
+  size_t len;
+  size_t qlen = strlen(qualifier);
 
   if (cstack.nl == 0 || cstack.cname[0] == NULL)
     {
@@ -2635,19 +2644,24 @@ write_classname (linebuffer *cn, const char *qualifier)
     }
   else
     {
-      len = strlen (cstack.cname[0]);
-      linebuffer_setlen (cn, len);
-      strcpy (cn->buffer, cstack.cname[0]);
+      len = strlen(cstack.cname[0]);
+      linebuffer_setlen(cn, (int)len);
+      strcpy(cn->buffer, cstack.cname[0]);
     }
   for (i = 1; i < cstack.nl; i++)
     {
       char *s = cstack.cname[i];
       size_t mylen;
+      int ret;
       if (s == NULL)
 	continue;
       mylen = (len + qlen + strlen(s));
-      linebuffer_setlen(cn, mylen);
-      len += snprintf((cn->buffer + len), mylen, "%s%s", qualifier, s);
+      linebuffer_setlen(cn, (int)mylen);
+      ret = snprintf((cn->buffer + len), mylen, "%s%s", qualifier, s);
+      if ((ret < 0) || ((size_t)ret > mylen)) {
+      	break;
+      }
+      len += ret;
     }
 }
 
