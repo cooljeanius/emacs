@@ -1064,6 +1064,22 @@
    don't. */
 #undef HAVE_DECL_PUTC_UNLOCKED
 
+/* Define to 1 if you have the declaration of `regcomp', and to 0 if you
+   don't. */
+#undef HAVE_DECL_REGCOMP
+
+/* Define to 1 if you have the declaration of `regerror', and to 0 if you
+   don't. */
+#undef HAVE_DECL_REGERROR
+
+/* Define to 1 if you have the declaration of `regexec', and to 0 if you
+   don't. */
+#undef HAVE_DECL_REGEXEC
+
+/* Define to 1 if you have the declaration of `regfree', and to 0 if you
+   don't. */
+#undef HAVE_DECL_REGFREE
+
 /* Define to 1 if you have the declaration of `setenv', and to 0 if you don't.
    */
 #undef HAVE_DECL_SETENV
@@ -1198,6 +1214,9 @@
 
 /* Define to 1 if you have the `eaccess' function. */
 #undef HAVE_EACCESS
+
+/* Define to 1 if you have the `encodeShellString' function. */
+#undef HAVE_ENCODESHELLSTRING
 
 /* Define to 1 if you have the `endgrent' function. */
 #undef HAVE_ENDGRENT
@@ -2226,6 +2245,21 @@
 
 /* Define to 1 if you have the `regcomp' function. */
 #undef HAVE_REGCOMP
+
+/* Define to 1 if you have the `regerror' function. */
+#undef HAVE_REGERROR
+
+/* Define to 1 if you have the `regexec' function. */
+#undef HAVE_REGEXEC
+
+/* Define to 1 if you have the <regex.h> header file. */
+#undef HAVE_REGEX_H
+
+/* Define to 1 if the system has the type `regex_t'. */
+#undef HAVE_REGEX_T
+
+/* Define to 1 if you have the `regfree' function. */
+#undef HAVE_REGFREE
 
 /* Define to 1 if you have the `rename' function. */
 #undef HAVE_RENAME

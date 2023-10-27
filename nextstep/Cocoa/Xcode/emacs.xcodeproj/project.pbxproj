@@ -2510,13 +2510,7 @@
 					"-fno-pie",
 					"-fblocks",
 				);
-				OTHER_LDFLAGS = (
-					"-no_pie",
-					"-warn_commons",
-					"-warn_compact_unwind",
-					"-warn_stabs",
-				);
-				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
+				OTHER_LDFLAGS = "-no-pie";
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
@@ -2583,7 +2577,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				LD_GENERATE_MAP_FILE = YES;
 				OTHER_CFLAGS = "-fstrict-overflow";
-				OTHER_LDFLAGS = "-no_pie";
+				OTHER_LDFLAGS = "-no-pie";
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SDKROOT = macosx;
 				SEPARATE_STRIP = YES;

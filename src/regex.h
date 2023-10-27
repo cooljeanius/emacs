@@ -409,7 +409,9 @@ struct re_pattern_buffer
 /* [[[end pattern_buffer]]] */
 };
 
+#if (!defined(HAVE_REGEX_T) || !HAVE_REGEX_T) && !defined(__REGEX_H_)
 typedef struct re_pattern_buffer regex_t;
+#endif /* !HAVE_REGEX_T && !__REGEX_H_ */
 
 /* Type for byte offsets within the string.  POSIX mandates this to be an int,
    but the Open Group has signaled its intention to change the requirement to
@@ -555,19 +557,27 @@ extern int re_exec (const char *);
 #endif /* !_Restrict_arr_ */
 
 /* POSIX compatibility.  */
+#if !defined(HAVE_DECL_REGCOMP) || !HAVE_DECL_REGCOMP || !defined(HAVE_REGCOMP) || !HAVE_REGCOMP
 extern reg_errcode_t regcomp (regex_t *_Restrict_ __preg,
 			      const char *_Restrict_ __pattern,
 			      int __cflags);
+#endif /* !HAVE_DECL_REGCOMP || !HAVE_REGCOMP */
 
+#if !defined(HAVE_DECL_REGEXEC) || !HAVE_DECL_REGEXEC || !defined(HAVE_REGEXEC) || !HAVE_REGEXEC
 extern reg_errcode_t regexec (const regex_t *_Restrict_ __preg,
 			      const char *_Restrict_ __string, size_t __nmatch,
 			      regmatch_t __pmatch[_Restrict_arr_],
 			      int __eflags);
+#endif /* !HAVE_DECL_REGEXEC || !HAVE_REGEXEC */
 
+#if !defined(HAVE_DECL_REGERROR) || !HAVE_DECL_REGERROR || !defined(HAVE_REGERROR) || !HAVE_REGERROR
 extern size_t regerror (int __errcode, const regex_t * __preg,
 			char *__errbuf, size_t __errbuf_size);
+#endif /* !HAVE_DECL_REGERROR || !HAVE_REGERROR */
 
+#if !defined(HAVE_DECL_REGFREE) || !HAVE_DECL_REGFREE || !defined(HAVE_REGFREE) || !HAVE_REGFREE
 extern void regfree (regex_t *__preg);
+#endif /* !HAVE_DECL_REGFREE || !HAVE_REGFREE */
 
 
 #ifdef __cplusplus

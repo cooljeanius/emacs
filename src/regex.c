@@ -6438,6 +6438,7 @@ re_exec (const char *s)
 
 #ifndef emacs
 
+# if !defined(HAVE_REGCOMP) || !HAVE_REGCOMP
 /* regcomp takes a regular expression as a string and compiles it.
 
    PREG is a regex_t *.  We do not expect any fields to be initialized,
@@ -6536,8 +6537,9 @@ regcomp (regex_t *_Restrict_ preg, const char *_Restrict_ pattern,
   return ret;
 }
 WEAK_ALIAS (__regcomp, regcomp)
+# endif /* !HAVE_REGCOMP */
 
-
+# if !defined(HAVE_REGEXEC) || !HAVE_REGEXEC
 /* regexec searches for a given pattern, specified by PREG, in the
    string STRING.
 
@@ -6573,7 +6575,7 @@ regexec (const regex_t *_Restrict_ preg, const char *_Restrict_ string,
 
   if (want_reg_info)
     {
-      regs.num_regs = nmatch;
+      regs.num_regs = (unsigned int)nmatch;
       regs.start = TALLOC (nmatch * 2, regoff_t);
       if (regs.start == NULL)
 	return REG_NOMATCH;
@@ -6616,8 +6618,9 @@ regexec (const regex_t *_Restrict_ preg, const char *_Restrict_ string,
   return ret >= 0 ? REG_NOERROR : REG_NOMATCH;
 }
 WEAK_ALIAS (__regexec, regexec)
+# endif /* !HAVE_REGEXEC */
 
-
+# if !defined(HAVE_REGERROR) || !HAVE_REGERROR
 /* Returns a message corresponding to an error code, ERR_CODE, returned
    from either regcomp or regexec.   We do NOT use PREG here.
 
@@ -6659,10 +6662,10 @@ regerror(int err_code, const regex_t *preg, char *errbuf, size_t errbuf_size)
   return msg_size;
 }
 WEAK_ALIAS (__regerror, regerror)
+# endif /* !HAVE_REGERROR */
 
-
-/* Free dynamically allocated space used by PREG.  */
-
+# if !defined(HAVE_REGFREE) || !HAVE_REGFREE
+/* Free dynamically allocated space used by PREG: */
 void
 regfree (regex_t *preg)
 {
@@ -6680,6 +6683,7 @@ regfree (regex_t *preg)
   preg->translate = NULL;
 }
 WEAK_ALIAS (__regfree, regfree)
+# endif /* !HAVE_REGFREE */
 
 #endif /* not emacs  */
 

@@ -113,17 +113,20 @@ jobs:
       if: matrix.language == 'c-cpp' && success()
       run: |
         # shellcheck disable=SC2001
-        if test -x "$(which clang)"; then \
+        if test -x "$(which clang)" && test -n "$(clang --version)"; then \
           echo "attempting to use $(which clang) for static analysis"; \
-          make -C src check || make apple_check || clang --version; \
+          echo "but first, let us check the version that it reports..."; \
+          clang --version; \
+          make -C src check || make apple_check || make -ki apple_check; \
           if [ $? -ge 1 ]; then \
             pushd src; \
             for srcfile in *.c; do \
+              echo "attempting to use $(which make) to have $(which clang) statically analyze ${srcfile}..."; \
               make "$(echo "${srcfile}" | sed "s/\.c/.plist/g")" || stat "${srcfile}"; \
             done; \
             popd; \
           else \
-            echo "so much for static analysis with clang..."; \
+            echo "return code says we are done; so much for static analysis with clang..."; \
           fi; \
         else \
           echo "no usable clang found for static analysis!"; \

@@ -37139,6 +37139,23 @@ printf "%s\n" "#define HAVE_PTRDIFF_T 1" >>confdefs.h
 
 
 fi
+ac_fn_c_check_type "$LINENO" "regex_t" "ac_cv_type_regex_t" "
+#ifdef HAVE_REGEX_H
+# include <regex.h>
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#  warning \"This conftest for regex_t expects <regex.h> to be included.\"
+# endif /* __GNUC__ && !__STRICT_ANSI__ */
+#endif /* HAVE_REGEX_H */
+
+"
+if test "x$ac_cv_type_regex_t" = xyes
+then :
+
+printf "%s\n" "#define HAVE_REGEX_T 1" >>confdefs.h
+
+
+fi
 ac_fn_c_check_type "$LINENO" "rlim_t" "ac_cv_type_rlim_t" "$ac_includes_default"
 if test "x$ac_cv_type_rlim_t" = xyes
 then :
@@ -38485,6 +38502,12 @@ ac_fn_c_check_header_compile "$LINENO" "nl_types.h" "ac_cv_header_nl_types_h" "$
 if test "x$ac_cv_header_nl_types_h" = xyes
 then :
   printf "%s\n" "#define HAVE_NL_TYPES_H 1" >>confdefs.h
+
+fi
+ac_fn_c_check_header_compile "$LINENO" "regex.h" "ac_cv_header_regex_h" "$ac_includes_default"
+if test "x$ac_cv_header_regex_h" = xyes
+then :
+  printf "%s\n" "#define HAVE_REGEX_H 1" >>confdefs.h
 
 fi
 ac_fn_c_check_header_compile "$LINENO" "sgtty.h" "ac_cv_header_sgtty_h" "$ac_includes_default"
@@ -63335,6 +63358,12 @@ then :
   printf "%s\n" "#define HAVE_DOPRNT 1" >>confdefs.h
 
 fi
+ac_fn_c_check_func "$LINENO" "encodeShellString" "ac_cv_func_encodeShellString"
+if test "x$ac_cv_func_encodeShellString" = xyes
+then :
+  printf "%s\n" "#define HAVE_ENCODESHELLSTRING 1" >>confdefs.h
+
+fi
 ac_fn_c_check_func "$LINENO" "errc" "ac_cv_func_errc"
 if test "x$ac_cv_func_errc" = xyes
 then :
@@ -63501,6 +63530,24 @@ ac_fn_c_check_func "$LINENO" "regcomp" "ac_cv_func_regcomp"
 if test "x$ac_cv_func_regcomp" = xyes
 then :
   printf "%s\n" "#define HAVE_REGCOMP 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "regexec" "ac_cv_func_regexec"
+if test "x$ac_cv_func_regexec" = xyes
+then :
+  printf "%s\n" "#define HAVE_REGEXEC 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "regerror" "ac_cv_func_regerror"
+if test "x$ac_cv_func_regerror" = xyes
+then :
+  printf "%s\n" "#define HAVE_REGERROR 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "regfree" "ac_cv_func_regfree"
+if test "x$ac_cv_func_regfree" = xyes
+then :
+  printf "%s\n" "#define HAVE_REGFREE 1" >>confdefs.h
 
 fi
 ac_fn_c_check_func "$LINENO" "rmdir" "ac_cv_func_rmdir"
@@ -63858,6 +63905,75 @@ else $as_nop
   ac_have_decl=0
 fi
 printf "%s\n" "#define HAVE_DECL_OPENPTY $ac_have_decl" >>confdefs.h
+
+ac_fn_check_decl "$LINENO" "regcomp" "ac_cv_have_decl_regcomp" "
+#ifdef HAVE_REGEX_H
+# include <regex.h>
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#  warning \"This regex-related conftest expects <regex.h> to be included.\"
+# endif /* __GNUC__ && !__STRICT_ANSI__ */
+#endif /* HAVE_REGEX_H */
+
+" "$ac_c_undeclared_builtin_options" "CFLAGS"
+if test "x$ac_cv_have_decl_regcomp" = xyes
+then :
+  ac_have_decl=1
+else $as_nop
+  ac_have_decl=0
+fi
+printf "%s\n" "#define HAVE_DECL_REGCOMP $ac_have_decl" >>confdefs.h
+ac_fn_check_decl "$LINENO" "regexec" "ac_cv_have_decl_regexec" "
+#ifdef HAVE_REGEX_H
+# include <regex.h>
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#  warning \"This regex-related conftest expects <regex.h> to be included.\"
+# endif /* __GNUC__ && !__STRICT_ANSI__ */
+#endif /* HAVE_REGEX_H */
+
+" "$ac_c_undeclared_builtin_options" "CFLAGS"
+if test "x$ac_cv_have_decl_regexec" = xyes
+then :
+  ac_have_decl=1
+else $as_nop
+  ac_have_decl=0
+fi
+printf "%s\n" "#define HAVE_DECL_REGEXEC $ac_have_decl" >>confdefs.h
+ac_fn_check_decl "$LINENO" "regerror" "ac_cv_have_decl_regerror" "
+#ifdef HAVE_REGEX_H
+# include <regex.h>
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#  warning \"This regex-related conftest expects <regex.h> to be included.\"
+# endif /* __GNUC__ && !__STRICT_ANSI__ */
+#endif /* HAVE_REGEX_H */
+
+" "$ac_c_undeclared_builtin_options" "CFLAGS"
+if test "x$ac_cv_have_decl_regerror" = xyes
+then :
+  ac_have_decl=1
+else $as_nop
+  ac_have_decl=0
+fi
+printf "%s\n" "#define HAVE_DECL_REGERROR $ac_have_decl" >>confdefs.h
+ac_fn_check_decl "$LINENO" "regfree" "ac_cv_have_decl_regfree" "
+#ifdef HAVE_REGEX_H
+# include <regex.h>
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#  warning \"This regex-related conftest expects <regex.h> to be included.\"
+# endif /* __GNUC__ && !__STRICT_ANSI__ */
+#endif /* HAVE_REGEX_H */
+
+" "$ac_c_undeclared_builtin_options" "CFLAGS"
+if test "x$ac_cv_have_decl_regfree" = xyes
+then :
+  ac_have_decl=1
+else $as_nop
+  ac_have_decl=0
+fi
+printf "%s\n" "#define HAVE_DECL_REGFREE $ac_have_decl" >>confdefs.h
 
 if (test -z "${GMALLOC_OBJ}" || test "x${hybrid_malloc}" = "xyes") \
   && test "x${opsys}" != "xdarwin"; then

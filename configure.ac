@@ -4589,6 +4589,15 @@ if test "x${enable_acl}" != "xno"; then
   ## disable if not present?
 fi
 AC_CHECK_TYPES([ptrdiff_t])dnl
+AC_CHECK_TYPES([regex_t],[],[],[[
+#ifdef HAVE_REGEX_H
+# include <regex.h>
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#  warning "This conftest for regex_t expects <regex.h> to be included."
+# endif /* __GNUC__ && !__STRICT_ANSI__ */
+#endif /* HAVE_REGEX_H */
+]])dnl
 AC_CHECK_TYPES([rlim_t])dnl
 AC_CHECK_TYPES([time_t])dnl
 
@@ -4846,8 +4855,8 @@ AC_CHECK_HEADERS_ONCE([sys/sysinfo.h])dnl
 dnl# Try to keep this second batch in alphabetical order:
 AC_CHECK_HEADERS([OS.h arpa/inet.h dpmi.h err.h errno.h fcntl.h float.h \
                   io.h langinfo.h libc.h libintl.h locale.h malloc.h \
-                  mbstring.h msvcrt/string.h paths.h nl_types.h sgtty.h \
-                  signal.h stddef.h sys/_mbstate_t.h sys/bsdtty.h \
+                  mbstring.h msvcrt/string.h paths.h nl_types.h regex.h \
+                  sgtty.h signal.h stddef.h sys/_mbstate_t.h sys/bsdtty.h \
                   sys/file.h sys/ptyio.h sys/signal.h sys/sysctl.h \
                   sys/syslimits.h sys/timeb.h sysexits.h termcap.h \
                   termio.h timespec.h unixlib.h])
@@ -8454,15 +8463,15 @@ if test "x${libm_has_fmod}" = "x" && test "x${ac_cv_func_fmod}" = "x"; then
 fi
 dnl# these ones should be in alphabetical order:
 AC_CHECK_FUNCS([__fpending _stricmp acl atexit atof atoi btowc bzero \
-                cuserid doprnt errc fabs fabsf fgets floor ftime \
-                get_etext get_edata get_end getpass getpwuid inet_ntoa \
+                cuserid doprnt encodeShellString errc fabs fabsf fgets floor \
+                ftime get_etext get_edata get_end getpass getpwuid inet_ntoa \
                 isascii iswprint localeconv mbrlen memmove memset munmap \
                 nl_langinfo openpty pathconf posix_spawnp pow putenv re_comp \
-                reallocf regcomp rmdir socket sqrt strcasecmp strcasestr \
-                strchr strcmp strcspn strdup strerror stricmp strlcat \
-                strlcpy strncasecmp strncat strncmp strnicmp strnstr \
-                strpbrk strrchr strspn strtok strtok_r strtol strtoul sysctl \
-                system xstricmp utmpname vfprintf wcwidth])
+                reallocf regcomp regexec regerror regfree rmdir socket sqrt \
+                strcasecmp strcasestr strchr strcmp strcspn strdup strerror \
+                stricmp strlcat strlcpy strncasecmp strncat strncmp strnicmp \
+                strnstr strpbrk strrchr strspn strtok strtok_r strtol strtoul \
+                sysctl system xstricmp utmpname vfprintf wcwidth])
 if test "x${ac_cv_func_utime}" = "x"; then
   test -z "${ac_cv_func_utime}"
   AC_CHECK_FUNCS([utime])
@@ -8490,6 +8499,16 @@ AC_CHECK_DECLS([openpty],[],[],[[
 #  warning "This conftest for openpty expects <util.h> to be included."
 # endif /* __GNUC__ && !__STRICT_ANSI__ */
 #endif /* HAVE_UTIL_H */
+]])dnl
+
+AC_CHECK_DECLS([regcomp, regexec, regerror, regfree],[],[],[[
+#ifdef HAVE_REGEX_H
+# include <regex.h>
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#  warning "This regex-related conftest expects <regex.h> to be included."
+# endif /* __GNUC__ && !__STRICT_ANSI__ */
+#endif /* HAVE_REGEX_H */
 ]])dnl
 
 dnl# No need to check for aligned_alloc and posix_memalign if using
