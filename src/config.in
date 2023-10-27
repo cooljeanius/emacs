@@ -4575,7 +4575,13 @@
    code using `volatile' can become incorrect without. Disable with care. */
 #undef volatile
 
-#include <conf_post.h>
+
+/* unsure what the proper version check to use here is: */
+#if defined(__clang__) && (__clang__ > 1)
+# include "conf_post.h"
+#else
+# include <conf_post.h>
+#endif /* __clang__ > 1 */
 /* in case "conf_post.h" left out a few things: */
 #ifdef HAVE_X_WINDOWS
 # ifndef HAVE_WINDOW_SYSTEM

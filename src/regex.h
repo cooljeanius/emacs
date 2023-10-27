@@ -576,7 +576,7 @@ extern void regfree (regex_t *__preg);
 
 /* For platform which support the ISO C amendment 1 functionality we
  * support user defined character classes.  */
-#if WIDE_CHAR_SUPPORT
+#if defined(WIDE_CHAR_SUPPORT) && WIDE_CHAR_SUPPORT
 /* Solaris 2.5 has a bug: <wchar.h> must be included before <wctype.h>.  */
 # include <wchar.h>
 # include <wctype.h>

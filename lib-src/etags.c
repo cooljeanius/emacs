@@ -151,7 +151,12 @@ char pot_etags_version[] = "@(#) pot revision number is 17.38.1.4";
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <c-strcase.h>
+/* unsure what the proper version check to use here is: */
+#if defined(__clang__) && (__clang__ >= 1)
+# include "c-strcase.h"
+#else
+# include <c-strcase.h>
+#endif /* __clang__ >= 1 */
 
 #include <assert.h>
 #ifdef NDEBUG
@@ -1017,7 +1022,7 @@ Relative ones are stored relative to the output file's directory.\n");
 
 /* */
 int
-main (int argc, char **argv)
+main(int argc, char **argv)
 {
   int i;
   unsigned int nincluded_files;
@@ -1027,8 +1032,8 @@ main (int argc, char **argv)
   linebuffer filename_lb;
   bool help_asked = false;
   ptrdiff_t len;
- char *optstring;
- int opt;
+  char *optstring;
+  int opt;
 
 
 #ifdef DOS_NT
@@ -1037,13 +1042,13 @@ main (int argc, char **argv)
 
   progname = argv[0];
   nincluded_files = 0;
-  included_files = xnew (argc, char *);
+  included_files = xnew(argc, char *);
   current_arg = 0;
   file_count = 0;
 
   /* Allocate enough no matter what happens.  Overkill, but each one
      is small. */
-  argbuffer = xnew (argc, argument);
+  argbuffer = xnew(argc, argument);
 
   /*
    * Always find typedefs and structure tags.
@@ -1055,11 +1060,11 @@ main (int argc, char **argv)
 
   /* When the optstring begins with a '-' getopt_long does not rearrange the
      non-options arguments to be at the end, but leaves them alone. */
-  optstring = concat ("-ac:Cf:Il:o:r:RSVhH",
-		      (CTAGS) ? "BxdtTuvw" : "Di:",
-		      "");
+  optstring = concat("-ac:Cf:Il:o:r:RSVhH",
+                     (CTAGS) ? "BxdtTuvw" : "Di:",
+                     "");
 
-  while ((opt = getopt_long (argc, argv, optstring, longopts, NULL)) != EOF)
+  while ((opt = getopt_long(argc, argv, optstring, longopts, NULL)) != EOF)
     switch (opt)
       {
       case 0:
@@ -1071,7 +1076,7 @@ main (int argc, char **argv)
 	/* This means that a file name has been seen.  Record it. */
 	argbuffer[current_arg].arg_type = at_filename;
 	argbuffer[current_arg].what     = optarg;
-	len = strlen (optarg);
+	len = strlen(optarg);
 	if (whatlen_max < len)
 	  whatlen_max = len;
 	++current_arg;
@@ -1082,13 +1087,13 @@ main (int argc, char **argv)
 	/* Parse standard input.  Idea by Vivek <vivek@etla.org>. */
 	argbuffer[current_arg].arg_type = at_stdin;
 	argbuffer[current_arg].what     = optarg;
-	len = strlen (optarg);
+	len = strlen(optarg);
 	if (whatlen_max < len)
 	  whatlen_max = len;
 	++current_arg;
 	++file_count;
 	if (parsing_stdin)
-	  fatal ("cannot parse standard input more than once", (char *)NULL);
+	  fatal("cannot parse standard input more than once", (char *)NULL);
 	parsing_stdin = true;
 	break;
 
@@ -1099,8 +1104,8 @@ main (int argc, char **argv)
       case 'o':
 	if (tagfile)
 	  {
-	    error ("-o option may only be given once.");
-	    suggest_asking_for_help ();
+	    error("-o option may only be given once.");
+	    suggest_asking_for_help();
 	    /* NOTREACHED */
 	  }
 	tagfile = optarg;
@@ -1111,7 +1116,7 @@ main (int argc, char **argv)
 	break;
       case 'l':
 	{
-	  language *lang = get_language_from_langname (optarg);
+	  language *lang = get_language_from_langname(optarg);
 	  if (lang != NULL)
 	    {
 	      argbuffer[current_arg].lang = lang;
@@ -1122,12 +1127,12 @@ main (int argc, char **argv)
 	break;
       case 'c':
 	/* Backward compatibility: support obsolete --ignore-case-regexp. */
-	optarg = concat (optarg, "i", ""); /* memory leak here */
+	optarg = concat(optarg, "i", ""); /* memory leak here */
 	/* FALLTHRU */
       case 'r':
 	argbuffer[current_arg].arg_type = at_regexp;
 	argbuffer[current_arg].what = optarg;
-	len = strlen (optarg);
+	len = strlen(optarg);
 	if (whatlen_max < len)
 	  whatlen_max = len;
 	++current_arg;
@@ -1138,7 +1143,7 @@ main (int argc, char **argv)
 	++current_arg;
 	break;
       case 'V':
-	print_version ();
+	print_version();
 	break;
       case 'h':
       case 'H':
@@ -1159,7 +1164,7 @@ main (int argc, char **argv)
       case 'x': cxref_style = true;				break;
       case 'w': no_warnings = true;				break;
       default:
-	suggest_asking_for_help ();
+	suggest_asking_for_help();
 	/* NOTREACHED */
       }
 
@@ -1168,7 +1173,7 @@ main (int argc, char **argv)
     {
       argbuffer[current_arg].arg_type = at_filename;
       argbuffer[current_arg].what = argv[optind];
-      len = strlen (argv[optind]);
+      len = strlen(argv[optind]);
       if (whatlen_max < len)
 	whatlen_max = len;
       ++current_arg;
@@ -1178,57 +1183,57 @@ main (int argc, char **argv)
   argbuffer[current_arg].arg_type = at_end;
 
   if (help_asked)
-    print_help (argbuffer);
+    print_help(argbuffer);
     /* NOTREACHED */
 
   if (nincluded_files == 0 && file_count == 0)
     {
-      error ("no input files specified.");
-      suggest_asking_for_help ();
+      error("no input files specified.");
+      suggest_asking_for_help();
       /* NOTREACHED */
     }
 
   if (tagfile == NULL)
-    tagfile = savestr (CTAGS ? "tags" : "TAGS");
-  cwd = etags_getcwd ();	/* the current working directory */
-  if (cwd[strlen (cwd) - 1] != '/')
+    tagfile = savestr(CTAGS ? "tags" : "TAGS");
+  cwd = etags_getcwd();	/* the current working directory */
+  if (cwd[strlen(cwd) - 1] != '/')
     {
       char *oldcwd = cwd;
-      cwd = concat (oldcwd, "/", "");
-      free (oldcwd);
+      cwd = concat(oldcwd, "/", "");
+      free(oldcwd);
     }
 
-  /* Compute base directory for relative file names. */
-  if (streq (tagfile, "-")
-      || strneq (tagfile, "/dev/", 5))
+  /* Compute base directory for relative file names: */
+  if (streq(tagfile, "-")
+      || strneq(tagfile, "/dev/", 5))
     tagfiledir = cwd;		 /* relative file names are relative to cwd */
   else
     {
-      canonicalize_filename (tagfile);
-      tagfiledir = absolute_dirname (tagfile, cwd);
+      canonicalize_filename(tagfile);
+      tagfiledir = absolute_dirname(tagfile, cwd);
     }
 
-  init ();			/* set up boolean "functions" */
+  init();			/* set up boolean "functions" */
 
-  linebuffer_init (&lb);
-  linebuffer_init (&filename_lb);
-  linebuffer_init (&filebuf);
-  linebuffer_init (&token_name);
+  linebuffer_init(&lb);
+  linebuffer_init(&filename_lb);
+  linebuffer_init(&filebuf);
+  linebuffer_init(&token_name);
 
   if (!CTAGS)
     {
-      if (streq (tagfile, "-"))
+      if (streq(tagfile, "-"))
 	{
 	  tagf = stdout;
 #ifdef DOS_NT
 	  /* Switch redirected `stdout' to binary mode (setting `_fmode'
 	     doesn't take effect until after `stdout' is already open). */
-	  if (!isatty (fileno (stdout)))
-	    setmode (fileno (stdout), O_BINARY);
+	  if (!isatty(fileno(stdout)))
+	    setmode(fileno(stdout), O_BINARY);
 #endif /* DOS_NT */
 	}
       else
-	tagf = fopen (tagfile, append_to_tagfile ? "a" : "w");
+	tagf = fopen(tagfile, (append_to_tagfile ? "a" : "w"));
       if (tagf == NULL)
 	pfatal (tagfile);
     }
@@ -1247,40 +1252,42 @@ main (int argc, char **argv)
 	  lang = argbuffer[i].lang;
 	  break;
 	case at_regexp:
-	  analyse_regex (argbuffer[i].what);
+	  analyse_regex(argbuffer[i].what);
 	  break;
 	case at_filename:
 	      this_file = argbuffer[i].what;
 	      /* Input file named "-" means read file names from stdin
 		 (one per line) and use them. */
-	      if (streq (this_file, "-"))
+	      if (streq(this_file, "-"))
 		{
 		  if (parsing_stdin)
-		    fatal ("cannot parse standard input AND read file names from it",
-			   (char *)NULL);
-		  while (readline_internal (&filename_lb, stdin) > 0)
-		    process_file_name (filename_lb.buffer, lang);
+		    fatal("cannot parse standard input AND read file names from it",
+                          (char *)NULL);
+		  while (readline_internal(&filename_lb, stdin) > 0)
+		    process_file_name(filename_lb.buffer, lang);
 		}
 	      else
-		process_file_name (this_file, lang);
+		process_file_name(this_file, lang);
 	  break;
         case at_stdin:
           this_file = argbuffer[i].what;
-          process_file (stdin, this_file, lang);
+          process_file(stdin, this_file, lang);
+          break;
+        default:
           break;
 	}
     }
 
-  free_regexps ();
-  free (lb.buffer);
-  free (filebuf.buffer);
-  free (token_name.buffer);
+  free_regexps();
+  free(lb.buffer);
+  free(filebuf.buffer);
+  free(token_name.buffer);
 
   if (!CTAGS || cxref_style)
     {
-      /* Write the remaining tags to tagf (ETAGS) or stdout (CXREF). */
-      put_entries (nodehead);
-      free_tree (nodehead);
+      /* Write the remaining tags to tagf (ETAGS) or stdout (CXREF): */
+      put_entries(nodehead);
+      free_tree(nodehead);
       nodehead = NULL;
       if (!CTAGS)
 	{
@@ -1289,24 +1296,25 @@ main (int argc, char **argv)
 	  /* Output file entries that have no tags. */
 	  for (fdp = fdhead; fdp != NULL; fdp = fdp->next)
 	    if (!fdp->written)
-	      fprintf (tagf, "\f\n%s,0\n", fdp->taggedfname);
+	      fprintf(tagf, "\f\n%s,0\n", fdp->taggedfname);
 
 	  while (nincluded_files-- > 0)
-	    fprintf (tagf, "\f\n%s,include\n", *included_files++);
+	    fprintf(tagf, "\f\n%s,include\n", *included_files++);
 
-	  if (fclose (tagf) == EOF)
-	    pfatal (tagfile);
+	  if (fclose(tagf) == EOF)
+	    pfatal(tagfile);
 	}
 
-      exit (EXIT_SUCCESS);
+      exit(EXIT_SUCCESS);
     }
 
   /* From here on, we are in (CTAGS && !cxref_style) */
   if (update)
     {
-      char *cmd =
-	xmalloc (strlen (tagfile) + whatlen_max +
-		 sizeof "mv..OTAGS;fgrep -v '\t\t' OTAGS >;rm OTAGS");
+      size_t cmdlen =
+        (strlen(tagfile) + whatlen_max +
+         sizeof("mv..OTAGS;fgrep -v '\t\t' OTAGS >;rm OTAGS") + 1UL);
+      char *cmd = xmalloc(cmdlen);
       for (i = 0; i < current_arg; ++i)
 	{
 	  switch (argbuffer[i].arg_type)
@@ -1317,41 +1325,43 @@ main (int argc, char **argv)
 	    default:
 	      continue;		/* the for loop */
 	    }
-	  strcpy (cmd, "mv ");
-	  strcat (cmd, tagfile);
-	  strcat (cmd, " OTAGS;fgrep -v '\t");
-	  strcat (cmd, argbuffer[i].what);
-	  strcat (cmd, "\t' OTAGS >");
-	  strcat (cmd, tagfile);
-	  strcat (cmd, ";rm OTAGS");
-	  if (system (cmd) != EXIT_SUCCESS)
-	    fatal ("failed to execute shell command", (char *)NULL);
+	  strncpy(cmd, "mv ", cmdlen);
+	  strncat(cmd, tagfile, cmdlen);
+	  strncat(cmd, " OTAGS;fgrep -v '\t", cmdlen);
+	  strncat(cmd, argbuffer[i].what, cmdlen);
+	  strncat(cmd, "\t' OTAGS >", cmdlen);
+	  strncat(cmd, tagfile, cmdlen);
+	  strncat(cmd, ";rm OTAGS", cmdlen);
+	  if (system(cmd) != EXIT_SUCCESS)
+	    fatal("failed to execute shell command", (char *)NULL);
 	}
-      free (cmd);
+      free(cmd);
       append_to_tagfile = true;
     }
 
-  tagf = fopen (tagfile, append_to_tagfile ? "a" : "w");
+  tagf = fopen(tagfile, (append_to_tagfile ? "a" : "w"));
   if (tagf == NULL)
-    pfatal (tagfile);
-  put_entries (nodehead);	/* write all the tags (CTAGS) */
-  free_tree (nodehead);
+    pfatal(tagfile);
+  put_entries(nodehead);	/* write all the tags (CTAGS) */
+  free_tree(nodehead);
   nodehead = NULL;
-  if (fclose (tagf) == EOF)
-    pfatal (tagfile);
+  if (fclose(tagf) == EOF)
+    pfatal(tagfile);
 
   if (CTAGS)
     if (append_to_tagfile || update)
       {
-	char *cmd = xmalloc (2 * strlen (tagfile) + sizeof "sort -u -o..");
-	/* Maybe these should be used:
-	   setenv ("LC_COLLATE", "C", 1);
-	   setenv ("LC_ALL", "C", 1); */
-	strcpy (cmd, "sort -u -o ");
-	strcat (cmd, tagfile);
-	strcat (cmd, " ");
-	strcat (cmd, tagfile);
-	exit (system (cmd));
+	char *cmd = xmalloc((2UL * strlen(tagfile)) + sizeof("sort -u -o.."));
+	/* Maybe these should be used: */
+#ifdef USE_LC_ENVVARS
+        setenv("LC_COLLATE", "C", 1);
+        setenv("LC_ALL", "C", 1);
+#endif /* USE_LC_ENVVARS */
+	strcpy(cmd, "sort -u -o ");
+	strcat(cmd, tagfile);
+	strcat(cmd, " ");
+	strcat(cmd, tagfile);
+	exit(system(cmd));
       }
   return EXIT_SUCCESS;
 }
@@ -5801,24 +5811,24 @@ add_regex (char *regexp_pattern, language *lang)
  * arguments.
  */
 static char *
-substitute (char *in, char *out, struct re_registers *regs)
+substitute(char *in, char *out, struct re_registers *regs)
 {
   char *result, *t;
-  int size, dig, diglen;
+  size_t size, dig, diglen;
 
   result = NULL;
-  size = strlen (out);
+  size = strlen(out);
 
   /* Pass 1: figure out how much to allocate by finding all \N strings. */
   if (out[size - 1] == '\\')
-    fatal ("pattern error in \"%s\"", out);
+    fatal("pattern error in \"%s\"", out);
   for (t = etags_strchr (out, '\\');
        t != NULL;
        t = etags_strchr (t + 2, '\\'))
     if (ISDIGIT (t[1]))
       {
 	dig = t[1] - '0';
-	diglen = regs->end[dig] - regs->start[dig];
+	diglen = (regs->end[dig] - regs->start[dig]);
 	size += diglen - 2;
       }
     else
@@ -5832,23 +5842,23 @@ substitute (char *in, char *out, struct re_registers *regs)
     if (*out == '\\' && ISDIGIT (*++out))
       {
 	dig = *out - '0';
-	diglen = regs->end[dig] - regs->start[dig];
-	memcpy (t, in + regs->start[dig], diglen);
+	diglen = (regs->end[dig] - regs->start[dig]);
+	memcpy(t, (in + regs->start[dig]), diglen);
 	t += diglen;
       }
     else
       *t++ = *out;
   *t = '\0';
 
-  assert (t <= result + size);
-  assert (t - result == (int)strlen (result));
+  assert(t <= (result + size));
+  assert((t - result) == (int)strlen(result));
 
   return result;
 }
 
-/* Deallocate all regexps. */
+/* Deallocate all regexps: */
 static void
-free_regexps (void)
+free_regexps(void)
 {
   regexp *rp;
   while (p_head != NULL)
@@ -5870,7 +5880,7 @@ free_regexps (void)
  * Idea by Ben Wing <ben@666.com> (2002).
  */
 static void
-regex_tag_multiline (void)
+regex_tag_multiline(void)
 {
   char *buffer = filebuf.buffer;
   regexp *rp;
@@ -6048,7 +6058,7 @@ readline_internal (linebuffer *lbp, register FILE *stream)
 	}
       *p++ = c;
     }
-  lbp->len = p - buffer;
+  lbp->len = (p - buffer);
 
   if (need_filebuf		/* we need filebuf for multi-line regexps */
       && chars_deleted > 0)	/* not at EOF */
@@ -6238,7 +6248,7 @@ readline (linebuffer *lbp, FILE *stream)
 	      /* Empty string matched. */
 	      if (!rp->error_signaled)
 		{
-		  error ("regexp matches the empty string: \"%s\"", rp->pattern);
+		  error("regexp matches the empty string: \"%s\"", rp->pattern);
 		  rp->error_signaled = true;
 		}
 	      break;
@@ -6248,13 +6258,13 @@ readline (linebuffer *lbp, FILE *stream)
 	      if (name[0] == '\0')
 		name = NULL;
 	      else /* make a named tag */
-		name = substitute (lbp->buffer, rp->name, &rp->regs);
+		name = substitute(lbp->buffer, rp->name, &rp->regs);
 	      if (rp->force_explicit_name)
 		/* Force explicit tag name, if a name is there. */
-		pfnote (name, true, lbp->buffer, match, lineno, linecharno);
+		pfnote(name, true, lbp->buffer, match, lineno, linecharno);
 	      else
-		make_tag (name, strlen (name), true,
-			  lbp->buffer, match, lineno, linecharno);
+		make_tag(name, (int)strlen(name), true,
+                         lbp->buffer, match, lineno, linecharno);
 	      break;
 	    }
 	}
@@ -6267,9 +6277,9 @@ readline (linebuffer *lbp, FILE *stream)
  * with xnew where the string CP has been copied.
  */
 static char *
-savestr (const char *cp)
+savestr(const char *cp)
 {
-  return savenstr (cp, strlen (cp));
+  return savenstr(cp, (int)strlen(cp));
 }
 
 /*
@@ -6277,11 +6287,11 @@ savestr (const char *cp)
  * the string CP has been copied for at most the first LEN characters.
  */
 static char *
-savenstr (const char *cp, int len)
+savenstr(const char *cp, int len)
 {
-  char *dp = xnew (len + 1, char);
+  char *dp = xnew((len + 1), char);
   dp[len] = '\0';
-  return memcpy (dp, cp, len);
+  return memcpy(dp, cp, len);
 }
 
 /*
@@ -6394,14 +6404,14 @@ error(const char *format, ...)
 /* Return a newly-allocated string whose contents
    concatenate those of s1, s2, s3.  */
 static char *
-concat (const char *s1, const char *s2, const char *s3)
+concat(const char *s1, const char *s2, const char *s3)
 {
-  int len1 = strlen (s1), len2 = strlen (s2), len3 = strlen (s3);
-  char *result = xnew (len1 + len2 + len3 + 1, char);
+  size_t len1 = strlen(s1), len2 = strlen(s2), len3 = strlen(s3);
+  char *result = xnew((len1 + len2 + len3 + 1), char);
 
-  strcpy (result, s1);
-  strcpy (result + len1, s2);
-  strcpy (result + len1 + len2, s3);
+  strcpy(result, s1);
+  strcpy((result + len1), s2);
+  strcpy((result + len1 + len2), s3);
 
   return result;
 }
@@ -6447,9 +6457,9 @@ relative_filename (char *file, char *dir)
   if (fp == afn && afn[0] != '/') /* cannot build a relative name */
     return afn;
 #endif /* DOS_NT */
-  do				/* look at the equal chars until '/' */
+  do {				/* look at the equal chars until '/' */
     fp--, dp--;
-  while (*fp != '/');
+  } while (*fp != '/');
 
   /* Build a sequence of "../" strings for the resulting relative file name. */
   i = 0;

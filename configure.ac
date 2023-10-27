@@ -10478,7 +10478,13 @@ AH_TOP([
 #define EMACS_CONFIG_H
 ])dnl
 
-AH_BOTTOM([#include <conf_post.h>
+AH_BOTTOM([
+/* unsure what the proper version check to use here is: */
+#if defined(__clang__) && (__clang__ > 1)
+# include "conf_post.h"
+#else
+# include <conf_post.h>
+#endif /* __clang__ > 1 */
 /* in case "conf_post.h" left out a few things: */
 #ifdef HAVE_X_WINDOWS
 # ifndef HAVE_WINDOW_SYSTEM

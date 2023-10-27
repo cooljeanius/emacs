@@ -47,7 +47,12 @@
 # pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif /* gcc 4.6+ && !__clang__ */
 
-#include <config.h>
+/* unsure what the proper version check to use here is: */
+#if defined(__clang__) && (__clang__ > 1)
+# include "config.h"
+#else
+# include <config.h>
+#endif /* __clang__ > 1 */
 
 #if defined STDC_HEADERS || defined HAVE_STDDEF_H
 # include <stddef.h>
@@ -73,7 +78,7 @@
 
 /* For platform which support the ISO C amendment 1 functionality we
    support user defined character classes.  */
-#if WIDE_CHAR_SUPPORT
+#if defined(WIDE_CHAR_SUPPORT) && WIDE_CHAR_SUPPORT
 /* Solaris 2.5 has a bug: <wchar.h> must be included before <wctype.h>.  */
 # include <wchar.h>
 # include <wctype.h>
@@ -117,7 +122,7 @@
 #endif /* _LIBC */
 
 /* This is for other GNU distributions with internationalized messages.  */
-#if HAVE_LIBINTL_H || defined _LIBC
+#if (defined(HAVE_LIBINTL_H) && HAVE_LIBINTL_H) || defined _LIBC
 # include <libintl.h>
 #else
 # define gettext(msgid) (msgid)
@@ -288,17 +293,17 @@ enum syntaxcode { Swhitespace = 0, Sword = 1, Ssymbol = 2 };
 #endif /* !RE_TRANSLATE */
 
 /* Get the interface, including the syntax bits.  */
-#ifdef _REGEX_H
-# ifdef __GNUC__
-#  warning "it looks like regex.h was already included once."
-# endif /* __GNUC__ */
-#endif /* _REGEX_H */
+#if defined(_REGEX_H) || defined(_REGEX_H_)
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#  warning "it looks like (at least one) regex.h was already included once."
+# endif /* __GNUC__ && !__STRICT_ANSI__ */
+#endif /* _REGEX_H || _REGEX_H_ */
 #include "regex.h"
-#ifndef _REGEX_H
-# ifdef __GNUC__
+#if !defined(_REGEX_H)
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__)
 #  warning "it looks like regex.h was not actually included."
 # endif /* __GNUC__ */
-#endif /* !_REGEX_H */
+#endif /* !_REGEX_H || !_REGEX_H_ */
 
 /* isalpha etc. are used for the character classes.  */
 #include <ctype.h>
@@ -1733,7 +1738,7 @@ static int analyse_first (re_char *p, re_char *pend,
    reset the pointers that pointed into the old block to point to the
    correct places in the new one.  If extending the buffer results in it
    being larger than MAX_BUF_SIZE, then flag memory exhausted.  */
-#if __BOUNDED_POINTERS__
+#if defined(__BOUNDED_POINTERS__) && __BOUNDED_POINTERS__
 # define SET_HIGH_BOUND(P) (__ptrhigh (P) = __ptrlow (P) + bufp->allocated)
 # define MOVE_BUFFER_POINTER(P)					\
   (__ptrlow (P) = new_buffer + (__ptrlow (P) - old_buffer),	\
