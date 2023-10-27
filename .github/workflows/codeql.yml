@@ -80,13 +80,20 @@ jobs:
         echo "Run, Build Application using script"
         sh ./autogen.sh
         ./configure --without-gif --enable-silent-rules --disable-autodepend --enable-gcc-warnings
-        make only_temacs
-        make all_only_c
+        if test -x "$(which gmake)" && test -x "$(which nproc)" && test -n "$(nproc)"; then \
+          echo "attempting parallel build with $(nproc) jobs..."; \
+          gmake -j"$(nproc)" --output-sync only_temacs; \
+          gmake -j"$(nproc)" --output-sync all_only_c
+        else \
+          make only_temacs; \
+          make all_only_c; \
+        fi
         make -C admin check || make -C admin alloc-colors.o || ruby -c ./*.rb
         # shellcheck disable=SC2001
         for subdir in lib lib/bitset lib/malloc lib/uniwidth lib-src lwlib mac/src msdos oldXMenu src test/cedet/tests; do \
           pushd "${subdir}"; \
           for srcfile in *.c; do \
+            echo "attempting to use $(which make) to compile ${srcfile} in ${subdir}"; \
             make "$(echo "${srcfile}" | sed "s/\.c/.o/g")" || stat "${srcfile}"; \
           done; \
           popd; \
@@ -138,8 +145,8 @@ jobs:
           echo "Checking syntax... $(python -m py_compile etc/*.py)"; \
         elif test "${{ matrix.language }}" = "ruby"; then \
           ruby -c ./*.rb || ls ./*.rb || which ruby || pwd; \
-        elif test "${{ matrix.language }}" = "c-cpp" && test -e GNUmakefile && test -e maint.mk; then \
-          make syntax-check V=0 || ls .sc-start-sc_* || stat GNUmakefile || stat maint.mk; \
+        elif test "${{ matrix.language }}" = "c-cpp" && test -e GNUmakefile && test -e maint.mk && test -x "$(which nproc)"; then \
+          make -j"$(nproc)" syntax-check V=0 || ls .sc-start-sc_* || stat GNUmakefile || stat maint.mk; \
         fi
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
