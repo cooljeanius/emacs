@@ -74,10 +74,13 @@ jobs:
       if: "${{ success() }}"
       run: |
         make install_source
-        make apple_helper_executables || (make dumpemacs && make emacswrapper && make test_mach_o_binary)
         if test "${{ matrix.compiler }}" = "clang" || test -n "$(gcc --version | grep clang)"; then \
+          make apple_helper_executables MAC_VERS_CFLAGS="-mmacosx-version-min=10.7 -stdlib=libc++"; \
           make apple_check MAC_VERS_CFLAGS="-mmacosx-version-min=10.7 -stdlib=libc++"; \
         else \
+          make dumpemacs; \
+          make emacswrapper; \
+          make test_mach_o_binary; \
           make -ki apple_check; \
         fi
     strategy:
