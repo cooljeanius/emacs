@@ -69,6 +69,11 @@
 # endif /* _GL_STRING_H || _GL_ALREADY_INCLUDING_STRING_H */
 #endif /* !__clang_analyzer__ && strerror */
 
+/* likewise: */
+#if defined(free) && defined(_GL_STDLIB_H)
+# undef free
+#endif /* free && _GL_STDLIB_H */
+
 int main(void)
 {
     struct rlimit *rlp = (struct rlimit *)malloc(sizeof(struct rlimit));
