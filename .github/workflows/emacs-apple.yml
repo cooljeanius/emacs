@@ -9,7 +9,7 @@ jobs:
     runs-on: macos-latest
     steps:
     - name: checkout
-      uses: actions/checkout@v4.1.1
+      uses: actions/checkout@v4
     - run: brew update
     - run: brew install make automake gettext texinfo gawk gdb coreutils gnu-sed gnu-which clang-build-analyzer clang-format libstxxl
       env:
