@@ -1,0 +1,15 @@
+*.core
+Makefile
+Makefile.c
+TAGS-LISP
+bootstrap-emacs
+config.h
+config.stamp
+emacs
+emacs-*
+epaths.h
+obj
+obj-spd
+prefix-args
+stamp-oldxmenu
+temacs
