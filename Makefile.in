@@ -75,7 +75,7 @@ QUIET_SUBMAKE = MAKELEVEL=0
 # Variables for in case we convert to automake:
 ACLOCAL_AMFLAGS = -I m4 --install
 EXTRA_DIST = m4/gnulib-cache.m4
-DISTCLEANFILES = .DS_Store *~ build-aux/*~ build-aux/snippet/*~ m4/*~
+DISTCLEANFILES = .DS_Store */.DS_Store *~ build-aux/*~ build-aux/snippet/*~ m4/*~
 
 # ==================== Things `configure' Might Edit ====================
 
@@ -1411,6 +1411,15 @@ apple_check: bo.h src/version.h isemacsvalid.plist runit.plist \
 	elif test -e test_mach_o_binary; then stat test_mach_o_binary; \
 	else echo "test_mach_o_binary is missing"; fi
 	cd machocheck && $(MAKE) $(MFLAGS) check
+	if test -x isemacsvalid && false; then \
+	  if test -x src/emacs; then \
+	    ./isemacsvalid src/emacs; \
+	  elif test -x src/bootstrap-emacs; then \
+	    ./isemacsvalid src/bootstrap-emacs; \
+	  elif test -x src/temacs; then \
+	    ./isemacsvalid src/temacs; \
+	  fi; \
+	fi
 .PHONY: apple_check
 
 ### To avoid lisp byte-compilation errors, try this:

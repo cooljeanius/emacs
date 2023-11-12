@@ -69,6 +69,7 @@ etc/e/eterm-color binary
 *.xml diff=html
 *.java diff=java
 *.[HMm] diff=objc
+*.pch diff=objc
 *.pas diff=pascal
 *.perl diff=perl
 *.pl diff=perl
@@ -116,3 +117,6 @@ ChangeLog    merge=cl-merge
 # Teach linguist about some files:
 etc/TUTORIAL.* linguist-language=text
 etc/tutorials/TUTORIAL* linguist-language=text
+mac/src/*.r linguist-language=rez
+mac/README linguist-language=text
+*/*/Xcode/*.pch linguist-language=objc
