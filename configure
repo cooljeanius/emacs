@@ -8606,7 +8606,7 @@ printf "%s\n" "#define HAVE_CRTIN 1" >>confdefs.h
         fi
       else
         ## (TODO: put checks for other package managers here?)
-        ## (e.g.: MacPorts, Homebrew, pkgsrc, others?)
+        ## (e.g.: MacPorts, Homebrew, pkgsrc, nix, others?)
         echo "Fink not found, and checks for other package managers are currently unimplemented..."
       fi
   ;;
@@ -22197,6 +22197,47 @@ printf "%s\n" "$gl_cv_warn_c__Wenum_int_mismatch" >&6; }
 if test "x$gl_cv_warn_c__Wenum_int_mismatch" = xyes
 then :
   as_fn_append WARN_CFLAGS " -Wenum-int-mismatch"
+fi
+
+
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wflex-array-member-not-at-end" >&5
+printf %s "checking whether C compiler handles -Wflex-array-member-not-at-end... " >&6; }
+if test ${gl_cv_warn_c__Wflex_array_member_not_at_end+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wflex-array-member-not-at-end"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_warn_c__Wflex_array_member_not_at_end=yes
+else $as_nop
+  gl_cv_warn_c__Wflex_array_member_not_at_end=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wflex_array_member_not_at_end" >&5
+printf "%s\n" "$gl_cv_warn_c__Wflex_array_member_not_at_end" >&6; }
+if test "x$gl_cv_warn_c__Wflex_array_member_not_at_end" = xyes
+then :
+  as_fn_append WARN_CFLAGS " -Wflex-array-member-not-at-end"
 fi
 
 

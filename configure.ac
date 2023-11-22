@@ -1008,7 +1008,7 @@ dnl# see the `changequote' comment above.
         fi
       else
         ## (TODO: put checks for other package managers here?)
-        ## (e.g.: MacPorts, Homebrew, pkgsrc, others?)
+        ## (e.g.: MacPorts, Homebrew, pkgsrc, nix, others?)
         echo "Fink not found, and checks for other package managers are currently unimplemented..."
       fi
   ;;
@@ -3809,6 +3809,7 @@ else
       gl_WARN_ADD([-Wunreachable-code-ctrl])
       gl_WARN_ADD([-Wxor-used-as-pow])
       gl_WARN_ADD([-Wenum-int-mismatch])
+      gl_WARN_ADD([-Wflex-array-member-not-at-end])
       if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
         AC_LANG_PUSH([C++])dnl
         gl_WARN_ADD([-Wdeprecated-array-compare],[WARN_CXXFLAGS])

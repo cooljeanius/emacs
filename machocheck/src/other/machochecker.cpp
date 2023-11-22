@@ -193,6 +193,7 @@ private:
 	uint8_t										loadCommandSizeMask();
 	void										checkSymbolTable();
 	void										checkInitTerms();
+    void										checkThreadedRebaseBind();
 	void										checkIndirectSymbolTable();
 	void										checkRelocations();
 	void										checkExternalRelocation(const macho_relocation_info<P>* reloc);
@@ -201,11 +202,12 @@ private:
 	void										verifyInstallName();
 	void										verifyNoRpaths();
 	void										verifyNoFlatLookups();
+	void										verifyiOSMac();
 	pint_t										relocBase();
 	bool										addressInWritableSegment(pint_t address);
 	bool										hasTextRelocInRange(pint_t start, pint_t end);
 	pint_t										segStartAddress(uint8_t segIndex);
-	bool										addressIsRebaseSite(pint_t addr);
+	bool										addressIsRebaseSite(pint_t addr, pint_t& pointeeAddr);
 	bool										addressIsBindingSite(pint_t addr);
 	pint_t										getInitialStackPointer(const macho_thread_command<P>*);
 	pint_t										getEntryPoint(const macho_thread_command<P>*);
@@ -231,6 +233,8 @@ private:
 	bool										fWriteableSegmentWithAddrOver4G;
 	bool										fSlidableImage;
 	bool										fHasLC_RPATH;
+    bool										fIsDebugVariant;
+	uint64_t									fBaseAddress;
 	const macho_segment_command<P>*				fFirstSegment;
 	const macho_segment_command<P>*				fFirstWritableSegment;
 	const macho_segment_command<P>*				fTEXTSegment;
@@ -536,8 +540,8 @@ const char* MachOChecker<A>::archName()
 template <typename A>
 MachOChecker<A>::MachOChecker(const uint8_t* fileContent, uint32_t fileLength, const char* path, const char* verifierDstRoot)
  : fHeader(NULL), fLength(fileLength), fInstallName(NULL), fStrings(NULL), fSymbols(NULL), fSymbolCount(0), fDynamicSymbolTable(NULL), fIndirectTableCount(0),
- fLocalRelocations(NULL),  fLocalRelocationsCount(0),  fExternalRelocations(NULL),  fExternalRelocationsCount(0),
- fWriteableSegmentWithAddrOver4G(false), fSlidableImage(false), fHasLC_RPATH(false), fFirstSegment(NULL), fFirstWritableSegment(NULL),
+ fLocalRelocations(NULL), fLocalRelocationsCount(0), fExternalRelocations(NULL),  fExternalRelocationsCount(0),
+ fWriteableSegmentWithAddrOver4G(false), fSlidableImage(false), fHasLC_RPATH(false), fIsDebugVariant(false), fBaseAddress(0), fFirstSegment(NULL), fFirstWritableSegment(NULL),
  fTEXTSegment(NULL), fDyldInfo(NULL), fSectionCount(0)
 {
 	// sanity check:
@@ -562,8 +566,12 @@ MachOChecker<A>::MachOChecker(const uint8_t* fileContent, uint32_t fileLength, c
 
 	checkInitTerms();
 
-    if ( verifierDstRoot != NULL )
+	checkThreadedRebaseBind();
+
+    if (verifierDstRoot != NULL)
 		verify();
+    else
+    	printf("skipping '-verifier_dstroot' checks...\n");
 }
 
 
@@ -581,11 +589,13 @@ void MachOChecker<A>::checkMachHeader()
 #ifdef DEBUG
 	printf("Header flags are 0x%x.\n", flags);
 #endif /* DEBUG */
-#if defined(OLD_MH_INVALID_BITS) && defined(LD64_VERSION_NUM) && (LD64_VERSION_NUM < 1)
+#if defined(LD64_VERSION_NUM) && (LD64_VERSION_NUM == 236)
 # define MH_INVALID_MASK 0xFE000000
-#else
+#elif defined(LD64_VERSION_NUM) && (LD64_VERSION_NUM == 274)
 # define MH_INVALID_MASK 0xFC000000
-#endif /* OLD_MH_INVALID_BITS && (LD64_VERSION_NUM < 1) */
+#else
+# define MH_INVALID_MASK 0xF8000000
+#endif /* OLD_MH_INVALID_BITS && LD64_VERSION_NUM */
 	const uint32_t invalidBits = (MH_INCRLINK | MH_LAZY_INIT | MH_INVALID_MASK);
 	if (flags & invalidBits)
 		throw "invalid bits in mach_header flags";
@@ -660,11 +670,15 @@ void MachOChecker<A>::checkLoadCommands()
 			case LC_LOAD_UPWARD_DYLIB:
 			case LC_VERSION_MIN_MACOSX:
 			case LC_VERSION_MIN_IPHONEOS:
+   			case LC_VERSION_MIN_TVOS:
+			case LC_VERSION_MIN_WATCHOS:
 			case LC_FUNCTION_STARTS:
 			case LC_DYLD_ENVIRONMENT:
 			case LC_DATA_IN_CODE:
 			case LC_DYLIB_CODE_SIGN_DRS:
 			case LC_SOURCE_VERSION:
+   			case LC_NOTE:
+			case LC_BUILD_VERSION:
 				break;
             case LC_RPATH:
 				fHasLC_RPATH = true;
@@ -786,6 +800,8 @@ void MachOChecker<A>::checkLoadCommands()
 				if (segCmd->vmaddr() > 0x100000000ULL)
 					fWriteableSegmentWithAddrOver4G = true;
 			}
+   			if ((segCmd->fileoff() == 0) && (segCmd->filesize() != 0))
+				fBaseAddress = segCmd->vmaddr();
 
 			// check section ranges:
 #if defined(DEBUG) && DEBUG
@@ -829,9 +845,10 @@ void MachOChecker<A>::checkLoadCommands()
 		throw "no __TEXT segment";
 	if (fTEXTSegment->initprot() != (VM_PROT_READ | VM_PROT_EXECUTE))
 		throw "__TEXT segment does not have r-x init permissions";
-#ifdef DEBUG
+#if defined(DEBUG) && (DEBUG > 1)
 	if (fTEXTSegment->maxprot() != (VM_PROT_READ | VM_PROT_EXECUTE | VM_PROT_WRITE))
-		throw "__TEXT segment does not have rwx max permissions";
+		throwf("__TEXT segment does not have rwx max permissions (instead they are 0%o)",
+		       fTEXTSegment->maxprot());
 #endif /* DEBUG */
 	if (fTEXTSegment->fileoff() != 0)
 		throw "__TEXT segment does not start at mach_header";
@@ -1139,23 +1156,59 @@ void MachOChecker<A>::checkSection(const macho_segment_command<P>* segCmd, const
 #endif /* DEBUG */
 }
 
+static bool endsWith(const char* str, const char* suffix)
+{
+	size_t suffixLen = strlen(suffix);
+	size_t strLen = strlen(str);
+	if (strLen > suffixLen) {
+		return (strcmp(&str[strLen - suffixLen], suffix) == 0);
+	}
+	return false;
+}
+
+
+static bool sharedCacheEligiblePath(const char* path)
+{
+	return ((strncmp(path, "/usr/lib/", 9UL) == 0)
+			|| (strncmp(path, "/System/Library/", 16UL) == 0)
+			|| (strncmp(path, "/System/iOSSupport/usr/lib/", 27UL) == 0)
+			|| (strncmp(path, "/System/iOSSupport/System/Library/", 34UL) == 0)
+			|| (strncmp(path, "/PureDarwin/System/Library/", 27UL) == 0));
+}
+
 template <typename A>
 void MachOChecker<A>::verify()
 {
-	bool sharedCacheCandidate = false;
-	if (fInstallName != NULL) {
-		if ((strncmp(fInstallName, "/usr/lib/", 9) == 0) || (strncmp(fInstallName, "/System/Library/", 16) == 0)) {
-			sharedCacheCandidate = true;
-			verifyInstallName();
-			verifyNoRpaths();
+#define NUM_DEBUG_SUFFIXES 12
+	static const char* debugSuffixes[NUM_DEBUG_SUFFIXES] = {
+		"_asan.dylib", "_asan", "_debug.dylib", "_debug", "_profile", "_profile.dylib",
+        "_trace", "_trace.dylib", "_tsan", "_tsan.dylib", "_ubsan" , "_ubsan.dylib"
+    };
+#if defined(__cplusplus) && (__cplusplus >= 201103L)
+	for (const char* suffix : debugSuffixes) {
+		if (endsWith(fPath, suffix))
+			fIsDebugVariant = true;
+	}
+#else
+	for (int i = 0; i < NUM_DEBUG_SUFFIXES; i++) {
+		if (endsWith(fPath, debugSuffixes[i]))
+  			fIsDebugVariant = true;
+    }
+#endif /* c++11 or not */
+
+	if ((fDstRoot != NULL) && (strlen(fDstRoot) < strlen(fPath))) {
+		const char* installLocationInDstRoot = &fPath[strlen(fDstRoot)];
+		if (installLocationInDstRoot[0] != '/')
+			--installLocationInDstRoot;
+		if (sharedCacheEligiblePath(installLocationInDstRoot)) {
+			if (!fIsDebugVariant && (strstr(fPath, ".app/") == NULL)) {
+				verifyInstallName();
+				verifyNoRpaths();
+			}
 		}
 	}
-    if (sharedCacheCandidate) {
-    	printf("Install name being checked is a shared cache candidate.\n");
-    } else {
-    	printf("Nope, not a shared cache candidate here.\n");
-    }
 	verifyNoFlatLookups();
+	verifyiOSMac();
 }
 
 #if !defined(PATH_MAX) && !defined(_SYS_SYSLIMITS_H_)
@@ -1225,6 +1278,42 @@ void MachOChecker<A>::verifyNoFlatLookups()
 				printf("os_dylib_undefined_dynamic_lookup\twarn\tbuilt with -undefined dynamic_lookup for symbol %s in arch %s\n", symName, archName());
 			}
 		}
+	}
+}
+
+template <typename A>
+void MachOChecker<A>::verifyiOSMac()
+{
+	const char* fileLocationWithinDstRoot = &fPath[strlen(fDstRoot)];
+	if ( strncmp(fileLocationWithinDstRoot, "/System/iOSSupport/", 19) == 0 ) {
+		// everything in /System/iOSSupport/ should be iOSMac only
+		bool bad = false;
+		const uint32_t cmd_count = fHeader->ncmds();
+		const macho_load_command<P>* cmd = (macho_load_command<P>*)((uint8_t*)fHeader + sizeof(macho_header<P>));
+		for (uint32_t i = 0; i < cmd_count; ++i) {
+			const macho_build_version_command<P>* buildVersCmd;
+			switch (cmd->cmd()) {
+				case LC_VERSION_MIN_MACOSX:
+				case LC_VERSION_MIN_IPHONEOS:
+				case LC_VERSION_MIN_TVOS:
+				case LC_VERSION_MIN_WATCHOS:
+					bad = true;
+					break;
+				case LC_BUILD_VERSION:
+					buildVersCmd = (macho_build_version_command<P>*)cmd;
+					if (buildVersCmd->platform() != PLATFORM_IOSMAC)
+						bad = true;
+					break;
+     			default:
+        			printf("Unhandled LC\n");
+           			break;
+			}
+			cmd = (const macho_load_command<P>*)(((uint8_t*)cmd)+cmd->cmdsize());
+		}
+		if (bad)
+			printf("macos_in_ios_support\twarn\tnon-iOSMac in /System/iOSSupport/ in arch %s\n", archName());
+	} else {
+		; // TODO: maybe someday warn about iOSMac only stuff not in /System/iOSSupport/
 	}
 }
 
@@ -1434,11 +1523,22 @@ void MachOChecker<A>::checkInitTerms()
 						if (fSlidableImage) {
 							pint_t sectionBeginAddr = (pint_t)sect->addr();
 							pint_t sectionEndddr = (pint_t)(sect->addr() + sect->size());
-							for (pint_t addr = sectionBeginAddr; addr < sectionEndddr; addr += (pint_t)sizeof(pint_t)) {
+							for (pint_t addr = sectionBeginAddr, *p = arrayStart; addr < sectionEndddr; addr += (pint_t)sizeof(pint_t), ++p) {
 								if (addressIsBindingSite(addr))
 									throwf("%s at 0x%0llX has binding to external symbol", kind, (long long)addr);
-								if (! addressIsRebaseSite(addr))
+								pint_t pointer = (pint_t)P::getP(*p);
+								if (! addressIsRebaseSite(addr, pointer))
 									throwf("%s at 0x%0llX is not rebased", kind, (long long)addr);
+                                // check each pointer in array points within TEXT
+								if ((pointer < fTEXTSegment->vmaddr()) ||  (pointer >= (fTEXTSegment->vmaddr() + fTEXTSegment->vmsize())))
+									throwf("%s 0x%08llX points outside __TEXT segment", kind, (long long)pointer);
+							}
+						} else {
+							// check each pointer in array points within TEXT
+							for (pint_t* p = arrayStart; p < arrayEnd; ++p) {
+								pint_t pointer = (pint_t)P::getP(*p);
+								if ((pointer < fTEXTSegment->vmaddr()) ||  (pointer >= (fTEXTSegment->vmaddr()+fTEXTSegment->vmsize())))
+									throwf("%s 0x%08llX 3 points outside __TEXT segment", kind, (long long)pointer);
 							}
 						}
 						inits_and_terms_checked++;
@@ -1461,6 +1561,165 @@ void MachOChecker<A>::checkInitTerms()
 #ifdef DEBUG
     printf("Done checking inits and terms; checked %d total.\n",
 		   inits_and_terms_checked);
+#endif /* DEBUG */
+}
+
+template <typename A>
+void MachOChecker<A>::checkThreadedRebaseBind()
+{
+#ifdef DEBUG
+	printf("Checking threaded rebase bind...\n");
+#endif
+	// look bind info
+	if (fDyldInfo != NULL) {
+		const uint8_t* p = (uint8_t*)fHeader + fDyldInfo->bind_off();
+		const uint8_t* end = &p[fDyldInfo->bind_size()];
+
+		uint8_t type = 0;
+		uint64_t segOffset = 0;
+		uint64_t count;
+		uint64_t skip;
+		const char* symbolName = NULL;
+		uint64_t libraryOrdinal = 0;
+		uint8_t segIndex = 0;
+		int64_t addend = 0;
+		pint_t segStartAddr = 0;
+		uint64_t ordinalTableSize = 0;
+		bool useThreadedRebaseBind = false;
+		bool done = false;
+		while (!done && (p < end)) {
+			uint8_t immediate = *p & BIND_IMMEDIATE_MASK;
+			uint8_t opcode = *p & BIND_OPCODE_MASK;
+			++p;
+			switch (opcode) {
+				case BIND_OPCODE_DONE:
+					done = true;
+					break;
+				case BIND_OPCODE_SET_DYLIB_ORDINAL_IMM:
+					libraryOrdinal = immediate;
+					break;
+				case BIND_OPCODE_SET_DYLIB_ORDINAL_ULEB:
+					libraryOrdinal = read_uleb128(p, end);
+					break;
+				case BIND_OPCODE_SET_DYLIB_SPECIAL_IMM:
+					// the special ordinals are negative numbers
+					if (immediate == 0)
+						libraryOrdinal = 0;
+					else {
+						int8_t signExtended = BIND_OPCODE_MASK | immediate;
+						libraryOrdinal = signExtended;
+					}
+					break;
+				case BIND_OPCODE_SET_SYMBOL_TRAILING_FLAGS_IMM:
+					symbolName = (char*)p;
+     				if (symbolName != NULL) {
+         				; // ???
+             		}
+					while (*p != '\0')
+						++p;
+					++p;
+					break;
+				case BIND_OPCODE_SET_TYPE_IMM:
+					type = immediate;
+     				if (type) {
+         				; // ???
+             		}
+					break;
+				case BIND_OPCODE_SET_ADDEND_SLEB:
+					addend = read_sleb128(p, end);
+     				if (addend) {
+         				; // ???
+         			}
+					break;
+				case BIND_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB:
+					segIndex = immediate;
+					segStartAddr = segStartAddress(segIndex);
+					segOffset = read_uleb128(p, end);
+					break;
+				case BIND_OPCODE_ADD_ADDR_ULEB:
+					segOffset += read_uleb128(p, end);
+					break;
+				case BIND_OPCODE_DO_BIND:
+					segOffset += sizeof(pint_t);
+					break;
+				case BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB:
+					segOffset += read_uleb128(p, end) + sizeof(pint_t);
+					break;
+				case BIND_OPCODE_DO_BIND_ADD_ADDR_IMM_SCALED:
+					segOffset += (immediate * sizeof(pint_t)) + sizeof(pint_t);
+					break;
+				case BIND_OPCODE_DO_BIND_ULEB_TIMES_SKIPPING_ULEB:
+					count = read_uleb128(p, end);
+					skip = read_uleb128(p, end);
+					for (uint32_t i = 0; i < count; ++i) {
+						segOffset += skip + sizeof(pint_t);
+					}
+					break;
+				case BIND_OPCODE_THREADED:
+					// Note the immediate is a sub opcode
+					switch (immediate) {
+						case BIND_SUBOPCODE_THREADED_SET_BIND_ORDINAL_TABLE_SIZE_ULEB:
+							ordinalTableSize = read_uleb128(p, end);
+							useThreadedRebaseBind = true;
+							break;
+						case BIND_SUBOPCODE_THREADED_APPLY: {
+							if (!useThreadedRebaseBind) {
+								throwf("BIND_SUBOPCODE_THREADED_APPLY without ordinal table");
+							}
+							uint64_t delta = 0;
+							do {
+								const uint8_t* pointerLocation = ((uint8_t*)fHeader + fSegments[segIndex]->fileoff() + segOffset);
+								uint64_t value =
+                                  P::getP((Pointer32<LittleEndian>::uint_t)*(uint64_t*)pointerLocation);
+								bool isRebase = (value & (1ULL << 62)) == 0;
+
+								if (isRebase) {
+#ifdef DEBUG
+# if defined(HAVE_SEGNAME) && defined(HAVE_SECTIONNAME) && defined(HAVE_TYPENAME)
+									printf("(rebase): %-7s %-16s 0x%08llX  %s\n",
+									       segName,
+                                           sectionName(segIndex,
+                                                       (segStartAddr + segOffset)),
+                                           (segStartAddr + segOffset), typeName);
+# else
+									printf("(rebase): 0x%08llX  \n",
+                                           (segStartAddr + segOffset));
+# endif /* HAVE_SEGNAME && HAVE_SECTIONNAME && HAVE_TYPENAME */
+#endif /* DEBUG */
+								} else {
+									// the ordinal is bits [0..15]
+									uint16_t ordinal = value & 0xFFFF;
+									if (ordinal >= ordinalTableSize) {
+										throwf("bind ordinal is out of range");
+									}
+								}
+
+								// The delta is bits [51..61]
+								// And bit 62 is to tell us if we are a rebase (0) or bind (1)
+								value &= ~(1ULL << 62);
+								delta = (value & 0x3FF8000000000000) >> 51;
+								segOffset += delta * sizeof(pint_t);
+							} while ( delta != 0);
+							break;
+						}
+						default:
+							throwf("unknown threaded bind subopcode %d", immediate);
+					}
+					break;
+				default:
+					throwf("bad bind opcode %d", *p);
+			}
+		}
+  		if (libraryOrdinal) {
+#ifdef DEBUG
+			printf("libraryOrdinal is %d.\n", (int)libraryOrdinal);
+#else
+			(void)libraryOrdinal;
+#endif
+    	}
+	}
+#ifdef DEBUG
+	printf("Done checking threaded rebase bind.\n");
 #endif /* DEBUG */
 }
 
@@ -1952,7 +2211,7 @@ bool MachOChecker<A>::hasTextRelocInRange(pint_t rangeStart, pint_t rangeEnd)
 }
 
 template <typename A>
-bool MachOChecker<A>::addressIsRebaseSite(pint_t targetAddr)
+bool MachOChecker<A>::addressIsRebaseSite(pint_t targetAddr, pint_t& pointeeAddr)
 {
     const char *segName = "seg"; //placeholder
     const char *typeName = "type"; //placeholder
@@ -1966,24 +2225,24 @@ bool MachOChecker<A>::addressIsRebaseSite(pint_t targetAddr)
 	}
 	// look rebase info:
 	if (fDyldInfo != NULL) {
-		const uint8_t* p = (uint8_t*)fHeader + fDyldInfo->rebase_off();
-		const uint8_t* end = &p[fDyldInfo->rebase_size()];
+		const uint8_t* p0 = (uint8_t*)fHeader + fDyldInfo->rebase_off();
+		const uint8_t* end0 = &p0[fDyldInfo->rebase_size()];
 
 		uint8_t type = 0U;
-		uint64_t segOffset = 0UL;
-		uint32_t count;
-		uint32_t skip;
-		int segIndex = 0;
-		pint_t segStartAddr = 0;
+		uint64_t segOffset0 = 0UL;
+		uint32_t count0;
+		uint32_t skip0;
+		int ssegIndex = 0;
+		pint_t segStartAddr0 = 0;
 		pint_t addr;
-		bool done = false;
-		while (!done && (p < end)) {
-			uint8_t immediate = (*p & REBASE_IMMEDIATE_MASK);
-			uint8_t opcode = (*p & REBASE_OPCODE_MASK);
-			++p;
+		bool outerDone = false;
+		while (!outerDone && (p0 < end0)) {
+			uint8_t immediate = (*p0 & REBASE_IMMEDIATE_MASK);
+			uint8_t opcode = (*p0 & REBASE_OPCODE_MASK);
+			++p0;
 			switch (opcode) {
 				case REBASE_OPCODE_DONE:
-					done = true;
+					outerDone = true;
 					break;
 				case REBASE_OPCODE_SET_TYPE_IMM:
                     if (type != immediate) {
@@ -1991,71 +2250,186 @@ bool MachOChecker<A>::addressIsRebaseSite(pint_t targetAddr)
                     }
 					break;
 				case REBASE_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB:
-					segIndex = immediate;
-					segStartAddr = segStartAddress((uint8_t)segIndex);
-					segOffset = read_uleb128(p, end);
+					ssegIndex = immediate;
+					segStartAddr0 = segStartAddress((uint8_t)ssegIndex);
+					segOffset0 = read_uleb128(p0, end0);
 					break;
 				case REBASE_OPCODE_ADD_ADDR_ULEB:
-					segOffset += read_uleb128(p, end);
+					segOffset0 += read_uleb128(p0, end0);
 					break;
 				case REBASE_OPCODE_ADD_ADDR_IMM_SCALED:
-					segOffset += (immediate * sizeof(pint_t));
+					segOffset0 += (immediate * sizeof(pint_t));
 					break;
 				case REBASE_OPCODE_DO_REBASE_IMM_TIMES:
 					for (int i = 0; i < immediate; ++i) {
-						addr = (pint_t)(segStartAddr + segOffset);
+						addr = (pint_t)(segStartAddr0 + segOffset0);
 						if (addr == targetAddr)
 							return true;
 #ifdef DEBUG
 						printf("%-7s %-16s 0x%08llX  %s\n", segName,
-                               sectionName(segIndex, (segStartAddr + segOffset)),
-                               (segStartAddr + segOffset), typeName);
+                               sectionName(ssegIndex, (segStartAddr0 + segOffset0)),
+                               (segStartAddr0 + segOffset0), typeName);
 #endif /* DEBUG */
-						segOffset += sizeof(pint_t);
+						segOffset0 += sizeof(pint_t);
 					}
 					break;
 				case REBASE_OPCODE_DO_REBASE_ULEB_TIMES:
-					count = (uint32_t)read_uleb128(p, end);
-					for (uint32_t i = 0U; i < count; ++i) {
-						addr = (pint_t)(segStartAddr + segOffset);
+					count0 = (uint32_t)read_uleb128(p0, end0);
+					for (uint32_t i = 0U; i < count0; ++i) {
+						addr = (pint_t)(segStartAddr0 + segOffset0);
 						if (addr == targetAddr)
 							return true;
 #ifdef DEBUG
 						printf("%-7s %-16s 0x%08llX  %s\n", segName,
-                               sectionName(segIndex, (segStartAddr + segOffset)),
-                               (segStartAddr + segOffset), typeName);
+                               sectionName(ssegIndex, (segStartAddr0 + segOffset0)),
+                               (segStartAddr0 + segOffset0), typeName);
 #endif /* DEBUG */
-						segOffset += sizeof(pint_t);
+						segOffset0 += sizeof(pint_t);
 					}
 					break;
 				case REBASE_OPCODE_DO_REBASE_ADD_ADDR_ULEB:
-					addr = (pint_t)(segStartAddr + segOffset);
+					addr = (pint_t)(segStartAddr0 + segOffset0);
 					if (addr == targetAddr)
 						return true;
 #ifdef DEBUG
 					printf("%-7s %-16s 0x%08llX  %s\n", segName,
-                           sectionName(segIndex, (segStartAddr + segOffset)),
-                           (segStartAddr + segOffset), typeName);
+                           sectionName(ssegIndex, (segStartAddr0 + segOffset0)),
+                           (segStartAddr0 + segOffset0), typeName);
 #endif /* DEBUG */
-					segOffset += (read_uleb128(p, end) + sizeof(pint_t));
+					segOffset0 += (read_uleb128(p0, end0) + sizeof(pint_t));
 					break;
 				case REBASE_OPCODE_DO_REBASE_ULEB_TIMES_SKIPPING_ULEB:
-					count = (uint32_t)read_uleb128(p, end);
-					skip = (uint32_t)read_uleb128(p, end);
-					for (uint32_t i = 0U; i < count; ++i) {
-						addr = (pint_t)(segStartAddr + segOffset);
+					count0 = (uint32_t)read_uleb128(p0, end0);
+					skip0 = (uint32_t)read_uleb128(p0, end0);
+					for (uint32_t i = 0U; i < count0; ++i) {
+						addr = (pint_t)(segStartAddr0 + segOffset0);
 						if (addr == targetAddr)
 							return true;
 #ifdef DEBUG
 						printf("%-7s %-16s 0x%08llX  %s\n", segName,
-                               sectionName(segIndex, (segStartAddr + segOffset)),
-                               (segStartAddr + segOffset), typeName);
+                               sectionName(ssegIndex, (segStartAddr0 + segOffset0)),
+                               (segStartAddr0 + segOffset0), typeName);
 #endif /* DEBUG */
- 						segOffset += (skip + sizeof(pint_t));
+ 						segOffset0 += (skip0 + sizeof(pint_t));
 					}
 					break;
 				default:
-					throwf("bad rebase opcode %d", *p);
+					throwf("bad rebase opcode %d", *p0);
+			}
+		}
+
+		// If we have no rebase opcodes, then we may be using the threaded rebase/bind combined
+		// format and need to parse the bind opcodes instead.
+		if ((fDyldInfo->rebase_size() == 0) && (fDyldInfo->bind_size() != 0)) {
+			const uint8_t* p1 = (uint8_t*)fHeader + fDyldInfo->bind_off();
+			const uint8_t* end1 = &p1[fDyldInfo->bind_size()];
+
+			uint8_t usegIndex = 0;
+			uint64_t segOffset1 = 0;
+			uint64_t count1;
+			uint64_t skip1;
+			pint_t segStartAddr1 = 0;
+			bool innerDone = false;
+			while (!innerDone && (p1 < end1)) {
+				uint8_t immediate = *p1 & BIND_IMMEDIATE_MASK;
+				uint8_t opcode = *p1 & BIND_OPCODE_MASK;
+				++p1;
+				switch (opcode) {
+					case BIND_OPCODE_DONE:
+						innerDone = true;
+						break;
+					case BIND_OPCODE_SET_DYLIB_ORDINAL_IMM:
+						break;
+					case BIND_OPCODE_SET_DYLIB_ORDINAL_ULEB:
+						read_uleb128(p1, end1);
+						break;
+					case BIND_OPCODE_SET_DYLIB_SPECIAL_IMM:
+						break;
+					case BIND_OPCODE_SET_SYMBOL_TRAILING_FLAGS_IMM:
+						while (*p1 != '\0')
+							++p1;
+						++p1;
+						break;
+					case BIND_OPCODE_SET_TYPE_IMM:
+						break;
+					case BIND_OPCODE_SET_ADDEND_SLEB:
+						read_sleb128(p1, end1);
+						break;
+					case BIND_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB:
+						usegIndex = immediate;
+						segStartAddr1 = segStartAddress(usegIndex);
+						segOffset1 = read_uleb128(p1, end1);
+						break;
+					case BIND_OPCODE_ADD_ADDR_ULEB:
+						segOffset1 += read_uleb128(p1, end1);
+						break;
+					case BIND_OPCODE_DO_BIND:
+						break;
+					case BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB:
+						segOffset1 += read_uleb128(p1, end1) + sizeof(pint_t);
+						break;
+					case BIND_OPCODE_DO_BIND_ADD_ADDR_IMM_SCALED:
+						segOffset1 += (immediate * sizeof(pint_t)) + sizeof(pint_t);
+						break;
+					case BIND_OPCODE_DO_BIND_ULEB_TIMES_SKIPPING_ULEB:
+						count1 = read_uleb128(p1, end1);
+						skip1 = read_uleb128(p1, end1);
+						for (uint32_t i = 0; i < count1; ++i) {
+							segOffset1 += skip1 + sizeof(pint_t);
+						}
+						break;
+					case BIND_OPCODE_THREADED:
+						// Note the immediate is a sub opcode
+						switch (immediate) {
+							case BIND_SUBOPCODE_THREADED_SET_BIND_ORDINAL_TABLE_SIZE_ULEB:
+								count1 = read_uleb128(p1, end1);
+								break;
+							case BIND_SUBOPCODE_THREADED_APPLY: {
+								uint64_t delta = 0;
+								do {
+									uint8_t* pointerLocation = (uint8_t*)fHeader + fSegments[usegIndex]->fileoff() + segOffset1;
+									uint64_t value =
+                                      P::getP((Pointer32<LittleEndian>::uint_t)*(uint64_t*)pointerLocation);
+#if defined(SUPPORT_ARCH_arm64e) && SUPPORT_ARCH_arm64e
+									bool isAuthenticated = (value & (1ULL << 63)) != 0;
+#endif /* SUPPORT_ARCH_arm64e */
+									bool isRebase = (value & (1ULL << 62)) == 0;
+									if (isRebase && ((segStartAddr1 + segOffset1) == targetAddr)) {
+
+#if defined(SUPPORT_ARCH_arm64e) && SUPPORT_ARCH_arm64e
+										if (isAuthenticated) {
+											uint64_t targetValue = value & 0xFFFFFFFFULL;
+											targetValue += fBaseAddress;
+											pointeeAddr = (pint_t)targetValue;
+										} else
+#endif /* SUPPORT_ARCH_arm64e */
+										{
+											// Regular pointer which needs to fit in 51-bits of value.
+											// C++ RTTI uses the top bit, so we'll allow the whole top-byte
+											// and the signed-extended bottom 43-bits to be fit in to 51-bits.
+											uint64_t top8Bits = value & 0x0007F80000000000ULL;
+											uint64_t bottom43Bits = value & 0x000007FFFFFFFFFFULL;
+											uint64_t targetValue = ( top8Bits << 13 ) | (((intptr_t)(bottom43Bits << 21) >> 21) & 0x00FFFFFFFFFFFFFF);
+											pointeeAddr = (pint_t)targetValue;
+										}
+										return true;
+									}
+
+									// The delta is bits [51..61]
+									// And bit 62 is to tell us if we are a rebase (0) or bind (1)
+									value &= ~(1ULL << 62);
+									delta = (value & 0x3FF8000000000000) >> 51;
+									segOffset1 += delta * sizeof(pint_t);
+								} while (delta != 0);
+								break;
+							}
+							default:
+								throwf("unknown threaded bind subopcode %d", immediate);
+						}
+						break;
+					default:
+						throwf("bad bind opcode %d", *p1);
+				}
 			}
 		}
 	}
@@ -2080,12 +2454,12 @@ bool MachOChecker<A>::addressIsBindingSite(pint_t targetAddr)
 
 		uint8_t type = 0U;
 		uint64_t segOffset = 0UL;
-		uint32_t count;
+		uint64_t count;
 		uint32_t skip;
 		uint8_t flags = 0U;
 		const char *symbolName = NULL;
 		int libraryOrdinal = 0;
-		int segIndex;
+		int segIndex = 0;
 		int64_t addend = 0L;
 		pint_t segStartAddr = 0;
 		pint_t addr = 0;
@@ -2164,6 +2538,36 @@ bool MachOChecker<A>::addressIsBindingSite(pint_t targetAddr)
 						if ((segStartAddr + segOffset) == targetAddr)
 							return true;
 						segOffset += (skip + sizeof(pint_t));
+					}
+					break;
+                case BIND_OPCODE_THREADED:
+					// Note the immediate is a sub opcode
+					switch (immediate) {
+						case BIND_SUBOPCODE_THREADED_SET_BIND_ORDINAL_TABLE_SIZE_ULEB:
+							count = read_uleb128(p, end);
+							break;
+						case BIND_SUBOPCODE_THREADED_APPLY: {
+							uint64_t delta = 0;
+							do {
+								uint8_t* pointerLocation = (uint8_t*)fHeader + fSegments[segIndex]->fileoff() + segOffset;
+								uint64_t value =
+                                  P::getP((Pointer32<LittleEndian>::uint_t)*(uint64_t*)pointerLocation);
+								bool isRebase = (value & (1ULL << 62)) == 0;
+								if (!isRebase) {
+									if ((segStartAddr + segOffset) == targetAddr)
+										return true;
+								}
+
+								// The delta is bits [51..61]
+								// And bit 62 is to tell us if we are a rebase (0) or bind (1)
+								value &= ~(1ULL << 62);
+								delta = (value & 0x3FF8000000000000) >> 51;
+								segOffset += delta * sizeof(pint_t);
+							} while (delta != 0);
+							break;
+						}
+						default:
+							throwf("unknown threaded bind subopcode %d", immediate);
 					}
 					break;
 				default:
