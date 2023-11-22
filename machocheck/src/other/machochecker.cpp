@@ -940,12 +940,11 @@ void MachOChecker<A>::checkLoadCommands()
 	}
 
     // verify dylib has LC_ID_DYLIB
-	if ( fHeader->filetype() == MH_DYLIB ) {
-		if ( fInstallName == NULL )
+	if (fHeader->filetype() == MH_DYLIB) {
+		if (fInstallName == NULL)
 			throw "MH_DYLIB missing LC_ID_DYLIB";
-	}
-	else {
-		if ( fInstallName != NULL )
+	} else {
+		if (fInstallName != NULL)
 			throw "LC_ID_DYLIB found but file type is not MH_DYLIB";
 	}
 

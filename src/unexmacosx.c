@@ -2258,6 +2258,10 @@ unexec(const char *outfile, const char *infile)
 void unexec_init_emacs_zone(void)
 {
   emacs_zone = malloc_create_zone((vm_size_t)0, 0);
+#if defined(DEBUG) || defined(VERBOSE)
+  printf("%s, line %d: zone created: %p.\n", __FILE__, __LINE__,
+         (void *)emacs_zone);
+#endif /* DEBUG || VERBOSE */
   malloc_set_zone_name(emacs_zone, "EmacsZone");
   check_emacs_zone();
 }

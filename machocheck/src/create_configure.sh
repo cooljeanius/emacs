@@ -20,19 +20,25 @@ else
 fi
 
 if [ -z "${RC_SUPPORTED_ARCHS}" ]; then
-	RC_SUPPORTED_ARCHS="i386 x86_64 x86_64h armv6 armv7 armv7s armv7m armv7k arm64"
+	RC_SUPPORTED_ARCHS="i386 x86_64 x86_64h armv6 armv7 armv7s armv7m armv7k arm64 arm64e arm64_32"
 fi
 
 for ANARCH in ${RC_SUPPORTED_ARCHS}
 do
-	KNOWN_ARCHS=",armv4t,armv5,armv6,armv7,armv7f,armv7k,armv7s,armv6m,armv7m,armv7em,armv8,arm64,arm64v8,i386,x86_64,x86_64h,"
+	KNOWN_ARCHS=",armv4t,armv5,armv6,armv7,armv7f,armv7k,armv7s,armv6m,armv7m,armv7em,armv8,arm64,arm64v8,i386,x86_64,x86_64h,arm64e,arm64_32,riscv,"
 	FOUND=`echo "$KNOWN_ARCHS" | grep ",$ANARCH,"`
 	if [ $FOUND ]; then
 		echo "#define SUPPORT_ARCH_$ANARCH  1" >> ${DERIVED_FILE_DIR}/configure.h
 	else
-		echo "#error uknown architecture: $ANARCH" >> ${DERIVED_FILE_DIR}/configure.h
+		echo "#error unknown architecture: $ANARCH" >> ${DERIVED_FILE_DIR}/configure.h
 	fi
 done
+
+if [[ $TOOLCHAIN_INSTALL_DIR =~ .*XcodeDefault.* ]]; then
+	echo "#define SUPPORT_ARCH_riscv 0" >> ${DERIVED_FILE_DIR}/configure.h
+else
+	echo "#define SUPPORT_ARCH_riscv 1" >> ${DERIVED_FILE_DIR}/configure.h
+fi
 
 if [ -n "${RC_HIDE_TIDE}" ]; then
 	echo "#define ALL_SUPPORTED_ARCHS  \"${RC_SUPPORTED_ARCHS}\"" >> ${DERIVED_FILE_DIR}/configure.h
@@ -73,6 +79,12 @@ if [ -n "${RC_ProjectSourceVersion}" ]; then
 	echo "#define LD64_VERSION_NUM ${RC_ProjectSourceVersion}" >> ${DERIVED_FILE_DIR}/configure.h
 else
 	echo "#define LD64_VERSION_NUM 0" >> ${DERIVED_FILE_DIR}/configure.h
+fi
+
+if [ -n "${LD_FORCE_16KB_PAGES}" ]; then
+	echo "#define LD_PAGE_SIZE 0x4000" >> ${DERIVED_FILE_DIR}/configure.h
+else
+	echo "#define LD_PAGE_SIZE 0x1000" >> ${DERIVED_FILE_DIR}/configure.h
 fi
 
 # EOF

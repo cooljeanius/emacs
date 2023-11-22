@@ -3728,6 +3728,10 @@ else
 
     dnl# gcc 8 has been released:
     gl_GCC_VERSION_IFELSE([8],[0],[
+      if test "x${gl_cv_warn_c__Wsuggest_attribute_malloc}" = "x"; then
+        test -z "${gl_cv_warn_c__Wsuggest_attribute_malloc}" || unset gl_cv_warn_c__Wsuggest_attribute_malloc
+        gl_WARN_ADD([-Wsuggest-attribute=malloc])
+      fi
       gl_COMPILER_OPTION_IF([-Wstringop-truncation=2],
                       [WARN_CFLAGS="${WARN_CFLAGS} -Wstringop-truncation=2"],
                       [gl_WARN_ADD([-Wstringop-truncation])])

@@ -1,5 +1,6 @@
 /* emacs.c: Fully extensible Emacs, running on Unix, intended for GNU.
-
+ * Contains the main() function. */
+/*
 Copyright (C) 1985-1987, 1993-1995, 1997-1999, 2001-2014 Free Software
 Foundation, Inc.
 
@@ -697,6 +698,7 @@ close_output_streams(void)
      _exit(EXIT_FAILURE);
 }
 
+/* The all-important main() function. When debugging, start here. */
 /* ARGSUSED */
 int
 main(int argc, char **argv)
@@ -722,14 +724,20 @@ main(int argc, char **argv)
   /* If we use --chdir, this records the original directory.  */
   char *original_pwd = 0;
 
+  printf("%s, line %d: Hello.\n", __FILE__, __LINE__);
+
 #if GC_MARK_STACK
   stack_base = &dummy;
+#elif defined(DEBUG)
+  printf("GC_MARK_STACK not defined.\n");
 #endif /* GC_MARK_STACK */
 
 #ifdef G_SLICE_ALWAYS_MALLOC
   /* This is used by the Cygwin build.  It's not needed starting with
      cygwin-1.7.24, but it doesn't do any harm.  */
   xputenv("G_SLICE=always-malloc");
+#elif defined(DEBUG)
+  printf("G_SLICE_ALWAYS_MALLOC not defined.\n");
 #endif /* G_SLICE_ALWAYS_MALLOC */
 
 #ifdef GNU_LINUX
@@ -744,6 +752,8 @@ main(int argc, char **argv)
       heap_bss_diff = ((char *)my_heap_start - max(my_endbss,
                                                    my_endbss_static));
     }
+#elif defined(DEBUG)
+  printf("skipping GNU/Linux-specific initializaion.\n");
 #endif /* GNU_LINUX */
 
 #if defined WINDOWSNT || defined HAVE_NTGUI
@@ -768,19 +778,23 @@ main(int argc, char **argv)
 #ifdef RUN_TIME_REMAP
   if (initialized)
     run_time_remap(argv[0]);
+#elif defined(DEBUG)
+  printf("Skipping run-time remapping...\n");
 #endif /* RUN_TIME_REMAP */
 
 /* If using unexmacosx.c (set by s/darwin.h), then we must do this: */
 #ifdef DARWIN_OS
-  if (!initialized)
+  if (!initialized) {
+    printf("initializing emacs zone for unexec-ing...\n");
     unexec_init_emacs_zone();
+  }
 
 # if defined(__PREFIX__) || defined(MAC_OS) || defined(PATH) || \
      (defined(HAVE_STRLCPY) && defined(HAVE_STRLCAT))
   /* Imaxima will fail to work properly if PATH does not contain the
    * MacPorts directory.  The following code is a workaround to
    * avoid this problem: */
-  {
+  if (system("which imaxima") && (getenv("PATH") != NULL) && initialized) {
     char *oldpath = getenv("PATH");
     size_t oldpathsize;
     if (!oldpath) { oldpath = (char *)""; }
@@ -789,12 +803,19 @@ main(int argc, char **argv)
       char *newpath;
       size_t newpathsize = (oldpathsize + strlen("__PREFIX__/bin:"));
       if ((newpath = (char *)malloc(newpathsize)) != NULL) {
+        printf("Allocated new pointer for PATH: %p.\n", (void *)newpath);
         strlcpy(newpath, "__PREFIX__/bin:", newpathsize);
         strlcat(newpath, oldpath, newpathsize);
         setenv("PATH", newpath, 1);
-        free(newpath);
+        free(newpath); /* FIXME: pointer being freed was not allocated */
+      } else {
+        printf("Failed to allocate new PATH.\n");
       }
+    } else {
+      printf("Skipping PATH modification...\n");
     }
+  } else {
+    printf("Skipping imaxima hack.\n");
   }
 # else
 #  if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(lint) && \
@@ -806,6 +827,7 @@ main(int argc, char **argv)
 
   atexit(close_output_streams);
 
+  printf("Parsing arguments...\n");
   sort_args(argc, argv);
   argc = 0;
   while (argv[argc]) argc++;
@@ -848,6 +870,10 @@ main(int argc, char **argv)
       printf("see the file named COPYING.\n");
       exit(0);
     }
+  else
+    {
+      printf("Skipping printing version info.\n");
+    }
 
   if (argmatch(argv, argc, "-chdir", "--chdir", 4, &ch_to_dir, &skip_args))
     {
@@ -867,9 +893,18 @@ main(int argc, char **argv)
           exit(1);
         }
     }
+  else
+    {
+      printf("Continuing from current directory.\n");
+    }
 
   dumping = !initialized && (strcmp(argv[argc - 1], "dump") == 0
 			     || strcmp(argv[argc - 1], "bootstrap") == 0);
+
+  if (dumping)
+    printf("Dumping...\n");
+  else
+    printf("Skipping dumping.\n");
 
 #ifdef HAVE_PERSONALITY_LINUX32
   if (dumping && ! getenv("EMACS_HEAP_EXEC"))
@@ -929,6 +964,8 @@ main(int argc, char **argv)
 
       setrlimit(RLIMIT_STACK, &rlim);
     }
+#else
+  printf("Skipping messing with rlimit...\n");
 #endif /* HAVE_SETRLIMIT and RLIMIT_STACK */
 
   /* Record (approximately) where the stack begins: */
@@ -943,7 +980,8 @@ main(int argc, char **argv)
   /* Call malloc at least once, to run malloc_initialize_hook.
      Also call realloc and free for consistency.  */
   free(realloc(malloc(4), 4));
-
+#else
+  printf("Using system malloc.\n");
 #endif	/* not SYSTEM_MALLOC */
 
 #if defined(MSDOS) || defined(WINDOWSNT)
@@ -1913,7 +1951,7 @@ sort_args(int argc, char **argv)
                           argv[from]);
 		  from += options[from];
 		}
-	      /* FIXME When match < 0, shouldn't there be some error,
+	      /* FIXME: When match < 0, shouldn't there be some error,
 		 or at least indication to the user that there was a
 		 problem?  */
 	    }
@@ -1970,7 +2008,14 @@ sort_args(int argc, char **argv)
 
   memcpy(argv, new, (sizeof(char *) * (size_t)argc));
 
-  xfree(options);
+#if defined(__PRETTY_FUNCTION__) && !defined(__STRICT_ANSI__)
+  printf("In %s: pointers to attempt to free: options: %p, new: %p, and priority: %p.\n",
+         __PRETTY_FUNCTION__, (void *)options, (void *)new, (void *)priority);
+#else
+  printf("In %s: pointers to attempt to free: options: %p, new: %p, and priority: %p.\n",
+         __FUNCTION__, (void *)options, (void *)new, (void *)priority);
+#endif /* __PRETTY_FUNCTION__ && !__STRICT_ANSI__ */
+  xfree(options); /* FIXME: pointer being freed was not allocated */
   xfree(new);
   xfree(priority);
 }

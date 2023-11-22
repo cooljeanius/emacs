@@ -73,32 +73,37 @@ int is_emacs_valid(int debugflag)
 int main(int argc, const char* argv[])
 {
   int ret = is_emacs_valid(0);
-  printf("Is emacs valid?\n");
+  int printed = printf("Is emacs valid?\n");
   switch (ret) {
     case -1:
-      fprintf(stderr, "Error");
+      printed += fprintf(stderr, "Error");
       if (errno != 0) {
-        fprintf(stderr, ": %d (i.e. \"%s\")\n", errno, strerror(errno));
+        printed += fprintf(stderr, ": %d (i.e. \"%s\")\n", errno,
+        		   strerror(errno));
       } else {
-        fprintf(stderr, ".\n");
+        printed += fprintf(stderr, ".\n");
       }
       break;
     case 0:
-      printf("Per-arch emacs is outdated; need to regenerate it.\n");
+      printed += printf("Per-arch emacs is outdated; need to regenerate it.\n");
       break;
     case 1:
-      printf("Per-arch emacs is present and new enough, so let it be.\n");
+      printed += printf("Per-arch emacs is present and new enough, so let it be.\n");
       break;
     default:
-      fprintf(stderr, "Unhandled return value for is_emacs_valid()!\n");
+      printed += fprintf(stderr, "Unhandled return value for is_emacs_valid()!\n");
       break;
   }
 
   /* FIXME: munge argv to insert proper path to built emacs, if needed: */
   ret = machocheck_main(argc, argv);
 
-  printf("machocheck_main() returned %d: %s.\n", ret,
-	 ((ret == 0) ? "success, should be valid" : "failure, invalid"));
+  printed += printf("machocheck_main() returned %d: %s.\n", ret,
+                    ((ret == 0) ? "success, should be valid" : "failure, invalid"));
+  if (printed)
+    return ret;
+  else
+    exit(EXIT_FAILURE);
 }
 #endif /* STANDALONE_ISEMACSVALID */
 

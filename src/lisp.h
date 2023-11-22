@@ -540,6 +540,10 @@ enum enum_USE_LSB_TAG { USE_LSB_TAG = false };
 # endif /* USE_LSB_TAG */
 #endif /* check for inlining */
 
+#if !defined(GCC_VERSION) && defined(__GNUC__) && defined(__GNUC_MINOR__)
+# define GCC_VERSION (__GNUC__ * 1000 + __GNUC_MINOR__)
+#endif /* !GCC_VERSION && __GNUC__ && __GNUC_MINOR__ */
+
 /* We use __extension__ in some places to suppress -pedantic warnings
  * about GCC extensions.  This feature did NOT work properly before
  * gcc 2.8.  */
@@ -548,6 +552,19 @@ enum enum_USE_LSB_TAG { USE_LSB_TAG = false };
 #  define __extension__
 # endif /* gcc pre-2.8 */
 #endif /* !__extension__ && GCC_VERSION */
+
+#if defined(GCC_VERSION) && (GCC_VERSION < 2007)
+# define __attribute__(x)
+#endif /* gcc pre-2.7 */
+
+/* Attribute __malloc__ on functions was valid as of gcc 2.96. */
+#ifndef ATTRIBUTE_MALLOC
+# if defined(GCC_VERSION) && (GCC_VERSION >= 2096)
+#  define ATTRIBUTE_MALLOC __attribute__((__malloc__))
+# else
+#  define ATTRIBUTE_MALLOC /* (nothing) */
+# endif /* GNUC >= 2.96 */
+#endif /* ATTRIBUTE_MALLOC */
 
 /* Define NAME as a lisp.h inline function that returns TYPE and has
    arguments declared as ARGDECLS and passed as ARGS.  ARGDECLS and
@@ -4744,11 +4761,11 @@ extern bool initialized;
 /* True means ^G can quit instantly.  */
 extern bool immediate_quit;
 
-extern void *xmalloc (size_t);
+extern void *xmalloc (size_t) ATTRIBUTE_MALLOC;
 extern void *xzalloc (size_t);
 extern void *xrealloc (void *, size_t);
 extern void xfree (void *);
-extern void *xnmalloc (ptrdiff_t, ptrdiff_t);
+extern void *xnmalloc (ptrdiff_t, ptrdiff_t) ATTRIBUTE_MALLOC;
 extern void *xnrealloc (void *, ptrdiff_t, ptrdiff_t);
 extern void *xpalloc (void *, ptrdiff_t *, ptrdiff_t, ptrdiff_t, ptrdiff_t);
 
