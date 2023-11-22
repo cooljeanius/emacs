@@ -845,10 +845,16 @@ void MachOChecker<A>::checkLoadCommands()
 		throw "no __TEXT segment";
 	if (fTEXTSegment->initprot() != (VM_PROT_READ | VM_PROT_EXECUTE))
 		throw "__TEXT segment does not have r-x init permissions";
-#if defined(DEBUG) && (DEBUG > 1)
-	if (fTEXTSegment->maxprot() != (VM_PROT_READ | VM_PROT_EXECUTE | VM_PROT_WRITE))
+#if defined(DEBUG) && DEBUG
+	if (fTEXTSegment->maxprot() != (VM_PROT_READ | VM_PROT_EXECUTE | VM_PROT_WRITE)) {
+# if (DEBUG > 1)
 		throwf("__TEXT segment does not have rwx max permissions (instead they are 0%o)",
 		       fTEXTSegment->maxprot());
+# else
+		printf("__TEXT segment does not have rwx max permissions (instead they are 0%o)\n",
+		       fTEXTSegment->maxprot());
+# endif /* (DEBUG > 1) */
+	}
 #endif /* DEBUG */
 	if (fTEXTSegment->fileoff() != 0)
 		throw "__TEXT segment does not start at mach_header";
@@ -1132,7 +1138,7 @@ void MachOChecker<A>::checkSection(const macho_segment_command<P>* segCmd, const
 			}
 		}
 	} else if (strncmp(sect->sectname(), "__text", 16UL) == 0) {
-		; /* TODO: check for bad symbols */
+		printf("TODO: check this __text section for bad symbols\n");
 	}
 # if defined(EMACSDEBUG)
 	else {
@@ -1313,7 +1319,7 @@ void MachOChecker<A>::verifyiOSMac()
 		if (bad)
 			printf("macos_in_ios_support\twarn\tnon-iOSMac in /System/iOSSupport/ in arch %s\n", archName());
 	} else {
-		; // TODO: maybe someday warn about iOSMac only stuff not in /System/iOSSupport/
+		printf("TODO: maybe someday warn about iOSMac only stuff not in /System/iOSSupport/");
 	}
 }
 
@@ -2634,7 +2640,7 @@ static void check(const char* path, const char* verifierDstRoot)
 		if (mh->magic == OSSwapBigToHostInt32(FAT_MAGIC)) {
 			const struct fat_header* fh = (struct fat_header*)p;
 			const struct fat_arch* archs = (struct fat_arch*)(p + sizeof(struct fat_header));
-			/* FIXME: the clang static analyzer finds a potential memory leak in this loop: */
+			/* FIXME: the clang static analyzer once found a potential memory leak in this loop: */
 			for (unsigned long i = 0UL; i < OSSwapBigToHostInt32(fh->nfat_arch); ++i) {
 				size_t offset = OSSwapBigToHostInt32(archs[i].offset);
 				size_t size = OSSwapBigToHostInt32(archs[i].size);
@@ -2680,7 +2686,7 @@ static void check(const char* path, const char* verifierDstRoot)
 #if defined(SUPPORT_ARCH_arm_any) && SUPPORT_ARCH_arm_any
 				case CPU_TYPE_ARM:
                     if (MachOChecker<arm>::validFile(p + offset)) {
-						/* FIXME: leaks: */
+						/* FIXME: leaks? */
 						MachOChecker<arm>::make((p + offset),
                                                 (uint32_t)size, path,
                                                 verifierDstRoot);
@@ -2705,7 +2711,7 @@ static void check(const char* path, const char* verifierDstRoot)
 				}
 			}
 		} else if (MachOChecker<x86>::validFile(p)) {
-			/* FIXME: leaks: */
+			/* FIXME: leaks? */
 			MachOChecker<x86>::make(p, length, path, verifierDstRoot);
 		} else if (MachOChecker<ppc>::validFile(p)) {
 			MachOChecker<ppc>::make(p, length, path, verifierDstRoot);
@@ -2731,8 +2737,8 @@ static void check(const char* path, const char* verifierDstRoot)
 	catch (const char* msg) {
 		throwf("%s in %s", msg, path);
 	}
-	/* FIXME: the clang static analyzer detects a potential memory leak at the
-	 * end of this function */
+	/* FIXME: the clang static analyzer once detected a potential memory leak
+	 * at the end of this function */
 }
 
 // might be worth moving this higher up in the program later, but as it is,
