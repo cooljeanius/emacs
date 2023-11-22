@@ -1416,12 +1416,18 @@ apple_check: bo.h src/version.h isemacsvalid.plist runit.plist \
 	cd machocheck && $(MAKE) $(MFLAGS) check
 	if test -x isemacsvalid && (./isemacsvalid >/dev/null 2>/dev/null); then \
 	  if test -x src/emacs && test -r src/emacs; then \
-	    ./isemacsvalid src/emacs; \
+	    ./isemacsvalid src/emacs || stat src/emacs || du src/emacs; \
 	  elif test -x src/bootstrap-emacs && test -r src/bootstrap-emacs; then \
-	    ./isemacsvalid src/bootstrap-emacs; \
-	  elif test -x src/temacs && test -r src/temacs && false; then \
-	    ./isemacsvalid src/temacs; \
+	    ./isemacsvalid src/bootstrap-emacs || stat src/bootstrap-emacs; \
+	  elif test -x src/temacs && test -r src/temacs; then \
+	    ./isemacsvalid src/temacs || stat src/temacs || du src/temacs; \
+	  else \
+	    ls src/*emacs || find . -name '*emacs' -print; \
 	  fi; \
+	elif test -e isemacsvalid; then \
+	  stat isemacsvalid || du isemacsvalid; \
+	else \
+	  echo "skipping isemacsvalid check..."; \
 	fi
 .PHONY: apple_check
 

@@ -76,7 +76,7 @@ jobs:
         make install_source
         if test "${{ matrix.compiler }}" = "clang" || test -n "$(gcc --version | grep clang)"; then \
           make apple_helper_executables MAC_VERS_CFLAGS="-mmacosx-version-min=10.7 -stdlib=libc++"; \
-          make apple_check MAC_VERS_CFLAGS="-mmacosx-version-min=10.7 -stdlib=libc++"; \
+          make apple_check MAC_VERS_CFLAGS="-mmacosx-version-min=10.7"; \
         else \
           make dumpemacs; \
           make emacswrapper; \
