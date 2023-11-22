@@ -38468,6 +38468,12 @@ then :
   printf "%s\n" "#define HAVE_LIBINTL_H 1" >>confdefs.h
 
 fi
+ac_fn_c_check_header_compile "$LINENO" "libunwind.h" "ac_cv_header_libunwind_h" "$ac_includes_default"
+if test "x$ac_cv_header_libunwind_h" = xyes
+then :
+  printf "%s\n" "#define HAVE_LIBUNWIND_H 1" >>confdefs.h
+
+fi
 ac_fn_c_check_header_compile "$LINENO" "locale.h" "ac_cv_header_locale_h" "$ac_includes_default"
 if test "x$ac_cv_header_locale_h" = xyes
 then :

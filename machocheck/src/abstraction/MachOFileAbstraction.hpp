@@ -108,7 +108,10 @@ struct unwind_info_compressed_second_level_page_header
 #endif /* HAVE_MACH_O_COMPACT_UNWIND_ENCODING_H */
 #include <mach/machine.h>
 #include <stddef.h>
-#if defined(HAVE_LIBUNWIND_H) && defined(__APPLE__)
+#if !defined(__has_include)
+# define __has_include(foo) 0
+#endif /* !__has_include */
+#if (defined(HAVE_LIBUNWIND_H) || __has_include(<libunwind.h>)) && defined(__APPLE__)
 # include <libunwind.h>
 #endif /* HAVE_LIBUNWIND_H && __APPLE__ */
 

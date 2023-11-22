@@ -4854,12 +4854,12 @@ dnl# checks for which it is okay if they jump out of order:
 AC_CHECK_HEADERS_ONCE([sys/sysinfo.h])dnl
 dnl# Try to keep this second batch in alphabetical order:
 AC_CHECK_HEADERS([OS.h arpa/inet.h dpmi.h err.h errno.h fcntl.h float.h \
-                  io.h langinfo.h libc.h libintl.h locale.h malloc.h \
-                  mbstring.h msvcrt/string.h paths.h nl_types.h regex.h \
-                  sgtty.h signal.h stddef.h sys/_mbstate_t.h sys/bsdtty.h \
-                  sys/file.h sys/ptyio.h sys/signal.h sys/sysctl.h \
-                  sys/syslimits.h sys/timeb.h sysexits.h termcap.h \
-                  termio.h timespec.h unixlib.h])
+                  io.h langinfo.h libc.h libintl.h libunwind.h locale.h \
+                  malloc.h mbstring.h msvcrt/string.h paths.h nl_types.h \
+                  regex.h sgtty.h signal.h stddef.h sys/_mbstate_t.h \
+                  sys/bsdtty.h sys/file.h sys/ptyio.h sys/signal.h \
+                  sys/sysctl.h sys/syslimits.h sys/timeb.h sysexits.h \
+                  termcap.h termio.h timespec.h unixlib.h])
 dnl# (usually I would have checked <malloc/malloc.h> just after <malloc.h>,
 dnl# but we do that elsewhere in this one)
 if test "x${ac_cv_header_limits_h}" = "x"; then

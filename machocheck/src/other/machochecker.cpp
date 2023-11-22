@@ -55,9 +55,14 @@
 #include "MachOFileAbstraction.hpp"
 #include "Architectures.hpp"
 
+#if !defined(__has_include)
+# define __has_include(foo) 0
+#endif /* !__has_include */
+
 #if defined(HAVE_LIBGEN_H) || (defined(_XOPEN4) && defined(_XOPEN4UX)) || \
     (defined(_XOPEN_VERSION) && (_XOPEN_VERSION >= 4)) || \
-    (defined(_XOPEN_SOURCE) && defined(_XOPEN_SOURCE_EXTENDED))
+    (defined(_XOPEN_SOURCE) && defined(_XOPEN_SOURCE_EXTENDED)) || \
+    __has_include(<libgen.h>)
 # include <libgen.h> /* for basename() */
 #else
 # if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(emacs) && \
@@ -65,6 +70,10 @@
 #  warning "machochecker.cpp expects <libgen.h> to be included for basename()."
 # endif /* __GNUC__ && !__STRICT_ANSI__ && emacs && (DEBUG || lint) */
 #endif /* HAVE_LIBGEN_H || xpg4.2 */
+
+#if defined(HAVE_SYS_SYSLIMITS_H) || __has_include(<sys/syslimits.h>)
+# include <sys/syslimits.h>
+#endif /* HAVE_SYS_SYSLIMITS_H */
 
 // Specification for main function in this file, and throwf(), too:
 #include "machochecker.h"
@@ -135,8 +144,8 @@ class MachOChecker
 {
 public:
 	static bool								validFile(const uint8_t* fileContent);
-	static MachOChecker<A>*					make(const uint8_t* fileContent, uint32_t fileLength, const char* path)
-													{ return new MachOChecker<A>(fileContent, fileLength, path); }
+	static MachOChecker<A>*					make(const uint8_t* fileContent, uint32_t fileLength, const char* path, const char* verifierDstRoot)
+													{ return new MachOChecker<A>(fileContent, fileLength, path, verifierDstRoot); }
 	virtual									~MachOChecker() {}
 
 
@@ -177,7 +186,7 @@ private:
     typedef GnuStringSet StringSet;
 #endif /* c++11, but not the clang static analyzer */
 
-												MachOChecker(const uint8_t* fileContent, uint32_t fileLength, const char* path);
+												MachOChecker(const uint8_t* fileContent, uint32_t fileLength, const char* path, const char* verifierDstRoot);
 	void										checkMachHeader();
 	void										checkLoadCommands();
 	void										checkSection(const macho_segment_command<P>* segCmd, const macho_section<P>* sect);
@@ -188,6 +197,10 @@ private:
 	void										checkRelocations();
 	void										checkExternalRelocation(const macho_relocation_info<P>* reloc);
 	void										checkLocalRelocation(const macho_relocation_info<P>* reloc);
+    void										verify();
+	void										verifyInstallName();
+	void										verifyNoRpaths();
+	void										verifyNoFlatLookups();
 	pint_t										relocBase();
 	bool										addressInWritableSegment(pint_t address);
 	bool										hasTextRelocInRange(pint_t start, pint_t end);
@@ -196,11 +209,14 @@ private:
 	bool										addressIsBindingSite(pint_t addr);
 	pint_t										getInitialStackPointer(const macho_thread_command<P>*);
 	pint_t										getEntryPoint(const macho_thread_command<P>*);
+	const char*									archName();
 
     //...why the whitespace?
 	const char*									fPath;
+	const char*									fDstRoot;
 	const macho_header<P>*						fHeader;
 	uint32_t									fLength;
+	const char*									fInstallName;
 	const char*									fStrings;
 	const char*									fStringsEnd;
 	const macho_nlist<P>*						fSymbols;
@@ -214,6 +230,7 @@ private:
 	uint32_t									fExternalRelocationsCount;
 	bool										fWriteableSegmentWithAddrOver4G;
 	bool										fSlidableImage;
+	bool										fHasLC_RPATH;
 	const macho_segment_command<P>*				fFirstSegment;
 	const macho_segment_command<P>*				fFirstWritableSegment;
 	const macho_segment_command<P>*				fTEXTSegment;
@@ -240,7 +257,7 @@ bool MachOChecker<ppc>::validFile(const uint8_t* fileContent)
 			return true;
         default:
 #ifdef DEBUG
-            printf("Unhandled mach header filetype.\n");
+            printf("Unhandled mach header filetype 0x%x.\n", header->filetype());
 #endif /* DEBUG */
             break;
 	}
@@ -263,7 +280,7 @@ bool MachOChecker<ppc64>::validFile(const uint8_t* fileContent)
 			return true;
         default:
 #ifdef DEBUG
-            printf("Unhandled mach header filetype.\n");
+            printf("Unhandled mach header filetype 0x%x.\n", header->filetype());
 #endif /* DEBUG */
             break;
 	}
@@ -286,7 +303,7 @@ bool MachOChecker<x86>::validFile(const uint8_t* fileContent)
 			return true;
         default:
 #ifdef DEBUG
-            printf("Unhandled mach header filetype.\n");
+            printf("Unhandled mach header filetype 0x%x.\n", header->filetype());
 #endif /* DEBUG */
             break;
 	}
@@ -309,13 +326,14 @@ bool MachOChecker<x86_64>::validFile(const uint8_t* fileContent)
 			return true;
         default:
 #ifdef DEBUG
-            printf("Unhandled mach header filetype.\n");
+            printf("Unhandled mach header filetype 0x%x.\n", header->filetype());
 #endif /* DEBUG */
             break;
 	}
 	return false;
 }
 
+#if defined(SUPPORT_ARCH_arm_any) && SUPPORT_ARCH_arm_any
 template <>
 bool MachOChecker<arm>::validFile(const uint8_t* fileContent)
 {
@@ -332,12 +350,13 @@ bool MachOChecker<arm>::validFile(const uint8_t* fileContent)
 			return true;
         default:
 #ifdef DEBUG
-            printf("Unhandled mach header filetype.\n");
+            printf("Unhandled mach header filetype 0x%x.\n", header->filetype());
 #endif /* DEBUG */
             break;
 	}
 	return false;
 }
+#endif
 
 #if defined(SUPPORT_ARCH_arm64) && SUPPORT_ARCH_arm64
 template <>
@@ -356,7 +375,7 @@ bool MachOChecker<arm64>::validFile(const uint8_t* fileContent)
 			return true;
         default:
 # ifdef DEBUG
-            printf("Unhandled mach header filetype.\n");
+            printf("Unhandled mach header filetype 0x%x.\n", header->filetype());
 # endif /* DEBUG */
             break;
 	}
@@ -481,12 +500,44 @@ arm64::P::uint_t MachOChecker<arm64>::getEntryPoint(const macho_thread_command<a
 }
 #endif /* SUPPORT_ARCH_arm64 */
 
+/* */
+template <typename A>
+const char* MachOChecker<A>::archName()
+{
+	switch (fHeader->cputype()) {
+		case CPU_TYPE_I386:
+			return "i386";
+		case CPU_TYPE_X86_64:
+			if (fHeader->cpusubtype() == CPU_SUBTYPE_X86_64_H)
+				return "x86_64h";
+			else
+				return "x86_64";
+		case CPU_TYPE_ARM:
+			switch (fHeader->cpusubtype()) {
+				case CPU_SUBTYPE_ARM_V7:
+					return "armv7";
+				case CPU_SUBTYPE_ARM_V7S:
+					return "armv7s";
+				case CPU_SUBTYPE_ARM_V7K:
+					return "armv7k";
+     			default:
+        			break;
+			}
+			return "arm";
+		case CPU_TYPE_ARM64:
+			return "arm64";
+   		default:
+     		break;
+	}
+	return "unknown";
+}
+
 
 template <typename A>
-MachOChecker<A>::MachOChecker(const uint8_t* fileContent, uint32_t fileLength, const char* path)
- : fHeader(NULL), fLength(fileLength), fStrings(NULL), fSymbols(NULL), fSymbolCount(0), fDynamicSymbolTable(NULL), fIndirectTableCount(0),
+MachOChecker<A>::MachOChecker(const uint8_t* fileContent, uint32_t fileLength, const char* path, const char* verifierDstRoot)
+ : fHeader(NULL), fLength(fileLength), fInstallName(NULL), fStrings(NULL), fSymbols(NULL), fSymbolCount(0), fDynamicSymbolTable(NULL), fIndirectTableCount(0),
  fLocalRelocations(NULL),  fLocalRelocationsCount(0),  fExternalRelocations(NULL),  fExternalRelocationsCount(0),
- fWriteableSegmentWithAddrOver4G(false), fSlidableImage(false), fFirstSegment(NULL), fFirstWritableSegment(NULL),
+ fWriteableSegmentWithAddrOver4G(false), fSlidableImage(false), fHasLC_RPATH(false), fFirstSegment(NULL), fFirstWritableSegment(NULL),
  fTEXTSegment(NULL), fDyldInfo(NULL), fSectionCount(0)
 {
 	// sanity check:
@@ -494,6 +545,7 @@ MachOChecker<A>::MachOChecker(const uint8_t* fileContent, uint32_t fileLength, c
 		throw "not a mach-o file that can be checked";
 
 	fPath = strdup(path);
+	fDstRoot = verifierDstRoot ? strdup(verifierDstRoot) : NULL;
 	fHeader = (const macho_header<P>*)fileContent;
 
 	// sanity check header:
@@ -509,6 +561,9 @@ MachOChecker<A>::MachOChecker(const uint8_t* fileContent, uint32_t fileLength, c
 	checkSymbolTable();
 
 	checkInitTerms();
+
+    if ( verifierDstRoot != NULL )
+		verify();
 }
 
 
@@ -526,7 +581,12 @@ void MachOChecker<A>::checkMachHeader()
 #ifdef DEBUG
 	printf("Header flags are 0x%x.\n", flags);
 #endif /* DEBUG */
-	const uint32_t invalidBits = (MH_INCRLINK | MH_LAZY_INIT | 0xFE000000);
+#if defined(OLD_MH_INVALID_BITS) && defined(LD64_VERSION_NUM) && (LD64_VERSION_NUM < 1)
+# define MH_INVALID_MASK 0xFE000000
+#else
+# define MH_INVALID_MASK 0xFC000000
+#endif /* OLD_MH_INVALID_BITS && (LD64_VERSION_NUM < 1) */
+	const uint32_t invalidBits = (MH_INCRLINK | MH_LAZY_INIT | MH_INVALID_MASK);
 	if (flags & invalidBits)
 		throw "invalid bits in mach_header flags";
 	if ((flags & MH_NO_REEXPORTED_DYLIBS) && (fHeader->filetype() != MH_DYLIB))
@@ -549,6 +609,10 @@ void MachOChecker<A>::checkMachHeader()
 #endif /* DEBUG */
 }
 
+#if !defined(LC_ENCRYPTION_INFO_64) && !defined(_MACHO_LOADER_H_)
+# define LC_ENCRYPTION_INFO_64 0x2C /* 64-bit encrypted segment information */
+#endif /* !LC_ENCRYPTION_INFO_64 && !_MACHO_LOADER_H_ */
+
 template <typename A>
 void MachOChecker<A>::checkLoadCommands()
 {
@@ -565,6 +629,7 @@ void MachOChecker<A>::checkLoadCommands()
 	const uint32_t cmd_count = fHeader->ncmds();
 	const macho_load_command<P>* const cmds = (macho_load_command<P>*)((uint8_t*)fHeader + sizeof(macho_header<P>));
 	const macho_load_command<P>* cmd = cmds;
+	const macho_dylib_command<P>* dylibID;
 	for (uint32_t i = 0U; i < cmd_count; ++i) {
 		uint32_t size = cmd->cmdsize();
 		if ((size & this->loadCommandSizeMask()) != 0)
@@ -579,9 +644,8 @@ void MachOChecker<A>::checkLoadCommands()
 			case LC_SYMTAB:
 			case LC_DYSYMTAB:
 			case LC_LOAD_DYLIB:
-			case LC_ID_DYLIB:
-			case LC_LOAD_DYLINKER:
 			case LC_ID_DYLINKER:
+			case LC_LOAD_DYLINKER:
 			case macho_routines_command<P>::CMD:
 			case LC_SUB_FRAMEWORK:
 			case LC_SUB_CLIENT:
@@ -596,12 +660,22 @@ void MachOChecker<A>::checkLoadCommands()
 			case LC_LOAD_UPWARD_DYLIB:
 			case LC_VERSION_MIN_MACOSX:
 			case LC_VERSION_MIN_IPHONEOS:
-			case LC_RPATH:
 			case LC_FUNCTION_STARTS:
 			case LC_DYLD_ENVIRONMENT:
 			case LC_DATA_IN_CODE:
 			case LC_DYLIB_CODE_SIGN_DRS:
 			case LC_SOURCE_VERSION:
+				break;
+            case LC_RPATH:
+				fHasLC_RPATH = true;
+				break;
+			case LC_ID_DYLIB:
+				dylibID = (macho_dylib_command<P>*)cmd;
+				if ( dylibID->name_offset() > size )
+					throwf("malformed mach-o: LC_ID_DYLIB load command has offset (%u) outside its size (%u)", dylibID->name_offset(), size);
+				if ( (dylibID->name_offset() + strlen(dylibID->name()) + 1) > size )
+					throwf("malformed mach-o: LC_ID_DYLIB load command string extends beyond end of load command");
+				fInstallName = dylibID->name();
 				break;
 			case LC_DYLD_INFO:
 			case LC_DYLD_INFO_ONLY:
@@ -820,8 +894,13 @@ void MachOChecker<A>::checkLoadCommands()
 
 	// verify encryption info:
 	if (encryption_info != NULL) {
-		if (fHeader->filetype() != MH_EXECUTE)
-			throw "LC_ENCRYPTION_INFO load command is only legal in main executables";
+		switch ( fHeader->filetype() ) {
+			case MH_EXECUTE: case MH_DYLIB: case MH_BUNDLE:
+				break;  // okay
+			default:
+				throwf("LC_ENCRYPTION_INFO load command is not allowed in this file type (0x%x).\n",
+				       fHeader->filetype());
+		}
 		if (encryption_info->cryptoff() <  (sizeof(macho_header<P>) + fHeader->sizeofcmds()))
 			throw "LC_ENCRYPTION_INFO load command has cryptoff covers some load commands";
 		if ((encryption_info->cryptoff() % 4096) != 0)
@@ -835,6 +914,16 @@ void MachOChecker<A>::checkLoadCommands()
 					throw "LC_ENCRYPTION_INFO load command is not contained within one segment";
 			}
 		}
+	}
+
+    // verify dylib has LC_ID_DYLIB
+	if ( fHeader->filetype() == MH_DYLIB ) {
+		if ( fInstallName == NULL )
+			throw "MH_DYLIB missing LC_ID_DYLIB";
+	}
+	else {
+		if ( fInstallName != NULL )
+			throw "LC_ID_DYLIB found but file type is not MH_DYLIB";
 	}
 
 	// check LC_SYMTAB, LC_DYSYMTAB, and LC_SEGMENT_SPLIT_INFO:
@@ -851,6 +940,8 @@ void MachOChecker<A>::checkLoadCommands()
 						throw "symbol table not in __LINKEDIT";
 					if ((symtab->symoff() + (fSymbolCount * sizeof(macho_nlist<P>*))) > (linkEditSegment->fileoff() + linkEditSegment->filesize()))
 						throw "symbol table end not in __LINKEDIT";
+                    if ((symtab->symoff() + (fSymbolCount * sizeof(macho_nlist<P>*))) > symtab->stroff())
+						throw "symbol table overlaps string pool";
 					if ((symtab->symoff() % sizeof(pint_t)) != 0)
 						throw "symbol table start not pointer aligned";
 					fStrings = ((char*)fHeader + symtab->stroff());
@@ -1048,6 +1139,95 @@ void MachOChecker<A>::checkSection(const macho_segment_command<P>* segCmd, const
 #endif /* DEBUG */
 }
 
+template <typename A>
+void MachOChecker<A>::verify()
+{
+	bool sharedCacheCandidate = false;
+	if (fInstallName != NULL) {
+		if ((strncmp(fInstallName, "/usr/lib/", 9) == 0) || (strncmp(fInstallName, "/System/Library/", 16) == 0)) {
+			sharedCacheCandidate = true;
+			verifyInstallName();
+			verifyNoRpaths();
+		}
+	}
+    if (sharedCacheCandidate) {
+    	printf("Install name being checked is a shared cache candidate.\n");
+    } else {
+    	printf("Nope, not a shared cache candidate here.\n");
+    }
+	verifyNoFlatLookups();
+}
+
+#if !defined(PATH_MAX) && !defined(_SYS_SYSLIMITS_H_)
+# define PATH_MAX 1024
+#endif /* !PATH_MAX && !_SYS_SYSLIMITS_H_ */
+
+template <typename A>
+void MachOChecker<A>::verifyInstallName()
+{
+	// Do NOT allow @rpath to be used as -install_name for OS dylibs:
+	if (strncmp(fInstallName, "@rpath/", 7UL) == 0) {
+		printf("os_dylib_rpath_install_name\tfatal\t-install_name uses @rpath in arch %s\n", archName());
+	} else {
+		// Verify -install_name match actual path of dylib:
+		const char* installPathWithinDstRoot = &fPath[strlen(fDstRoot)];
+		if (strcmp(installPathWithinDstRoot, fInstallName) != 0) {
+			// see if install name is a symlink to actual file:
+			bool symlinkToDylib = false;
+			char absDstPath[PATH_MAX];
+			if (realpath(fDstRoot, absDstPath) != NULL) {
+				char fullInstallNamePath[PATH_MAX];
+				strlcpy(fullInstallNamePath, absDstPath, PATH_MAX);
+				strlcat(fullInstallNamePath, fInstallName, PATH_MAX);
+				char absInstallNamePath[PATH_MAX];
+				if (realpath(fullInstallNamePath, absInstallNamePath) != NULL) {
+					char absFPath[PATH_MAX];
+					if (realpath(fPath, absFPath) != NULL) {
+						if (strcmp(absInstallNamePath, absFPath) == 0)
+							symlinkToDylib = true;
+					}
+				}
+			}
+			if (!symlinkToDylib)
+				printf("os_dylib_bad_install_name\twarn\t-install_name does not match install location in arch %s\n", archName());
+		}
+	}
+
+}
+
+template <typename A>
+void MachOChecker<A>::verifyNoRpaths()
+{
+	// Do NOT allow OS dylibs to add rpaths:
+	if (fHasLC_RPATH) {
+		printf("os_dylib_rpath\twarn\tcontains LC_RPATH load command in arch %s\n", archName());
+	}
+}
+
+
+template <typename A>
+void MachOChecker<A>::verifyNoFlatLookups()
+{
+	if ((fHeader->flags() & MH_TWOLEVEL) == 0) {
+		printf("os_dylib_flat_namespace\twarn\tbuilt with -flat_namespace in arch %s\n", archName());
+		return;
+	}
+
+	if (fDynamicSymbolTable != NULL) {
+		const macho_nlist<P>* const	undefinesStart = &fSymbols[fDynamicSymbolTable->iundefsym()];
+		const macho_nlist<P>* const undefinesEnd = &undefinesStart[fDynamicSymbolTable->nundefsym()];
+		for (const macho_nlist<P>* sym = undefinesStart; sym < undefinesEnd; ++sym) {
+#ifdef DEBUG
+			printf("0x%04X %s\n", sym->n_desc(), &fStrings[sym->n_strx()]);
+#endif
+			if (GET_LIBRARY_ORDINAL(sym->n_desc()) == DYNAMIC_LOOKUP_ORDINAL) {
+				const char* symName = &fStrings[sym->n_strx()];
+				printf("os_dylib_undefined_dynamic_lookup\twarn\tbuilt with -undefined dynamic_lookup for symbol %s in arch %s\n", symName, archName());
+			}
+		}
+	}
+}
+
 //...
 template <typename A>
 void MachOChecker<A>::checkIndirectSymbolTable()
@@ -1099,6 +1279,46 @@ void MachOChecker<A>::checkIndirectSymbolTable()
 			}
 		}
 		cmd = (const macho_load_command<P>*)(((uint8_t*)cmd) + cmd->cmdsize());
+	}
+
+	if (fDynamicSymbolTable->ilocalsym() != 0) {
+		throwf("start of local symbols (%d) not at start of symbol table", fDynamicSymbolTable->ilocalsym());
+	}
+	if (fDynamicSymbolTable->ilocalsym() > fSymbolCount) {
+		throwf("start of local symbols out of range (%d > %d) in indirect symbol table", fDynamicSymbolTable->ilocalsym(), fSymbolCount);
+  	}
+	if ((fDynamicSymbolTable->ilocalsym() + fDynamicSymbolTable->nlocalsym()) > fSymbolCount) {
+		throwf("local symbols out of range (%d+%d > %d) in indirect symbol table",
+			fDynamicSymbolTable->ilocalsym(), fDynamicSymbolTable->nlocalsym(), fSymbolCount);
+	}
+
+	if (fDynamicSymbolTable->iextdefsym() > fSymbolCount) {
+		throwf("start of extern symbols out of range (%d > %d) in indirect symbol table", fDynamicSymbolTable->iextdefsym(), fSymbolCount);
+  	}
+	if (fDynamicSymbolTable->iextdefsym() != (fDynamicSymbolTable->ilocalsym() + fDynamicSymbolTable->nlocalsym())) {
+		throwf("start of extern symbols (%d) not contiguous to local symbols (%d+%d) in indirect symbol table",
+			fDynamicSymbolTable->iextdefsym(), fDynamicSymbolTable->ilocalsym(), fDynamicSymbolTable->nlocalsym());
+	}
+	if ((fDynamicSymbolTable->iextdefsym() + fDynamicSymbolTable->nextdefsym()) > fSymbolCount) {
+		throwf("extern symbols out of range (%d+%d > %d) in indirect symbol table",
+			fDynamicSymbolTable->iextdefsym(), fDynamicSymbolTable->nextdefsym(), fSymbolCount);
+	}
+
+	if (fDynamicSymbolTable->iundefsym() > fSymbolCount) {
+		throwf("start of undefined symbols out of range (%d > %d) in indirect symbol table", fDynamicSymbolTable->iundefsym(), fSymbolCount);
+	}
+	if (fDynamicSymbolTable->iundefsym() != (fDynamicSymbolTable->iextdefsym() + fDynamicSymbolTable->nextdefsym())) {
+		throwf("start of undefined symbols (%d) not contiguous to extern symbols (%d+%d) in indirect symbol table",
+			fDynamicSymbolTable->iundefsym(), fDynamicSymbolTable->iextdefsym(), fDynamicSymbolTable->nextdefsym());
+	}
+	if ((fDynamicSymbolTable->iundefsym() + fDynamicSymbolTable->nundefsym()) > fSymbolCount) {
+		throwf("undefined symbols out of range (%d+%d > %d) in indirect symbol table",
+			fDynamicSymbolTable->iundefsym(), fDynamicSymbolTable->nundefsym(), fSymbolCount);
+	}
+
+	if ((fDynamicSymbolTable->iundefsym() + fDynamicSymbolTable->nundefsym()) != fSymbolCount) {
+		throwf("end undefined symbols (%d+%d) not at end of all symbols (%d) in indirect symbol table",
+				fDynamicSymbolTable->iundefsym(), fDynamicSymbolTable->nundefsym(),  fSymbolCount);
 	}
 
 #ifdef DEBUG
@@ -1613,8 +1833,8 @@ static const char *sectionName(int segIndex, uint64_t segAddrWithOffset)
      * having to free it: */
     for (size_t i = 0UL; i <= retStringSize; i++)
         retString[i] = '\0';
-    //this is a really bad way to form the string, but it is just a first
-    //attempt until I figure out how it is actually supposed to work:
+    /* This is a really bad way to form the string, but it is just a first
+     * attempt until I figure out how it is actually supposed to work: */
     snprintf(retString, retStringSize,
              "%i%llu", segIndex, segAddrWithOffset);
     return retString;
@@ -1966,7 +2186,7 @@ bool MachOChecker<A>::addressIsBindingSite(pint_t targetAddr)
 # undef check
 #endif /* check */
 
-static void check(const char* path)
+static void check(const char* path, const char* verifierDstRoot)
 {
 	struct stat stat_buf;
 
@@ -2020,7 +2240,8 @@ static void check(const char* path)
 				case CPU_TYPE_POWERPC:
                     if (MachOChecker<ppc>::validFile(p + offset)) {
 						MachOChecker<ppc>::make((p + offset),
-                                                (uint32_t)size, path);
+                                                (uint32_t)size, path,
+                                                verifierDstRoot);
 					} else {
 						throw "in universal file, ppc slice does not contain ppc mach-o";
                     }
@@ -2028,7 +2249,8 @@ static void check(const char* path)
 				case CPU_TYPE_I386:
                     if (MachOChecker<x86>::validFile(p + offset)) {
 						MachOChecker<x86>::make((p + offset),
-                                                (uint32_t)size, path);
+                                                (uint32_t)size, path,
+                                                verifierDstRoot);
 					} else {
 						throw "in universal file, i386 slice does not contain i386 mach-o";
                     }
@@ -2036,7 +2258,8 @@ static void check(const char* path)
 				case CPU_TYPE_POWERPC64:
                     if (MachOChecker<ppc64>::validFile(p + offset)) {
 						MachOChecker<ppc64>::make((p + offset),
-                                                  (uint32_t)size, path);
+                                                  (uint32_t)size, path,
+                                                  verifierDstRoot);
 					} else {
 						throw "in universal file, ppc64 slice does not contain ppc64 mach-o";
                     }
@@ -2044,7 +2267,8 @@ static void check(const char* path)
 				case CPU_TYPE_X86_64:
                     if (MachOChecker<x86_64>::validFile(p + offset)) {
 						MachOChecker<x86_64>::make((p + offset),
-                                                   (uint32_t)size, path);
+                                                   (uint32_t)size, path,
+                                                   verifierDstRoot);
 					} else {
 						throw "in universal file, x86_64 slice does not contain x86_64 mach-o";
                     }
@@ -2054,38 +2278,50 @@ static void check(const char* path)
                     if (MachOChecker<arm>::validFile(p + offset)) {
 						/* FIXME: leaks: */
 						MachOChecker<arm>::make((p + offset),
-                                                (uint32_t)size, path);
+                                                (uint32_t)size, path,
+                                                verifierDstRoot);
 					} else {
 						throw "in universal file, arm slice does not contain arm mach-o";
                     }
 					break;
 #endif /* SUPPORT_ARCH_arm_any */
+#if defined(SUPPORT_ARCH_arm64) && SUPPORT_ARCH_arm64
+				case CPU_TYPE_ARM64:
+					if (MachOChecker<arm64>::validFile(p + offset)) {
+						MachOChecker<arm64>::make((p + offset),
+                                                  (uint32_t)size, path,
+                                                  verifierDstRoot);
+					} else {
+						throw "in universal file, arm64 slice does not contain arm mach-o";
+					}
+					break;
+#endif
 				default:
                     throwf("in universal file, unknown architecture slice 0x%x\n", cputype);
 				}
 			}
 		} else if (MachOChecker<x86>::validFile(p)) {
 			/* FIXME: leaks: */
-			MachOChecker<x86>::make(p, length, path);
+			MachOChecker<x86>::make(p, length, path, verifierDstRoot);
 		} else if (MachOChecker<ppc>::validFile(p)) {
-			MachOChecker<ppc>::make(p, length, path);
+			MachOChecker<ppc>::make(p, length, path, verifierDstRoot);
 		} else if (MachOChecker<ppc64>::validFile(p)) {
-			MachOChecker<ppc64>::make(p, length, path);
+			MachOChecker<ppc64>::make(p, length, path, verifierDstRoot);
 		} else if (MachOChecker<x86_64>::validFile(p)) {
-			MachOChecker<x86_64>::make(p, length, path);
+			MachOChecker<x86_64>::make(p, length, path, verifierDstRoot);
 		}
 #if defined(SUPPORT_ARCH_arm_any) && SUPPORT_ARCH_arm_any
 		else if (MachOChecker<arm>::validFile(p)) {
-			MachOChecker<arm>::make(p, length, path);
+			MachOChecker<arm>::make(p, length, path, verifierDstRoot);
 		}
 #endif /* SUPPORT_ARCH_arm_any */
 #if defined(SUPPORT_ARCH_arm64) && SUPPORT_ARCH_arm64
 		else if (MachOChecker<arm64>::validFile(p)) {
-			MachOChecker<arm64>::make(p, length, path);
+			MachOChecker<arm64>::make(p, length, path, verifierDstRoot);
 		}
 #endif /* SUPPORT_ARCH_arm64 */
 		else {
-			throw "not a known file type";
+			throwf("not a known file type (%p).\n", p);
 		}
 	}
 	catch (const char* msg) {
@@ -2103,9 +2339,9 @@ static void check(const char* path)
 
 static void print_machocheck_usage()
 {
-    const int n = 2; // 'n' for "Number of allowed arguments"
+    const int n = 4; // 'n' for "Number of allowed arguments"
     const char *allowed_args[n] = {
-        "-progress", "-help"
+        "-progress", "-help", "-verifier_dstroot", "-verifier_error_list"
     };
     fprintf(stderr, "Usage: %s ", _PROGNAME);
     for (int i = 0; i < n; i++) {
@@ -2118,6 +2354,7 @@ static void print_machocheck_usage()
 int machocheck_main(int argc, const char* argv[])
 {
 	bool progress = false;
+	const char* verifierDstRoot = NULL;
 	int result = 0;
 #ifdef DEBUG
     printf("This program is running from path '%s' with '%i' additional argument(s).\n",
@@ -2159,6 +2396,16 @@ int machocheck_main(int argc, const char* argv[])
 #endif /* DEBUG */
                 print_machocheck_usage();
                 return 0;
+			} else if (strncmp(arg, "-verifier_dstroot", strlen(arg)) == 0) {
+				verifierDstRoot = argv[++i];
+			} else if (strncmp(arg, "-verifier_error_list", strlen(arg)) == 0) {
+				printf("os_dylib_rpath_install_name\tOS dylibs (those in /usr/lib/ or /System/Library/) must be built with -install_name that is an absolute path - not an @rpath\n");
+				printf("os_dylib_bad_install_name\tOS dylibs (those in /usr/lib/ or /System/Library/) must be built with -install_name matching their file system location\n");
+				printf("os_dylib_rpath\tOS dylibs should not contain LC_RPATH load commands (from -rpath linker option)\n");
+				printf("os_dylib_flat_namespace\tOS dylibs should not be built with -flat_namespace\n");
+				printf("os_dylib_undefined_dynamic_lookup\tOS dylibs should not be built with -undefined dynamic_lookup\n");
+				printf("os_dylib_malformed\tThe mach-o is malformed\n");
+				return 0;
 			} else {
 #if defined(DEBUG) && !defined(__cplusplus)
                 fprintf(stderr, "unknown option: %s; going to try to throw this as a C++-style exception next...\n",
@@ -2183,13 +2430,17 @@ int machocheck_main(int argc, const char* argv[])
 #ifdef DEBUG
                 printf("Checking '%s'...\n", arg);
 #endif /* DEBUG */
-				check(arg);
+				check(arg, verifierDstRoot);
 			}
 			catch (const char* msg) {
-				fprintf(stderr, "%s failed: %s: %s\n",
-                        _PROGNAME, arg, msg);
-				result = 1;
-				success = false;
+   				if ( verifierDstRoot ) {
+					printf("os_dylib_malformed\twarn\t%s\n", msg);
+				} else {
+					fprintf(stderr, "%s failed: %s: %s\n",
+					        _PROGNAME, arg, msg);
+					result = 1;
+					success = false;
+				}
 			}
 			if (success && progress) {
 				printf("ok: %s\n", arg);
