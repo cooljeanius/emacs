@@ -3,6 +3,8 @@
  *  emacs
  *
  *  Created by Eric Gallager on 6/4/15.
+ *  Header to allow functions from machochecker.cpp to be called from
+ *  isemacsvalid.c, to help debug the dumping process.
  */
 
 #ifndef MACHOCHECKER_H

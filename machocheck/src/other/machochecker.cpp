@@ -27,6 +27,7 @@
 #include <sys/mman.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
@@ -628,7 +629,13 @@ void MachOChecker<A>::checkLoadCommands()
 				threadInfo = (macho_thread_command<P>*)cmd;
 				break;
 			default:
-				throwf("load command #%d is an unknown kind 0x%X", i, cmd->cmd());
+#if defined(__PRETTY_FUNCTION__) && !defined(__STRICT_ANSI__)
+				throwf("%s, %s (line %d): load command #%d is an unknown kind 0x%X",
+				       __FILE__, __PRETTY_FUNCTION__, __LINE__, i, cmd->cmd());
+#else
+				throwf("%s, line %d: load command #%d is an unknown kind 0x%X",
+				       __FILE__, __LINE__, i, cmd->cmd());
+#endif /* __PRETTY_FUNCTION && !__STRICT_ANSI__ */
 		}
 		cmd = (const macho_load_command<P>*)endOfCmd;
 	}

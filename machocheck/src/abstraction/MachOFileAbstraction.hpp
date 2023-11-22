@@ -108,6 +108,9 @@ struct unwind_info_compressed_second_level_page_header
 #endif /* HAVE_MACH_O_COMPACT_UNWIND_ENCODING_H */
 #include <mach/machine.h>
 #include <stddef.h>
+#if defined(HAVE_LIBUNWIND_H) && defined(__APPLE__)
+# include <libunwind.h>
+#endif /* HAVE_LIBUNWIND_H && __APPLE__ */
 
 #include "FileAbstraction.hpp"
 
@@ -136,6 +139,9 @@ struct unwind_info_compressed_second_level_page_header
 #endif
 #ifndef MH_KEXT_BUNDLE
 	#define MH_KEXT_BUNDLE 11
+#endif
+#ifndef MH_SIM_SUPPORT
+	#define MH_SIM_SUPPORT 0x08000000
 #endif
 #ifndef LC_DYLD_INFO
 	#define	LC_DYLD_INFO 	0x22	/* compressed dyld information */
@@ -205,6 +211,34 @@ struct unwind_info_compressed_second_level_page_header
 	#define EXPORT_SYMBOL_FLAGS_WEAK_DEFINITION			0x04
 	#define EXPORT_SYMBOL_FLAGS_INDIRECT_DEFINITION			0x08
 	#define EXPORT_SYMBOL_FLAGS_HAS_SPECIALIZATIONS			0x10
+
+#endif
+
+#ifndef BIND_SPECIAL_DYLIB_WEAK_LOOKUP
+#define BIND_SPECIAL_DYLIB_WEAK_LOOKUP				-3
+#endif
+
+#ifndef BIND_OPCODE_THREADED
+#define BIND_OPCODE_THREADED	0xD0
+#endif
+
+#ifndef BIND_SUBOPCODE_THREADED_SET_BIND_ORDINAL_TABLE_SIZE_ULEB
+#define BIND_SUBOPCODE_THREADED_SET_BIND_ORDINAL_TABLE_SIZE_ULEB	0x00
+#endif
+
+#ifndef BIND_SUBOPCODE_THREADED_APPLY
+#define BIND_SUBOPCODE_THREADED_APPLY								0x01
+#endif
+
+#if defined(SUPPORT_ARCH_arm64e) && SUPPORT_ARCH_arm64e
+
+// clang encodes the combination of the key bits as these values.
+typedef enum {
+	ptrauth_key_asia = 0,
+	ptrauth_key_asib = 1,
+	ptrauth_key_asda = 2,
+	ptrauth_key_asdb = 3,
+} ptrauth_key;
 
 #endif
 
@@ -326,7 +360,9 @@ struct unwind_info_compressed_second_level_page_header
 #endif
 
 // hack until arm64 headers are worked out
-#define CPU_TYPE_ARM64			(CPU_TYPE_ARM | CPU_ARCH_ABI64)
+#if !defined(CPU_TYPE_ARM64)
+# define CPU_TYPE_ARM64			(CPU_TYPE_ARM | CPU_ARCH_ABI64)
+#endif /* !CPU_TYPE_ARM64 */
 #if !defined(CPU_SUBTYPE_ARM64_ALL)
 # define CPU_SUBTYPE_ARM64_ALL	0
 #endif /* !CPU_SUBTYPE_ARM64_ALL */
@@ -346,6 +382,9 @@ struct unwind_info_compressed_second_level_page_header
 #define ARM64_RELOC_TLVP_LOAD_PAGEOFF12 9 // offset within page of TLVP slot, scaled by r_length
 #define ARM64_RELOC_ADDEND				10 // r_symbolnum is addend for next reloc
 
+#if defined(SUPPORT_ARCH_arm64e) && SUPPORT_ARCH_arm64e
+	#define ARM64_RELOC_AUTHENTICATED_POINTER				11 // An authenticated pointer.
+#endif
 
 
 #define UNW_ARM64_X0     0
@@ -446,6 +485,10 @@ struct unwind_info_compressed_second_level_page_header
 
 #define UNWIND_ARM64_DWARF_SECTION_OFFSET               0x00FFFFFF
 
+#if !defined(UNW_ARM_D31) && defined(__APPLE__)
+# define UNW_ARM_D31 287
+#endif /* !UNW_ARM_D31 && __APPLE__ */
+
 #ifndef LC_SOURCE_VERSION
 	#define LC_SOURCE_VERSION 0x2A
 	struct source_version_command {
@@ -492,6 +535,14 @@ struct unwind_info_compressed_second_level_page_header
     #define LOH_ARM64_ADRP_LDR_GOT			8
 #endif
 
+#ifndef LC_VERSION_MIN_TVOS
+    #define LC_VERSION_MIN_TVOS			0x2F
+#endif
+
+#ifndef LC_VERSION_MIN_WATCHOS
+    #define LC_VERSION_MIN_WATCHOS		0x30
+#endif
+
 #ifndef EXPORT_SYMBOL_FLAGS_KIND_ABSOLUTE
     #define EXPORT_SYMBOL_FLAGS_KIND_ABSOLUTE			0x02
 #endif
@@ -516,6 +567,111 @@ struct unwind_info_compressed_second_level_page_header
 #ifndef CPU_SUBTYPE_X86_64_H
     #define CPU_SUBTYPE_X86_64_H	((cpu_subtype_t) 8)
 #endif
+
+
+#define UNWIND_ARM_MODE_MASK                          0x0F000000
+#define UNWIND_ARM_MODE_FRAME                         0x01000000
+#define UNWIND_ARM_MODE_FRAME_D                       0x02000000
+#define UNWIND_ARM_MODE_DWARF                         0x04000000
+
+#define  UNWIND_ARM_FRAME_STACK_ADJUST_MASK           0x00C00000
+
+#define UNWIND_ARM_FRAME_FIRST_PUSH_R4                0x00000001
+#define UNWIND_ARM_FRAME_FIRST_PUSH_R5                0x00000002
+#define UNWIND_ARM_FRAME_FIRST_PUSH_R6                0x00000004
+
+#define UNWIND_ARM_FRAME_SECOND_PUSH_R8               0x00000008
+#define UNWIND_ARM_FRAME_SECOND_PUSH_R9               0x00000010
+#define UNWIND_ARM_FRAME_SECOND_PUSH_R10              0x00000020
+#define UNWIND_ARM_FRAME_SECOND_PUSH_R11              0x00000040
+#define UNWIND_ARM_FRAME_SECOND_PUSH_R12              0x00000080
+
+#define UNWIND_ARM_FRAME_D_REG_COUNT_MASK             0x00000F00
+
+#define UNWIND_ARM_DWARF_SECTION_OFFSET               0x00FFFFFF
+
+
+// ( <opcode> (delta-uleb128)+ <zero> )+ <zero>
+#define DYLD_CACHE_ADJ_V1_POINTER_32		0x01
+#define DYLD_CACHE_ADJ_V1_POINTER_64		0x02
+#define DYLD_CACHE_ADJ_V1_ADRP				0x03
+#define DYLD_CACHE_ADJ_V1_ARM_THUMB_MOVT	0x10 // thru 0x1F
+#define DYLD_CACHE_ADJ_V1_ARM_MOVT			0x20 // thru 0x2F
+
+
+// Whole		 :== <new-marker> <count> FromToSection+
+// FromToSection :== <from-sect-index> <to-sect-index> <count> ToOffset+
+// ToOffset		 :== <to-sect-offset-delta> <count> FromOffset+
+// FromOffset	 :== <kind> <count> <from-sect-offset-delta>
+#define DYLD_CACHE_ADJ_V2_FORMAT				0x7F
+
+#define DYLD_CACHE_ADJ_V2_POINTER_32			0x01
+#define DYLD_CACHE_ADJ_V2_POINTER_64			0x02
+#define DYLD_CACHE_ADJ_V2_DELTA_32			    0x03
+#define DYLD_CACHE_ADJ_V2_DELTA_64			    0x04
+#define DYLD_CACHE_ADJ_V2_ARM64_ADRP			0x05
+#define DYLD_CACHE_ADJ_V2_ARM64_OFF12			0x06
+#define DYLD_CACHE_ADJ_V2_ARM64_BR26			0x07
+#define DYLD_CACHE_ADJ_V2_ARM_MOVW_MOVT			0x08
+#define DYLD_CACHE_ADJ_V2_ARM_BR24				0x09
+#define DYLD_CACHE_ADJ_V2_THUMB_MOVW_MOVT		0x0A
+#define DYLD_CACHE_ADJ_V2_THUMB_BR22			0x0B
+#define DYLD_CACHE_ADJ_V2_IMAGE_OFF_32			0x0C
+#define DYLD_CACHE_ADJ_V2_THREADED_POINTER_64			0x0D
+
+
+#ifndef LC_BUILD_VERSION
+	#define LC_BUILD_VERSION 0x32 /* build for platform min OS version */
+
+	/*
+	 * The build_version_command contains the min OS version on which this
+	 * binary was built to run for its platform.  The list of known platforms and
+	 * tool values following it.
+	 */
+	struct build_version_command {
+		uint32_t	cmd;		/* LC_BUILD_VERSION */
+		uint32_t	cmdsize;	/* sizeof(struct build_version_command) plus */
+								/* ntools * sizeof(struct build_tool_version) */
+		uint32_t	platform;	/* platform */
+		uint32_t	minos;		/* X.Y.Z is encoded in nibbles xxxx.yy.zz */
+		uint32_t	sdk;		/* X.Y.Z is encoded in nibbles xxxx.yy.zz */
+		uint32_t	ntools;		/* number of tool entries following this */
+	};
+
+	struct build_tool_version {
+		uint32_t	tool;		/* enum for the tool */
+		uint32_t	version;	/* version number of the tool */
+	};
+
+	/* Known values for the platform field above. */
+	#define PLATFORM_MACOS		1
+	#define PLATFORM_IOS		2
+	#define PLATFORM_TVOS		3
+	#define PLATFORM_WATCHOS	4
+	#define PLATFORM_BRIDGEOS	5
+
+	/* Known values for the tool field above. */
+	#define TOOL_CLANG	1
+	#define TOOL_SWIFT	2
+	#define TOOL_LD		3
+#endif
+
+#ifndef LC_NOTE
+	#define LC_NOTE 0x31
+	struct note_command {
+		uint32_t    cmd;        /* LC_NOTE */
+		uint32_t    cmdsize;    /* sizeof(struct note_command) */
+		char        data_owner[16];    /* owner name for this LC_NOTE */
+		uint64_t    offset;        /* file offset of this data */
+		uint64_t    size;        /* length of data region */
+	};
+#endif
+
+#ifndef PLATFORM_IOSMAC
+	#define PLATFORM_IOSMAC 6
+#endif
+
+// kind target-address fixup-addr [adj]
 
 struct ArchInfo {
 	const char*			archName;
@@ -1686,6 +1842,53 @@ private:
 	version_min_command	fields;
 };
 
+//
+// mach-o build version load command
+//
+template <typename P>
+class macho_build_version_command {
+public:
+	uint32_t		cmd() const								INLINE { return E::get32(fields.cmd); }
+	void			set_cmd(uint32_t value)					INLINE { E::set32(fields.cmd, value); }
+
+	uint32_t		cmdsize() const							INLINE { return E::get32(fields.cmdsize); }
+	void			set_cmdsize(uint32_t value)				INLINE { E::set32(fields.cmdsize, value); }
+
+	uint32_t		platform() const						INLINE { return fields.platform; }
+	void			set_platform(uint32_t value)			INLINE { E::set32(fields.platform, value); }
+
+	uint32_t		minos() const							INLINE { return fields.minos; }
+	void			set_minos(uint32_t value)				INLINE { E::set32(fields.minos, value); }
+
+	uint32_t		sdk() const								INLINE { return fields.sdk; }
+	void			set_sdk(uint32_t value)					INLINE { E::set32(fields.sdk, value); }
+
+	uint32_t		ntools() const							INLINE { return fields.ntools; }
+	void			set_ntools(uint32_t value)				INLINE { E::set32(fields.ntools, value); }
+
+
+	typedef typename P::E		E;
+private:
+	build_version_command	fields;
+};
+
+
+//
+// mach-o build version load command
+//
+template <typename P>
+class macho_build_tool_version {
+public:
+	uint32_t		tool() const							INLINE { return E::get32(fields.tool); }
+	void			set_tool(uint32_t value)				INLINE { E::set32(fields.tool, value); }
+
+	uint32_t		version() const							INLINE { return E::get32(fields.version); }
+	void			set_version(uint32_t value)				INLINE { E::set32(fields.version, value); }
+
+	typedef typename P::E		E;
+private:
+	build_tool_version	fields;
+};
 
 //
 // mach-o __LD, __compact_unwind section in object files

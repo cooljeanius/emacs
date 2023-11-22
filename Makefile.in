@@ -1339,6 +1339,9 @@ src/version.h: version.rb
 isemacsvalid.o: isemacsvalid.c dumpemacs.h
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(WARN_CFLAGS) -o $@ isemacsvalid.c
 
+machocheck/Makefile: machocheck/Makefile.in config.status
+	./config.status machocheck/Makefile
+
 machocheck/libmachocheck.a: Makefile machocheck/Makefile \
   machocheck/src/other/machochecker.cpp machocheck/src/other/machochecker.h
 	$(MAKE) -C machocheck
@@ -1402,8 +1405,8 @@ apple_helper_executables: $(APPLE_AUX_EXES)
 	$(RUN_CLANG_ANALYZER) -Wall -Wextra -o $(analysisdir)/$@ $< 
 
 apple_check: bo.h src/version.h isemacsvalid.plist runit.plist \
-  dumpemacs.plist emacswrapper.plist \
-  test_mach_o_binary.plist @MAINT@ unexmacosx.plist
+  dumpemacs.plist emacswrapper.plist test_mach_o_binary.plist \
+  machocheck/Makefile @MAINT@ unexmacosx.plist
 	if test -d src && test ! -e src/version.h; then \
 	  $(MAKE) -C src version.h; \
 	fi
@@ -1411,12 +1414,12 @@ apple_check: bo.h src/version.h isemacsvalid.plist runit.plist \
 	elif test -e test_mach_o_binary; then stat test_mach_o_binary; \
 	else echo "test_mach_o_binary is missing"; fi
 	cd machocheck && $(MAKE) $(MFLAGS) check
-	if test -x isemacsvalid && false; then \
-	  if test -x src/emacs; then \
+	if test -x isemacsvalid && (./isemacsvalid >/dev/null 2>/dev/null); then \
+	  if test -x src/emacs && test -r src/emacs; then \
 	    ./isemacsvalid src/emacs; \
-	  elif test -x src/bootstrap-emacs; then \
+	  elif test -x src/bootstrap-emacs && test -r src/bootstrap-emacs; then \
 	    ./isemacsvalid src/bootstrap-emacs; \
-	  elif test -x src/temacs; then \
+	  elif test -x src/temacs && test -r src/temacs && false; then \
 	    ./isemacsvalid src/temacs; \
 	  fi; \
 	fi
