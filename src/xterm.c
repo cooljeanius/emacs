@@ -3808,6 +3808,11 @@ x_get_keysym_name (int keysym)
    tracking is on, and I suspect only negligibly worse when tracking
    is off.  */
 
+/* in case gnulib redefined this on us: */
+#ifdef time
+# undef time
+#endif /* time */
+
 /* Prepare a mouse-event in *RESULT for placement in the input queue.
 
    If the event is a button press, then note that we have grabbed
