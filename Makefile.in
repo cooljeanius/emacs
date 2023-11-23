@@ -1448,7 +1448,7 @@ only_bootstrap-emacs: src/Makefile @MAINT@ $(SUBDIR_REALLY_ONLY_C)
 
 # might also need this:
 gnulib_headers: lib/Makefile
-	$(MAKE) -C lib headers
+	$(MAKE) -C lib stamp-headers
 .PHONY: gnulib-headers
 
 ### Targets for in case we convert to automake:

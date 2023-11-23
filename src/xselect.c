@@ -441,6 +441,11 @@ x_get_local_selection (Lisp_Object selection_symbol, Lisp_Object target_type,
 		list2 (handler_fn, value));
 }
 
+/* in case gnulib redefined this on us: */
+#ifdef time
+# undef time
+#endif /* time */
+
 /* Subroutines of x_reply_selection_request.  */
 
 /* Send a SelectionNotify event to the requestor with property=None,
