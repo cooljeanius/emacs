@@ -17,9 +17,9 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
    USA.  */
 
-#ifdef HAVE_CONFIG_H
+#if defined(HAVE_CONFIG_H) || defined(emacs)
 # include <config.h>
-#endif /* HAVE_CONFIG_H */
+#endif /* HAVE_CONFIG_H || emacs */
 
 #include <sys/types.h>
 #include <sys/stat.h>

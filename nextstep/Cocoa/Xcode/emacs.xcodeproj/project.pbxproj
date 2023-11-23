@@ -244,14 +244,11 @@
 		A540EA9A1A0C27C00008DA29 /* stat-time.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "stat-time.c"; sourceTree = "<group>"; };
 		A540EA9B1A0C27C00008DA29 /* stat-time.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "stat-time.h"; sourceTree = "<group>"; };
 		A540EA9C1A0C27C00008DA29 /* stat.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = stat.c; sourceTree = "<group>"; };
-		A540EA9D1A0C27C00008DA29 /* stdalign.in.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stdalign.in.h; sourceTree = "<group>"; };
 		A540EA9E1A0C27C00008DA29 /* stdarg.in.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stdarg.in.h; sourceTree = "<group>"; };
-		A540EA9F1A0C27C00008DA29 /* stdbool.in.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stdbool.in.h; sourceTree = "<group>"; };
 		A540EAA01A0C27C00008DA29 /* stddef.in.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stddef.in.h; sourceTree = "<group>"; };
 		A540EAA11A0C27C00008DA29 /* stdint.in.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stdint.in.h; sourceTree = "<group>"; };
 		A540EAA21A0C27C00008DA29 /* stdio.in.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stdio.in.h; sourceTree = "<group>"; };
 		A540EAA31A0C27C00008DA29 /* stdlib.in.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stdlib.in.h; sourceTree = "<group>"; };
-		A540EAA41A0C27C00008DA29 /* stdnoreturn.in.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stdnoreturn.in.h; sourceTree = "<group>"; };
 		A540EAA51A0C27C00008DA29 /* strchrnul.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = strchrnul.c; sourceTree = "<group>"; };
 		A540EAA71A0C27C00008DA29 /* streq.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = streq.h; sourceTree = "<group>"; };
 		A540EAA81A0C27C00008DA29 /* strerror-override.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "strerror-override.c"; sourceTree = "<group>"; };
@@ -1273,14 +1270,11 @@
 				A540EA9A1A0C27C00008DA29 /* stat-time.c */,
 				A540EA9B1A0C27C00008DA29 /* stat-time.h */,
 				A540EA9C1A0C27C00008DA29 /* stat.c */,
-				A540EA9D1A0C27C00008DA29 /* stdalign.in.h */,
 				A540EA9E1A0C27C00008DA29 /* stdarg.in.h */,
-				A540EA9F1A0C27C00008DA29 /* stdbool.in.h */,
 				A540EAA01A0C27C00008DA29 /* stddef.in.h */,
 				A540EAA11A0C27C00008DA29 /* stdint.in.h */,
 				A540EAA21A0C27C00008DA29 /* stdio.in.h */,
 				A540EAA31A0C27C00008DA29 /* stdlib.in.h */,
-				A540EAA41A0C27C00008DA29 /* stdnoreturn.in.h */,
 				A540EAA51A0C27C00008DA29 /* strchrnul.c */,
 				A540EAA71A0C27C00008DA29 /* streq.h */,
 				A540EAA81A0C27C00008DA29 /* strerror-override.c */,

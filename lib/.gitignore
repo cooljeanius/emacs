@@ -34,6 +34,7 @@ langinfo.h
 limits.h
 locale.h
 malloc.h
+malloc/scratch_buffer.gl.h
 math.h
 monetary.h
 netdb.h

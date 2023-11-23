@@ -93,7 +93,12 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
    warnings.  To prevent that, include stdlib.h before config.h.  */
 /* FIXME: but now gnulib's <stdlib.h> includes gnulib's <unistd.h> which needs
  * <config.h> to be included first... */
+#define _GL_CONFIG_H_INCLUDED 1
 #include <stdlib.h>
+#undef _GL_CONFIG_H_INCLUDED
+#ifdef free
+# undef free
+#endif /* free */
 #include <config.h>
 #undef malloc
 #undef realloc

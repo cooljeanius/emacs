@@ -24,6 +24,8 @@
    See also sorted-doc.c, which produces similar output
    but in texinfo format and sorted by function/variable name.  */
 
+#include "config.h"
+
 #include <stdio.h>
 
 #ifdef DOS_NT

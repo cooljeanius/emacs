@@ -1,5 +1,7 @@
 /* wincompat_test.c */
 
+#include "config.h"
+
 #include "wincompat.h"
 
 #if defined(HAVE_STDIO_H) || defined(STDC_HEADERS) || defined(__STDC__)
