@@ -145,7 +145,7 @@ class MachOChecker
 public:
 	static bool								validFile(const uint8_t* fileContent);
 	static MachOChecker<A>*					make(const uint8_t* fileContent, uint32_t fileLength, const char* path,
-                                                 const char* verifierDstRoot, const std::vector<const char*>& mergeRootPaths)
+												 const char* verifierDstRoot, const std::vector<const char*>& mergeRootPaths)
 													{ return new MachOChecker<A>(fileContent, fileLength, path, verifierDstRoot, mergeRootPaths); }
 	virtual									~MachOChecker() {}
 
@@ -188,7 +188,7 @@ private:
 #endif /* c++11, but not the clang static analyzer */
 
 												MachOChecker(const uint8_t* fileContent, uint32_t fileLength, const char* path,
-														     const char* verifierDstRoot, const std::vector<const char*>& mergeRootPaths);
+															 const char* verifierDstRoot, const std::vector<const char*>& mergeRootPaths);
 	void										checkMachHeader();
 	void										checkLoadCommands();
 	void										checkSection(const macho_segment_command<P>* segCmd, const macho_section<P>* sect);
@@ -406,8 +406,8 @@ bool MachOChecker<arm64_32>::validFile(const uint8_t* fileContent)
 		case MH_BUNDLE:
 		case MH_DYLINKER:
 			return true;
-   		default:
-     		break;
+		default:
+			break;
 	}
 	return false;
 }
@@ -598,7 +598,7 @@ const char* MachOChecker<A>::archName()
 
 template <typename A>
 MachOChecker<A>::MachOChecker(const uint8_t* fileContent, uint32_t fileLength, const char* path,
-					          const char* verifierDstRoot, const std::vector<const char*>& mergeRootPaths)
+							  const char* verifierDstRoot, const std::vector<const char*>& mergeRootPaths)
  : fHeader(NULL), fLength(fileLength), fInstallName(NULL), fStrings(NULL), fSymbols(NULL), fSymbolCount(0), fDynamicSymbolTable(NULL), fIndirectTableCount(0),
  fLocalRelocations(NULL), fLocalRelocationsCount(0), fExternalRelocations(NULL),  fExternalRelocationsCount(0),
  fWriteableSegmentWithAddrOver4G(false), fSlidableImage(false), fHasLC_RPATH(false), fIsDebugVariant(false), fBaseAddress(0), fFirstSegment(NULL), fFirstWritableSegment(NULL),
@@ -739,9 +739,9 @@ void MachOChecker<A>::checkLoadCommands()
 			case LC_DATA_IN_CODE:
 			case LC_DYLIB_CODE_SIGN_DRS:
 			case LC_SOURCE_VERSION:
-   			case LC_NOTE:
+			case LC_NOTE:
 			case LC_BUILD_VERSION:
-   			case LC_DYLD_CHAINED_FIXUPS:
+			case LC_DYLD_CHAINED_FIXUPS:
 			case LC_DYLD_EXPORTS_TRIE:
 				break;
             case LC_RPATH:
@@ -1026,17 +1026,17 @@ void MachOChecker<A>::checkLoadCommands()
 #else
 					fSymbols = NULL;
 #endif /* c++11 or not */
-                    if (fSymbolCount != 0) {
+					if (fSymbolCount != 0) {
 						fSymbols = (const macho_nlist<P>*)((char*)fHeader + symtab->symoff());
 						if (symtab->symoff() < linkEditSegment->fileoff())
 							throw "symbol table not in __LINKEDIT";
 						if ((symtab->symoff() + (fSymbolCount * sizeof(macho_nlist<P>*))) > (linkEditSegment->fileoff() + linkEditSegment->filesize()))
 							throw "symbol table end not in __LINKEDIT";
-                    	if ((symtab->symoff() + (fSymbolCount * sizeof(macho_nlist<P>*))) > symtab->stroff())
+						if ((symtab->symoff() + (fSymbolCount * sizeof(macho_nlist<P>*))) > symtab->stroff())
 							throw "symbol table overlaps string pool";
 						if ((symtab->symoff() % sizeof(pint_t)) != 0)
 							throw "symbol table start not pointer aligned";
-      				}
+					}
 					fStrings = ((char*)fHeader + symtab->stroff());
 					fStringsEnd = (fStrings + symtab->strsize());
 					if (symtab->stroff() < linkEditSegment->fileoff())
@@ -1280,12 +1280,12 @@ void MachOChecker<A>::verify()
 		const char* installLocationInDstRoot = &fPath[strlen(fDstRoot)];
 		if (installLocationInDstRoot[0] != '/')
 			--installLocationInDstRoot;
-   		if (fMergeRootPaths.empty()) {
+		if (fMergeRootPaths.empty()) {
 			if (sharedCacheEligiblePath(installLocationInDstRoot)) {
 				if (!fIsDebugVariant && (strstr(fPath, ".app/") == NULL)) {
 					verifyInstallName();
 					verifyNoRpaths();
-     				verifyNoDylibMain();
+					verifyNoDylibMain();
 				}
     		}
 		} else {
@@ -1318,7 +1318,7 @@ void MachOChecker<A>::verifyInstallName()
 	// Do NOT allow @rpath to be used as -install_name for OS dylibs:
 	if (strncmp(fInstallName, "@rpath/", 7UL) == 0) {
 		printf("os_dylib_rpath_install_name\tfatal\t-install_name uses @rpath in arch %s\n", archName());
-  	} else if (strstr(fInstallName, "//") != NULL) {
+	} else if (strstr(fInstallName, "//") != NULL) {
 		printf("os_dylib_bad_install_name\twarn\t-install_name does not match install location in arch %s\n", archName());
 	} else {
 		// Verify -install_name match actual path of dylib:
@@ -1917,7 +1917,7 @@ bool MachOChecker<A>::addressInWritableSegment(pint_t address)
 				// could be a text reloc, make sure section bit is set:
 				const macho_section<P>* const sectionsStart = (macho_section<P>*)((char*)segCmd + sizeof(macho_segment_command<P>));
 				const macho_section<P>* const sectionsEnd = &sectionsStart[segCmd->nsects()];
-				for(const macho_section<P>* sect = sectionsStart; sect < sectionsEnd; ++sect) {
+				for (const macho_section<P>* sect = sectionsStart; sect < sectionsEnd; ++sect) {
 					if ((sect->addr() <= address) && (address < (sect->addr()+sect->size()))) {
 						// found section for this address, if has relocs we are fine:
 						return ((sect->flags() & (S_ATTR_EXT_RELOC|S_ATTR_LOC_RELOC)) != 0);
@@ -2556,7 +2556,7 @@ bool MachOChecker<A>::addressIsRebaseSite(pint_t targetAddr, pint_t& pointeeAddr
 											// and the signed-extended bottom 43-bits to be fit in to 51-bits.
 											uint64_t top8Bits = value & 0x0007F80000000000ULL;
 											uint64_t bottom43Bits = value & 0x000007FFFFFFFFFFULL;
-											uint64_t targetValue = ( top8Bits << 13 ) | (((intptr_t)(bottom43Bits << 21) >> 21) & 0x00FFFFFFFFFFFFFF);
+											uint64_t targetValue = (top8Bits << 13) | (((intptr_t)(bottom43Bits << 21) >> 21) & 0x00FFFFFFFFFFFFFF);
 											pointeeAddr = (pint_t)targetValue;
 										}
 										return true;
@@ -2853,9 +2853,9 @@ static void check(const char* path, const char* verifierDstRoot, const std::vect
 						MachOChecker<arm64_32>::make(p + offset,
                                                      (uint32_t)size, path,
                                                      verifierDstRoot, mergeRootPaths);
-                    } else {
+					} else {
 						throw "in universal file, arm64_32 slice does not contain arm64_32 mach-o";
-      				}
+					}
 					break;
 #endif /* SUPPORT_ARCH_arm64_32 */
 				default:
@@ -2974,7 +2974,7 @@ int machocheck_main(int argc, const char* argv[])
 				printf("os_dylib_flat_namespace\tOS dylibs should not be built with -flat_namespace\n");
 				printf("os_dylib_undefined_dynamic_lookup\tOS dylibs should not be built with -undefined dynamic_lookup\n");
 				printf("os_dylib_malformed\tthe mach-o file is malformed\n");
-                printf("macos_in_ios_support\t/System/iOSSupport/ should only contain mach-o files that support iosmac\n");
+				printf("macos_in_ios_support\t/System/iOSSupport/ should only contain mach-o files that support iosmac\n");
 				printf("os_dylib_exports_main\tOS dylibs should not export '_main' symbol\n");
 				return 0;
 			} else if (strncmp(arg, "-merge_root_path", strlen(arg)) == 0) {
