@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 # Main VCSToChangeLog script.
-# Copyright (C) 2019-2021 Free Software Foundation, Inc.
+# Copyright (C) 2019-2023 Free Software Foundation, Inc.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
+# the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -28,12 +28,12 @@ ProjectQuirks or a subclass of the same.  The definition of the ProjectQuirks
 class is below and it specifies the properties that the project must set to
 ensure correct parsing of its contents.
 
-Among other things, ProjectQurks specifies the VCS to read from; the default is
+Among other things, ProjectQuirks specifies the VCS to read from; the default is
 assumed to be git.  The script then studies the VCS log and for each change,
 list out the nature of changes in the constituent files.
 
 Each file type may have parser frontends that can read files and construct
-objects that may be compared to determine the minimal changes that occured in
+objects that may be compared to determine the minimal changes that occurred in
 each revision.  For files that do not have parsers, we may only know the nature
 of changes at the top level depending on the information that the VCS stores.
 

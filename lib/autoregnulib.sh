@@ -2,8 +2,8 @@
 
 # The gnulib commit ID to use for the update.
 # If you know your version works and is newer, feel free to replace:
-GNULIB_COMMIT_SHA1="1afbb510b0c8a0812d4e4cfc889044503138648f"
-# (this hash last updated October 5, 2021)
+GNULIB_COMMIT_SHA1="4ec032e7c67deccd194f0a230cfaffd25c706b08"
+# (this hash last updated November 22, 2023)
 
 if [ $# -ne 1 ]; then
    echo "Warning: Path to gnulib repository missing."
@@ -59,8 +59,8 @@ if test -z "${gnulib_tool}" || test ! -x "${gnulib_tool}"; then
 else
   # The list of gnulib modules we are importing for emacs:
   module_list="\
-      absolute-header access acl acl-permissions aligned-malloc alignof alloca \
-      alloca-opt allocator assert-h assure atan atan2 autobuild \
+      absolute-header access acl acl-permissions alignasof aligned-malloc \
+      alignof alloca alloca-opt allocator assert-h assure atan atan2 autobuild \
       basename-lgpl bcopy binary-io bison bitset builtin-expect byteswap \
       c-ctype c-dtoastr c-strcase c-strcaseeq c-strtod c99 canonicalize-lgpl \
       careadlinkat chdir clock-time close-stream closedir configmake \
@@ -80,10 +80,10 @@ else
       havelib host-cpu-c-abi host-os \
       ignore-value include_next inline intprops inttypes-incomplete ioctl \
       isnanl \
-      largefile ldd limits-h localcharset longlong lseek lstat \
+      largefile ldd limits-h localcharset lseek lstat \
       maintainer-makefile manywarnings math mbschr mbsinit mbsrchr memchr \
       memrchr mktime multiarch \
-      nextafter no-c++ nocrash nstrftime \
+      nextafter no-c++ nocrash noreturn nstrftime \
       obstack open openat openat-die openat-h openmp \
       pagealign_alloc pathmax perror pipe2 posix_openpt posix_spawnp \
       printf-safe progname pselect pthread-h pthread_sigmask pty putenv \
@@ -92,12 +92,11 @@ else
       rmdir root-uid \
       sched secure_getenv setenv setlocale-null sh-filename sig2str signal-h \
       sigpipe sleep snippet/_Noreturn snippet/arg-nonnull snippet/c++defs \
-      snippet/link-warning snippet/unused-parameter snippet/warn-on-use \
-      socketlib sockets socklen spawn ssize_t stat stat-time std-gnu11 \
-      stdalign stdarg stdbool stddef stdint stdio stdlib stdnoreturn \
-      stpcpy streq strerror strerror-override string strings \
-      strstr strstr-simple strtoimax strtold strtoumax symlink sys_ioctl \
-      sys_resource sys_select sys_socket sys_stat sys_time sys_types \
+      snippet/link-warning snippet/warn-on-use socketlib sockets socklen spawn \
+      ssize_t stat stat-time std-gnu11 stdarg stdbool stddef stdint stdio \
+      stdlib stpcpy streq strerror strerror-override string strings strndup \
+      strnlen strstr strstr-simple strtoimax strtold strtoumax symlink \
+      sys_ioctl sys_resource sys_select sys_socket sys_stat sys_time sys_types \
       sys_uio sys_utsname sys_wait \
       tempname threads time time_r time_rz timegm timer-time times timespec \
       timespec-add timespec-sub \
@@ -132,6 +131,10 @@ else
    # - dosname (replaced by filename)
    # - gettext (replaced by gettext-h)
    # - strftime (replaced by nstrftime)
+   # - stdalign (replaced by alignasof)
+   # - stdnoreturn (replaced by noreturn)
+   # - longlong (obsolete)
+   # - snippet/unused-parameter (obsolete)
    # (likewise, even though I no longer explicitly import them, there is no
    # need to go to the other extreme and explicitly ignore them, either)
    # Reasons for explicitly ignoring some:

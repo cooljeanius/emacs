@@ -2,7 +2,7 @@
 # This Makefile fragment tries to be general-purpose enough to be
 # used by many projects via the gnulib maintainer-makefile module.
 
-## Copyright (C) 2001-2021 Free Software Foundation, Inc.
+## Copyright (C) 2001-2023 Free Software Foundation, Inc.
 ##
 ## This program is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -64,10 +64,10 @@ VC_LIST = $(srcdir)/$(_build-aux)/vc-list-files -C $(srcdir)
 
 # You can override this variable in cfg.mk if your gnulib submodule lives
 # in a different location.
-gnulib_dir ?= $(shell if test -d $(srcdir)/gnulib; then \
-			echo $(srcdir)/gnulib; \
+gnulib_dir ?= $(shell if test -n "$(GNULIB_SRCDIR)" && test -f "$(GNULIB_SRCDIR)/gnulib-tool"; then \
+			echo "$(GNULIB_SRCDIR)"; \
 		else \
-			echo ${GNULIB_SRCDIR}; \
+			echo $(srcdir)/gnulib; \
 		fi)
 
 # You can override this variable in cfg.mk to set your own regexp
@@ -180,7 +180,7 @@ no-vc-detected:
 endif
 .PHONY: $(local-checks-available)
 
-# Arrange to print the name of each syntax-checking rule just before running it.
+# Arrange to prine the name of each syntax-checking rule just before running it.
 $(syntax-check-rules): %: %.m
 sc_m_rules_ = $(patsubst %, %.m, $(syntax-check-rules))
 .PHONY: $(sc_m_rules_)
@@ -473,7 +473,7 @@ sc_error_message_uppercase:
 	@$(VC_LIST_EXCEPT)						\
 	  | xargs $(GREP) -nEA2 '[^rp]error *\(' /dev/null		\
 	  | $(GREP) -E '"[A-Z]'						\
-	  | $(GREP) -vE '"FATAL|"WARNING|"Java|"C#|PRIuMAX'		\
+	  | $(GREP) -vE '"FATAL|"WARNING|"Java|"C#|"PRI'		\
 	  && { echo '$(ME): found capitalized error message' 1>&2;	\
 	       exit 1; }						\
 	  || :
@@ -598,23 +598,14 @@ sc_prohibit_error_without_use:
 	re='\<error(_at_line|_print_progname|_one_per_line|_message_count)? *\('\
 	  $(_sc_header_without_use)
 
-# Don't include xalloc.h unless you use one of its functions.
+# Don't include xalloc.h unless you use one of its symbols.
 # Consider these symbols:
 # perl -lne '/^# *define (\w+)\(/ and print $1' lib/xalloc.h|grep -v '^__';
-# perl -lne '/^(?:extern )?(?:void|char) \*?(\w+) *\(/ and print $1' lib/xalloc.h
+# perl -lne 'm{^(?:_Noreturn )?(?:void|char) \*?(\w+) *\(} and print $1' lib/xalloc.h
 # Divide into two sets on case, and filter each through this:
 # | sort | perl -MRegexp::Assemble -le \
 #  'print Regexp::Assemble->new(file => "/dev/stdin")->as_string'|sed 's/\?://g'
-# Note this was produced by the above:
-# _xa1 = \
-#x(((2n?)?re|c(har)?|n(re|m)|z)alloc|alloc_(oversized|die)|m(alloc|emdup)|strdup)
-# But we can do better, in at least two ways:
-# 1) take advantage of two "dup"-suffixed strings:
-# x(((2n?)?re|c(har)?|n(re|m)|[mz])alloc|alloc_(oversized|die)|(mem|str)dup)
-# 2) notice that "c(har)?|[mz]" is equivalent to the shorter and more readable
-# "char|[cmz]"
-# x(((2n?)?re|char|n(re|m)|[cmz])alloc|alloc_(oversized|die)|(mem|str)dup)
-_xa1 = x(((2n?)?re|char|n(re|m)|[cmz])alloc|alloc_(oversized|die)|(mem|str)dup)
+_xa1 = x(i(m(emdup0?|alloc)|realloc(array)?|([cz]|nm)alloc)|([pz]|c(har)?|2n?re|nm)alloc|realloc(array)?|m(alloc|emdup)|alloc_die|strdup)
 _xa2 = X([CZ]|N?M)ALLOC
 sc_prohibit_xalloc_without_use:
 	@h='xalloc.h' \
@@ -622,9 +613,9 @@ sc_prohibit_xalloc_without_use:
 	  $(_sc_header_without_use)
 
 # Extract function names:
-# perl -lne '/^(?:extern )?(?:void|char) \*?(\w+) *\(/ and print $1' lib/hash.h
+# perl -lne '/^(?:extern )?(?:void|char|Hash_table) \*?(\w+) *\(/ and print $1' lib/hash.h
 _hash_re = \
-clear|delete|free|get_(first|next)|insert|lookup|print_statistics|reset_tuning
+hash_(re(set_tuning|move)|xin(itialize|sert)|in(itialize|sert)|get_(firs|nex)t|print_statistics|(delet|fre)e|lookup|clear)
 _hash_fn = \<($(_hash_re)) *\(
 _hash_struct = (struct )?\<[Hh]ash_(table|tuning)\>
 sc_prohibit_hash_without_use:
@@ -745,7 +736,8 @@ sc_prohibit_intprops_without_use:
 	re='\<($(_intprops_syms_re)) *\('				\
 	  $(_sc_header_without_use)
 
-_stddef_syms_re = NULL|offsetof|ptrdiff_t|size_t|wchar_t
+_stddef_syms_re = \
+  NULL|max_align_t|nullptr_t|offsetof|ptrdiff_t|size_t|unreachable|wchar_t
 # Prohibit the inclusion of stddef.h without an actual use.
 sc_prohibit_stddef_without_use:
 	@h='stddef.h'							\
@@ -765,7 +757,7 @@ sc_prohibit_dirent_without_use:
 # Prohibit the inclusion of verify.h without an actual use.
 sc_prohibit_verify_without_use:
 	@h='verify.h'							\
-	re='\<(verify(true|expr)?|assume|static_assert) *\('		\
+	re='\<(verify(_expr)?|assume) *\('				\
 	  $(_sc_header_without_use)
 
 # Don't include xfreopen.h unless you use one of its functions.
@@ -823,7 +815,7 @@ sc_trailing_blank:
 # Match lines like the following, but where there is only one space
 # between the options and the description:
 #   -D, --all-repeated[=delimit-method]  print all duplicate lines\n
-longopt_re = --[a-z][0-9A-Za-z-]*(\[?=[0-9A-Za-z-]*\]?)?
+longopt_re = --[a-z][0-9A-Za-z-]*(\[?=[0-9A-Za-z-]*]?)?
 sc_two_space_separator_in_usage:
 	@prohibit='^   *(-[A-Za-z],)? $(longopt_re) [^ ].*\\$$'		\
 	halt='help2man requires at least two spaces between an option and its description'\
@@ -1031,7 +1023,7 @@ perl_filename_lineno_text_ =						\
     -e '  }'
 
 prohibit_doubled_words_ = \
-    the then in an on if is it but for or at and do to
+    the then in an on if is it but for or at and do to can
 # expand the regex before running the check to avoid using expensive captures
 prohibit_doubled_word_expanded_ = \
     $(join $(prohibit_doubled_words_),$(addprefix \s+,$(prohibit_doubled_words_)))
@@ -1256,6 +1248,12 @@ sc_makefile_path_separator_check:
 	halt=$(msg)							\
 	  $(_sc_search_regexp)
 
+sc_makefile_DISTCHECK_CONFIGURE_FLAGS:
+	@prohibit='^DISTCHECK_CONFIGURE_FLAGS'				\
+	in_vc_files='akefile|\.mk$$'					\
+	halt="use AM_DISTCHECK_CONFIGURE_FLAGS"				\
+	  $(_sc_search_regexp)
+
 # Check that 'make alpha' will not fail at the end of the process,
 # i.e., when pkg-M.N.tar.xz already exists (either in "." or in ../release)
 # and is read-only.
@@ -1286,7 +1284,7 @@ sc_copyright_check:
 	in_vc_files=$(sample-test)					\
 	halt='out of date copyright in $(sample-test); update it'	\
 	  $(_sc_search_regexp)
-	@require='Copyright @copyright\{\} .*'$$(date +%Y)		\
+	@require='Copyright @copyright\{} .*'$$(date +%Y)		\
 	in_vc_files=$(texi)						\
 	halt='out of date copyright in $(texi); update it'		\
 	  $(_sc_search_regexp)
@@ -1367,6 +1365,26 @@ sc_vulnerable_makefile_CVE-2012-3386:
 	  '  see https://bugzilla.redhat.com/show_bug.cgi?id=CVE-2012-3386 for details') \
 	  $(_sc_search_regexp)
 
+sc_unportable_grep_q:
+	@prohibit='grep -q' halt="unportable 'grep -q', use >/dev/null instead" \
+	  $(_sc_search_regexp)
+
+# The GNU Coding standards say that README should refer to both
+# INSTALL and the file that contains the copying conditions.  This
+# shall be COPYING for GPL and COPYING.LESSER for LGPL.
+
+sc_readme_link_install:
+	@require='INSTALL'					\
+	in_vc_files='$(top_srcdir)/README$$'                    \
+	halt='The README file should refer to INSTALL'          \
+	  $(_sc_search_regexp)
+
+sc_readme_link_copying:
+	@require='COPYING'					\
+	in_vc_files='$(top_srcdir)/README$$'                    \
+	halt='The README file should refer to COPYING[.LESSER]' \
+	  $(_sc_search_regexp)
+
 vc-diff-check:
 	$(AM_V_GEN)(unset CDPATH; cd $(srcdir) && $(VC) diff) > vc-diffs || :
 	$(AM_V_at)if test -s vc-diffs; then			\
@@ -1390,7 +1408,12 @@ gpg_key_ID ?=								\
   $$(cd $(srcdir)							\
      && git cat-file tag v$(VERSION)					\
         | $(gpgv) --status-fd 1 --keyring /dev/null - - 2>/dev/null	\
-        | $(AWK) '/^\[GNUPG:\] ERRSIG / {print $$3; exit}')
+        | $(AWK) '/^\[GNUPG:] ERRSIG / {print $$3; exit}')
+gpg_key_email ?=							\
+  $$(gpg --list-key --with-colons $(gpg_key_ID) 2>/dev/null		\
+	| $(AWK) -F: '/^uid/ {print $$10; exit}'			\
+	| $(SED) -n 's/.*<\(.*\)>/\1/p')
+gpg_keyring_url ?= https://savannah.gnu.org/project/release-gpgkeys.php?group=$(PACKAGE)&download=1
 
 translation_project_ ?= coordinator@translationproject.org
 
@@ -1409,7 +1432,7 @@ announcement_mail_headers_alpha =		\
 announcement_mail_Cc_beta = $(announcement_mail_Cc_alpha)
 announcement_mail_headers_beta = $(announcement_mail_headers_alpha)
 
-announcement_mail_Cc_ ?= $(announcement_mail_Cc_$(release-type))
+announcement_Cc_ ?= $(announcement_Cc_$(release-type))
 announcement_mail_headers_ ?= $(announcement_mail_headers_$(release-type))
 announcement: NEWS ChangeLog $(rel-files)
 # Not $(AM_V_GEN) since the output of this command serves as
@@ -1421,12 +1444,15 @@ announcement: NEWS ChangeLog $(rel-files)
 	    --prev=$(PREV_VERSION)					\
 	    --curr=$(VERSION)						\
 	    --gpg-key-id=$(gpg_key_ID)					\
+	    $$(test -n "$(gpg_key_email)" &&				\
+	       echo --gpg-key-email="$(gpg_key_email)")			\
+	    $$(test -n "$(gpg_keyring_url)" &&				\
+	       echo --gpg-keyring-url="$(gpg_keyring_url)")		\
 	    --srcdir=$(srcdir)						\
 	    --news=$(srcdir)/NEWS					\
 	    --bootstrap-tools=$(bootstrap-tools)			\
 	    $$(case ,$(bootstrap-tools), in (*,gnulib,*)		\
 	       echo --gnulib-version=$(gnulib-version);; esac)		\
-	    --no-print-checksums					\
 	    $(addprefix --url-dir=, $(url_dir_list))
 
 .PHONY: release-commit
@@ -1523,7 +1549,7 @@ alpha beta stable: $(local-check) writable-files $(submodule-checks)
 
 release:
 	$(AM_V_GEN)$(MAKE) _version
-	$(AM_V_GEN)$(MAKE) $(release-type)
+	$(AM_V_at)$(MAKE) $(release-type)
 
 # Override this in cfg.mk if you follow different procedures.
 release-prep-hook ?= release-prep
@@ -1632,12 +1658,32 @@ refresh-po:
 	ls $(PODIR)/*.po | $(SED) 's/\.po//;s,$(PODIR)/,,' | \
 	  sort >> $(PODIR)/LINGUAS
 
- # Running indent once is not idempotent, but running it twice is.
+# Indentation
+
+indent_args ?= -ppi 1
+C_SOURCES ?= $$($(VC_LIST_EXCEPT) | grep '\.[ch]\(.in\)\?$$')
 INDENT_SOURCES ?= $(C_SOURCES)
+exclude_file_name_regexp--indent ?= $(exclude_file_name_regexp--sc_indent)
+
 .PHONY: indent
-indent:
-	indent $(INDENT_SOURCES)
-	indent $(INDENT_SOURCES)
+indent: # Running indent once is not idempotent, but running it twice is.
+	$(AM_V_GEN)indent $(indent_args) $(INDENT_SOURCES) && \
+	indent $(indent_args) $(INDENT_SOURCES)
+
+sc_indent:
+	@if ! indent --version 2> /dev/null | grep 'GNU indent' > /dev/null; then \
+	    echo 1>&2 '$(ME): sc_indent: GNU indent is missing';	\
+	else								\
+	  fail=0; files="$(INDENT_SOURCES)";				\
+	  for f in $$files; do						\
+	    indent $(indent_args) -st $$f				\
+		| indent $(indent_args) -st -				\
+		| diff -u $$f - || fail=1;				\
+	  done;								\
+	  test $$fail = 1 &&						\
+	    { echo 1>&2 '$(ME): code format error, try "make indent"';	\
+	      exit 1; } || :;						\
+	fi
 
 # If you want to set UPDATE_COPYRIGHT_* environment variables,
 # put the assignments in this variable.
@@ -1683,9 +1729,8 @@ sc_tight_scope: tight-scope.mk
 	exit $$fail
 
 tight-scope.mk: $(ME)
-	@rm -f $@ $@-t
 	@perl -ne '/^# TS-start/.../^# TS-end/ and print' $(srcdir)/$(ME) > $@-t
-	@chmod a=r $@-t && mv $@-t $@
+	@mv $@-t $@
 
 ifeq (a,b)
 # TS-start
@@ -1716,8 +1761,8 @@ _gl_TS_unmarked_extern_vars ?=
 # a macro like this: GLOBAL(type, var_name, initializer), then you
 # can override this definition to automatically extract those names:
 # export _gl_TS_var_match = \
-#   /^(?:$(_gl_TS_extern)) .*?\**(\w+)(\[.*?\])?;/ || /\bGLOBAL\(.*?,\s*(.*?),/
-_gl_TS_var_match ?= /^(?:$(_gl_TS_extern)) .*?(\w+)(\[.*?\])?;/
+#   /^(?:$(_gl_TS_extern)) .*?\**(\w+)(\[.*?])?;/ || /\bGLOBAL\(.*?,\s*(.*?),/
+_gl_TS_var_match ?= /^(?:$(_gl_TS_extern)) .*?(\w+)(\[.*?])?;/
 
 # The names of object files in (or relative to) $(_gl_TS_dir).
 _gl_TS_obj_files ?= *.$(OBJEXT)

@@ -1,6 +1,6 @@
 /* Functions to support expandable bitsets.
 
-   Copyright (C) 2002-2006, 2009-2015, 2018-2021 Free Software Foundation, Inc.
+   Copyright (C) 2002-2006, 2009-2015, 2018-2023 Free Software Foundation, Inc.
 
    Contributed by Michael Hayes (m.hayes@elec.canterbury.ac.nz).
 
@@ -1132,7 +1132,7 @@ struct bitset_vtable tbitset_vtable = {
 
 /* Return size of initial structure.  */
 size_t
-tbitset_bytes (bitset_bindex n_bits MAYBE_UNUSED)
+tbitset_bytes (MAYBE_UNUSED bitset_bindex n_bits)
 {
   return sizeof (struct tbitset_struct);
 }

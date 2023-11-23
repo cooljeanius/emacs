@@ -1,9 +1,9 @@
 # The C Parser.
-# Copyright (C) 2019-2021 Free Software Foundation, Inc.
+# Copyright (C) 2019-2023 Free Software Foundation, Inc.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
+# the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -206,7 +206,7 @@ class CompositeParser(ExprParser):
             if 'typedef' in cur:
                 name = re.sub(r'.*}\s*(\w+);$', r'\1', cur)
             else:
-                name= '<anoymous>'
+                name= '<anonymous>'
 
         ctype = found.group(1)
 
@@ -457,7 +457,7 @@ class Frontend:
         ''' Parse a preprocessor directive.
 
         In case a preprocessor condition (i.e. if/elif/else), create a new code
-        block to nest code into and in other cases, identify and add entities suchas
+        block to nest code into and in other cases, identify and add entities such as
         include files, defines, etc.
 
         - OP is the string array for the file
@@ -649,7 +649,7 @@ class Frontend:
     def consolidate_tree_blocks(self, tree):
         ''' Consolidate common macro conditional blocks.
 
-        Get macro conditional blocks at the same level but scatterred across the
+        Get macro conditional blocks at the same level but scattered across the
         file together into a single common block to allow for better comparison.
         '''
         # Nothing to do for non-nesting blocks.

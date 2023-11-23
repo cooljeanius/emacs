@@ -1,18 +1,18 @@
 /* ATTRIBUTE_* macros for using attributes in GCC and similar compilers
 
-   Copyright 2020-2021 Free Software Foundation, Inc.
+   Copyright 2020-2023 Free Software Foundation, Inc.
 
-   This program is free software: you can redistribute it and/or modify it
-   under the terms of the GNU General Public License as published
-   by the Free Software Foundation; either version 3 of the License, or
-   (at your option) any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 2.1 of the
+   License, or (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
+   This file is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU Lesser General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
+   You should have received a copy of the GNU Lesser General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* Written by Paul Eggert.  */
@@ -32,13 +32,28 @@
 
 
 /* This file defines two types of attributes:
-   * C2X standard attributes.  These have macro names that do not begin with
+   * C23 standard attributes.  These have macro names that do not begin with
      'ATTRIBUTE_'.
    * Selected GCC attributes; see:
      https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html
      https://gcc.gnu.org/onlinedocs/gcc/Common-Variable-Attributes.html
      https://gcc.gnu.org/onlinedocs/gcc/Common-Type-Attributes.html
      These names begin with 'ATTRIBUTE_' to avoid name clashes.  */
+
+
+/* This file uses _GL_ATTRIBUTE_ALLOC_SIZE, _GL_ATTRIBUTE_ALWAYS_INLINE,
+   _GL_ATTRIBUTE_ARTIFICIAL, _GL_ATTRIBUTE_COLD, _GL_ATTRIBUTE_CONST,
+   _GL_ATTRIBUTE_DEALLOC, _GL_ATTRIBUTE_DEPRECATED, _GL_ATTRIBUTE_ERROR,
+   _GL_ATTRIBUTE_WARNING, _GL_ATTRIBUTE_EXTERNALLY_VISIBLE,
+   _GL_ATTRIBUTE_FALLTHROUGH, _GL_ATTRIBUTE_FORMAT, _GL_ATTRIBUTE_LEAF,
+   _GL_ATTRIBUTE_MALLOC, _GL_ATTRIBUTE_MAY_ALIAS, _GL_ATTRIBUTE_MAYBE_UNUSED,
+   _GL_ATTRIBUTE_NODISCARD, _GL_ATTRIBUTE_NOINLINE, _GL_ATTRIBUTE_NONNULL,
+   _GL_ATTRIBUTE_NONSTRING, _GL_ATTRIBUTE_NOTHROW, _GL_ATTRIBUTE_PACKED,
+   _GL_ATTRIBUTE_PURE, _GL_ATTRIBUTE_RETURNS_NONNULL,
+   _GL_ATTRIBUTE_SENTINEL.  */
+#if !_GL_CONFIG_H_INCLUDED
+ #error "Please include config.h first."
+#endif
 
 
 /* =============== Attributes for specific kinds of functions =============== */
@@ -76,6 +91,14 @@
 /* Applies to: function, pointer to function, function types.  */
 #define ATTRIBUTE_ALLOC_SIZE(args) _GL_ATTRIBUTE_ALLOC_SIZE (args)
 
+/* ATTRIBUTE_DEALLOC (F, I) declares that the function returns pointers
+   that can be freed by passing them as the Ith argument to the
+   function F.
+   ATTRIBUTE_DEALLOC_FREE declares that the function returns pointers that
+   can be freed via 'free'; it can be used only after declaring 'free'.  */
+/* Applies to: functions.  Cannot be used on inline functions.  */
+#define ATTRIBUTE_DEALLOC(f, i) _GL_ATTRIBUTE_DEALLOC(f, i)
+#define ATTRIBUTE_DEALLOC_FREE _GL_ATTRIBUTE_DEALLOC_FREE
 
 /* Attributes for variadic functions.  */
 

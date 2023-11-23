@@ -1,8 +1,8 @@
-# wctype_h.m4 serial 30
+# wctype_h.m4 serial 32
 
 dnl A placeholder for ISO C99 <wctype.h>, for platforms that lack it.
 
-dnl Copyright (C) 2006-2021 Free Software Foundation, Inc.
+dnl Copyright (C) 2006-2023 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -197,4 +197,6 @@ AC_DEFUN([gl_WCTYPE_H_DEFAULTS],
   REPLACE_ISWBLANK=0;   AC_SUBST([REPLACE_ISWBLANK])
   REPLACE_ISWDIGIT=0;   AC_SUBST([REPLACE_ISWDIGIT])
   REPLACE_ISWXDIGIT=0;  AC_SUBST([REPLACE_ISWXDIGIT])
+  REPLACE_WCTRANS=0;    AC_SUBST([REPLACE_WCTRANS])
+  REPLACE_WCTYPE=0;     AC_SUBST([REPLACE_WCTYPE])
 ])

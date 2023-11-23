@@ -1,6 +1,6 @@
 /* Bitset statistics.
 
-   Copyright (C) 2002-2006, 2009-2015, 2018-2021 Free Software Foundation, Inc.
+   Copyright (C) 2002-2006, 2009-2015, 2018-2023 Free Software Foundation, Inc.
 
    Contributed by Michael Hayes (m.hayes@elec.canterbury.ac.nz).
 
@@ -208,7 +208,7 @@ bitset_stats_print_1 (FILE *file, const char *name,
 
 /* Print all bitset statistics to FILE.  */
 static void
-bitset_stats_print (FILE *file, bool verbose MAYBE_UNUSED)
+bitset_stats_print (FILE *file, MAYBE_UNUSED bool verbose)
 {
   if (!bitset_stats_info)
     return;

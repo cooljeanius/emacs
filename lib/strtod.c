@@ -1,17 +1,17 @@
-/* Copyright (C) 1991-1992, 1997, 1999, 2003, 2006, 2008-2021 Free Software
+/* Copyright (C) 1991-1992, 1997, 1999, 2003, 2006, 2008-2023 Free Software
    Foundation, Inc.
 
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3 of the License, or
-   (at your option) any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation, either version 3 of the
+   License, or (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
+   This file is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Lesser General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
+   You should have received a copy of the GNU Lesser General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #if ! defined USE_LONG_DOUBLE
@@ -27,7 +27,6 @@
 #include <limits.h>     /* LONG_{MIN,MAX} */
 #include <locale.h>     /* localeconv() */
 #include <math.h>       /* NAN */
-#include <stdbool.h>
 #include <stdio.h>      /* sprintf() */
 #include <string.h>     /* strdup() */
 #if HAVE_NL_LANGINFO
@@ -106,7 +105,7 @@ decimal_point_char (void)
  #undef LDEXP
  #define LDEXP dummy_ldexp
  /* A dummy definition that will never be invoked.  */
- static DOUBLE LDEXP (DOUBLE x _GL_UNUSED, int exponent _GL_UNUSED)
+ static DOUBLE LDEXP (_GL_UNUSED DOUBLE x, _GL_UNUSED int exponent)
  {
    abort ();
    return L_(0.0);

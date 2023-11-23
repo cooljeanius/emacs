@@ -1,18 +1,18 @@
 /* Allocate memory with indefinite extent and specified alignment.
 
-   Copyright (C) 2020-2021 Free Software Foundation, Inc.
+   Copyright (C) 2020-2023 Free Software Foundation, Inc.
 
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3 of the License, or
-   (at your option) any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 2.1 of the
+   License, or (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
+   This file is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Lesser General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
+   You should have received a copy of the GNU Lesser General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* Written by Bruno Haible <bruno@clisp.org>, 2020.  */
@@ -45,6 +45,12 @@
    returned by memalign() can be freed, but it actually can be freed with
    free().  */
 
+/* This file uses MALLOC_ALIGNMENT, HAVE_POSIX_MEMALIGN, HAVE_ALIGNED_ALLOC,
+   HAVE_MEMALIGN.  */
+#if !_GL_CONFIG_H_INCLUDED
+ #error "Please include config.h first."
+#endif
+
 #if !defined ALIGNMENT
 # error "ALIGNMENT is not defined"
 #endif
@@ -53,12 +59,27 @@
 #endif
 #if ((ALIGNMENT) <= MALLOC_ALIGNMENT) || HAVE_POSIX_MEMALIGN || HAVE_ALIGNED_ALLOC || HAVE_MEMALIGN
 
+# if defined aligned_free || __GNUC__ >= 11
+   /* The caller wants an inline function, not a macro,
+      or we can use GCC's -Wmismatched-dealloc warning.  */
+static inline void
+aligned_free (void *q)
+{
+  free (q);
+}
+# else
+#  define aligned_free free
+# endif
+
 # if (ALIGNMENT) <= MALLOC_ALIGNMENT
 /* Simply use malloc.  */
 
-#  ifdef aligned_malloc
-   /* The caller wants an inline function, not a macro.  */
-static inline void *
+#  if defined aligned_malloc || __GNUC__ >= 11
+   /* The caller wants an inline function, not a macro,
+      or GCC's -Wmismatched-dealloc warning might be in effect.  */
+static inline
+/*_GL_ATTRIBUTE_DEALLOC (aligned_free, 1)*/
+void *
 aligned_malloc (size_t size)
 {
   return malloc (size);
@@ -71,7 +92,9 @@ aligned_malloc (size_t size)
 /* Use posix_memalign.
    This is OK since ALIGNMENT > MALLOC_ALIGNMENT >= sizeof (void *).  */
 
-static inline void *
+static inline
+/*_GL_ATTRIBUTE_DEALLOC (aligned_free, 1)*/
+void *
 aligned_malloc (size_t size)
 {
   void *p;
@@ -85,7 +108,9 @@ aligned_malloc (size_t size)
 # elif HAVE_ALIGNED_ALLOC
 /* Use aligned_alloc.  */
 
-static inline void *
+static inline
+/*_GL_ATTRIBUTE_DEALLOC (aligned_free, 1)*/
+void *
 aligned_malloc (size_t size)
 {
   /* Round up SIZE to the next multiple of ALIGNMENT,
@@ -102,7 +127,9 @@ aligned_malloc (size_t size)
 # elif HAVE_MEMALIGN                    /* HP-UX, IRIX, Solaris <= 10 */
 /* Use memalign.  */
 
-static inline void *
+static inline
+/*_GL_ATTRIBUTE_DEALLOC (aligned_free, 1)*/
+void *
 aligned_malloc (size_t size)
 {
   return memalign ((ALIGNMENT), size);
@@ -110,41 +137,8 @@ aligned_malloc (size_t size)
 
 # endif
 
-# ifdef aligned_free
-   /* The caller wants an inline function, not a macro.  */
-static inline void
-aligned_free (void *q)
-{
-  free (q);
-}
-# else
-#  define aligned_free free
-# endif
-
 #else
 /* Use malloc and waste a bit of memory.  */
-
-static inline void *
-aligned_malloc (size_t size)
-{
-  size += (ALIGNMENT);
-  if (size >= (ALIGNMENT)) /* no overflow? */
-    {
-      void *p = malloc (size);
-      if (p != NULL)
-        {
-          /* Go to the next multiple of ALIGNMENT.  */
-          void *q =
-            (void *) (((uintptr_t) p + (ALIGNMENT)) & -(intptr_t)(ALIGNMENT));
-          /* Now q - p <= ALIGNMENT and
-             q - p >= MALLOC_ALIGNMENT >= sizeof (void *).
-             This is enough to store a back pointer to p.  */
-          ((void **) q)[-1] = p;
-          return q;
-        }
-    }
-  return NULL;
-}
 
 static inline void
 aligned_free (void *q)
@@ -164,6 +158,30 @@ aligned_free (void *q)
           free (p);
         }
     }
+}
+
+static inline
+/*_GL_ATTRIBUTE_DEALLOC (aligned_free, 1)*/
+void *
+aligned_malloc (size_t size)
+{
+  size += (ALIGNMENT);
+  if (size >= (ALIGNMENT)) /* no overflow? */
+    {
+      void *p = malloc (size);
+      if (p != NULL)
+        {
+          /* Go to the next multiple of ALIGNMENT.  */
+          void *q =
+            (void *) (((uintptr_t) p + (ALIGNMENT)) & -(intptr_t)(ALIGNMENT));
+          /* Now q - p <= ALIGNMENT and
+             q - p >= MALLOC_ALIGNMENT >= sizeof (void *).
+             This is enough to store a back pointer to p.  */
+          ((void **) q)[-1] = p;
+          return q;
+        }
+    }
+  return NULL;
 }
 
 #endif

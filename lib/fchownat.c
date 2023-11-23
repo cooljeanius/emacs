@@ -1,14 +1,14 @@
 /* This function serves as replacement for a missing fchownat function,
-   as well as a work around for the fchownat bug in glibc-2.4:
+   as well as a workaround for the fchownat bug in glibc-2.4:
     <https://lists.ubuntu.com/archives/ubuntu-users/2006-September/093218.html>
    when the buggy fchownat-with-AT_SYMLINK_NOFOLLOW operates on a symlink, it
    mistakenly affects the symlink referent, rather than the symlink itself.
 
-   Copyright (C) 2006-2007, 2009-2021 Free Software Foundation, Inc.
+   Copyright (C) 2006-2007, 2009-2023 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3 of the License, or
+   the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -103,7 +103,7 @@ rpl_fchownat (int fd, char const *file, uid_t owner, gid_t group, int flag)
     struct stat st;
     if (len && file[len - 1] == '/')
       {
-        if (statat (fd, file, &st))
+        if (fstatat (fd, file, &st, 0))
           return -1;
         if (flag == AT_SYMLINK_NOFOLLOW)
           return fchownat (fd, file, owner, group, 0);

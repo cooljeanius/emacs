@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2021 Free Software Foundation, Inc.
+# Copyright (C) 2002-2023 Free Software Foundation, Inc.
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
+# the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
 # This file is distributed in the hope that it will be useful,
@@ -77,6 +77,7 @@
 #  access \
 #  acl \
 #  acl-permissions \
+#  alignasof \
 #  aligned-malloc \
 #  alignof \
 #  alloca \
@@ -199,7 +200,6 @@
 #  ldd \
 #  limits-h \
 #  localcharset \
-#  longlong \
 #  lseek \
 #  lstat \
 #  maintainer-makefile \
@@ -215,6 +215,7 @@
 #  nextafter \
 #  no-c++ \
 #  nocrash \
+#  noreturn \
 #  nstrftime \
 #  obstack \
 #  open \
@@ -262,7 +263,6 @@
 #  snippet/arg-nonnull \
 #  snippet/c++defs \
 #  snippet/link-warning \
-#  snippet/unused-parameter \
 #  snippet/warn-on-use \
 #  socketlib \
 #  sockets \
@@ -272,20 +272,20 @@
 #  stat \
 #  stat-time \
 #  std-gnu11 \
-#  stdalign \
 #  stdarg \
 #  stdbool \
 #  stddef \
 #  stdint \
 #  stdio \
 #  stdlib \
-#  stdnoreturn \
 #  stpcpy \
 #  streq \
 #  strerror \
 #  strerror-override \
 #  string \
 #  strings \
+#  strndup \
+#  strnlen \
 #  strstr \
 #  strstr-simple \
 #  strtoimax \
@@ -348,6 +348,7 @@ gl_MODULES([
   access
   acl
   acl-permissions
+  alignasof
   aligned-malloc
   alignof
   alloca
@@ -470,7 +471,6 @@ gl_MODULES([
   ldd
   limits-h
   localcharset
-  longlong
   lseek
   lstat
   maintainer-makefile
@@ -486,6 +486,7 @@ gl_MODULES([
   nextafter
   no-c++
   nocrash
+  noreturn
   nstrftime
   obstack
   open
@@ -533,7 +534,6 @@ gl_MODULES([
   snippet/arg-nonnull
   snippet/c++defs
   snippet/link-warning
-  snippet/unused-parameter
   snippet/warn-on-use
   socketlib
   sockets
@@ -543,20 +543,20 @@ gl_MODULES([
   stat
   stat-time
   std-gnu11
-  stdalign
   stdarg
   stdbool
   stddef
   stdint
   stdio
   stdlib
-  stdnoreturn
   stpcpy
   streq
   strerror
   strerror-override
   string
   strings
+  strndup
+  strnlen
   strstr
   strstr-simple
   strtoimax

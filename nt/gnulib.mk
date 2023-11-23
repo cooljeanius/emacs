@@ -1,4 +1,4 @@
-## This file is an edited copy if ../lib/gnulib.mk.
+## This file is a hand-edited copy of ../lib/gnulib.mk.
 ##
 ## The purpose of the edits is to avoid generating any headers
 ## which would conflict with either the headers we have in nt/inc,
@@ -656,29 +656,6 @@ EXTRA_DIST += stat-time.h
 
 ## end   gnulib module stat-time
 
-## begin gnulib module stdalign
-
-BUILT_SOURCES += $(STDALIGN_H)
-
-# We need the following in order to create <stdalign.h> when the system
-# doesn't have one that works.
-if GL_GENERATE_STDALIGN_H
-stdalign.h: stdalign.in.h $(top_builddir)/config.status
-	$(AM_V_GEN)rm -f $@-t $@ && \
-	{ echo '/* DO NOT EDIT! GENERATED AUTOMATICALLY! */'; \
-	  cat $(srcdir)/stdalign.in.h; \
-	} > $@-t && \
-	mv $@-t $@
-else
-stdalign.h: $(top_builddir)/config.status
-	rm -f $@
-endif
-MOSTLYCLEANFILES += stdalign.h stdalign.h-t
-
-EXTRA_DIST += stdalign.in.h
-
-## end   gnulib module stdalign
-
 ## begin gnulib module stdarg
 
 BUILT_SOURCES += $(STDARG_H)
@@ -706,29 +683,6 @@ MOSTLYCLEANFILES += stdarg.h stdarg.h-t
 EXTRA_DIST += stdarg.in.h
 
 ## end   gnulib module stdarg
-
-## begin gnulib module stdbool
-
-BUILT_SOURCES += $(STDBOOL_H)
-
-# We need the following in order to create <stdbool.h> when the system
-# doesn't have one that works.
-if GL_GENERATE_STDBOOL_H
-stdbool.h: stdbool.in.h $(top_builddir)/config.status
-	$(AM_V_GEN)rm -f $@-t $@ && \
-	{ echo '/* DO NOT EDIT! GENERATED AUTOMATICALLY! */'; \
-	  sed -e 's/@''HAVE__BOOL''@/$(HAVE__BOOL)/g' < $(srcdir)/stdbool.in.h; \
-	} > $@-t && \
-	mv $@-t $@
-else
-stdbool.h: $(top_builddir)/config.status
-	rm -f $@
-endif
-MOSTLYCLEANFILES += stdbool.h stdbool.h-t
-
-EXTRA_DIST += stdbool.in.h
-
-## end   gnulib module stdbool
 
 ## begin gnulib module stddef
 

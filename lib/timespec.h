@@ -1,29 +1,32 @@
 /* timespec -- System time interface
 
-   Copyright (C) 2000, 2002, 2004-2005, 2007, 2009-2021 Free Software
+   Copyright (C) 2000, 2002, 2004-2005, 2007, 2009-2023 Free Software
    Foundation, Inc.
 
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3 of the License, or
-   (at your option) any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation, either version 3 of the
+   License, or (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
+   This file is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Lesser General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
+   You should have received a copy of the GNU Lesser General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #if ! defined TIMESPEC_H
 #define TIMESPEC_H
 
-#include <time.h>
-
-#ifndef _GL_INLINE_HEADER_BEGIN
+/* This file uses _GL_INLINE_HEADER_BEGIN, _GL_INLINE, _GL_ATTRIBUTE_CONST,
+   _GL_ATTRIBUTE_PURE, _GL_CMP.  */
+#if !_GL_CONFIG_H_INCLUDED
  #error "Please include config.h first."
 #endif
+
+#include <time.h>
+
 _GL_INLINE_HEADER_BEGIN
 #ifndef _GL_TIMESPEC_INLINE
 # define _GL_TIMESPEC_INLINE _GL_INLINE
@@ -52,10 +55,7 @@ enum { LOG10_TIMESPEC_RESOLUTION = LOG10_TIMESPEC_HZ };
 _GL_TIMESPEC_INLINE struct timespec
 make_timespec (time_t s, long int ns)
 {
-  struct timespec r;
-  r.tv_sec = s;
-  r.tv_nsec = ns;
-  return r;
+  return (struct timespec) { .tv_sec = s, .tv_nsec = ns };
 }
 
 /* Return negative, zero, positive if A < B, A == B, A > B, respectively.  */
@@ -88,6 +88,7 @@ timespectod (struct timespec a)
   return a.tv_sec + a.tv_nsec / 1e9;
 }
 
+long int gettime_res (void);
 struct timespec current_timespec (void);
 void gettime (struct timespec *) _GL_ARG_NONNULL ((1));
 int settime (struct timespec const *) _GL_ARG_NONNULL ((1));

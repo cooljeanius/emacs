@@ -1,24 +1,29 @@
 /* Sizes of structs with flexible array members.
 
-   Copyright 2016-2021 Free Software Foundation, Inc.
+   Copyright 2016-2023 Free Software Foundation, Inc.
 
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU General Public
+   modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
-   version 3 of the License, or (at your option) any later version.
+   version 2.1 of the License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
+   Lesser General Public License for more details.
 
-   You should have received a copy of the GNU General Public
+   You should have received a copy of the GNU Lesser General Public
    License along with the GNU C Library; if not, see
    <https://www.gnu.org/licenses/>.
 
    Written by Paul Eggert.  */
+
+/* This file uses _Alignof.  */
+#if !_GL_CONFIG_H_INCLUDED
+ #error "Please include config.h first."
+#endif
 
 #include <stddef.h>
 
@@ -38,7 +43,7 @@
    followed by N bytes of other data.  The result is suitable as an
    argument to malloc.  For example:
 
-     struct s { int n; char d[FLEXIBLE_ARRAY_MEMBER]; };
+     struct s { int a; char d[FLEXIBLE_ARRAY_MEMBER]; };
      struct s *p = malloc (FLEXSIZEOF (struct s, d, n * sizeof (char)));
 
    FLEXSIZEOF (TYPE, MEMBER, N) is not simply (sizeof (TYPE) + N),
@@ -58,3 +63,14 @@
 #define FLEXSIZEOF(type, member, n) \
    ((offsetof (type, member) + FLEXALIGNOF (type) - 1 + (n)) \
     & ~ (FLEXALIGNOF (type) - 1))
+
+/* Yield a properly aligned upper bound on the size of a struct of
+   type TYPE with a flexible array member named MEMBER that has N
+   elements.  The result is suitable as an argument to malloc.
+   For example:
+
+     struct s { int a; double d[FLEXIBLE_ARRAY_MEMBER]; };
+     struct s *p = malloc (FLEXNSIZEOF (struct s, d, n));
+ */
+#define FLEXNSIZEOF(type, member, n) \
+  FLEXSIZEOF (type, member, (n) * sizeof (((type *) 0)->member[0]))

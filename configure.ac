@@ -228,7 +228,7 @@ fi
 
 dnl# Automake version is fairly arbitrary, older versions might work too:
 AC_MSG_CHECKING([automake things])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([automake automake automake...])
 unset am_cv_make_support_nested_variables
 AM_INIT_AUTOMAKE([1.11 gnits tar-pax dist-bzip2 dist-xz])
 AM_MAINTAINER_MODE
@@ -676,7 +676,7 @@ AC_REQUIRE_SED
 
 ### Canonicalize the configuration name.
 AC_MSG_CHECKING([canonical system])
-AC_MSG_RESULT([ ])dnl
+AC_MSG_RESULT([systems systems systems...])dnl
 
 AC_CANONICAL_HOST
 canonical="${host}"
@@ -2621,7 +2621,7 @@ AC_SUBST([DEFAULT_FINK_PREFIX])dnl
 
 #### Choose a compiler.
 AC_MSG_CHECKING([compiler])
-AC_MSG_RESULT([ ])dnl
+AC_MSG_RESULT([compiler compiler compiler...])dnl
 
 test -n "${CC}" && cc_specified=yes
 test -n "${LD}" && ld_specified=yes
@@ -3133,7 +3133,7 @@ if test "x${gl_gcc_warnings}" != "xyes"; then
   fi  ##end check for clang or apple compiler
 else
   AC_MSG_CHECKING([warning flags])
-  AC_MSG_RESULT([ ])
+  AC_MSG_RESULT([warnings warnings warnings...])
 
   isystem='-isystem '
 
@@ -3927,7 +3927,7 @@ fi  ##end conditional on gl_gcc_warnings
 if test "x${gl_better_debugging}" = "xyes"; then
   ##### Not exactly warning flags, but adding them this way is easier:
   AC_MSG_CHECKING([other compiler flags])
-  AC_MSG_RESULT([ ])
+  AC_MSG_RESULT([flags flags flags...])
   dnl# Apple includes this as parts of its GCC_DEBUGGING_SYMBOLS checkbox
   dnl# that it exposes in its Xcode GUI:
   gl_WARN_ADD([-fno-eliminate-unused-debug-symbols],[BETTER_DEBUG_CFLAGS])
@@ -4058,7 +4058,7 @@ AC_SUBST([AM_DEFAULT_VERBOSITY])dnl
 dnl########################################################################
 dnl# Some other nice autoconf tests.
 AC_MSG_CHECKING([other programs])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([programs programs programs...])
 dnl# These are ifdef-ed out, since gl_EARLY and/or Autoconf should have
 dnl# already done them.
 m4_ifdef([gl_00GNULIB],[:],[
@@ -4091,7 +4091,7 @@ if test "x${ID_BIN}" != "x"; then
 fi
 
 AC_MSG_CHECKING([libtool things])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([libtool libtool libtool...])
 dnl# only need the libtool macro for some of the tools that it checks:
 m4_ifdef([LT_INIT],[
   unset ac_cv_prog_ac_ct_RANLIB
@@ -4105,7 +4105,7 @@ m4_ifdef([LT_INIT],[
 
 dnl# back to other program checks again:
 AC_MSG_CHECKING([other programs again])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([programs programs programs...])
 
 dnl########################################################################
 dnl# Sadly, AC_PROG_LN_S is too restrictive. It also tests whether links
@@ -4575,8 +4575,9 @@ test -e m4/override.m4
 
 dnl# other type tests that autoscan wants, among other things:
 AC_MSG_CHECKING([types])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([types types types...])
 AC_TYPE_INT8_T
+AC_TYPE_INT16_T
 AC_TYPE_INT32_T
 AC_TYPE_INT64_T
 AC_TYPE_OFF_T
@@ -4726,7 +4727,7 @@ fi
 
 dnl# pkg-config-checked packages:
 AC_MSG_CHECKING([packages])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([packages packages packages...])
 pre_PKG_CONFIG_CFLAGS="${CFLAGS}"
 pre_PKG_CONFIG_LIBS="${LIBS}"
 AC_SUBST([pre_PKG_CONFIG_CFLAGS])dnl
@@ -4759,7 +4760,7 @@ dnl# The definition of the macro for checking pkgs has moved to:
 m4_include([m4/pkg_extra.m4])dnl
 
 AC_MSG_CHECKING([for sound support])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([sound sound sound...])
 HAVE_SOUND=no
 if test "x${with_sound}" != "xno"; then
   # Sound support for GNU/Linux, the free BSDs, and MinGW.
@@ -4848,7 +4849,7 @@ fi
 
 dnl# checks for header files:
 AC_MSG_CHECKING([headers])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([headers headers headers...])
 dnl# "_ONCE" causes test to be done at wrong location, unfortunately,
 dnl# so leave that part off and just check them normally, keeping this
 dnl# first batch mostly in their historical order:
@@ -5065,7 +5066,7 @@ AC_CHECK_HEADERS([net/if_dl.h],[],[],[AC_INCLUDES_DEFAULT
 
 dnl# checks for structures and structure members:
 AC_MSG_CHECKING([structures and structure members])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([structs structs structs...])
 AC_CHECK_MEMBERS([struct stat.st_rdev])dnl
 AC_CHECK_MEMBERS([struct ifreq.ifr_flags, struct ifreq.ifr_hwaddr,
 		  struct ifreq.ifr_netmask, struct ifreq.ifr_broadaddr,
@@ -5165,7 +5166,7 @@ fi
 
 dnl# checks for compiler characteristics:
 AC_MSG_CHECKING([the characteristics of your C compiler])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([C C C...])
 
 dnl# Signedness of char can produce some warnings:
 AC_C_CHAR_UNSIGNED
@@ -5220,7 +5221,7 @@ m4_ifdef([gl_00GNULIB],[:],[AC_C_BIGENDIAN])dnl
 
 dnl# check for Make feature:
 AC_MSG_CHECKING([features of make])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([make make make...])
 dnl# AC_PROG_MAKE_SET is done by Automake, so do it conditionally, also
 dnl# allowing for other possible cache values:
 if test "x${ac_cv_prog_make_make_set}" = "x" && eval test "x\${ac_cv_prog_make_${ac_make}_set}" = "x"; then
@@ -5286,12 +5287,12 @@ AC_SUBST_FILE([lisp_frag])dnl
 
 dnl# checks for operating system services:
 AC_MSG_CHECKING([operating system services])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([OS OS OS...])
 AC_SYS_LONG_FILE_NAMES
 m4_ifdef([AC_SYS_RESTARTABLE_SYSCALLS],[
   dnl# This takes a while to execute, due to calls to sleep:
   if test "x${I_CAN_AFFORD_TO_WAIT_AROUND}" = "xyes"; then
-    test -n "${I_CAN_AFFORD_TO_WAIT_AROUND}"
+    test -n "${I_CAN_AFFORD_TO_WAIT_AROUND}" && echo "next test may take awhile"
     AC_SYS_RESTARTABLE_SYSCALLS
   else
     echo "skipping test for restartable syscalls"
@@ -5302,7 +5303,7 @@ AC_LANG_PUSH([Objective C])dnl
 ORIG_LDFLAGS="${LDFLAGS}"
 if test "x${with_ns}" != "xno"; then
   if test "x${opsys}" = "xdarwin" && test "x${emacs_cv_apple}" = "xyes" && test "x${host_vendor}" = "xapple" && test "x${OBJC}" != "x"; then
-    test -n "${OBJC}"
+    test -n "${OBJC}" && echo "assuming Objective C compiler ${OBJC} works with AppKit.framework"
     ## FIXME: test this better:
     LDFLAGS="${LDFLAGS} -framework AppKit"
   elif test "x${ac_cv_header_appkit_appkit_h}" = "xyes"; then
@@ -5337,7 +5338,7 @@ AC_LANG_POP
 
 #### Choose a window system.
 AC_MSG_CHECKING([windowing system])
-AC_MSG_RESULT([ ])dnl
+AC_MSG_RESULT([windows windows windows...])dnl
 
 ## We leave window_system equal to none if
 ## we end up building without one. Any new window system should
@@ -5646,7 +5647,7 @@ fail;
      ns_fontfile=nsfont.o
   fi
 elif test "x${MAC_OBJC_OBJ}" != "x"; then
-  test -n "${MAC_OBJC_OBJ}"
+  test -n "${MAC_OBJC_OBJ}" && "MAC_OBJC_OBJ is ${MAC_OBJC_OBJ}"
   if test "x${opsys}" = "xdarwin"; then
      test -z "${GNU_OBJC_CFLAGS}" && GNU_OBJC_CFLAGS="-fobjc-exceptions"
      GNU_OBJC_CFLAGS="${GNU_OBJC_CFLAGS} -fno-strict-aliasing"
@@ -6160,7 +6161,7 @@ fi
 # Does the opsystem file prohibit the use of the GNU malloc?
 # Assume not, until told otherwise.
 AC_MSG_CHECKING([malloc characteristics (GNU, system, or hybrid)])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([malloc malloc malloc...])
 GNU_MALLOC=yes
 
 AC_CACHE_CHECK([whether malloc is Doug Lea style],
@@ -6263,7 +6264,7 @@ fi
 
 dnl# misc. libraries section:
 AC_MSG_CHECKING([other libraries])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([libraries libraries libraries...])
 LIBS="${LIBS_SYSTEM} ${LIBS}"
 
 dnl# what AC\_ISC\_POSIX autoupdates to, with some additions:
@@ -6295,7 +6296,7 @@ AC_SEARCH_LIBS([cuserid],[compat c System gnu])dnl
 
 dnl# Check if pthreads is available.
 AC_MSG_CHECKING([pthreads characteristics])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([pthreads pthreads pthreads...])
 LIB_PTHREAD=""
 dnl# "_ONCE" causes test to be done at wrong location, so leave that off:
 AC_CHECK_HEADERS([pthread.h])
@@ -6376,7 +6377,7 @@ AC_SUBST([REAL_LDFLAGS])dnl
 AC_SUBST([REAL_LIBS])dnl
 
 AC_MSG_CHECKING([X11 features])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([X11 X11 X11...])
 if test "x${HAVE_X11}" = "xyes"; then
   echo "we have X11 so using X11-specific vars"
   DEFS="${C_SWITCH_X_SITE} ${DEFS}"
@@ -6514,7 +6515,7 @@ else
 fi
 
 AC_MSG_CHECKING([graphics packages])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([graphics graphics graphics...])
 ### Use -lrsvg-2 if available, unless `--with-rsvg=no' is specified.
 HAVE_RSVG=no
 if test "x${HAVE_X11}" = "xyes" || test "x${HAVE_NS}" = "xyes" || test "x${opsys}" = "xmingw32"; then
@@ -6583,7 +6584,7 @@ fi
 
 dnl# section for gtk environment:
 AC_MSG_CHECKING([gtk features])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([gtk gtk gtk...])
 HAVE_GTK=no
 if test "x${with_gtk}" = "xyes" && test "x${USE_X_TOOLKIT}" = "xgtk"; then
   USE_X_TOOLKIT=none
@@ -6809,7 +6810,7 @@ else
 fi
 
 AC_MSG_CHECKING([settings/configuration packages])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([packages packages packages...])
 dnl# D-Bus has been tested under GNU/Linux only. Must be adapted for
 dnl# other platforms.
 HAVE_DBUS=no
@@ -6912,7 +6913,7 @@ AC_SUBST([SETTINGS_LIBS])dnl
 
 dnl# secure ourselves:
 AC_MSG_CHECKING([security packages])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([security security security...])
 dnl# SELinux is available for GNU/Linux only.
 HAVE_LIBSELINUX=no
 LIBSELINUX_LIBS=""
@@ -6961,7 +6962,7 @@ AC_SUBST([LIBGNUTLS_CFLAGS])dnl
 
 dnl# notify section:
 AC_MSG_CHECKING([notification packages])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([notifs notifs notifs...])
 NOTIFY_OBJ=""
 NOTIFY_SUMMARY=no
 
@@ -7029,7 +7030,7 @@ AC_SUBST([GFILENOTIFY_LIBS])dnl
 dnl# Do not put whitespace before the #include statements below.
 dnl# Older compilers (e.g. sunos4 cc) choke on it.
 AC_MSG_CHECKING([X toolkits])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([toolkits toolkits toolkits...])
 HAVE_XAW3D=no
 LUCID_LIBW=""
 if test x"${USE_X_TOOLKIT}" = x"maybe" || test x"${USE_X_TOOLKIT}" = x"LUCID"; then
@@ -7369,7 +7370,7 @@ either XPointer or XPointer*.])dnl
 fi
 
 AC_MSG_CHECKING([font-rendering-backend packages])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([fonts fonts fonts...])
 ### Start of font-backend (under any platform) section.
 # (nothing here yet -- this is a placeholder)
 ### End of font-backend (under any platform) section.
@@ -7514,7 +7515,7 @@ AC_SUBST([M17N_FLT_LIBS])dnl
 
 dnl# image formats section:
 AC_MSG_CHECKING([more graphics packages])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([graphics graphics graphics...])
 ### Use -lXpm if available, unless `--with-xpm=no'.
 ### mingw32 does NOT use -lXpm, since it loads the library dynamically.
 ### In the Cygwin-w32 build, we need to use /usr/include/noX/X11/xpm.h
@@ -7961,7 +7962,7 @@ fi
 AC_SUBST([LIBGPM])dnl
 
 AC_MSG_CHECKING([darwin/NeXTstep])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([darwin darwin darwin...])
 dnl# Check for malloc/malloc.h on darwin:
 case "${opsys}" in
   darwin)
@@ -8056,7 +8057,7 @@ if test "x${HAVE_NS}" = "xyes"; then
 fi
 
 AC_MSG_CHECKING([even more X11 packages])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([X11 X11 X11...])
 ### Use session management (-lSM -lICE) if available:
 HAVE_X_SM=no
 LIBXSM=""
@@ -8174,7 +8175,7 @@ AC_SUBST([XFIXES_CFLAGS])dnl
 AC_SUBST([XFIXES_LIBS])dnl
 
 AC_MSG_CHECKING([various other libraries])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([libraries libraries libraries...])
 ### Use libxml (-lxml2) if available.
 ### mingw32 does NOT use -lxml2, since it loads the library dynamically.
 HAVE_LIBXML2=no
@@ -8272,7 +8273,7 @@ if test "x${opsys}" != "xmingw32"; then
 fi
 
 AC_MSG_CHECKING([mail libraries])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([mail mail mail...])
 # Check for mail-locking functions in a "mail" library. Probably this
 # should have the same check as for liblockfile below.
 AC_CHECK_LIB([mail],[maillock],[have_mail=yes],[have_mail=no])
@@ -8366,7 +8367,7 @@ AC_SUBST([BLESSMAIL_TARGET])dnl
 
 dnl# checks for other various functions:
 AC_MSG_CHECKING([functions])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([functions functions functions...])
 AC_FUNC_CHOWN
 if test "x${ac_cv_func_fchdir}" = "x"; then
   test -z "${ac_cv_func_fchdir}"
@@ -8409,14 +8410,18 @@ AC_FUNC_SETPGRP
 AC_FUNC_SETVBUF_REVERSED
 AC_FUNC_STAT
 if test "x${ac_cv_func_strerror_r_char_p}" = "x"; then
-  test -z "${ac_cv_func_strerror_r_char_p}"
+  test -z "${ac_cv_func_strerror_r_char_p}" || unset ac_cv_func_strerror_r_char_p
   test -n "${ac_cv_have_decl_strerror_r}"
   test -n "${ac_cv_func_strerror_r}"
   AC_FUNC_STRERROR_R
 fi
 AC_FUNC_STRFTIME
+if test "x${ac_cv_func_strnlen}" = "x"; then
+  test -z "${ac_cv_func_strnlen}" || unset ac_cv_func_strnlen
+  AC_FUNC_STRNLEN
+fi
 if test "x${ac_cv_func_strtod}" = "x"; then
-  test -z "${ac_cv_func_strtod}"
+  test -z "${ac_cv_func_strtod}" || unset ac_cv_func_strtod
   AC_FUNC_STRTOD
 fi
 AC_FUNC_UTIME_NULL
@@ -8474,17 +8479,21 @@ if test "x${libm_has_fmod}" = "x" && test "x${ac_cv_func_fmod}" = "x"; then
 fi
 dnl# these ones should be in alphabetical order:
 AC_CHECK_FUNCS([__fpending _stricmp acl atexit atof atoi btowc bzero \
-                cuserid doprnt encodeShellString errc fabs fabsf fgets floor \
-                ftime get_etext get_edata get_end getpass getpwuid inet_ntoa \
+                cuserid doprnt encodeShellString errc fabs fabsf fdatasync fgets \
+                floor ftime get_etext get_edata get_end getpwuid inet_ntoa \
                 isascii iswprint localeconv mbrlen memmove memset munmap \
                 nl_langinfo openpty pathconf posix_spawnp pow putenv re_comp \
                 reallocf regcomp regexec regerror regfree rmdir socket sqrt \
-                strcasecmp strcasestr strchr strcmp strcspn strdup strerror \
-                stricmp strlcat strlcpy strncasecmp strncat strncmp strnicmp \
-                strnstr strpbrk strrchr strspn strtok strtok_r strtol strtoul \
-                sysctl system xstricmp utmpname vfprintf wcwidth])
+                stpcpy strcasecmp strcasestr strchr strcmp strcspn strdup \
+                strerror stricmp strlcat strlcpy strncasecmp strncat strncmp \
+                strnicmp strnstr strpbrk strrchr strspn strtok strtok_r strtol \
+                strtoul sysctl system xstricmp utmpname vfprintf])
+if test "x${ac_cv_func_getpass}" = "x"; then
+  test -z "${ac_cv_func_getpass}" || unset ac_cv_func_getpass
+  AC_CHECK_FUNCS([getpass])
+fi
 if test "x${ac_cv_func_utime}" = "x"; then
-  test -z "${ac_cv_func_utime}"
+  test -z "${ac_cv_func_utime}" || unset ac_cv_func_utime
   AC_CHECK_FUNCS([utime])
 fi
 dnl# Keep autoscan happy with a dummy condition:
@@ -8498,8 +8507,8 @@ if test "x" = "Y0"; then
     AC_CHECK_FUNCS([getdelim])dnl
   ])dnl
   AC_CHECK_FUNCS([alarm dup2 ftruncate getcwd geteuid gethostbyname \
-                  getpagesize gettimeofday localtime_r mkdir setenv \
-                  strtoumax strverscmp tzset uname])dnl
+                  getpagesize gettimeofday localtime_r mkdir realpath setenv \
+                  strndup strtoumax strverscmp tzset uname wcwidth])dnl
   ## just in case...
 fi
 AC_CHECK_DECLS([openpty],[],[],[[
@@ -10213,7 +10222,7 @@ fi
 
 dnl# gettext:
 AC_MSG_CHECKING([gettext])
-AC_MSG_RESULT([ ])
+AC_MSG_RESULT([gettext gettext gettext...])
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION([0.18.3])
 # Solaris requires -lintl if you want strerror (which calls dgettext)

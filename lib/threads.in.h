@@ -1,34 +1,57 @@
 /* An ISO C 11 compatible <threads.h>.
 
-   Copyright (C) 2019-2021 Free Software Foundation, Inc.
+   Copyright (C) 2019-2023 Free Software Foundation, Inc.
 
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3, or (at your option)
-   any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 2.1 of the
+   License, or (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
+   This file is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Lesser General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, see <https://www.gnu.org/licenses/>.  */
+   You should have received a copy of the GNU Lesser General Public License
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #if __GNUC__ >= 3
 @PRAGMA_SYSTEM_HEADER@
 #endif
 @PRAGMA_COLUMNS@
 
+#if defined _GL_ALREADY_INCLUDING_THREADS_H
+/* Special invocation convention:
+   - On Android we have a sequence of nested includes
+     <threads.h> -> <android/legacy_threads_inlines.h>
+     -> <bits/threads_inlines.h> -> "threads.h"
+     In this situation, the functions are not yet declared, therefore we cannot
+     provide the C++ aliases.  */
+
+#@INCLUDE_NEXT_AS_FIRST_DIRECTIVE@ @NEXT_AS_FIRST_DIRECTIVE_THREADS_H@
+
+#else
+/* Normal invocation convention.  */
+
 #ifndef _@GUARD_PREFIX@_THREADS_H
+
+#define _GL_ALREADY_INCLUDING_THREADS_H
 
 /* The include_next requires a split double-inclusion guard.  */
 #if @HAVE_THREADS_H@
-# @INCLUDE_NEXT@ @NEXT_THREADS_H@
+# @INCLUDE_NEXT_AS_FIRST_DIRECTIVE@ @NEXT_AS_FIRST_DIRECTIVE_THREADS_H@
 #endif
+
+#undef _GL_ALREADY_INCLUDING_THREADS_H
 
 #ifndef _@GUARD_PREFIX@_THREADS_H
 #define _@GUARD_PREFIX@_THREADS_H
+
+/* This file uses _GL_ATTRIBUTE_PURE, GNULIB_POSIXCHECK, _Thread_local,
+   HAVE_RAW_DECL_*.  */
+#if !_GL_CONFIG_H_INCLUDED
+ #error "Please include config.h first."
+#endif
 
 #if !@HAVE_THREADS_H@
 
@@ -47,6 +70,16 @@
 
 # endif
 
+#endif
+
+/* The __attribute__ feature is available in gcc versions 2.5 and later.
+   The attribute __pure__ was added in gcc 2.96.  */
+#ifndef _GL_ATTRIBUTE_PURE
+# if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 96) || defined __clang__
+#  define _GL_ATTRIBUTE_PURE __attribute__ ((__pure__))
+# else
+#  define _GL_ATTRIBUTE_PURE /* empty */
+# endif
 #endif
 
 /* The definitions of _GL_FUNCDECL_RPL etc. are copied here.  */
@@ -432,7 +465,7 @@ typedef pthread_once_t once_flag;
 
 #endif
 
-#if @GNULIB_MTX@
+#if @GNULIB_CALL_ONCE@
 # if !@HAVE_THREADS_H@
 _GL_FUNCDECL_SYS (call_once, void, (once_flag *, void (*) (void))
                                    _GL_ARG_NONNULL ((1, 2)));
@@ -652,3 +685,4 @@ _GL_WARN_ON_USE (tss_delete, "tss_delete is unportable - "
 
 #endif /* _@GUARD_PREFIX@_THREADS_H */
 #endif /* _@GUARD_PREFIX@_THREADS_H */
+#endif

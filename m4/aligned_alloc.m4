@@ -1,5 +1,5 @@
-# aligned_alloc.m4 serial 3
-dnl Copyright (C) 2020-2021 Free Software Foundation, Inc.
+# aligned_alloc.m4 serial 5
+dnl Copyright (C) 2020-2023 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -12,7 +12,7 @@ AC_DEFUN([gl_FUNC_ALIGNED_ALLOC],
   dnl Persuade glibc and OpenBSD <stdlib.h> to declare aligned_alloc().
   AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
 
-  AC_CHECK_FUNCS_ONCE([aligned_alloc])
+  gl_CHECK_FUNCS_ANDROID([aligned_alloc], [[#include <stdlib.h>]])
   if test $ac_cv_func_aligned_alloc = yes; then
     dnl On macOS 11.1 and AIX 7.2, aligned_alloc returns NULL when the alignment
     dnl argument is smaller than sizeof (void *).
@@ -44,5 +44,8 @@ AC_DEFUN([gl_FUNC_ALIGNED_ALLOC],
   else
     dnl The system does not have aligned_alloc.
     HAVE_ALIGNED_ALLOC=0
+    case "$gl_cv_onwards_func_aligned_alloc" in
+      future*) REPLACE_ALIGNED_ALLOC=1 ;;
+    esac
   fi
 ])

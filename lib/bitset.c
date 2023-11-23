@@ -1,6 +1,6 @@
 /* General bitsets.
 
-   Copyright (C) 2002-2006, 2009-2015, 2018-2021 Free Software Foundation, Inc.
+   Copyright (C) 2002-2006, 2009-2015, 2018-2023 Free Software Foundation, Inc.
 
    Contributed by Michael Hayes (m.hayes@elec.canterbury.ac.nz).
 
@@ -94,7 +94,7 @@ bitset_init (bitset bset, bitset_bindex n_bits, enum bitset_type type)
    specified by ATTR.  For variable size bitsets, N_BITS is only a
    hint and may be zero.  */
 enum bitset_type
-bitset_type_choose (bitset_bindex n_bits MAYBE_UNUSED, unsigned attr)
+bitset_type_choose (MAYBE_UNUSED bitset_bindex n_bits, unsigned attr)
 {
   /* Check attributes.  */
   if (attr & BITSET_FIXED && attr & BITSET_VARIABLE)

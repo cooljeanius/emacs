@@ -1,10 +1,10 @@
 /* Internal implementation of access control lists.  -*- coding: utf-8 -*-
 
-   Copyright (C) 2002-2003, 2005-2021 Free Software Foundation, Inc.
+   Copyright (C) 2002-2003, 2005-2023 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3 of the License, or
+   the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -17,9 +17,13 @@
 
    Written by Paul Eggert, Andreas Grünbacher, and Bruno Haible.  */
 
+/* This file uses _GL_INLINE_HEADER_BEGIN, _GL_INLINE, _GL_ATTRIBUTE_PURE.  */
+#if !_GL_CONFIG_H_INCLUDED
+ #error "Please include config.h first."
+#endif
+
 #include "acl.h"
 
-#include <stdbool.h>
 #include <stdlib.h>
 
 /* All systems define the ACL related API in <sys/acl.h>.  */
@@ -61,9 +65,6 @@ extern int aclsort (int, int, struct acl *);
 # define fchmod(fd, mode) (-1)
 #endif
 
-#ifndef _GL_INLINE_HEADER_BEGIN
- #error "Please include config.h first."
-#endif
 _GL_INLINE_HEADER_BEGIN
 #ifndef ACL_INTERNAL_INLINE
 # define ACL_INTERNAL_INLINE _GL_INLINE

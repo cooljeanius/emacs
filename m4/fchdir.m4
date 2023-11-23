@@ -1,5 +1,5 @@
-# fchdir.m4 serial 26
-dnl Copyright (C) 2006-2021 Free Software Foundation, Inc.
+# fchdir.m4 serial 28
+dnl Copyright (C) 2006-2023 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -17,8 +17,6 @@ AC_DEFUN([gl_FUNC_FCHDIR],
 
   AC_REQUIRE([gl_TEST_FCHDIR])
   if test $HAVE_FCHDIR = 0; then
-    AC_LIBOBJ([fchdir])
-    gl_PREREQ_FCHDIR
     AC_DEFINE([REPLACE_FCHDIR], [1],
       [Define to 1 if gnulib's fchdir() replacement is used.])
     dnl We must also replace anything that can manipulate a directory fd,
@@ -36,6 +34,8 @@ AC_DEFUN([gl_FUNC_FCHDIR],
          [case "$host_os" in
                              # Guess yes on Linux systems.
             linux-* | linux) gl_cv_func_open_directory_works="guessing yes" ;;
+                             # Guess yes on systems that emulate the Linux system calls.
+            midipix*)        gl_cv_func_open_directory_works="guessing yes" ;;
                              # Guess yes on glibc systems.
             *-gnu* | gnu*)   gl_cv_func_open_directory_works="guessing yes" ;;
                              # Guess no on native Windows.

@@ -198,6 +198,19 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_FUNC_CHECKS],[
       AC_REQUIRE([AC_FUNC_STRFTIME])dnl
     ])dnl
   ])dnl
+  m4_ifdef([gl_FUNC_STRNDUP],[
+    AC_REQUIRE([gl_FUNC_STRNDUP])dnl
+  ],[
+    if test "x${ac_cv_func_strndup}" = "x"; then
+      test -z "${ac_cv_func_strndup}" || unset ac_cv_func_strndup
+      AC_CHECK_FUNCS([strndup])
+    fi
+  ])dnl
+  m4_ifdef([gl_FUNC_STRNLEN],[
+    AC_REQUIRE([gl_FUNC_STRNLEN])dnl
+  ],[
+    AC_REQUIRE([AC_FUNC_STRNLEN])dnl
+  ])dnl
   m4_ifdef([gl_FUNC_STRSTR],[
     AC_REQUIRE([gl_FUNC_STRSTR])dnl
     ## in case the function itself never actually got checked:

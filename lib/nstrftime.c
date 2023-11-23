@@ -1,19 +1,18 @@
-/* Copyright (C) 1991-2021 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2023 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
-   The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU General Public
-   License as published by the Free Software Foundation; either
-   version 3 of the License, or (at your option) any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation, either version 3 of the
+   License, or (at your option) any later version.
 
-   The GNU C Library is distributed in the hope that it will be useful,
+   This file is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU Lesser General Public License for more details.
 
-   You should have received a copy of the GNU General Public
-   License along with the GNU C Library; if not, see
-   <https://www.gnu.org/licenses/>.  */
+   You should have received a copy of the GNU Lesser General Public License
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifdef _LIBC
 # define USE_IN_EXTENDED_LOCALE_MODEL 1
@@ -23,7 +22,7 @@
 # define HAVE_TZNAME 1
 # include "../locale/localeinfo.h"
 #else
-# include <config.h>
+# include <libc-config.h>
 # if FPRINTFTIME
 #  include "fprintftime.h"
 # else
@@ -63,10 +62,10 @@ extern char *tzname[];
 #endif
 
 #include <limits.h>
+#include <stdckdint.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
 
 #include "attribute.h"
 #include <intprops.h>
@@ -228,15 +227,6 @@ extern char *tzname[];
 #  undef __mbsrtowcs_l
 #  define __mbsrtowcs_l(d, s, l, st, loc) __mbsrtowcs (d, s, l, st)
 # endif
-# define widen(os, ws, l) \
-  {                                                                           \
-    mbstate_t __st;                                                           \
-    const char *__s = os;                                                     \
-    memset (&__st, '\0', sizeof (__st));                                      \
-    l = __mbsrtowcs_l (NULL, &__s, 0, &__st, loc);                            \
-    ws = (wchar_t *) alloca ((l + 1) * sizeof (wchar_t));                     \
-    (void) __mbsrtowcs_l (ws, &__s, l, &__st, loc);                           \
-  }
 #endif
 
 
@@ -285,6 +275,14 @@ extern char *tzname[];
    the arabic digits in the ASCII range.  One day there is perhaps a
    more reliable way to accept other sets of digits.  */
 #define ISDIGIT(Ch) ((unsigned int) (Ch) - L_('0') <= 9)
+
+/* Avoid false GCC warning "'memset' specified size 18446744073709551615 exceeds
+   maximum object size 9223372036854775807", caused by insufficient data flow
+   analysis and value propagation of the 'width_add' expansion when GCC is not
+   optimizing.  Cf. <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88443>.  */
+#if __GNUC__ >= 7 && !__OPTIMIZE__
+# pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
 
 #if FPRINTFTIME
 static void
@@ -368,10 +366,7 @@ tm_diff (const struct tm *a, const struct tm *b)
 #define ISO_WEEK1_WDAY 4 /* Thursday */
 #define YDAY_MINIMUM (-366)
 static int iso_week_days (int, int);
-#if defined __GNUC__ || defined __clang__
-__inline__
-#endif
-static int
+static __inline int
 iso_week_days (int yday, int wday)
 {
   /* Add enough to the first operand of % to make it nonnegative.  */
@@ -429,9 +424,7 @@ my_strftime (STREAM_OR_CHAR_T *s, STRFTIME_ARG (size_t maxsize)
   return __strftime_internal (s, STRFTIME_ARG (maxsize) format, tp, false,
                               0, -1, &tzset_called extra_args LOCALE_ARG);
 }
-#if defined _LIBC && ! FPRINTFTIME
 libc_hidden_def (my_strftime)
-#endif
 
 /* Just like my_strftime, above, but with more parameters.
    UPCASE indicates that the result should be converted to upper case.
@@ -657,6 +650,8 @@ __strftime_internal (STREAM_OR_CHAR_T *s, STRFTIME_ARG (size_t maxsize)
 
 #endif /* ! DO_MULTIBYTE */
 
+      char const *percent = f;
+
       /* Check for flags that can modify a format.  */
       while (1)
         {
@@ -689,8 +684,8 @@ __strftime_internal (STREAM_OR_CHAR_T *s, STRFTIME_ARG (size_t maxsize)
           width = 0;
           do
             {
-              if (INT_MULTIPLY_WRAPV (width, 10, &width)
-                  || INT_ADD_WRAPV (width, *f - L_('0'), &width))
+              if (ckd_mul (&width, width, 10)
+                  || ckd_add (&width, width, *f - L_('0')))
                 width = INT_MAX;
               ++f;
             }
@@ -758,8 +753,8 @@ __strftime_internal (STREAM_OR_CHAR_T *s, STRFTIME_ARG (size_t maxsize)
           while (0)
 
         case L_('%'):
-          if (modifier != 0)
-            goto bad_format;
+          if (f - 1 != percent)
+            goto bad_percent;
           add1 (*f);
           break;
 
@@ -1162,7 +1157,6 @@ __strftime_internal (STREAM_OR_CHAR_T *s, STRFTIME_ARG (size_t maxsize)
 
         case L_('q'):           /* GNU extension.  */
           DO_SIGNED_NUMBER (1, false, ((tp->tm_mon * 11) >> 5) + 1);
-          break;
 
         case L_('R'):
           subfmt = L_("%H:%M");
@@ -1380,11 +1374,31 @@ __strftime_internal (STREAM_OR_CHAR_T *s, STRFTIME_ARG (size_t maxsize)
 #ifdef COMPILE_WIDE
           {
             /* The zone string is always given in multibyte form.  We have
-               to transform it first.  */
-            wchar_t *wczone;
-            size_t len;
-            widen (zone, wczone, len);
-            cpy (len, wczone);
+               to convert it to wide character.  */
+            size_t w = pad == L_('-') || width < 0 ? 0 : width;
+            char const *z = zone;
+            mbstate_t st = {0};
+            size_t len = __mbsrtowcs_l (p, &z, maxsize - i, &st, loc);
+            if (len == (size_t) -1)
+              return 0;
+            size_t incr = len < w ? w : len;
+            if (incr >= maxsize - i)
+              {
+                errno = ERANGE;
+                return 0;
+              }
+            if (p)
+              {
+                if (len < w)
+                  {
+                    size_t delta = w - len;
+                    __wmemmove (p + delta, p, len);
+                    wchar_t wc = pad == L_('0') || pad == L_('+') ? L'0' : L' ';
+                    wmemset (p, wc, delta);
+                  }
+                p += incr;
+              }
+            i += incr;
           }
 #else
           cpy (strlen (zone), zone);
@@ -1473,6 +1487,7 @@ __strftime_internal (STREAM_OR_CHAR_T *s, STRFTIME_ARG (size_t maxsize)
           }
 
         case L_('\0'):          /* GNU extension: % at end of format.  */
+        bad_percent:
             --f;
             FALLTHROUGH;
         default:
@@ -1480,12 +1495,7 @@ __strftime_internal (STREAM_OR_CHAR_T *s, STRFTIME_ARG (size_t maxsize)
              since this is most likely the right thing to do if a
              multibyte string has been misparsed.  */
         bad_format:
-          {
-            int flen;
-            for (flen = 1; f[1 - flen] != L_('%'); flen++)
-              continue;
-            cpy (flen, &f[1 - flen]);
-          }
+          cpy (f - percent + 1, percent);
           break;
         }
     }

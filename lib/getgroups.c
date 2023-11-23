@@ -1,18 +1,18 @@
 /* provide consistent interface to getgroups for systems that don't allow N==0
 
-   Copyright (C) 1996, 1999, 2003, 2006-2021 Free Software Foundation, Inc.
+   Copyright (C) 1996, 1999, 2003, 2006-2023 Free Software Foundation, Inc.
 
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3 of the License, or
-   (at your option) any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 2.1 of the
+   License, or (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
+   This file is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Lesser General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
+   You should have received a copy of the GNU Lesser General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* written by Jim Meyering */
@@ -30,7 +30,7 @@
 /* Provide a stub that fails with ENOSYS, since there is no group
    information available on mingw.  */
 int
-getgroups (int n _GL_UNUSED, GETGROUPS_T *groups _GL_UNUSED)
+getgroups (_GL_UNUSED int n, _GL_UNUSED GETGROUPS_T *groups)
 {
   errno = ENOSYS;
   return -1;

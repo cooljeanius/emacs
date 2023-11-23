@@ -1,21 +1,21 @@
 /* pselect - synchronous I/O multiplexing
 
-   Copyright 2011-2021 Free Software Foundation, Inc.
+   Copyright 2011-2023 Free Software Foundation, Inc.
 
    This file is part of gnulib.
 
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3, or (at your option)
-   any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 2.1 of the
+   License, or (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
+   This file is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Lesser General Public License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with this program; if not, see <https://www.gnu.org/licenses/>.  */
+   You should have received a copy of the GNU Lesser General Public License
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* written by Paul Eggert */
 
@@ -45,6 +45,12 @@ pselect (int nfds, fd_set *restrict rfds,
   sigset_t origmask;
   struct timeval tv, *tvp;
 
+  if (nfds < 0 || nfds > FD_SETSIZE)
+    {
+      errno = EINVAL;
+      return -1;
+    }
+
   if (timeout)
     {
       if (! (0 <= timeout->tv_nsec && timeout->tv_nsec < 1000000000))
@@ -53,8 +59,10 @@ pselect (int nfds, fd_set *restrict rfds,
           return -1;
         }
 
-      tv.tv_sec = timeout->tv_sec;
-      tv.tv_usec = (timeout->tv_nsec + 999) / 1000;
+      tv = (struct timeval) {
+        .tv_sec = timeout->tv_sec,
+        .tv_usec = (timeout->tv_nsec + 999) / 1000
+      };
       tvp = &tv;
     }
   else

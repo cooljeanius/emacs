@@ -20,6 +20,7 @@ configmake.h
 ctype.h
 dirent.h
 errno.h
+error.h
 execinfo.h
 fcntl.h
 float.h
@@ -44,6 +45,7 @@ search.h
 signal.h
 spawn.h
 stdalign.h
+stdckdint.h
 stddef.h
 stdint.h
 stdbool.h
@@ -69,6 +71,9 @@ termios.h
 threads.h
 time.h
 uchar.h
+unicase.h
+unictype.h
+uninorm.h
 unistd.h
 unitypes.h
 uniwidth.h

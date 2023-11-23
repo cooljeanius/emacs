@@ -1,6 +1,6 @@
 /* Functions to support link list bitsets.
 
-   Copyright (C) 2002-2004, 2006, 2009-2015, 2018-2021 Free Software
+   Copyright (C) 2002-2004, 2006, 2009-2015, 2018-2023 Free Software
    Foundation, Inc.
 
    Contributed by Michael Hayes (m.hayes@elec.canterbury.ac.nz).
@@ -441,7 +441,8 @@ lbitset_copy_ (bitset dst, bitset src)
 
   lbitset_elt *prev = 0;
   lbitset_elt *tmp;
-  for (lbitset_elt *elt = head; elt; elt = elt->next)
+  lbitset_elt *elt = head;
+  do
     {
       tmp = lbitset_elt_alloc ();
       tmp->index = elt->index;
@@ -454,7 +455,10 @@ lbitset_copy_ (bitset dst, bitset src)
       prev = tmp;
 
       memcpy (tmp->words, elt->words, sizeof (elt->words));
+
+      elt = elt->next;
     }
+  while (elt);
   LBITSET_TAIL (dst) = tmp;
 
   dst->b.csize = LBITSET_ELT_WORDS;
@@ -1229,7 +1233,7 @@ struct bitset_vtable lbitset_vtable = {
 
 /* Return size of initial structure.  */
 size_t
-lbitset_bytes (bitset_bindex n_bits MAYBE_UNUSED)
+lbitset_bytes (MAYBE_UNUSED bitset_bindex n_bits)
 {
   return sizeof (struct lbitset_struct);
 }
@@ -1237,7 +1241,7 @@ lbitset_bytes (bitset_bindex n_bits MAYBE_UNUSED)
 
 /* Initialize a bitset.  */
 bitset
-lbitset_init (bitset bset, bitset_bindex n_bits MAYBE_UNUSED)
+lbitset_init (bitset bset, MAYBE_UNUSED bitset_bindex n_bits)
 {
   BITSET_NBITS_ (bset) = n_bits;
   bset->b.vtable = &lbitset_vtable;

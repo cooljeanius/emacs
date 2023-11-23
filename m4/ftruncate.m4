@@ -1,8 +1,8 @@
-# serial 21
+# serial 23
 
 # See if we need to emulate a missing ftruncate function using _chsize.
 
-# Copyright (C) 2000-2001, 2003-2007, 2009-2021 Free Software Foundation, Inc.
+# Copyright (C) 2000-2001, 2003-2007, 2009-2023 Free Software Foundation, Inc.
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
@@ -10,7 +10,7 @@
 AC_DEFUN([gl_FUNC_FTRUNCATE],
 [
   AC_REQUIRE([gl_UNISTD_H_DEFAULTS])
-  AC_CHECK_FUNCS_ONCE([ftruncate])
+  gl_CHECK_FUNCS_ANDROID([ftruncate], [[#include <unistd.h>]])
   if test $ac_cv_func_ftruncate = yes; then
     m4_ifdef([gl_LARGEFILE], [
       AC_REQUIRE([AC_CANONICAL_HOST])
@@ -30,6 +30,9 @@ AC_DEFUN([gl_FUNC_FTRUNCATE],
     ])
   else
     HAVE_FTRUNCATE=0
+    case "$gl_cv_onwards_func_ftruncate" in
+      future*) REPLACE_FTRUNCATE=1 ;;
+    esac
   fi
 ])
 

@@ -1,19 +1,19 @@
 /* Implement the most essential subset of POSIX 1003.1-2008 pthread.h.
 
-   Copyright (C) 2009-2021 Free Software Foundation, Inc.
+   Copyright (C) 2009-2023 Free Software Foundation, Inc.
 
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3, or (at your option)
-   any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 2.1 of the
+   License, or (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
+   This file is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Lesser General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, see <https://www.gnu.org/licenses/>.  */
+   You should have received a copy of the GNU Lesser General Public License
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* Written by Paul Eggert, Glen Lenker, and Bruno Haible.  */
 
@@ -51,6 +51,12 @@
 #ifndef _@GUARD_PREFIX@_PTHREAD_H_
 #define _@GUARD_PREFIX@_PTHREAD_H_
 
+/* This file uses _Noreturn, _GL_ATTRIBUTE_PURE, GNULIB_POSIXCHECK,
+   HAVE_RAW_DECL_*.  */
+#if !_GL_CONFIG_H_INCLUDED
+ #error "Please include config.h first."
+#endif
+
 #define __need_system_stdlib_h
 #include <stdlib.h>
 #undef __need_system_stdlib_h
@@ -68,6 +74,16 @@
 #include <sched.h>
 #include <sys/types.h>
 #include <time.h>
+
+/* The __attribute__ feature is available in gcc versions 2.5 and later.
+   The attribute __pure__ was added in gcc 2.96.  */
+#ifndef _GL_ATTRIBUTE_PURE
+# if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 96) || defined __clang__
+#  define _GL_ATTRIBUTE_PURE __attribute__ ((__pure__))
+# else
+#  define _GL_ATTRIBUTE_PURE /* empty */
+# endif
+#endif
 
 /* The definitions of _GL_FUNCDECL_RPL etc. are copied here.  */
 
@@ -1955,6 +1971,35 @@ _GL_CXXALIASWARN (pthread_spin_destroy);
 _GL_WARN_ON_USE (pthread_spin_destroy, "pthread_spin_destroy is not portable - "
                  "use gnulib module pthread-spin for portability");
 # endif
+#endif
+
+
+#if defined __cplusplus && defined GNULIB_NAMESPACE && !@HAVE_PTHREAD_H@ && defined __MINGW32__
+/* Provide the symbols required by mingw's <bits/gthr-default.h>.  */
+using GNULIB_NAMESPACE::pthread_create;
+using GNULIB_NAMESPACE::pthread_self;
+using GNULIB_NAMESPACE::pthread_equal;
+using GNULIB_NAMESPACE::pthread_detach;
+using GNULIB_NAMESPACE::pthread_join;
+using GNULIB_NAMESPACE::pthread_once;
+using GNULIB_NAMESPACE::pthread_mutex_init;
+using GNULIB_NAMESPACE::pthread_mutexattr_init;
+using GNULIB_NAMESPACE::pthread_mutexattr_settype;
+using GNULIB_NAMESPACE::pthread_mutexattr_destroy;
+using GNULIB_NAMESPACE::pthread_mutex_lock;
+using GNULIB_NAMESPACE::pthread_mutex_trylock;
+using GNULIB_NAMESPACE::pthread_mutex_timedlock;
+using GNULIB_NAMESPACE::pthread_mutex_unlock;
+using GNULIB_NAMESPACE::pthread_mutex_destroy;
+using GNULIB_NAMESPACE::pthread_cond_wait;
+using GNULIB_NAMESPACE::pthread_cond_timedwait;
+using GNULIB_NAMESPACE::pthread_cond_signal;
+using GNULIB_NAMESPACE::pthread_cond_broadcast;
+using GNULIB_NAMESPACE::pthread_cond_destroy;
+using GNULIB_NAMESPACE::pthread_key_create;
+using GNULIB_NAMESPACE::pthread_setspecific;
+using GNULIB_NAMESPACE::pthread_getspecific;
+using GNULIB_NAMESPACE::pthread_key_delete;
 #endif
 
 

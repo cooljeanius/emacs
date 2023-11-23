@@ -168,6 +168,43 @@ AC_DEFUN([AM_AUX_DIR_EXPAND],
 am_aux_dir=`cd "$ac_aux_dir" && pwd`
 ])
 
+# AM_COND_IF                                            -*- Autoconf -*-
+
+# Copyright (C) 2008-2021 Free Software Foundation, Inc.
+#
+# This file is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# _AM_COND_IF
+# _AM_COND_ELSE
+# _AM_COND_ENDIF
+# --------------
+# These macros are only used for tracing.
+m4_define([_AM_COND_IF])
+m4_define([_AM_COND_ELSE])
+m4_define([_AM_COND_ENDIF])
+
+# AM_COND_IF(COND, [IF-TRUE], [IF-FALSE])
+# ---------------------------------------
+# If the shell condition COND is true, execute IF-TRUE, otherwise execute
+# IF-FALSE.  Allow automake to learn about conditional instantiating macros
+# (the AC_CONFIG_FOOS).
+AC_DEFUN([AM_COND_IF],
+[m4_ifndef([_AM_COND_VALUE_$1],
+	   [m4_fatal([$0: no such condition "$1"])])dnl
+_AM_COND_IF([$1])dnl
+if test -z "$$1_TRUE"; then :
+  m4_n([$2])[]dnl
+m4_ifval([$3],
+[_AM_COND_ELSE([$1])dnl
+else
+  $3
+])dnl
+_AM_COND_ENDIF([$1])dnl
+fi[]dnl
+])
+
 # AM_CONDITIONAL                                            -*- Autoconf -*-
 
 # Copyright (C) 1997-2021 Free Software Foundation, Inc.
@@ -1310,11 +1347,14 @@ m4_include([m4/ax_cflags_strict_prototypes.m4])
 m4_include([m4/ax_check_gnu_make.m4])
 m4_include([m4/ax_require_defined.m4])
 m4_include([m4/blocks.m4])
+m4_include([m4/build-to-host.m4])
 m4_include([m4/builtin-expect.m4])
 m4_include([m4/byteswap.m4])
+m4_include([m4/c-bool.m4])
 m4_include([m4/c-strtod.m4])
 m4_include([m4/calloc.m4])
 m4_include([m4/canonicalize.m4])
+m4_include([m4/chmod.m4])
 m4_include([m4/chown.m4])
 m4_include([m4/clock_time.m4])
 m4_include([m4/closedir.m4])
@@ -1331,6 +1371,7 @@ m4_include([m4/eealloc.m4])
 m4_include([m4/environ.m4])
 m4_include([m4/errno_h.m4])
 m4_include([m4/error.m4])
+m4_include([m4/error_h.m4])
 m4_include([m4/euidaccess.m4])
 m4_include([m4/execinfo.m4])
 m4_include([m4/explicit_bzero.m4])
@@ -1428,7 +1469,6 @@ m4_include([m4/locale-fr.m4])
 m4_include([m4/locale-ja.m4])
 m4_include([m4/locale-zh.m4])
 m4_include([m4/locale_h.m4])
-m4_include([m4/longlong.m4])
 m4_include([m4/lseek.m4])
 m4_include([m4/lstat.m4])
 m4_include([m4/ltoptions.m4])
@@ -1444,6 +1484,7 @@ m4_include([m4/math_h.m4])
 m4_include([m4/mathfunc.m4])
 m4_include([m4/mbchar.m4])
 m4_include([m4/mbiter.m4])
+m4_include([m4/mbrtoc32.m4])
 m4_include([m4/mbrtowc.m4])
 m4_include([m4/mbsinit.m4])
 m4_include([m4/mbstate_t.m4])
@@ -1454,6 +1495,7 @@ m4_include([m4/memcmp.m4])
 m4_include([m4/memmove.m4])
 m4_include([m4/mempcpy.m4])
 m4_include([m4/memrchr.m4])
+m4_include([m4/memset_explicit.m4])
 m4_include([m4/minmax.m4])
 m4_include([m4/mkdir.m4])
 m4_include([m4/mktime.m4])
@@ -1461,6 +1503,7 @@ m4_include([m4/mmap-anon.m4])
 m4_include([m4/mode_t.m4])
 m4_include([m4/msvc-inval.m4])
 m4_include([m4/multiarch.m4])
+m4_include([m4/musl.m4])
 m4_include([m4/nanosleep.m4])
 m4_include([m4/nls.m4])
 m4_include([m4/no-c++.m4])
@@ -1512,7 +1555,6 @@ m4_include([m4/sha1.m4])
 m4_include([m4/sha256.m4])
 m4_include([m4/sha512.m4])
 m4_include([m4/sig2str.m4])
-m4_include([m4/sigaction.m4])
 m4_include([m4/signal.m4])
 m4_include([m4/signal_h.m4])
 m4_include([m4/signbit.m4])
@@ -1528,19 +1570,19 @@ m4_include([m4/stat-time.m4])
 m4_include([m4/stat.m4])
 m4_include([m4/stdalign.m4])
 m4_include([m4/stdarg.m4])
-m4_include([m4/stdbool.m4])
 m4_include([m4/stddef_h.m4])
 m4_include([m4/stdint.m4])
 m4_include([m4/stdint_h.m4])
 m4_include([m4/stdio_h.m4])
 m4_include([m4/stdlib_h.m4])
-m4_include([m4/stdnoreturn.m4])
 m4_include([m4/stpcpy.m4])
 m4_include([m4/strchrnul.m4])
 m4_include([m4/strerror.m4])
 m4_include([m4/strerror_r.m4])
 m4_include([m4/string_h.m4])
 m4_include([m4/strings_h.m4])
+m4_include([m4/strndup.m4])
+m4_include([m4/strnlen.m4])
 m4_include([m4/strpbrk.m4])
 m4_include([m4/strstr.m4])
 m4_include([m4/strtod-obsolete.m4])
@@ -1563,10 +1605,12 @@ m4_include([m4/sys_types_h.m4])
 m4_include([m4/sys_uio_h.m4])
 m4_include([m4/sys_utsname_h.m4])
 m4_include([m4/sys_wait_h.m4])
+m4_include([m4/tcgetattr.m4])
 m4_include([m4/tempname.m4])
 m4_include([m4/thrd.m4])
 m4_include([m4/threadlib.m4])
 m4_include([m4/threads_h.m4])
+m4_include([m4/time.m4])
 m4_include([m4/time_h.m4])
 m4_include([m4/time_r.m4])
 m4_include([m4/time_rz.m4])
@@ -1579,6 +1623,9 @@ m4_include([m4/tzset.m4])
 m4_include([m4/uchar_h.m4])
 m4_include([m4/uname.m4])
 m4_include([m4/ungetc.m4])
+m4_include([m4/unicase_h.m4])
+m4_include([m4/unictype_h.m4])
+m4_include([m4/uninorm_h.m4])
 m4_include([m4/unistd_h.m4])
 m4_include([m4/unlink.m4])
 m4_include([m4/unlocked-io.m4])
@@ -1599,5 +1646,6 @@ m4_include([m4/wint_t.m4])
 m4_include([m4/write.m4])
 m4_include([m4/x11.m4])
 m4_include([m4/xalloc.m4])
+m4_include([m4/xattr.m4])
 m4_include([m4/xsize.m4])
 m4_include([m4/zzgnulib.m4])

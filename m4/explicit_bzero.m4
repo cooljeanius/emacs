@@ -1,4 +1,4 @@
-dnl Copyright 2017-2021 Free Software Foundation, Inc.
+dnl Copyright 2017-2023 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -14,10 +14,4 @@ AC_DEFUN([gl_FUNC_EXPLICIT_BZERO],
   if test $ac_cv_func_explicit_bzero = no; then
     HAVE_EXPLICIT_BZERO=0
   fi
-])
-
-AC_DEFUN([gl_PREREQ_EXPLICIT_BZERO],
-[
-  AC_CHECK_FUNCS([explicit_memset])
-  AC_CHECK_FUNCS_ONCE([memset_s])
 ])

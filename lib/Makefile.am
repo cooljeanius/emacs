@@ -2,9 +2,9 @@
 ## uses (in its lib/ subdir)
 
 BUILT_SOURCES =
-CLEANFILES = stamp-headers
+CLEANFILES = stamp-headers *.gcno
 EXTRA_DIST =
-DISTCLEANFILES = .DS_Store *~ glthread/*~
+DISTCLEANFILES = .DS_Store *~ bitset/*~ glthread/*~ malloc/*~ uniwidth/*~
 MOSTLYCLEANDIRS =
 MOSTLYCLEANFILES =
 noinst_HEADERS = 
@@ -23,6 +23,14 @@ AM_DEFAULT_INCLUDES = $(AM_CPPFLAGS)
 
 if BUILDING_FOR_WINDOWSNT
 include ../nt/gnulib.mk
+distclean-local:
+	@echo "making distclean-local in `pwd`"
+	-rm -rf .deps || rmdir .deps
+	-rm -rf $(srcdr)/*/.deps || rmdir $(srcdir)/*/.deps
+	-rm -rf $(builddir)/*/.deps || rmdir $(builddir)/*/.deps
+
+maintainer-clean-local:
+	rm -rf glthread || rmdir glthread
 else
 include gnulib.mk
 ## remember to update the former to match when the latter is updated.
@@ -37,22 +45,21 @@ stamp-headers: $(BUILT_SOURCES)
 	$(AM_V_at)ls *.h > $@
 
 bootstrap-clean: maintainer-clean
-	@echo "no bootstrap-clean specific rules (for `pwd`) yet."
-.PHONY: bootstrap-clean
-
-distclean-local:
-	@echo "making distclean-local in `pwd`"
+	@echo "making bootstrap-clean in `pwd`"
+if BUILDING_FOR_WINDOWSNT
+	-rm -f *.obj *.exe
+else
 	-rm -rf .deps || rmdir .deps
 	-rm -rf $(srcdr)/*/.deps || rmdir $(srcdir)/*/.deps
 	-rm -rf $(builddir)/*/.deps || rmdir $(builddir)/*/.deps
-.PHONY: distclean-local
-
-maintainer-clean-local:
-	rm -rf glthread || rmdir glthread
-.PHONY: maintainer-clean-local
+endif
+.PHONY: bootstrap-clean
 
 extraclean: maintainer-clean
 	-rm -f *~ \#* stamp-headers
+if !BUILDING_FOR_WINDOWSNT
+	rm -rf glthread || rmdir glthread
+endif
 .PHONY: extraclean
 
 if GNU_MAKE

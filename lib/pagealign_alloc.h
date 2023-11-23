@@ -1,10 +1,10 @@
 /* Memory allocation aligned to system page boundaries.
 
-   Copyright (C) 2005, 2008, 2010-2021 Free Software Foundation, Inc.
+   Copyright (C) 2005, 2008, 2010-2023 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3 of the License, or
+   the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -18,7 +18,20 @@
 #ifndef _PAGEALIGN_ALLOC_H
 # define _PAGEALIGN_ALLOC_H
 
+/* This file uses _GL_ATTRIBUTE_ALLOC_SIZE, _GL_ATTRIBUTE_DEALLOC,
+   _GL_ATTRIBUTE_MALLOC, _GL_ATTRIBUTE_NONNULL,
+   _GL_ATTRIBUTE_RETURNS_NONNULL.  */
+# if !_GL_CONFIG_H_INCLUDED
+#  error "Please include config.h first."
+# endif
+
 # include <stddef.h>
+
+/* Free a memory block.
+   PTR must be a non-NULL pointer returned by pagealign_alloc or
+   pagealign_xalloc.  */
+extern void pagealign_free (void *ptr)
+  _GL_ATTRIBUTE_NONNULL ((1));
 
 /* Allocate a block of memory of SIZE bytes, aligned on a system page
    boundary.
@@ -27,16 +40,13 @@
    Return a pointer to the start of the memory block. Upon allocation failure,
    return NULL and set errno.  */
 extern void *pagealign_alloc (size_t size)
-     _GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_ALLOC_SIZE ((1));
+  _GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_DEALLOC (pagealign_free, 1)
+  _GL_ATTRIBUTE_ALLOC_SIZE ((1));
 
 /* Like pagealign_alloc, except it exits the program if the allocation
    fails.  */
 extern void *pagealign_xalloc (size_t size)
-     _GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_ALLOC_SIZE ((1));
-
-/* Free a memory block.
-   PTR must be a non-NULL pointer returned by pagealign_alloc or
-   pagealign_xalloc.  */
-extern void pagealign_free (void *ptr);
+  _GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_DEALLOC (pagealign_free, 1)
+  _GL_ATTRIBUTE_ALLOC_SIZE ((1)) _GL_ATTRIBUTE_RETURNS_NONNULL;
 
 #endif /* _PAGEALIGN_ALLOC_H */

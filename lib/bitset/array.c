@@ -1,6 +1,6 @@
 /* Array bitsets.
 
-   Copyright (C) 2002-2003, 2006, 2009-2015, 2018-2021 Free Software
+   Copyright (C) 2002-2003, 2006, 2009-2015, 2018-2023 Free Software
    Foundation, Inc.
 
    Contributed by Michael Hayes (m.hayes@elec.canterbury.ac.nz).
@@ -84,7 +84,7 @@ abitset_small_list (bitset src, bitset_bindex *list,
 
 /* Set bit BITNO in bitset DST.  */
 static void
-abitset_set (bitset dst MAYBE_UNUSED, bitset_bindex bitno MAYBE_UNUSED)
+abitset_set (MAYBE_UNUSED bitset dst, MAYBE_UNUSED bitset_bindex bitno)
 {
   /* This should never occur for abitsets since we should always hit
      the cache.  It is likely someone is trying to access outside the
@@ -95,8 +95,8 @@ abitset_set (bitset dst MAYBE_UNUSED, bitset_bindex bitno MAYBE_UNUSED)
 
 /* Reset bit BITNO in bitset DST.  */
 static void
-abitset_reset (bitset dst MAYBE_UNUSED,
-               bitset_bindex bitno MAYBE_UNUSED)
+abitset_reset (MAYBE_UNUSED bitset dst,
+               MAYBE_UNUSED bitset_bindex bitno)
 {
   /* This should never occur for abitsets since we should always hit
      the cache.  It is likely someone is trying to access outside the
@@ -106,8 +106,8 @@ abitset_reset (bitset dst MAYBE_UNUSED,
 
 /* Test bit BITNO in bitset SRC.  */
 static bool
-abitset_test (bitset src MAYBE_UNUSED,
-              bitset_bindex bitno MAYBE_UNUSED)
+abitset_test (MAYBE_UNUSED bitset src,
+              MAYBE_UNUSED bitset_bindex bitno)
 {
   /* This should never occur for abitsets since we should always
      hit the cache.  */

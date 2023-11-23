@@ -1,10 +1,10 @@
-# fopen.m4 serial 12
-dnl Copyright (C) 2007-2021 Free Software Foundation, Inc.
+# fopen.m4 serial 15
+dnl Copyright (C) 2007-2023 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
 
-AC_DEFUN([gl_FUNC_FOPEN],
+AC_DEFUN([gl_FUNC_FOPEN_ITSELF],
 [
   AC_REQUIRE([gl_STDIO_H_DEFAULTS])
   AC_REQUIRE([AC_CANONICAL_HOST])
@@ -58,6 +58,15 @@ changequote([,])dnl
   esac
 ])
 
+AC_DEFUN([gl_FUNC_FOPEN],
+[
+  AC_REQUIRE([gl_FUNC_FOPEN_ITSELF])
+  AC_REQUIRE([gl_FUNC_FCLOSE])
+  if test $REPLACE_FCLOSE = 1; then
+    REPLACE_FOPEN=1
+  fi
+])
+
 AC_DEFUN([gl_FUNC_FOPEN_GNU],
 [
   AC_REQUIRE([gl_FUNC_FOPEN])
@@ -87,7 +96,7 @@ int main ()
        [gl_cv_func_fopen_mode_x=no],
        [case "$host_os" in
           # Guess yes on glibc and musl systems.
-          linux*-gnu* | gnu* | kfreebsd*-gnu | *-musl*)
+          linux*-gnu* | gnu* | kfreebsd*-gnu | *-musl* | midipix*)
             gl_cv_func_fopen_mode_x="guessing yes" ;;
           # If we don't know, obey --enable-cross-guesses.
           *)
@@ -124,7 +133,7 @@ int main ()
        [gl_cv_func_fopen_mode_e=no],
        [case "$host_os" in
           # Guess yes on glibc and musl systems.
-          linux*-gnu* | gnu* | kfreebsd*-gnu | *-musl*)
+          linux*-gnu* | gnu* | kfreebsd*-gnu | *-musl* | midipix*)
             gl_cv_func_fopen_mode_e="guessing yes" ;;
           # Guess no on native Windows.
           mingw*)
@@ -136,11 +145,12 @@ int main ()
        ])
      rm -f conftest.x
     ])
+  REPLACE_FOPEN_FOR_FOPEN_GNU="$REPLACE_FOPEN"
   case "$gl_cv_func_fopen_mode_x" in
-    *no) REPLACE_FOPEN=1 ;;
+    *no) REPLACE_FOPEN_FOR_FOPEN_GNU=1 ;;
   esac
   case "$gl_cv_func_fopen_mode_e" in
-    *no) REPLACE_FOPEN=1 ;;
+    *no) REPLACE_FOPEN_FOR_FOPEN_GNU=1 ;;
   esac
 ])
 

@@ -1,18 +1,18 @@
 /* Set file access and modification times.
 
-   Copyright (C) 2003-2021 Free Software Foundation, Inc.
+   Copyright (C) 2003-2023 Free Software Foundation, Inc.
 
-   This program is free software: you can redistribute it and/or modify it
-   under the terms of the GNU General Public License as published by the
-   Free Software Foundation; either version 3 of the License, or any
-   later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation, either version 3 of the
+   License, or (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
+   This file is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Lesser General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
+   You should have received a copy of the GNU Lesser General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* Written by Paul Eggert.  */
@@ -26,7 +26,6 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#include <stdbool.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/time.h>
@@ -406,10 +405,10 @@ fdutimens (int fd, char const *file, struct timespec const timespec[2])
     struct timeval *t;
     if (ts)
       {
-        timeval[0].tv_sec = ts[0].tv_sec;
-        timeval[0].tv_usec = ts[0].tv_nsec / 1000;
-        timeval[1].tv_sec = ts[1].tv_sec;
-        timeval[1].tv_usec = ts[1].tv_nsec / 1000;
+        timeval[0] = (struct timeval) { .tv_sec  = ts[0].tv_sec,
+                                        .tv_usec = ts[0].tv_nsec / 1000 };
+        timeval[1] = (struct timeval) { .tv_sec  = ts[1].tv_sec,
+                                        .tv_usec = ts[1].tv_nsec / 1000 };
         t = timeval;
       }
     else
@@ -503,8 +502,8 @@ fdutimens (int fd, char const *file, struct timespec const timespec[2])
       struct utimbuf *ut;
       if (ts)
         {
-          utimbuf.actime = ts[0].tv_sec;
-          utimbuf.modtime = ts[1].tv_sec;
+          utimbuf = (struct utimbuf) { .actime  = ts[0].tv_sec,
+                                       .modtime = ts[1].tv_sec };
           ut = &utimbuf;
         }
       else
@@ -622,10 +621,10 @@ lutimens (char const *file, struct timespec const timespec[2])
     int result;
     if (ts)
       {
-        timeval[0].tv_sec = ts[0].tv_sec;
-        timeval[0].tv_usec = ts[0].tv_nsec / 1000;
-        timeval[1].tv_sec = ts[1].tv_sec;
-        timeval[1].tv_usec = ts[1].tv_nsec / 1000;
+        timeval[0] = (struct timeval) { .tv_sec = ts[0].tv_sec,
+                                        .tv_usec = ts[0].tv_nsec / 1000 };
+        timeval[1] = (struct timeval) { .tv_sec = ts[1].tv_sec,
+                                        .tv_usec = ts[1].tv_nsec / 1000 };
         t = timeval;
       }
     else

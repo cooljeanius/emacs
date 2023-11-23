@@ -1,20 +1,20 @@
 /* Provide a sys/socket header file for systems lacking it (read: MinGW)
    and for systems where it is incomplete.
-   Copyright (C) 2005-2021 Free Software Foundation, Inc.
+   Copyright (C) 2005-2023 Free Software Foundation, Inc.
    Written by Simon Josefsson.
 
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3, or (at your option)
-   any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 2.1 of the
+   License, or (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
+   This file is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Lesser General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, see <https://www.gnu.org/licenses/>.  */
+   You should have received a copy of the GNU Lesser General Public License
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* This file is supposed to be used on platforms that lack <sys/socket.h>,
    on platforms where <sys/socket.h> cannot be included standalone, and on
@@ -63,9 +63,12 @@
 #ifndef _@GUARD_PREFIX@_SYS_SOCKET_H
 #define _@GUARD_PREFIX@_SYS_SOCKET_H
 
-#ifndef _GL_INLINE_HEADER_BEGIN
+/* This file uses _GL_INLINE_HEADER_BEGIN, _GL_INLINE, GNULIB_POSIXCHECK,
+   HAVE_RAW_DECL_*, alignof.  */
+#if !_GL_CONFIG_H_INCLUDED
  #error "Please include config.h first."
 #endif
+
 _GL_INLINE_HEADER_BEGIN
 #ifndef _GL_SYS_SOCKET_INLINE
 # define _GL_SYS_SOCKET_INLINE _GL_INLINE
@@ -97,7 +100,6 @@ typedef unsigned char   sa_family_t;
 #  endif
 # endif
 #else
-# include <stdalign.h>
 /* Code taken from glibc sysdeps/unix/sysv/linux/bits/socket.h on
    2009-05-08, licensed under LGPLv2.1+, plus portability fixes. */
 # define __ss_aligntype unsigned long int
