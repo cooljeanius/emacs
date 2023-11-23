@@ -99,7 +99,7 @@ typedef bool bool_bf;
 # ifdef emacs
 #  define malloc unexec_malloc
 #  define realloc unexec_realloc
-/* FIXME: warning: 'free' macro redefined (maybe it should be xfree instead?)
+/* FIXME: "warning: 'free' macro redefined" (maybe it should be xfree instead?)
  * Or maybe we should only do this redefinition when dumping or something? */
 #  define free unexec_free
 # endif /* emacs */

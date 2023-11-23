@@ -724,7 +724,9 @@ main(int argc, char **argv)
   /* If we use --chdir, this records the original directory.  */
   char *original_pwd = 0;
 
+#if defined(DEBUG) || defined(VERBOSE) || defined(_DEBUG) || defined(__APPLE__)
   printf("%s, line %d: Hello.\n", __FILE__, __LINE__);
+#endif /* DEBUG || VERBOSE || _DEBUG || __APPLE__ */
 
 #if GC_MARK_STACK
   stack_base = &dummy;
@@ -785,7 +787,9 @@ main(int argc, char **argv)
 /* If using unexmacosx.c (set by s/darwin.h), then we must do this: */
 #ifdef DARWIN_OS
   if (!initialized) {
+# if defined(DEBUG) || defined(VERBOSE)
     printf("initializing emacs zone for unexec-ing...\n");
+# endif /* DEBUG || VERBOSE */
     unexec_init_emacs_zone();
   }
 
@@ -794,7 +798,7 @@ main(int argc, char **argv)
   /* Imaxima will fail to work properly if PATH does not contain the
    * MacPorts directory.  The following code is a workaround to
    * avoid this problem: */
-  if (system("which imaxima") && (getenv("PATH") != NULL) && initialized) {
+  if (system("test -x `which imaxima 2>/dev/null`") && (getenv("PATH") != NULL)) {
     char *oldpath = getenv("PATH");
     size_t oldpathsize;
     if (!oldpath) { oldpath = (char *)""; }
@@ -814,7 +818,7 @@ main(int argc, char **argv)
     } else {
       printf("Skipping PATH modification...\n");
     }
-  } else {
+  } else if (system("test -x `which port 2>/dev/null`")) {
     printf("Skipping imaxima hack.\n");
   }
 # else
@@ -827,7 +831,9 @@ main(int argc, char **argv)
 
   atexit(close_output_streams);
 
+#if defined(DEBUG) || defined(VERBOSE)
   printf("Parsing arguments...\n");
+#endif /* DEBUG || VERBOSE */
   sort_args(argc, argv);
   argc = 0;
   while (argv[argc]) argc++;
@@ -964,7 +970,7 @@ main(int argc, char **argv)
 
       setrlimit(RLIMIT_STACK, &rlim);
     }
-#else
+#elif defined(DEBUG)
   printf("Skipping messing with rlimit...\n");
 #endif /* HAVE_SETRLIMIT and RLIMIT_STACK */
 
@@ -980,7 +986,7 @@ main(int argc, char **argv)
   /* Call malloc at least once, to run malloc_initialize_hook.
      Also call realloc and free for consistency.  */
   free(realloc(malloc(4), 4));
-#else
+#elif defined(DEBUG)
   printf("Using system malloc.\n");
 #endif	/* not SYSTEM_MALLOC */
 
