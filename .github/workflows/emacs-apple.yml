@@ -11,11 +11,22 @@ jobs:
     - name: checkout
       uses: actions/checkout@v4
     - run: brew update
-    - run: brew install make automake gettext texinfo gawk gdb coreutils gnu-sed gnu-which clang-build-analyzer clang-format libstxxl
+    - name: Install Homebrew dependencies
       env:
         HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
         HOMEBREW_VERBOSE: 1
         HOMEBREW_VERBOSE_USING_DOTS: 1
+      run: |
+        brew install make automake gettext texinfo gawk gdb coreutils gnu-sed gnu-which libstxxl
+        if test "${{ matrix.compiler }}" = "gcc"; then \
+          brew install lcov libgccjit; \
+        elif test "${{ matrix.compiler }}" = "clang"; then \
+          brew install clang-build-analyzer clang-format compiledb emacs-clang-complete-async libobjc2 rtags; \
+        elif test -n "${{ matrix.compiler }}"; then \
+          echo "Unknown compiler ${{ matrix.compiler }} may or may not need additional dependencies..."; \
+        else \
+          echo "OK, that should be it; no additional dependencies needed."; \
+        fi
     - name: Initial build
       run: |
         if test -n "${{ matrix.compiler }}"; then \

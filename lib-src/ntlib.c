@@ -33,8 +33,12 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 # include <config.h>
 #endif /* HAVE_CONFIG_H */
 
+#if !defined(__has_include)
+# define __has_include(foo) 0
+#endif /* !__has_include */
+
 #if defined(_WIN32) || defined(HAVE_WINDOWS_H) || defined(WINDOWSNT) || \
-    defined(_WIN32_WINNT) || defined(HAVE_NTGUI)
+    defined(_WIN32_WINNT) || defined(HAVE_NTGUI) || __has_include(<windows.h>)
 # include <windows.h>
 #else
 # ifdef WINDOWS_COMPATIBILITY_CHECK
@@ -49,7 +53,7 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <stdio.h>
 #include <time.h>
 #if defined(_WIN32) || defined(HAVE_DIRECT_H) || defined(WINDOWSNT) || \
-    defined(HAVE_NTGUI)
+    defined(HAVE_NTGUI) || __has_include(<direct.h>)
 # include <direct.h>
 #else
 # if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(lint)
@@ -62,7 +66,7 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <ctype.h>
 #include <sys/timeb.h>
 #if defined(_WIN32) || defined(HAVE_MBSTRING_H) || defined(WINDOWSNT) || \
-    defined(HAVE_NTGUI)
+    defined(HAVE_NTGUI) || __has_include(<mbstring.h>)
 # include <mbstring.h>
 #else
 # if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(lint)
@@ -113,7 +117,7 @@ struct timezone
 /* Emulate sleep... we could have done this with a define, but that
  * would necessitate including windows.h in the files that used it.
  * This is much easier.  */
-unsigned
+unsigned int
 sleep(unsigned seconds)
 {
   Sleep(seconds * 1000);

@@ -752,7 +752,8 @@ static void unexec_regions_merge(void)
         printf("Region %d: removed %lx zerod bytes from filesize\n", i,
                (unsigned long)(r.range.size - r.filesize));
       } else if (zerodBytes) {
-        printf("Removed %lx zerod bytes from filesize\n", zerodBytes);
+        printf("Removed %lx zerod bytes from filesize\n",
+               (unsigned long)zerodBytes);
       }
       unexec_regions[n++] = r;
       r = unexec_regions[i];
@@ -797,7 +798,8 @@ static void unexec_regions_merge(void)
     printf("Region %d: removed %lx zerod bytes from filesize\n", i,
            (unsigned long)(r.range.size - r.filesize));
   } else if (zerodBytes) {
-    printf("Removed %lx zerod bytes from filesize\n", zerodBytes);
+    printf("Removed %lx zerod bytes from filesize\n",
+           (unsigned long)zerodBytes);
   }
   unexec_regions[n++] = r;
   num_unexec_regions = n;

@@ -747,7 +747,7 @@ FORCE:
 ACLOCAL_INPUTS = $(top_srcdir)/configure.ac $(top_srcdir)/m4/*.m4
 AUTOCONF_INPUTS = $(top_srcdir)/configure.ac $(top_srcdir)/aclocal.m4
 $(top_srcdir)/aclocal.m4: @MAINT@ $(ACLOCAL_INPUTS)
-(top_srcdir)/configure config.in: @MAINT@ $(AUTOCONF_INPUTS)
+$(top_srcdir)/configure config.in: @MAINT@ $(AUTOCONF_INPUTS)
 .PRECIOUS: ../config.status Makefile
 ../config.status: $(top_srcdir)/configure @MAINT@ $(top_srcdir)/lisp/version.el
 Makefile: $(srcdir)/Makefile.in @MAINT@ ../config.status $(srcdir)/deps.mk

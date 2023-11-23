@@ -344,7 +344,7 @@ main (int argc, char **argv)
 #endif /* not MAIL_USE_SYSTEM_LOCK */
 #endif /* not MAIL_USE_MMDF */
 
-  if (fork () == 0)
+  if (fork() == 0)
     {
       int lockcount = 0;
       int status = 0;

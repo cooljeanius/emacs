@@ -418,6 +418,22 @@ relock:
 
 .PHONY: unlock relock
 
+ACLOCAL_INPUTS = $(top_srcdir)/configure.ac $(top_srcdir)/m4/*.m4
+AUTOCONF_INPUTS = $(top_srcdir)/configure.ac $(top_srcdir)/aclocal.m4
+$(top_srcdir)/aclocal.m4: @MAINT@ $(ACLOCAL_INPUTS)
+$(top_srcdir)/configure: @MAINT@ $(AUTOCONF_INPUTS)
+.PRECIOUS: ../config.status Makefile
+../config.status: $(top_srcdir)/configure @MAINT@ $(top_srcdir)/lisp/version.el
+Makefile: $(srcdir)/Makefile.in @MAINT@ ../config.status
+../config.status:
+	@echo "Files need to be set up from something."
+	@echo "Please run the 'configure' script again."
+	exit 1
+
+$(top_srcdir)/aclocal.m4 $(top_srcdir)/configure Makefile:
+@GNU_MAKE_TRUE@	$(MAKE) -C .. am--refresh
+@GNU_MAKE_FALSE@	cd .. && $(MAKE) am--refresh
+
 ## Test the contents of the directory.
 check: ${TEST_EXES} all-obj
 	./getopt_test
@@ -483,10 +499,21 @@ REGEXPDEPS = $(REGEXPOBJ) $(srcdir)/../src/regex.h
 ALL_OBJS = getopt.o getopt1.o alloca.o regex.o movemail.o pop.o ntlib.o \
 	   update-game-score.o wincompat_test.o leditcfns.o qsort.o tcp.o
 
+ALL_PLISTS = alloca.plist b2m.plist cvtmail.plist digest-doc.plist ebrowse.plist \
+	     emacsserver.plist etags.plist fakemail.plist getopt.plist \
+	     getopt1.plist hexl.plist leditcfns.plist movemail.plist pop.plist \
+	     profile.plist qsort.plist sorted-doc.plist tcp.plist \
+	     test-distrib.plist wincompat_test.plst yow.plist
+
 all-obj: $(ALL_OBJS)
 	@echo "ensuring all objects have been built..."
 	$(AM_V_at)ls *.o
 .PHONY: all-obj
+
+all-plist: $(ALL_PLISTS)
+	@echo "ensuring all plists have been generated..."
+	$(AM_V_at)ls */*.plist
+.PHONY: all-plist
 
 regex.o: $(srcdir)/../src/regex.c $(srcdir)/../src/regex.h $(config_h)
 	$(AM_V_CC)$(CC) -c $(CPP_CFLAGS) ${srcdir}/../src/regex.c

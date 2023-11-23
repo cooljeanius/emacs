@@ -32,7 +32,14 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #ifdef HAVE_LIBOTF
 # include <otf.h>
 # ifdef HAVE_M17N_FLT
+#  if defined(__GNUC__) && (__GNUC__ >= 5)
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wstrict-prototypes"
+#  endif /* GCC 5+ */
 #  include <m17n-flt.h>
+#  if defined(__GNUC__) && (__GNUC__ >= 5)
+#   pragma GCC diagnostic pop
+#  endif /* GCC 5+ */
 # endif	/* HAVE_M17N_FLT */
 #endif	/* HAVE_LIBOTF */
 

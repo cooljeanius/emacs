@@ -21,11 +21,18 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #define EMACS_NTLIB_H 1
 
 #include <pwd.h>
+
+#if !defined(__has_include)
+# define __has_include(foo) 0
+#endif /* !__has_include */
+
+/* Warning: including regular <malloc.h> on macOS can lead to FALSE being
+ * undefined, apparently: */
 #if defined(_WIN32) || defined(HAVE_MALLOC_H) || defined(WINDOWSNT) || \
-    defined(HAVE_NTGUI)
+    defined(HAVE_NTGUI) || (__has_include(<malloc.h>) && !defined(__APPLE__))
 # include <malloc.h>
 #else
-# ifdef HAVE_MALLOC_MALLOC_H
+# if defined(HAVE_MALLOC_MALLOC_H) || __has_include(<malloc/malloc.h>)
 #  include <malloc/malloc.h>
 # else
 #  if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(lint)
@@ -37,7 +44,7 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 /* Include these headers now so we do NOT have to worry about include
  * order dependencies in common source files.  */
 #if defined(_WIN32) || defined(HAVE_DIRECT_H) || defined(WINDOWSNT) || \
-    defined(HAVE_NTGUI)
+    defined(HAVE_NTGUI) || __has_include(<direct.h>)
 # include <direct.h>
 #else
 # if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(lint)
@@ -46,7 +53,7 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #endif /* _WIN32 || HAVE_DIRECT_H || WINDOWSNT || HAVE_NTGUI */
 #include <fcntl.h>
 #if defined(_WIN32) || defined(HAVE_IO_H) || defined(WINDOWSNT) || \
-    defined(HAVE_NTGUI)
+    defined(HAVE_NTGUI) || __has_include(<io.h>)
 # include <io.h>
 #else
 # if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(lint)

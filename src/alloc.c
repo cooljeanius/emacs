@@ -954,15 +954,14 @@ lisp_malloc (size_t nbytes, enum mem_type type)
 
 /* Free BLOCK.  This must be called to free memory allocated with a
    call to lisp_malloc.  */
-
 static void
-lisp_free (void *block)
+lisp_free(void *block)
 {
   MALLOC_BLOCK_INPUT;
-  free (block);
+  free(block);
 #if GC_MARK_STACK && !defined GC_MALLOC_CHECK
-  mem_delete (mem_find (block));
-#endif
+  mem_delete(mem_find(block)); /* FIXME: -Wuse-after-free */
+#endif /* GC_MARK_STACK && !GC_MALLOC_CHECK */
   MALLOC_UNBLOCK_INPUT;
 }
 

@@ -1485,7 +1485,7 @@ start_daemon_and_retry_set_socket (void)
   pid_t dpid;
   int status;
 
-  dpid = fork ();
+  dpid = fork();
 
   if (dpid > 0)
     {
