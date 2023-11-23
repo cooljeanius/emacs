@@ -803,7 +803,7 @@ ns-app: emacs$(EXEEXT)
 .PHONY: versionclean extraclean
 
 mostlyclean:
-	rm -f temacs$(EXEEXT) prefix-args$(EXEEXT) core *.core \#* *.o
+	rm -f temacs$(EXEEXT) prefix-args$(EXEEXT) core *.core \#* *.o *.gcno
 	rm -f libXMenu11.a liblw.a
 	rm -f ../etc/DOC
 	rm -f bootstrap-emacs$(EXEEXT) emacs-$(version)$(EXEEXT)

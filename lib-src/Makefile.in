@@ -375,7 +375,7 @@ uninstall:
 
 mostlyclean:
 	-rm -f getopt.h-t
-	-rm -f core *.o *.res gmon.out
+	-rm -f core *.o *.res gmon.out *.gcno
 
 check-clean: mostlyclean
 	-rm -f ${TEST_EXES}

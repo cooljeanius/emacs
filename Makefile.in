@@ -75,7 +75,8 @@ QUIET_SUBMAKE = MAKELEVEL=0
 # Variables for in case we convert to automake:
 ACLOCAL_AMFLAGS = -I m4 --install
 EXTRA_DIST = m4/gnulib-cache.m4
-DISTCLEANFILES = .DS_Store */.DS_Store *~ build-aux/*~ build-aux/snippet/*~ m4/*~
+DISTCLEANFILES = .DS_Store */.DS_Store *~ build-aux/*~ build-aux/snippet/*~ \
+  build-aux/vcstocl/*~ doc/*~ m4/*~
 
 # ==================== Things `configure' Might Edit ====================
 
@@ -1068,7 +1069,7 @@ maintainer-clean: bootstrap-clean FRC maintainer-clean-local
 	for dir in test/automated admin admin/grammars admin/unidata; do \
 	  [ ! -d $${dir} ] || (cd $${dir} && $(MAKE) $(MFLAGS) maintainer-clean); \
 	done
-	-rm -f .DS_Store
+	-rm -f .DS_Store*
 	${top_maintainer_clean}
 
 ### This does NOT actually appear in the coding standards, but Karl
@@ -1077,10 +1078,12 @@ maintainer-clean: bootstrap-clean FRC maintainer-clean-local
 ### it deletes backup and autosave files too.
 extraclean: extraclean-local
 	-cd machocheck && $(MAKE) $(MFLAGS) extraclean
-	for i in ${SUBDIR}; do (cd $$i; $(MAKE) $(MFLAGS) extraclean); done
+	for i in ${SUBDIR}; do (cd $${i}; $(MAKE) $(MFLAGS) extraclean); done
 	${top_maintainer_clean}
 	-rm -f config-tmp-*
-	-rm -f *~ build-aux/*~ build-aux/snippet/*~ doc/*~ m4/*~ po/*~ \#*
+	-rm -f *~ build-aux/*~ build-aux/snippet/*~ build-aux/vcstocl/*~
+	-rm -f doc/*~ m4/*~ po/*~ \#*
+	-find . -name '*~' -delete
 
 # The src subdir knows how to do the right thing
 # even when the build directory and source dir are different.
@@ -1450,7 +1453,7 @@ gnulib_headers: lib/Makefile
 
 ### Targets for in case we convert to automake:
 clean-local:
-	rm -f bo.h $(APPLE_AUX_EXES) *.o
+	rm -f bo.h $(APPLE_AUX_EXES) *.o *.gcno
 	rm -rf *.dSYM || rmdir *.dSYM
 .PHONY: clean-local
 

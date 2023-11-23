@@ -1534,6 +1534,7 @@ x_color_cells(Display *dpy, int *ncells)
 {
   struct x_display_info *dpyinfo = x_display_info_for_display(dpy);
 
+  eassert(dpyinfo != NULL);
   xassert(dpyinfo != NULL);
 
   if (dpyinfo->color_cells == NULL)

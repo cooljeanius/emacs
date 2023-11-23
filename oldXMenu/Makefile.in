@@ -135,7 +135,7 @@ libXMenu11.a: $(OBJS) $(EXTRA)
 FRC.mostlyclean:
 .PHONY: FRC.mostlyclean
 mostlyclean: FRC.mostlyclean
-	rm -f libXMenu11.a ${OBJS} ${EXTRA} *.o
+	rm -f libXMenu11.a ${OBJS} ${EXTRA} *.o *.gcno
 clean: mostlyclean
 	-rm -rf ${DEPDIR} || rmdir ${DEPDIR}
 

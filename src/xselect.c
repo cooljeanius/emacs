@@ -30,6 +30,10 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <unistd.h>
 
 #include "lisp.h"
+/* in case gnulib redefined this on us: */
+#ifdef time
+# undef time
+#endif /* time */
 #include "xterm.h"	/* for all of the X includes */
 #include "dispextern.h"	/* frame.h seems to want this */
 #include "frame.h"	/* Need this to get the X window of selected_frame */
@@ -437,11 +441,6 @@ x_get_local_selection (Lisp_Object selection_symbol, Lisp_Object target_type,
 		list2 (handler_fn, value));
 }
 
-/* in case gnulib redefined this on us: */
-#ifdef time
-# undef time
-#endif /* time */
-
 /* Subroutines of x_reply_selection_request.  */
 
 /* Send a SelectionNotify event to the requestor with property=None,

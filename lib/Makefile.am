@@ -2,7 +2,7 @@
 ## uses (in its lib/ subdir)
 
 BUILT_SOURCES =
-CLEANFILES = stamp-headers *.gcno
+CLEANFILES = stamp-headers *.gcno */*.gcno
 EXTRA_DIST =
 DISTCLEANFILES = .DS_Store *~ bitset/*~ glthread/*~ malloc/*~ uniwidth/*~
 MOSTLYCLEANDIRS =
@@ -57,8 +57,13 @@ endif
 
 extraclean: maintainer-clean
 	-rm -f *~ \#* stamp-headers
-if !BUILDING_FOR_WINDOWSNT
-	rm -rf glthread || rmdir glthread
+if BUILDING_FOR_WINDOWSNT
+	-rm -f *.obj *.exe
+else
+	-rm -rf .deps || rmdir .deps
+	-rm -rf $(srcdr)/*/.deps || rmdir $(srcdir)/*/.deps
+	-rm -rf $(builddir)/*/.deps || rmdir $(builddir)/*/.deps
+	-rm -rf glthread || rmdir glthread
 endif
 .PHONY: extraclean
 

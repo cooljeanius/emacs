@@ -33,6 +33,7 @@ jobs:
         else \
           ./configure --enable-silent-rules --disable-autodepend --enable-gcc-warnings --enable-better-debugging --with-x-toolkit=no --disable-dependency-tracking --with-ns; \
         fi
+        make gnulib_headers
         if test -x "$(which gmake)" && test -x "$(which nproc)" && test -n "$(nproc)"; then \
           echo "attempting parallel build with $(nproc) jobs..."; \
           gmake -j"$(nproc)" --output-sync only_temacs; \

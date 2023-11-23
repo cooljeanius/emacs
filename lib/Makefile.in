@@ -4474,7 +4474,7 @@ x_default_search_path = @x_default_search_path@
 xcsdkdir = @xcsdkdir@
 BUILT_SOURCES = $(am__append_3) $(am__append_10) $(am__append_71) \
 	$(am__append_76)
-CLEANFILES = stamp-headers *.gcno $(am__append_21)
+CLEANFILES = stamp-headers *.gcno */*.gcno $(am__append_21)
 EXTRA_DIST = $(am__append_4) $(am__append_8)
 DISTCLEANFILES = .DS_Store *~ bitset/*~ glthread/*~ malloc/*~ uniwidth/*~
 MOSTLYCLEANDIRS = $(am__append_143)
@@ -12850,7 +12850,11 @@ bootstrap-clean: maintainer-clean
 
 extraclean: maintainer-clean
 	-rm -f *~ \#* stamp-headers
-@BUILDING_FOR_WINDOWSNT_FALSE@	rm -rf glthread || rmdir glthread
+@BUILDING_FOR_WINDOWSNT_TRUE@	-rm -f *.obj *.exe
+@BUILDING_FOR_WINDOWSNT_FALSE@	-rm -rf .deps || rmdir .deps
+@BUILDING_FOR_WINDOWSNT_FALSE@	-rm -rf $(srcdr)/*/.deps || rmdir $(srcdir)/*/.deps
+@BUILDING_FOR_WINDOWSNT_FALSE@	-rm -rf $(builddir)/*/.deps || rmdir $(builddir)/*/.deps
+@BUILDING_FOR_WINDOWSNT_FALSE@	-rm -rf glthread || rmdir glthread
 .PHONY: extraclean
 
 @GNU_MAKE_TRUE@@ifGNUmake@
