@@ -23,7 +23,7 @@ AM_CPPFLAGS = ${acl_cv_wp}-I. ${acl_cv_wp}-I$(top_srcdir)/lib \
   ${acl_cv_wp}-I../src ${acl_cv_wp}-I$(top_srcdir)/src
 AM_DEFAULT_INCLUDES = $(AM_CPPFLAGS)
 
-all-local: $(EXTRA_OBJECTS)
+all-local: stamp-headers $(EXTRA_OBJECTS)
 
 if BUILDING_FOR_WINDOWSNT
 include ../nt/gnulib.mk

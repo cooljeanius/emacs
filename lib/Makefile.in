@@ -10240,7 +10240,7 @@ uninstall-am:
 .PRECIOUS: Makefile
 
 
-all-local: $(EXTRA_OBJECTS)
+all-local: stamp-headers $(EXTRA_OBJECTS)
 
 # We need the following in order to create <alloca.h> when the system
 # doesn't have one that works with the given compiler.

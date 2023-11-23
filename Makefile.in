@@ -1436,7 +1436,7 @@ apple_check: bo.h src/version.h isemacsvalid.plist runit.plist \
 
 ### To avoid lisp byte-compilation errors, try this:
 # (make globals.h early to prevent errors)
-only_temacs: lib/Makefile src/Makefile @MAINT@ $(SUBDIR_REALLY_ONLY_C)
+only_temacs: gnulib_headers lib/Makefile src/Makefile $(SUBDIR_REALLY_ONLY_C)
 	$(MAKE) -C lib all-local
 	$(MAKE) -C src globals.h
 	$(MAKE) -C src temacs
@@ -1450,7 +1450,7 @@ only_bootstrap-emacs: src/Makefile @MAINT@ $(SUBDIR_REALLY_ONLY_C)
 # might also need this:
 gnulib_headers: lib/Makefile
 	$(MAKE) -C lib stamp-headers
-.PHONY: gnulib-headers
+.PHONY: gnulib_headers
 
 ### Targets for in case we convert to automake:
 clean-local:

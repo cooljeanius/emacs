@@ -82,6 +82,7 @@ jobs:
         echo "Run, Build Application using script"
         sh ./autogen.sh
         ./configure --without-gif --enable-silent-rules --disable-autodepend --enable-gcc-warnings
+        make gnulib_headers || (stat lib/Makefile && wc -l lib/Makefile)
         if test -x "$(which gmake)" && test -x "$(which nproc)" && test -n "$(nproc)"; then \
           echo "attempting parallel build with $(nproc) jobs..."; \
           gmake -j"$(nproc)" --output-sync --no-print-directory only_temacs; \

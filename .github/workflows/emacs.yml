@@ -18,6 +18,7 @@ jobs:
       run: |
         sh ./autogen.sh
         ./configure --without-makeinfo --without-gif --without-gnutls --enable-silent-rules --disable-autodepend --without-imagemagick --enable-gcc-warnings --with-x-toolkit=no --with-xpm=no --disable-openmp
+        make gnulib_headers || (stat lib/Makefile && wc -l lib/Makefile)
         make only_temacs
         cd lisp && make update-subdirs
     - run: make all_only_c
