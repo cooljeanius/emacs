@@ -883,6 +883,11 @@ struct scroll_bar
 /* Minimum lengths for scroll bar handles, in pixels.  */
 #define VERTICAL_SCROLL_BAR_MIN_HANDLE (5)
 
+/* in case gnulib redefined this on us: */
+#ifdef time
+# undef time
+#endif /* time */
+
 /* If a struct input_event has a kind which is SELECTION_REQUEST_EVENT
    or SELECTION_CLEAR_EVENT, then its contents are really described
    by this structure.  */

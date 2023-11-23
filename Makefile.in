@@ -1436,7 +1436,8 @@ apple_check: bo.h src/version.h isemacsvalid.plist runit.plist \
 
 ### To avoid lisp byte-compilation errors, try this:
 # (make globals.h early to prevent errors)
-only_temacs: src/Makefile @MAINT@ $(SUBDIR_REALLY_ONLY_C)
+only_temacs: lib/Makefile src/Makefile @MAINT@ $(SUBDIR_REALLY_ONLY_C)
+	$(MAKE) -C lib all-local
 	$(MAKE) -C src globals.h
 	$(MAKE) -C src temacs
 .PHONY: only_temacs

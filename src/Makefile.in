@@ -706,8 +706,9 @@ macterm_32.o: macterm.c
 ## existence when setting Vinstallation_directory (FIXME?).
 ## This goes on to affect various things, and the emacs binary fails
 ## to start if Vinstallation_directory has the wrong value.
-temacs$(EXEEXT): $(LIBXMENU) $(ALLOBJS) \
+temacs$(EXEEXT): $(LIBXMENU) $(ALLOBJS) $(lib)/Makefile \
 	         $(lib)/libgnu.a $(EMACSRES)
+	$(MAKE) -C $(lib) all-local
 	$(AM_V_CCLD)$(CC) $(ALL_CFLAGS) $(TEMACS_LDFLAGS) $(LDFLAGS) \
 	  -o temacs $(ALLOBJS) $(lib)/libgnu.a $(W32_RES_LINK) $(LIBES)
 	$(MKDIR_P) $(AM_V_v) $(etc)

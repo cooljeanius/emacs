@@ -35,7 +35,7 @@ jobs:
         fi
         ./config.status
         make gnulib_headers || (stat lib/Makefile && wc -l lib/Makefile)
-        if test -x "$(which gmake)" && test -x "$(which nproc)" && test -n "$(nproc)"; then \
+        if test -x "$(which gmake)" && test -x "$(which nproc)" && test -n "$(nproc)" && test "$(nproc)" -lt 4; then \
           echo "attempting parallel build with $(nproc) jobs..."; \
           gmake -j"$(nproc)" --output-sync only_temacs; \
         else \

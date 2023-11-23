@@ -34,6 +34,10 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 # undef time
 #endif /* time */
 #include "lisp.h"
+/* in case gnulib redefined this on us, again: */
+#ifdef time
+# undef time
+#endif /* time */
 #include "xterm.h"	/* for all of the X includes */
 #include "dispextern.h"	/* frame.h seems to want this */
 #include "frame.h"	/* Need this to get the X window of selected_frame */
