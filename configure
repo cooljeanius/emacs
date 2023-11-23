@@ -43642,6 +43642,14 @@ fi
 printf "%s\n" "$emacs_cv_no_math_errno_struct_exception" >&6; }
   CFLAGS="${SAFE_MATH_CFLAGS}"
 fi
+ac_fn_c_check_member "$LINENO" "x_display_info" "display" "ac_cv_member_x_display_info_display" "$ac_includes_default"
+if test "x$ac_cv_member_x_display_info_display" = xyes
+then :
+
+printf "%s\n" "#define HAVE_X_DISPLAY_INFO_DISPLAY 1" >>confdefs.h
+
+
+fi
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking the characteristics of your C compiler" >&5
 printf %s "checking the characteristics of your C compiler... " >&6; }
@@ -58140,8 +58148,8 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam \
         LIBS=$save_LIBS
         test $gl_pthread_api = yes && break
       done
-      echo "$as_me:58143: gl_pthread_api=$gl_pthread_api" >&5
-      echo "$as_me:58144: LIBPTHREAD=$LIBPTHREAD" >&5
+      echo "$as_me:58151: gl_pthread_api=$gl_pthread_api" >&5
+      echo "$as_me:58152: LIBPTHREAD=$LIBPTHREAD" >&5
 
       gl_pthread_in_glibc=no
       # On Linux with glibc >= 2.34, libc contains the fully functional
@@ -58167,7 +58175,7 @@ rm -rf conftest*
 
           ;;
       esac
-      echo "$as_me:58170: gl_pthread_in_glibc=$gl_pthread_in_glibc" >&5
+      echo "$as_me:58178: gl_pthread_in_glibc=$gl_pthread_in_glibc" >&5
 
       # Test for libpthread by looking for pthread_kill. (Not pthread_self,
       # since it is defined as a macro on OSF/1.)
@@ -58321,7 +58329,7 @@ fi
 
         fi
       fi
-      echo "$as_me:58324: LIBPMULTITHREAD=$LIBPMULTITHREAD" >&5
+      echo "$as_me:58332: LIBPMULTITHREAD=$LIBPMULTITHREAD" >&5
     fi
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether POSIX threads API is available" >&5
 printf %s "checking whether POSIX threads API is available... " >&6; }
@@ -60674,6 +60682,49 @@ fi
 
 
 
+
+
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for obstacks that work with any size object" >&5
+printf %s "checking for obstacks that work with any size object... " >&6; }
+if test ${gl_cv_func_obstack+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include "obstack.h"
+            void *obstack_chunk_alloc (size_t n) { return 0; }
+            void obstack_chunk_free (void *p) { }
+            /* Check that an internal function returns size_t, not int.  */
+            size_t _obstack_memory_used (struct obstack *);
+
+int
+main (void)
+{
+struct obstack mem;
+            obstack_init (&mem);
+            obstack_free (&mem, 0);
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_func_obstack=yes
+else $as_nop
+  gl_cv_func_obstack=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_func_obstack" >&5
+printf "%s\n" "$gl_cv_func_obstack" >&6; }
+  if test "$gl_cv_func_obstack" = yes; then
+
+printf "%s\n" "#define HAVE_OBSTACK 1" >>confdefs.h
+
+  fi
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for obstacks" >&5
 printf %s "checking for obstacks... " >&6; }
@@ -75999,8 +76050,8 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam \
         LIBS=$save_LIBS
         test $gl_pthread_api = yes && break
       done
-      echo "$as_me:76002: gl_pthread_api=$gl_pthread_api" >&5
-      echo "$as_me:76003: LIBPTHREAD=$LIBPTHREAD" >&5
+      echo "$as_me:76053: gl_pthread_api=$gl_pthread_api" >&5
+      echo "$as_me:76054: LIBPTHREAD=$LIBPTHREAD" >&5
 
       gl_pthread_in_glibc=no
       # On Linux with glibc >= 2.34, libc contains the fully functional
@@ -76026,7 +76077,7 @@ rm -rf conftest*
 
           ;;
       esac
-      echo "$as_me:76029: gl_pthread_in_glibc=$gl_pthread_in_glibc" >&5
+      echo "$as_me:76080: gl_pthread_in_glibc=$gl_pthread_in_glibc" >&5
 
       # Test for libpthread by looking for pthread_kill. (Not pthread_self,
       # since it is defined as a macro on OSF/1.)
@@ -76180,7 +76231,7 @@ fi
 
         fi
       fi
-      echo "$as_me:76183: LIBPMULTITHREAD=$LIBPMULTITHREAD" >&5
+      echo "$as_me:76234: LIBPMULTITHREAD=$LIBPMULTITHREAD" >&5
     fi
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether POSIX threads API is available" >&5
 printf %s "checking whether POSIX threads API is available... " >&6; }

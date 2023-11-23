@@ -4484,6 +4484,7 @@ noinst_HEADERS =
 noinst_LIBRARIES = $(am__append_2) $(am__append_6)
 noinst_SCRIPTS = autoregnulib.sh
 SUFFIXES = 
+EXTRA_OBJECTS = lstat.o obstack.o
 ACLOCAL_AMFLAGS = -I../m4 --install
 AUTOMAKE_OPTIONS = 1.11 gnits subdir-objects
 AM_CFLAGS = $(PROFILING_CFLAGS) $(GNULIB_WARN_CFLAGS) @MAINT@ $(WERROR_CFLAGS)
@@ -9519,7 +9520,7 @@ distdir-am: $(DISTFILES)
 check-am: all-am
 check: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) check-am
-all-am: Makefile $(LIBRARIES) $(SCRIPTS) $(HEADERS)
+all-am: Makefile $(LIBRARIES) $(SCRIPTS) $(HEADERS) all-local
 installdirs:
 install: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) install-am
@@ -10221,23 +10222,25 @@ uninstall-am:
 
 .MAKE: all check install install-am install-exec install-strip
 
-.PHONY: CTAGS GTAGS TAGS all all-am am--depfiles check check-am clean \
-	clean-generic clean-libtool clean-noinstLIBRARIES \
-	cscopelist-am ctags ctags-am distclean distclean-compile \
-	distclean-generic distclean-libtool distclean-local \
-	distclean-tags distdir dvi dvi-am html html-am info info-am \
-	install install-am install-data install-data-am install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am install-man \
-	install-pdf install-pdf-am install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic \
+.PHONY: CTAGS GTAGS TAGS all all-am all-local am--depfiles check \
+	check-am clean clean-generic clean-libtool \
+	clean-noinstLIBRARIES cscopelist-am ctags ctags-am distclean \
+	distclean-compile distclean-generic distclean-libtool \
+	distclean-local distclean-tags distdir dvi dvi-am html html-am \
+	info info-am install install-am install-data install-data-am \
+	install-dvi install-dvi-am install-exec install-exec-am \
+	install-html install-html-am install-info install-info-am \
+	install-man install-pdf install-pdf-am install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
 	maintainer-clean-local mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool mostlyclean-local pdf \
 	pdf-am ps ps-am tags tags-am uninstall uninstall-am
 
 .PRECIOUS: Makefile
 
+
+all-local: $(EXTRA_OBJECTS)
 
 # We need the following in order to create <alloca.h> when the system
 # doesn't have one that works with the given compiler.

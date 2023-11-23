@@ -12,6 +12,8 @@ noinst_LIBRARIES =
 noinst_SCRIPTS = autoregnulib.sh
 SUFFIXES =
 
+EXTRA_OBJECTS = lstat.o obstack.o
+
 ACLOCAL_AMFLAGS = -I../m4 --install
 AUTOMAKE_OPTIONS = 1.11 gnits subdir-objects
 
@@ -20,6 +22,8 @@ AM_CFLAGS = $(PROFILING_CFLAGS) $(GNULIB_WARN_CFLAGS) @MAINT@ $(WERROR_CFLAGS)
 AM_CPPFLAGS = ${acl_cv_wp}-I. ${acl_cv_wp}-I$(top_srcdir)/lib \
   ${acl_cv_wp}-I../src ${acl_cv_wp}-I$(top_srcdir)/src
 AM_DEFAULT_INCLUDES = $(AM_CPPFLAGS)
+
+all-local: $(EXTRA_OBJECTS)
 
 if BUILDING_FOR_WINDOWSNT
 include ../nt/gnulib.mk

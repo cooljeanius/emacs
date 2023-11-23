@@ -3249,6 +3249,9 @@
 /* Define to 1 if you have the `xstricmp' function. */
 #undef HAVE_XSTRICMP
 
+/* Define to 1 if `display' is a member of `x_display_info'. */
+#undef HAVE_X_DISPLAY_INFO_DISPLAY
+
 /* Define to 1 if you have the `x_get_arg' function. */
 #undef HAVE_X_GET_ARG
 

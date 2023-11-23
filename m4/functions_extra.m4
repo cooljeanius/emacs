@@ -146,6 +146,7 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_FUNC_CHECKS],[
       fi  ##end check for autoconf mktime cache values
     ])dnl
   ])dnl
+  AC_REQUIRE([gl_FUNC_OBSTACK])dnl
   AC_REQUIRE([AC_FUNC_OBSTACK])dnl
   dnl# now for other gnulib function checks:
   m4_ifdef([gl_WARN_ON_USE_PREPARE],[

@@ -44,6 +44,7 @@ jobs:
           fi; \
         fi
     strategy:
+      fail-fast: false
       matrix:
         compiler:
         - clang

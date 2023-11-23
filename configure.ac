@@ -5163,6 +5163,7 @@ x.name = ""; x.type = 1;
        [emacs_cv_no_math_errno_struct_exception=no])])
   CFLAGS="${SAFE_MATH_CFLAGS}"
 fi
+AC_CHECK_MEMBERS([x_display_info.display])dnl
 
 dnl# checks for compiler characteristics:
 AC_MSG_CHECKING([the characteristics of your C compiler])
