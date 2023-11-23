@@ -165,6 +165,7 @@ static int nlc;
    Regions with addresses beyond this are assumed to be allocated
    dynamically and thus require dumping.  */
 static vm_address_t infile_lc_highest_addr = 0;
+static vm_address_t last_vmaddr = 0; /* for __LINKEDIT */
 
 /* The lowest file offset used by the all sections in the __TEXT
    segments.  This leaves room at the beginning of the file to store
@@ -495,7 +496,7 @@ unexec_regions_merge ()
   unexec_region_info r;
   long total = 0;
   void *zeropage = calloc(1, pagesize);
-
+  long zerodBytes = 0L;
   qsort (unexec_regions, num_unexec_regions, sizeof (unexec_regions[0]),
 	 &unexec_regions_sort_compare);
   n = 0;
@@ -525,16 +526,20 @@ unexec_regions_merge ()
 		    }
 	    }
 	    /* Truncate zerod pages */
+	    long zerodBytes = 0L;
 	    while (r.filesize > 0) {
 		    vm_address_t p = r.range.address + r.filesize - pagesize;
 		    if (memcmp(p, zeropage, pagesize) == 0) {
 			    r.filesize -= pagesize;
+			    zerodBytes += pagesize;
 		    } else {
 			    break;
 		    }
 	    }
 	    if (r.filesize != r.range.size) {
 		    printf("Removed %lx zerod bytes from filesize\n", r.range.size - r.filesize);
+	    } else if (zerodBytes) {
+		    printf("Removed %lx zerod bytes from filesize\n", zerodBytes);
 	    }
 	    unexec_regions[n++] = r;
 	    r = unexec_regions[i];
@@ -555,10 +560,12 @@ unexec_regions_merge ()
      r.filesize = r.range.size;
   }
   /* Truncate zerod pages */
+  zerodBytes = 0L;
   while (r.filesize > 0) {
 	  vm_address_t p = r.range.address + r.filesize - pagesize;
 	  if (memcmp(p, zeropage, pagesize) == 0) {
 		  r.filesize -= pagesize;
+		  zerodBytes += pagesize;
 	  } else {
 		  break;
 	  }
@@ -566,6 +573,8 @@ unexec_regions_merge ()
   free(zeropage);
   if (r.filesize != r.range.size) {
 	  printf("Removed %lx zerod bytes from filesize\n", r.range.size - r.filesize);
+  } else if (zerodBytes) {
+	  printf("Removed %lx zerod bytes from filesize\n", zerodBytes);
   }
   unexec_regions[n++] = r;
   num_unexec_regions = n;
@@ -991,6 +1000,7 @@ copy_data_segment (struct load_command *lc)
       strncpy (sc.segname, SEG_DATA, 16);
       sc.vmaddr = unexec_regions[j].range.address;
       sc.vmsize = unexec_regions[j].range.size;
+      last_vmaddr = sc.vmaddr + sc.vmsize; /* for __LINKEDIT */
       sc.fileoff = curr_file_offset;
       sc.filesize = unexec_regions[j].filesize;
       sc.maxprot = VM_PROT_READ | VM_PROT_WRITE;
@@ -1245,8 +1255,9 @@ dump_it ()
 		    unexec_error ("cannot handle multiple LINKEDIT segments"
 				  " in input file");
 		  linkedit_delta = curr_file_offset - scp->fileoff;
+		  printf("Bumping LINKEDIT vmaddr from %llx to %lx\n", scp->vmaddr, last_vmaddr);
+		  scp->vmaddr = last_vmaddr;
 		}
-
 	      copy_segment (lca[i]);
 	    }
 	}

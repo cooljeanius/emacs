@@ -604,13 +604,13 @@ emacs$(EXEEXT): temacs$(EXEEXT) $(ADDSECTION) \
 @GNU_MAKE_TRUE@	mv $(AM_V_v) temacs emacs-undumped
 @GNU_MAKE_TRUE@ifeq (i386,$(filter i386,$(RC_ARCHS)))
 @GNU_MAKE_TRUE@	$(LIPO) -thin i386 -output temacs emacs-undumped
-@GNU_MAKE_TRUE@	LC_ALL=C $(RUN_TEMACS) $(NL) -batch -l loadup dump || false
+@GNU_MAKE_TRUE@	MallocASLRForce=0 LC_ALL=C $(RUN_TEMACS) $(NL) -batch -l loadup dump || false
 @GNU_MAKE_TRUE@	mv $(AM_V_v) emacs arch/emacs-i386
 @GNU_MAKE_TRUE@	rm -f emacs-[0-9]* # avoid DOC-xx incrementing
 @GNU_MAKE_TRUE@endif
 @GNU_MAKE_TRUE@ifeq (x86_64,$(filter x86_64,$(RC_ARCHS)))
 @GNU_MAKE_TRUE@	$(LIPO) -thin x86_64 -output temacs emacs-undumped
-@GNU_MAKE_TRUE@	LC_ALL=C $(RUN_TEMACS) $(NL) -batch -l loadup dump || false
+@GNU_MAKE_TRUE@	MallocASLRForce=0 LC_ALL=C $(RUN_TEMACS) $(NL) -batch -l loadup dump || false
 @GNU_MAKE_TRUE@	mv $(AM_V_v) emacs arch/emacs-x86_64
 @GNU_MAKE_TRUE@	rm -f emacs-[0-9]* # avoid DOC-xx incrementing
 @GNU_MAKE_TRUE@endif
@@ -618,7 +618,7 @@ emacs$(EXEEXT): temacs$(EXEEXT) $(ADDSECTION) \
 @GNU_MAKE_TRUE@	cp $(AM_V_v) emacs-undumped temacs
 @GNU_MAKE_TRUE@else
 @GNU_MAKE_TRUE@	cp $(AM_V_v) temacs emacs-undumped
-@GNU_MAKE_TRUE@	LC_ALL=C $(RUN_TEMACS) $(NL) -batch -l loadup dump || false
+@GNU_MAKE_TRUE@	MallocASLRForce=0 LC_ALL=C $(RUN_TEMACS) $(NL) -batch -l loadup dump || false
 @GNU_MAKE_TRUE@endif
 @GNU_MAKE_TRUE@#endif /* ! defined (CANNOT_DUMP) */
 @GNU_MAKE_TRUE@	-./emacs -q -batch -f list-load-path-shadows

@@ -23,9 +23,19 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <config.h>
 #include <stdio.h>
 
+/* in case gnulib redefined this on us: */
+#ifdef time
+# undef time
+#endif /* time */
+
 #include "lisp.h"
 #include "blockinput.h"
 #include "syssignal.h"
+
+/* in case gnulib redefined this on us, again: */
+#ifdef time
+# undef time
+#endif /* time */
 
 /* This may include sys/types.h, and that somehow loses
    if this is not done before the other system files.  */
@@ -35,18 +45,25 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 /* Load sys/types.h if not already loaded.
    In some systems loading it twice is suicidal.  */
 #ifndef makedev
-#include <sys/types.h>
-#endif /* makedev */
+# include <sys/types.h>
+#endif /* !makedev */
 
 #include <sys/ioctl.h>
 
 #include "systime.h"
 
+/* in case gnulib redefined this on us, yet again: */
+#ifdef time
+# undef time
+#endif /* time */
+
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/stat.h>
-/* Caused redefinition of DBL_DIG on Netbsd; seems not to be needed.  */
-/* #include <sys/param.h>  */
+/* Caused redefinition of DBL_DIG on Netbsd; seems not to be needed: */
+#if defined(HAVE_SYS_PARAM_H) && !defined(DBL_DIG) && !defined(__NetBSD__)
+# include <sys/param.h>
+#endif /* HAVE_SYS_PARAM_H && !DBL_DIG && !__NetBSD__ */
 
 #include "charset.h"
 #include "character.h"
@@ -72,71 +89,71 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "sysselect.h"
 
 #ifdef USE_X_TOOLKIT
-#include <X11/Shell.h>
-#endif
+# include <X11/Shell.h>
+#endif /* USE_X_TOOLKIT */
 
 #include <unistd.h>
 
 #ifdef USE_GTK
-#include "gtkutil.h"
-#ifdef HAVE_GTK3
-#include <X11/Xproto.h>
-#endif
-#endif
+# include "gtkutil.h"
+# ifdef HAVE_GTK3
+#  include <X11/Xproto.h>
+# endif /* HAVE_GTK3 */
+#endif /* USE_GTK */
 
-#if defined (USE_LUCID) || defined (USE_MOTIF)
-#include "../lwlib/xlwmenu.h"
-#endif
+#if defined(USE_LUCID) || defined(USE_MOTIF)
+# include "../lwlib/xlwmenu.h"
+#endif /* USE_LUCID || USE_MOTIF */
 
 #ifdef USE_X_TOOLKIT
-#if !defined (NO_EDITRES)
-#define HACK_EDITRES
-extern void _XEditResCheckMessages (Widget, XtPointer, XEvent *, Boolean *);
-#endif /* not NO_EDITRES */
+# if !defined(NO_EDITRES)
+#  define HACK_EDITRES
+extern void _XEditResCheckMessages(Widget, XtPointer, XEvent *, Boolean *);
+# endif /* not NO_EDITRES */
 
 /* Include toolkit specific headers for the scroll bar widget.  */
 
-#ifdef USE_TOOLKIT_SCROLL_BARS
-#if defined USE_MOTIF
-#include <Xm/Xm.h>		/* For LESSTIF_VERSION */
-#include <Xm/ScrollBar.h>
-#else /* !USE_MOTIF i.e. use Xaw */
+# ifdef USE_TOOLKIT_SCROLL_BARS
+#  if defined USE_MOTIF
+#   include <Xm/Xm.h>		/* For LESSTIF_VERSION */
+#   include <Xm/ScrollBar.h>
+#  else /* !USE_MOTIF i.e. use Xaw */
 
-#ifdef HAVE_XAW3D
-#include <X11/Xaw3d/Simple.h>
-#include <X11/Xaw3d/Scrollbar.h>
-#include <X11/Xaw3d/ThreeD.h>
-#else /* !HAVE_XAW3D */
-#include <X11/Xaw/Simple.h>
-#include <X11/Xaw/Scrollbar.h>
-#endif /* !HAVE_XAW3D */
-#ifndef XtNpickTop
-#define XtNpickTop "pickTop"
-#endif /* !XtNpickTop */
-#endif /* !USE_MOTIF */
-#endif /* USE_TOOLKIT_SCROLL_BARS */
+#   ifdef HAVE_XAW3D
+#    include <X11/Xaw3d/Simple.h>
+#    include <X11/Xaw3d/Scrollbar.h>
+#    include <X11/Xaw3d/ThreeD.h>
+#   else /* !HAVE_XAW3D: */
+#    include <X11/Xaw/Simple.h>
+#    include <X11/Xaw/Scrollbar.h>
+#   endif /* !HAVE_XAW3D */
+#   ifndef XtNpickTop
+#    define XtNpickTop "pickTop"
+#   endif /* !XtNpickTop */
+#  endif /* !USE_MOTIF */
+# endif /* USE_TOOLKIT_SCROLL_BARS */
 
 #endif /* USE_X_TOOLKIT */
 
 #ifdef USE_X_TOOLKIT
-#include "widget.h"
-#ifndef XtNinitialState
-#define XtNinitialState "initialState"
-#endif
-#endif
+# include "widget.h"
+# ifndef XtNinitialState
+#  define XtNinitialState "initialState"
+# endif /* !XtNinitialState */
+#endif /* USE_X_TOOLKIT */
 
 #include "bitmaps/gray.xbm"
 
 #ifdef HAVE_XKB
-#include <X11/XKBlib.h>
-#endif
+# include <X11/XKBlib.h>
+#endif /* HAVE_XKB */
 
 /* Default to using XIM if available.  */
 #ifdef USE_XIM
 bool use_xim = true;
 #else
 bool use_xim = false;  /* configure --without-xim */
-#endif
+#endif /* USE_XIM */
 
 /* Non-zero means that a HELP_EVENT has been generated since Emacs
    start.  */

@@ -35,7 +35,11 @@ to us... or maybe it is open but just hidden? idk...)
 	- 70.1: last version with the emacswrapper.c and isemacsvalid.c
 	files, and a separate `unexmacosx.c.diff` patchfile
 
-	- 92: most recent version available as of October 2014
+	- 92: most recent version available as of October 2014, when I
+	first started this effort
+
+	- 96: most recent version available as of November 2023, from
+	https://github.com/apple-oss-distributions/emacs/
 
 # Versioning scheme and stuff comes from:
 http://www.opensource.apple.com/tarballs/emacs/

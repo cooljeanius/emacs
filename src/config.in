@@ -3195,6 +3195,12 @@
 /* Define to 1 if you have the Xaw3d library (-lXaw3d). */
 #undef HAVE_XAW3D
 
+/* Define to 1 if `time' is a member of `XButtonEvent'. */
+#undef HAVE_XBUTTONEVENT_TIME
+
+/* Define to 1 if `time' is a member of `XCrossingEvent'. */
+#undef HAVE_XCROSSINGEVENT_TIME
+
 /* Define to 1 if you have the Xfixes extension. */
 #undef HAVE_XFIXES
 
@@ -3210,8 +3216,14 @@
 /* Define to 1 if you have the Xkb extension. */
 #undef HAVE_XKB
 
+/* Define to 1 if `time' is a member of `XKeyEvent'. */
+#undef HAVE_XKEYEVENT_TIME
+
 /* Define to 1 if you have the <xlocale.h> header file. */
 #undef HAVE_XLOCALE_H
+
+/* Define to 1 if `time' is a member of `XMotionEvent'. */
+#undef HAVE_XMOTIONEVENT_TIME
 
 /* Define to 1 if you have the <Xm/Xm.h> header file. */
 #undef HAVE_XM_XM_H
@@ -3221,6 +3233,9 @@
 
 /* Define to 1 if you have the Xpm library (-lXpm). */
 #undef HAVE_XPM
+
+/* Define to 1 if `time' is a member of `XPropertyEvent'. */
+#undef HAVE_XPROPERTYEVENT_TIME
 
 /* Define to 1 if you have the XRandr extension. */
 #undef HAVE_XRANDR
@@ -3242,6 +3257,15 @@
 
 /* Define to 1 if you have the `XScreenResourceString' function. */
 #undef HAVE_XSCREENRESOURCESTRING
+
+/* Define to 1 if `time' is a member of `XSelectionClearEvent'. */
+#undef HAVE_XSELECTIONCLEAREVENT_TIME
+
+/* Define to 1 if `time' is a member of `XSelectionEvent'. */
+#undef HAVE_XSELECTIONEVENT_TIME
+
+/* Define to 1 if `time' is a member of `XSelectionRequestEvent'. */
+#undef HAVE_XSELECTIONREQUESTEVENT_TIME
 
 /* Define to 1 if you have the `XSetWMProtocols' function. */
 #undef HAVE_XSETWMPROTOCOLS

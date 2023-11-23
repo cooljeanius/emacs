@@ -43642,14 +43642,6 @@ fi
 printf "%s\n" "$emacs_cv_no_math_errno_struct_exception" >&6; }
   CFLAGS="${SAFE_MATH_CFLAGS}"
 fi
-ac_fn_c_check_member "$LINENO" "x_display_info" "display" "ac_cv_member_x_display_info_display" "$ac_includes_default"
-if test "x$ac_cv_member_x_display_info_display" = xyes
-then :
-
-printf "%s\n" "#define HAVE_X_DISPLAY_INFO_DISPLAY 1" >>confdefs.h
-
-
-fi
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking the characteristics of your C compiler" >&5
 printf %s "checking the characteristics of your C compiler... " >&6; }
@@ -54358,6 +54350,304 @@ else
 printf "%s\n" "$as_me: skipping checks for Xfixes" >&6;}
 fi
 
+ac_fn_c_check_member "$LINENO" "x_display_info" "display" "ac_cv_member_x_display_info_display" "
+$ac_includes_default
+#if !defined(__has_include)
+# define __has_include(foo) 0
+#endif /* !__has_include */
+#if defined(HAVE_X11_XLIB_H) || __has_include(<X11/Xlib.h>)
+# include <X11/Xlib.h>
+#else
+# if defined(HAVE_X11_X_H) || __has_include(<X11/X.h>)
+#  include <X11/X.h>
+# else
+#  if defined(HAVE_X11_XKBLIB_H) || __has_include(<X11/XKBlib.h>)
+#   include <X11/XKBlib.h>
+#  else
+#   if defined(HAVE_X11_XRESOURCE_H) || __has_include(<X11/Xresource.h>)
+#    include <X11/Xresource.h>
+#   else
+#    if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#     warning \"conftest for X-related struct-members needs an X-related header.\"
+#    endif /* __GNUC__ && !__STRICT_ANSI__ */
+#   endif /* HAVE_X11_XRESOURCE_H */
+#  endif /* HAVE_X11_XKBLIB_H */
+# endif /* HAVE_X11_X_H */
+#endif /* HAVE_X11_XLIB_H */
+
+"
+if test "x$ac_cv_member_x_display_info_display" = xyes
+then :
+
+printf "%s\n" "#define HAVE_X_DISPLAY_INFO_DISPLAY 1" >>confdefs.h
+
+
+fi
+ac_fn_c_check_member "$LINENO" "XButtonEvent" "time" "ac_cv_member_XButtonEvent_time" "
+$ac_includes_default
+#if !defined(__has_include)
+# define __has_include(foo) 0
+#endif /* !__has_include */
+#if defined(HAVE_X11_XLIB_H) || __has_include(<X11/Xlib.h>)
+# include <X11/Xlib.h>
+#else
+# if defined(HAVE_X11_X_H) || __has_include(<X11/X.h>)
+#  include <X11/X.h>
+# else
+#  if defined(HAVE_X11_XKBLIB_H) || __has_include(<X11/XKBlib.h>)
+#   include <X11/XKBlib.h>
+#  else
+#   if defined(HAVE_X11_XRESOURCE_H) || __has_include(<X11/Xresource.h>)
+#    include <X11/Xresource.h>
+#   else
+#    if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#     warning \"conftest for X-related struct-members needs an X-related header.\"
+#    endif /* __GNUC__ && !__STRICT_ANSI__ */
+#   endif /* HAVE_X11_XRESOURCE_H */
+#  endif /* HAVE_X11_XKBLIB_H */
+# endif /* HAVE_X11_X_H */
+#endif /* HAVE_X11_XLIB_H */
+
+"
+if test "x$ac_cv_member_XButtonEvent_time" = xyes
+then :
+
+printf "%s\n" "#define HAVE_XBUTTONEVENT_TIME 1" >>confdefs.h
+
+
+fi
+ac_fn_c_check_member "$LINENO" "XMotionEvent" "time" "ac_cv_member_XMotionEvent_time" "
+$ac_includes_default
+#if !defined(__has_include)
+# define __has_include(foo) 0
+#endif /* !__has_include */
+#if defined(HAVE_X11_XLIB_H) || __has_include(<X11/Xlib.h>)
+# include <X11/Xlib.h>
+#else
+# if defined(HAVE_X11_X_H) || __has_include(<X11/X.h>)
+#  include <X11/X.h>
+# else
+#  if defined(HAVE_X11_XKBLIB_H) || __has_include(<X11/XKBlib.h>)
+#   include <X11/XKBlib.h>
+#  else
+#   if defined(HAVE_X11_XRESOURCE_H) || __has_include(<X11/Xresource.h>)
+#    include <X11/Xresource.h>
+#   else
+#    if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#     warning \"conftest for X-related struct-members needs an X-related header.\"
+#    endif /* __GNUC__ && !__STRICT_ANSI__ */
+#   endif /* HAVE_X11_XRESOURCE_H */
+#  endif /* HAVE_X11_XKBLIB_H */
+# endif /* HAVE_X11_X_H */
+#endif /* HAVE_X11_XLIB_H */
+
+"
+if test "x$ac_cv_member_XMotionEvent_time" = xyes
+then :
+
+printf "%s\n" "#define HAVE_XMOTIONEVENT_TIME 1" >>confdefs.h
+
+
+fi
+ac_fn_c_check_member "$LINENO" "XSelectionEvent" "time" "ac_cv_member_XSelectionEvent_time" "
+$ac_includes_default
+#if !defined(__has_include)
+# define __has_include(foo) 0
+#endif /* !__has_include */
+#if defined(HAVE_X11_XLIB_H) || __has_include(<X11/Xlib.h>)
+# include <X11/Xlib.h>
+#else
+# if defined(HAVE_X11_X_H) || __has_include(<X11/X.h>)
+#  include <X11/X.h>
+# else
+#  if defined(HAVE_X11_XKBLIB_H) || __has_include(<X11/XKBlib.h>)
+#   include <X11/XKBlib.h>
+#  else
+#   if defined(HAVE_X11_XRESOURCE_H) || __has_include(<X11/Xresource.h>)
+#    include <X11/Xresource.h>
+#   else
+#    if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#     warning \"conftest for X-related struct-members needs an X-related header.\"
+#    endif /* __GNUC__ && !__STRICT_ANSI__ */
+#   endif /* HAVE_X11_XRESOURCE_H */
+#  endif /* HAVE_X11_XKBLIB_H */
+# endif /* HAVE_X11_X_H */
+#endif /* HAVE_X11_XLIB_H */
+
+"
+if test "x$ac_cv_member_XSelectionEvent_time" = xyes
+then :
+
+printf "%s\n" "#define HAVE_XSELECTIONEVENT_TIME 1" >>confdefs.h
+
+
+fi
+ac_fn_c_check_member "$LINENO" "XSelectionClearEvent" "time" "ac_cv_member_XSelectionClearEvent_time" "
+$ac_includes_default
+#if !defined(__has_include)
+# define __has_include(foo) 0
+#endif /* !__has_include */
+#if defined(HAVE_X11_XLIB_H) || __has_include(<X11/Xlib.h>)
+# include <X11/Xlib.h>
+#else
+# if defined(HAVE_X11_X_H) || __has_include(<X11/X.h>)
+#  include <X11/X.h>
+# else
+#  if defined(HAVE_X11_XKBLIB_H) || __has_include(<X11/XKBlib.h>)
+#   include <X11/XKBlib.h>
+#  else
+#   if defined(HAVE_X11_XRESOURCE_H) || __has_include(<X11/Xresource.h>)
+#    include <X11/Xresource.h>
+#   else
+#    if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#     warning \"conftest for X-related struct-members needs an X-related header.\"
+#    endif /* __GNUC__ && !__STRICT_ANSI__ */
+#   endif /* HAVE_X11_XRESOURCE_H */
+#  endif /* HAVE_X11_XKBLIB_H */
+# endif /* HAVE_X11_X_H */
+#endif /* HAVE_X11_XLIB_H */
+
+"
+if test "x$ac_cv_member_XSelectionClearEvent_time" = xyes
+then :
+
+printf "%s\n" "#define HAVE_XSELECTIONCLEAREVENT_TIME 1" >>confdefs.h
+
+
+fi
+ac_fn_c_check_member "$LINENO" "XSelectionRequestEvent" "time" "ac_cv_member_XSelectionRequestEvent_time" "
+$ac_includes_default
+#if !defined(__has_include)
+# define __has_include(foo) 0
+#endif /* !__has_include */
+#if defined(HAVE_X11_XLIB_H) || __has_include(<X11/Xlib.h>)
+# include <X11/Xlib.h>
+#else
+# if defined(HAVE_X11_X_H) || __has_include(<X11/X.h>)
+#  include <X11/X.h>
+# else
+#  if defined(HAVE_X11_XKBLIB_H) || __has_include(<X11/XKBlib.h>)
+#   include <X11/XKBlib.h>
+#  else
+#   if defined(HAVE_X11_XRESOURCE_H) || __has_include(<X11/Xresource.h>)
+#    include <X11/Xresource.h>
+#   else
+#    if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#     warning \"conftest for X-related struct-members needs an X-related header.\"
+#    endif /* __GNUC__ && !__STRICT_ANSI__ */
+#   endif /* HAVE_X11_XRESOURCE_H */
+#  endif /* HAVE_X11_XKBLIB_H */
+# endif /* HAVE_X11_X_H */
+#endif /* HAVE_X11_XLIB_H */
+
+"
+if test "x$ac_cv_member_XSelectionRequestEvent_time" = xyes
+then :
+
+printf "%s\n" "#define HAVE_XSELECTIONREQUESTEVENT_TIME 1" >>confdefs.h
+
+
+fi
+ac_fn_c_check_member "$LINENO" "XPropertyEvent" "time" "ac_cv_member_XPropertyEvent_time" "
+$ac_includes_default
+#if !defined(__has_include)
+# define __has_include(foo) 0
+#endif /* !__has_include */
+#if defined(HAVE_X11_XLIB_H) || __has_include(<X11/Xlib.h>)
+# include <X11/Xlib.h>
+#else
+# if defined(HAVE_X11_X_H) || __has_include(<X11/X.h>)
+#  include <X11/X.h>
+# else
+#  if defined(HAVE_X11_XKBLIB_H) || __has_include(<X11/XKBlib.h>)
+#   include <X11/XKBlib.h>
+#  else
+#   if defined(HAVE_X11_XRESOURCE_H) || __has_include(<X11/Xresource.h>)
+#    include <X11/Xresource.h>
+#   else
+#    if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#     warning \"conftest for X-related struct-members needs an X-related header.\"
+#    endif /* __GNUC__ && !__STRICT_ANSI__ */
+#   endif /* HAVE_X11_XRESOURCE_H */
+#  endif /* HAVE_X11_XKBLIB_H */
+# endif /* HAVE_X11_X_H */
+#endif /* HAVE_X11_XLIB_H */
+
+"
+if test "x$ac_cv_member_XPropertyEvent_time" = xyes
+then :
+
+printf "%s\n" "#define HAVE_XPROPERTYEVENT_TIME 1" >>confdefs.h
+
+
+fi
+ac_fn_c_check_member "$LINENO" "XKeyEvent" "time" "ac_cv_member_XKeyEvent_time" "
+$ac_includes_default
+#if !defined(__has_include)
+# define __has_include(foo) 0
+#endif /* !__has_include */
+#if defined(HAVE_X11_XLIB_H) || __has_include(<X11/Xlib.h>)
+# include <X11/Xlib.h>
+#else
+# if defined(HAVE_X11_X_H) || __has_include(<X11/X.h>)
+#  include <X11/X.h>
+# else
+#  if defined(HAVE_X11_XKBLIB_H) || __has_include(<X11/XKBlib.h>)
+#   include <X11/XKBlib.h>
+#  else
+#   if defined(HAVE_X11_XRESOURCE_H) || __has_include(<X11/Xresource.h>)
+#    include <X11/Xresource.h>
+#   else
+#    if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#     warning \"conftest for X-related struct-members needs an X-related header.\"
+#    endif /* __GNUC__ && !__STRICT_ANSI__ */
+#   endif /* HAVE_X11_XRESOURCE_H */
+#  endif /* HAVE_X11_XKBLIB_H */
+# endif /* HAVE_X11_X_H */
+#endif /* HAVE_X11_XLIB_H */
+
+"
+if test "x$ac_cv_member_XKeyEvent_time" = xyes
+then :
+
+printf "%s\n" "#define HAVE_XKEYEVENT_TIME 1" >>confdefs.h
+
+
+fi
+ac_fn_c_check_member "$LINENO" "XCrossingEvent" "time" "ac_cv_member_XCrossingEvent_time" "
+$ac_includes_default
+#if !defined(__has_include)
+# define __has_include(foo) 0
+#endif /* !__has_include */
+#if defined(HAVE_X11_XLIB_H) || __has_include(<X11/Xlib.h>)
+# include <X11/Xlib.h>
+#else
+# if defined(HAVE_X11_X_H) || __has_include(<X11/X.h>)
+#  include <X11/X.h>
+# else
+#  if defined(HAVE_X11_XKBLIB_H) || __has_include(<X11/XKBlib.h>)
+#   include <X11/XKBlib.h>
+#  else
+#   if defined(HAVE_X11_XRESOURCE_H) || __has_include(<X11/Xresource.h>)
+#    include <X11/Xresource.h>
+#   else
+#    if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#     warning \"conftest for X-related struct-members needs an X-related header.\"
+#    endif /* __GNUC__ && !__STRICT_ANSI__ */
+#   endif /* HAVE_X11_XRESOURCE_H */
+#  endif /* HAVE_X11_XKBLIB_H */
+# endif /* HAVE_X11_X_H */
+#endif /* HAVE_X11_XLIB_H */
+
+"
+if test "x$ac_cv_member_XCrossingEvent_time" = xyes
+then :
+
+printf "%s\n" "#define HAVE_XCROSSINGEVENT_TIME 1" >>confdefs.h
+
+
+fi
+
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking various other libraries" >&5
 printf %s "checking various other libraries... " >&6; }
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: libraries libraries libraries..." >&5
@@ -58148,8 +58438,8 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam \
         LIBS=$save_LIBS
         test $gl_pthread_api = yes && break
       done
-      echo "$as_me:58151: gl_pthread_api=$gl_pthread_api" >&5
-      echo "$as_me:58152: LIBPTHREAD=$LIBPTHREAD" >&5
+      echo "$as_me:58441: gl_pthread_api=$gl_pthread_api" >&5
+      echo "$as_me:58442: LIBPTHREAD=$LIBPTHREAD" >&5
 
       gl_pthread_in_glibc=no
       # On Linux with glibc >= 2.34, libc contains the fully functional
@@ -58175,7 +58465,7 @@ rm -rf conftest*
 
           ;;
       esac
-      echo "$as_me:58178: gl_pthread_in_glibc=$gl_pthread_in_glibc" >&5
+      echo "$as_me:58468: gl_pthread_in_glibc=$gl_pthread_in_glibc" >&5
 
       # Test for libpthread by looking for pthread_kill. (Not pthread_self,
       # since it is defined as a macro on OSF/1.)
@@ -58329,7 +58619,7 @@ fi
 
         fi
       fi
-      echo "$as_me:58332: LIBPMULTITHREAD=$LIBPMULTITHREAD" >&5
+      echo "$as_me:58622: LIBPMULTITHREAD=$LIBPMULTITHREAD" >&5
     fi
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether POSIX threads API is available" >&5
 printf %s "checking whether POSIX threads API is available... " >&6; }
@@ -76050,8 +76340,8 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam \
         LIBS=$save_LIBS
         test $gl_pthread_api = yes && break
       done
-      echo "$as_me:76053: gl_pthread_api=$gl_pthread_api" >&5
-      echo "$as_me:76054: LIBPTHREAD=$LIBPTHREAD" >&5
+      echo "$as_me:76343: gl_pthread_api=$gl_pthread_api" >&5
+      echo "$as_me:76344: LIBPTHREAD=$LIBPTHREAD" >&5
 
       gl_pthread_in_glibc=no
       # On Linux with glibc >= 2.34, libc contains the fully functional
@@ -76077,7 +76367,7 @@ rm -rf conftest*
 
           ;;
       esac
-      echo "$as_me:76080: gl_pthread_in_glibc=$gl_pthread_in_glibc" >&5
+      echo "$as_me:76370: gl_pthread_in_glibc=$gl_pthread_in_glibc" >&5
 
       # Test for libpthread by looking for pthread_kill. (Not pthread_self,
       # since it is defined as a macro on OSF/1.)
@@ -76231,7 +76521,7 @@ fi
 
         fi
       fi
-      echo "$as_me:76234: LIBPMULTITHREAD=$LIBPMULTITHREAD" >&5
+      echo "$as_me:76524: LIBPMULTITHREAD=$LIBPMULTITHREAD" >&5
     fi
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether POSIX threads API is available" >&5
 printf %s "checking whether POSIX threads API is available... " >&6; }

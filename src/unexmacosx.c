@@ -239,6 +239,7 @@ static int nlc_written = 0;
    Regions with addresses beyond this are assumed to be allocated
    dynamically and thus require dumping.  */
 static vm_address_t infile_lc_highest_addr = (vm_address_t)0U;
+static vm_address_t last_vmaddr = (vm_address_t)0U; /* for __LINKEDIT */
 
 /* The lowest file offset used by the all sections in the __TEXT
    segments.  This leaves room at the beginning of the file to store
@@ -696,6 +697,7 @@ static void unexec_regions_merge(void)
   long total = 0L;
 #endif /* ALLOW_UNUSED_VARIABLES */
   void *zeropage = calloc((size_t)1UL, pagesize);
+  long zerodBytes = 0L;
   vm_size_t padsize;
 
   if ((zeropage == NULL) && (errno == ENOMEM)) {
@@ -735,11 +737,13 @@ static void unexec_regions_merge(void)
         }
       }
       /* Truncate zerod pages: */
+      zerodBytes = 0L;
       while (r.filesize > 0) {
         vm_address_t p = (r.range.address + r.filesize - pagesize);
         if ((zeropage != NULL)
             && (memcmp((const void *)p, zeropage, pagesize) == 0)) {
           r.filesize -= pagesize;
+          zerodBytes += pagesize;
         } else {
           break;
         }
@@ -747,6 +751,8 @@ static void unexec_regions_merge(void)
       if (r.filesize != r.range.size) {
         printf("Region %d: removed %lx zerod bytes from filesize\n", i,
                (unsigned long)(r.range.size - r.filesize));
+      } else if (zerodBytes) {
+        printf("Removed %lx zerod bytes from filesize\n", zerodBytes);
       }
       unexec_regions[n++] = r;
       r = unexec_regions[i];
@@ -774,11 +780,13 @@ static void unexec_regions_merge(void)
     r.filesize = r.range.size;
   }
   /* Truncate zerod pages: */
+  zerodBytes = 0L;
   while (r.filesize > 0) {
     vm_address_t p = (r.range.address + r.filesize - pagesize);
     if ((zeropage != NULL)
         && memcmp((const void *)p, zeropage, pagesize) == 0) {
       r.filesize -= pagesize;
+      zerodBytes += pagesize;
     } else {
       break;
     }
@@ -788,6 +796,8 @@ static void unexec_regions_merge(void)
   if (r.filesize != r.range.size) {
     printf("Region %d: removed %lx zerod bytes from filesize\n", i,
            (unsigned long)(r.range.size - r.filesize));
+  } else if (zerodBytes) {
+    printf("Removed %lx zerod bytes from filesize\n", zerodBytes);
   }
   unexec_regions[n++] = r;
   num_unexec_regions = n;
@@ -1715,6 +1725,7 @@ failure_spot:
       strncpy(sc.segname, SEG_DATA, (size_t)16UL);
       sc.vmaddr = unexec_regions[j].range.address;
       sc.vmsize = unexec_regions[j].range.size;
+      last_vmaddr = (sc.vmaddr + sc.vmsize); /* for __LINKEDIT */
       sc.fileoff = curr_file_offset;
       sc.filesize = unexec_regions[j].filesize;
       sc.maxprot = (VM_PROT_READ | VM_PROT_WRITE);
@@ -2161,8 +2172,10 @@ dump_it(void)
 		    unexec_error("cannot handle multiple LINKEDIT segments"
 				 " in input file");
 		  linkedit_delta = (long)(curr_file_offset - scp->fileoff);
+		  printf("Bumping LINKEDIT vmaddr from %llx to %lx\n",
+		  	 scp->vmaddr, last_vmaddr);
+		  scp->vmaddr = last_vmaddr;
 		}
-
 	      copy_segment(lca[i]);
 	    }
 	}

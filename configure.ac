@@ -5163,7 +5163,6 @@ x.name = ""; x.type = 1;
        [emacs_cv_no_math_errno_struct_exception=no])])
   CFLAGS="${SAFE_MATH_CFLAGS}"
 fi
-AC_CHECK_MEMBERS([x_display_info.display])dnl
 
 dnl# checks for compiler characteristics:
 AC_MSG_CHECKING([the characteristics of your C compiler])
@@ -8174,6 +8173,35 @@ else
 fi
 AC_SUBST([XFIXES_CFLAGS])dnl
 AC_SUBST([XFIXES_LIBS])dnl
+
+AC_CHECK_MEMBERS([x_display_info.display, XButtonEvent.time, XMotionEvent.time,
+                  XSelectionEvent.time, XSelectionClearEvent.time,
+                  XSelectionRequestEvent.time, XPropertyEvent.time, XKeyEvent.time,
+                  XCrossingEvent.time],[],[],[
+AC_INCLUDES_DEFAULT
+#if !defined(__has_include)
+# define __has_include(foo) 0
+#endif /* !__has_include */
+#if defined(HAVE_X11_XLIB_H) || __has_include(<X11/Xlib.h>)
+# include <X11/Xlib.h>
+#else
+# if defined(HAVE_X11_X_H) || __has_include(<X11/X.h>)
+#  include <X11/X.h>
+# else
+#  if defined(HAVE_X11_XKBLIB_H) || __has_include(<X11/XKBlib.h>)
+#   include <X11/XKBlib.h>
+#  else
+#   if defined(HAVE_X11_XRESOURCE_H) || __has_include(<X11/Xresource.h>)
+#    include <X11/Xresource.h>
+#   else
+#    if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+#     warning "conftest for X-related struct-members needs an X-related header."
+#    endif /* __GNUC__ && !__STRICT_ANSI__ */
+#   endif /* HAVE_X11_XRESOURCE_H */
+#  endif /* HAVE_X11_XKBLIB_H */
+# endif /* HAVE_X11_X_H */
+#endif /* HAVE_X11_XLIB_H */
+])dnl
 
 AC_MSG_CHECKING([various other libraries])
 AC_MSG_RESULT([libraries libraries libraries...])
