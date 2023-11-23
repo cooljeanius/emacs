@@ -39,6 +39,17 @@ PROFILING_CFLAGS = @PROFILING_CFLAGS@
 WARN_CFLAGS = @WARN_CFLAGS@
 WARN_LDFLAGS = @WARN_LDFLAGS@
 WERROR_CFLAGS = @WERROR_CFLAGS@
+BETTER_DEBUG_CFLAGS = @BETTER_DEBUG_CFLAGS@
+
+PRE_WARNING_TESTING_CFLAGS = @PRE_WARNING_TESTING_CFLAGS@
+
+CLANG_ANALYZER = @CLANG_ANALYZER@
+
+RUN_CLANG_ANALYZER = $(CLANG_ANALYZER) $(PRE_WARNING_TESTING_CFLAGS) \
+  $(DEFS) $(CPPFLAGS) $(MYCPPFLAGS) -DDEBUG -D_DEBUG \
+  -Dlint -I. -I.. -I../src -I../lib-src -idirafter ../lib \
+  --analyze
+
 UPDATE_MANIFEST = @UPDATE_MANIFEST@
 
 LIBRARY_PATH = @LIBRARY_PATH@
@@ -105,6 +116,10 @@ localstatedir=@localstatedir@
 # We use $(srcdir) explicitly in dependencies so as not to depend on VPATH.
 srcdir=@srcdir@
 VPATH=@srcdir@
+
+# Where build output is put.
+builddir = @builddir@
+analysisdir = $(builddir)/clang_static_analysis
 
 # The top-level source directory, also set by configure.
 top_srcdir=@top_srcdir@
@@ -640,5 +655,11 @@ xveterm${EXEEXT}: ${srcdir}/emacstool.c
 ## For Fujitsu UTS:
 tcp${EXEEXT}: ${srcdir}/tcp.c
 	cc -O -o tcp tcp.c -DFUJITSU_UTS -lu -lsocket
+
+## Apple stuff:
+.SUFFIXES: .c .plist
+.c.plist:
+	@if test ! -d $(analysisdir); then $(MKDIR_P) $(analysisdir); fi
+	$(RUN_CLANG_ANALYZER) -Wall -Wextra -o $(analysisdir)/$@ $< 
 
 ## Makefile ends here.

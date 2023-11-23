@@ -36,3 +36,6 @@ pop.s
 
 # profiling:
 gmon.out
+
+# static analysis output:
+clang_static_analysis/*

@@ -494,7 +494,7 @@ static const struct option longopts[] =
   { "no-globals",         no_argument,       &globals,           0     },
   { "include",            required_argument, NULL,               'i'   },
 #endif
-  { NULL }
+  { NULL, no_argument, NULL, 0 }
 };
 
 static compressor compressors[] =
@@ -505,7 +505,7 @@ static compressor compressors[] =
   { "GZ", "gzip -d -c"},
   { "bz2", "bzip2 -d -c" },
   { "xz", "xz -d -c" },
-  { NULL }
+  { NULL, NULL }
 };
 
 /*

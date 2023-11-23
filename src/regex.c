@@ -72,8 +72,13 @@
 #if defined _LIBC
 # define WIDE_CHAR_SUPPORT 1
 #else
-# define WIDE_CHAR_SUPPORT \
+# if defined(emacs)
+#  define WIDE_CHAR_SUPPORT \
  	 (HAVE_WCTYPE_H && HAVE_WCHAR_H && HAVE_BTOWC && !emacs)
+# else
+#  define WIDE_CHAR_SUPPORT \
+ 	 (HAVE_WCTYPE_H && HAVE_WCHAR_H && HAVE_BTOWC)
+# endif /* emacs */
 #endif /* _LIBC */
 
 /* For platform which support the ISO C amendment 1 functionality we
