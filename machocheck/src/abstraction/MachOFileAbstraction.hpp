@@ -119,6 +119,13 @@ struct unwind_info_compressed_second_level_page_header
 
 #include "configure.h"
 
+#if ((defined(SUPPORT_ARCH_arm64) && SUPPORT_ARCH_arm64) || \
+     (defined(SUPPORT_ARCH_arm64e) && SUPPORT_ARCH_arm64e) || \
+     (defined(SUPPORT_ARCH_arm64_32) && SUPPORT_ARCH_arm64_32)) && \
+    (defined(HAVE_MACH_O_ARM64_RELOC_H) || __has_include(<mach-o/arm64/reloc.h>))
+# include <mach-o/arm64/reloc.h>
+#endif /* SUPPORT_ARCH_arm64 || SUPPORT_ARCH_arm64e || SUPPORT_ARCH_arm64_32 */
+
 // stuff that will eventually go away once newer cctools headers are widespread
 #ifndef LC_LOAD_UPWARD_DYLIB
 	#define	LC_LOAD_UPWARD_DYLIB (0x23|LC_REQ_DYLD)	/* load of dylib whose initializers run later */
@@ -232,6 +239,303 @@ struct unwind_info_compressed_second_level_page_header
 #ifndef BIND_SUBOPCODE_THREADED_APPLY
 #define BIND_SUBOPCODE_THREADED_APPLY								0x01
 #endif
+
+#ifndef EXPORT_SYMBOL_FLAGS_KIND_ABSOLUTE
+	#define EXPORT_SYMBOL_FLAGS_KIND_ABSOLUTE			0x02
+#endif
+#ifndef MH_SIM_SUPPORT
+	#define MH_SIM_SUPPORT 0x08000000
+#endif
+#ifndef PLATFORM_MACCATALYST
+	#define PLATFORM_MACCATALYST 6
+#endif
+#ifndef SG_READ_ONLY
+	#define SG_READ_ONLY    0x10
+#endif
+
+#ifndef N_COLD_FUNC
+	#define N_COLD_FUNC 0x0400
+#endif
+
+enum
+{
+    RISCV_RELOC_UNSIGNED       = 0,   // for simple pointers
+    RISCV_RELOC_SUBTRACTOR     = 1,   // must be followed by a RISCV_RELOC_UNSIGNED
+    RISCV_RELOC_BRANCH20       = 2,   // a JAL instruction with 20-bit displacement
+    RISCV_RELOC_HI20           = 3,   // an AUIPC or LUI which sets high 20 bits
+    RISCV_RELOC_LO12           = 4,   // an ADDI or LUI which sets high 20 bits
+    RISCV_RELOC_HI20_GOT       = 5,   // RISCV_RELOC_HI20 but to a GOT slot
+    RISCV_RELOC_LO12_GOT       = 6,   // RISCV_RELOC_LO12 but to a GOT slot
+    RISCV_RELOC_POINTER_TO_GOT = 7,   // used in __gcc_except_tab section for a 32-bit offset to GOT slot
+    RISCV_RELOC_ADDEND         = 8,   // sign extended, can used used before RISCV_RELOC_HI20, RISCV_RELOC_LO12, or RISCV_RELOC_BRANCH20
+};
+
+#if defined(HAVE_MACH_O_FIXUP_CHAINS_H) || __has_include(<mach-o/fixup-chains.h>)
+  #include <mach-o/fixup-chains.h>
+#else
+  #define __MACH_O_FIXUP_CHAINS__
+
+	// header of the LC_DYLD_CHAINED_FIXUPS payload
+	struct dyld_chained_fixups_header
+	{
+		uint32_t    fixups_version;    // 0
+		uint32_t    starts_offset;     // offset of dyld_chained_starts_in_image in chain_data
+		uint32_t    imports_offset;    // offset of imports table in chain_data
+		uint32_t    symbols_offset;    // offset of symbol strings in chain_data
+		uint32_t    imports_count;     // number of imported symbol names
+		uint32_t    imports_format;    // DYLD_CHAINED_IMPORT*
+		uint32_t    symbols_format;    // 0 => uncompressed, 1 => zlib compressed
+	};
+
+	// This struct is embedded in LC_DYLD_CHAINED_FIXUPS payload
+	struct dyld_chained_starts_in_image
+	{
+		uint32_t    seg_count;
+		uint32_t    seg_info_offset[1];  // each entry is offset into this struct for that segment
+		// followed by pool of dyld_chain_starts_in_segment data
+	};
+
+	// This struct is embedded in dyld_chain_starts_in_image
+	// and passed down to the kernel for page-in linking
+	struct dyld_chained_starts_in_segment
+	{
+		uint32_t    size;               // size of this (amount kernel needs to copy)
+		uint16_t    page_size;          // 0x1000 or 0x4000
+		uint16_t    pointer_format;     // DYLD_CHAINED_PTR_*
+		uint64_t    segment_offset;     // offset in memory to start of segment
+		uint32_t    max_valid_pointer;  // for 32-bit OS, any value beyond this is not a pointer
+		uint16_t    page_count;         // how many pages are in array
+		uint16_t    page_start[1];      // each entry is offset in each page of first element in chain
+										// or DYLD_CHAINED_PTR_START_NONE if no fixups on page
+	 // uint16_t    chain_starts[1];    // some 32-bit formats may require multiple starts per page.
+										// for those, if high bit is set in page_starts[], then it
+										// is index into chain_starts[] which is a list of starts
+										// the last of which has the high bit set
+	};
+
+	enum {
+		DYLD_CHAINED_PTR_START_NONE   = 0xFFFF, // used in page_start[] to denote a page with no fixups
+		DYLD_CHAINED_PTR_START_MULTI  = 0x8000, // used in page_start[] to denote a page which has multiple starts
+		DYLD_CHAINED_PTR_START_LAST   = 0x8000, // used in chain_starts[] to denote last start in list for page
+	};
+
+
+	// This struct is embedded in __TEXT,__chain_starts section in firmware
+	struct dyld_chained_starts_offsets
+	{
+		uint32_t    pointer_format;     // DYLD_CHAINED_PTR_32_FIRMWARE
+		uint32_t    starts_count;       // number of starts in array
+		uint32_t    chain_starts[1];    // array chain start offsets
+	};
+
+
+	// values for dyld_chained_starts_in_segment.pointer_format
+	enum {
+		DYLD_CHAINED_PTR_ARM64E      	= 1,
+		DYLD_CHAINED_PTR_64          	= 2,
+		DYLD_CHAINED_PTR_32          	= 3,
+		DYLD_CHAINED_PTR_32_CACHE    	= 4,
+		DYLD_CHAINED_PTR_32_FIRMWARE 	= 5,
+	};
+
+	// DYLD_CHAINED_PTR_ARM64E
+	struct dyld_chained_ptr_arm64e_rebase
+	{
+		uint64_t    target   : 43,    // (DYLD_CHAINED_PTR_ARM64E => vmAddr, DYLD_CHAINED_PTR_ARM64E_OFFSET => runtimeOffset)
+					high8    :  8,
+					next     : 11,    // 8-byte stide
+					bind     :  1,    // == 0
+					auth     :  1;    // == 0
+	};
+
+	// DYLD_CHAINED_PTR_ARM64E
+	struct dyld_chained_ptr_arm64e_bind
+	{
+		uint64_t    ordinal   : 16,
+					zero      : 16,
+					addend    : 19,
+					next      : 11,    // 8-byte stide
+					bind      :  1,    // == 1
+					auth      :  1;    // == 0
+	};
+
+	// DYLD_CHAINED_PTR_ARM64E
+	struct dyld_chained_ptr_arm64e_auth_rebase
+	{
+		uint64_t    target    : 32,	   // runtimeOffset
+					diversity : 16,
+					addrDiv   :  1,
+					key       :  2,
+					next      : 11,    // 8-byte stide
+					bind      :  1,    // == 0
+					auth      :  1;    // == 1
+	};
+
+	// DYLD_CHAINED_PTR_ARM64E
+	struct dyld_chained_ptr_arm64e_auth_bind
+	{
+		uint64_t    ordinal   : 16,
+					zero      : 16,
+					diversity : 16,
+					addrDiv   :  1,
+					key       :  2,
+					next      : 11,    // 8-byte stide
+					bind      :  1,    // == 1
+					auth      :  1;    // == 1
+	};
+
+	// DYLD_CHAINED_PTR_64/DYLD_CHAINED_PTR_64_OFFSET
+	struct dyld_chained_ptr_64_rebase
+	{
+		uint64_t    target    : 36,    // 64GB max image size (DYLD_CHAINED_PTR_64 => vmAddr, DYLD_CHAINED_PTR_64_OFFSET => runtimeOffset)
+					high8     :  8,    // top 8 bits set to this (DYLD_CHAINED_PTR_64 => after slide added, DYLD_CHAINED_PTR_64_OFFSET => before slide added)
+					reserved  :  7,    // all zeros
+					next      : 12,    // 4-byte stride
+					bind      :  1;    // == 0
+	};
+
+	// DYLD_CHAINED_PTR_64
+	struct dyld_chained_ptr_64_bind
+	{
+		uint64_t    ordinal   : 24,
+					addend    :  8,   // 0 thru 255
+					reserved  : 19,   // all zeros
+					next      : 12,   // 4-byte stride
+					bind      :  1;   // == 1
+	};
+
+	// DYLD_CHAINED_PTR_32
+	struct dyld_chained_ptr_32_rebase
+	{
+		uint32_t    target    : 26,   // 64MB max image size
+					next      :  5,   // 4-byte stride
+					bind      :  1;   // == 0
+	};
+
+	// DYLD_CHAINED_PTR_32
+	struct dyld_chained_ptr_32_bind
+	{
+		uint32_t    ordinal   : 20,
+					addend    :  6,   // 0 thru 63
+					next      :  5,   // 4-byte stride
+					bind      :  1;   // == 1
+	};
+
+	// DYLD_CHAINED_PTR_32_CACHE
+	struct dyld_chained_ptr_32_cache_rebase
+	{
+		uint32_t    target    : 30,   // 1GB max dyld cache TEXT and DATA
+					next      :  2;   // 4-byte stride
+	};
+
+
+	// DYLD_CHAINED_PTR_32_FIRMWARE
+	struct dyld_chained_ptr_32_firmware_rebase
+	{
+		uint32_t    target   : 26,   // 64MB max firmware TEXT and DATA
+					next     :  6;   // 4-byte stride
+	};
+
+
+
+	// values for dyld_chained_fixups_header.imports_format
+	enum {
+		DYLD_CHAINED_IMPORT          = 1,
+		DYLD_CHAINED_IMPORT_ADDEND   = 2,
+		DYLD_CHAINED_IMPORT_ADDEND64 = 3,
+	};
+
+	// DYLD_CHAINED_IMPORT
+	struct dyld_chained_import
+	{
+		uint32_t    lib_ordinal :  8,
+					weak_import :  1,
+					name_offset : 23;
+	};
+
+	// DYLD_CHAINED_IMPORT_ADDEND
+	struct dyld_chained_import_addend
+	{
+		uint32_t    lib_ordinal :  8,
+					weak_import :  1,
+					name_offset : 23;
+		int32_t     addend;
+	};
+
+	// DYLD_CHAINED_IMPORT_ADDEND64
+	struct dyld_chained_import_addend64
+	{
+		uint64_t    lib_ordinal : 16,
+					weak_import :  1,
+					reserved    : 15,
+					name_offset : 32;
+		uint64_t    addend;
+	};
+
+#endif  // __has_include(<mach-o/fixup-chains.h>)
+
+#if defined(__MACH_O_FIXUP_CHAINS__) && ((__MACH_O_FIXUP_CHAINS__ - 0) < 2)
+// new fixup-chains.h content for version 2
+enum {
+    DYLD_CHAINED_PTR_64_OFFSET      = 6,
+    DYLD_CHAINED_PTR_ARM64E_OFFSET  = 7,
+};
+#endif
+
+#if defined(__MACH_O_FIXUP_CHAINS__) && ((__MACH_O_FIXUP_CHAINS__ - 0) < 3)
+// new fixup-chains.h content for version 3
+//enum {
+//    DYLD_CHAINED_PTR_64_KERNEL_CACHE    =  8,
+//};
+#endif
+
+#if defined(__MACH_O_FIXUP_CHAINS__) && ((__MACH_O_FIXUP_CHAINS__ - 0) < 4)
+// new fixup-chains.h content for version 4
+enum {
+    DYLD_CHAINED_PTR_ARM64E_KERNEL  	= DYLD_CHAINED_PTR_ARM64E_OFFSET,
+    DYLD_CHAINED_PTR_ARM64E_USERLAND    =  9,    // stride 8, unauth target is vm offset
+    DYLD_CHAINED_PTR_ARM64E_FIRMWARE    = 10,    // stride 4, unauth target is vmaddr
+};
+#endif
+
+#if defined(__MACH_O_FIXUP_CHAINS__) && ((__MACH_O_FIXUP_CHAINS__ - 0) < 6)
+// new fixup-chains.h content for version 6
+enum {
+    DYLD_CHAINED_PTR_ARM64E_USERLAND24  = 12,    // stride 8, unauth target is vm offset, 24-bit bind
+};
+// DYLD_CHAINED_PTR_ARM64E_USERLAND24
+struct dyld_chained_ptr_arm64e_bind24
+{
+    uint64_t    ordinal   : 24,
+                zero      :  8,
+                addend    : 19,    // +/-256K
+                next      : 11,    // 8-byte stide
+                bind      :  1,    // == 1
+                auth      :  1;    // == 0
+};
+
+// DYLD_CHAINED_PTR_ARM64E_USERLAND24
+struct dyld_chained_ptr_arm64e_auth_bind24
+{
+    uint64_t    ordinal   : 24,
+                zero      :  8,
+                diversity : 16,
+                addrDiv   :  1,
+                key       :  2,
+                next      : 11,    // 8-byte stide
+                bind      :  1,    // == 1
+                auth      :  1;    // == 1
+};
+
+
+#endif
+
+
+
+#define LC_DYLD_EXPORTS_TRIE     (0x33 | LC_REQ_DYLD)
+#if !defined(LC_DYLD_CHAINED_FIXUPS) && defined(LC_REQ_DYLD)
+# define LC_DYLD_CHAINED_FIXUPS   (0x34 | LC_REQ_DYLD
+#endif /* !LC_DYLD_CHAINED_FIXUPS && LC_REQ_DYLD */
 
 #if defined(SUPPORT_ARCH_arm64e) && SUPPORT_ARCH_arm64e
 
@@ -389,6 +693,26 @@ typedef enum {
 	#define ARM64_RELOC_AUTHENTICATED_POINTER				11 // An authenticated pointer.
 #endif
 
+#ifndef CPU_TYPE_ARM64_32
+	#ifndef CPU_ARCH_ABI64_32
+		#define CPU_ARCH_ABI64_32 0x02000000
+	#endif
+	#define CPU_TYPE_ARM64_32 (CPU_TYPE_ARM | CPU_ARCH_ABI64_32)
+#endif
+#ifndef CPU_SUBTYPE_ARM64_32_V8
+	#define CPU_SUBTYPE_ARM64_32_V8    1
+#endif
+#ifndef CPU_SUBTYPE_ARM64E
+	#define CPU_SUBTYPE_ARM64E    2
+	#define ARM64_RELOC_AUTHENTICATED_POINTER 11
+#endif
+
+#ifndef CPU_TYPE_RISCV32
+	#ifndef CPU_SUBTYPE_RISCV32_ALL
+		#define CPU_SUBTYPE_RISCV32_ALL	0
+	#endif
+	#define CPU_TYPE_RISCV32	24
+#endif
 
 #define UNW_ARM64_X0     0
 #define UNW_ARM64_X1     1
@@ -622,6 +946,9 @@ typedef enum {
 #define DYLD_CACHE_ADJ_V2_IMAGE_OFF_32			0x0C
 #define DYLD_CACHE_ADJ_V2_THREADED_POINTER_64			0x0D
 
+#ifndef S_INIT_FUNC_OFFSETS
+	#define S_INIT_FUNC_OFFSETS                 0x16
+#endif
 
 #ifndef LC_BUILD_VERSION
 	#define LC_BUILD_VERSION 0x32 /* build for platform min OS version */
@@ -676,6 +1003,12 @@ typedef enum {
 
 // kind target-address fixup-addr [adj]
 
+typedef enum Thumb2Support {
+	Thumb2Support_none,
+	Thumb2Support_branch24, // Wide branches (if present) have a 24-bit range.
+	Thumb2Support_all,
+} Thumb2Support_e;
+
 struct ArchInfo {
 	const char*			archName;
 	cpu_type_t			cpuType;
@@ -684,69 +1017,79 @@ struct ArchInfo {
 	const char*			llvmTriplePrefixAlt;
 	bool				isSubType;
 	bool				supportsThumb2;
+        Thumb2Support		thumb2Support;
 };
 
 static const ArchInfo archInfoArray[] = {
-#if SUPPORT_ARCH_x86_64
-	{ "x86_64", CPU_TYPE_X86_64, CPU_SUBTYPE_X86_64_ALL, "x86_64-",  "", false, false },
+#if defined(SUPPORT_ARCH_x86_64) && SUPPORT_ARCH_x86_64
+	{ "x86_64", CPU_TYPE_X86_64, CPU_SUBTYPE_X86_64_ALL, "x86_64-",  "", false, false, Thumb2Support_none },
 #endif
 #if defined(SUPPORT_ARCH_x86_64h) && SUPPORT_ARCH_x86_64h
-	{ "x86_64h", CPU_TYPE_X86_64, CPU_SUBTYPE_X86_64_H,	 "x86_64h-",  "", true, false },
+	{ "x86_64h", CPU_TYPE_X86_64, CPU_SUBTYPE_X86_64_H,	 "x86_64h-",  "", true, false, Thumb2Support_none },
 #endif
 #if SUPPORT_ARCH_i386
-	{ "i386",   CPU_TYPE_I386,   CPU_SUBTYPE_I386_ALL,   "i386-",    "", false, false },
+	{ "i386",   CPU_TYPE_I386,   CPU_SUBTYPE_I386_ALL,   "i386-",    "", false, false, Thumb2Support_none },
 #endif
 #if defined(SUPPORT_ARCH_armv4t) && SUPPORT_ARCH_armv4t
-	{ "armv4t", CPU_TYPE_ARM,    CPU_SUBTYPE_ARM_V4T,    "armv4t-",  "", true,  false },
+	{ "armv4t", CPU_TYPE_ARM,    CPU_SUBTYPE_ARM_V4T,    "armv4t-",  "", true,  false, Thumb2Support_none },
 	#define SUPPORT_ARCH_arm_any 1
 #endif
 #if defined(SUPPORT_ARCH_armv5) && SUPPORT_ARCH_armv5
-	{ "armv5", CPU_TYPE_ARM,     CPU_SUBTYPE_ARM_V5TEJ,  "armv5e-",  "", true,  false },
+	{ "armv5", CPU_TYPE_ARM,     CPU_SUBTYPE_ARM_V5TEJ,  "armv5e-",  "", true,  false, Thumb2Support_none },
 	#define SUPPORT_ARCH_arm_any 1
 #endif
 #if defined(SUPPORT_ARCH_armv6) && SUPPORT_ARCH_armv6
-	{ "armv6", CPU_TYPE_ARM,     CPU_SUBTYPE_ARM_V6,     "armv6-",   "", true,  false },
+	{ "armv6", CPU_TYPE_ARM,     CPU_SUBTYPE_ARM_V6,     "armv6-",   "", true,  false, Thumb2Support_none },
 	#define SUPPORT_ARCH_arm_any 1
 #endif
-#if SUPPORT_ARCH_armv7
-	{ "armv7", CPU_TYPE_ARM,     CPU_SUBTYPE_ARM_V7,     "thumbv7-", "armv7-", true,  true },
+#if defined(SUPPORT_ARCH_armv7) && SUPPORT_ARCH_armv7
+	{ "armv7", CPU_TYPE_ARM,     CPU_SUBTYPE_ARM_V7,     "thumbv7-", "armv7-", true,  true, Thumb2Support_all },
 	#define SUPPORT_ARCH_arm_any 1
 #endif
 #if defined(SUPPORT_ARCH_armv7f) && SUPPORT_ARCH_armv7f
-	{ "armv7f", CPU_TYPE_ARM,    CPU_SUBTYPE_ARM_V7F,    "thumbv7f-", "", true,  true },
+	{ "armv7f", CPU_TYPE_ARM,    CPU_SUBTYPE_ARM_V7F,    "thumbv7f-", "", true,  true, Thumb2Support_all },
 	#define SUPPORT_ARCH_arm_any 1
 #endif
 #if defined(SUPPORT_ARCH_armv7k) && SUPPORT_ARCH_armv7k
-	{ "armv7k", CPU_TYPE_ARM,    CPU_SUBTYPE_ARM_V7K,    "thumbv7k-", "", true,  true },
+	{ "armv7k", CPU_TYPE_ARM,    CPU_SUBTYPE_ARM_V7K,    "thumbv7k-", "", true,  true, Thumb2Support_all },
 	#define SUPPORT_ARCH_arm_any 1
 #endif
-#if SUPPORT_ARCH_armv7s
-	{ "armv7s", CPU_TYPE_ARM,    CPU_SUBTYPE_ARM_V7S,    "thumbv7s-", "armv7s", true,  true },
+#if defined(SUPPORT_ARCH_armv7s) && SUPPORT_ARCH_armv7s
+	{ "armv7s", CPU_TYPE_ARM,    CPU_SUBTYPE_ARM_V7S,    "thumbv7s-", "armv7s", true,  true, Thumb2Support_all },
 	#define SUPPORT_ARCH_arm_any 1
 #endif
 #if defined(SUPPORT_ARCH_armv6m) && SUPPORT_ARCH_armv6m
-	{ "armv6m", CPU_TYPE_ARM,    CPU_SUBTYPE_ARM_V6M,    "thumbv6m-", "", true,  false },
+	{ "armv6m", CPU_TYPE_ARM,    CPU_SUBTYPE_ARM_V6M,    "thumbv6m-", "", true,  false,  Thumb2Support_branch24 },
     #define SUPPORT_ARCH_arm_any 1
 #endif
 #if defined(SUPPORT_ARCH_armv7m) && SUPPORT_ARCH_armv7m
-	{ "armv7m", CPU_TYPE_ARM,    CPU_SUBTYPE_ARM_V7M,    "thumbv7m-", "armv7m", true,  true },
+	{ "armv7m", CPU_TYPE_ARM,    CPU_SUBTYPE_ARM_V7M,    "thumbv7m-", "armv7m", true,  true, Thumb2Support_all },
     #define SUPPORT_ARCH_arm_any 1
 #endif
 #if defined(SUPPORT_ARCH_armv7em) && SUPPORT_ARCH_armv7em
-	{ "armv7em", CPU_TYPE_ARM,   CPU_SUBTYPE_ARM_V7EM,   "thumbv7em-", "armv7em", true,  true },
+	{ "armv7em", CPU_TYPE_ARM,   CPU_SUBTYPE_ARM_V7EM,   "thumbv7em-", "armv7em", true,  true, Thumb2Support_all },
     #define SUPPORT_ARCH_arm_any 1
 #endif
 #if defined(SUPPORT_ARCH_armv8) && SUPPORT_ARCH_armv8
-	{ "armv8", CPU_TYPE_ARM,     CPU_SUBTYPE_ARM_V8,     "thumbv8-", "armv8", true,  true },
+	{ "armv8", CPU_TYPE_ARM,     CPU_SUBTYPE_ARM_V8,     "thumbv8-", "armv8", true,  true, Thumb2Support_all },
     #define SUPPORT_ARCH_arm_any 1
 #endif
 #if defined(SUPPORT_ARCH_arm64) && SUPPORT_ARCH_arm64
-	{ "arm64", CPU_TYPE_ARM64,   CPU_SUBTYPE_ARM64_ALL,  "arm64-",    "",   false,  false },
+	{ "arm64", CPU_TYPE_ARM64,   CPU_SUBTYPE_ARM64_ALL,  "arm64-",    "",   false,  false, Thumb2Support_none },
+#endif
+#if defined(SUPPORT_ARCH_arm64e) && SUPPORT_ARCH_arm64e
+	{ "arm64e", CPU_TYPE_ARM64,   CPU_SUBTYPE_ARM64E,    "arm64e-",  "aarch64e-", true, false, Thumb2Support_none },
 #endif
 #if defined(SUPPORT_ARCH_arm64v8) && SUPPORT_ARCH_arm64v8
-	{ "arm64v8", CPU_TYPE_ARM64, CPU_SUBTYPE_ARM64_V8,   "arm64v8-",  "",   true,  false },
+	{ "arm64v8", CPU_TYPE_ARM64, CPU_SUBTYPE_ARM64_V8,   "arm64v8-",  "",   true,  false, Thumb2Support_none },
 #endif
-	{ NULL, 0, 0, NULL, NULL, false, false }
+#if defined(SUPPORT_ARCH_arm64_32) && SUPPORT_ARCH_arm64_32
+	{ "arm64_32", CPU_TYPE_ARM64_32,   CPU_SUBTYPE_ARM64_32_V8,  "arm64_32-",  "aarch64_32-", true, false, Thumb2Support_none },
+#endif
+#if defined(SUPPORT_ARCH_riscv) && SUPPORT_ARCH_riscv
+	{ "riscv32", CPU_TYPE_RISCV32, CPU_SUBTYPE_RISCV32_ALL, "riscv32-", "", false, false, Thumb2Support_none },
+#endif
+	{ NULL, 0, 0, NULL, NULL, false, false, Thumb2Support_none }
 };
 
 
@@ -805,8 +1148,11 @@ public:
 	uint32_t		cputype() const					INLINE { return E::get32((uint32_t)header.fields.cputype); }
 	void			set_cputype(uint32_t value)		INLINE { E::set32((uint32_t&)header.fields.cputype, value); }
 
-	uint32_t		cpusubtype() const				INLINE { return E::get32(header.fields.cpusubtype); }
-	void			set_cpusubtype(uint32_t value)	INLINE { E::set32((uint32_t&)header.fields.cpusubtype, value); }
+	uint32_t		cpusubtype() const				INLINE { return (E::get32(header.fields.cpusubtype) & ~CPU_SUBTYPE_MASK); }
+	void			set_cpusubtype(uint32_t value)	INLINE { E::set32((uint32_t&)header.fields.cpusubtype, (value & ~CPU_SUBTYPE_MASK) | (cpusubtypeflags() << 24)); }
+
+        uint8_t			cpusubtypeflags() const			INLINE { return ((E::get32(header.fields.cpusubtype) & CPU_SUBTYPE_MASK) >> 24); }
+	void			set_cpusubtypeflags(uint8_t value)	INLINE { E::set32((uint32_t&)header.fields.cpusubtype, cpusubtype() | (((uint32_t)value) << 24)); }
 
 	uint32_t		filetype() const				INLINE { return E::get32(header.fields.filetype); }
 	void			set_filetype(uint32_t value)	INLINE { E::set32(header.fields.filetype, value); }

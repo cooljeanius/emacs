@@ -966,6 +966,8 @@ dnl# see the `changequote' comment above.
       i[3456]86-* )  machine=intel386 ;;
       powerpc-* )    machine=powermac ;;
       x86_64-* )     machine=amdx86-64 ;;
+      arm-*)         machine=arm ;;
+      aarch64-*)     machine=aarch64 ;;
       mac-apple-darwin* ) machine=mac;;
       *-apple-darwin[0-9].*)
         unofficially_ported=yes
@@ -4994,20 +4996,24 @@ if test "x${ac_cv_have_decl___MACH__}" = "xyes" || test -d /usr/include/mach-o; 
   AC_CHECK_HEADERS([mach-o/loader.h])
   ## other possibly useful headers from that directory:
   AC_CHECK_HEADERS([mach-o/arch.h mach-o/compact_unwind_encoding.h \
-                    mach-o/dyld.h mach-o/fat.h mach-o/getsect.h \
-                    mach-o/nlist.h mach-o/ldsyms.h mach-o/reloc.h])
+                    mach-o/dyld.h mach-o/fat.h mach-o/fixup-chains.h \
+                    mach-o/getsect.h mach-o/nlist.h mach-o/ldsyms.h \
+                    mach-o/reloc.h mach-o/stab.h mach-o/swap.h])
   if test "x${machine}" = "xmacppc" || test "x${machine}" = "xpowermac"; then
-    test -n "${machine}"
+    test -n "${machine}" || echo "warning: inconsistent machine value"
     AC_CHECK_HEADERS([mach-o/ppc/reloc.h])
   elif test "x${machine}" = "xarm" || test "x${machine}" = "xacorn"; then
-    test -n "${machine}"
+    test -n "${machine}" || echo "warning: inconsistent machine value"
     AC_CHECK_HEADERS([mach-o/arm/reloc.h])
   elif test "x${machine}" = "xintel386"; then
-    test -n "${machine}"
+    test -n "${machine}" || echo "warning: inconsistent machine value"
     AC_CHECK_HEADERS([mach-o/i386/swap.h])
   elif test "x${machine}" = "xamdx86-64"; then
-    test -n "${machine}"
+    test -n "${machine}" || echo "warning: inconsistent machine value"
     AC_CHECK_HEADERS([mach-o/x86_64/reloc.h])
+  elif test "x${machine}" = "xaarch64"; then
+    test -n "${machine}" || echo "warning: inconsistent machine value"
+    AC_CHECK_HEADERS([mach-o/arm64/reloc.h])
   else
     AC_MSG_NOTICE([no arch-specific header for mach-o for your machine])
   fi

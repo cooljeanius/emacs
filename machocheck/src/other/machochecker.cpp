@@ -130,7 +130,7 @@ static int64_t read_sleb128(const uint8_t*& p, const uint8_t* end)
 		bit += 7;
 	} while (byte & 0x80);
 	// sign extend negative numbers:
-	if ((byte & 0x40) != 0)
+	if (((byte & 0x40) != 0)  && (bit < 64))
 		result |= ((-1LL) << bit);
 	return result;
 }

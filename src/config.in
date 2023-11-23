@@ -1859,6 +1859,9 @@
 /* Define to 1 if you have the <mach-o/arch.h> header file. */
 #undef HAVE_MACH_O_ARCH_H
 
+/* Define to 1 if you have the <mach-o/arm64/reloc.h> header file. */
+#undef HAVE_MACH_O_ARM64_RELOC_H
+
 /* Define to 1 if you have the <mach-o/arm/reloc.h> header file. */
 #undef HAVE_MACH_O_ARM_RELOC_H
 
@@ -1871,6 +1874,9 @@
 
 /* Define to 1 if you have the <mach-o/fat.h> header file. */
 #undef HAVE_MACH_O_FAT_H
+
+/* Define to 1 if you have the <mach-o/fixup-chains.h> header file. */
+#undef HAVE_MACH_O_FIXUP_CHAINS_H
 
 /* Define to 1 if you have the <mach-o/getsect.h> header file. */
 #undef HAVE_MACH_O_GETSECT_H
@@ -1892,6 +1898,12 @@
 
 /* Define to 1 if you have the <mach-o/reloc.h> header file. */
 #undef HAVE_MACH_O_RELOC_H
+
+/* Define to 1 if you have the <mach-o/stab.h> header file. */
+#undef HAVE_MACH_O_STAB_H
+
+/* Define to 1 if you have the <mach-o/swap.h> header file. */
+#undef HAVE_MACH_O_SWAP_H
 
 /* Define to 1 if you have the <mach-o/x86_64/reloc.h> header file. */
 #undef HAVE_MACH_O_X86_64_RELOC_H

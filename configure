@@ -8564,6 +8564,8 @@ printf "%s\n" "#define HAVE_CRTIN 1" >>confdefs.h
       i[3456]86-* )  machine=intel386 ;;
       powerpc-* )    machine=powermac ;;
       x86_64-* )     machine=amdx86-64 ;;
+      arm-*)         machine=arm ;;
+      aarch64-*)     machine=aarch64 ;;
       mac-apple-darwin* ) machine=mac;;
       *-apple-darwin[0-9].*)
         unofficially_ported=yes
@@ -41958,6 +41960,12 @@ then :
   printf "%s\n" "#define HAVE_MACH_O_FAT_H 1" >>confdefs.h
 
 fi
+ac_fn_c_check_header_compile "$LINENO" "mach-o/fixup-chains.h" "ac_cv_header_mach_o_fixup_chains_h" "$ac_includes_default"
+if test "x$ac_cv_header_mach_o_fixup_chains_h" = xyes
+then :
+  printf "%s\n" "#define HAVE_MACH_O_FIXUP_CHAINS_H 1" >>confdefs.h
+
+fi
 ac_fn_c_check_header_compile "$LINENO" "mach-o/getsect.h" "ac_cv_header_mach_o_getsect_h" "$ac_includes_default"
 if test "x$ac_cv_header_mach_o_getsect_h" = xyes
 then :
@@ -41982,9 +41990,21 @@ then :
   printf "%s\n" "#define HAVE_MACH_O_RELOC_H 1" >>confdefs.h
 
 fi
+ac_fn_c_check_header_compile "$LINENO" "mach-o/stab.h" "ac_cv_header_mach_o_stab_h" "$ac_includes_default"
+if test "x$ac_cv_header_mach_o_stab_h" = xyes
+then :
+  printf "%s\n" "#define HAVE_MACH_O_STAB_H 1" >>confdefs.h
+
+fi
+ac_fn_c_check_header_compile "$LINENO" "mach-o/swap.h" "ac_cv_header_mach_o_swap_h" "$ac_includes_default"
+if test "x$ac_cv_header_mach_o_swap_h" = xyes
+then :
+  printf "%s\n" "#define HAVE_MACH_O_SWAP_H 1" >>confdefs.h
+
+fi
 
   if test "x${machine}" = "xmacppc" || test "x${machine}" = "xpowermac"; then
-    test -n "${machine}"
+    test -n "${machine}" || echo "warning: inconsistent machine value"
     ac_fn_c_check_header_compile "$LINENO" "mach-o/ppc/reloc.h" "ac_cv_header_mach_o_ppc_reloc_h" "$ac_includes_default"
 if test "x$ac_cv_header_mach_o_ppc_reloc_h" = xyes
 then :
@@ -41993,7 +42013,7 @@ then :
 fi
 
   elif test "x${machine}" = "xarm" || test "x${machine}" = "xacorn"; then
-    test -n "${machine}"
+    test -n "${machine}" || echo "warning: inconsistent machine value"
     ac_fn_c_check_header_compile "$LINENO" "mach-o/arm/reloc.h" "ac_cv_header_mach_o_arm_reloc_h" "$ac_includes_default"
 if test "x$ac_cv_header_mach_o_arm_reloc_h" = xyes
 then :
@@ -42002,7 +42022,7 @@ then :
 fi
 
   elif test "x${machine}" = "xintel386"; then
-    test -n "${machine}"
+    test -n "${machine}" || echo "warning: inconsistent machine value"
     ac_fn_c_check_header_compile "$LINENO" "mach-o/i386/swap.h" "ac_cv_header_mach_o_i386_swap_h" "$ac_includes_default"
 if test "x$ac_cv_header_mach_o_i386_swap_h" = xyes
 then :
@@ -42011,11 +42031,20 @@ then :
 fi
 
   elif test "x${machine}" = "xamdx86-64"; then
-    test -n "${machine}"
+    test -n "${machine}" || echo "warning: inconsistent machine value"
     ac_fn_c_check_header_compile "$LINENO" "mach-o/x86_64/reloc.h" "ac_cv_header_mach_o_x86_64_reloc_h" "$ac_includes_default"
 if test "x$ac_cv_header_mach_o_x86_64_reloc_h" = xyes
 then :
   printf "%s\n" "#define HAVE_MACH_O_X86_64_RELOC_H 1" >>confdefs.h
+
+fi
+
+  elif test "x${machine}" = "xaarch64"; then
+    test -n "${machine}" || echo "warning: inconsistent machine value"
+    ac_fn_c_check_header_compile "$LINENO" "mach-o/arm64/reloc.h" "ac_cv_header_mach_o_arm64_reloc_h" "$ac_includes_default"
+if test "x$ac_cv_header_mach_o_arm64_reloc_h" = xyes
+then :
+  printf "%s\n" "#define HAVE_MACH_O_ARM64_RELOC_H 1" >>confdefs.h
 
 fi
 
