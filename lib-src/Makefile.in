@@ -503,7 +503,7 @@ ALL_PLISTS = alloca.plist b2m.plist cvtmail.plist digest-doc.plist ebrowse.plist
 	     emacsserver.plist etags.plist fakemail.plist getopt.plist \
 	     getopt1.plist hexl.plist leditcfns.plist movemail.plist pop.plist \
 	     profile.plist qsort.plist sorted-doc.plist tcp.plist \
-	     test-distrib.plist wincompat_test.plst yow.plist
+	     test-distrib.plist wincompat_test.plist yow.plist
 
 all-obj: $(ALL_OBJS)
 	@echo "ensuring all objects have been built..."
