@@ -32,6 +32,7 @@ jobs:
           clang --version; \
           if test -x "$(which nproc)" && test -n "$(nproc)" && test "$(nproc)" -gt 1; then \
             if test -x "$(which scan-build)" && test "${{ matrix.compiler }}" = "clang" && test -d /tmp && test -w /tmp; then \
+              echo "first, an attempt at using $(which scan-build)..."; \
               scan-build -o /tmp make -j"$(nproc)" only_temacs all_only_c; \
             else \
               echo "skipping scan-build..."; \

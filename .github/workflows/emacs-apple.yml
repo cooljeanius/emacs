@@ -49,13 +49,16 @@ jobs:
         if test -x "$(which gmake)" && test -x "$(which nproc)" && test -n "$(nproc)"; then \
           echo "attempting parallel build with $(nproc) jobs..."; \
           if test -x "$(which scan-build)" && test "${{ matrix.compiler }}" = "clang" && test -d /tmp && test -w /tmp; then \
+            echo "...and running the build under $(which scan-build)..."; \
             scan-build -o /tmp gmake -j"$(nproc)" --output-sync only_temacs; \
           else \
+            echo "...(a parallel build of the regular kind, that is)..."; \
             gmake -j"$(nproc)" --output-sync only_temacs; \
           fi; \
         else \
           echo "warning: on the slow path..."; \
           if test -x "$(which scan-build)" && test "${{ matrix.compiler }}" = "clang" && test -d /tmp && test -w /tmp; then \
+            echo "attempting to build under $(which scan-build)..."; \
             scan-build -o /tmp make only_temacs; \
           else \
             make only_temacs; \

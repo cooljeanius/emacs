@@ -58,7 +58,9 @@
 #include <string.h> /* for strerror() */
 #include <assert.h> /* for assert() */
 #if !defined(__OPTIMIZE__)
-/* FIXME: warning or something */
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(lint)
+#  warning "please compile test_mach_o_binary.c with optimization."
+# endif /* __GNUC__ && !__STRICT_ANSI__ && lint */
 #endif /* !__OPTIMIZE__ */
 #include "src/lisp.h"
 

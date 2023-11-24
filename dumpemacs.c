@@ -4,6 +4,10 @@
 # include "src/config.h"
 #endif /* HAVE_CONFIG_H */
 
+#if !defined(__has_include)
+# define __has_include(foo) 0
+#endif /* !__has_include */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -18,7 +22,13 @@
 #include <pwd.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
-#include <mach-o/fat.h>
+#if defined(HAVE_MACH_O_FAT_H) || __has_include(<mach-o/fat.h>) || defined(__APPLE__)
+# include <mach-o/fat.h>
+#else
+# if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(lint)
+#  warning "dumpemacs.c expects <mach-o/fat.h> to be included."
+# endif /* __GNUC__ && !__STRICT_ANSI__ && lint */
+#endif /* HAVE_MACH_O_FAT_H || __APPLE__ */
 #include <mach-o/loader.h>
 #include <mach-o/arch.h>
 
