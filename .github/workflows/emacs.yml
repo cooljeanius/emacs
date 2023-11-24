@@ -20,9 +20,21 @@ jobs:
         ./configure --without-makeinfo --without-gif --without-gnutls --enable-silent-rules --disable-autodepend --without-imagemagick --enable-gcc-warnings --with-x-toolkit=no --with-xpm=no --disable-openmp
         make gnulib_headers || (stat lib/Makefile && wc -l lib/Makefile)
         make only_temacs
+        ls src/*emacs
         cd lisp && make update-subdirs
-    - run: make all_only_c
+    - name: Extra build
       if: "${{ success() }}"
+      run: |
+        make all_only_c
+        if test -x "$(which clang)" && test -n "$(clang --version)"; then \
+          echo "attempting to use $(which clang) for static analysis"; \
+          echo "but first, let us check the version that it reports..."; \
+          clang --version; \
+          make -C src check || make -ki -C src check; \
+          make -C lib-src all-plist || make -ki -C lib-src all-plist; \
+        else \
+          echo "no usable clang found for static analysis!"; \
+        fi
     - name: Build docs
       if: "${{ success() }}"
       run: |

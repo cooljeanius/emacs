@@ -69,6 +69,7 @@ etc/e/eterm-color binary
 *.xml diff=html
 *.java diff=java
 *.[HMm] diff=objc
+*.mi diff=objc
 *.pch diff=objc
 *.pas diff=pascal
 *.perl diff=perl
@@ -120,3 +121,4 @@ etc/tutorials/TUTORIAL* linguist-language=text
 mac/src/*.r linguist-language=rez
 mac/README linguist-language=text
 */*/Xcode/*.pch linguist-language=objc
+*.mi linguist-language=objc

@@ -17,9 +17,10 @@ jobs:
         HOMEBREW_VERBOSE: 1
         HOMEBREW_VERBOSE_USING_DOTS: 1
       run: |
+        set -x
         brew install make automake gettext texinfo gawk gdb coreutils gnu-sed gnu-which libstxxl
         if test "${{ matrix.compiler }}" = "gcc"; then \
-          brew install lcov libgccjit; \
+          brew install lcov libgccjit mingw-w64; \
         elif test "${{ matrix.compiler }}" = "clang"; then \
           brew install clang-build-analyzer clang-format compiledb emacs-clang-complete-async rtags; \
         elif test -n "${{ matrix.compiler }}"; then \
@@ -51,6 +52,7 @@ jobs:
         else \
           make only_temacs; \
         fi
+        ls src/*emacs
         cd lisp && make update-subdirs
     - run: make all_only_c
       if: "${{ success() }}"
@@ -87,6 +89,8 @@ jobs:
       run: |
         make install_source
         if test "${{ matrix.compiler }}" = "clang" || test -n "$(gcc --version | grep clang)"; then \
+          make -C src check || make -ki -C src check; \
+          make -C lib-src all-plist || make -ki -C lib-src all-plist; \
           make apple_helper_executables MAC_VERS_CFLAGS="-mmacosx-version-min=10.7 -stdlib=libc++"; \
           make apple_check MAC_VERS_CFLAGS="-mmacosx-version-min=10.7"; \
         else \

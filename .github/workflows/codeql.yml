@@ -131,12 +131,14 @@ jobs:
           make -C lib-src all-plist || make -ki -C lib-src all-plist; \
           make apple_check || make -ki apple_check; \
           if [ $? -ge 1 ]; then \
-            pushd src; \
-            for srcfile in *.c; do \
-              echo "attempting to use $(which make) to have $(which clang) statically analyze ${srcfile}..."; \
-              make "$(echo "${srcfile}" | sed "s/\.c/.plist/g")" || stat "${srcfile}"; \
+            for mysubdir in lib-src src; do \
+              pushd ${mysubdir}; \
+              for srcfile in *.c; do \
+                echo "attempting to use $(which make) to have $(which clang) statically analyze ${srcfile}..."; \
+                make "$(echo "${srcfile}" | sed "s/\.c/.plist/g")" || stat "${srcfile}"; \
+              done; \
+              popd; \
             done; \
-            popd; \
           else \
             echo "return code says we are done; so much for static analysis with clang..."; \
           fi; \
@@ -148,8 +150,10 @@ jobs:
       run: |
         if test "${{ matrix.language }}" = "python"; then \
           echo "Checking syntax... $(python -m py_compile etc/*.py)"; \
+        elif test "${{ matrix.language}}" = "javascript-typescript"; then \
+          node -c test/indent/js.js || (stat test/indent/js.js && wc -l test/indent/js.js); \
         elif test "${{ matrix.language }}" = "ruby"; then \
-          ruby -c ./*.rb || ls ./*.rb || which ruby || pwd; \
+          ruby -cwv ./*.rb || ruby -c ./*.rb || ls ./*.rb || which ruby; \
         elif test "${{ matrix.language }}" = "c-cpp" && test -e GNUmakefile && test -e maint.mk && test -x "$(which nproc)"; then \
           make -j"$(nproc)" syntax-check V=0 || ls .sc-start-sc_* || stat GNUmakefile || stat maint.mk; \
         fi
