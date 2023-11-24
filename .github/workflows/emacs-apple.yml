@@ -89,10 +89,17 @@ jobs:
       run: |
         make install_source
         if test "${{ matrix.compiler }}" = "clang" || test -n "$(gcc --version | grep clang)"; then \
-          make -C src check || make -ki -C src check; \
-          make -C lib-src all-plist || make -ki -C lib-src all-plist; \
-          make apple_helper_executables MAC_VERS_CFLAGS="-mmacosx-version-min=10.7 -stdlib=libc++"; \
-          make apple_check MAC_VERS_CFLAGS="-mmacosx-version-min=10.7"; \
+          if test -x "$(which nproc)" && test -n "$(nproc)" && "$(nproc)" -gt 1; then \
+            make -j"$(nproc)" -C src check || make -j"$(nproc)" -ki -C src check; \
+            make -j"$(nproc)" -C lib-src all-plist || make -j"$(nproc)" -ki -C lib-src all-plist; \
+            make -j"$(nproc)" apple_helper_executables MAC_VERS_CFLAGS="-mmacosx-version-min=10.7 -stdlib=libc++"; \
+            make -j"$(nproc)" apple_check MAC_VERS_CFLAGS="-mmacosx-version-min=10.7"; \
+          else \
+            make -C src check || make -ki -C src check; \
+            make -C lib-src all-plist || make -ki -C lib-src all-plist; \
+            make apple_helper_executables MAC_VERS_CFLAGS="-mmacosx-version-min=10.7 -stdlib=libc++"; \
+            make apple_check MAC_VERS_CFLAGS="-mmacosx-version-min=10.7"; \
+          fi; \
         else \
           make dumpemacs; \
           make emacswrapper; \

@@ -30,8 +30,13 @@ jobs:
           echo "attempting to use $(which clang) for static analysis"; \
           echo "but first, let us check the version that it reports..."; \
           clang --version; \
-          make -C src check || make -ki -C src check; \
-          make -C lib-src all-plist || make -ki -C lib-src all-plist; \
+          if test -x "$(which nproc)" && test -n "$(nproc)" && "$(nproc)" -gt 1; then \
+            make -j"$(nproc)" -C src check || make -j"$(nproc)" -ki -C src check; \
+            make -j"$(nproc)" -C lib-src all-plist || make -j"$(nproc)" -ki -C lib-src all-plist; \
+          else \
+            make -C src check || make -ki -C src check; \
+            make -C lib-src all-plist || make -ki -C lib-src all-plist; \
+          fi; \
         else \
           echo "no usable clang found for static analysis!"; \
         fi

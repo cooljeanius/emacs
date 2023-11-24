@@ -127,9 +127,15 @@ jobs:
           echo "attempting to use $(which clang) for static analysis"; \
           echo "but first, let us check the version that it reports..."; \
           clang --version; \
-          make -C src check || make -ki -C src check; \
-          make -C lib-src all-plist || make -ki -C lib-src all-plist; \
-          make apple_check || make -ki apple_check; \
+          if test -x "$(which nproc)" && test -n "$(nproc)" && "$(nproc)" -gt 1; then \
+            make -j"$(nproc)" -C src check || make -j"$(nproc)" -ki -C src check; \
+            make -j"$(nproc)" -C lib-src all-plist || make -j"$(nproc)" -ki -C lib-src all-plist; \
+            make -j"$(nproc)" apple_check || make -j"$(nproc)" -ki apple_check; \
+          else \
+            make -C src check || make -ki -C src check; \
+            make -C lib-src all-plist || make -ki -C lib-src all-plist; \
+            make apple_check || make -ki apple_check; \
+          fi; \
           if [ $? -ge 1 ]; then \
             for mysubdir in lib-src src; do \
               pushd ${mysubdir}; \

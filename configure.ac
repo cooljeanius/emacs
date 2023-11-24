@@ -3815,7 +3815,11 @@ else
       gl_WARN_ADD([-Wunreachable-code-ctrl])
       gl_WARN_ADD([-Wxor-used-as-pow])
       gl_WARN_ADD([-Wenum-int-mismatch])
-      gl_WARN_ADD([-Wflex-array-member-not-at-end])
+      gl_COMPILER_OPTION_IF([-fstrict-flex-arrays],[
+        gl_WARN_ADD([-Wflex-array-member-not-at-end])
+      ],[
+        AC_MSG_NOTICE([check for -Wflex-array-member-not-at-end requires -fstrict-flex-arrays, skipping])
+      ])
       if test "x${CXX}" != "x" || test "x${CC}" = "x${CXX}"; then
         AC_LANG_PUSH([C++])dnl
         gl_WARN_ADD([-Wdeprecated-array-compare],[WARN_CXXFLAGS])
