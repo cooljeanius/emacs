@@ -3246,6 +3246,7 @@ LTO
 LTO_KIND
 old_LDFLAGS
 GETCONF_PROG
+SCAN_BUILD
 CLANG_ANALYZER
 GDB_BIN
 RANLIB
@@ -15403,6 +15404,51 @@ fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_path_CLANG_ANALYZER" >&5
 printf "%s\n" "$ac_cv_path_CLANG_ANALYZER" >&6; }  ## (need this extra line here)
 CLANG_ANALYZER=${ac_cv_path_CLANG_ANALYZER}
+# Extract the first word of "scan-build", so it can be a program name with args.
+set dummy scan-build; ac_word=$2
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+printf %s "checking for $ac_word... " >&6; }
+if test ${ac_cv_path_SCAN_BUILD+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  case $SCAN_BUILD in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_SCAN_BUILD="$SCAN_BUILD" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
+    ac_cv_path_SCAN_BUILD="$as_dir$ac_word$ac_exec_ext"
+    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  test -z "$ac_cv_path_SCAN_BUILD" && ac_cv_path_SCAN_BUILD="scan-build"
+  ;;
+esac
+fi
+SCAN_BUILD=$ac_cv_path_SCAN_BUILD
+if test -n "$SCAN_BUILD"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $SCAN_BUILD" >&5
+printf "%s\n" "$SCAN_BUILD" >&6; }
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+fi
+
 
 
 LTO_KIND="none"
@@ -15627,7 +15673,7 @@ rm -f conftest.err conftest.i conftest.$ac_ext        ## might need this here to
         if test "x${ac_cv_ld_lto_supported}" = "xyes"; then
            LDFLAGS="${LDFLAGS} ${LTO}"
         fi
-        echo "CFLAGS are now: ${CFLAGS}"
+        echo "CFLAGS are now: '${CFLAGS}'"
         ##end case for compiling with gcc lto
      elif test "x${ac_cv_ld_lto_supported}" = "xyes"; then
         LTO_KIND="gcc (but just for linking)"
@@ -15784,7 +15830,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
   CFLAGS="${CFLAGS} ${gl_unknown_warnings_are_errors}"
-  echo "CFLAGS are now: ${CFLAGS}"
+  echo "CFLAGS are now: '${CFLAGS}'"
 else
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: Hopefully your compiler should reject unknown warning flags without any extra options" >&5
 printf "%s\n" "$as_me: Hopefully your compiler should reject unknown warning flags without any extra options" >&6;}
@@ -16006,6 +16052,9 @@ then :
 fi
 
 
+     if test "x${gl_cv_warn_c__fstrict_flex_arrays}" = "x"; then
+       test -z "${gl_cv_warn_c__fstrict_flex_arrays}" && export gl_cv_warn_c__fstrict_flex_arrays="no"
+     fi
   elif test "x${emacs_cv_apple}" = "xyes"; then
 
 
@@ -16399,6 +16448,7 @@ fi
   nw="${nw} -Wcomments" # redundant synonym for the un-pluralized -Wcomment
   nw="${nw} -Wmudflap"                                # no longer supported
   nw="${nw} -fanalyzer"                                       # really slow
+  nw="${nw} -fstrict-flex-arrays"                       # breaks scan-build
 
   # Emacs does NOT care about shadowing; see
   # <http://lists.gnu.org/archive/html/emacs-diffs/2011-11/msg00265.html>.
@@ -37675,7 +37725,7 @@ else
   echo "prepending C_SWITCH_SYSTEM and C_SWITCH_MACHINE to CPPFLAGS"
   CPPFLAGS="${C_SWITCH_SYSTEM} ${C_SWITCH_MACHINE} ${CPPFLAGS}"
   if test "x${CPPFLAGS}" != "x"; then
-    test -n "${CPPFLAGS}" && echo "this means that CPPFLAGS are now: ${CPPFLAGS}"
+    test -n "${CPPFLAGS}" && echo "this means that CPPFLAGS are now: '${CPPFLAGS}'"
   else
     test -z "${CPPFLAGS}" && echo "(not that that does anything, though...)"
   fi
@@ -45620,7 +45670,7 @@ fi
       printf "%s\n" "#define HAVE_CFMCARBON_HEADERS_DIR 5" >>confdefs.h
 
     fi
-    test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: ${CPPFLAGS}"
+    test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: '${CPPFLAGS}'"
   else
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: assuming our CPPFLAGS are already fine to find Carbon headers; try setting GIMME_YOUR_CFMCARBON_HEADERS to \"yes\" in your environment if they are not" >&5
 printf "%s\n" "$as_me: assuming our CPPFLAGS are already fine to find Carbon headers; try setting GIMME_YOUR_CFMCARBON_HEADERS to \"yes\" in your environment if they are not" >&6;}
@@ -46371,7 +46421,7 @@ elif test "x${MAC_OBJC_OBJ}" != "x"; then
 fi  ##end ns conditional
 
 if test "x${LDFLAGS}" != "x"; then
-  test -n "${LDFLAGS}" && echo "LDFLAGS are now: ${LDFLAGS}"
+  test -n "${LDFLAGS}" && echo "LDFLAGS are now: '${LDFLAGS}'"
 else
   test -z "${LDFLAGS}" && echo "LDFLAGS are empty"
 fi
@@ -47910,7 +47960,7 @@ CFLAGS="${tmp_CFLAGS}"
 CPPFLAGS="${tmp_CPPFLAGS}"
 
 if test "x${CPPFLAGS}" != "x"; then
-  test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: ${CPPFLAGS}"
+  test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: '${CPPFLAGS}'"
 else
   test -z "${CPPFLAGS}" && echo "(no CPPFLAGS to speak of here...)"
 fi
@@ -49604,7 +49654,7 @@ else
 printf "%s\n" "$as_me: skipping miscellaneous X11 checks" >&6;}
 fi
 
-test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: ${CPPFLAGS}"
+test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: '${CPPFLAGS}'"
 
 if test "x${window_system}" = "xx11"; then
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking X11 version 6" >&5
@@ -52491,7 +52541,7 @@ printf "%s\n" "$as_me: X11 is unavailable, so skipping checks for X11-specific f
     HAVE_M17N_FLT=no
 fi
 
-test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: ${CPPFLAGS}"
+test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: '${CPPFLAGS}'"
 
 ### End of font-backend (under X11) section.
 
@@ -58483,8 +58533,8 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam \
         LIBS=$save_LIBS
         test $gl_pthread_api = yes && break
       done
-      echo "$as_me:58486: gl_pthread_api=$gl_pthread_api" >&5
-      echo "$as_me:58487: LIBPTHREAD=$LIBPTHREAD" >&5
+      echo "$as_me:58536: gl_pthread_api=$gl_pthread_api" >&5
+      echo "$as_me:58537: LIBPTHREAD=$LIBPTHREAD" >&5
 
       gl_pthread_in_glibc=no
       # On Linux with glibc >= 2.34, libc contains the fully functional
@@ -58510,7 +58560,7 @@ rm -rf conftest*
 
           ;;
       esac
-      echo "$as_me:58513: gl_pthread_in_glibc=$gl_pthread_in_glibc" >&5
+      echo "$as_me:58563: gl_pthread_in_glibc=$gl_pthread_in_glibc" >&5
 
       # Test for libpthread by looking for pthread_kill. (Not pthread_self,
       # since it is defined as a macro on OSF/1.)
@@ -58664,7 +58714,7 @@ fi
 
         fi
       fi
-      echo "$as_me:58667: LIBPMULTITHREAD=$LIBPMULTITHREAD" >&5
+      echo "$as_me:58717: LIBPMULTITHREAD=$LIBPMULTITHREAD" >&5
     fi
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether POSIX threads API is available" >&5
 printf %s "checking whether POSIX threads API is available... " >&6; }
@@ -71843,7 +71893,7 @@ fi
 printf "%s\n" "$as_me: done with section for gettext checks" >&6;}
 # the main gettext macro can set CPPFLAGS:
 if test "x${CPPFLAGS}" != "x"; then
-  test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: ${CPPFLAGS}"
+  test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: '${CPPFLAGS}'"
 else
   test -z "${CPPFLAGS}" && echo "(no CPPFLAGS to speak of here...)"
 fi
@@ -76385,8 +76435,8 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam \
         LIBS=$save_LIBS
         test $gl_pthread_api = yes && break
       done
-      echo "$as_me:76388: gl_pthread_api=$gl_pthread_api" >&5
-      echo "$as_me:76389: LIBPTHREAD=$LIBPTHREAD" >&5
+      echo "$as_me:76438: gl_pthread_api=$gl_pthread_api" >&5
+      echo "$as_me:76439: LIBPTHREAD=$LIBPTHREAD" >&5
 
       gl_pthread_in_glibc=no
       # On Linux with glibc >= 2.34, libc contains the fully functional
@@ -76412,7 +76462,7 @@ rm -rf conftest*
 
           ;;
       esac
-      echo "$as_me:76415: gl_pthread_in_glibc=$gl_pthread_in_glibc" >&5
+      echo "$as_me:76465: gl_pthread_in_glibc=$gl_pthread_in_glibc" >&5
 
       # Test for libpthread by looking for pthread_kill. (Not pthread_self,
       # since it is defined as a macro on OSF/1.)
@@ -76566,7 +76616,7 @@ fi
 
         fi
       fi
-      echo "$as_me:76569: LIBPMULTITHREAD=$LIBPMULTITHREAD" >&5
+      echo "$as_me:76619: LIBPMULTITHREAD=$LIBPMULTITHREAD" >&5
     fi
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether POSIX threads API is available" >&5
 printf %s "checking whether POSIX threads API is available... " >&6; }
@@ -117364,7 +117414,7 @@ if test "x${opsys}" = "xmingw32"; then
 fi
 
 if test "x${CPPFLAGS}" != "x"; then
-  test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: ${CPPFLAGS}"
+  test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: '${CPPFLAGS}'"
 else
   test -z "${CPPFLAGS}" && echo "(no CPPFLAGS to speak of here...)"
 fi

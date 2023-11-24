@@ -48,6 +48,7 @@ AC_CACHE_CHECK([${emacs_clang_check_message}],[ac_cv_path_CLANG_ANALYZER],
   ])dnl# end cache check
   ## (need this extra line here)
 AC_SUBST([CLANG_ANALYZER],[${ac_cv_path_CLANG_ANALYZER}])dnl
+AC_PATH_PROG([SCAN_BUILD],[scan-build],[scan-build])dnl
 ])dnl
 
 dnl#TODO: see if there are any remaining checks that currently check the

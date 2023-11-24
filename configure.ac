@@ -3029,7 +3029,7 @@ gl_GCC_VERSION_IFELSE([4],[5],[
         if test "x${ac_cv_ld_lto_supported}" = "xyes"; then
            LDFLAGS="${LDFLAGS} ${LTO}"
         fi
-        echo "CFLAGS are now: ${CFLAGS}"
+        echo "CFLAGS are now: '${CFLAGS}'"
         ##end case for compiling with gcc lto
      elif test "x${ac_cv_ld_lto_supported}" = "xyes"; then
         LTO_KIND="gcc (but just for linking)"
@@ -3108,7 +3108,7 @@ dnl# (compiler id checks moved above the lto checks)
 if test "x${emacs_cv_clang}" = "xyes" || test "x${emacs_cv_apple}" = "xyes"; then
   gl_UNKNOWN_WARNINGS_ARE_ERRORS
   CFLAGS="${CFLAGS} ${gl_unknown_warnings_are_errors}"
-  echo "CFLAGS are now: ${CFLAGS}"
+  echo "CFLAGS are now: '${CFLAGS}'"
 else
   AC_MSG_NOTICE([Hopefully your compiler should reject unknown warning flags without any extra options])
 fi
@@ -3128,6 +3128,9 @@ if test "x${gl_gcc_warnings}" != "xyes"; then
      gl_WARN_ADD([-Wno-pointer-sign])
      gl_WARN_ADD([-Wno-string-plus-int])
      gl_WARN_ADD([-Wno-unknown-attributes])
+     if test "x${gl_cv_warn_c__fstrict_flex_arrays}" = "x"; then
+       test -z "${gl_cv_warn_c__fstrict_flex_arrays}" && export gl_cv_warn_c__fstrict_flex_arrays="no"
+     fi
   elif test "x${emacs_cv_apple}" = "xyes"; then
      gl_WARN_ADD([-Wno-pointer-sign])
   fi  ##end check for clang or apple compiler
@@ -3212,6 +3215,7 @@ else
   nw="${nw} -Wcomments" # redundant synonym for the un-pluralized -Wcomment
   nw="${nw} -Wmudflap"                                # no longer supported
   nw="${nw} -fanalyzer"                                       # really slow
+  nw="${nw} -fstrict-flex-arrays"                       # breaks scan-build
 
   # Emacs does NOT care about shadowing; see
   # <http://lists.gnu.org/archive/html/emacs-diffs/2011-11/msg00265.html>.
@@ -4554,7 +4558,7 @@ else
   echo "prepending C_SWITCH_SYSTEM and C_SWITCH_MACHINE to CPPFLAGS"
   CPPFLAGS="${C_SWITCH_SYSTEM} ${C_SWITCH_MACHINE} ${CPPFLAGS}"
   if test "x${CPPFLAGS}" != "x"; then
-    test -n "${CPPFLAGS}" && echo "this means that CPPFLAGS are now: ${CPPFLAGS}"
+    test -n "${CPPFLAGS}" && echo "this means that CPPFLAGS are now: '${CPPFLAGS}'"
   else
     test -z "${CPPFLAGS}" && echo "(not that that does anything, though...)"
   fi
@@ -5451,7 +5455,7 @@ if test "x${with_carbon}" != "xno"; then
       fi
       AC_DEFINE([HAVE_CFMCARBON_HEADERS_DIR],[5])
     fi
-    test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: ${CPPFLAGS}"
+    test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: '${CPPFLAGS}'"
   else
     AC_MSG_NOTICE([assuming our CPPFLAGS are already fine to find Carbon headers; try setting GIMME_YOUR_CFMCARBON_HEADERS to "yes" in your environment if they are not])
   fi
@@ -5660,7 +5664,7 @@ elif test "x${MAC_OBJC_OBJ}" != "x"; then
 fi  ##end ns conditional
 
 if test "x${LDFLAGS}" != "x"; then
-  test -n "${LDFLAGS}" && echo "LDFLAGS are now: ${LDFLAGS}"
+  test -n "${LDFLAGS}" && echo "LDFLAGS are now: '${LDFLAGS}'"
 else
   test -z "${LDFLAGS}" && echo "LDFLAGS are empty"
 fi
@@ -5908,7 +5912,7 @@ AC_SUBST([NS_OBJ])dnl
 AC_SUBST([NS_OBJC_OBJ])dnl
 
 if test "x${CPPFLAGS}" != "x"; then
-  test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: ${CPPFLAGS}"
+  test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: '${CPPFLAGS}'"
 else
   test -z "${CPPFLAGS}" && echo "(no CPPFLAGS to speak of here...)"
 fi
@@ -6466,7 +6470,7 @@ else
   AC_MSG_NOTICE([skipping miscellaneous X11 checks])
 fi
 
-test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: ${CPPFLAGS}"
+test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: '${CPPFLAGS}'"
 
 if test "x${window_system}" = "xx11"; then
   AC_MSG_CHECKING([X11 version 6])
@@ -7504,7 +7508,7 @@ else
     HAVE_M17N_FLT=no
 fi
 
-test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: ${CPPFLAGS}"
+test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: '${CPPFLAGS}'"
 
 ### End of font-backend (under X11) section.
 dnl# subst the stuff from the previous section:
@@ -10281,7 +10285,7 @@ AC_MSG_NOTICE([done with section for gettext checks])dnl
 
 # the main gettext macro can set CPPFLAGS:
 if test "x${CPPFLAGS}" != "x"; then
-  test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: ${CPPFLAGS}"
+  test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: '${CPPFLAGS}'"
 else
   test -z "${CPPFLAGS}" && echo "(no CPPFLAGS to speak of here...)"
 fi
@@ -10367,7 +10371,7 @@ if test "x${opsys}" = "xmingw32"; then
 fi
 
 if test "x${CPPFLAGS}" != "x"; then
-  test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: ${CPPFLAGS}"
+  test -n "${CPPFLAGS}" && echo "CPPFLAGS are now: '${CPPFLAGS}'"
 else
   test -z "${CPPFLAGS}" && echo "(no CPPFLAGS to speak of here...)"
 fi

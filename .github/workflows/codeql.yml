@@ -83,7 +83,7 @@ jobs:
         sh ./autogen.sh
         ./configure --without-gif --enable-silent-rules --disable-autodepend --enable-gcc-warnings
         make gnulib_headers || (stat lib/Makefile && wc -l lib/Makefile)
-        if test -x "$(which gmake)" && test -x "$(which nproc)" && test -n "$(nproc)" && test "$(nproc)" -lt 4; then \
+        if test -x "$(which gmake)" && test -x "$(which nproc)" && test -n "$(nproc)" && test "$(nproc)" -gt 1; then \
           echo "attempting parallel build with $(nproc) jobs..."; \
           gmake -j"$(nproc)" --output-sync --no-print-directory only_temacs; \
           gmake -j"$(nproc)" --output-sync --no-print-directory all_only_c; \
@@ -127,11 +127,12 @@ jobs:
           echo "attempting to use $(which clang) for static analysis"; \
           echo "but first, let us check the version that it reports..."; \
           clang --version; \
-          if test -x "$(which nproc)" && test -n "$(nproc)" && "$(nproc)" -gt 1; then \
+          if test -x "$(which nproc)" && test -n "$(nproc)" && test "$(nproc)" -gt 1; then \
             make -j"$(nproc)" -C src check || make -j"$(nproc)" -ki -C src check; \
             make -j"$(nproc)" -C lib-src all-plist || make -j"$(nproc)" -ki -C lib-src all-plist; \
             make -j"$(nproc)" apple_check || make -j"$(nproc)" -ki apple_check; \
           else \
+            echo "warning: on the slow path..."; \
             make -C src check || make -ki -C src check; \
             make -C lib-src all-plist || make -ki -C lib-src all-plist; \
             make apple_check || make -ki apple_check; \
@@ -160,7 +161,7 @@ jobs:
           node -c test/indent/js.js || (stat test/indent/js.js && wc -l test/indent/js.js); \
         elif test "${{ matrix.language }}" = "ruby"; then \
           ruby -cwv ./*.rb || ruby -c ./*.rb || ls ./*.rb || which ruby; \
-        elif test "${{ matrix.language }}" = "c-cpp" && test -e GNUmakefile && test -e maint.mk && test -x "$(which nproc)"; then \
+        elif test "${{ matrix.language }}" = "c-cpp" && test -e GNUmakefile && test -e maint.mk && test -x "$(which nproc)" && test -n "$(nproc)" && test "$(nproc)" -gt 1; then \
           make -j"$(nproc)" syntax-check V=0 || ls .sc-start-sc_* || stat GNUmakefile || stat maint.mk; \
         fi
     - name: Perform CodeQL Analysis

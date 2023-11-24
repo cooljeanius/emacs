@@ -1082,6 +1082,16 @@ getloadavg(double loadavg[], int nelem)
 #endif /* ! HAVE_GETLOADAVG */
 
 #ifdef TEST
+# if !defined(__has_include)
+#  define __has_include(foo) 0
+# endif /* !__has_include */
+# if defined(HAVE_UNISTD_H) || __has_include(<unistd.h>) || defined(__APPLE__)
+#  include <unistd.h>
+# else
+#  if defined(__GNUC__) && !defined(__STRICT_ANSI__) && defined(lint)
+#   warning "getloadavg.c wants to include <unistd.h>"
+#  endif /* __GNUC__ && !__STRICT_ANSI__ && lint */
+# endif /* HAVE_UNISTD_H || __APPLE__ */
 /* in case gnulib re-defined this on us: */
 # ifdef perror
 #  undef perror

@@ -18,7 +18,7 @@ jobs:
         HOMEBREW_VERBOSE_USING_DOTS: 1
       run: |
         set -x
-        brew install make automake gettext texinfo gawk gdb coreutils gnu-sed gnu-which libstxxl
+        brew install make automake gettext texinfo gawk gdb coreutils gnu-sed gnu-which libstxxl rsync
         if test "${{ matrix.compiler }}" = "gcc"; then \
           brew install lcov libgccjit mingw-w64; \
         elif test "${{ matrix.compiler }}" = "clang"; then \
@@ -48,9 +48,18 @@ jobs:
         make gnulib_headers || (stat lib/Makefile && wc -l lib/Makefile)
         if test -x "$(which gmake)" && test -x "$(which nproc)" && test -n "$(nproc)"; then \
           echo "attempting parallel build with $(nproc) jobs..."; \
-          gmake -j"$(nproc)" --output-sync only_temacs; \
+          if test -x "$(which scan-build)" && test "${{ matrix.compiler }}" = "clang" && test -d /tmp && test -w /tmp; then \
+            scan-build -o /tmp gmake -j"$(nproc)" --output-sync only_temacs; \
+          else \
+            gmake -j"$(nproc)" --output-sync only_temacs; \
+          fi; \
         else \
-          make only_temacs; \
+          echo "warning: on the slow path..."; \
+          if test -x "$(which scan-build)" && test "${{ matrix.compiler }}" = "clang" && test -d /tmp && test -w /tmp; then \
+            scan-build -o /tmp make only_temacs; \
+          else \
+            make only_temacs; \
+          fi; \
         fi
         ls src/*emacs
         cd lisp && make update-subdirs
@@ -89,12 +98,13 @@ jobs:
       run: |
         make install_source
         if test "${{ matrix.compiler }}" = "clang" || test -n "$(gcc --version | grep clang)"; then \
-          if test -x "$(which nproc)" && test -n "$(nproc)" && "$(nproc)" -gt 1; then \
+          if test -x "$(which nproc)" && test -n "$(nproc)" && test "$(nproc)" -gt 1; then \
             make -j"$(nproc)" -C src check || make -j"$(nproc)" -ki -C src check; \
             make -j"$(nproc)" -C lib-src all-plist || make -j"$(nproc)" -ki -C lib-src all-plist; \
             make -j"$(nproc)" apple_helper_executables MAC_VERS_CFLAGS="-mmacosx-version-min=10.7 -stdlib=libc++"; \
             make -j"$(nproc)" apple_check MAC_VERS_CFLAGS="-mmacosx-version-min=10.7"; \
           else \
+            echo "warning: on the slow path..."; \
             make -C src check || make -ki -C src check; \
             make -C lib-src all-plist || make -ki -C lib-src all-plist; \
             make apple_helper_executables MAC_VERS_CFLAGS="-mmacosx-version-min=10.7 -stdlib=libc++"; \

@@ -34,7 +34,11 @@ int runit(const char * const argv[], int dropprivs)
 #ifdef _DEBUG
   char *whole_argstring = NULL;
   int i;
+# ifdef ARG_MAX
   size_t prev_size = (ARG_MAX + 1UL);
+# else
+  size_t prev_size = 2UL;
+# endif /* ARG_MAX */
   char *retstring;
 
   whole_argstring = (char *)malloc(prev_size);

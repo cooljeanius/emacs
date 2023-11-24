@@ -30,10 +30,16 @@ jobs:
           echo "attempting to use $(which clang) for static analysis"; \
           echo "but first, let us check the version that it reports..."; \
           clang --version; \
-          if test -x "$(which nproc)" && test -n "$(nproc)" && "$(nproc)" -gt 1; then \
+          if test -x "$(which nproc)" && test -n "$(nproc)" && test "$(nproc)" -gt 1; then \
+            if test -x "$(which scan-build)" && test "${{ matrix.compiler }}" = "clang" && test -d /tmp && test -w /tmp; then \
+              scan-build -o /tmp make -j"$(nproc)" only_temacs all_only_c; \
+            else \
+              echo "skipping scan-build..."; \
+            fi; \
             make -j"$(nproc)" -C src check || make -j"$(nproc)" -ki -C src check; \
             make -j"$(nproc)" -C lib-src all-plist || make -j"$(nproc)" -ki -C lib-src all-plist; \
           else \
+            echo "warning: on the slow path..."; \
             make -C src check || make -ki -C src check; \
             make -C lib-src all-plist || make -ki -C lib-src all-plist; \
           fi; \
