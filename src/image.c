@@ -9699,19 +9699,19 @@ svg_load_image(struct frame *f,         /* Pointer to emacs frame structure.  */
   fn_g_type_init ();
 #endif
 
-  /* Make a handle to a new rsvg object.  */
-  rsvg_handle = fn_rsvg_handle_new ();
+  /* Make a handle to a new rsvg object: */
+  rsvg_handle = fn_rsvg_handle_new();
 
-  /* Parse the contents argument and fill in the rsvg_handle.  */
-  fn_rsvg_handle_write (rsvg_handle, contents, size, &err);
+  /* Parse the contents argument and fill in the rsvg_handle: */
+  fn_rsvg_handle_write(rsvg_handle, contents, size, &err); /* FIXME: deprecated */
   if (err) goto rsvg_error;
 
   /* The parsing is complete, rsvg_handle is ready to used, close it
      for further writes.  */
-  fn_rsvg_handle_close (rsvg_handle, &err);
+  fn_rsvg_handle_close(rsvg_handle, &err); /* FIXME: deprecated */
   if (err) goto rsvg_error;
 
-  fn_rsvg_handle_get_dimensions (rsvg_handle, &dimension_data);
+  fn_rsvg_handle_get_dimensions(rsvg_handle, &dimension_data); /* FIXME: deprecated */
   if (! check_image_size (f, dimension_data.width, dimension_data.height))
     {
       image_error ("Invalid image size (see `max-image-size')", Qnil, Qnil);

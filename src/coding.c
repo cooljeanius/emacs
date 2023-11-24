@@ -5557,7 +5557,7 @@ decode_coding_charset (struct coding_system *coding)
     {
       int c;
       Lisp_Object val;
-      struct charset *charset;
+      struct charset *charset = NULL;
       int dim;
       int len = 1;
       unsigned code;

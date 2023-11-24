@@ -652,9 +652,9 @@ call_process (ptrdiff_t nargs, Lisp_Object *args, int filefd,
       callproc_fd_volatile[i] = callproc_fd[i];
 
 # ifndef PUMA_VFORK_ISSUES_CLEARED_UP
-    pid = fork ();
+    pid = fork();
 # else
-    pid = vfork ();
+    pid = vfork();
 # endif /* !PUMA_VFORK_ISSUES_CLEARED_UP */
 
     buffer = buffer_volatile;

@@ -485,9 +485,9 @@ sys_subshell (void)
   {
     char *volatile str_volatile = str;
 # ifndef PUMA_VFORK_ISSUES_CLEARED_UP
-    pid = fork ();
+    pid = fork();
 # else
-    pid = vfork ();
+    pid = vfork();
 # endif /* !PUMA_VFORK_ISSUES_CLEARED_UP */
     str = str_volatile;
   }

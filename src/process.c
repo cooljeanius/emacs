@@ -1740,9 +1740,9 @@ create_process (Lisp_Object process, char **new_argv, Lisp_Object current_dir)
     struct Lisp_Process *p_volatile = p;
 
 # ifndef PUMA_VFORK_ISSUES_CLEARED_UP
-    pid = fork ();
+    pid = fork();
 # else
-    pid = vfork ();
+    pid = vfork();
 # endif /* !PUMA_VFORK_ISSUES_CLEARED_UP */
 
     current_dir = current_dir_volatile;

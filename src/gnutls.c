@@ -702,13 +702,14 @@ emacs_gnutls_global_init (void)
 
   if (!gnutls_global_initialized)
     {
-      fn_gnutls_global_set_mem_functions (xmalloc, xmalloc, NULL,
-					  xrealloc, xfree);
-      ret = fn_gnutls_global_init ();
+      /* FIXME: deprecated: */
+      fn_gnutls_global_set_mem_functions(xmalloc, xmalloc, NULL, xrealloc,
+                                         xfree);
+      ret = fn_gnutls_global_init();
     }
   gnutls_global_initialized = 1;
 
-  return gnutls_make_error (ret);
+  return gnutls_make_error(ret);
 }
 
 #if 0

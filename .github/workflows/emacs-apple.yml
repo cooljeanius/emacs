@@ -21,7 +21,7 @@ jobs:
         if test "${{ matrix.compiler }}" = "gcc"; then \
           brew install lcov libgccjit; \
         elif test "${{ matrix.compiler }}" = "clang"; then \
-          brew install clang-build-analyzer clang-format compiledb emacs-clang-complete-async libobjc2 rtags; \
+          brew install clang-build-analyzer clang-format compiledb emacs-clang-complete-async rtags; \
         elif test -n "${{ matrix.compiler }}"; then \
           echo "Unknown compiler ${{ matrix.compiler }} may or may not need additional dependencies..."; \
         else \
