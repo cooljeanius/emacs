@@ -1,4 +1,5 @@
-# Build Emacs from a fresh tarball or version-control checkout.
+# -*-Makefile-*-
+# GNUmakefile: Build Emacs from a fresh tarball or version-control checkout.
 
 # Copyright (C) 2011-2014 Free Software Foundation, Inc.
 #

@@ -1,3 +1,4 @@
+# -*-Makefile-*-
 # This file is used via the maint.mk-using rule in Makefile.
 
 # This is a gnulib-specific rule to keep non-ascii characters

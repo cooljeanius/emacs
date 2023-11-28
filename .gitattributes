@@ -122,3 +122,4 @@ mac/src/*.r linguist-language=rez
 mac/README linguist-language=text
 */*/Xcode/*.pch linguist-language=objc
 *.mi linguist-language=objc
+*[Mm]akefile linguist-language=Makefile
