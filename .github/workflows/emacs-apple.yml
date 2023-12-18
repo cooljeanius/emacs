@@ -18,7 +18,7 @@ jobs:
         HOMEBREW_VERBOSE_USING_DOTS: 1
       run: |
         set -x
-        brew install make automake gettext texinfo gawk gdb coreutils gnu-sed gnu-which libstxxl rsync
+        brew install make automake gettext texinfo gawk coreutils gnu-sed gnu-which libstxxl rsync
         if test "${{ matrix.compiler }}" = "gcc"; then \
           brew install lcov libgccjit mingw-w64; \
         elif test "${{ matrix.compiler }}" = "clang"; then \
