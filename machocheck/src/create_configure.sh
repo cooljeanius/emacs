@@ -64,7 +64,7 @@ then
 	else
 		echo "" > ${DERIVED_FILE_DIR}/linkExtras
 	fi
-elif [ -n "${TOOLCHAIN_DIR" ]
+elif [ -n "${TOOLCHAIN_DIR}" ]
 then
 	echo "-Wl,-lazy_library,${TOOLCHAIN_DIR}/usr/lib/libLTO.dylib" > ${DERIVED_SOURCES_DIR}/LTO_option.txt
 	if [ -f "${TOOLCHAIN_DIR}/usr/lib/libswiftDemangle.dylib" ]; then

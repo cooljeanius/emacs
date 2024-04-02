@@ -8422,6 +8422,8 @@ if test "x${HAVE_FCHDIR}" = "x"; then
     # Unsure of what to use as a default...
     test -z "${HAVE_FCHDIR}" && export HAVE_FCHDIR=0
   fi
+else
+  test -n "${HAVE_FCHDIR}" && echo "Do we have fchdir? ${HAVE_FCHDIR}"
 fi
 
 AC_MSG_NOTICE([this next set of function checks come from a separate m4 file])

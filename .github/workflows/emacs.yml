@@ -13,7 +13,7 @@ jobs:
 #     # 'Transformers::TravisCI::Scripts::Dependencies' dependencies are currently unsupported
 #     # 'compiler' was not transformed because there is no suitable equivalent in GitHub Actions
     - run: sudo apt-get update -qq
-    - run: DEBIAN_FRONTEND=noninteractive sudo apt-get install --no-install-recommends -y -qq -o=Dpkg::Use-Pty=0 libc-dev ${{ matrix.compiler }} make autoconf automake libncurses-dev gobjc gobjc++ gobjc-multilib gobjc++-multilib autopoint
+    - run: DEBIAN_FRONTEND=noninteractive sudo apt-get install --no-install-recommends -y -qq -o=Dpkg::Use-Pty=0 libc-dev ${{ matrix.compiler }} make autoconf automake libncurses-dev gobjc gobjc++ gobjc-multilib gobjc++-multilib autopoint libattr1-dev libacl1-dev
     - name: Initial build
       run: |
         sh ./autogen.sh

@@ -66,7 +66,7 @@ jobs:
         fi
         ls src/*emacs
         cd lisp && make update-subdirs
-    - run: make all_only_c
+    - run: sync && make all_only_c && sync
       if: "${{ success() }}"
     - name: Build docs
       if: "${{ success() }}"
@@ -94,6 +94,7 @@ jobs:
             echo "so much for doc/misc..."; \
           fi; \
         else \
+          if test -x "$(which sync)"; then sync; fi; \
           echo "skipping building docs (due to 1 of many possible reasons)..."; \
         fi
     - name: Apple stuff
