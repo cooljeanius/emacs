@@ -1249,7 +1249,8 @@ static bool sharedCacheEligiblePath(const char* path)
 			|| (strncmp(path, "/System/Library/", 16UL) == 0)
 			|| (strncmp(path, "/System/iOSSupport/usr/lib/", 27UL) == 0)
 			|| (strncmp(path, "/System/iOSSupport/System/Library/", 34UL) == 0)
-			|| (strncmp(path, "/System/DriverKit/", 17UL) == 0));
+			|| (strncmp(path, "/System/DriverKit/", 18UL) == 0)
+			|| (strncmp(path, "/System/ExclaveKit/", 19UL) == 0));
 }
 
 #if !defined(PATH_MAX) && !defined(_SYS_SYSLIMITS_H_)

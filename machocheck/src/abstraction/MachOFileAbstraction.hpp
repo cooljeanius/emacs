@@ -257,6 +257,10 @@ struct unwind_info_compressed_second_level_page_header
 	#define N_COLD_FUNC 0x0400
 #endif
 
+#ifndef MH_IMPLICIT_PAGEZERO
+	#define MH_IMPLICIT_PAGEZERO 0x10000000
+#endif
+
 enum
 {
     RISCV_RELOC_UNSIGNED       = 0,   // for simple pointers

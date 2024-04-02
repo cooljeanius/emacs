@@ -64,6 +64,15 @@ then
 	else
 		echo "" > ${DERIVED_FILE_DIR}/linkExtras
 	fi
+elif [ -n "${TOOLCHAIN_DIR" ]
+then
+	echo "-Wl,-lazy_library,${TOOLCHAIN_DIR}/usr/lib/libLTO.dylib" > ${DERIVED_SOURCES_DIR}/LTO_option.txt
+	if [ -f "${TOOLCHAIN_DIR}/usr/lib/libswiftDemangle.dylib" ]; then
+		echo "-Wl,-lazy_library,${TOOLCHAIN_DIR}/usr/lib/libswiftDemangle.dylib" >  ${DERIVED_FILE_DIR}/linkExtras
+		echo "#define DEMANGLE_SWIFT 1" >> ${DERIVED_FILE_DIR}/configure.h
+	else
+		echo "" > ${DERIVED_FILE_DIR}/linkExtras
+	fi
 else
 	if [ -e "/Developer/usr/lib/libLTO.dylib" ]
 	then
