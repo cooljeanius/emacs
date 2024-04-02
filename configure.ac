@@ -3255,6 +3255,7 @@ else
       nw="${nw} -Wcast-align"
     fi ##end for check for NS
     # Same "shorten-the-command-line" reasoning as above:
+    nw="${nw} -Wall"
     nw="${nw} -Wextra"
     nw="${nw} -Wformat-extra-args"
     nw="${nw} -Wtautological-constant-out-of-range-compare"
@@ -3330,6 +3331,7 @@ else
 
   # More things that clang is unduly picky about.
   if test "x${emacs_cv_clang}" = "xyes"; then
+    gl_WARN_ADD([-Wno-all])
     gl_WARN_ADD([-Wno-extra])
     gl_WARN_ADD([-Wno-format-extra-args])
     gl_WARN_ADD([-Wno-tautological-constant-out-of-range-compare])
@@ -3933,20 +3935,31 @@ else
   dnl# see if this will silence a warning in error.c:
   gl_WARN_ADD([-Wno-format-signedness],[GNULIB_WARN_CFLAGS])dnl
 
+  if test "x${GNULIB_WARN_CFLAGS}" = "x"; then
+    # I_E_G_W_CF = "Initially Empty Gnulib Warn CFLAGS"
+    test -z "${GNULIB_WARN_CFLAGS}" && export GNULIB_WARN_CFLAGS="-DI_E_G_W_CF"
+  fi
+
   dnl# clang can be noisy with this:
   if test "x${emacs_cv_clang}" = "xyes"; then
     if test "x${gl_cv_warn_c__Wno_unused_parameter}" = "x"; then
       test -z "${gl_cv_warn_c__Wno_unused_parameter}"
       gl_WARN_ADD([-Wno-unused-parameter],[GNULIB_WARN_CFLAGS])
-    else
-      test -n "${gl_cv_warn_c__Wno_unused_parameter}"
+    elif test "x${gl_cv_warn_c__Wno_unused_parameter}" = "xyes"; then
+      test -n "${gl_cv_warn_c__Wno_unused_parameter}" && export GNULIB_WARN_CFLAGS="${GNULIB_WARN_CFLAGS} -Wno-unused-parameter"
     fi
     if test "x${gl_cv_warn_c__Wno_missing_noreturn}" = "x"; then
       test -z "${gl_cv_warn_c__Wno_missing_noreturn}"
       gl_WARN_ADD([-Wno-missing-noreturn],[GNULIB_WARN_CFLAGS])
-    else
-      test -n "${gl_cv_warn_c__Wno_missing_noreturn}"
+    elif test "x${gl_cv_warn_c__Wno_missing_noreturn}" = "xyes"; then
+      test -n "${gl_cv_warn_c__Wno_missing_noreturn}" && export GNULIB_WARN_CFLAGS="${GNULIB_WARN_CFLAGS} -Wno-missing-noreturn"
     fi
+    if test "x${gl_cv_warn_c__Wno_extra}" = "x"; then
+      test -z "${gl_cv_warn_c__Wno_extra}"
+      gl_WARN_ADD([-Wno-extra],[GNULIB_WARN_CFLAGS])
+    elif test "x${gl_cv_warn_c__Wno_extra}" = "xyes"; then
+      test -n "${gl_cv_warn_c__Wno_extra}" && export GNULIB_WARN_CFLAGS="${GNULIB_WARN_CFLAGS} -Wno-extra"
+    fi # TODO: maybe macro-tize these?
   fi
 
   dnl# m4/manywarnings.m4 skips this one, because, apparently:
