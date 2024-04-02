@@ -443,7 +443,11 @@ dnl# better:
 AC_DEFUN([AC_TYPE_SIZE_T],[:])dnl
 # 34
 dnl# Likewise for obsolescent test for uid_t, gid_t; Emacs assumes them:
-AC_DEFUN([AC_TYPE_UID_T],[:])dnl
+AC_DEFUN([AC_TYPE_UID_T],[
+  if test "x${ac_cv_type_gid_t}" = "x"; then
+    test -z "${ac_cv_type_gid_t}" && export ac_cv_type_gid_t=yes
+  fi
+])dnl
 # 35
 dnl# Obsolete in Autoconf 2.70; copied here from 2.69 to un-obsolete it:
 AC_DEFUN([AC_HEADER_TIME],

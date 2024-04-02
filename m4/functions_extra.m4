@@ -1,4 +1,4 @@
-# functions_extra.m4 serial 2 file starts here
+# functions_extra.m4 serial 3 file starts here
 dnl# This was originally in the emacs configure.ac file.   -*- Autoconf -*-
 
 dnl# checks for functions that might be called elsewhere:
@@ -25,12 +25,25 @@ AC_DEFUN([AC_REQUIRE_VARIOUS_FUNC_CHECKS],[
     AC_REQUIRE([gl_FUNC_FCHDIR])dnl
     gl_UNISTD_MODULE_INDICATOR([fchdir])dnl
   ])dnl
+  AC_MSG_NOTICE([note that require-ing may lead to checks being done out of order])
   dnl# the gnulib check for getgroups will also call the autoconf check
   dnl# for it, but without requiring it, so prefer the gnulib one to try
   dnl# to make sure it only happens once:
   m4_ifdef([gl_FUNC_GETGROUPS],[
+    AC_MSG_NOTICE([using (used?) the gnulib check for getgroups])
+    AC_REQUIRE([AC_TYPE_UID_T])dnl# (note that m4/override.m4 may have overridden this)
+    m4_ifdef([AC_TYPE_GETGROUPS],[
+      AC_REQUIRE([AC_TYPE_GETGROUPS])dnl
+    ])dnl
     AC_REQUIRE([gl_FUNC_GETGROUPS])dnl
+    m4_ifdef([gl_CONDITIONAL],[
+      gl_CONDITIONAL([GL_COND_OBJ_GETGROUPS],
+                     [test ${HAVE_GETGROUPS} = 0 || \
+                      test ${REPLACE_GETGROUPS} = 1])
+    ])dnl
+    gl_UNISTD_MODULE_INDICATOR([getgroups])dnl
   ],[
+    AC_MSG_NOTICE([using (used?) the standard autoconf check for getgroups])
     AC_REQUIRE([AC_FUNC_GETGROUPS])dnl
   ])dnl
   dnl# if we have the gnulib check for getloadavg, use that check for it,

@@ -2685,7 +2685,6 @@ dnl# end m4-quotation block one-and-a-half
 AC_PROG_CPP
 AC_PROG_CXX
 AC_PROG_CXXCPP
-AC_PROG_GCC_TRADITIONAL
 AC_PROG_OBJC
 AC_PROG_OBJCPP
 if test "x${OBJCPPFLAGS}" = "x" && test "x${CPPFLAGS}" != "x"; then
@@ -6170,6 +6169,9 @@ fi
 # Assume not, until told otherwise.
 AC_MSG_CHECKING([malloc characteristics (GNU, system, or hybrid)])
 AC_MSG_RESULT([malloc malloc malloc...])
+
+if test -x "`which sync`"; then sync; fi
+
 GNU_MALLOC=yes
 
 AC_CACHE_CHECK([whether malloc is Doug Lea style],
@@ -6184,8 +6186,9 @@ AC_CACHE_CHECK([whether malloc is Doug Lea style],
 	  [[malloc_set_state(malloc_get_state());
 	    __after_morecore_hook = hook;
 	    __malloc_initialize_hook = hook;]])],
-       [emacs_cv_var_doug_lea_malloc=yes])])
+       [emacs_cv_var_doug_lea_malloc=yes])
    fi
+  ])
 doug_lea_malloc="${emacs_cv_var_doug_lea_malloc}"
 
 system_malloc="${emacs_cv_sanitize_address}"
@@ -6196,7 +6199,7 @@ case "${opsys}" in
   ## darwin ld insists on the use of malloc routines in the System
   ## framework, and other systems do similar things:
   darwin | mingw32 | nacl | sol2-10) system_malloc=yes ;;
-  cygwin) hybrid_malloc=yes;;
+  cygwin) hybrid_malloc=yes ;;
 esac
 
 GMALLOC_OBJ=""
@@ -8420,9 +8423,15 @@ if test "x${HAVE_FCHDIR}" = "x"; then
     test -z "${HAVE_FCHDIR}" && export HAVE_FCHDIR=0
   fi
 fi
+
+AC_MSG_NOTICE([this next set of function checks come from a separate m4 file])
+
 dnl# definition of this next macro has been moved to the included file:
 m4_include([m4/functions_extra.m4])dnl
 AC_REQUIRE_VARIOUS_FUNC_CHECKS
+
+AC_MSG_NOTICE([back to function checks from the main ac file])
+
 if test "x${emacs_cv_var_doug_lea_malloc}" = "x"; then
   if test "x${system_malloc}" = "x"; then
     if test "x${GNU_MALLOC}" -a "x${GMALLOC_OBJ}" = "x"; then
