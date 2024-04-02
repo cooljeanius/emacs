@@ -9870,6 +9870,8 @@ if test "x${emacs_cv_usable_FIONREAD}" = "xyes"; then
       AC_DEFINE([USABLE_SIGIO],[1],[Define to 1 if SIGIO is usable.])
     fi
   fi
+else
+  AC_MSG_NOTICE([skipping test for usable SIGIO due to missing usable FIONREAD])
 fi
 
 dnl# more malloc stuff:
@@ -9930,17 +9932,17 @@ LDFLAGS="${REAL_LDFLAGS}"
 LIBS="${REAL_LIBS}"
 
 if test "x${CFLAGS}" != "x"; then
-  test -n "${CFLAGS}" && echo "CFLAGS have been replaced with REAL_CFLAGS and are now: ${CFLAGS}"
+  test -n "${CFLAGS}" && echo "CFLAGS have been replaced with REAL_CFLAGS and are now: '${CFLAGS}'"
 else
   test -z "${CFLAGS}" && echo "uh oh, overriding CFLAGS with REAL_CFLAGS made it empty..."
 fi
 if test "x${CPPFLAGS}" != "x"; then
-  test -n "${CPPFLAGS}" && echo "CPPFLAGS have been replaced with REAL_CPPFLAGS and are now: ${CPPFLAGS}"
+  test -n "${CPPFLAGS}" && echo "CPPFLAGS have been replaced with REAL_CPPFLAGS and are now: '${CPPFLAGS}'"
 else
   test -z "${CPPFLAGS}" && echo "uh oh, overriding CPPFLAGS with REAL_CPPFLAGS made it empty..."
 fi
 if test "x${LDFLAGS}" != "x"; then
-  test -n "${LDFLAGS}" && echo "LDFLAGS have been replaced with REAL_LDFLAGS and are now: ${LDFLAGS}"
+  test -n "${LDFLAGS}" && echo "LDFLAGS have been replaced with REAL_LDFLAGS and are now: '${LDFLAGS}'"
 else
   test -z "${LDFLAGS}" && echo "uh oh, overriding LDFLAGS with REAL_LDFLAGS made it empty..."
 fi
@@ -10306,9 +10308,13 @@ fi
 if test "x${with_features}" = "xno" && test "x${enable_acl}" != "xyes"; then
   enable_acl=no
 elif test "x${enable_acl}" != "xno" && test "x${ac_cv_func_acl_delete_def_file}" = "x"; then
-  test -z "${ac_cv_func_acl_delete_def_file}"
+  test -z "${ac_cv_func_acl_delete_def_file}" && echo "need manual check for acl_delete_def_file..."
   AC_CHECK_FUNCS([acl_delete_def_file])dnl
   ## might want to do this somewhere else...
+fi
+
+if test "x${enable_acl}" != "xno" && test "x${ac_cv_func_acl_delete_def_file}" != "xyes"; then
+  AC_MSG_WARN([building with ACLs enabled requires the acl_delete_def_file function; this build will probably fail (see POSIX 1003.1e draft 17)])
 fi
 
 # Configure gnulib. Although this does not affect CFLAGS or LIBS

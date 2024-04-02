@@ -14,7 +14,6 @@ jobs:
     - name: Install Homebrew dependencies
       env:
         HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
-        HOMEBREW_VERBOSE: 1
         HOMEBREW_VERBOSE_USING_DOTS: 1
       run: |
         set -x
@@ -94,8 +93,16 @@ jobs:
             echo "so much for doc/misc..."; \
           fi; \
         else \
+          true; \
           if test -x "$(which sync)"; then sync; fi; \
           echo "skipping building docs (due to 1 of many possible reasons)..."; \
+          if test -e doc/Makefile; then \
+            stat doc/Makefile || wc -l doc/Makefile || du doc/Makefile; \
+          elif test -d doc; then \
+            ls -R doc; \
+          else \
+            sleep 1; \
+          fi
         fi
     - name: Apple stuff
       if: "${{ success() }}"
@@ -107,6 +114,11 @@ jobs:
             make -j"$(nproc)" -C lib-src all-plist || make -j"$(nproc)" -ki -C lib-src all-plist; \
             make -j"$(nproc)" apple_helper_executables MAC_VERS_CFLAGS="-mmacosx-version-min=10.7 -stdlib=libc++"; \
             make -j"$(nproc)" apple_check MAC_VERS_CFLAGS="-mmacosx-version-min=10.7"; \
+          elif test -x "$(which gnproc)" && test -n "$(gnproc)" && test "$(gnproc)" -gt 1; then \
+            make -j"$(gnproc)" -C src check || make -j"$(gnproc)" -ki -C src check; \
+            make -j"$(gnproc)" -C lib-src all-plist || make -j"$(gnproc)" -ki -C lib-src all-plist; \
+            make -j"$(gnproc)" apple_helper_executables MAC_VERS_CFLAGS="-mmacosx-version-min=10.7 -stdlib=libc++"; \
+            make -j"$(gnproc)" apple_check MAC_VERS_CFLAGS="-mmacosx-version-min=10.7"; \
           else \
             echo "warning: on the slow path..."; \
             make -C src check || make -ki -C src check; \
