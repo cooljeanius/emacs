@@ -10314,7 +10314,12 @@ elif test "x${enable_acl}" != "xno" && test "x${ac_cv_func_acl_delete_def_file}"
 fi
 
 if test "x${enable_acl}" != "xno" && test "x${ac_cv_func_acl_delete_def_file}" != "xyes"; then
-  AC_MSG_WARN([building with ACLs enabled requires the acl_delete_def_file function; this build will probably fail (see POSIX 1003.1e draft 17)])
+  AC_MSG_WARN([building with ACLs enabled requires the acl_delete_def_file function; it may still be possible to find it, though...])
+  if test "x${ac_cv_func_acl_delete_def_file}" = "xno"; then
+    test -n "${ac_cv_func_acl_delete_def_file}" && unset ac_cv_func_acl_delete_def_file
+  elif test "x${ac_cv_func_acl_delete_def_file}" != "x"; then
+    test -n "${ac_cv_func_acl_delete_def_file}" && echo "(specifically, ac_cv_func_acl_delete_def_file is ${ac_cv_func_acl_delete_def_file})"
+  fi
 fi
 
 # Configure gnulib. Although this does not affect CFLAGS or LIBS

@@ -74277,8 +74277,13 @@ fi
 fi
 
 if test "x${enable_acl}" != "xno" && test "x${ac_cv_func_acl_delete_def_file}" != "xyes"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: building with ACLs enabled requires the acl_delete_def_file function; this build will probably fail (see POSIX 1003.1e draft 17)" >&5
-printf "%s\n" "$as_me: WARNING: building with ACLs enabled requires the acl_delete_def_file function; this build will probably fail (see POSIX 1003.1e draft 17)" >&2;}
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: building with ACLs enabled requires the acl_delete_def_file function; it may still be possible to find it, though..." >&5
+printf "%s\n" "$as_me: WARNING: building with ACLs enabled requires the acl_delete_def_file function; it may still be possible to find it, though..." >&2;}
+  if test "x${ac_cv_func_acl_delete_def_file}" = "xno"; then
+    test -n "${ac_cv_func_acl_delete_def_file}" && unset ac_cv_func_acl_delete_def_file
+  elif test "x${ac_cv_func_acl_delete_def_file}" != "x"; then
+    test -n "${ac_cv_func_acl_delete_def_file}" && echo "(specifically, ac_cv_func_acl_delete_def_file is ${ac_cv_func_acl_delete_def_file})"
+  fi
 fi
 
 # Configure gnulib. Although this does not affect CFLAGS or LIBS
@@ -78921,8 +78926,8 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam \
         LIBS=$save_LIBS
         test $gl_pthread_api = yes && break
       done
-      echo "$as_me:78924: gl_pthread_api=$gl_pthread_api" >&5
-      echo "$as_me:78925: LIBPTHREAD=$LIBPTHREAD" >&5
+      echo "$as_me:78929: gl_pthread_api=$gl_pthread_api" >&5
+      echo "$as_me:78930: LIBPTHREAD=$LIBPTHREAD" >&5
 
       gl_pthread_in_glibc=no
       # On Linux with glibc >= 2.34, libc contains the fully functional
@@ -78948,7 +78953,7 @@ rm -rf conftest*
 
           ;;
       esac
-      echo "$as_me:78951: gl_pthread_in_glibc=$gl_pthread_in_glibc" >&5
+      echo "$as_me:78956: gl_pthread_in_glibc=$gl_pthread_in_glibc" >&5
 
       # Test for libpthread by looking for pthread_kill. (Not pthread_self,
       # since it is defined as a macro on OSF/1.)
@@ -79126,7 +79131,7 @@ fi
 
         fi
       fi
-      echo "$as_me:79129: LIBPMULTITHREAD=$LIBPMULTITHREAD" >&5
+      echo "$as_me:79134: LIBPMULTITHREAD=$LIBPMULTITHREAD" >&5
     fi
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether POSIX threads API is available" >&5
 printf %s "checking whether POSIX threads API is available... " >&6; }
