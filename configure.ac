@@ -3215,6 +3215,7 @@ else
   nw="${nw} -Wmudflap"                                # no longer supported
   nw="${nw} -fanalyzer"                                       # really slow
   nw="${nw} -fstrict-flex-arrays"                       # breaks scan-build
+  nw="${nw} -Wstrict-flex-arrays"           # requires -fstrict-flex-arrays
 
   # Emacs does NOT care about shadowing; see
   # <http://lists.gnu.org/archive/html/emacs-diffs/2011-11/msg00265.html>.
@@ -3915,6 +3916,7 @@ else
   nw="${nw} -Wcast-align=strict"                                 # likewise
   nw="${nw} -Wformat-truncation"                              # sterror_r.c
   nw="${nw} -Wformat-truncation=2"                               # likewise
+  nw="${nw} -Wstrict-flex-arrays"           # requires -fstrict-flex-arrays
 
   dnl# see if this will silence a warning in error.c:
   gl_WARN_ADD([-Wno-format-signedness],[GNULIB_WARN_CFLAGS])dnl

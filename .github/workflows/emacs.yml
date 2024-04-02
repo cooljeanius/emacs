@@ -17,7 +17,7 @@ jobs:
     - name: Initial build
       run: |
         sh ./autogen.sh
-        ./configure --without-makeinfo --without-gif --without-gnutls --enable-silent-rules --disable-autodepend --without-imagemagick --enable-gcc-warnings --with-x-toolkit=no --with-xpm=no --disable-openmp
+        ./configure --without-makeinfo --without-gif --without-gnutls --enable-silent-rules --disable-autodepend --without-imagemagick --enable-gcc-warnings --with-x-toolkit=no --with-xpm=no --disable-openmp CC=${{ matrix.compiler }} OBJC=${{ matrix.compiler }}
         make gnulib_headers || (stat lib/Makefile && wc -l lib/Makefile)
         make only_temacs
         ls src/*emacs
@@ -26,7 +26,7 @@ jobs:
       if: "${{ success() }}"
       run: |
         make all_only_c
-        if test -x "$(which clang)" && test -n "$(clang --version)"; then \
+        if test -x "$(which clang)" && test -n "$(clang --version 2>/dev/null)"; then \
           echo "attempting to use $(which clang) for static analysis"; \
           echo "but first, let us check the version that it reports..."; \
           clang --version; \
@@ -39,6 +39,15 @@ jobs:
             fi; \
             make -j"$(nproc)" -C src check || make -j"$(nproc)" -ki -C src check; \
             make -j"$(nproc)" -C lib-src all-plist || make -j"$(nproc)" -ki -C lib-src all-plist; \
+          elif test -x "$(which gnproc)" && test -n "$(gnproc)" && test "$(gnproc)" -gt 1; then \
+            if test -x "$(which scan-build)" && test "${{ matrix.compiler }}" = "clang" && test -d /tmp && test -w /tmp; then \
+              echo "first, an attempt at using $(which scan-build)..."; \
+              scan-build -o /tmp make -j"$(gnproc)" only_temacs all_only_c; \
+            else \
+              echo "skipping scan-build..."; \
+            fi; \
+            make -j"$(gnproc)" -C src check || make -j"$(gnproc)" -ki -C src check; \
+            make -j"$(gnproc)" -C lib-src all-plist || make -j"$(gnproc)" -ki -C lib-src all-plist; \
           else \
             echo "warning: on the slow path..."; \
             make -C src check || make -ki -C src check; \

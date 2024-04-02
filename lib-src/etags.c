@@ -6630,34 +6630,42 @@ linebuffer_init (linebuffer *lbp)
   lbp->len = 0;
 }
 
-/* Set the minimum size of a string contained in a linebuffer. */
+/* Set the minimum size of a string contained in a linebuffer: */
 static void
-linebuffer_setlen (linebuffer *lbp, int toksize)
+linebuffer_setlen(linebuffer *lbp, int toksize)
 {
   while (lbp->size <= toksize)
     {
       lbp->size *= 2;
-      xrnew (lbp->buffer, lbp->size, char);
+      xrnew(lbp->buffer, lbp->size, char);
     }
   lbp->len = toksize;
 }
 
-/* Like malloc but get fatal error if memory is exhausted. */
+/* Like malloc but get fatal error if memory is exhausted: */
 static void *
-xmalloc (size_t size)
+xmalloc(size_t size)
 {
-  void *result = malloc (size);
+  void *result = malloc(size);
   if (result == NULL)
-    fatal ("virtual memory exhausted", (char *)NULL);
+    fatal("virtual memory exhausted", (char *)NULL);
   return result;
 }
 
+#ifndef BLOCKSIZE
+# define BLOCKSIZE 32768
+#endif /* !BLOCKSIZE */
+
+/* Likewise for realloc: */
 static void *
-xrealloc (char *ptr, size_t size)
+xrealloc(char *ptr, size_t size)
 {
-  void *result = realloc (ptr, size);
+  void *result;
+  if (size > (BLOCKSIZE + 72UL))
+    error("attempting to realloc an object of too large a size");
+  result = realloc(ptr, size);
   if (result == NULL)
-    fatal ("virtual memory exhausted", (char *)NULL);
+    fatal("virtual memory exhausted", (char *)NULL);
   return result;
 }
 
