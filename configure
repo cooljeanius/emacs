@@ -17359,6 +17359,50 @@ then :
 fi
 
 
+  elif test "x${emacs_cv_clang}" = "xyes"; then
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wno-sign-compare" >&5
+printf %s "checking whether C compiler handles -Wno-sign-compare... " >&6; }
+if test ${gl_cv_warn_c__Wno_sign_compare+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e)
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wsign-compare"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_warn_c__Wno_sign_compare=yes
+else case e in #(
+  e) gl_cv_warn_c__Wno_sign_compare=no ;;
+esac
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+ ;;
+esac
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wno_sign_compare" >&5
+printf "%s\n" "$gl_cv_warn_c__Wno_sign_compare" >&6; }
+if test "x$gl_cv_warn_c__Wno_sign_compare" = xyes
+then :
+  as_fn_append WARN_CFLAGS " -Wno-sign-compare"
+fi
+
+     # Too many warnings for now
   fi  ##end check for undocumented environment variable
 
 
@@ -17692,6 +17736,49 @@ printf "%s\n" "$gl_cv_warn_c__Wno_unused_value" >&6; }
 if test "x$gl_cv_warn_c__Wno_unused_value" = xyes
 then :
   as_fn_append WARN_CFLAGS " -Wno-unused-value"
+fi
+
+
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wno-unused" >&5
+printf %s "checking whether C compiler handles -Wno-unused... " >&6; }
+if test ${gl_cv_warn_c__Wno_unused+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e)
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wunused"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_warn_c__Wno_unused=yes
+else case e in #(
+  e) gl_cv_warn_c__Wno_unused=no ;;
+esac
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+ ;;
+esac
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wno_unused" >&5
+printf "%s\n" "$gl_cv_warn_c__Wno_unused" >&6; }
+if test "x$gl_cv_warn_c__Wno_unused" = xyes
+then :
+  as_fn_append WARN_CFLAGS " -Wno-unused"
 fi
 
 
@@ -25012,6 +25099,7 @@ printf "%s\n" "#define GNULIB_PORTCHECK 1" >>confdefs.h
   nw="${nw} -Wredundant-decls"                            # prints too many
   nw="${nw} -Wunsuffixed-float-constants"                             # meh
   nw="${nw} -Wunused-macros"                                     # annoying
+  nw="${nw} -Wunused-parameter"    # should also be disabled for main build
   nw="${nw} -Wswitch-default"                # Too many warnings for now(?)
   # Same condition as where it was initially added:
   if test "x${emacs_cv_apple}" = "xyes"; then
@@ -25071,6 +25159,57 @@ then :
   as_fn_append GNULIB_WARN_CFLAGS " -Wno-format-signedness"
 fi
 
+
+    if test "x${emacs_cv_clang}" = "xyes"; then
+    if test "x${gl_cv_warn_c__Wno_unused_parameter}" = "x"; then
+      test -z "${gl_cv_warn_c__Wno_unused_parameter}"
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wno-unused-parameter" >&5
+printf %s "checking whether C compiler handles -Wno-unused-parameter... " >&6; }
+if test ${gl_cv_warn_c__Wno_unused_parameter+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e)
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wunused-parameter"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_warn_c__Wno_unused_parameter=yes
+else case e in #(
+  e) gl_cv_warn_c__Wno_unused_parameter=no ;;
+esac
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+ ;;
+esac
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wno_unused_parameter" >&5
+printf "%s\n" "$gl_cv_warn_c__Wno_unused_parameter" >&6; }
+if test "x$gl_cv_warn_c__Wno_unused_parameter" = xyes
+then :
+  as_fn_append GNULIB_WARN_CFLAGS " -Wno-unused-parameter"
+fi
+
+
+    else
+      test -n "${gl_cv_warn_c__Wno_unused_parameter}"
+    fi
+  fi
 
 
 
@@ -60266,8 +60405,8 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam \
         LIBS=$save_LIBS
         test $gl_pthread_api = yes && break
       done
-      echo "$as_me:60269: gl_pthread_api=$gl_pthread_api" >&5
-      echo "$as_me:60270: LIBPTHREAD=$LIBPTHREAD" >&5
+      echo "$as_me:60408: gl_pthread_api=$gl_pthread_api" >&5
+      echo "$as_me:60409: LIBPTHREAD=$LIBPTHREAD" >&5
 
       gl_pthread_in_glibc=no
       # On Linux with glibc >= 2.34, libc contains the fully functional
@@ -60293,7 +60432,7 @@ rm -rf conftest*
 
           ;;
       esac
-      echo "$as_me:60296: gl_pthread_in_glibc=$gl_pthread_in_glibc" >&5
+      echo "$as_me:60435: gl_pthread_in_glibc=$gl_pthread_in_glibc" >&5
 
       # Test for libpthread by looking for pthread_kill. (Not pthread_self,
       # since it is defined as a macro on OSF/1.)
@@ -60471,7 +60610,7 @@ fi
 
         fi
       fi
-      echo "$as_me:60474: LIBPMULTITHREAD=$LIBPMULTITHREAD" >&5
+      echo "$as_me:60613: LIBPMULTITHREAD=$LIBPMULTITHREAD" >&5
     fi
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether POSIX threads API is available" >&5
 printf %s "checking whether POSIX threads API is available... " >&6; }
@@ -78928,8 +79067,8 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam \
         LIBS=$save_LIBS
         test $gl_pthread_api = yes && break
       done
-      echo "$as_me:78931: gl_pthread_api=$gl_pthread_api" >&5
-      echo "$as_me:78932: LIBPTHREAD=$LIBPTHREAD" >&5
+      echo "$as_me:79070: gl_pthread_api=$gl_pthread_api" >&5
+      echo "$as_me:79071: LIBPTHREAD=$LIBPTHREAD" >&5
 
       gl_pthread_in_glibc=no
       # On Linux with glibc >= 2.34, libc contains the fully functional
@@ -78955,7 +79094,7 @@ rm -rf conftest*
 
           ;;
       esac
-      echo "$as_me:78958: gl_pthread_in_glibc=$gl_pthread_in_glibc" >&5
+      echo "$as_me:79097: gl_pthread_in_glibc=$gl_pthread_in_glibc" >&5
 
       # Test for libpthread by looking for pthread_kill. (Not pthread_self,
       # since it is defined as a macro on OSF/1.)
@@ -79133,7 +79272,7 @@ fi
 
         fi
       fi
-      echo "$as_me:79136: LIBPMULTITHREAD=$LIBPMULTITHREAD" >&5
+      echo "$as_me:79275: LIBPMULTITHREAD=$LIBPMULTITHREAD" >&5
     fi
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether POSIX threads API is available" >&5
 printf %s "checking whether POSIX threads API is available... " >&6; }

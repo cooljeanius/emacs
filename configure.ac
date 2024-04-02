@@ -3308,6 +3308,8 @@ else
     gl_WARN_ADD([-Wno-switch])           # Too many warnings for now
   elif test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes" || test "x${PRINT_CONVERSION_WARNINGS}" = "xyes"; then
     gl_WARN_ADD([-Wsign-compare])
+  elif test "x${emacs_cv_clang}" = "xyes"; then
+    gl_WARN_ADD([-Wno-sign-compare])     # Too many warnings for now
   fi  ##end check for undocumented environment variable
   gl_WARN_ADD([-Wno-unused-parameter]) # Too many warnings for now
   gl_WARN_ADD([-Wno-format-nonliteral])dnl
@@ -3326,6 +3328,7 @@ else
     gl_WARN_ADD([-Wno-tautological-constant-out-of-range-compare])
     gl_WARN_ADD([-Wno-unused-command-line-argument])
     gl_WARN_ADD([-Wno-unused-value])
+    gl_WARN_ADD([-Wno-unused])
   fi  ##end check for clang
 
   dnl# these flags are all relatively newly added, so prevent them from
@@ -3901,6 +3904,7 @@ else
   nw="${nw} -Wredundant-decls"                            # prints too many
   nw="${nw} -Wunsuffixed-float-constants"                             # meh
   nw="${nw} -Wunused-macros"                                     # annoying
+  nw="${nw} -Wunused-parameter"    # should also be disabled for main build
   nw="${nw} -Wswitch-default"                # Too many warnings for now(?)
   # Same condition as where it was initially added:
   if test "x${emacs_cv_apple}" = "xyes"; then
@@ -3920,6 +3924,16 @@ else
 
   dnl# see if this will silence a warning in error.c:
   gl_WARN_ADD([-Wno-format-signedness],[GNULIB_WARN_CFLAGS])dnl
+
+  dnl# clang can be noisy with this:
+  if test "x${emacs_cv_clang}" = "xyes"; then
+    if test "x${gl_cv_warn_c__Wno_unused_parameter}" = "x"; then
+      test -z "${gl_cv_warn_c__Wno_unused_parameter}"
+      gl_WARN_ADD([-Wno-unused-parameter],[GNULIB_WARN_CFLAGS])
+    else
+      test -n "${gl_cv_warn_c__Wno_unused_parameter}"
+    fi
+  fi
 
   dnl# m4/manywarnings.m4 skips this one, because, apparently:
   dnl# "FIXME maybe? too many false positives"
