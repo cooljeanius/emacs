@@ -3239,6 +3239,10 @@ else
     nw="${nw} -Wsign-compare"
     nw="${nw} -Wswitch"
     nw="${nw} -Wtype-limits"
+  elif test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes" || test "x${PRINT_CONVERSION_WARNINGS}" = "xyes"; then
+    test -n "${nw}" && echo "at this point, list of warnings to skip are: ${nw}"
+  elif test "x${emacs_cv_clang}" = "xyes"; then
+    nw="${nw} -Wsign-compare"
   fi  ##end check for undocumented environment variable
   nw="${nw} -Wunused-parameter"
   # (-Wformat-nonliteral is already added to nw above)
@@ -3251,11 +3255,13 @@ else
       nw="${nw} -Wcast-align"
     fi ##end for check for NS
     # Same "shorten-the-command-line" reasoning as above:
+    nw="${nw} -Wextra"
     nw="${nw} -Wformat-extra-args"
     nw="${nw} -Wtautological-constant-out-of-range-compare"
     nw="${nw} -Wpointer-sign"
     nw="${nw} -Wunused-command-line-argument"
     nw="${nw} -Wunused-value"
+    nw="${nw} -Wunused"
   else
     if test "x${WERROR_CFLAGS}" = "x" && test "x${OBJC}" = "x"; then
       dnl# m4/manywarnings.m4 is unaware of this one:
@@ -3324,6 +3330,7 @@ else
 
   # More things that clang is unduly picky about.
   if test "x${emacs_cv_clang}" = "xyes"; then
+    gl_WARN_ADD([-Wno-extra])
     gl_WARN_ADD([-Wno-format-extra-args])
     gl_WARN_ADD([-Wno-tautological-constant-out-of-range-compare])
     gl_WARN_ADD([-Wno-unused-command-line-argument])
@@ -3921,6 +3928,7 @@ else
   nw="${nw} -Wformat-truncation"                              # sterror_r.c
   nw="${nw} -Wformat-truncation=2"                               # likewise
   nw="${nw} -Wstrict-flex-arrays"           # requires -fstrict-flex-arrays
+  nw="${nw} -Wmissing-noreturn"                            # bitset/array.c
 
   dnl# see if this will silence a warning in error.c:
   gl_WARN_ADD([-Wno-format-signedness],[GNULIB_WARN_CFLAGS])dnl
@@ -3932,6 +3940,12 @@ else
       gl_WARN_ADD([-Wno-unused-parameter],[GNULIB_WARN_CFLAGS])
     else
       test -n "${gl_cv_warn_c__Wno_unused_parameter}"
+    fi
+    if test "x${gl_cv_warn_c__Wno_missing_noreturn}" = "x"; then
+      test -z "${gl_cv_warn_c__Wno_missing_noreturn}"
+      gl_WARN_ADD([-Wno-missing-noreturn],[GNULIB_WARN_CFLAGS])
+    else
+      test -n "${gl_cv_warn_c__Wno_missing_noreturn}"
     fi
   fi
 

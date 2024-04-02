@@ -16746,6 +16746,10 @@ fi
     nw="${nw} -Wsign-compare"
     nw="${nw} -Wswitch"
     nw="${nw} -Wtype-limits"
+  elif test "x${I_AM_GOOD_AT_SILENCING_WARNINGS}" = "xyes" || test "x${PRINT_CONVERSION_WARNINGS}" = "xyes"; then
+    test -n "${nw}" && echo "at this point, list of warnings to skip are: ${nw}"
+  elif test "x${emacs_cv_clang}" = "xyes"; then
+    nw="${nw} -Wsign-compare"
   fi  ##end check for undocumented environment variable
   nw="${nw} -Wunused-parameter"
   # (-Wformat-nonliteral is already added to nw above)
@@ -16757,11 +16761,13 @@ fi
       nw="${nw} -Wcast-align"
     fi ##end for check for NS
     # Same "shorten-the-command-line" reasoning as above:
+    nw="${nw} -Wextra"
     nw="${nw} -Wformat-extra-args"
     nw="${nw} -Wtautological-constant-out-of-range-compare"
     nw="${nw} -Wpointer-sign"
     nw="${nw} -Wunused-command-line-argument"
     nw="${nw} -Wunused-value"
+    nw="${nw} -Wunused"
   else
     if test "x${WERROR_CFLAGS}" = "x" && test "x${OBJC}" = "x"; then
 
@@ -17567,6 +17573,49 @@ fi
 rm -f conftest.err conftest.i conftest.$ac_ext
   # More things that clang is unduly picky about.
   if test "x${emacs_cv_clang}" = "xyes"; then
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wno-extra" >&5
+printf %s "checking whether C compiler handles -Wno-extra... " >&6; }
+if test ${gl_cv_warn_c__Wno_extra+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e)
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wextra"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_warn_c__Wno_extra=yes
+else case e in #(
+  e) gl_cv_warn_c__Wno_extra=no ;;
+esac
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+ ;;
+esac
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wno_extra" >&5
+printf "%s\n" "$gl_cv_warn_c__Wno_extra" >&6; }
+if test "x$gl_cv_warn_c__Wno_extra" = xyes
+then :
+  as_fn_append WARN_CFLAGS " -Wno-extra"
+fi
+
+
 
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wno-format-extra-args" >&5
@@ -25116,6 +25165,7 @@ printf "%s\n" "#define GNULIB_PORTCHECK 1" >>confdefs.h
   nw="${nw} -Wformat-truncation"                              # sterror_r.c
   nw="${nw} -Wformat-truncation=2"                               # likewise
   nw="${nw} -Wstrict-flex-arrays"           # requires -fstrict-flex-arrays
+  nw="${nw} -Wmissing-noreturn"                            # bitset/array.c
 
 
 
@@ -25208,6 +25258,54 @@ fi
 
     else
       test -n "${gl_cv_warn_c__Wno_unused_parameter}"
+    fi
+    if test "x${gl_cv_warn_c__Wno_missing_noreturn}" = "x"; then
+      test -z "${gl_cv_warn_c__Wno_missing_noreturn}"
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler handles -Wno-missing-noreturn" >&5
+printf %s "checking whether C compiler handles -Wno-missing-noreturn... " >&6; }
+if test ${gl_cv_warn_c__Wno_missing_noreturn+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e)
+  gl_save_compiler_FLAGS="$CFLAGS"
+  as_fn_append CFLAGS " $gl_unknown_warnings_are_errors -Wmissing-noreturn"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  gl_cv_warn_c__Wno_missing_noreturn=yes
+else case e in #(
+  e) gl_cv_warn_c__Wno_missing_noreturn=no ;;
+esac
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+  CFLAGS="$gl_save_compiler_FLAGS"
+ ;;
+esac
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $gl_cv_warn_c__Wno_missing_noreturn" >&5
+printf "%s\n" "$gl_cv_warn_c__Wno_missing_noreturn" >&6; }
+if test "x$gl_cv_warn_c__Wno_missing_noreturn" = xyes
+then :
+  as_fn_append GNULIB_WARN_CFLAGS " -Wno-missing-noreturn"
+fi
+
+
+    else
+      test -n "${gl_cv_warn_c__Wno_missing_noreturn}"
     fi
   fi
 
@@ -60405,8 +60503,8 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam \
         LIBS=$save_LIBS
         test $gl_pthread_api = yes && break
       done
-      echo "$as_me:60408: gl_pthread_api=$gl_pthread_api" >&5
-      echo "$as_me:60409: LIBPTHREAD=$LIBPTHREAD" >&5
+      echo "$as_me:60506: gl_pthread_api=$gl_pthread_api" >&5
+      echo "$as_me:60507: LIBPTHREAD=$LIBPTHREAD" >&5
 
       gl_pthread_in_glibc=no
       # On Linux with glibc >= 2.34, libc contains the fully functional
@@ -60432,7 +60530,7 @@ rm -rf conftest*
 
           ;;
       esac
-      echo "$as_me:60435: gl_pthread_in_glibc=$gl_pthread_in_glibc" >&5
+      echo "$as_me:60533: gl_pthread_in_glibc=$gl_pthread_in_glibc" >&5
 
       # Test for libpthread by looking for pthread_kill. (Not pthread_self,
       # since it is defined as a macro on OSF/1.)
@@ -60610,7 +60708,7 @@ fi
 
         fi
       fi
-      echo "$as_me:60613: LIBPMULTITHREAD=$LIBPMULTITHREAD" >&5
+      echo "$as_me:60711: LIBPMULTITHREAD=$LIBPMULTITHREAD" >&5
     fi
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether POSIX threads API is available" >&5
 printf %s "checking whether POSIX threads API is available... " >&6; }
@@ -79067,8 +79165,8 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam \
         LIBS=$save_LIBS
         test $gl_pthread_api = yes && break
       done
-      echo "$as_me:79070: gl_pthread_api=$gl_pthread_api" >&5
-      echo "$as_me:79071: LIBPTHREAD=$LIBPTHREAD" >&5
+      echo "$as_me:79168: gl_pthread_api=$gl_pthread_api" >&5
+      echo "$as_me:79169: LIBPTHREAD=$LIBPTHREAD" >&5
 
       gl_pthread_in_glibc=no
       # On Linux with glibc >= 2.34, libc contains the fully functional
@@ -79094,7 +79192,7 @@ rm -rf conftest*
 
           ;;
       esac
-      echo "$as_me:79097: gl_pthread_in_glibc=$gl_pthread_in_glibc" >&5
+      echo "$as_me:79195: gl_pthread_in_glibc=$gl_pthread_in_glibc" >&5
 
       # Test for libpthread by looking for pthread_kill. (Not pthread_self,
       # since it is defined as a macro on OSF/1.)
@@ -79272,7 +79370,7 @@ fi
 
         fi
       fi
-      echo "$as_me:79275: LIBPMULTITHREAD=$LIBPMULTITHREAD" >&5
+      echo "$as_me:79373: LIBPMULTITHREAD=$LIBPMULTITHREAD" >&5
     fi
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether POSIX threads API is available" >&5
 printf %s "checking whether POSIX threads API is available... " >&6; }
