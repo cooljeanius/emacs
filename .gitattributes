@@ -53,6 +53,9 @@ leim/MISC-DIC/cangjie-table.* -diff
 leim/MISC-DIC/pinyin.map -diff
 leim/MISC-DIC/ziranma.cin -diff
 leim/SKK-DIC/SKK-JISYO.L -diff
+mac/Makefile_un-MPW-ed -diff
+mac/cw5-mcp.mcp.xml -diff
+mac/makefile.MPW -diff
 src/msdos.c -diff
 test/lisp/gnus/mm-decode-resources/win1252-multipart.bin -diff
 
