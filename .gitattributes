@@ -43,19 +43,41 @@ build-aux/ltmain.sh -whitespace=blank-at-eof
 admin/Makefile.in -whitespace=blank-at-eol
 src/config.in -whitespace=blank-at-eol
 
+# The following text files use encodings incompatible with UTF-8.
+# They should not be treated as text when diffing, as that could
+# cause the output to mix encodings.
+*.tit -diff
+admin/charsets/mapfiles/cns2ucsdkw.txt -diff
+leim/MISC-DIC/CTLau* -diff
+leim/MISC-DIC/cangjie-table.* -diff
+leim/MISC-DIC/pinyin.map -diff
+leim/MISC-DIC/ziranma.cin -diff
+leim/SKK-DIC/SKK-JISYO.L -diff
+src/msdos.c -diff
+test/lisp/gnus/mm-decode-resources/win1252-multipart.bin -diff
+
 # Some files should not be treated as text when diffing or merging.
+*.bmp binary
 *.cur binary
+*.gif binary
 *.gpg binary
 *.gz binary
 *.icns binary
 *.ico binary
+*.jpg binary
+*.kbx binary
+*.key binary
 *.pbm binary
 *.pdf binary
 *.pif binary
 *.png binary
 *.sig binary
 *.tiff binary
+*.webp binary
+*.zip binary
 etc/e/eterm-color binary
+etc/e/eterm-direct binary
+java/emacs.keystore binary
 
 # Git's builtin diff hunk header styles.
 *.ad[abs] diff=ada
@@ -111,6 +133,10 @@ build-aux/msys-to-w32 diff=shell
 build-aux/update-subdirs diff=shell
 lib-src/rcs2log diff=shell
 /make-dist diff=shell
+
+# This file contains in-line diffs, which can include trailing
+# whitespace.
+java/INSTALL -whitespace
 
 # Gnulib's git-merge-changelog driver:
 ChangeLog    merge=cl-merge
