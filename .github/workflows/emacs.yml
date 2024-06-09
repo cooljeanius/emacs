@@ -61,7 +61,7 @@ jobs:
       run: |
         if test -d doc && test -x "$(which makeinfo)"; then \
           echo "using $(which makeinfo) for makeinfo with the following version info: $(makeinfo --version)"; \
-          sudo apt-get install texlive ghostscript texlive-luatex texlive-pstricks chktex dvidvi dvipng latexdiff latexmk dot2tex texlive-latex-extra; \
+          sudo apt-get -qq install -y texlive ghostscript texlive-luatex texlive-pstricks chktex dvidvi dvipng latexdiff latexmk dot2tex texlive-latex-extra; \
           make -C doc || (make -C doc/emacs && make -C doc/lispintro && make -C doc/lispref && make -C doc/man); \
           if [ $? -ge 1 ]; then \
             echo "giving doc/misc another try"; \

@@ -1,5 +1,6 @@
-/* nsfns.m: Functions for the NeXT/Open/GNUstep and MacOSX window system.
-
+/* nsfns.m -*- Objective-C -*-
+ * Functions for the NeXT/Open/GNUstep and MacOSX window system. */
+/*
 Copyright (C) 1989, 1992-1994, 2005-2006, 2008-2014 Free Software
 Foundation, Inc.
 
