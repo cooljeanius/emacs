@@ -76,10 +76,6 @@ jobs:
         sudo apt-get -qq update
         sudo apt-get -y install --fix-missing autopoint gobjc gtk+2.0 gtk+3.0 libxpm-dev ruby
 
-    - name: Autobuild
-      if: matrix.language == 'java-kotlin'
-      uses: github/codeql-action/autobuild@v3
-
     - name: Build (as much as possible)
       if: matrix.language == 'c-cpp'
       run: |
