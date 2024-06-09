@@ -26,7 +26,8 @@ dnl#  along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
 AC_PREREQ([2.69])
 dnl# Note this is parsed by (at least) `make-dist` and
 dnl# 'lisp/cedet/ede/emacs.el':
-AC_INIT([emacs],[24.3.50],[bug-gnu-emacs@gnu.org])dnl
+AC_INIT([emacs],[24.3.50],[bug-gnu-emacs@gnu.org],[],
+  [https://www.gnu.org/software/emacs/])dnl
 
 dnl# We get MINGW64 with MSYS2:
 if test "x${MSYSTEM}" = "xMINGW32" -o "x${MSYSTEM}" = "xMINGW64"
@@ -230,7 +231,7 @@ dnl# Automake version is fairly arbitrary, older versions might work too:
 AC_MSG_CHECKING([automake things])
 AC_MSG_RESULT([automake automake automake...])
 unset am_cv_make_support_nested_variables
-AM_INIT_AUTOMAKE([1.11 gnits tar-pax dist-bzip2 dist-xz])
+AM_INIT_AUTOMAKE([1.11.6 gnits tar-pax dist-bzip2 -Wno-cross])
 AM_MAINTAINER_MODE
 
 dnl# Support for --program-prefix, --program-suffix and
@@ -4123,6 +4124,22 @@ dnl# this is ifdef-ed the other way (i.e. "in" instead of "out"):
 m4_ifdef([AM_PROG_AR],[
   AM_PROG_AR
 ],[:])dnl
+
+if test "x${AR}" = "x"; then
+  test -z "${AR}" || unset AR
+  AC_CHECK_TOOLS([AR],[ar gar])dnl
+  ## might want to switch around these checks...
+  if test "x${ac_cv_prog_AR}" = "x"; then
+    test -z "${ac_cv_prog_AR}" || unset ac_cv_prog_AR
+    m4_ifdef([AC_PROG_AR],[
+      AC_PROG_AR
+    ],[
+      test -x "`which ar`" && echo "using `which ar` for ar"
+    ])
+  fi
+else
+  test -n "${AR}" && export AR
+fi
 
 m4_ifdef([AC_PROG_YACC],[
   AC_PROG_YACC

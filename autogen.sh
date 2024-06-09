@@ -97,9 +97,16 @@ progs="autoconf automake"
 autoconf_min="`sed -n 's/^ *AC_PREREQ(\([0-9\.]*\)).*/\1/p' configure.ac`"
 if test "x${autoconf_min}" = "x"; then
   test -z "${autoconf_min}"
-  echo "warning: failed to extract required autoconf version from configure.ac" >&2
-  autoconf_min="2.59"
-  echo "falling back to default set in $0 for autoconf (i.e. '${autoconf_min}')"
+  echo "warning: failed to extract required autoconf version from configure.ac; making a second attempt at it..." >&2
+  autoconf_min="`sed -n 's/^ *AC_PREREQ(\[\([0-9\.]*\)]).*/\1/p' configure.ac`"
+  if test "x${autoconf_min}" = "x"; then
+    test -z "${autoconf_min}"
+    echo "warning: still failing to extract required autoconf version from configure.ac" >&2
+    autoconf_min="2.59"
+    echo "falling back to default set in $0 for autoconf (i.e. '${autoconf_min}')"
+  else
+    echo "now using '${autoconf_min}' for minimum required autoconf version"
+  fi
 fi
 
 ## This will need improving if more options are ever added to the
@@ -108,7 +115,7 @@ automake_min="`sed -n 's/^ *AM_INIT_AUTOMAKE(\([0-9\.]*\)).*/\1/p' configure.ac`
 if test "x${automake_min}" = "x"; then
   test -z "${automake_min}"
   echo "warning: failed to extract required automake version from configure.ac" >&2
-  automake_min="1.11"
+  automake_min="1.11.6"
   echo "falling back to default set in $0 for automake (i.e. '${automake_min}')"
 fi
 
@@ -353,7 +360,8 @@ if test -d .git && (git status -s) >/dev/null 2>&1; then
     tailored_hooks=""
     sample_hooks=""
 
-    for hook in commit-msg pre-commit; do
+    for hook in commit-msg pre-commit prepare-commit-msg post-commit \
+            pre-push commit-msg-files.awk; do
 		cmp build-aux/git-hooks/${hook} .git/hooks/${hook} >/dev/null 2>&1 ||
 		tailored_hooks="${tailored_hooks} ${hook}"
     done
