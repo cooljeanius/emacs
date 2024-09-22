@@ -1329,6 +1329,6 @@ temacs:
   mask = umask (777);
   umask (mask);
   stat_buf.st_mode |= 0111 & ~mask;
-  if (chmod (new_name, stat_buf.st_mode) != 0)
-    fatal ("Can't chmod (%s): %s", new_name, strerror (errno));
+  if (fchmod (new_file, stat_buf.st_mode) != 0)
+    fatal ("Can't fchmod (%s): %s", new_name, strerror (errno));
 }
