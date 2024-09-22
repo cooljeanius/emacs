@@ -86,9 +86,9 @@ for opt in ${1+"$@"} CFLAGS CPPFLAGS LDFLAGS; do
 done
 
 AC_CONFIG_HEADERS([src/config.h:src/config.in])
-AC_CONFIG_SRCDIR([src/lisp.h])
-AC_CONFIG_AUX_DIR([build-aux])
-m4_ifdef([AC_REQUIRE_AUX_FILE],[
+AC_CONFIG_SRCDIR([src/lisp.h])dnl
+AC_CONFIG_AUX_DIR([build-aux])dnl
+m4_ifdef([AC_REQUIRE_AUX_FILE],[dnl
   AC_REQUIRE_AUX_FILE([compile])dnl
   AC_REQUIRE_AUX_FILE([depcomp])dnl
   AC_REQUIRE_AUX_FILE([missing])dnl
@@ -486,10 +486,10 @@ if test "x${enableval}" = "xno"; then
 elif test "x${enableval}" != "xyes"; then
   locallisppath="${enableval}"
 else
-  m4_ifdef([AM_PATH_LISPDIR],[
+  m4_ifdef([AM_PATH_LISPDIR],[dnl
     AM_PATH_LISPDIR
   ],[
-    test ! -z "${lispdir}" && test -d "${lispdir}"
+    test -n "${lispdir}" && test -d "${lispdir}" && test -r "${lispdir}" && stat "${lispdir}"
   ])
   if test "x${locallisppath}" = "x"; then
     test -z "${locallisppath}" && test -n "${lispdir}" && locallisppath="${lispdir}"
@@ -2655,7 +2655,7 @@ else
   test -z "${AR}"
 fi
 
-m4_ifdef([gl_PROG_CC_C99],[
+m4_ifdef([gl_PROG_CC_C99],[dnl
   dnl# Emacs needs C99 or later:
   gl_PROG_CC_C99
 ])dnl
@@ -2723,8 +2723,8 @@ dnl# overrides for some gnulib macros have been moved to:
 m4_include([m4/override.m4])dnl
 
 dnl# make sure this is required before it is expanded:
-m4_ifdef([gl_DOUBLE_SLASH_ROOT],[
-  AC_DEFUN([gl_REQUIRE_DOUBLE_SLASH_ROOT],[
+m4_ifdef([gl_DOUBLE_SLASH_ROOT],[dnl
+  AC_DEFUN([gl_REQUIRE_DOUBLE_SLASH_ROOT],[dnl
     AC_REQUIRE([gl_DOUBLE_SLASH_ROOT])dnl
   ])dnl
   gl_REQUIRE_DOUBLE_SLASH_ROOT
@@ -4121,7 +4121,7 @@ if test "x${RANLIB}" = "x" && test "x${ac_cv_prog_ac_ct_RANLIB}" = "x"; then
 fi
 ])dnl
 dnl# this is ifdef-ed the other way (i.e. "in" instead of "out"):
-m4_ifdef([AM_PROG_AR],[
+m4_ifdef([AM_PROG_AR],[dnl
   AM_PROG_AR
 ],[:])dnl
 
@@ -4131,7 +4131,7 @@ if test "x${AR}" = "x"; then
   ## might want to switch around these checks...
   if test "x${ac_cv_prog_AR}" = "x"; then
     test -z "${ac_cv_prog_AR}" || unset ac_cv_prog_AR
-    m4_ifdef([AC_PROG_AR],[
+    m4_ifdef([AC_PROG_AR],[dnl
       AC_PROG_AR
     ],[
       test -x "`which ar`" && echo "using `which ar` for ar"
@@ -4141,7 +4141,7 @@ else
   test -n "${AR}" && export AR
 fi
 
-m4_ifdef([AC_PROG_YACC],[
+m4_ifdef([AC_PROG_YACC],[dnl
   AC_PROG_YACC
 ],[test -z "${YACC}" && test -x "`which yacc`" && export YACC="`which yacc`"])dnl
 
@@ -4163,7 +4163,7 @@ dnl# only need the libtool macro for some of the tools that it checks:
 m4_ifdef([LT_INIT],[
   unset ac_cv_prog_ac_ct_RANLIB
   LT_INIT([disable-fast-install disable-shared static no-pic])dnl
-  m4_ifdef([LT_LANG],[
+  m4_ifdef([LT_LANG],[dnl
     LT_LANG([C])dnl
   ])dnl
 ],[
@@ -4800,7 +4800,7 @@ pre_PKG_CONFIG_LIBS="${LIBS}"
 AC_SUBST([pre_PKG_CONFIG_CFLAGS])dnl
 AC_SUBST([pre_PKG_CONFIG_LIBS])dnl
 
-m4_ifdef([PKG_PROG_PKG_CONFIG],[
+m4_ifdef([PKG_PROG_PKG_CONFIG],[dnl
   PKG_PROG_PKG_CONFIG([0.9.0])
   if test "x${PKG_CONFIG}" = "x"; then
     test -z "${PKG_CONFIG}" && export PKG_CONFIG="no"
@@ -4938,23 +4938,23 @@ AC_CHECK_HEADERS([OS.h arpa/inet.h dpmi.h err.h errno.h fcntl.h float.h \
 dnl# (usually I would have checked <malloc/malloc.h> just after <malloc.h>,
 dnl# but we do that elsewhere in this one)
 if test "x${ac_cv_header_limits_h}" = "x"; then
-  test -z "${ac_cv_header_limits_h}"
+  test -z "${ac_cv_header_limits_h}" || unset ac_cv_header_limits_h
   AC_CHECK_HEADERS([limits.h])
 fi
 if test "x${ac_cv_header_stdalign_h}" = "x"; then
-  test -z "${ac_cv_header_stdalign_h}"
+  test -z "${ac_cv_header_stdalign_h}" || unset ac_cv_header_stdalign_h
   AC_CHECK_HEADERS([stdalign.h])
 fi
 if test "x${ac_cv_header_sys_vfs_h}" = "x"; then
-  test -z "${ac_cv_header}"
+  test -z "${ac_cv_header_sys_vfs_h}" || unset ac_cv_header_sys_vfs_h
   AC_CHECK_HEADERS([sys/vfs.h])
 fi
 if test "x${ac_cv_header_wctype_h}" = "x"; then
-  test -z "${ac_cv_header_wctype_h}"
+  test -z "${ac_cv_header_wctype_h}" || unset ac_cv_header_wctype_h
   AC_CHECK_HEADERS([wctype.h])
 fi
 if test "x${ac_cv_header_features_h}" = "x"; then
-  test -z "${ac_cv_header_features_h}"
+  test -z "${ac_cv_header_features_h}" || unset ac_cv_header_features_h
   AC_CHECK_HEADERS([features.h])
 fi
 dnl# Keep autoscan happy with a dummy condition that is never reached:
@@ -5028,7 +5028,7 @@ dnl# definition of this next macro has been moved to the included file:
 m4_include([m4/headers_extra.m4])dnl
 AC_REQUIRE_VARIOUS_HEADER_CHECKS
 if test "x${ac_cv_header_stdbool_h}" = "x"; then
-  test -z "${ac_cv_header_stdbool_h}"
+  test -z "${ac_cv_header_stdbool_h}" || unset ac_cv_header_stdbool_h
   AC_HEADER_STDBOOL
 fi
 AC_HEADER_TIME
@@ -5093,14 +5093,14 @@ fi
 
 dnl# ...anyways:
 if test "x${ac_cv_header_sys_wait_h}" = "x"; then
-  test -z "${ac_cv_header_sys_wait_h}"
+  test -z "${ac_cv_header_sys_wait_h}" || unset ac_cv_header_sys_wait_h
   AC_HEADER_SYS_WAIT
 fi
 
 dnl# adding "_ONCE" causes tests to be done at wrong location, so just call
 dnl# the macros regularly, and in a conditional if necessary:
 if test "x${ac_cv_header_sys_socket_h}" = "x"; then
-  test -z "${ac_cv_header_sys_socket_h}"
+  test -z "${ac_cv_header_sys_socket_h}" || unset ac_cv_header_sys_socket_h
   AC_CHECK_HEADERS([sys/socket.h])
 fi
 AC_CHECK_HEADERS([net/if.h],[],[],[AC_INCLUDES_DEFAULT
@@ -5240,7 +5240,7 @@ AC_C_CHAR_UNSIGNED
 
 dnl# "src/lisp.h" mentions flexible arrays:
 if test "x${ac_cv_c_flexmember}" = "x"; then
-  test -z "${ac_cv_c_flexmember}"
+  test -z "${ac_cv_c_flexmember}" || unset ac_cv_c_flexmember
   AC_C_FLEXIBLE_ARRAY_MEMBER
 fi
 
@@ -5249,7 +5249,7 @@ dnl# DEC C, for instance, does NOT define it with default options, and
 dnl# is used on 64-bit systems (OSF Alphas).  Similarly for volatile
 dnl# and void *.
 if test "x${ac_cv_c_prototypes}" = "x"; then
-  test -z "${ac_cv_c_prototypes}"
+  test -z "${ac_cv_c_prototypes}" || unset ac_cv_c_prototypes
   AC_C_PROTOTYPES
 fi
 AC_C_BACKSLASH_A
@@ -5260,7 +5260,7 @@ fi
 AC_C_TYPEOF
 AC_C_VOLATILE
 if test "x${ac_cv_c_const}" = "x"; then
-  test -z "${ac_cv_c_const}"
+  test -z "${ac_cv_c_const}" || unset ac_cv_c_const
   AC_C_CONST
 fi
 AC_C__GENERIC
@@ -6025,7 +6025,7 @@ fi
 if test "x${opsys}" = "xmingw32"; then
   AC_CHECK_HEADERS([usp10.h])
   if test "x${ac_cv_header_windows_h}" = "x"; then
-    test -z "${ac_cv_header_windows_h}"
+    test -z "${ac_cv_header_windows_h}" || unset ac_cv_header_windows_h
     AC_CHECK_HEADERS([windows.h])
   fi
   AC_MSG_CHECKING([whether Windows API headers are recent enough])
@@ -8056,7 +8056,7 @@ esac
 AC_CHECK_HEADERS([Availability.h])dnl
   ## in case we skipped it, due to no Carbon or something:
 if test "x${ac_cv_header_AvailabilityMacros_h}" = "x"; then
-  test -z "${ac_cv_header_AvailabilityMacros_h}"
+  test -z "${ac_cv_header_AvailabilityMacros_h}" || unset ac_cv_header_AvailabilityMacros_h
   AC_CHECK_HEADERS([AvailabilityMacros.h])dnl
   ## (just in case)
 fi
@@ -8221,7 +8221,7 @@ HAVE_XFIXES=no
 if test "x${HAVE_X11}" = "xyes"; then
   XFIXES_REQUIRED=4.0.0
   XFIXES_MODULES="xfixes >= ${XFIXES_REQUIRED}"
-  m4_ifdef([EMACS_CHECK_MODULES],[
+  m4_ifdef([EMACS_CHECK_MODULES],[dnl
     EMACS_CHECK_MODULES([XFIXES],[${XFIXES_MODULES}])
   ],[
     PKG_CHECK_MODULES([XFIXES],[${XFIXES_MODULES}],[HAVE_XFIXES=yes],
@@ -8345,7 +8345,7 @@ fi
 # sqrt and other floating-point functions such as fmod, logb, and frexp
 # are found in -lm on most systems, but mingw32 does NOT use -lm.
 if test "x${opsys}" != "xmingw32"; then
-  m4_ifdef([LT_LIB_M],[
+  m4_ifdef([LT_LIB_M],[dnl
     LT_LIB_M
   ],[
     # On HPUX 9.01, -lm does not contain logb, so skip it there.
@@ -8470,7 +8470,7 @@ AC_MSG_CHECKING([functions])
 AC_MSG_RESULT([functions functions functions...])
 AC_FUNC_CHOWN
 if test "x${ac_cv_func_fchdir}" = "x"; then
-  test -z "${ac_cv_func_fchdir}"
+  test -z "${ac_cv_func_fchdir}" || unset ac_cv_func_fchdir
   AC_CHECK_FUNCS([fchdir])
 fi
 if test "x${HAVE_FCHDIR}" = "x"; then
@@ -8497,16 +8497,16 @@ AC_MSG_NOTICE([back to function checks from the main ac file])
 if test "x${emacs_cv_var_doug_lea_malloc}" = "x"; then
   if test "x${system_malloc}" = "x"; then
     if test "x${GNU_MALLOC}" -a "x${GMALLOC_OBJ}" = "x"; then
-      test -z "${ac_cv_func_malloc}"
+      test -z "${ac_cv_func_malloc}" || unset ac_cv_func_malloc
       AC_FUNC_MALLOC
     fi
   fi
 fi
 if test "x${ac_cv_func_mbrtowc}" = "x"; then
-  test -z "${ac_cv_func_mbrtowc}"
+  test -z "${ac_cv_func_mbrtowc}" || unset ac_cv_func_mbrtowc
   AC_FUNC_MBRTOWC
 fi
-m4_ifdef([AC_FUNC_MEMCMP],[
+m4_ifdef([AC_FUNC_MEMCMP],[dnl
   AC_FUNC_MEMCMP
 ],[
   AC_CHECK_FUNCS([memcmp])dnl
@@ -8555,16 +8555,16 @@ AC_CHECK_DECLS([cfmakeraw],[],[],[[
 # include <termios.h>
 #endif /* HAVE_TERMIOS_H */
 ]])dnl
-m4_ifdef([AC_CHECK_FUNCS_ONCE],[
+m4_ifdef([AC_CHECK_FUNCS_ONCE],[dnl
   AC_CHECK_FUNCS_ONCE([getdelim pthread_sigmask])dnl
 ],[
   if test "x${ac_cv_func_getdelim}" = "x"; then
-    test -z "${ac_cv_func_getdelim}"
+    test -z "${ac_cv_func_getdelim}" || unset ac_cv_func_getdelim
     AC_CHECK_FUNCS([getdelim])dnl
     ## (in case gnulib fails to do it)
   fi
   if test "x${ac_cv_func_pthread_sigmask}" = "x"; then
-    test -z "${ac_cv_func_pthread_signmask}"
+    test -z "${ac_cv_func_pthread_signmask}" || unset ac_cv_func_pthread_signmask
     AC_CHECK_FUNCS([pthread_sigmask])dnl
     ## (in case gnulib fails to do it)
   fi
@@ -8608,10 +8608,10 @@ dnl# Keep autoscan happy with a dummy condition:
 if test "x" = "Y0"; then
   test -x "`which autoscan`"
   if test "x${ac_cv_lib_error_at_line}" = "x" || test "x${ac_cv_lib_error_at_line}" = "xno"; then
-    test -z "${ac_cv_lib_error_at_line}"
+    test -z "${ac_cv_lib_error_at_line}" || unset ac_cv_lib_error_at_line
     AC_FUNC_ERROR_AT_LINE
   fi
-  m4_ifdef([AC_CHECK_FUNCS_ONCE],[
+  m4_ifdef([AC_CHECK_FUNCS_ONCE],[dnl
     AC_CHECK_FUNCS([getdelim])dnl
   ])dnl
   AC_CHECK_FUNCS([alarm dup2 ftruncate getcwd geteuid gethostbyname \
@@ -8676,19 +8676,17 @@ fi
 dnl# "_ONCE" causes test to be done at wrong location, so leave that off:
 AC_CHECK_HEADERS([sys/un.h])dnl
 
-AC_DEFUN([AC_REQUIRE_FUNC_FSEEKO],[
-  AC_REQUIRE([AC_FUNC_FSEEKO])dnl
-])dnl
+dnl# definition of this moved to m4/functions_extra.m4:
 AC_REQUIRE_FUNC_FSEEKO
 
 # Configure getopt:
 m4_include([m4/getopt.m4])dnl
-m4_ifdef([gl_GETOPT_IFELSE],[
-  gl_GETOPT_IFELSE([
-    m4_ifdef([gl_GETOPT_SUBSTITUTE_HEADER],[
+m4_ifdef([gl_GETOPT_IFELSE],[dnl
+  gl_GETOPT_IFELSE([dnl
+    m4_ifdef([gl_GETOPT_SUBSTITUTE_HEADER],[dnl
       gl_GETOPT_SUBSTITUTE_HEADER
     ])dnl
-    m4_ifdef([gl_PREREQ_GETOPT],[
+    m4_ifdef([gl_PREREQ_GETOPT],[dnl
       gl_PREREQ_GETOPT
     ])dnl
     ## these might be unnecessary with gnulib, but whatever:

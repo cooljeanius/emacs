@@ -145,6 +145,7 @@ java/INSTALL -whitespace
 ChangeLog    merge=cl-merge
 
 # Teach linguist about some files:
+lisp/*/ChangeLog.* linguist-language=text
 etc/TUTORIAL.* linguist-language=text
 etc/tutorials/TUTORIAL* linguist-language=text
 mac/src/*.r linguist-language=rez

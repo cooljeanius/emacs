@@ -6732,9 +6732,6 @@ ac_config_headers="$ac_config_headers src/config.h:src/config.in"
 
 
 
-
-
-
 if test "x${LIBOBJDIR}" = "x"; then
   # The trailing slashes at the end of each of these paths are necessary:
   if test "x${ac_abs_top_srcdir}" != "x"; then
@@ -8454,8 +8451,7 @@ if test "x${enableval}" = "xno"; then
 elif test "x${enableval}" != "xyes"; then
   locallisppath="${enableval}"
 else
-
-     # If set to t, that means we are running in a shell under Emacs.
+       # If set to t, that means we are running in a shell under Emacs.
  # If you have an Emacs named "t", then use the full path.
  test x"$EMACS" = xt && EMACS=
  for ac_prog in emacs xemacs
@@ -12187,7 +12183,6 @@ fi
 
 
 
-
   if test "x${am_cv_prog_cc_c_o}" = "x" && test "x${lt_cv_prog_compiler_c_o}" = "x"; then
     test -z "${am_cv_prog_cc_c_o}" && test -z "${lt_cv_prog_compiler_c_o}"
 
@@ -13800,7 +13795,6 @@ printf "%s\n" "$as_me: done with initial compiler checks, now initializing gnuli
 
 
 
-
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether // is distinct from /" >&5
 printf %s "checking whether // is distinct from /... " >&6; }
 if test ${gl_cv_double_slash_root+y}
@@ -13839,7 +13833,6 @@ printf "%s\n" "$gl_cv_double_slash_root" >&6; }
 printf "%s\n" "#define DOUBLE_SLASH_IS_DISTINCT_ROOT 1" >>confdefs.h
 
   fi
-
 
 
 
@@ -26544,7 +26537,6 @@ printf %s "checking other programs... " >&6; }
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: programs programs programs..." >&5
 printf "%s\n" "programs programs programs..." >&6; }
 :
-
   if test -n "$ac_tool_prefix"; then
   for ac_prog in ar lib "link -lib"
   do
@@ -26849,8 +26841,7 @@ fi
   ## might want to switch around these checks...
   if test "x${ac_cv_prog_AR}" = "x"; then
     test -z "${ac_cv_prog_AR}" || unset ac_cv_prog_AR
-
-      if test -n "$ac_tool_prefix"; then
+          if test -n "$ac_tool_prefix"; then
   # Extract the first word of "${ac_tool_prefix}ar", so it can be a program name with args.
 set dummy ${ac_tool_prefix}ar; ac_word=$2
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
@@ -26959,7 +26950,6 @@ fi
 else
   test -n "${AR}" && export AR
 fi
-
 
   for ac_prog in 'bison -y' byacc
 do
@@ -38536,7 +38526,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 # Only expand once:
 
 
-
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking other programs again" >&5
 printf %s "checking other programs again... " >&6; }
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: programs programs programs..." >&5
@@ -40288,7 +40277,6 @@ pre_PKG_CONFIG_LIBS="${LIBS}"
 
 
 
-
 if test "x$ac_cv_env_PKG_CONFIG_set" != "xset"; then
 	if test -n "$ac_tool_prefix"; then
   # Extract the first word of "${ac_tool_prefix}pkg-config", so it can be a program name with args.
@@ -40996,7 +40984,7 @@ then :
 fi
 
 if test "x${ac_cv_header_limits_h}" = "x"; then
-  test -z "${ac_cv_header_limits_h}"
+  test -z "${ac_cv_header_limits_h}" || unset ac_cv_header_limits_h
   ac_fn_c_check_header_compile "$LINENO" "limits.h" "ac_cv_header_limits_h" "$ac_includes_default"
 if test "x$ac_cv_header_limits_h" = xyes
 then :
@@ -41006,7 +40994,7 @@ fi
 
 fi
 if test "x${ac_cv_header_stdalign_h}" = "x"; then
-  test -z "${ac_cv_header_stdalign_h}"
+  test -z "${ac_cv_header_stdalign_h}" || unset ac_cv_header_stdalign_h
   ac_fn_c_check_header_compile "$LINENO" "stdalign.h" "ac_cv_header_stdalign_h" "$ac_includes_default"
 if test "x$ac_cv_header_stdalign_h" = xyes
 then :
@@ -41016,7 +41004,7 @@ fi
 
 fi
 if test "x${ac_cv_header_sys_vfs_h}" = "x"; then
-  test -z "${ac_cv_header}"
+  test -z "${ac_cv_header_sys_vfs_h}" || unset ac_cv_header_sys_vfs_h
   ac_fn_c_check_header_compile "$LINENO" "sys/vfs.h" "ac_cv_header_sys_vfs_h" "$ac_includes_default"
 if test "x$ac_cv_header_sys_vfs_h" = xyes
 then :
@@ -41026,7 +41014,7 @@ fi
 
 fi
 if test "x${ac_cv_header_wctype_h}" = "x"; then
-  test -z "${ac_cv_header_wctype_h}"
+  test -z "${ac_cv_header_wctype_h}" || unset ac_cv_header_wctype_h
   ac_fn_c_check_header_compile "$LINENO" "wctype.h" "ac_cv_header_wctype_h" "$ac_includes_default"
 if test "x$ac_cv_header_wctype_h" = xyes
 then :
@@ -41036,7 +41024,7 @@ fi
 
 fi
 if test "x${ac_cv_header_features_h}" = "x"; then
-  test -z "${ac_cv_header_features_h}"
+  test -z "${ac_cv_header_features_h}" || unset ac_cv_header_features_h
   ac_fn_c_check_header_compile "$LINENO" "features.h" "ac_cv_header_features_h" "$ac_includes_default"
 if test "x$ac_cv_header_features_h" = xyes
 then :
@@ -44124,7 +44112,7 @@ printf "%s\n" "$ac_res" >&6; }
 
 
 if test "x${ac_cv_header_stdbool_h}" = "x"; then
-  test -z "${ac_cv_header_stdbool_h}"
+  test -z "${ac_cv_header_stdbool_h}" || unset ac_cv_header_stdbool_h
   ac_fn_c_check_type "$LINENO" "_Bool" "ac_cv_type__Bool" "$ac_includes_default"
 if test "x$ac_cv_type__Bool" = xyes
 then :
@@ -44513,7 +44501,7 @@ printf "%s\n" "#define HAVE_DECL_ACL $ac_have_decl" >>confdefs.h
 fi
 
 if test "x${ac_cv_header_sys_wait_h}" = "x"; then
-  test -z "${ac_cv_header_sys_wait_h}"
+  test -z "${ac_cv_header_sys_wait_h}" || unset ac_cv_header_sys_wait_h
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for sys/wait.h that is POSIX.1 compatible" >&5
 printf %s "checking for sys/wait.h that is POSIX.1 compatible... " >&6; }
 if test ${ac_cv_header_sys_wait_h+y}
@@ -44562,7 +44550,7 @@ fi
 fi
 
 if test "x${ac_cv_header_sys_socket_h}" = "x"; then
-  test -z "${ac_cv_header_sys_socket_h}"
+  test -z "${ac_cv_header_sys_socket_h}" || unset ac_cv_header_sys_socket_h
   ac_fn_c_check_header_compile "$LINENO" "sys/socket.h" "ac_cv_header_sys_socket_h" "$ac_includes_default"
 if test "x$ac_cv_header_sys_socket_h" = xyes
 then :
@@ -45429,7 +45417,7 @@ fi
 
 
 if test "x${ac_cv_c_flexmember}" = "x"; then
-  test -z "${ac_cv_c_flexmember}"
+  test -z "${ac_cv_c_flexmember}" || unset ac_cv_c_flexmember
 
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for flexible array member" >&5
 printf %s "checking for flexible array member... " >&6; }
@@ -45484,7 +45472,7 @@ printf "%s\n" "#define FLEXIBLE_ARRAY_MEMBER /**/" >>confdefs.h
 fi
 
 if test "x${ac_cv_c_prototypes}" = "x"; then
-  test -z "${ac_cv_c_prototypes}"
+  test -z "${ac_cv_c_prototypes}" || unset ac_cv_c_prototypes
   if test "$ac_prog_cc_stdc" != no; then
 
 printf "%s\n" "#define PROTOTYPES 1" >>confdefs.h
@@ -45686,7 +45674,7 @@ printf "%s\n" "#define volatile /**/" >>confdefs.h
 fi
 
 if test "x${ac_cv_c_const}" = "x"; then
-  test -z "${ac_cv_c_const}"
+  test -z "${ac_cv_c_const}" || unset ac_cv_c_const
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for an ANSI C-conforming const" >&5
 printf %s "checking for an ANSI C-conforming const... " >&6; }
 if test ${ac_cv_c_const+y}
@@ -49956,7 +49944,7 @@ then :
 fi
 
   if test "x${ac_cv_header_windows_h}" = "x"; then
-    test -z "${ac_cv_header_windows_h}"
+    test -z "${ac_cv_header_windows_h}" || unset ac_cv_header_windows_h
     ac_fn_c_check_header_compile "$LINENO" "windows.h" "ac_cv_header_windows_h" "$ac_includes_default"
 if test "x$ac_cv_header_windows_h" = xyes
 then :
@@ -56071,7 +56059,7 @@ then :
 fi
   ## in case we skipped it, due to no Carbon or something:
 if test "x${ac_cv_header_AvailabilityMacros_h}" = "x"; then
-  test -z "${ac_cv_header_AvailabilityMacros_h}"
+  test -z "${ac_cv_header_AvailabilityMacros_h}" || unset ac_cv_header_AvailabilityMacros_h
   ac_fn_c_check_header_compile "$LINENO" "AvailabilityMacros.h" "ac_cv_header_AvailabilityMacros_h" "$ac_includes_default"
 if test "x$ac_cv_header_AvailabilityMacros_h" = xyes
 then :
@@ -56523,7 +56511,6 @@ HAVE_XFIXES=no
 if test "x${HAVE_X11}" = "xyes"; then
   XFIXES_REQUIRED=4.0.0
   XFIXES_MODULES="xfixes >= ${XFIXES_REQUIRED}"
-
 
       test -n "${edit_cflags}" ##FIXME: do something based on this
 
@@ -57154,8 +57141,7 @@ fi
 # sqrt and other floating-point functions such as fmod, logb, and frexp
 # are found in -lm on most systems, but mingw32 does NOT use -lm.
 if test "x${opsys}" != "xmingw32"; then
-
-    LIBM=
+      LIBM=
 case $host in
 *-*-beos* | *-*-cegcc* | *-*-cygwin* | *-*-haiku* | *-*-pw32* | *-*-darwin*)
   # These system don't have libm, or don't need it
@@ -57647,7 +57633,7 @@ printf "%s\n" "#define HAVE_CHOWN 1" >>confdefs.h
   esac
 
 if test "x${ac_cv_func_fchdir}" = "x"; then
-  test -z "${ac_cv_func_fchdir}"
+  test -z "${ac_cv_func_fchdir}" || unset ac_cv_func_fchdir
   ac_fn_c_check_func "$LINENO" "fchdir" "ac_cv_func_fchdir"
 if test "x$ac_cv_func_fchdir" = xyes
 then :
@@ -57673,6 +57659,7 @@ fi
 printf "%s\n" "$as_me: this next set of function checks come from a separate m4 file" >&6;}
 
 # functions_extra.m4 serial 3 file starts here
+
 
 
 
@@ -60990,8 +60977,8 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam \
         LIBS=$save_LIBS
         test $gl_pthread_api = yes && break
       done
-      echo "$as_me:60993: gl_pthread_api=$gl_pthread_api" >&5
-      echo "$as_me:60994: LIBPTHREAD=$LIBPTHREAD" >&5
+      echo "$as_me:60980: gl_pthread_api=$gl_pthread_api" >&5
+      echo "$as_me:60981: LIBPTHREAD=$LIBPTHREAD" >&5
 
       gl_pthread_in_glibc=no
       # On Linux with glibc >= 2.34, libc contains the fully functional
@@ -61017,7 +61004,7 @@ rm -rf conftest*
 
           ;;
       esac
-      echo "$as_me:61020: gl_pthread_in_glibc=$gl_pthread_in_glibc" >&5
+      echo "$as_me:61007: gl_pthread_in_glibc=$gl_pthread_in_glibc" >&5
 
       # Test for libpthread by looking for pthread_kill. (Not pthread_self,
       # since it is defined as a macro on OSF/1.)
@@ -61195,7 +61182,7 @@ fi
 
         fi
       fi
-      echo "$as_me:61198: LIBPMULTITHREAD=$LIBPMULTITHREAD" >&5
+      echo "$as_me:61185: LIBPMULTITHREAD=$LIBPMULTITHREAD" >&5
     fi
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether POSIX threads API is available" >&5
 printf %s "checking whether POSIX threads API is available... " >&6; }
@@ -66316,11 +66303,7 @@ printf "%s\n" "$gl_cv_header_signal_h_SIGPIPE" >&6; }
 
 
 
-
   ## on to actual modules:
-
-
-
 
 
 
@@ -66341,11 +66324,9 @@ printf "%s\n" "#define GNULIB_TEST_FCHDIR 1" >>confdefs.h
 
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: note that require-ing may lead to checks being done out of order" >&5
 printf "%s\n" "$as_me: note that require-ing may lead to checks being done out of order" >&6;}
-
+         ## have gnulib macro for getgroups
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: using (used?) the gnulib check for getgroups" >&5
 printf "%s\n" "$as_me: using (used?) the gnulib check for getgroups" >&6;}
-
-
 
      if test ${HAVE_GETGROUPS} = 0 || \
                       test ${REPLACE_GETGROUPS} = 1; then
@@ -66380,17 +66361,10 @@ printf "%s\n" "#define GNULIB_TEST_GETGROUPS 1" >>confdefs.h
 
 
 
-
-
-
-
-
-
-
-
+         ## have gnulib macro for memchr
         ## in case the function itself never actually got checked:
     if test "x${ac_cv_func_memchr}" = "x"; then
-      test -z "${ac_cv_func_memchr}"
+      test -z "${ac_cv_func_memchr}" || unset ac_cv_func_memchr
       ac_fn_c_check_func "$LINENO" "memchr" "ac_cv_func_memchr"
 if test "x$ac_cv_func_memchr" = xyes
 then :
@@ -66400,7 +66374,7 @@ fi
 
     fi  ##end check for memchr function check cache value
 
-
+         ## begin gnulib mktime section
     ## case where we have the internal one:
         ## same as below:
     if test "x${gl_cv_func_working_mktime}" = "xno"; then
@@ -66649,22 +66623,11 @@ fi
 
       fi  ##end check for autoconf mktime cache values
     fi  ##end check for gnulib mktime cache values
-
-
-
-
-
-
-
-
-
-
-
-
-
+                                                                                                                ## XXX
+   ## have gnulib macro for strstr
         ## in case the function itself never actually got checked:
     if test "x${ac_cv_func_strstr}" = "x"; then
-      test -z "${ac_cv_func_strstr}"
+      test -z "${ac_cv_func_strstr}" || unset ac_cv_func_strstr
       ac_fn_c_check_func "$LINENO" "strstr" "ac_cv_func_strstr"
 if test "x$ac_cv_func_strstr" = xyes
 then :
@@ -66675,18 +66638,13 @@ fi
     fi  ##end check for strstr function check cache value
 
 
-
-
-
-
-
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: back to function checks from the main ac file" >&5
 printf "%s\n" "$as_me: back to function checks from the main ac file" >&6;}
 
 if test "x${emacs_cv_var_doug_lea_malloc}" = "x"; then
   if test "x${system_malloc}" = "x"; then
     if test "x${GNU_MALLOC}" -a "x${GMALLOC_OBJ}" = "x"; then
-      test -z "${ac_cv_func_malloc}"
+      test -z "${ac_cv_func_malloc}" || unset ac_cv_func_malloc
 
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether malloc (0) returns nonnull" >&5
 printf %s "checking whether malloc (0) returns nonnull... " >&6; }
@@ -66764,7 +66722,7 @@ esac
   fi
 fi
 if test "x${ac_cv_func_mbrtowc}" = "x"; then
-  test -z "${ac_cv_func_mbrtowc}"
+  test -z "${ac_cv_func_mbrtowc}" || unset ac_cv_func_mbrtowc
 
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether mbrtowc and mbstate_t are properly declared" >&5
 printf %s "checking whether mbrtowc and mbstate_t are properly declared... " >&6; }
@@ -66807,7 +66765,6 @@ printf "%s\n" "#define HAVE_MBRTOWC 1" >>confdefs.h
   fi
 
 fi
-
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for working memcmp" >&5
 printf %s "checking for working memcmp... " >&6; }
 if test ${ac_cv_func_memcmp_working+y}
@@ -67987,7 +67944,6 @@ fi
 printf "%s\n" "#define HAVE_DECL_CFMAKERAW $ac_have_decl" >>confdefs.h
 
 
-
   ## reset:
 LIBS="${OLD_LIBS}"
   ## okay, onto more regular function checks...
@@ -68483,7 +68439,7 @@ fi
 if test "x" = "Y0"; then
   test -x "`which autoscan`"
   if test "x${ac_cv_lib_error_at_line}" = "x" || test "x${ac_cv_lib_error_at_line}" = "xno"; then
-    test -z "${ac_cv_lib_error_at_line}"
+    test -z "${ac_cv_lib_error_at_line}" || unset ac_cv_lib_error_at_line
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for error_at_line" >&5
 printf %s "checking for error_at_line... " >&6; }
 if test ${ac_cv_lib_error_at_line+y}
@@ -68524,8 +68480,7 @@ esac
 fi
 
   fi
-
-    ac_fn_c_check_func "$LINENO" "getdelim" "ac_cv_func_getdelim"
+      ac_fn_c_check_func "$LINENO" "getdelim" "ac_cv_func_getdelim"
 if test "x$ac_cv_func_getdelim" = xyes
 then :
   printf "%s\n" "#define HAVE_GETDELIM 1" >>confdefs.h
@@ -68924,7 +68879,6 @@ then :
 printf "%s\n" "#define _LARGEFILE_SOURCE 1" >>confdefs.h
 
 fi
-
 
 
 
@@ -79652,8 +79606,8 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam \
         LIBS=$save_LIBS
         test $gl_pthread_api = yes && break
       done
-      echo "$as_me:79655: gl_pthread_api=$gl_pthread_api" >&5
-      echo "$as_me:79656: LIBPTHREAD=$LIBPTHREAD" >&5
+      echo "$as_me:79609: gl_pthread_api=$gl_pthread_api" >&5
+      echo "$as_me:79610: LIBPTHREAD=$LIBPTHREAD" >&5
 
       gl_pthread_in_glibc=no
       # On Linux with glibc >= 2.34, libc contains the fully functional
@@ -79679,7 +79633,7 @@ rm -rf conftest*
 
           ;;
       esac
-      echo "$as_me:79682: gl_pthread_in_glibc=$gl_pthread_in_glibc" >&5
+      echo "$as_me:79636: gl_pthread_in_glibc=$gl_pthread_in_glibc" >&5
 
       # Test for libpthread by looking for pthread_kill. (Not pthread_self,
       # since it is defined as a macro on OSF/1.)
@@ -79857,7 +79811,7 @@ fi
 
         fi
       fi
-      echo "$as_me:79860: LIBPMULTITHREAD=$LIBPMULTITHREAD" >&5
+      echo "$as_me:79814: LIBPMULTITHREAD=$LIBPMULTITHREAD" >&5
     fi
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether POSIX threads API is available" >&5
 printf %s "checking whether POSIX threads API is available... " >&6; }
