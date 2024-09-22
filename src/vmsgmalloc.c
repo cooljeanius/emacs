@@ -1863,7 +1863,7 @@ tr_morecore (increment)
   p = (__ptr_t) (*__morecore) (increment);
   __morecore = tr_morecore;
 
-  fprintf (mallstream, "$ %p %d\n", p, increment);
+  fprintf (mallstream, "$ %p %ld\n", p, increment);
 
   return p;
 }
@@ -1880,7 +1880,7 @@ tr_lesscore (ptr, increment)
   p = (__ptr_t) (*__lesscore) (ptr, increment);
   __lesscore = tr_lesscore;
 
-  fprintf (mallstream, "* %p (%p, %d)\n", p, ptr, increment);
+  fprintf (mallstream, "* %p (%p, %ld)\n", p, ptr, increment);
 
   return p;
 }
