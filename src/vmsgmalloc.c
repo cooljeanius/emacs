@@ -1897,7 +1897,7 @@ tr_mallochook (size)
   __malloc_hook = tr_mallochook;
 
   /* We could be printing a NULL here; that's OK.  */
-  fprintf (mallstream, "+ %p %x\n", hdr, size);
+  fprintf (mallstream, "+ %p %lx\n", hdr, size);
 
   if (hdr == mallwatch)
     tr_break ();
@@ -1925,9 +1925,9 @@ tr_reallochook (ptr, size)
   __realloc_hook = tr_reallochook;
   if (hdr == NULL)
     /* Failed realloc.  */
-    fprintf (mallstream, "! %p %x\n", ptr, size);
+    fprintf (mallstream, "! %p %lx\n", ptr, size);
   else
-    fprintf (mallstream, "< %p\n> %p %x\n", ptr, hdr, size);
+    fprintf (mallstream, "< %p\n> %p %lx\n", ptr, hdr, size);
 
   if (hdr == mallwatch)
     tr_break ();
