@@ -1,8 +1,9 @@
+---
 name: cooljeanius/emacs
 on:
   push:
     branches:
-    - "**/*"
+      - "**/*"
   pull_request:
 jobs:
   test:
@@ -10,14 +11,19 @@ jobs:
     steps:
     - name: checkout
       uses: actions/checkout@v4
-#     # 'Transformers::TravisCI::Scripts::Dependencies' dependencies are currently unsupported
-#     # 'compiler' was not transformed because there is no suitable equivalent in GitHub Actions
+      # 'Transformers::TravisCI::Scripts::Dependencies' dependencies are
+      # currently unsupported
+      # 'compiler' was not transformed because there is no suitable equivalent
+      # in GitHub Actions
     - run: sudo apt-get update -qq && echo "apt-get packages are up to date"
     - run: DEBIAN_FRONTEND=noninteractive sudo apt-get install --no-install-recommends -y -qq -o=Dpkg::Use-Pty=0 libc-dev ${{ matrix.compiler }} make autoconf automake libncurses-dev gobjc gobjc++ gobjc-multilib gobjc++-multilib autopoint
     - name: Initial build
       run: |
         sh ./autogen.sh
-        ./configure --without-makeinfo --without-gif --without-gnutls --enable-silent-rules --disable-autodepend --without-imagemagick --enable-gcc-warnings --with-x-toolkit=no --with-xpm=no --disable-openmp CC=${{ matrix.compiler }} OBJC=${{ matrix.compiler }}
+        ./configure --without-makeinfo --without-gif --without-gnutls \
+          --enable-silent-rules --disable-autodepend --without-imagemagick \
+          --enable-gcc-warnings --with-x-toolkit=no --with-xpm=no \
+          --disable-openmp CC=${{ matrix.compiler }} OBJC=${{ matrix.compiler }}
         make gnulib_headers || (stat lib/Makefile && wc -l lib/Makefile)
         make only_temacs
         ls src/*emacs
@@ -37,8 +43,10 @@ jobs:
             else \
               echo "skipping scan-build..."; \
             fi; \
-            make -j"$(nproc)" -C src check || make -j"$(nproc)" -ki -C src check; \
-            make -j"$(nproc)" -C lib-src all-plist || make -j"$(nproc)" -ki -C lib-src all-plist; \
+            make -j"$(nproc)" -C src check || \
+              make -j"$(nproc)" -ki -C src check; \
+            make -j"$(nproc)" -C lib-src all-plist || \
+              make -j"$(nproc)" -ki -C lib-src all-plist; \
           elif test -x "$(which gnproc)" && test -n "$(gnproc)" && test "$(gnproc)" -gt 1; then \
             if test -x "$(which scan-build)" && test "${{ matrix.compiler }}" = "clang" && test -d /tmp && test -w /tmp; then \
               echo "first, an attempt at using $(which scan-build)..."; \
@@ -46,8 +54,10 @@ jobs:
             else \
               echo "skipping scan-build..."; \
             fi; \
-            make -j"$(gnproc)" -C src check || make -j"$(gnproc)" -ki -C src check; \
-            make -j"$(gnproc)" -C lib-src all-plist || make -j"$(gnproc)" -ki -C lib-src all-plist; \
+            make -j"$(gnproc)" -C src check || \
+              make -j"$(gnproc)" -ki -C src check; \
+            make -j"$(gnproc)" -C lib-src all-plist || \
+              make -j"$(gnproc)" -ki -C lib-src all-plist; \
           else \
             echo "warning: on the slow path..."; \
             make -C src check || make -ki -C src check; \
@@ -61,8 +71,11 @@ jobs:
       run: |
         if test -d doc && test -x "$(which makeinfo)"; then \
           echo "using $(which makeinfo) for makeinfo with the following version info: $(makeinfo --version)"; \
-          sudo apt-get -qq install -y texlive ghostscript texlive-luatex texlive-pstricks chktex dvidvi dvipng latexdiff latexmk dot2tex texlive-latex-extra; \
-          make -C doc || (make -C doc/emacs && make -C doc/lispintro && make -C doc/lispref && make -C doc/man); \
+          sudo apt-get -qq install -y texlive ghostscript texlive-luatex \
+            texlive-pstricks chktex dvidvi dvipng latexdiff latexmk dot2tex \
+            texlive-latex-extra; \
+          make -C doc || \
+            (make -C doc/emacs && make -C doc/lispintro && make -C doc/lispref && make -C doc/man); \
           if [ $? -ge 1 ]; then \
             echo "giving doc/misc another try"; \
             pushd doc/misc; \
@@ -83,5 +96,5 @@ jobs:
       fail-fast: false
       matrix:
         compiler:
-        - clang
-        - gcc
+          - clang
+          - gcc

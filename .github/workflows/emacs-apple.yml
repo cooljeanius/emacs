@@ -1,8 +1,9 @@
+---
 name: cooljeanius/emacs-apple
 on:
   push:
     branches:
-    - "**/*"
+      - "**/*"
   pull_request:
 jobs:
   test:
@@ -17,13 +18,14 @@ jobs:
         HOMEBREW_VERBOSE_USING_DOTS: 1
       run: |
         set -x
-        brew install make automake gettext texinfo gawk coreutils gnu-sed gnu-which libstxxl rsync libtool
+        brew install make automake gettext texinfo gawk coreutils gnu-sed \
+          gnu-which libstxxl rsync libtool
         if test "${{ matrix.compiler }}" = "gcc"; then \
           brew install lcov libgccjit mingw-w64; \
         elif test "${{ matrix.compiler }}" = "clang"; then \
           brew install clang-build-analyzer clang-format compiledb; \
         elif test -n "${{ matrix.compiler }}"; then \
-          echo "Unknown compiler ${{ matrix.compiler }} may or may not need additional dependencies..."; \
+          echo "Unknown compiler ${{ matrix.compiler }} may or may not need additional deps…"; \
         else \
           echo "OK, that should be it; no additional dependencies needed."; \
         fi
@@ -38,11 +40,21 @@ jobs:
         sh ./autogen.sh
         env | uniq | sort | uniq
         if test "${{ matrix.compiler }}" = "gcc"; then \
-          ./configure --enable-silent-rules --disable-autodepend --enable-gcc-warnings --enable-better-debugging --with-x-toolkit=no --disable-dependency-tracking --with-ns --enable-gcc-link-time-optimization CC=gcc CXX=g++ OBJC=gcc OBJCXX=g++; \
+          ./configure --enable-silent-rules --disable-autodepend \
+            --enable-gcc-warnings --enable-better-debugging \
+            --with-x-toolkit=no --disable-dependency-tracking --with-ns \
+            --enable-gcc-link-time-optimization \
+            CC=gcc CXX=g++ OBJC=gcc OBJCXX=g++; \
         elif test "${{ matrix.compiler }}" = "clang"; then \
-          ./configure --enable-silent-rules --disable-autodepend --enable-gcc-warnings --enable-better-debugging --with-x-toolkit=no --disable-dependency-tracking --with-ns --enable-clang-link-time-optimization CC=clang CXX=clang++ OBJC=clang OBJCXX=clang++; \
+          ./configure --enable-silent-rules --disable-autodepend \
+            --enable-gcc-warnings --enable-better-debugging \
+            --with-x-toolkit=no --disable-dependency-tracking --with-ns \
+            --enable-clang-link-time-optimization \
+            CC=clang CXX=clang++ OBJC=clang OBJCXX=clang++; \
         else \
-          ./configure --enable-silent-rules --disable-autodepend --enable-gcc-warnings --enable-better-debugging --with-x-toolkit=no --disable-dependency-tracking --with-ns; \
+          ./configure --enable-silent-rules --disable-autodepend \
+            --enable-gcc-warnings --enable-better-debugging \
+            --with-x-toolkit=no --disable-dependency-tracking --with-ns; \
         fi
         make gnulib_headers || (stat lib/Makefile && wc -l lib/Makefile)
         if test -x "$(which gmake)" && test -x "$(which nproc)" && test -n "$(nproc)"; then \
@@ -78,7 +90,8 @@ jobs:
           echo "using $(which makeinfo) for makeinfo with the following version info: $(makeinfo --version)"; \
           brew install texlive; \
           echo "nproc says we can use $(nproc) build jobs."; \
-          make -j"$(nproc)" -C doc || make -C doc || (make -C doc/emacs && make -C doc/lispintro && make -C doc/lispref && make -C doc/man); \
+          make -j"$(nproc)" -C doc || make -C doc || \
+            (make -C doc/emacs && make -C doc/lispintro && make -C doc/lispref && make -C doc/man); \
           if [ $? -ge 1 ]; then \
             echo "giving doc/misc another try"; \
             pushd doc/misc; \
@@ -95,7 +108,7 @@ jobs:
         else \
           true; \
           if test -x "$(which sync)"; then sync; fi; \
-          echo "skipping building docs (due to 1 of many possible reasons)..."; \
+          echo "skipping building docs (due to 1 of many possible reasons)…"; \
           if test -e doc/Makefile; then \
             stat doc/Makefile || wc -l doc/Makefile || du doc/Makefile; \
           elif test -d doc; then \
@@ -110,20 +123,29 @@ jobs:
         make install_source
         if test "${{ matrix.compiler }}" = "clang" || test -n "$(gcc --version | grep clang)"; then \
           if test -x "$(which nproc)" && test -n "$(nproc)" && test "$(nproc)" -gt 1; then \
-            make -j"$(nproc)" -C src check || make -j"$(nproc)" -ki -C src check; \
-            make -j"$(nproc)" -C lib-src all-plist || make -j"$(nproc)" -ki -C lib-src all-plist; \
-            make -j"$(nproc)" apple_helper_executables MAC_VERS_CFLAGS="-mmacosx-version-min=10.7 -stdlib=libc++"; \
-            make -j"$(nproc)" apple_check MAC_VERS_CFLAGS="-mmacosx-version-min=10.7"; \
+            make -j"$(nproc)" -C src check || \
+              make -j"$(nproc)" -ki -C src check; \
+            make -j"$(nproc)" -C lib-src all-plist || \
+              make -j"$(nproc)" -ki -C lib-src all-plist; \
+            make -j"$(nproc)" apple_helper_executables \
+              MAC_VERS_CFLAGS="-mmacosx-version-min=10.7 -stdlib=libc++"; \
+            make -j"$(nproc)" apple_check \
+              MAC_VERS_CFLAGS="-mmacosx-version-min=10.7"; \
           elif test -x "$(which gnproc)" && test -n "$(gnproc)" && test "$(gnproc)" -gt 1; then \
-            make -j"$(gnproc)" -C src check || make -j"$(gnproc)" -ki -C src check; \
-            make -j"$(gnproc)" -C lib-src all-plist || make -j"$(gnproc)" -ki -C lib-src all-plist; \
-            make -j"$(gnproc)" apple_helper_executables MAC_VERS_CFLAGS="-mmacosx-version-min=10.7 -stdlib=libc++"; \
-            make -j"$(gnproc)" apple_check MAC_VERS_CFLAGS="-mmacosx-version-min=10.7"; \
+            make -j"$(gnproc)" -C src check || \
+              make -j"$(gnproc)" -ki -C src check; \
+            make -j"$(gnproc)" -C lib-src all-plist || \
+              make -j"$(gnproc)" -ki -C lib-src all-plist; \
+            make -j"$(gnproc)" apple_helper_executables \
+              MAC_VERS_CFLAGS="-mmacosx-version-min=10.7 -stdlib=libc++"; \
+            make -j"$(gnproc)" apple_check \
+              MAC_VERS_CFLAGS="-mmacosx-version-min=10.7"; \
           else \
             echo "warning: on the slow path..."; \
             make -C src check || make -ki -C src check; \
             make -C lib-src all-plist || make -ki -C lib-src all-plist; \
-            make apple_helper_executables MAC_VERS_CFLAGS="-mmacosx-version-min=10.7 -stdlib=libc++"; \
+            make apple_helper_executables \
+              MAC_VERS_CFLAGS="-mmacosx-version-min=10.7 -stdlib=libc++"; \
             make apple_check MAC_VERS_CFLAGS="-mmacosx-version-min=10.7"; \
           fi; \
         else \
@@ -136,5 +158,5 @@ jobs:
       fail-fast: false
       matrix:
         compiler:
-        - clang
-        - gcc
+          - clang
+          - gcc

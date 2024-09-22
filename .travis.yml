@@ -1,3 +1,4 @@
+---
 # Copyright (C) 2017-2018 Free Software Foundation, Inc.
 #
 #  This file is part of GNU Emacs.
@@ -38,4 +39,3 @@ after_failure: autoconf --version
 compiler:
   - clang
   - gcc
-
