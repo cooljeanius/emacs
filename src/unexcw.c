@@ -242,7 +242,7 @@ fixup_executable (int fd)
 	  __malloc_initialized = 1;
 	  assert (ret == (my_endbss - (char *) start_address));
 	  if (debug_unexcw)
-	    printf ("         .bss, mem start %#lx mem length %d\n",
+	    printf ("         .bss, mem start %#lx mem length %ld\n",
 		    start_address, my_endbss - (char *) start_address);
 	  if (debug_unexcw)
 	    printf ("         .bss, file start %d file length %d\n",
