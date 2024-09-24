@@ -158,7 +158,7 @@ fixup_executable (int fd)
 	  assert (ret == my_edata - (char *) start_address);
 	  ++found_data;
 	  if (debug_unexcw)
-	    printf ("         .data, mem start %#lx mem length %d\n",
+	    printf ("         .data, mem start %#lx mem length %ld\n",
 		    start_address, my_edata - (char *) start_address);
 	  if (debug_unexcw)
 	    printf ("         .data, file start %d file length %d\n",
