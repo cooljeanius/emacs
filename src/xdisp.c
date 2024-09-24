@@ -9219,7 +9219,7 @@ move_it_vertically_backward (struct it *it, int dy)
   if (it->line_wrap == TRUNCATE)
     pos_limit = BEGV;
   else
-    pos_limit = max (start_pos - nlines * nchars_per_row, BEGV);
+    pos_limit = max (start_pos - (ptrdiff_t)nlines * nchars_per_row, BEGV);
 
   /* Set the iterator's position that many lines back.  But don't go
      back more than NLINES full screen lines -- this wins a day with
