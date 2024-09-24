@@ -15194,7 +15194,7 @@ compute_window_start_on_continuation_line (struct window *w)
          say it takes too much time to compute a new window start.  */
       if (CHARPOS (start_pos) - IT_CHARPOS (it)
 	  /* PXW: Do we need upper bounds here?  */
-	  < WINDOW_TOTAL_LINES (w) * WINDOW_TOTAL_COLS (w))
+	  < (long) WINDOW_TOTAL_LINES (w) * WINDOW_TOTAL_COLS (w))
 	{
 	  int min_distance, distance;
 
