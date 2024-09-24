@@ -705,7 +705,7 @@ x_reply_selection_request (struct input_event *event,
 	    XChangeProperty (display, window, cs->property,
 			     cs->type, cs->format, PropModeAppend,
 			     cs->data, i);
-	    bytes_remaining -= i * format_bytes;
+	    bytes_remaining -= (long)i * format_bytes;
 	    cs->data += i * ((cs->format == 32) ? sizeof (long)
 			     : format_bytes);
 	    XFlush (display);
