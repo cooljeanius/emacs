@@ -602,7 +602,7 @@ unexec (new_name, old_name, data_start, bss_start, entry_address)
 
   memcpy (new_file_h, old_file_h, old_file_h->e_ehsize);
   memcpy (new_program_h, old_program_h,
-	  old_file_h->e_phnum * old_file_h->e_phentsize);
+	  (size_t)old_file_h->e_phnum * old_file_h->e_phentsize);
 
   /* Modify the e_shstrndx if necessary. */
   PATCH_INDEX (new_file_h->e_shstrndx);
