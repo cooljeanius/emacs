@@ -23,7 +23,7 @@ jobs:
         if test "${{ matrix.compiler }}" = "gcc"; then \
           brew install lcov libgccjit mingw-w64; \
         elif test "${{ matrix.compiler }}" = "clang"; then \
-          brew install clang-build-analyzer clang-format compiledb; \
+          brew install clang-build-analyzer compiledb; \
         elif test -n "${{ matrix.compiler }}"; then \
           echo "Unknown compiler ${{ matrix.compiler }} may or may not need additional deps…"; \
         else \
@@ -109,8 +109,8 @@ jobs:
           true; \
           if test -x "$(which sync)"; then sync; fi; \
           echo "skipping building docs (due to 1 of many possible reasons)…"; \
-          if test -r doc/Makefile && test -w /dev/stdout; then \
-            stat doc/Makefile && wc -l doc/Makefile && du doc/Makefile; \
+          if test -d . && test -r doc/Makefile && test -w /dev/stdout; then \
+            pwd && stat doc/Makefile && wc -l doc/Makefile && du doc/Makefile; \
           elif test -e doc/Makefile; then \
             stat doc/Makefile || wc -l doc/Makefile || du doc/Makefile; \
           elif test -d doc; then \
