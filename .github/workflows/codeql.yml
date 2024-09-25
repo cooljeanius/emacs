@@ -84,7 +84,7 @@ jobs:
       run: |
         sudo apt-get -qq update
         sudo apt-get -y install --fix-missing autopoint gobjc gtk+2.0 gtk+3.0 \
-          libxpm-dev ruby
+          libxpm-dev ruby indent
 
     - name: Build (as much as possible)
       if: matrix.language == 'c-cpp'
@@ -95,12 +95,12 @@ jobs:
           --enable-gcc-warnings
         make gnulib_headers || (stat lib/Makefile && wc -l lib/Makefile)
         if test -x "$(which gmake)" && test -x "$(which nproc)" && test -n "$(nproc)" && test "$(nproc)" -gt 1; then \
-          echo "attempting parallel build with $(nproc) jobs..."; \
+          sync && echo "attempting parallel build with $(nproc) jobs..."; \
           gmake -j"$(nproc)" --output-sync --no-print-directory only_temacs; \
           gmake -j"$(nproc)" --output-sync --no-print-directory all_only_c; \
         else \
-          make only_temacs; \
-          make all_only_c; \
+          sync && make only_temacs; \
+          sync && make all_only_c; \
         fi
         make -C admin check || make -C admin alloc-colors.o || ruby -c ./*.rb
         # shellcheck disable=SC2001
@@ -109,11 +109,11 @@ jobs:
           for srcfile in *.c; do \
             echo "attempting to use $(which make) to compile ${srcfile} in ${subdir}"; \
             make "$(echo "${srcfile}" | sed "s/\.c/.o/g")" \
-              CFLAGS="-w -Wfatal-errors" || stat -t "${srcfile}"; \
+              CFLAGS="-w -Wfatal-errors" || (sync && stat -t "${srcfile}"); \
           done; \
           popd; \
         done
-        make -C test/automated/flymake/warnpred CHK_SOURCES=test.c
+        sync && make -C test/automated/flymake/warnpred CHK_SOURCES=test.c
         find . -name '*.o' -exec cp -v {} . ";" || \
           echo "in $(pwd): failed copying an object file"
 
@@ -124,9 +124,9 @@ jobs:
         for cfile in $(find . -name '*.c' -type f); do \
           cobjfile="$(echo "${cfile}" | sed "s/\.c/.o/g")"; \
           if test ! -e "${cobjfile}"; then \
-            echo "One last attempt at compiling ${cfile}..."; \
+            sync && echo "One last attempt at compiling ${cfile}..."; \
             gcc -c -I. -I.. "${cfile}" || stat "${cfile}" || \
-              echo "cfile is ${cfile}"; \
+              (sync && echo "cfile is ${cfile}"); \
           else \
             echo "object file ${cobjfile} already exists for ${cfile}."; \
             cp -v "${cobjfile}" "$(dirname "${cfile}")" || \
@@ -186,17 +186,24 @@ jobs:
     - name: Syntax check
       run: |
         if test "${{ matrix.language }}" = "python"; then \
-          echo "Checking syntax... $(python -m py_compile etc/*.py)"; \
+          sync && echo "Checking syntax... $(python -m py_compile etc/*.py)"; \
         elif test "${{ matrix.language}}" = "javascript-typescript"; then \
-          node -c test/indent/js.js || \
+          (sync && node -c test/indent/js.js) || \
             (stat test/indent/js.js && wc -l test/indent/js.js); \
+          if test -d scan-build && test -r scan-build/sorttable.js; then \
+            (sync && node -c scan-build/sorttable.js) || \
+              (stat scan-build/sorttable.js && wc -l scan-build/sorttable.js); \
+          fi; \
         elif test "${{ matrix.language }}" = "ruby"; then \
-          ruby -cwv ./*.rb || ruby -c ./*.rb || ls ./*.rb || which ruby; \
+          (ruby -cwv ./*.rb || ruby -c ./*.rb) && ls ./*.rb && which ruby; \
         elif test "${{ matrix.language }}" = "c-cpp" && test -e GNUmakefile && test -e maint.mk && test -x "$(which nproc)" && test -n "$(nproc)" && test "$(nproc)" -gt 1; then \
-          make -j"$(nproc)" syntax-check V=0 || ls .sc-start-sc_* || \
-            stat GNUmakefile || stat maint.mk; \
+          make -j"$(nproc)" syntax-check V=0 || (sync && ls .sc-start-sc_*) || \
+            (sync && stat GNUmakefile) || (sync && stat maint.mk); \
         else \
           echo "no special syntax checking for ${{ matrix.language }} (yet)"; \
+          if test "${{ matrix.language }}" = "java-kotlin"; then \
+            sync && sleep 1; \
+          fi; \
         fi
 
     - name: Perform CodeQL Analysis
