@@ -1130,17 +1130,26 @@ mark_x (name)
 {
   struct stat sbuf;
   int um;
+  int fd;
   int new = 0;  /* for PERROR */
 
   um = umask (777);
   umask (um);
-  if (stat (name, &sbuf) == -1)
+  fd = open(name, O_RDWR);
+  if (fd == -1)
+    {
+      PERROR (name);
+    }
+  if (fstat(fd, &sbuf) == -1)
     {
       PERROR (name);
     }
   sbuf.st_mode |= 0111 & ~um;
-  if (chmod (name, sbuf.st_mode) == -1)
-    PERROR (name);
+  if (fchmod(fd, sbuf.st_mode) == -1)
+    {
+      PERROR (name);
+    }
+  close(fd);
 }
 
 #ifdef COFF
