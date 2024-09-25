@@ -793,14 +793,14 @@ do_direct_scrolling (struct frame *frame, struct glyph_matrix *current_matrix,
 }
 
 
-
+/* */
 void
 scrolling_1 (struct frame *frame, int window_size, int unchanged_at_top,
 	     int unchanged_at_bottom, int *draw_cost, int *old_draw_cost,
 	     int *old_hash, int *new_hash, int free_at_end)
 {
-  struct matrix_elt *matrix
-    = alloca ((window_size + 1) * (window_size + 1) * sizeof *matrix);
+  struct matrix_elt *matrix =
+    (struct matrix_elt *)alloca((size_t)(window_size + 1UL) * (window_size + 1UL) * sizeof(*matrix));
 
   if (FRAME_SCROLL_REGION_OK (frame))
     {
