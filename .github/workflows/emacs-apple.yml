@@ -77,7 +77,7 @@ jobs:
         fi
         ls src/*emacs
         cd lisp && make update-subdirs
-    - run: sync && make all_only_c && sync
+    - run: sync && make all_only_c && sync && find . -name '*.o' -print
       if: "${{ success() }}"
     - name: Build docs
       if: "${{ success() }}"
@@ -87,7 +87,7 @@ jobs:
         HOMEBREW_VERBOSE_USING_DOTS: 1
       run: |
         if test -d doc && test -w doc && test -x "$(which makeinfo)" && test -x "$(which brew)" && test -x "$(which nproc)" && test -n "$(nproc)" && test "$(nproc)" -ge 2 && test -x "$(which make)" && test -r doc/Makefile && test -x "$(which texi2dvi)" && test -x "$(which texi2pdf)" && test -x "$(which dvips)"; then \
-          echo "using $(which makeinfo) for makeinfo with the following version info: $(makeinfo --version)"; \
+          echo "using $(which makeinfo) for makeinfo w/the following vers. info: $(makeinfo --version)"; \
           brew install texlive; \
           echo "nproc says we can use $(nproc) build jobs."; \
           make -j"$(nproc)" -C doc || make -C doc || \
@@ -109,7 +109,9 @@ jobs:
           true; \
           if test -x "$(which sync)"; then sync; fi; \
           echo "skipping building docs (due to 1 of many possible reasons)…"; \
-          if test -e doc/Makefile; then \
+          if test -r doc/Makefile && test -w /dev/stdout; then \
+            stat doc/Makefile && wc -l doc/Makefile && du doc/Makefile; \
+          elif test -e doc/Makefile; then \
             stat doc/Makefile || wc -l doc/Makefile || du doc/Makefile; \
           elif test -d doc; then \
             ls -R doc; \

@@ -108,8 +108,8 @@ jobs:
           pushd "${subdir}"; \
           for srcfile in *.c; do \
             echo "attempting to use $(which make) to compile ${srcfile} in ${subdir}"; \
-            make "$(echo "${srcfile}" | sed "s/\.c/.o/g")" CFLAGS="-w -Wfatal-errors" || \
-              stat -t "${srcfile}"; \
+            make "$(echo "${srcfile}" | sed "s/\.c/.o/g")" \
+              CFLAGS="-w -Wfatal-errors" || stat -t "${srcfile}"; \
           done; \
           popd; \
         done
