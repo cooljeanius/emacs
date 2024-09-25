@@ -800,7 +800,7 @@ scrolling_1 (struct frame *frame, int window_size, int unchanged_at_top,
 	     int *old_hash, int *new_hash, int free_at_end)
 {
   struct matrix_elt *matrix
-    = alloca ((window_size + 1) * (window_size + 1) * sizeof *matrix);
+    = alloca ((unsigned long)(window_size + 1) * (window_size + 1) * sizeof *matrix);
 
   if (FRAME_SCROLL_REGION_OK (frame))
     {
