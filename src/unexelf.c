@@ -826,7 +826,7 @@ unexec (const char *new_name, const char *old_name)
 
   memcpy (new_file_h, old_file_h, old_file_h->e_ehsize);
   memcpy (new_program_h, old_program_h,
-	  old_file_h->e_phnum * old_file_h->e_phentsize);
+	  (size_t)old_file_h->e_phnum * old_file_h->e_phentsize);
 
   /* Modify the e_shstrndx if necessary. */
   PATCH_INDEX (new_file_h->e_shstrndx);
