@@ -1,5 +1,5 @@
 ---
-# .github/workflows/codeql.yml: codeql workflow for emacs
+# .github/workflows/codeql.yml: GitHub Actions CodeQL workflow for emacs
 # For most projects, this workflow file will not need changing; you simply need
 # to commit it to your repository.
 #
@@ -23,7 +23,7 @@ on:
       - /etc/TUTORIAL.es
       - /etc/tutorials/TUTORIAL.es
   pull_request:
-    # The branches below must be a subset of the branches above
+    # The branches below must be a subset of the branches above:
     branches:
       - master
       - dependabot/*
@@ -115,7 +115,7 @@ jobs:
         done
         make -C test/automated/flymake/warnpred CHK_SOURCES=test.c
         find . -name '*.o' -exec cp -v {} . ";" || \
-          echo "failed copying an object file"
+          echo "in $(pwd): failed copying an object file"
 
     - name: Extra coverage build (C)
       if: matrix.language == 'c-cpp' && success()
@@ -165,7 +165,8 @@ jobs:
             make -C lib-src all-plist || make -ki -C lib-src all-plist; \
             make apple_check || make -ki apple_check; \
           fi; \
-          if [ $? -ge 1 ]; then \
+          r=$?; \
+          if [ $r -ge 1 ]; then \
             for mysubdir in lib-src src; do \
               pushd ${mysubdir}; \
               for srcfile in *.c; do \
@@ -176,7 +177,7 @@ jobs:
               popd; \
             done; \
           else \
-            echo "return code says we are done; so much for static analysis w/clang…"; \
+            echo "return code is '$r'; so much for static analysis w/clang…"; \
           fi; \
         else \
           echo "no usable clang found for static analysis!"; \

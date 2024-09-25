@@ -16,7 +16,13 @@ jobs:
       # 'compiler' was not transformed because there is no suitable equivalent
       # in GitHub Actions
     - run: sudo apt-get update -qq && echo "apt-get packages are up to date"
-    - run: DEBIAN_FRONTEND=noninteractive sudo apt-get install --no-install-recommends -y -qq -o=Dpkg::Use-Pty=0 libc-dev ${{ matrix.compiler }} make autoconf automake libncurses-dev gobjc gobjc++ gobjc-multilib gobjc++-multilib autopoint
+    - name: Install dependencies with apt-get
+      run: |
+        export DEBIAN_FRONTEND=noninteractive
+        sudo apt-get install --no-install-recommends -y -qq -o=Dpkg::Use-Pty=0 \
+          libc-dev ${{ matrix.compiler }} make autoconf automake \
+          libncurses-dev gobjc gobjc++ gobjc-multilib gobjc++-multilib \
+          autopoint
     - name: Initial build
       run: |
         sh ./autogen.sh
@@ -70,7 +76,7 @@ jobs:
       if: "${{ success() }}"
       run: |
         if test -d doc && test -x "$(which makeinfo)"; then \
-          echo "using $(which makeinfo) for makeinfo with the following version info: $(makeinfo --version)"; \
+          echo "using $(which makeinfo) for makeinfo w/the following vers. info: $(makeinfo --version)"; \
           sudo apt-get -qq install -y texlive ghostscript texlive-luatex \
             texlive-pstricks chktex dvidvi dvipng latexdiff latexmk dot2tex \
             texlive-latex-extra; \

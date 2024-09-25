@@ -38,7 +38,7 @@ jobs:
           echo "matrix.compiler unset (possibly wrong variable?)"; \
         fi
         sh ./autogen.sh
-        env | uniq | sort | uniq
+        env | uniq | sort | uniq  | grep -v "\*\*\*" | grep -v "PWD\="
         if test "${{ matrix.compiler }}" = "gcc"; then \
           ./configure --enable-silent-rules --disable-autodepend \
             --enable-gcc-warnings --enable-better-debugging \
@@ -106,7 +106,7 @@ jobs:
             echo "so much for doc/misc..."; \
           fi; \
         else \
-          true; \
+          true || type true; \
           if test -x "$(which sync)"; then sync; fi; \
           echo "skipping building docs (due to 1 of many possible reasons)…"; \
           if test -d . && test -r doc/Makefile && test -w /dev/stdout; then \
