@@ -2244,7 +2244,7 @@ x_create_x_image_and_pixmap(struct frame *f, int width, int height,
     }
 
   /* Allocate image raster: */
-  (*ximg)->data = xmalloc((*ximg)->bytes_per_line * height);
+  (*ximg)->data = xmalloc((size_t)(*ximg)->bytes_per_line * height);
 
   /* Allocate a pixmap of the same size: */
   *pixmap = XCreatePixmap(display, window, width, height, depth);
