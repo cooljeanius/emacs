@@ -3169,7 +3169,7 @@ xbm_image_p (Lisp_Object object)
       else if (STRINGP (data))
 	{
 	  if (SCHARS (data)
-	      < (width + BITS_PER_CHAR - 1) / BITS_PER_CHAR * height)
+	      < (width + BITS_PER_CHAR - 1) / BITS_PER_CHAR * (long) height)
 	    return 0;
 	}
       else if (BOOL_VECTOR_P (data))
