@@ -10949,14 +10949,16 @@ if test -f "${srcdir}/${opt_makefile}.in"; then
   dnl# ",[],[opt_makefile='${opt_makefile}']" and it should work.
   AC_CONFIG_FILES([test/automated/Makefile])
 fi
-if test -d test/infra && test -r "${srcdir}/test/infra/Makefile.in"; then
-  SUBDIR_MAKEFILES="${SUBDIR_MAKEFILES} test/infra/Makefile
-  AC_CONFIG_FILES([test/infra/Makefile])
-fi
-if test -d test/manual/noverlay && test -r "${srcdir}/test/manual/noverlay/Makefile.in"; then
-  SUBDIR_MAKEFILES="${SUBDIR_MAKEFILES} test/manual/noverlay/Makefile
-  AC_CONFIG_FILES([test/manual/noverlay/Makefile])
-fi
+
+AS_IF([test -d test/infra && test -r "${srcdir}/test/infra/Makefile.in"],[
+  SUBDIR_MAKEFILES="${SUBDIR_MAKEFILES} test/infra/Makefile"
+  AC_CONFIG_FILES([test/infra/Makefile])dnl
+])dnl
+
+AS_IF([test -d test/manual/noverlay && test -r "${srcdir}/test/manual/noverlay/Makefile.in"],[
+  SUBDIR_MAKEFILES="${SUBDIR_MAKEFILES} test/manual/noverlay/Makefile"
+  AC_CONFIG_FILES([test/manual/noverlay/Makefile])dnl
+])dnl
 
 dnl# this subdir is imported from ld64, and used like a library for the
 dnl# isemacsvalid executable:

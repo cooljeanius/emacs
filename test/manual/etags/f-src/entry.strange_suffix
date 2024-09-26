@@ -1,3 +1,4 @@
+C -*- Fortran -*-
 C$Procedure      PRTPKG ( Declare Arguments for Error Message Routines )
  
       LOGICAL FUNCTION PRTPKG ( SHORT, LONG, EXPL, TRACE, DFAULT, TYPE )
