@@ -2158,7 +2158,7 @@ usage: (ccl-execute-on-string CCL-PROGRAM STATUS STRING &optional CONTINUE UNIBY
 		      Qnil);
 	  produced_chars += ccl.produced;
 	  offset = outp - outbuf;
-	  shortfall = ccl.produced * max_expansion - (outbufsize - offset);
+	  shortfall = (ptrdiff_t)ccl.produced * max_expansion - (outbufsize - offset);
 	  if (shortfall > 0)
 	    {
 	      outbuf = xpalloc (outbuf, &outbufsize, shortfall, -1, 1);
