@@ -3719,7 +3719,7 @@ xbm_load (struct frame *f, struct image *img)
 	      char *p;
 	      int nbytes = (img->width + BITS_PER_CHAR - 1) / BITS_PER_CHAR;
 
-	      p = bits = alloca (nbytes * img->height);
+	      p = bits = (char *)alloca((size_t)nbytes * img->height);
 	      for (i = 0; i < img->height; ++i, p += nbytes)
 		{
 		  Lisp_Object line = AREF (data, i);
