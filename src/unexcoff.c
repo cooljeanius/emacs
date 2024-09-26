@@ -439,16 +439,26 @@ mark_x (const char *name)
   struct stat sbuf;
   int um;
   int new = 0;  /* for PERROR */
+  int fd;
 
   um = umask (777);
   umask (um);
-  if (stat (name, &sbuf) == -1)
+  fd = open(name, O_WRONLY);
+  if (fd == -1)
     {
       PERROR (name);
+      return;
+    }
+  if (fstat(fd, &sbuf) == -1)
+    {
+      PERROR (name);
+      close(fd);
+      return;
     }
   sbuf.st_mode |= 0111 & ~um;
-  if (chmod (name, sbuf.st_mode) == -1)
+  if (fchmod(fd, sbuf.st_mode) == -1)
     PERROR (name);
+  close(fd);
 }
 
 
