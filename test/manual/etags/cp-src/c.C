@@ -1,3 +1,4 @@
+// -*- C++ -*-
 template <typename ipc3dIslandHierarchy, typename ipc3dChannelType, unsigned numOfChannels, typename ipc3dLinkControl, typename ipc3dLinkControlSetup>
 class CMultiChannelCSC19_3D
 {

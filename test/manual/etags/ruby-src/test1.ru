@@ -1,3 +1,4 @@
+# -*- Ruby -*-
 class A
  def a()
   super(" do ")

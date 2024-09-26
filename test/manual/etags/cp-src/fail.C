@@ -1,3 +1,4 @@
+// -*- C++ -*-
 /* Examples provided by Sam Kendall <kendall@mv.mv.com>, Jan 1997 */
 
 // check use of references with nested/local classes

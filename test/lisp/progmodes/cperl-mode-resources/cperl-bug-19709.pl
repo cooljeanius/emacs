@@ -1,3 +1,5 @@
+#!/usr/bin/env perl
+# -*- mode: cperl -*-
 # -------- bug#19709: input --------
 my $a = func1(
     Module::test()

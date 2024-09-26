@@ -1,3 +1,5 @@
+#!/usr/bin/env perl
+# -*- mode: cperl -*-
 # The next two lines are required as of 2022, but obsolescent
 # as soon as signatures leave their "experimental" state
 use feature 'signatures';

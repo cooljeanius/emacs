@@ -1,4 +1,4 @@
-// Template array classes with like-type math ops
+// Template array classes with like-type math ops for -*- C++ -*-
 /*
 
 Copyright (C) 1996 John W. Eaton

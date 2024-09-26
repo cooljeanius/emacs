@@ -1,3 +1,4 @@
+// -*- Objective-C++ -*-
 //	SimpleCalc -- Randy Nelson -- NeXT Developer Training
 //	A general class that serves as a liaison between a calculator interface
 //	and a calculator engine.

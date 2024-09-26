@@ -1,3 +1,4 @@
+// -*- PHP -*-
 define("TEST", 0);
 
 class
