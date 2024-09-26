@@ -121997,6 +121997,16 @@ if test -f "${srcdir}/${opt_makefile}.in"; then
       ac_config_files="$ac_config_files test/automated/Makefile"
 
 fi
+if test -d test/infra && test -r "${srcdir}/test/infra/Makefile.in"; then
+  SUBDIR_MAKEFILES="${SUBDIR_MAKEFILES} test/infra/Makefile
+  ac_config_files="$ac_config_files test/infra/Makefile"
+
+fi
+if test -d test/manual/noverlay && test -r "${srcdir}/test/manual/noverlay/Makefile.in"; then
+  SUBDIR_MAKEFILES="${SUBDIR_MAKEFILES} test/manual/noverlay/Makefile
+  ac_config_files="$ac_config_files test/manual/noverlay/Makefile"
+
+fi
 
 if test -d machocheck || test -d ${srcdir}/machocheck; then
   SUBDIR_MAKEFILES="${SUBDIR_MAKEFILES} machocheck/Makefile"
@@ -123415,6 +123425,8 @@ do
     "nt/Makefile") CONFIG_FILES="$CONFIG_FILES nt/Makefile" ;;
     "po/Makevars") CONFIG_FILES="$CONFIG_FILES po/Makevars" ;;
     "test/automated/Makefile") CONFIG_FILES="$CONFIG_FILES test/automated/Makefile" ;;
+    "test/infra/Makefile") CONFIG_FILES="$CONFIG_FILES test/infra/Makefile" ;;
+    "test/manual/noverlay/Makefile") CONFIG_FILES="$CONFIG_FILES test/manual/noverlay/Makefile" ;;
     "machocheck/Makefile") CONFIG_FILES="$CONFIG_FILES machocheck/Makefile" ;;
     "admin/Makefile") CONFIG_FILES="$CONFIG_FILES admin/Makefile" ;;
     "admin/unidata/Makefile") CONFIG_FILES="$CONFIG_FILES admin/unidata/Makefile" ;;
