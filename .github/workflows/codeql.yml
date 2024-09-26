@@ -104,7 +104,7 @@ jobs:
         fi
         make -C admin check || make -C admin alloc-colors.o || ruby -c ./*.rb
         # shellcheck disable=SC2001
-        for subdir in lib lib/bitset lib/malloc lib/uniwidth lib-src lwlib mac/src msdos oldXMenu src test/cedet/tests; do \
+        for subdir in lib lib/bitset lib/malloc lib/uniwidth lib-src lwlib mac/src msdos oldXMenu src test/cedet/tests test/manual/noverlay; do \
           pushd "${subdir}"; \
           for srcfile in *.c; do \
             echo "attempting to use $(which make) to compile ${srcfile} in ${subdir}"; \
@@ -114,10 +114,11 @@ jobs:
           popd; \
         done
         sync && make -C test/automated/flymake/warnpred CHK_SOURCES=test.c
+        sync && make -C test/lisp/progmodes/flymake-resources CHK_SOURCES=test.c
         find . -name '*.o' -exec cp -v {} . ";" || \
           echo "in $(pwd): failed copying an object file"
 
-    - name: Extra coverage build (C)
+    - name: Extra coverage build (C and C++)
       if: matrix.language == 'c-cpp' && success()
       run: |
         # shellcheck disable=SC2001,SC2044
@@ -132,6 +133,16 @@ jobs:
             cp -v "${cobjfile}" "$(dirname "${cfile}")" || \
               cp -v "${cobjfile}" . || cp -v "${cobjfile}" ..; \
           fi; \
+        done
+        # shellcheck disable=SC2044
+        for ccfile in $(find . -name '*.cc' -type f); do \
+          sync && echo "One last attempt at compiling ${ccfile}..."; \
+          (test -x "$(which sccache)" && sccache g++ -c "${ccfile}") || g++ -c -Wfatal-errors "${ccfile}" || g++ -c -w -Wfatal-errors -I. "${ccfile}" || g++ -c -w -Wno-error -Wfatal-errors -fpermissive -I. -I.. "${ccfile}" || stat -t "${ccfile}"; \
+        done
+        # shellcheck disable=SC2044
+        for cppfile in $(find . -name '*.cpp' -type f); do \
+          sync && echo "One last attempt at compiling ${cppfile}..."; \
+          (test -x "$(which sccache)" && sccache g++ -c "${cppfile}") || g++ -c -Wfatal-errors "${cppfile}" || g++ -c -w -Wfatal-errors -I. "${cppfile}" || g++ -c -w -Wno-error -Wfatal-errors -fpermissive -I. -I.. "${cppfile}" || stat -t "${cppfile}"; \
         done
 
     - name: Extra coverage build (Java)
