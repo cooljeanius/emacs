@@ -106,6 +106,7 @@ jobs:
         # shellcheck disable=SC2001
         for subdir in lib lib/bitset lib/malloc lib/uniwidth lib-src lwlib mac/src msdos oldXMenu src test/cedet/tests test/manual/noverlay; do \
           pushd "${subdir}"; \
+          echo "now in ${subdir} (i.e. $(pwd))"; \
           for srcfile in *.c; do \
             echo "attempting to use $(which make) to compile ${srcfile} in ${subdir}"; \
             make "$(echo "${srcfile}" | sed "s/\.c/.o/g")" \
@@ -114,7 +115,9 @@ jobs:
           popd; \
         done
         sync && make -C test/automated/flymake/warnpred CHK_SOURCES=test.c
-        sync && make -C test/lisp/progmodes/flymake-resources CHK_SOURCES=test.c
+        pushd test/lisp/progmodes/flymake-resources
+        make CHK_SOURCES=test.c || make check-syntax CHK_SOURCES=test.c
+        popd
         find . -name '*.o' -exec cp -v {} . ";" || \
           echo "in $(pwd): failed copying an object file"
 
