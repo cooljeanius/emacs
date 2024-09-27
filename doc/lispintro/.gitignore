@@ -20,3 +20,8 @@
 *.txt
 Makefile
 makefile
+
+# Allow these:
+!cons-*.pdf
+!drawers.pdf
+!lambda-*.pdf

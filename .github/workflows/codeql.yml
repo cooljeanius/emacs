@@ -116,7 +116,8 @@ jobs:
         done
         sync && make -C test/automated/flymake/warnpred CHK_SOURCES=test.c
         pushd test/lisp/progmodes/flymake-resources
-        make CHK_SOURCES=test.c || make check-syntax CHK_SOURCES=test.c
+        sync && pwd
+        make CHK_SOURCES=test.c || make check-syntax CHK_SOURCES=test.c || ls
         popd
         find . -name '*.o' -exec cp -v {} . ";" || \
           echo "in $(pwd): failed copying an object file"

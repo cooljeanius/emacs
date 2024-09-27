@@ -6,5 +6,7 @@ images/icons/*
 *.log
 refcards/emacsver.tex
 refcards/*.pdf
+!refcards/gnus-logo.pdf
+!refcards/Makefile
 *.pyc
 __pycache__/*

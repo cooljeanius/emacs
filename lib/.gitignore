@@ -45,12 +45,14 @@ sched.h
 search.h
 signal.h
 spawn.h
+!std*.in.h
 stdalign.h
 stdckdint.h
 stddef.h
 stdint.h
 stdbool.h
 stdio.h
+!stdio-impl.h
 stdlib.h
 stdnoreturn.h
 string.h
@@ -88,6 +90,8 @@ stamp-headers
 # copied snippet:
 link-warning.h
 # unused-parameter.h is no longer a copied snippet, so allow it.
+# Also allow this:
+!_Noreturn.h
 
 # gcc -save-temps output for reporting compiler bugs:
 sha256.i

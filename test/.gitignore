@@ -1,2 +1,6 @@
 !*.gz
 !*.zip
+!lisp/progmodes/flymake-resources/Makefile
+!manual/etags/Makefile
+!manual/etags/make-src/Makefile
+!manual/indent/Makefile
