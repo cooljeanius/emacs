@@ -130,7 +130,7 @@ jobs:
           cobjfile="$(echo "${cfile}" | sed "s/\.c/.o/g")"; \
           if test ! -e "${cobjfile}"; then \
             sync && echo "One last attempt at compiling ${cfile}..."; \
-            gcc -c -I. -I.. "${cfile}" || stat "${cfile}" || \
+            gcc -c -I. -I.. "${cfile}" || stat -t "${cfile}" || \
               (sync && echo "cfile is ${cfile}"); \
           else \
             echo "object file ${cobjfile} already exists for ${cfile}."; \
@@ -141,12 +141,20 @@ jobs:
         # shellcheck disable=SC2044
         for ccfile in $(find . -name '*.cc' -type f); do \
           sync && echo "One last attempt at compiling ${ccfile}..."; \
-          (test -x "$(which sccache)" && sccache g++ -c "${ccfile}") || g++ -c -Wfatal-errors "${ccfile}" || g++ -c -w -Wfatal-errors -I. "${ccfile}" || g++ -c -w -Wno-error -Wfatal-errors -fpermissive -I. -I.. "${ccfile}" || stat -t "${ccfile}"; \
+          (test -x "$(which sccache)" && sccache g++ -c "${ccfile}") || \
+            g++ -c -Wfatal-errors "${ccfile}" || \
+            g++ -c -w -Wfatal-errors -I. "${ccfile}" || \
+            g++ -c -w -Wno-error -Wfatal-errors -fpermissive -I. -I.. "${ccfile}" || \
+            stat -t "${ccfile}"; \
         done
         # shellcheck disable=SC2044
         for cppfile in $(find . -name '*.cpp' -type f); do \
           sync && echo "One last attempt at compiling ${cppfile}..."; \
-          (test -x "$(which sccache)" && sccache g++ -c "${cppfile}") || g++ -c -Wfatal-errors "${cppfile}" || g++ -c -w -Wfatal-errors -I. "${cppfile}" || g++ -c -w -Wno-error -Wfatal-errors -fpermissive -I. -I.. "${cppfile}" || stat -t "${cppfile}"; \
+          (test -x "$(which sccache)" && sccache g++ -c "${cppfile}") || \
+            g++ -c -Wfatal-errors "${cppfile}" || \
+            g++ -c -w -Wfatal-errors -I. "${cppfile}" || \
+            g++ -c -w -Wno-error -Wfatal-errors -fpermissive -I. -I.. "${cppfile}" || \
+            stat -t "${cppfile}"; \
         done
 
     - name: Extra coverage build (Java)

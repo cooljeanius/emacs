@@ -10856,6 +10856,8 @@ to run if these resources are not installed."
       echo "Use it at your own risk."
    fi
    echo ""
+else
+   echo "Building without Carbon."
 fi
 
 if test "x${HAVE_NS}" = "xyes"; then
@@ -10871,6 +10873,8 @@ You may need to run \"${MAKE-make} install\" with sudo. The application will fai
 to run if these resources are not installed."
    fi
    echo ""
+else
+   echo "Building without Cocoa."
 fi
 ]
 dnl# end final m4-quotation block
@@ -10960,6 +10964,35 @@ AS_IF([test -d test/manual/noverlay && test -r "${srcdir}/test/manual/noverlay/M
   AC_CONFIG_FILES([test/manual/noverlay/Makefile])dnl
 ])dnl
 
+if test "x${ANDROID}" = "xyes"; then
+  if test -d java; then
+    if test -r "${srcdir}/java/Makefile.in"; then
+      SUBDIR_MAKEFILES="${SUBDIR_MAKEFILES} java/Makefile"
+      AC_CONFIG_FILES([java/Makefile])
+    fi
+    if test -r "${srcdir}/java/AndroidManifest.xml.in"; then
+      AC_CONFIG_FILES([java/AndroidManifest.xml])
+    fi
+  fi
+  if test -d cross; then
+    if test -r "${srcdir}/cross/Makefile.in"; then
+      SUBDIR_MAKEFILES="${SUBDIR_MAKEFILES} cross/Makefile"
+      AC_CONFIG_FILES([cross/Makefile])
+    fi
+    if test -d cross/ndk-build; then
+      if test -r "${srcdir}/cross/ndk-build/Makefile.in"; then
+        SUBDIR_MAKEFILES="${SUBDIR_MAKEFILES} cross/ndk-build/Makefile"
+        AC_CONFIG_FILES([cross/ndk-build/Makefile])
+      fi
+      if test -r "${srcdir}/cross/ndk-build/ndk-build.mk.in"; then
+        AC_CONFIG_FILES([cross/ndk-build/ndk-build.mk])
+      fi
+    fi
+  fi
+else
+  AC_MSG_NOTICE([skipping generating android-specific files])
+fi
+
 dnl# this subdir is imported from ld64, and used like a library for the
 dnl# isemacsvalid executable:
 if test -d machocheck || test -d ${srcdir}/machocheck; then
@@ -11027,6 +11060,7 @@ ${MAKE-make} -s MAKEFILE_NAME=do-not-make-Makefile etc-emacsver || \
 AC_MSG_WARN(['etc/refcards/emacsver.tex' could not be made.])
 ])dnl
 
+AC_MSG_NOTICE([doing final output now])
 AC_OUTPUT
 
 test "x${MAKE}" = "xmake" || \

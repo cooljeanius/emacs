@@ -121922,6 +121922,8 @@ to run if these resources are not installed."
       echo "Use it at your own risk."
    fi
    echo ""
+else
+   echo "Building without Carbon."
 fi
 
 if test "x${HAVE_NS}" = "xyes"; then
@@ -121937,6 +121939,8 @@ You may need to run \"${MAKE-make} install\" with sudo. The application will fai
 to run if these resources are not installed."
    fi
    echo ""
+else
+   echo "Building without Cocoa."
 fi
 
 
@@ -122012,6 +122016,41 @@ then :
   ac_config_files="$ac_config_files test/manual/noverlay/Makefile"
 
 fi
+if test "x${ANDROID}" = "xyes"; then
+  if test -d java; then
+    if test -r "${srcdir}/java/Makefile.in"; then
+      SUBDIR_MAKEFILES="${SUBDIR_MAKEFILES} java/Makefile"
+      ac_config_files="$ac_config_files java/Makefile"
+
+    fi
+    if test -r "${srcdir}/java/AndroidManifest.xml.in"; then
+      ac_config_files="$ac_config_files java/AndroidManifest.xml"
+
+    fi
+  fi
+  if test -d cross; then
+    if test -r "${srcdir}/cross/Makefile.in"; then
+      SUBDIR_MAKEFILES="${SUBDIR_MAKEFILES} cross/Makefile"
+      ac_config_files="$ac_config_files cross/Makefile"
+
+    fi
+    if test -d cross/ndk-build; then
+      if test -r "${srcdir}/cross/ndk-build/Makefile.in"; then
+        SUBDIR_MAKEFILES="${SUBDIR_MAKEFILES} cross/ndk-build/Makefile"
+        ac_config_files="$ac_config_files cross/ndk-build/Makefile"
+
+      fi
+      if test -r "${srcdir}/cross/ndk-build/ndk-build.mk.in"; then
+        ac_config_files="$ac_config_files cross/ndk-build/ndk-build.mk"
+
+      fi
+    fi
+  fi
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: skipping generating android-specific files" >&5
+printf "%s\n" "$as_me: skipping generating android-specific files" >&6;}
+fi
+
 if test -d machocheck || test -d ${srcdir}/machocheck; then
   SUBDIR_MAKEFILES="${SUBDIR_MAKEFILES} machocheck/Makefile"
   ac_config_files="$ac_config_files machocheck/Makefile"
@@ -122038,6 +122077,8 @@ ac_config_commands="$ac_config_commands doc/emacs/emacsver.texi"
 
 ac_config_commands="$ac_config_commands etc-refcards-emacsver.tex"
 
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: doing final output now" >&5
+printf "%s\n" "$as_me: doing final output now" >&6;}
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -123431,6 +123472,11 @@ do
     "test/automated/Makefile") CONFIG_FILES="$CONFIG_FILES test/automated/Makefile" ;;
     "test/infra/Makefile") CONFIG_FILES="$CONFIG_FILES test/infra/Makefile" ;;
     "test/manual/noverlay/Makefile") CONFIG_FILES="$CONFIG_FILES test/manual/noverlay/Makefile" ;;
+    "java/Makefile") CONFIG_FILES="$CONFIG_FILES java/Makefile" ;;
+    "java/AndroidManifest.xml") CONFIG_FILES="$CONFIG_FILES java/AndroidManifest.xml" ;;
+    "cross/Makefile") CONFIG_FILES="$CONFIG_FILES cross/Makefile" ;;
+    "cross/ndk-build/Makefile") CONFIG_FILES="$CONFIG_FILES cross/ndk-build/Makefile" ;;
+    "cross/ndk-build/ndk-build.mk") CONFIG_FILES="$CONFIG_FILES cross/ndk-build/ndk-build.mk" ;;
     "machocheck/Makefile") CONFIG_FILES="$CONFIG_FILES machocheck/Makefile" ;;
     "admin/Makefile") CONFIG_FILES="$CONFIG_FILES admin/Makefile" ;;
     "admin/unidata/Makefile") CONFIG_FILES="$CONFIG_FILES admin/unidata/Makefile" ;;
