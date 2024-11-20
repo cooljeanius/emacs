@@ -11,7 +11,7 @@ jobs:
     steps:
     - name: checkout
       uses: actions/checkout@v4
-    - run: brew update
+    - run: brew analytics on && brew update
     - name: Install Homebrew dependencies
       env:
         HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
@@ -23,7 +23,7 @@ jobs:
         if test "${{ matrix.compiler }}" = "gcc"; then \
           brew install lcov libgccjit mingw-w64; \
         elif test "${{ matrix.compiler }}" = "clang"; then \
-          brew install clang-build-analyzer compiledb; \
+          brew install clang-build-analyzer clang-format; \
         elif test -n "${{ matrix.compiler }}"; then \
           echo "Unknown compiler ${{ matrix.compiler }} may or may not need additional deps…"; \
         else \

@@ -155,7 +155,6 @@
 		A540EA381A0C27C00008DA29 /* dup2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dup2.c; sourceTree = "<group>"; };
 		A540EA391A0C27C00008DA29 /* errno.in.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = errno.in.h; sourceTree = "<group>"; };
 		A540EA3A1A0C27C00008DA29 /* error.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = error.c; sourceTree = "<group>"; };
-		A540EA3B1A0C27C00008DA29 /* error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = error.h; sourceTree = "<group>"; };
 		A540EA3C1A0C27C00008DA29 /* euidaccess.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = euidaccess.c; sourceTree = "<group>"; };
 		A540EA3D1A0C27C00008DA29 /* execinfo.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = execinfo.c; sourceTree = "<group>"; };
 		A540EA3E1A0C27C00008DA29 /* execinfo.in.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = execinfo.in.h; sourceTree = "<group>"; };
@@ -1171,7 +1170,6 @@
 				A540EA381A0C27C00008DA29 /* dup2.c */,
 				A540EA391A0C27C00008DA29 /* errno.in.h */,
 				A540EA3A1A0C27C00008DA29 /* error.c */,
-				A540EA3B1A0C27C00008DA29 /* error.h */,
 				A540EA3C1A0C27C00008DA29 /* euidaccess.c */,
 				A540EA3D1A0C27C00008DA29 /* execinfo.c */,
 				A540EA3E1A0C27C00008DA29 /* execinfo.in.h */,
