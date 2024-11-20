@@ -786,7 +786,8 @@ nsfont_open (struct frame *f, Lisp_Object font_entity, int pixel_size)
       traits |= NSItalicFontMask;
   }
 
-  /* see <http://cocoadev.com/forums/comments.php?DiscussionID=74> */
+  /* see the following forum thread archived to the WBM on Feb 01, 2010:
+   * http://web.archive.org/web/20100201175731/http://cocoadev.com/forums/comments.php?DiscussionID=74 */
   fixLeopardBug = ((traits & NSBoldFontMask) ? 10 : 5);
   nsfont = [fontMgr fontWithFamily: family
                             traits: traits weight: fixLeopardBug
@@ -901,7 +902,10 @@ nsfont_open (struct frame *f, Lisp_Object font_entity, int pixel_size)
     font_info->max_bounds.rbearing =
       lrint (brect.size.width - (CGFloat) font_info->width);
 
-#ifdef NS_IMPL_COCOA
+    /* FIXME: double-check if this version check is correct or not; the idea is
+     * to disable this code when building on macOS 13 or later: */
+#if defined(NS_IMPL_COCOA) && defined(MAC_OS_X_VERSION_MAX_ALLOWED) && \
+    (MAC_OS_X_VERSION_MAX_ALLOWED < 1300)
     /* set up synthItal and the CG font */
     font_info->synthItal = synthItal;
     {
@@ -926,7 +930,7 @@ nsfont_open (struct frame *f, Lisp_Object font_entity, int pixel_size)
       //FIXME: deprecated:
       font_info->cgfont = CGFontCreateWithPlatformFont((void*)&atsFont);
     }
-#endif /* NS_IMPL_COCOA */
+#endif /* NS_IMPL_COCOA && macOS pre-13 */
 
     /* set up metrics portion of font struct */
     font->ascent = lrint([sfont ascender]);

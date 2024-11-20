@@ -6931,7 +6931,7 @@ if test "x${am_cv_make_support_nested_variables}" = "x"; then
   test -z "${am_cv_make_support_nested_variables}" && am_cv_make_support_nested_variables=yes
 fi  ##end cache value check
 
-test -z "${ac_cv_prog_make_make_set}"
+test -z "${ac_cv_prog_make_make_set}" || stat "`which make`" || sync
 
 emacs_check_gnu_make ()
 {
@@ -39419,7 +39419,7 @@ printf "%s\n" "#define uint64_t $ac_cv_c_uint64_t" >>confdefs.h
   esac
 
 if test "x${ac_cv_type_max_align_t}" = "x"; then
-  test -z "${ac_cv_type_max_align_t}"
+  test -z "${ac_cv_type_max_align_t}" || unset ac_cv_type_max_align_t
   ac_fn_c_check_type "$LINENO" "max_align_t" "ac_cv_type_max_align_t" "$ac_includes_default"
 if test "x$ac_cv_type_max_align_t" = xyes
 then :
@@ -40083,7 +40083,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 fi
 
 if test "x${ac_cv_header_termios_h}" = "x"; then
-  test -z "${ac_cv_header_termios_h}"
+  test -z "${ac_cv_header_termios_h}" || unset ac_cv_header_termios_h
     ac_fn_c_check_header_compile "$LINENO" "termios.h" "ac_cv_header_termios_h" "$ac_includes_default"
 if test "x$ac_cv_header_termios_h" = xyes
 then :
@@ -49540,7 +49540,7 @@ fi
   macfont_file=""
   if test "x${NS_IMPL_COCOA}" = "xyes"; then
             if test "x${ac_cv_header_appkit_appkit_h}" = "x"; then
-      test -z "${ac_cv_header_appkit_appkit_h}"
+      test -z "${ac_cv_header_appkit_appkit_h}" || unset ac_cv_header_appkit_appkit_h
       ac_fn_c_check_header_compile "$LINENO" "AppKit/AppKit.h" "ac_cv_header_AppKit_AppKit_h" "$ac_includes_default"
 if test "x$ac_cv_header_AppKit_AppKit_h" = xyes
 then :
@@ -51552,7 +51552,7 @@ then :
 fi
     ## use cache value as guard:
   if test "x${ac_cv_header_X11_X_h}" = "x"; then
-    test -z "${ac_cv_header_X11_X_h}"
+    test -z "${ac_cv_header_X11_X_h}" || unset ac_cv_header_X11_X_h
     ac_fn_c_check_header_compile "$LINENO" "X11/X.h" "ac_cv_header_X11_X_h" "$ac_includes_default"
 if test "x$ac_cv_header_X11_X_h" = xyes
 then :
@@ -51828,7 +51828,7 @@ printf "%s\n" "no" >&6; }
     ## compilers (such as clang) cannot handle this flag, so check and then
     ## remove it if necessary:
     if test "x${ac_cv_prog_c_openmp}" = "x"; then
-      test -z "${ac_cv_prog_c_openmp}"
+      test -z "${ac_cv_prog_c_openmp}" || unset ac_cv_prog_c_openmp
       if test -e penmp || test -e mp; then
   as_fn_error $? "AC_OPENMP clobbers files named 'mp' and 'penmp'. Aborting configure because one of these files already exists." "$LINENO" 5
 fi
@@ -52293,7 +52293,7 @@ printf "%s\n" "#define HAVE_GTK_FILE_BOTH 1" >>confdefs.h
       if test "x${HAVE_GTK_FILE_CHOOSER}" = "xyes"; then
     HAVE_GTK_AND_PTHREAD=no
     if test "x${ac_cv_header_pthread_h}" = "x"; then
-      test -z "${ac_cv_header_pthread_h}"
+      test -z "${ac_cv_header_pthread_h}" || unset ac_cv_header_pthread_h
       ac_fn_c_check_header_compile "$LINENO" "pthread.h" "ac_cv_header_pthread_h" "$ac_includes_default"
 if test "x$ac_cv_header_pthread_h" = xyes
 then :
@@ -52303,7 +52303,7 @@ fi
 
     fi
     if test "x${ac_cv_header_pthread_h}" != "x" && test "x${ac_cv_header_pthread_h}" != "xno"; then
-      test -n "${ac_cv_header_pthread_h}"
+      test -n "${ac_cv_header_pthread_h}" && echo "Is pthread.h available for gtk_file_chooser? ${ac_cv_header_pthread_h}"
       unset ac_cv_lib_pthread_pthread_self
       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for pthread_self in -lpthread" >&5
 printf %s "checking for pthread_self in -lpthread... " >&6; }
@@ -53385,7 +53385,7 @@ LIBXTR6=""
 LIBXMU=""
 if test "x${USE_X_TOOLKIT}" != "xnone"; then
       if test "x${ac_cv_header_X11_Intrinsic_h}" = "x"; then
-    test -z "${ac_cv_header_X11_Intrinsic_h}"
+    test -z "${ac_cv_header_X11_Intrinsic_h}" || unset ac_cv_header_X11_Intrinsic_h
     ac_fn_c_check_header_compile "$LINENO" "X11/Intrinsic.h" "ac_cv_header_X11_Intrinsic_h" "$ac_includes_default"
 if test "x$ac_cv_header_X11_Intrinsic_h" = xyes
 then :
@@ -54209,7 +54209,7 @@ fi
 	XFT_LIBS="-lXrender ${XFT_LIBS}"
 	LIBS="${XFT_LIBS} ${LIBS}"
         if test "x${ac_cv_header_X11_X_h}" != "x"; then
-          test -z "${ac_cv_header_X11_X_h}"
+          test -z "${ac_cv_header_X11_X_h}" || unset ac_cv_header_X11_X_h
           ac_fn_c_check_header_compile "$LINENO" "X11/X.h" "ac_cv_header_X11_X_h" "$ac_includes_default"
 if test "x$ac_cv_header_X11_X_h" = xyes
 then :
@@ -54274,7 +54274,7 @@ fi
 	if test "x${HAVE_XFT}" = "xyes"; then
 
 printf "%s\n" "#define HAVE_XFT 1" >>confdefs.h
-	            ## this is the relevant variable to put the revelant CFLAGS in:
+	  	  ## this is the relevant variable to put the revelant CFLAGS in:
 	  C_SWITCH_X_SITE="${C_SWITCH_X_SITE} ${XFT_CFLAGS}"
 	else
 	  CPPFLAGS="${OLD_CPPFLAGS}"
@@ -54282,7 +54282,7 @@ printf "%s\n" "#define HAVE_XFT 1" >>confdefs.h
 	  LIBS="${OLD_LIBS}"
 	fi                        # "x${HAVE_XFT}" = "xyes"
       else
-        test -z "${ac_cv_header_X11_X_h}"
+        test -z "${ac_cv_header_X11_X_h}" || unset ac_cv_header_X11_X_h
         ac_fn_c_check_header_compile "$LINENO" "X11/X.h" "ac_cv_header_X11_X_h" "$ac_includes_default"
 if test "x$ac_cv_header_X11_X_h" = xyes
 then :
@@ -54882,7 +54882,7 @@ HAVE_JPEG=no
 LIBJPEG=""
 if test "x${with_jpeg}" != "xno"; then
       if test "x${ac_cv_header_stdlib_h}" = "x"; then
-    test -z "${ac_cv_header_stdlib_h}"
+    test -z "${ac_cv_header_stdlib_h}" || unset ac_cv_header_stdlib_h
     ac_fn_c_check_header_compile "$LINENO" "jpeglib.h" "ac_cv_header_jpeglib_h" "$ac_includes_default"
 if test "x$ac_cv_header_jpeglib_h" = xyes
 then :
@@ -56003,7 +56003,7 @@ printf %s "checking darwin/NeXTstep... " >&6; }
 printf "%s\n" "darwin darwin darwin..." >&6; }
 case "${opsys}" in
   darwin)
-    test -z "${ac_cv_header_malloc_malloc_h}"
+    test -z "${ac_cv_header_malloc_malloc_h}" || unset ac_cv_header_malloc_malloc_h
             ac_fn_c_check_header_compile "$LINENO" "malloc/malloc.h" "ac_cv_header_malloc_malloc_h" "$ac_includes_default"
 if test "x$ac_cv_header_malloc_malloc_h" = xyes
 then :
@@ -70104,7 +70104,7 @@ then :
 fi
 
 if test "x${ac_cv_func_tzset}" = "x"; then
-  test -z "${ac_cv_func_tzset}"
+  test -z "${ac_cv_func_tzset}" || unset ac_cv_func_tzset
   ac_fn_c_check_func "$LINENO" "tzset" "ac_cv_func_tzset"
 if test "x$ac_cv_func_tzset" = xyes
 then :
@@ -70184,7 +70184,7 @@ fi
 
 if test "x${HAVE_TIMEVAL}" = "xyes"; then
   if test "x${ac_cv_func_gettimeofday}" = "x"; then
-    test -z "${ac_cv_func_gettimeofday}"
+    test -z "${ac_cv_func_gettimeofday}" || unset ac_cv_func_gettimeofday
     ac_fn_c_check_func "$LINENO" "gettimeofday" "ac_cv_func_gettimeofday"
 if test "x$ac_cv_func_gettimeofday" = xyes
 then :
@@ -71987,7 +71987,7 @@ fi
 
 
 if test "x${ac_cv_c_inline}" = "x"; then
-  test -z "${ac_cv_c_inline}"
+  test -z "${ac_cv_c_inline}" || unset ac_cv_c_inline
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for inline" >&5
 printf %s "checking for inline... " >&6; }
 if test ${ac_cv_c_inline+y}

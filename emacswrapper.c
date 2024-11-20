@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
 #endif /* DEBUG || lint */
 
   if (!is_emacs_valid(0)) {
-    const char *newargs[2];
+    const char *newargs[3];
     newargs[0] = kDumpEmacsPath;
     if (geteuid() != 0) {
       newargs[1] = "-n";

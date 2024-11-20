@@ -1,0 +1,23 @@
+---
+# https://yamllint.readthedocs.io/en/stable/configuration.html
+extends: default
+
+ignore:
+  - test/infra/test-jobs.yml
+
+rules:
+  float-values: enable
+  indentation:
+    ignore:
+      - .github/workflows/*.yml
+  # some lines might be really long in this repo, and I don't feel like
+  # figuring out how to break them up:
+  line-length:
+    max: 320
+    level: warning
+    ignore:
+      - .gitlab-ci.yml
+      - .travis.yml
+      - test/infra/gitlab-ci.yml
+  octal-values: enable
+  truthy: disable

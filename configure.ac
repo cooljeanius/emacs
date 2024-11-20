@@ -170,7 +170,7 @@ fi  ##end cache value check
 m4_ifdef([AC_PROG_MAKE_SET],[
 dnl# trunk would normally override the definition, but I do not feel
 dnl# comfortable doing that yet...
-test -z "${ac_cv_prog_make_make_set}"
+test -z "${ac_cv_prog_make_make_set}" || stat "`which make`" || sync
 ],[
   AC_DEFUN([AC_PROG_MAKE_SET],[
     if test "x${SET_MAKE}" = "x"; then
@@ -4655,7 +4655,7 @@ AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
 AC_TYPE_UINT64_T
 if test "x${ac_cv_type_max_align_t}" = "x"; then
-  test -z "${ac_cv_type_max_align_t}"
+  test -z "${ac_cv_type_max_align_t}" || unset ac_cv_type_max_align_t
   AC_CHECK_TYPES([max_align_t])dnl
   ## gnulib might also check it below...
 fi
@@ -4711,7 +4711,7 @@ fi
 
 dnl# Check for speed_t typedef.
 if test "x${ac_cv_header_termios_h}" = "x"; then
-  test -z "${ac_cv_header_termios_h}"
+  test -z "${ac_cv_header_termios_h}" || unset ac_cv_header_termios_h
   dnl# Need this first though:
   AC_CHECK_HEADERS([termios.h])
 fi
@@ -5819,7 +5819,7 @@ if test "x${with_ns}" != "xno"; then
     dnl# "_ONCE" causes test to jump out of the conditional and be done at
     dnl# wrong location, so instead check the cache value:
     if test "x${ac_cv_header_appkit_appkit_h}" = "x"; then
-      test -z "${ac_cv_header_appkit_appkit_h}"
+      test -z "${ac_cv_header_appkit_appkit_h}" || unset ac_cv_header_appkit_appkit_h
       AC_CHECK_HEADERS([AppKit/AppKit.h])
     fi
     AC_MSG_CHECKING([for OSX 10.4 or newer])
@@ -6526,7 +6526,7 @@ if test "x${HAVE_X11}" = "xyes"; then
   dnl# and some misc. X headers, if not yet checked:
   ## use cache value as guard:
   if test "x${ac_cv_header_X11_X_h}" = "x"; then
-    test -z "${ac_cv_header_X11_X_h}"
+    test -z "${ac_cv_header_X11_X_h}" || unset ac_cv_header_X11_X_h
     AC_CHECK_HEADER([X11/X.h])
   fi
 else
@@ -6628,7 +6628,7 @@ if test "x${HAVE_X11}" = "xyes" || test "x${HAVE_NS}" = "xyes" || test "x${HAVE_
     ## compilers (such as clang) cannot handle this flag, so check and then
     ## remove it if necessary:
     if test "x${ac_cv_prog_c_openmp}" = "x"; then
-      test -z "${ac_cv_prog_c_openmp}"
+      test -z "${ac_cv_prog_c_openmp}" || unset ac_cv_prog_c_openmp
       AC_OPENMP
     fi
     if test "x${emacs_cv_clang}" = "xyes" || test "x${ac_cv_prog_c_openmp}" = "xunsupported"; then
@@ -6832,11 +6832,11 @@ if test "x${HAVE_GTK}" = "xyes"; then
   if test "x${HAVE_GTK_FILE_CHOOSER}" = "xyes"; then
     HAVE_GTK_AND_PTHREAD=no
     if test "x${ac_cv_header_pthread_h}" = "x"; then
-      test -z "${ac_cv_header_pthread_h}"
+      test -z "${ac_cv_header_pthread_h}" || unset ac_cv_header_pthread_h
       AC_CHECK_HEADERS([pthread.h])
     fi
     if test "x${ac_cv_header_pthread_h}" != "x" && test "x${ac_cv_header_pthread_h}" != "xno"; then
-      test -n "${ac_cv_header_pthread_h}"
+      test -n "${ac_cv_header_pthread_h}" && echo "Is pthread.h available for gtk_file_chooser? ${ac_cv_header_pthread_h}"
       unset ac_cv_lib_pthread_pthread_self
       AC_CHECK_LIB([pthread],[pthread_self],[HAVE_GTK_AND_PTHREAD=yes])
     elif test "x${ac_cv_lib_pthread_pthread_self}" = "xyes"; then
@@ -7192,7 +7192,7 @@ if test "x${USE_X_TOOLKIT}" != "xnone"; then
   dnl# "_ONCE" causes test to jump out of the conditional and be done at
   dnl# wrong location, so check ac_cv_header_X11_Intrinsic_h instead:
   if test "x${ac_cv_header_X11_Intrinsic_h}" = "x"; then
-    test -z "${ac_cv_header_X11_Intrinsic_h}"
+    test -z "${ac_cv_header_X11_Intrinsic_h}" || unset ac_cv_header_X11_Intrinsic_h
     AC_CHECK_HEADERS([X11/Intrinsic.h])
   fi
   AC_MSG_CHECKING([X11 toolkit version])
@@ -7479,7 +7479,7 @@ if test "x${HAVE_X11}" = "xyes"; then
 	XFT_LIBS="-lXrender ${XFT_LIBS}"
 	LIBS="${XFT_LIBS} ${LIBS}"
         if test "x${ac_cv_header_X11_X_h}" != "x"; then
-          test -z "${ac_cv_header_X11_X_h}"
+          test -z "${ac_cv_header_X11_X_h}" || unset ac_cv_header_X11_X_h
           AC_CHECK_HEADER([X11/X.h])
         fi
 	AC_CHECK_HEADER([X11/Xft/Xft.h],
@@ -7491,7 +7491,7 @@ if test "x${HAVE_X11}" = "xyes"; then
 	  AC_DEFINE([HAVE_XFT],[1],
                     [Define to 1 if you have the Xft library.])dnl
 	  AC_SUBST([XFT_LIBS])dnl
-          ## this is the relevant variable to put the revelant CFLAGS in:
+	  ## this is the relevant variable to put the revelant CFLAGS in:
 	  C_SWITCH_X_SITE="${C_SWITCH_X_SITE} ${XFT_CFLAGS}"
 	else
 	  CPPFLAGS="${OLD_CPPFLAGS}"
@@ -7499,7 +7499,7 @@ if test "x${HAVE_X11}" = "xyes"; then
 	  LIBS="${OLD_LIBS}"
 	fi                        # "x${HAVE_XFT}" = "xyes"
       else
-        test -z "${ac_cv_header_X11_X_h}"
+        test -z "${ac_cv_header_X11_X_h}" || unset ac_cv_header_X11_X_h
         AC_CHECK_HEADER([X11/X.h])
       fi                          # "x${HAVE_XFT}" != "xno"
     fi                            # "x${with_xft}" != "xno"
@@ -7714,7 +7714,7 @@ if test "x${with_jpeg}" != "xno"; then
   dnl# Checking for jpeglib.h can lose because of a redefinition of
   dnl# HAVE_STDLIB_H, so do it conditionally:
   if test "x${ac_cv_header_stdlib_h}" = "x"; then
-    test -z "${ac_cv_header_stdlib_h}"
+    test -z "${ac_cv_header_stdlib_h}" || unset ac_cv_header_stdlib_h
     AC_CHECK_HEADER([jpeglib.h],[HAVE_JPEG=yes],[:])
   fi
   dnl# and also check for this just in case:
@@ -8037,7 +8037,7 @@ AC_MSG_RESULT([darwin darwin darwin...])
 dnl# Check for malloc/malloc.h on darwin:
 case "${opsys}" in
   darwin)
-    test -z "${ac_cv_header_malloc_malloc_h}"
+    test -z "${ac_cv_header_malloc_malloc_h}" || unset ac_cv_header_malloc_malloc_h
     dnl# "_ONCE" causes test to jump out of the conditional and be done at
     dnl# wrong location, so leave that part off:
     AC_CHECK_HEADERS([malloc/malloc.h])dnl
@@ -9031,7 +9031,7 @@ AC_CHECK_HEADERS([valgrind/valgrind.h])dnl
 dnl# "_ONCE" causes test to be done at wrong location, so instead check the
 dnl# cache value:
 if test "x${ac_cv_func_tzset}" = "x"; then
-  test -z "${ac_cv_func_tzset}"
+  test -z "${ac_cv_func_tzset}" || unset ac_cv_func_tzset
   AC_CHECK_FUNCS([tzset])
 fi
 dnl# okay to do this one in a different location though:
@@ -9081,7 +9081,7 @@ fi
 
 if test "x${HAVE_TIMEVAL}" = "xyes"; then
   if test "x${ac_cv_func_gettimeofday}" = "x"; then
-    test -z "${ac_cv_func_gettimeofday}"
+    test -z "${ac_cv_func_gettimeofday}" || unset ac_cv_func_gettimeofday
     AC_CHECK_FUNCS([gettimeofday])
   fi
   if test "x${ac_cv_func_gettimeofday}" = "xyes"; then
@@ -10324,7 +10324,7 @@ AH_VERBATIM([FORTIFY_SOUR],[
 
 dnl# speaking of inline-ing:
 if test "x${ac_cv_c_inline}" = "x"; then
-  test -z "${ac_cv_c_inline}"
+  test -z "${ac_cv_c_inline}" || unset ac_cv_c_inline
   AC_C_INLINE
 fi
 

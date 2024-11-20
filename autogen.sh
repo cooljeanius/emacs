@@ -114,9 +114,16 @@ fi
 automake_min="`sed -n 's/^ *AM_INIT_AUTOMAKE(\([0-9\.]*\)).*/\1/p' configure.ac`"
 if test "x${automake_min}" = "x"; then
   test -z "${automake_min}"
-  echo "warning: failed to extract required automake version from configure.ac" >&2
-  automake_min="1.11.6"
-  echo "falling back to default set in $0 for automake (i.e. '${automake_min}')"
+  echo "warning: failed to extract required automake version from configure.ac; making a secont attempt at it..." >&2
+  automake_min="`sed -n 's/^ *AM_INIT_AUTOMAKE(\[\([0-9\.]*\)]).*/\1/p' configure.ac`"
+  if test "x${automake_min}" = "x"; then
+    test -z "${automake_min}"
+    echo "warning: still failing to extract required automake version from configure.ac" >&2
+    automake_min="1.11.6"
+    echo "falling back to default set in $0 for automake (i.e. '${automake_min}')"
+  else
+    echo "now using '${automake_min}' for minimum required automake version"
+  fi
 fi
 
 ## prevent perl version from polluting automake version:
@@ -336,7 +343,7 @@ echo "timestamp: `date`" > src/stamp-h.in || echo timestamp > src/stamp-h.in || 
 ## Configure Git, if using Git.
 if test -d .git && (git status -s) >/dev/null 2>&1; then
 
-	# Check hashes when transferring objects among repositories.
+    # Check hashes when transferring objects among repositories.
 
     git config transfer.fsckObjects true || exit
 
@@ -402,7 +409,7 @@ if test -d .git && (git status -s) >/dev/null 2>&1; then
 		echo "skipping git hooks"
     fi
 else
-	echo "skipping git stuff"
+    echo "skipping git stuff"
 fi
 
 echo ""

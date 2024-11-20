@@ -725,7 +725,11 @@ main(int argc, char **argv)
   char *original_pwd = 0;
 
 #if defined(DEBUG) || defined(VERBOSE) || defined(_DEBUG) || defined(__APPLE__)
-  printf("%s, line %d: Hello.\n", __FILE__, __LINE__);
+# if defined(__FUNCTION__) || defined(__GNUC__)
+  printf("%s, line %d: Hello from %s.\n", __FILE__, __LINE__, __FUNCTION__);
+# else
+  printf("%s, line %d: Hello, here we go.\n", __FILE__, __LINE__);
+# endif /* __FUNCTION__ || __GNUC__ */
 #endif /* DEBUG || VERBOSE || _DEBUG || __APPLE__ */
 
 #if GC_MARK_STACK
