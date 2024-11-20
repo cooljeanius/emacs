@@ -786,7 +786,8 @@ nsfont_open (struct frame *f, Lisp_Object font_entity, int pixel_size)
       traits |= NSItalicFontMask;
   }
 
-  /* see <http://cocoadev.com/forums/comments.php?DiscussionID=74> */
+  /* see the following forum thread archived to the WBM on Feb 01, 2010:
+   * http://web.archive.org/web/20100201175731/http://cocoadev.com/forums/comments.php?DiscussionID=74 */
   fixLeopardBug = ((traits & NSBoldFontMask) ? 10 : 5);
   nsfont = [fontMgr fontWithFamily: family
                             traits: traits weight: fixLeopardBug
