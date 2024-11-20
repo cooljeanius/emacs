@@ -1,3 +1,4 @@
+---
 # Copyright (C) 2017-2024 Free Software Foundation, Inc.
 #
 #  This file is part of GNU Emacs.
@@ -29,8 +30,10 @@
 
 # Rules: always run tags and branches named master*, emacs*, feature*, fix*
 # Test that it triggers by pushing a tag: `git tag mytag; git push origin mytag`
-# Test that it triggers by pushing to: feature/emba, feature1, master, master-2, fix/emba, emacs-299, fix-2
-# Test that it doesn't trigger by pushing to: scratch-2, scratch/emba, oldbranch, dev
+# Test that it triggers by pushing to: feature/emba, feature1, master, master-2,
+#                                      fix/emba, emacs-299, fix-2
+# Test that it doesn't trigger by pushing to: scratch-2, scratch/emba,
+#                                             oldbranch, dev
 workflow:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
@@ -47,7 +50,8 @@ variables:
   EMACS_TEST_JUNIT_REPORT: junit-test-report.xml
   EMACS_TEST_TIMEOUT: 3600
   EMACS_TEST_VERBOSE: 1
-  # Use TLS https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-enabled
+  # Use TLS:
+  # https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-enabled
   # DOCKER_HOST: tcp://docker:2376
   # DOCKER_TLS_CERTDIR: "/certs"
   # Put the configuration for each run in a separate directory to
@@ -153,7 +157,6 @@ default:
 .filenotify-gio-template:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "web"'
-    # - if: '$CI_PIPELINE_SOURCE == "schedule"'
       changes:
         - "**.in"
         - lisp/autorevert.el
