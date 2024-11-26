@@ -1462,12 +1462,28 @@ clean-local:
 distclean-local: clean-local
 	rm -rf autom4te.cache || rmdir autom4te.cache
 	if test -e ldd.sh; then rm -f ldd.sh; fi
+	if test -w . && test -r autoscan.log; then \
+	  if test -x "$(which rmtrash)"; then \
+	    rmtrash autoscan.log; \
+	    if test -r configure~; then \
+	      rmtrash configure~; \
+	    fi; \
+	  elif test -w ~/.Trash; then \
+	    mv autoscan.log ~/.Trash; \
+	    if test -r configure~; then \
+	      mv configure~ ~/.Trash; \
+	    fi; \
+	  fi; \
+	else \
+	  echo "no further local distcleaning to do"; \
+	fi
 .PHONY: distclean-local
 
 maintainer-clean-local: distclean-local
-	rm -f configure*.scan autoscan.log
+	rm -f configure*.scan autoscan.log conftest.*
 .PHONY: maintainer-clean-local
 
 extraclean-local: maintainer-clean-local
 	-find . -name .DS_Store -delete 2>/dev/null
+	-find . -name '*.cache' -delete 2>/dev/null
 .PHONY: extraclean-local
