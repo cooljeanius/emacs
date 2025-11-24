@@ -10,7 +10,7 @@ jobs:
     runs-on: macos-13
     steps:
     - name: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
     - run: brew analytics on && brew update
     - name: Install Homebrew dependencies
       env:
